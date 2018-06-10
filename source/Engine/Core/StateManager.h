@@ -5,11 +5,10 @@
 #include <memory>
 #include <vector>
 
-#include <Engine/Core/Input.h>
-
+#include "Config.h"
+#include "Input.h"
 #include "Singleton.h"
 #include "State.h"
-#include <Engine/GameObject/GameObject.h>
 
 namespace CubeWorld
 {
@@ -28,8 +27,7 @@ public:
 public:
    void SetState(State* state);
 
-   void Update(const Input::InputManager* input, double dt);
-   void Render(double dt);
+   void Update(TIMEDELTA dt);
 
 private:
    State* mState;

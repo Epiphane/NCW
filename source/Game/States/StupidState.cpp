@@ -6,11 +6,6 @@
 
 #include <Engine/Core/Input.h>
 #include <Engine/Logger/Logger.h>
-#include <Engine/GameObject/GameObject.h>
-#include "../Components/MousePerspectiveCamera.h"
-#include "../Components/StupidGraphicsComponent.h"
-#include "../Components/StupidInputComponent.h"
-#include "../Components/StupidPhysicsComponent.h"
 
 #include "StupidState.h"
 
@@ -22,7 +17,7 @@ namespace Game
 
 void StupidState::Start()
 {
-   Engine::Input::InputManager::Instance()->SetMouseLock(true);
+   /*Engine::Input::InputManager::Instance()->SetMouseLock(true);
 
    Component::MousePerspectiveCamera::Options cameraOptions;
    cameraOptions.position = glm::vec3(0, 0, 1);
@@ -43,7 +38,7 @@ void StupidState::Start()
    triangleOptions.inputComponent = std::make_unique<Component::StupidInputComponent>();
    triangleOptions.graphicsComponent = std::make_unique<Component::StupidGraphicsComponent>();
 
-   AddObject(std::make_unique<Engine::GameObject>(triangleOptions));
+   AddObject(std::make_unique<Engine::GameObject>(triangleOptions));*/
 }
 
 }; // namespace Game

@@ -16,10 +16,10 @@ namespace Game
 namespace Component
 {
 
-class MousePerspectiveCamera : public Engine::Component::PerspectiveCamera
+class MousePerspectiveCamera : public Engine::PerspectiveCamera
 {
 public:
-   struct Options : Engine::Component::PerspectiveCamera::Options
+   struct Options : Engine::PerspectiveCamera::Options
    {
       //
       // Pitch sensitivity, for vertical movement.
@@ -34,7 +34,7 @@ public:
 
    MousePerspectiveCamera(const Options& options);
 
-   void Update(const Engine::State* world, const Engine::Input::InputManager* input, double dt, Engine::GameObject* /*gameObject*/) override;
+   void Update(const Engine::State* world, const Engine::Input::InputManager* input, double dt, Engine::GameObject* /*gameObject*/);
 
 private:
    double mSensitivity[2];

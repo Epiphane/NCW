@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "../Core/State.h"
 #include <Engine/Graphics/Camera.h>
-#include <Engine/GameObject/GeneralComponent.h>
 
 namespace CubeWorld
 {
@@ -14,10 +14,7 @@ namespace CubeWorld
 namespace Engine
 {
 
-namespace Component
-{
-
-class PerspectiveCamera : public Graphics::Camera, public GeneralComponent
+class PerspectiveCamera : public Graphics::Camera//, public GeneralComponent
 {
 public:
    struct Options
@@ -58,7 +55,7 @@ public:
    glm::mat4 GetPerspective() override { return mPerspective; }
    glm::mat4 GetView() override;
 
-   void Update(const State* /*world*/, const Input::InputManager* /*input*/, double /*dt*/, GameObject* /*gameObject*/) override {}
+   void Update(const State* /*world*/, const Input::InputManager* /*input*/, double /*dt*/, GameObject* /*gameObject*/) {}
 
    void SetPosition(glm::vec3 position);
    void Move(glm::vec3 dPosition);
@@ -76,8 +73,6 @@ private:
 
    double mPitch, mYaw;
 };
-
-}; // namespace Graphics
 
 }; // namespace Engine
 

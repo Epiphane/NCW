@@ -14,9 +14,6 @@ namespace CubeWorld
 namespace Engine
 {
 
-namespace Component
-{
-
 namespace
 {
 
@@ -43,7 +40,6 @@ PerspectiveCamera::PerspectiveCamera(const Options& options)
    , mDirection(options.direction)
    , mPitch(VectorToPitch(options.direction))
    , mYaw(VectorToYaw(options.direction))
-   , GeneralComponent(Component::Camera)
 {
    mPerspective = glm::perspective(options.fov, options.aspect, options.near, options.far);
 }
@@ -74,8 +70,6 @@ void PerspectiveCamera::SetYaw(double yaw)
    mYaw = yaw;
    mDirection = PitchYawToVector(mPitch, mYaw);
 }
-
-}; // namespace Graphics
 
 }; // namespace Engine
 

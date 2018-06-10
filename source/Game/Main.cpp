@@ -20,7 +20,6 @@
 #include <Engine/Core/StateManager.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
-#include <Engine/GameObject/GameObject.h>
 #include <Engine/Graphics/Program.h>
 
 #include "Renderers/StupidRenderer.h"
@@ -109,9 +108,7 @@ int main(int /* argc */, char ** /* argv */) {
          window->Clear();
          input->Update();
 
-         stateManager->Update(input, elapsed);
-
-         stateManager->Render(elapsed);
+         stateManager->Update(elapsed);
 
          GLenum error = glGetError();
          assert(error == 0);

@@ -34,7 +34,7 @@ void StateManager::SetState(State* state)
    mNext = state;
 }
 
-void StateManager::Update(const Input::InputManager* input, double dt)
+void StateManager::Update(TIMEDELTA dt)
 {
    if (mNext != nullptr)
    {
@@ -48,17 +48,7 @@ void StateManager::Update(const Input::InputManager* input, double dt)
       return;
    }
 
-   mState->Update(input, dt);
-}
-
-void StateManager::Render(double dt)
-{
-   if (mState == nullptr)
-   {
-      return;
-   }
-
-   mState->Render(dt);
+   mState->Update(dt);
 }
 
 }; // namespace Engine
