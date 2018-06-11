@@ -8,7 +8,6 @@
 #include <glm/ext.hpp>
 
 #include <Engine/Logger/Logger.h>
-#include <Engine/GameObject/GameObject.h>
 #include <Engine/Core/Scope.h>
 #include <Engine/Graphics/Program.h>
 

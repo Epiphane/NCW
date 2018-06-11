@@ -13,7 +13,9 @@ namespace CubeWorld
 namespace Engine
 {
 
-Window::Window(Window::Options options) : mOptions(options), window(nullptr)
+Window::Window(Window::Options options)
+   : window(nullptr)
+   , mOptions(options)
 {
    if (!glfwInit()) {
       LOG_ERROR("Failed to initialize GLFW");

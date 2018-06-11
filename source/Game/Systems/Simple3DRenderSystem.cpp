@@ -18,6 +18,19 @@ namespace CubeWorld
 
 namespace Game
 {
+   
+   Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
+      : mVertices(Engine::Graphics::Vertices)
+      , mColors(Engine::Graphics::Colors)
+   {
+      mVertices.BufferData(sizeof(GLfloat) * points.size(), &points[0], GL_STATIC_DRAW);
+      mColors.BufferData(sizeof(GLfloat) * points.size(), &colors[0], GL_STATIC_DRAW);
+   }
+   
+   Simple3DRender::Simple3DRender(const Simple3DRender& other)
+      : mVertices(other.mVertices)
+      , mColors(other.mColors)
+   {}
 
 #define REGISTER_GLUINT(RENDERER, value) GLuint RENDERER::value = 0;
 #define DISCOVER_UNIFORM(value) {value = glGetUniformLocation(program, #value); GLenum error = glGetError(); assert(error == 0); }
@@ -91,15 +104,17 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
    glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
    glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
 
-   mVertices->AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-   mColors->AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   entities.Each<Transform, Simple3DRender>([&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& /*render*/) {
+   // TODO why can't I just put a lambda in here?
+   std::function<void(Engine::Entity, Transform&, Simple3DRender&)> fn = [&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
+      render.mVertices.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+      render.mColors.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+      
       glm::mat4 model = glm::translate(glm::mat4(1), transform.position);
       glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
-
+      
       glDrawArrays(GL_TRIANGLES, 0, 3);
-   });
+   };
+   entities.Each<Transform, Simple3DRender>(fn);
 
    // Cleanup.
    glDisableVertexAttribArray(aPosition);

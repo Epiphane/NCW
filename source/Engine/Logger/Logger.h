@@ -52,7 +52,7 @@ public:
    static LogManager* Instance();
 
 public:
-   void Log(const char* message);
+   void Log(const char* message) override;
    void Log(LogLevel level, const char* message);
 
    template <typename... Args>

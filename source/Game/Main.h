@@ -14,7 +14,7 @@
 #pragma warning(default : 4201)
 
 #include "../GLSL.h"
-#include "../tiny_obj_loader.h"
+//#include "../tiny_obj_loader.h"
 //#include "../rendererDebug.h"
 
 #ifndef M_PI
@@ -53,7 +53,7 @@ extern bool fullscreen;
 
 glm::vec2 characterUV(char c);
 
-void resize_obj(std::vector<tinyobj::shape_t> &shapes);
+//void resize_obj(std::vector<tinyobj::shape_t> &shapes);
 
 // Debugging operators
 std::ostream &operator<< (std::ostream &out, const glm::vec2 &vec);

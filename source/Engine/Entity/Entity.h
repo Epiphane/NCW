@@ -52,33 +52,17 @@ public:
 
    // Add a component to this entity. Args represent any constructor args to the component.
    template<typename C, typename ...Args>
-   ComponentHandle<C, EntityManager> Add(Args&& ...args)
-   {
-      assert(IsValid());
-      return manager->Add<C>(id, std::forward<Args>(args)...);
-   }
+   ComponentHandle<C, EntityManager> Add(Args&& ...args);
 
    template<typename C>
-   bool Has()
-   {
-      assert(IsValid());
-      return manager->Has<C>(id);
-   }
+   bool Has();
 
    template<typename C>
-   ComponentHandle<C, EntityManager> Get()
-   {
-      assert(IsValid());
-      return manager->Get<C>(id);
-   }
+   ComponentHandle<C, EntityManager> Get();
 
    // Remove a component from this entity.
    template<typename C>
-   void Remove()
-   {
-      assert(IsValid() && Has<C>());
-      return manager->Remove<C>(id);
-   }
+   void Remove();
 
 private:
    friend class EntityManager;

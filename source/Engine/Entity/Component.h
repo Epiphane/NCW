@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <assert.h>
 #include <bitset>
 #include <memory>
 
@@ -10,6 +11,9 @@ namespace CubeWorld
 
 namespace Engine
 {
+   
+const uint32_t MAX_COMPONENTS = 64;
+typedef std::bitset<MAX_COMPONENTS> ComponentMask;
 
 class EntityManager;
 
@@ -79,9 +83,6 @@ public:
       return family;
    }
 };
-
-const uint32_t MAX_COMPONENTS = 64;
-typedef std::bitset<MAX_COMPONENTS> ComponentMask;
 
 template<typename C>
 ComponentMask MakeComponentMask()

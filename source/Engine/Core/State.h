@@ -23,9 +23,6 @@ class State {
 private:
    //void UpdateRendererQueue();
 
-protected:
-   Graphics::Camera* mCamera;
-
 public:
    State();
    ~State();

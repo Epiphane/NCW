@@ -34,7 +34,7 @@ StdoutLogger* StdoutLogger::Instance()
 
 void StdoutLogger::Log(const char* message)
 {
-   fprintf(stdout, message);
+   fprintf(stdout, "%s", message);
 }
 
 }; // namespace Input

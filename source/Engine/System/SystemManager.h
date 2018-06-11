@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <assert.h>
 #include <memory>
 #include <unordered_map>
 
@@ -18,7 +19,8 @@ class SystemManager
 {
 public:
    SystemManager(EntityManager& entityManager /*, EventManager& eventManager */)
-      : mEntityManager(entityManager)
+      : mInitialized(false)
+      , mEntityManager(entityManager)
       // , mEventManager(eventManager)
    {};
 
@@ -36,7 +38,7 @@ public:
    {
       auto it = mSystems.find(S::GetFamily());
       assert(it != mSystems.end());
-      return it == mSystems.end() ? nullptr : std::static_cast<S*>(it->second.get());
+      return static_cast<S*>(it->second.get());
    }
 
    // Update all systems.

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
+#include <cmath>
 
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
@@ -40,7 +41,12 @@ inline const void InputManager::SetContextCurrent() const
    //}
 }
 
-InputManager::InputManager(Window* window) : window(window), mouseLocked(false), keyCallbacks{0}, mousePosition{0}, mouseMovement{0}
+InputManager::InputManager(Window* window)
+   : window(window)
+   , keyCallbacks{0}
+   , mouseLocked(false)
+   , mousePosition{0}
+   , mouseMovement{0}
 {
    assert(window != nullptr);
    glfwMakeContextCurrent(window->get());

@@ -123,7 +123,7 @@ std::string FormatDouble(T value)
 
 std::string FormatPointer(const void *pointer)
 {
-   return "<pointer:" + FormatInt(reinterpret_cast<uintptr_t>(pointer)).result() + ">";
+   return "<pointer:" + FormatInt(reinterpret_cast<uint64_t>(pointer)).result() + ">";
 }
 
 namespace impl {

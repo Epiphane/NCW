@@ -72,7 +72,7 @@ public:
 
       bool operator!=(const EntityIterator& rhs)
       {
-         return mIndex != rhs.mIndex;
+         return !(*this == rhs);
       }
 
       Entity operator*()
@@ -88,12 +88,15 @@ public:
    private:
       friend class EntityManager;
 
-      EntityIterator(EntityManager* manager, ComponentMask mask, size_t index)
+      EntityIterator(EntityManager* manager, ComponentMask mask, uint32_t index)
          : mManager(manager)
          , mMask(mask)
          , mIndex(index)
          , mCapacity(manager->capacity())
-      {};
+      {
+         // Make sure the first element is valid.
+         next();
+      };
       ~EntityIterator() {}
 
       EntityIterator& operator=(const EntityIterator& other)
@@ -101,11 +104,12 @@ public:
          mManager = other.mManager;
          mMask = other.mMask;
          mIndex = other.mIndex;
+         return *this;
       }
 
       EntityManager* mManager;
       ComponentMask mMask;
-      size_t mIndex;
+      uint32_t mIndex;
       size_t mCapacity;
    };
 
@@ -119,7 +123,7 @@ public:
       using Iterator = EntityIterator;
 
       Iterator begin() { return Iterator(mManager, mMask, 0); }
-      Iterator end() { return Iterator(mManager, mMask, mManager->capacity()); }
+      Iterator end() { return Iterator(mManager, mMask, mManager->mNumEntities); }
       const Iterator begin() const { return Iterator(mManager, mMask, 0); }
       const Iterator end() const { return Iterator(mManager, mMask, mManager->capacity()); }
 
@@ -143,9 +147,10 @@ public:
    }
 
    template<typename ...Components>
-   void Each(std::function<void(Entity entity, Components&...)> fn)
+   void Each(const std::function<void(Entity entity, Components&...)>& fn)
    {
-      for (auto entity : EntitiesWithComponents<Components...>())
+      auto iter = EntitiesWithComponents<Components...>();
+      for (auto entity : iter)
       {
          fn(entity, *(entity.template Get<Components>())...);
       }
@@ -218,7 +223,6 @@ public:
    ComponentHandle<C> Get(Entity::ID id)
    {
       assert_valid(id);
-      const BaseComponent::Family family = C::GetFamily();
       return Has<C>(id) ? ComponentHandle<C>(this, id) : ComponentHandle<C>();
    }
 
@@ -294,6 +298,35 @@ private:
 
 inline bool Entity::IsValid() const {
    return manager != nullptr && manager->IsValid(id);
+}
+   
+template<typename C, typename ...Args>
+ComponentHandle<C, EntityManager> Entity::Add(Args&& ...args)
+{
+   assert(IsValid());
+   return manager->Add<C>(id, std::forward<Args>(args)...);
+}
+
+template<typename C>
+bool Entity::Has()
+{
+   assert(IsValid());
+   return manager->Has<C>(id);
+}
+
+template<typename C>
+ComponentHandle<C, EntityManager> Entity::Get()
+{
+   assert(IsValid());
+   return manager->Get<C>(id);
+}
+
+// Remove a component from this entity.
+template<typename C>
+void Entity::Remove()
+{
+   assert(IsValid() && Has<C>());
+   return manager->Remove<C>(id);
 }
 
 }; // namespace Engine

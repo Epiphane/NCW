@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <stdio.h>
-#include <Windows.h>
+//#include <Windows.h>
 
 #include "DebugLogger.h"
 
@@ -45,7 +45,7 @@ DebugLogger* DebugLogger::Instance()
 
 void DebugLogger::Log(const char* message)
 {
-   OutputDebugString(message);
+   //OutputDebugString(message);
 }
 
 }; // namespace Input

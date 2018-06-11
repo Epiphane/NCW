@@ -31,7 +31,7 @@ using namespace CubeWorld;
 void setWindowSize(int /*width*/, int /*height*/) {
    //aspect_ratio = float(width) / height;
    // Only aspect ratios 16/10 and 16/9 supported 
-   const float midrange = ((16.0f / 9.0f) + 1.6f) / 2.0f;
+   //const float midrange = ((16.0f / 9.0f) + 1.6f) / 2.0f;
    //if (aspect_ratio < midrange) {
       // Window too tall!
       //aspect_ratio = 1.6f;
@@ -215,7 +215,7 @@ std::ostream &operator<< (std::ostream &out, const glm::mat4 &mat) {
 
 // Given a vector of shapes which has already been read from an obj file
 // resize all vertices to the range [-1, 1]
-void resize_obj(std::vector<tinyobj::shape_t> &shapes){
+/*void resize_obj(std::vector<tinyobj::shape_t> &shapes){
     float minX, minY, minZ;
     float maxX, maxY, maxZ;
     float scaleX, scaleY, scaleZ;
@@ -273,4 +273,4 @@ void resize_obj(std::vector<tinyobj::shape_t> &shapes){
             assert(shapes[i].mesh.positions[3*v+2] <= 1.0 + epsilon);
         }
     }
-}
+}*/

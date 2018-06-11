@@ -94,7 +94,8 @@ private:
    template <typename T>
    static void format_custom_arg(const void *arg)
    {
-      static_assert(false, "Unimplemented");
+      // TODO
+      /*static_assert(false, "Unimplemented");*/
    }
 };
 
@@ -119,6 +120,8 @@ private:
    friend class basic_format_args;
 
 public:
+   // TODO
+   /*
    class handle
    {
    public:
@@ -131,8 +134,9 @@ public:
       }
 
    private:
-      custom_value custom_;
-   };
+      // TODO
+      custom_value custom;
+   };*/
 
    constexpr basic_arg() : type_(type::none_type) {}
 
@@ -147,15 +151,6 @@ public:
    bool is_arithmetic() const { return impl::is_arithmetic(type_); }
    bool is_pointer() const { return type_ == type::pointer_type; }
 };
-
-template <typename T>
-constexpr basic_arg make_arg(const T &value)
-{
-   basic_arg arg;
-   arg.type_ = get_type<T>::value;
-   arg.value_ = make_value(value);
-   return arg;
-}
 
 #define MAKE_VALUE(TAG, ArgType, ValueType) constexpr \
    typed_value<TAG> make_value(ArgType val) \
@@ -218,6 +213,15 @@ public:
 
    static const type value = value_type::type_tag;
 };
+   
+template <typename T>
+constexpr basic_arg make_arg(const T &value)
+{
+   basic_arg arg;
+   arg.type_ = get_type<T>::value;
+   arg.value_ = make_value(value);
+   return arg;
+}
 
 template <typename ...Args>
 class arg_store;
@@ -267,7 +271,7 @@ private:
    static const bool IS_PACKED = NUM_ARGS < MAX_PACKED_ARGS;
 
    //typedef typename std::conditional<IS_PACKED, value, basic_arg> value_type;
-   typedef typename basic_arg value_type;
+   typedef class basic_arg value_type;
 
    // If the arguments are not packed, add one more element to mark the end.
    basic_arg data_[NUM_ARGS + 1];

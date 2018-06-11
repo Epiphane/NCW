@@ -18,24 +18,23 @@ namespace Game
 {
 
 struct Simple3DRender : public Engine::Component<Simple3DRender> {
-   Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
-      : points(points)
-      , colors(colors)
-   {};
-
-   std::vector<GLfloat> points;
-   std::vector<GLfloat> colors;
+   Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors);
+   Simple3DRender(const Simple3DRender& other);
+   
+   Engine::Graphics::VBO mVertices, mColors;
 };
 
 class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {
 public:
-   Simple3DRenderSystem(Engine::Graphics::Camera* camera);
+   Simple3DRenderSystem(Engine::Graphics::Camera* camera = nullptr);
    ~Simple3DRenderSystem();
 
    void Configure(Engine::EntityManager& entities/*, EventManager& events*/) override;
 
    void Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) override;
 
+   void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
+   
 private:
    Engine::Graphics::Camera* mCamera;
 

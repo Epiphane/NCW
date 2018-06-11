@@ -1,7 +1,5 @@
 // By Thomas Steinke
 
-#pragma once
-
 #include "SystemManager.h"
 
 namespace CubeWorld

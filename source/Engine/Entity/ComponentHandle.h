@@ -115,14 +115,14 @@ template<typename C, typename EM>
 inline C* ComponentHandle<C, EM>::get()
 {
    assert(IsValid());
-   return *manager->template GetComponentPtr<C>(id);
+   return manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>
 inline const C* ComponentHandle<C, EM>::get() const
 {
    assert(IsValid());
-   return *manager->template GetComponentPtr<C>(id);
+   return manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>

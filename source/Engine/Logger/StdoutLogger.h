@@ -25,7 +25,7 @@ public:
    static StdoutLogger* Instance();
 
 public:
-   void Log(const char* message);
+   void Log(const char* message) override;
 
 private:
    static std::unique_ptr<StdoutLogger> sInstance;

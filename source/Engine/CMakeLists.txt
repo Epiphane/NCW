@@ -16,8 +16,6 @@ file(GLOB SOURCES
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${LIBS} glew)
 
-ADD_DEFINITIONS( "-W4 /wd4201" )
-
 # install libraries into /lib
 INSTALL(TARGETS Engine DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 SOURCE_GROUP(Logger REGULAR_EXPRESSION ".*/Engine/Logger/.*$")
