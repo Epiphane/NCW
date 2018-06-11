@@ -67,10 +67,7 @@ struct Component : public BaseComponent {
 public:
    typedef ComponentHandle<Derived, EntityManager> Handle;
    typedef ComponentHandle<const Derived, const EntityManager> ConstHandle;
-
-private:
-   friend class EntityManager;
-
+   
    // Used internally for registration.
    // Defined here, because this is part of the template declaration,
    // so the compiler will consider it a different function for each component type.
@@ -94,10 +91,10 @@ ComponentMask MakeComponentMask()
    return mask;
 }
 
-template<typename C1, typename ...Components>
+template<typename C1, typename C2, typename ...Components>
 ComponentMask MakeComponentMask()
 {
-   return MakeComponentMask<C1>() | MakeComponentMask<Components...>();
+   return MakeComponentMask<C1>() | MakeComponentMask<C2, Components...>();
 }
 
 }; // namespace Engine

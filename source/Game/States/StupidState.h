@@ -15,10 +15,13 @@ namespace Game
 
 class StupidState : public Engine::State {
 public:
-   StupidState() {};
-   ~StupidState() {};
+   StupidState();
+   ~StupidState();
 
    void Start() override;
+
+private:
+   std::unique_ptr<Engine::Graphics::Camera> mCam;
 };
 
 }; // namespace Game

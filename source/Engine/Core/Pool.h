@@ -38,11 +38,11 @@ public:
    size_t capacity() const { return mCapacity; }
    size_t blocks() const { return mBlocks.size(); }
 
-   // Guarantee that there is space for an element with index n.
+   // Guarantee that there is space for n elements.
    inline void expand(size_t n)
    {
-      if (n >= mSize) {
-         if (n >= mCapacity) {
+      if (n > mSize) {
+         if (n > mCapacity) {
             reserve(n);
          }
          mSize = n;
@@ -51,9 +51,9 @@ public:
 
    inline void reserve(size_t n)
    {
-      while (n >= mCapacity)
+      while (n > mCapacity)
       {
-         std::unique_ptr<char> block{new char[mElementSize * mCapacity]};
+         std::unique_ptr<char> block{new char[mElementSize * mBlockSize]};
          mBlocks.push_back(std::move(block));
          mCapacity += mBlockSize;
       }
@@ -85,7 +85,7 @@ protected:
 };
 
 template<typename T, size_t ChunkSize = 2048>
-class Pool {
+class Pool : public BasePool {
 public:
    Pool() : BasePool(sizeof(T), ChunkSize) {};
 

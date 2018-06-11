@@ -4,8 +4,8 @@
 #include <cassert>
 #include <functional>
 
-#include <Engine/Core/Input.h>
-#include <Engine/Logger/Logger.h>
+#include <Engine/GameObject/PerspectiveCamera.h>
+#include <Game/Systems/Simple3DRenderSystem.h>
 
 #include "StupidState.h"
 
@@ -15,8 +15,40 @@ namespace CubeWorld
 namespace Game
 {
 
+using Entity = Engine::Entity;
+using Transform = Engine::Transform;
+
+StupidState::StupidState()
+{
+   Engine::PerspectiveCamera::Options cameraOptions;
+   cameraOptions.position = glm::vec3(0, 0, 1);
+   cameraOptions.direction = glm::vec3(0, 0, -1);
+   cameraOptions.aspect = 16.0 / 9.0;
+   mCam = std::make_unique<Engine::PerspectiveCamera>(cameraOptions);
+
+   mSystems.Add<Simple3DRenderSystem>(mCam.get());
+}
+
+StupidState::~StupidState()
+{
+
+}
+
 void StupidState::Start()
 {
+   // Create some stupid component.
+   Entity triangle = mEntities.Create();
+   triangle.Add<Transform>(glm::vec3(0, 0, 0));
+   triangle.Add<Simple3DRender>(std::vector<GLfloat>{
+      -1.0f, -1.0f, 0.0f,
+       1.0f, -1.0f, 0.0f,
+       0.0f, 1.0f, 0.0f, 
+   }, std::vector<GLfloat> {
+      -1.0f, -1.0f, 0.0f,
+       1.0f, -1.0f, 0.0f,
+       0.0f, 1.0f, 0.0f,
+   });
+
    /*Engine::Input::InputManager::Instance()->SetMouseLock(true);
 
    Component::MousePerspectiveCamera::Options cameraOptions;

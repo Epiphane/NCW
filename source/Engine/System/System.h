@@ -20,7 +20,7 @@ class BaseSystem
 public:
    typedef size_t Family;
 
-   virtual ~BaseSystem();
+   virtual ~BaseSystem() {}
 
    // Called once all the systems are added to the manager.
    // Typically used for setting up event handlers.
@@ -46,7 +46,7 @@ public:
 template<typename Derived>
 class System : public BaseSystem {
 public:
-   virtual ~System();
+   virtual ~System() {}
 
 private:
    friend class SystemManager;
@@ -54,7 +54,7 @@ private:
    // Used internally for registration.
    // Defined here, because this is part of the template declaration,
    // so the compiler will consider it a different function for each component type.
-   // That way each component class gets a different family.
+   // That way each system class gets a different family.
    static Family GetFamily()
    {
       static Family family = sNumFamilies++;

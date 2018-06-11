@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "ComponentHandle.h"
+#include "Transform.h"
 
 namespace CubeWorld
 {
@@ -35,7 +36,7 @@ public:
    void RemoveComponent(Entity entity) override {
       entity.Remove<C>();
    }
-   void CloneComponent(Entity source, Entity target) override {
+   void CloneComponent(Entity /*source*/, Entity /*target*/) override {
       //target.assign_from_copy<C>(*(source.component<C>().get()));
    }
 };
@@ -51,6 +52,7 @@ public:
    public:
       EntityIterator& operator++() // prefix
       {
+         ++mIndex;
          next();
          return *this;
       }
@@ -117,7 +119,7 @@ public:
       using Iterator = EntityIterator;
 
       Iterator begin() { return Iterator(mManager, mMask, 0); }
-      Iterator end() { return Iterator(mManager, mMask, manager->capacity()); }
+      Iterator end() { return Iterator(mManager, mMask, mManager->capacity()); }
       const Iterator begin() const { return Iterator(mManager, mMask, 0); }
       const Iterator end() const { return Iterator(mManager, mMask, mManager->capacity()); }
 
@@ -137,74 +139,124 @@ public:
    EntityView<Components...> EntitiesWithComponents()
    {
       ComponentMask mask = MakeComponentMask<Components...>();
-      return EntityIterator<Components...>(this, mask);
+      return EntityView<Components...>(this, mask);
    }
 
    template<typename ...Components>
    void Each(std::function<void(Entity entity, Components&...)> fn)
    {
-      return EntitiesWithComponents<Components...>().Each(f);
+      for (auto entity : EntitiesWithComponents<Components...>())
+      {
+         fn(entity, *(entity.template Get<Components>())...);
+      }
    }
 
 public:
    // Entity lifecycle management.
-   Entity Create()
-   {
-      uint32_t index, version;
-      if (mEntityFreeList.empty())
-      {
-         index = mNumEntities++;
-         version = mEntityVersion[index] = 1;
+   Entity Create();
 
-         mEntityComponentMask.reserve(mNumEntities);
-         mEntityVersion.reserve(mNumEntities);
-         for (BasePool *pool : mComponentPools)
-         {
-            if (pool)
-            {
-               pool->expand(index + 1);
-            }
-         }
+   Entity Clone(Entity original);
+
+   Entity GetEntity(Entity::ID id);
+
+   Entity::ID MakeID(uint32_t index) const;
+
+   template<typename C, typename ...Args>
+   ComponentHandle<C> Add(Entity::ID id, Args&& ...args)
+   {
+      assert_valid(id);
+      const BaseComponent::Family family = C::GetFamily();
+      assert(!mEntityComponentMask[id.index()].test(family));
+
+      // Add to the component pool.
+      if (mComponentPools.size() <= family)
+      {
+         mComponentPools.resize(family + 1, nullptr);
+         mComponentHelpers.resize(family + 1, nullptr);
+      }
+
+      Pool<C> *pool;
+      if (!mComponentPools[family])
+      {
+         pool = new Pool<C>();
+         pool->expand(mNumEntities);
+         mComponentPools[family] = pool;
+
+         ComponentHelper<C> *helper = new ComponentHelper<C>();
+         mComponentHelpers[family] = helper;
       }
       else
       {
-         index = mEntityFreeList.back();
-         mEntityFreeList.pop_back();
-         version = mEntityVersion[index];
+         pool = static_cast<Pool<C>*>(mComponentPools[family]);
       }
-      Entity entity(this, Entity::ID(index, version));
-      // TODO emit an event.
-      return entity;
+
+      // Initialize the component inside the pool.
+      ::new(pool->get(id.index())) C(std::forward<Args>(args) ...);
+
+      // Set the component as active.
+      mEntityComponentMask[id.index()].set(family);
+
+      // Return handle to component.
+      ComponentHandle<C> component(this, id);
+      // TODO emit event.
+      return component;
    }
 
-   Entity Clone(Entity original)
+   template<typename C>
+   bool Has(Entity::ID id)
    {
-      assert(original.IsValid());
-      Entity clone = Create();
-      ComponentMask mask = GetComponentMask(original.id);
-      for (size_t i = 0; i < mComponentHelpers.size(); ++i)
+      assert_valid(id);
+      const BaseComponent::Family family = C::GetFamily();
+      if (family >= mComponentPools.size())
       {
-         BaseComponentHelper *helper = mComponentHelpers[i];
-         if (helper && mask.test(i))
-         {
-            helper->CloneComponent(original, clone);
-         }
+         return false;
       }
+      return mComponentPools[family] && mEntityComponentMask[id.index()].test(family);
    }
 
-   Entity Get(Entity::ID id);
-
-   Entity::ID MakeID(uint32_t index) const
+   template<typename C>
+   ComponentHandle<C> Get(Entity::ID id)
    {
-      return Entity::ID(index, mEntityVersion[index]);
+      assert_valid(id);
+      const BaseComponent::Family family = C::GetFamily();
+      return Has<C>(id) ? ComponentHandle<C>(this, id) : ComponentHandle<C>();
+   }
+
+   template<typename C>
+   void Remove(Entity::ID id)
+   {
+      assert_valid(id);
+      const BaseComponent::Family family = C::GetFamily();
+
+      BasePool* pool = mComponentPools[family];
+      ComponentHandle<C> component(this, id);
+      // TODO emit event.
+
+      mEntityComponentMask[id.index()].reset(family);
+
+      pool->destroy(id.index());
    }
 
 public:
    // Entity data access.
+   bool IsValid(Entity::ID id)
+   {
+      return id.index() < mNumEntities && mEntityVersion[id.index()] == id.version();
+   }
+
    inline void assert_valid(Entity::ID id) const
    {
-      assert(id.index() < mEntityComponentMask.size() && "Entity::ID outside entity vector range");
+      assert(id.index() < mNumEntities && "Entity::ID outside entity vector range");
       assert(mEntityVersion[id.index()] == id.version() && "Attempt to access Entity with a stale id");
+   }
+
+   template<typename C>
+   C* GetComponentPtr(Entity::ID id)
+   {
+      assert_valid(id);
+      BasePool* pool = mComponentPools[C::GetFamily()];
+      assert(pool);
+      return static_cast<C*>(pool->get(id.index()));
    }
 
    ComponentMask GetComponentMask(Entity::ID id)
@@ -214,12 +266,13 @@ public:
    }
 
 public:
-   size_t size() { return mEntityComponentMask.size() - mEntityFreeList.size(); }
+   size_t size() { return mNumEntities - mEntityFreeList.size(); }
 
-   size_t capacity() { return mEntityComponentMask.size(); }
+   size_t capacity() { return mNumEntities; }
 
 private:
    // Entity data.
+   // mNumEntities is the source of truth for number of entities registered.
    uint32_t mNumEntities = 0;
 
    // Bitmask describing whether a particular component is enabled for an entity.
@@ -231,14 +284,12 @@ private:
 
 private:
    // Component data.
+   // mComponentPools.size() is the source of truth for number of components registered.
 
    // Pool of components. Each component is indexed by its family.
    std::vector<BasePool*> mComponentPools;
    // Each entry in this list is a ComponentHelper for the type indexed by its family.
    std::vector<BaseComponentHelper*> mComponentHelpers;
-
-public:
-   bool IsValid(Entity::ID id);
 };
 
 inline bool Entity::IsValid() const {

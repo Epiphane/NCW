@@ -74,7 +74,7 @@ private:
 template<typename C, typename EM>
 inline bool ComponentHandle<C, EM>::IsValid() const
 {
-   return manager && manager->IsValid(id) && manager->template HasComponent<C>(id);
+   return manager && manager->IsValid(id) && manager->template Has<C>(id);
 }
 
 template<typename C, typename EM>
@@ -101,28 +101,28 @@ template<typename C, typename EM>
 inline C& ComponentHandle<C, EM>::operator*()
 {
    assert(IsValid());
-   return manager->template GetComponentPtr<C>(id);
+   return *manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>
 inline const C& ComponentHandle<C, EM>::operator*() const
 {
    assert(IsValid());
-   return manager->template GetComponentPtr<C>(id);
+   return *manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>
 inline C* ComponentHandle<C, EM>::get()
 {
    assert(IsValid());
-   return manager->template GetComponentPtr<C>(id);
+   return *manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>
 inline const C* ComponentHandle<C, EM>::get() const
 {
    assert(IsValid());
-   return manager->template GetComponentPtr<C>(id);
+   return *manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>

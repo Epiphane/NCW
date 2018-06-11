@@ -24,9 +24,9 @@ public:
 
    // Add a system to the manager. It will live for as long as the system manager does.
    template<typename S, typename ...Args>
-   void Add(Args&& ... Args)
+   void Add(Args&& ... args)
    {
-      std::unique_ptr<BaseSystem> system(new S(std::forward<Args>(args) ...));
+      std::unique_ptr<S> system(new S(std::forward<Args>(args) ...));
       mSystems.insert(std::make_pair(S::GetFamily(), std::move(system)));
    }
 
@@ -49,7 +49,7 @@ private:
    bool mInitialized;
    EntityManager& mEntityManager;
    // EventManager& mEventManager;
-   std::unordered_map<BaseSystem::Family, std::unique_ptr<BaseSystem>> mSystems;
+   std::unordered_map<BaseSystem::Family, std::shared_ptr<BaseSystem>> mSystems;
 };
 
 }; // namespace Engine
