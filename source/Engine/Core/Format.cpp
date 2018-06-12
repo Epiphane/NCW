@@ -234,13 +234,15 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
       }
 
       // Parse precision
-      uint32_t precision = 0;
+      // TODO
+      //uint32_t precision = 0;
       if (*it == '.')
       {
          ++it;
          if ('0' <= *it && *it <= '9')
          {
-            precision = static_cast<uint32_t>(ParseNonnegativeInteger(it));
+            // TODO
+            //precision = static_cast<uint32_t>(ParseNonnegativeInteger(it));
          }
 
          // Unimplemented.

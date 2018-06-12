@@ -23,8 +23,8 @@ namespace Game
       : mVertices(Engine::Graphics::Vertices)
       , mColors(Engine::Graphics::Colors)
    {
-      mVertices.BufferData(sizeof(GLfloat) * points.size(), &points[0], GL_STATIC_DRAW);
-      mColors.BufferData(sizeof(GLfloat) * points.size(), &colors[0], GL_STATIC_DRAW);
+      mVertices.BufferData(sizeof(GLfloat) * int(points.size()), &points[0], GL_STATIC_DRAW);
+      mColors.BufferData(sizeof(GLfloat) * int(points.size()), &colors[0], GL_STATIC_DRAW);
    }
    
    Simple3DRender::Simple3DRender(const Simple3DRender& other)

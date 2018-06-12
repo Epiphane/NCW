@@ -17,6 +17,8 @@ namespace Graphics
    class Camera
    {
    public:
+      virtual ~Camera() {}
+      
       virtual glm::mat4 GetPerspective() const = 0;
       virtual glm::mat4 GetView() const = 0;
    };

@@ -18,6 +18,10 @@ namespace Game
 namespace Component
 {
    
+   //
+   // RenderCamera implements the Camera class in a unique way.
+   // 
+   //
    class RenderCamera : public Engine::Component<RenderCamera>, public Engine::Graphics::Camera {
    public:
       //
@@ -34,6 +38,7 @@ namespace Component
       };
       
       RenderCamera(const Options& options);
+      ~RenderCamera() {};
       
       glm::mat4 GetPerspective() const override { return perspective; }
       glm::mat4 GetView() const override;

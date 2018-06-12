@@ -1,4 +1,5 @@
 build/*
+Build2/*
 .DS_Store
 source/.config
 source/.DS_STORE

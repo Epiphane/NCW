@@ -16,6 +16,10 @@ namespace CubeWorld
 
 namespace Game
 {
+   
+   class Simple3DComponentCamera : public Engine::Graphics::Camera {
+      Engine::ComponentHandle<Engine::Transform> transform;
+   };
 
 struct Simple3DRender : public Engine::Component<Simple3DRender> {
    Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors);
