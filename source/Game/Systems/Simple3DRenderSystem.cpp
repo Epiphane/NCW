@@ -108,8 +108,12 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
    std::function<void(Engine::Entity, Transform&, Simple3DRender&)> fn = [&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
       render.mVertices.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
       render.mColors.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
-      
-      glm::mat4 model = glm::translate(glm::mat4(1), transform.position);
+
+      glm::mat4 model(1);
+      model = glm::translate(model, transform.position);
+      model = glm::rotate(model, transform.GetYaw(), glm::vec3(0, 1, 0));
+      model = glm::rotate(model, transform.GetPitch(), glm::vec3(1, 0, 0));
+      model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
       glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
       
       glDrawArrays(GL_TRIANGLES, 0, 3);

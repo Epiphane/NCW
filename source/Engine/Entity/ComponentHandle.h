@@ -26,6 +26,7 @@ public:
    typedef C ComponentType;
 
    ComponentHandle() : manager(nullptr) {};
+   ComponentHandle(const ComponentHandle& other) : ComponentHandle(other.manager, other.id) {};
 
    bool IsValid() const;
    operator bool() const;

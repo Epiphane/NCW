@@ -1,8 +1,9 @@
 // By Thomas Steinke
 
-#include "CameraSystem.h"
-
+#include <Game/Main.h>
 #include <Game/Components/RenderCamera.h>
+
+#include "CameraSystem.h"
 
 namespace CubeWorld
 {
@@ -16,11 +17,21 @@ namespace Game
       mInput->GetMouse(nullptr, movement);
       
       // TODO why can't I just put a lambda in here?
-      std::function<void(Engine::Entity, Component::RenderCamera&, MouseControlledCamera&)> fn = [&](Engine::Entity /*entity*/, Component::RenderCamera& camera, MouseControlledCamera& opts) {
-         camera.SetYaw(camera.yaw + opts.sensitivity[0] * movement[0]);
-         camera.SetPitch(camera.pitch + opts.sensitivity[1] * movement[1]);
+      std::function<void(Engine::Entity, Engine::Transform&, MouseControlledCamera&)> fn = [&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseControlledCamera& opts) {
+         transform.SetYaw(transform.GetYaw() + opts.sensitivity[0] * movement[0]);
+
+         float newPitch = transform.GetPitch() + opts.sensitivity[1] * movement[1];
+         if (newPitch < -M_PI / 2)
+         {
+            newPitch = -M_PI / 2;
+         }
+         if (newPitch > M_PI / 2)
+         {
+            newPitch = M_PI / 2;
+         }
+         transform.SetPitch(newPitch);
       };
-      entities.Each<Component::RenderCamera, MouseControlledCamera>(fn);
+      entities.Each<Engine::Transform, MouseControlledCamera>(fn);
    }
    
 }; // namespace Game

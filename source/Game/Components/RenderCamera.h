@@ -8,6 +8,8 @@
 
 #include <Engine/Graphics/Camera.h>
 #include <Engine/Entity/Component.h>
+#include <Engine/Entity/ComponentHandle.h>
+#include <Engine/Entity/Transform.h>
 
 namespace CubeWorld
 {
@@ -20,7 +22,9 @@ namespace Component
    
    //
    // RenderCamera implements the Camera class in a unique way.
-   // 
+   //
+   // Perspective is pretty straightforward, just a set of options, but it depends on
+   // a direct link to an entity's Transform component as well.
    //
    class RenderCamera : public Engine::Component<RenderCamera>, public Engine::Graphics::Camera {
    public:
@@ -29,28 +33,21 @@ namespace Component
       //
       struct Options
       {
-         glm::vec3 position;
-         glm::vec3 direction;
          double aspect;
          double fov = 45.0;
          double near = 0.1;
          double far = 100.0;
       };
       
-      RenderCamera(const Options& options);
+      RenderCamera(const Engine::ComponentHandle<Engine::Transform>& transform, const Options& options);
       ~RenderCamera() {};
       
       glm::mat4 GetPerspective() const override { return perspective; }
       glm::mat4 GetView() const override;
       
-      void SetPitch(double pitch);
-      void SetYaw(double yaw);
-      
-      glm::vec3 position;
-      glm::vec3 direction;
       glm::mat4 perspective;
-      
-      double pitch, yaw;
+
+      Engine::ComponentHandle<Engine::Transform> transform;
    };
 
 }; // namespace Graphics

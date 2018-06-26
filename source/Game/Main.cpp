@@ -69,8 +69,8 @@ int main(int /* argc */, char ** /* argv */) {
    Window::Options windowOptions;
    windowOptions.title = "Not Cube World";
    windowOptions.fullscreen = false;
-   windowOptions.width = 1600;
-   windowOptions.height = 900;
+   windowOptions.width = 1280;
+   windowOptions.height = 800;
    windowOptions.b = 0.4f;
    std::unique_ptr<Window> window = std::make_unique<Window>(windowOptions);
    

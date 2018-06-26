@@ -63,8 +63,8 @@ Window::Window(Window::Options options)
 
    //glEnable(GL_MULTISAMPLE);
    //glEnable(GL_BLEND);
-   //glEnable(GL_DEPTH_TEST);
-   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glEnable(GL_DEPTH_TEST);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    glClearColor(options.r, options.g, options.b, options.a);
 
