@@ -72,7 +72,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager& /*entities*/)
    DISCOVER_UNIFORM(uModelMatrix);
 
    Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
-      return Format::FormatString("%1", mClock.Average());
+      return Format::FormatString("%1", std::round(mClock.Average() * 100000.0));
    });
 }
 
