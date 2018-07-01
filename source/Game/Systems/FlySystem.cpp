@@ -27,15 +27,14 @@ namespace Game
       glm::vec3 flyDirection = float(dt) * glm::normalize(glm::vec3(isD - isA, isE - isQ, isW - isS));
       
       // TODO why can't I just put a lambda in here?
-      std::function<void(Engine::Entity, Engine::Transform&, FlySpeed&)> fn = [&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly) {
-         glm::vec3 dir = float(fly.speed) * glm::normalize(transform.GetDirection());
+      entities.Each<Engine::Transform, FlySpeed>([&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly) {
+         glm::vec3 dir = float(fly.speed) * glm::normalize(transform.GetFlatDirection());
 
          glm::vec3 forward = glm::vec3(dir.x, 0, dir.z);
          glm::vec3 right = glm::vec3(-dir.z, 0, dir.x);
 
-         transform.position += forward * flyDirection.z + right * flyDirection.x + glm::vec3(0, flyDirection.y, 0);
-      };
-      entities.Each<Engine::Transform, FlySpeed>(fn);
+         transform.position += forward * flyDirection.z + right * flyDirection.x + glm::vec3(0, fly.speed * flyDirection.y, 0);
+      });
    }
    
 }; // namespace Game

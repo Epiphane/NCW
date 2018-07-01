@@ -9,6 +9,7 @@ else()
    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -DGLEW_STATIC")
+set(CMAKE_MACOSX_RPATH 1)
 
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
@@ -57,13 +58,27 @@ list(APPEND INCLUDES
 #)
 
 #noise
-set(NOISE_DIR "${DEP_DIR}/noise")
+set(NOISE_DIR "${DEP_DIR}/libnoise")
+set(NOISEUTILS_DIR "${DEP_DIR}/noiseutils")
 add_subdirectory(${NOISE_DIR})
+add_subdirectory(${NOISEUTILS_DIR})
 list(APPEND INCLUDES
-   ${NOISE_DIR}/include
+   ${NOISE_DIR}/src
+   ${NOISEUTILS_DIR}
 )
 list(APPEND LIBS
-   libnoise
+   noise-static
+   noiseutils-static
+)
+
+# FreeType
+set(FREETYPE_DIR "${DEP_DIR}/freetype/2.9.1")
+add_subdirectory(${FREETYPE_DIR})
+list(APPEND INCLUDES
+   ${FREETYPE_DIR}/include
+)
+list(APPEND LIBS
+   freetype
 )
 
 # FMOD

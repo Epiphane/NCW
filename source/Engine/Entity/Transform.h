@@ -28,19 +28,20 @@ public:
    glm::vec3 scale;
 
 public:
-   glm::vec3 GetDirection() const { return direction; }
-   val GetPitch() const { return pitch; }
-   val GetYaw() const { return yaw; }
-   val GetRoll() const { return roll; }
+   glm::vec3 GetDirection() const { return mDirection; }
+   glm::vec3 GetFlatDirection() const { return mFlatDirection; }
+   val GetPitch() const { return mPitch; }
+   val GetYaw() const { return mYaw; }
+   val GetRoll() const { return mRoll; }
 
    void SetDirection(glm::vec3 direction);
    void SetPitch(val pitch);
    void SetYaw(val yaw);
-   void SetRole(val r) { roll = r; }
+   void SetRole(val r) { mRoll = r; }
 
 private:
-   glm::vec3 direction;
-   val pitch, yaw, roll;
+   glm::vec3 mDirection, mFlatDirection;
+   val mPitch, mYaw, mRoll;
 };
 
 }; // namespace Engine

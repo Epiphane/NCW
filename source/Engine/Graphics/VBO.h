@@ -43,6 +43,7 @@ public:
 
    void Bind();
    void AttribPointer(GLuint location, GLint count, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
+   void AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid *pointer);
 
    GLuint GetBuffer() { return mBuffer; }
    void BufferData(GLsizei size, void *data, GLuint type);

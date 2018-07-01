@@ -17,11 +17,11 @@ public:
    {
       if (isLeft)
       {
-         ~leftVal();
+         leftVal.~L();
       }
       else
       {
-         ~rightVal();
+         rightVal.~R();
       }
    }
 
@@ -34,7 +34,7 @@ public:
    constexpr Either& operator=(const L& left) { leftVal = left; isLeft = true; return *this; }
    constexpr Either& operator=(const R& right) { rightVal = right; isLeft = false; return *this; }
 
-   constexpr operator bool() const { return !isLeft; }
+   constexpr operator bool() const { return isLeft; }
 
 private:
    union {

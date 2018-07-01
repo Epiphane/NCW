@@ -19,22 +19,18 @@ namespace CubeWorld
 namespace Game
 {
    
-   Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
-      : mVertices(Engine::Graphics::Vertices)
-      , mColors(Engine::Graphics::Colors)
-   {
-      mVertices.BufferData(sizeof(GLfloat) * int(points.size()), &points[0], GL_STATIC_DRAW);
-      mColors.BufferData(sizeof(GLfloat) * int(points.size()), &colors[0], GL_STATIC_DRAW);
-   }
-   
-   Simple3DRender::Simple3DRender(const Simple3DRender& other)
-      : mVertices(other.mVertices)
-      , mColors(other.mColors)
-   {}
+Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
+   : mVertices(Engine::Graphics::Vertices)
+   , mColors(Engine::Graphics::Colors)
+{
+   mVertices.BufferData(sizeof(GLfloat) * int(points.size()), &points[0], GL_STATIC_DRAW);
+   mColors.BufferData(sizeof(GLfloat) * int(points.size()), &colors[0], GL_STATIC_DRAW);
+}
 
-#define REGISTER_GLUINT(RENDERER, value) GLuint RENDERER::value = 0;
-#define DISCOVER_UNIFORM(value) {value = glGetUniformLocation(program, #value); GLenum error = glGetError(); assert(error == 0); }
-#define DISCOVER_ATTRIBUTE(value) {value = glGetAttribLocation(program, #value); GLenum error = glGetError(); assert(error == 0); }
+Simple3DRender::Simple3DRender(const Simple3DRender& other)
+   : mVertices(other.mVertices)
+   , mColors(other.mColors)
+{}
 
 REGISTER_GLUINT(Simple3DRenderSystem, program)
 REGISTER_GLUINT(Simple3DRenderSystem, aPosition)
@@ -45,25 +41,6 @@ REGISTER_GLUINT(Simple3DRenderSystem, uModelMatrix)
 
 Simple3DRenderSystem::Simple3DRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
 {
-   using namespace Engine::Graphics;
-
-   mVertices = std::make_unique<VBO>(Vertices);
-   mColors = std::make_unique<VBO>(Colors);
-
-   static const GLfloat points[] = {
-      -1.0f, -1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      0.0f,  1.0f, 0.0f,
-   };
-
-   static const GLfloat colors[] = {
-      -1.0f, -1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      0.0f,  1.0f, 0.0f,
-   };
-
-   mVertices->BufferData(sizeof(points), (void *)points, GL_STATIC_DRAW);
-   mColors->BufferData(sizeof(colors), (void *)colors, GL_STATIC_DRAW);
 }
 
 Simple3DRenderSystem::~Simple3DRenderSystem()
@@ -104,8 +81,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
    glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
    glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
 
-   // TODO why can't I just put a lambda in here?
-   std::function<void(Engine::Entity, Transform&, Simple3DRender&)> fn = [&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
+   entities.Each<Transform, Simple3DRender>([&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
       render.mVertices.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
       render.mColors.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -117,8 +93,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
       glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
       
       glDrawArrays(GL_TRIANGLES, 0, 3);
-   };
-   entities.Each<Transform, Simple3DRender>(fn);
+   });
 
    // Cleanup.
    glDisableVertexAttribArray(aPosition);

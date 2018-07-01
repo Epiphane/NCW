@@ -22,41 +22,18 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
 
-#include "Renderers/StupidRenderer.h"
-#include "States/StupidState.h"
+#include "DebugHelper.h"
 #include "Main.h"
+#include "States/StupidState.h"
 
 using namespace CubeWorld;
-
-void setWindowSize(int /*width*/, int /*height*/) {
-   //aspect_ratio = float(width) / height;
-   // Only aspect ratios 16/10 and 16/9 supported 
-   //const float midrange = ((16.0f / 9.0f) + 1.6f) / 2.0f;
-   //if (aspect_ratio < midrange) {
-      // Window too tall!
-      //aspect_ratio = 1.6f;
-      //height = (int) (width / aspect_ratio);
-   //}
-   //else {
-      // Window too wide!
-      //aspect_ratio = 16.0f / 9.0f;
-      //width = (int) (height * aspect_ratio);
-   //}
-
-   //w_width = width;
-   //w_height = height;
-
-   //if (window != nullptr) {
-   //   glfwSetWindowSize(window, w_width, w_height);
-   //}
-}
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
 void setWindowSizeDefault() {
    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-   setWindowSize(mode->width, mode->height);
+   //setWindowSize(mode->width, mode->height);
 }
 
 int main(int /* argc */, char ** /* argv */) {
@@ -70,14 +47,14 @@ int main(int /* argc */, char ** /* argv */) {
    windowOptions.title = "Not Cube World";
    windowOptions.fullscreen = false;
    windowOptions.width = 1280;
-   windowOptions.height = 800;
+   windowOptions.height = 760;
    windowOptions.b = 0.4f;
    std::unique_ptr<Window> window = std::make_unique<Window>(windowOptions);
    
    Input::InputManager* input = Input::InputManager::Instance();
    input->Clear();
 
-   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>();
+   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window.get());
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
 
    stateManager->SetState(initialState.get());
@@ -86,7 +63,14 @@ int main(int /* argc */, char ** /* argv */) {
 
    //RendererDebug::instance()->log("Hey there handsome \2", true);
 
+   Game::DebugHelper* debug = Game::DebugHelper::Instance();
+   debug->SetWindow(window.get());
+
    Timer<100> clock(SEC_PER_FRAME);
+   debug->RegisterMetric("FPS", [&clock]() -> std::string {
+      return Format::FormatString("%1", std::round(1.0 / clock.Average()));
+   });
+
    do {
       /*if (nextState != NULL) {
          if (currentState != nullptr)
@@ -111,6 +95,12 @@ int main(int /* argc */, char ** /* argv */) {
          stateManager->Update(elapsed);
 
          GLenum error = glGetError();
+         assert(error == 0);
+
+         debug->Update();
+         debug->Render();
+
+         error = glGetError();
          assert(error == 0);
 
          // Swap buffers

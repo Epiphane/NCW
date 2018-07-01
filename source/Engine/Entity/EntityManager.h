@@ -146,8 +146,14 @@ public:
       return EntityView<Components...>(this, mask);
    }
 
+   //
+   // Syntactic sugar for the below. This allows using a lambda, instead of predefining
+   // a std::function when calling Each<A, B>([&](A a, B b) { ... });
+   //
+   template <typename T> struct identity { typedef T type; };
+
    template<typename ...Components>
-   void Each(const std::function<void(Entity entity, Components&...)>& fn)
+   void Each(const typename identity<std::function<void(Entity entity, Components&...)>>::type fn)
    {
       auto iter = EntitiesWithComponents<Components...>();
       for (auto entity : iter)

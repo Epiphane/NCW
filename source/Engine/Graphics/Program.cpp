@@ -33,8 +33,6 @@ GLuint LoadShader(const std::string& filePath, GLenum shaderType) {
    code.assign((std::istreambuf_iterator<char>(file)),
       std::istreambuf_iterator<char>());
 
-   LOG_DEBUG("Compiling shader:\n%s", code);
-
    const char *code_cstr = code.c_str();
    glShaderSource(shaderID, 1, &code_cstr, nullptr);
    glCompileShader(shaderID);

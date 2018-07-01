@@ -107,6 +107,13 @@ void VBO::AttribPointer(GLuint location, GLint count, GLenum type, GLboolean nor
    glVertexAttribPointer(location, count, type, normalized, stride, pointer);
 }
 
+void VBO::AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+   glEnableVertexAttribArray(location);
+   glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
+   glVertexAttribIPointer(location, count, type, stride, pointer);
+}
+
 }; // namespace Graphics
 
 }; // namespace Engine

@@ -28,6 +28,11 @@ inline Program LoadProgram(
    return LoadProgram(vertexShaderPath, nullptr, fragmentShaderPath);
 }
 
+// Helper functions for render systems.
+#define REGISTER_GLUINT(RENDERER, value) GLuint RENDERER::value = 0;
+#define DISCOVER_UNIFORM(value) {value = glGetUniformLocation(program, #value); GLenum error = glGetError(); assert(error == 0); }
+#define DISCOVER_ATTRIBUTE(value) {value = glGetAttribLocation(program, #value); GLenum error = glGetError(); assert(error == 0); }
+
 }; // namespace Graphics
 
 }; // namespace Engine

@@ -61,7 +61,7 @@ private:
    double mGate;
    double mLast;
 
-   bool mCurrentSample;
+   size_t mCurrentSample;
    double mRolling;
    double mSamples[N];
 };

@@ -14,7 +14,7 @@ file(GLOB SOURCES
 )
 
 # add_library(${PROJECT_NAME} SHARED ${SOURCES} )
-add_executable(${PROJECT_NAME} ${SOURCES} )
+add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/source/Game")
 target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine)
 
@@ -27,3 +27,4 @@ SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")
 SOURCE_GROUP(Systems REGULAR_EXPRESSION ".*/Systems/*")
 
 file(COPY "${CMAKE_SOURCE_DIR}/source/Game/Shaders" DESTINATION ${PROJECT_BINARY_DIR})
+file(COPY "${CMAKE_SOURCE_DIR}/source/Game/Fonts" DESTINATION ${PROJECT_BINARY_DIR})
