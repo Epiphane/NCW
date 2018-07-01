@@ -80,7 +80,7 @@ namespace Game
        0.1250, ( 32, 160,   0, 255)); // grass
        0.3750, (224, 224,   0, 255)); // dirt
        0.7500, (128, 128, 128, 255)); // rock
-       1.0000, (255, 255, 255, 255)); // snow
+      1.0000, (255, 255, 255, 255)); // snow
       */
       glm::vec4 DEEP(0, 0, 0.5f, 1);
       glm::vec4 SHALLOW(0, 0, 1, 1);
@@ -108,79 +108,59 @@ namespace Game
 
             glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
             glm::vec4 color = dest * perc + source * (1 - perc);
-            carpet.push_back(VoxelData(position, color, VoxelSide::Top | VoxelSide::Left | VoxelSide::Front));
+            carpet.push_back(VoxelData(position, color, VoxelSide::All));
          
             // Generate mesh automatically
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3( 1, -1, -1));
-            points.push_back(position + glm::vec3( 1,  1, -1));
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3( 1,  1, -1));
-            points.push_back(position + glm::vec3(-1,  1, -1));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(1, 0, 0));
+            points.push_back(position + glm::vec3(1, 1, 0));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(1, 1, 0));
+            points.push_back(position + glm::vec3(0, 1, 0));
 
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3(-1, -1,  1));
-            points.push_back(position + glm::vec3( 1, -1,  1));
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3( 1, -1,  1));
-            points.push_back(position + glm::vec3( 1, -1, -1));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(0, 0, 1));
+            points.push_back(position + glm::vec3(1, 0, 1));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(1, 0, 1));
+            points.push_back(position + glm::vec3(1, 0, 0));
 
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3(-1,  1, -1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-            points.push_back(position + glm::vec3(-1, -1,  1));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(0, 1, 0));
+            points.push_back(position + glm::vec3(0, 1, 1));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(0, 1, 1));
+            points.push_back(position + glm::vec3(0, 0, 1));
 
-            points.push_back(position + glm::vec3(-1, -1,  1));
-            points.push_back(position + glm::vec3( 1,  1,  1));
-            points.push_back(position + glm::vec3( 1, -1,  1));
-            points.push_back(position + glm::vec3(-1, -1,  1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-            points.push_back(position + glm::vec3( 1,  1,  1));
+            points.push_back(position + glm::vec3(0, 0, 1));
+            points.push_back(position + glm::vec3(1, 1, 1));
+            points.push_back(position + glm::vec3(1, 0, 1));
+            points.push_back(position + glm::vec3(0, 0, 1));
+            points.push_back(position + glm::vec3(0, 1, 1));
+            points.push_back(position + glm::vec3(1, 1, 1));
 
-            points.push_back(position + glm::vec3(-1,  1, -1));
-            points.push_back(position + glm::vec3( 1,  1,  1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-            points.push_back(position + glm::vec3(-1,  1, -1));
-            points.push_back(position + glm::vec3( 1,  1, -1));
-            points.push_back(position + glm::vec3( 1,  1,  1));
+            points.push_back(position + glm::vec3(0, 1, 0));
+            points.push_back(position + glm::vec3(1, 1, 1));
+            points.push_back(position + glm::vec3(0, 1, 1));
+            points.push_back(position + glm::vec3(0, 1, 0));
+            points.push_back(position + glm::vec3(1, 1, 0));
+            points.push_back(position + glm::vec3(1, 1, 1));
 
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-            points.push_back(position + glm::vec3(-1,  1, -1));
-            points.push_back(position + glm::vec3(-1, -1, -1));
-            points.push_back(position + glm::vec3(-1, -1,  1));
-            points.push_back(position + glm::vec3(-1,  1,  1));
-
-            p.push_back(position.x - 1);
-            p.push_back(position.y - 1);
-            p.push_back(position.z);
-            p.push_back(position.x + 1);
-            p.push_back(position.y - 1);
-            p.push_back(position.z);
-            p.push_back(position.x - 1);
-            p.push_back(position.y + 1);
-            p.push_back(position.z);
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(0, 1, 1));
+            points.push_back(position + glm::vec3(0, 1, 0));
+            points.push_back(position + glm::vec3(0, 0, 0));
+            points.push_back(position + glm::vec3(0, 0, 1));
+            points.push_back(position + glm::vec3(0, 1, 1));
 
             for (int k = 0; k < 36; k ++)
             {
                colors.push_back(color);
             }
-
-            c.push_back(0.0f);
-            c.push_back(0.0f);
-            c.push_back(1.0f);
-            c.push_back(1.0f);
-            c.push_back(0.0f);
-            c.push_back(0.0f);
-            c.push_back(0.0f);
-            c.push_back(1.0f);
-            c.push_back(0.0f);
          }
       }
 
-      /*for (glm::vec3 point : points) {
+      for (glm::vec3 point : points) {
          p.push_back(point.x);
          p.push_back(point.y);
          p.push_back(point.z);
@@ -189,37 +169,12 @@ namespace Game
          c.push_back(color.x);
          c.push_back(color.y);
          c.push_back(color.z);
-      }*/
+      }
 
       Entity voxels = mEntities.Create();
-      voxels.Add<Transform>(glm::vec3(0, -1, 0));
-      //voxels.Add<VoxelRender>(std::move(carpet));
+      voxels.Add<Transform>(glm::vec3(0, 0, 0));
+      voxels.Add<VoxelRender>(std::move(carpet));
       voxels.Add<Simple3DRender>(std::move(p), std::move(c));
-
-      // Create some stupid component.
-      Entity triangle = mEntities.Create();
-      triangle.Add<Transform>(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0));
-      triangle.Add<Simple3DRender>(std::vector<GLfloat>{
-         -1.0f, -1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f,
-         -1.0f, 1.0f, 0.0f,
-      }, std::vector<GLfloat> {
-         0.0f, 0.0f, 1.0f,
-         1.0f, 0.0f, 0.0f,
-         0.0f, 1.0f, 0.0f,
-      });
-      
-      for (double i = 0; i < 2 * 3.14159; i += 3.14159/32)
-      {
-         Entity triangle2 = mEntities.Create();
-         glm::vec3 pos = glm::vec3(sin(i), 0, cos(i));
-         triangle2.Add<Transform>(10.0f * pos, -pos);
-         triangle2.Add<Simple3DRender>(*triangle.Get<Simple3DRender>());
-
-         Entity triangle3 = mEntities.Create();
-         triangle3.Add<Transform>(10.0f * pos - glm::vec3(0, 1 + i/1000, 0), glm::vec3(0, 1, 0), -i);
-         triangle3.Add<Simple3DRender>(*triangle.Get<Simple3DRender>());
-      }
    }
 
 }; // namespace Game

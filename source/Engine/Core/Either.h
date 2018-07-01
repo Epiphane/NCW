@@ -13,6 +13,17 @@ class Either
 public:
    constexpr Either(const L& left) : leftVal(left), isLeft(true) {};
    constexpr Either(const R& right) : rightVal(right), isLeft(false) {};
+   constexpr Either(const Either<L, R>& other) : isLeft(other.isLeft)
+   {
+      if (isLeft)
+      {
+         leftVal = other.leftVal;
+      }
+      else
+      {
+         rightVal = other.rightVal;
+      }
+   };
    ~Either()
    {
       if (isLeft)

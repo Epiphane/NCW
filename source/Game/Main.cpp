@@ -32,7 +32,7 @@ const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
 void setWindowSizeDefault() {
-   const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+   //const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
    //setWindowSize(mode->width, mode->height);
 }
 

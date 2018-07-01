@@ -48,23 +48,23 @@ namespace Graphics
    public:
       struct Region
       {
-         size_t x, y;
-         size_t w, h;
+         GLsizei x, y;
+         GLsizei w, h;
       };
 
    public:
-      TextureAtlas(size_t width, size_t height, size_t depth = 1);
+      TextureAtlas(GLsizei width, GLsizei height, size_t depth = 1);
       TextureAtlas(TextureAtlas&& other);
       ~TextureAtlas();
 
-      Maybe<TextureAtlas::Region> Allocate(size_t width, size_t height);
+      Maybe<TextureAtlas::Region> Allocate(GLsizei width, GLsizei height);
       void Fill(Region region, const void* data, const size_t stride);
 
       // GetTexture updates or creates a texture for its data if necessary, then returns the ID.
       GLuint GetTexture();
 
-      const size_t GetWidth() const { return mWidth; }
-      const size_t GetHeight() const { return mHeight; }
+      const GLsizei GetWidth() const { return mWidth; }
+      const GLsizei GetHeight() const { return mHeight; }
 
    private:
       // Allocated regions. Height is always equal to (atlas height) - (node y),
@@ -74,10 +74,10 @@ namespace Graphics
       std::forward_list<Region> mNodes;
    
       // Width (in pixels) of the texture
-      size_t mWidth;
+      GLsizei mWidth;
 
       // Height (in pixels) of the texture
-      size_t mHeight;
+      GLsizei mHeight;
 
       // Depth (in bytes) of the texture
       size_t mDepth;

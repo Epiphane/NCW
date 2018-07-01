@@ -1,6 +1,8 @@
 // By Thomas Steinke
 
 #include <cstdlib>
+#include <GL/glew.h>
+#include <algorithm>
 
 #include <Engine/Core/Format.h>
 #include <Engine/Logger/Logger.h>
@@ -16,7 +18,7 @@ namespace Engine
 namespace Graphics
 {
 
-   TextureAtlas::TextureAtlas(size_t width, size_t height, size_t depth)
+   TextureAtlas::TextureAtlas(GLsizei width, GLsizei height, size_t depth)
       : mNodes{{1, 1, width - 2, height - 2}} // One pixel border around the whole atlas.
       , mWidth(width)
       , mHeight(height)
@@ -53,11 +55,11 @@ namespace Graphics
       }
    }
 
-   Maybe<TextureAtlas::Region> TextureAtlas::Allocate(size_t width, size_t height)
+   Maybe<TextureAtlas::Region> TextureAtlas::Allocate(GLsizei width, GLsizei height)
    {
       Region alloc;
       
-      size_t bestY = SIZE_MAX;
+      GLsizei bestY = -1;
       std::forward_list<Region>::iterator best = mNodes.end();
       for (auto node = mNodes.begin(); node != mNodes.end(); ++node)
       {
@@ -69,7 +71,7 @@ namespace Graphics
             break;
          }
 
-         size_t y = node->y;
+         GLsizei y = node->y;
          int64_t widthLeft = width - node->w;
          auto next = node;
          while (widthLeft > 0 && ++next != mNodes.end())
@@ -87,7 +89,7 @@ namespace Graphics
          // We found a match. y now represents the value we need in order to fit.
          if (widthLeft <= 0)
          {
-            if ((y < bestY) || (y == bestY && node->w < best->w))
+            if (bestY < 0 || y < bestY || (y == bestY && node->w < best->w))
             {
                bestY = y;
                best = node;
@@ -122,7 +124,7 @@ namespace Graphics
 
          if (next != mNodes.end() && next->x < best->x + best->w)
          {
-            size_t diff = (best->x + best->w) - next->x;
+            GLsizei diff = (best->x + best->w) - next->x;
             //LOG_INFO("Resize node: (%1 %2) (%3) -> (%4 %5) (%6)", next->x, next->y, next->w, next->x + diff, next->y, next->w - diff);
             next->x += diff;
             next->w -= diff;

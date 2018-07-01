@@ -7,6 +7,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/Graphics/VBO.h>
@@ -65,6 +66,9 @@ namespace Game
       static GLuint program;
       static GLuint aPosition, aColor, aEnabledFaces;
       static GLuint uProjMatrix, uViewMatrix, uModelMatrix, uVoxelSize;
+
+   private:
+      Engine::Timer<100> mClock;
    };
 
 }; // namespace Game

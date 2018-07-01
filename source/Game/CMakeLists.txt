@@ -18,6 +18,11 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/source/Game")
 target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine)
 
+if (WIN32)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+	ADD_DEFINITIONS( "-W4 /wd4201" )
+endif()
+
 # install libraries into /lib
 INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
 SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")

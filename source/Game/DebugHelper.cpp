@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <GL/glew.h>
+
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
@@ -66,7 +68,7 @@ namespace Game
          mMetricsText = text;
          std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(0, 0, 1, text);
 
-         mMetricsCount = metricsText.size();
+         mMetricsCount = static_cast<GLint>(metricsText.size());
          mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
       }
    }
@@ -80,7 +82,7 @@ namespace Game
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
       glUniform1i(uTexture, 0);
-      glUniform2f(uWindowSize, mWindow->Width(), mWindow->Height());
+      glUniform2f(uWindowSize, static_cast<GLfloat>(mWindow->Width()), static_cast<GLfloat>(mWindow->Height()));
 
       mMetricsTextVBO.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
       mMetricsTextVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));

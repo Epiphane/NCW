@@ -50,6 +50,8 @@ public:
       return mRolling / N;
    }
 
+   void Reset() { mLast = glfwGetTime(); }
+
    void Pause() { mPaused = true; }
    void Unpause() { mPaused = false; }
    bool IsPaused() { return mPaused; }

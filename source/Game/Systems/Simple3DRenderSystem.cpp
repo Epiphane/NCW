@@ -7,10 +7,12 @@
 #include <GL/glew.h>
 #include <glm/ext.hpp>
 
-#include <Engine/Logger/Logger.h>
 #include <Engine/Core/Scope.h>
+#include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Program.h>
+#include <Engine/Logger/Logger.h>
 
+#include <Game/DebugHelper.h>
 #include "Simple3DRenderSystem.h"
 
 namespace CubeWorld
@@ -22,9 +24,10 @@ namespace Game
 Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
    : mVertices(Engine::Graphics::Vertices)
    , mColors(Engine::Graphics::Colors)
+   , mCount(int(points.size()))
 {
-   mVertices.BufferData(sizeof(GLfloat) * int(points.size()), &points[0], GL_STATIC_DRAW);
-   mColors.BufferData(sizeof(GLfloat) * int(points.size()), &colors[0], GL_STATIC_DRAW);
+   mVertices.BufferData(sizeof(GLfloat) * mCount, &points[0], GL_STATIC_DRAW);
+   mColors.BufferData(sizeof(GLfloat) * mCount, &colors[0], GL_STATIC_DRAW);
 }
 
 Simple3DRender::Simple3DRender(const Simple3DRender& other)
@@ -67,6 +70,10 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager& /*entities*/)
    DISCOVER_UNIFORM(uProjMatrix);
    DISCOVER_UNIFORM(uViewMatrix);
    DISCOVER_UNIFORM(uModelMatrix);
+
+   Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
+      return Format::FormatString("%1", mClock.Average());
+   });
 }
 
 using Transform = Engine::Transform;
@@ -81,6 +88,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
    glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
    glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
 
+   mClock.Reset();
    entities.Each<Transform, Simple3DRender>([&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
       render.mVertices.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
       render.mColors.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -92,8 +100,9 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManage
       model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
       glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
       
-      glDrawArrays(GL_TRIANGLES, 0, 3);
+      glDrawArrays(GL_TRIANGLES, 0, render.mCount);
    });
+   mClock.Elapsed();
 
    // Cleanup.
    glDisableVertexAttribArray(aPosition);

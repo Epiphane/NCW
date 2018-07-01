@@ -172,7 +172,7 @@ size_t BufferSize(std::string_view string, impl::basic_format_args args)
 
 // Parse a nonnegative integer out of a string.
 // NO ERROR HANDLING. If a number is too big, rest in peace my dude.
-uint32_t ParseNonnegativeInteger(std::string_view::iterator it)
+uint32_t ParseNonnegativeInteger(std::string_view::iterator it, std::string_view::iterator end)
 {
    assert('0' <= *it && *it <= '9');
    uint32_t value = 0;
@@ -189,7 +189,7 @@ uint32_t ParseNonnegativeInteger(std::string_view::iterator it)
       }
 
       value = value * 10 + (*it++ - '0');
-   } while ('0' <= *it && *it <= '9');
+   } while (it != end && '0' <= *it && *it <= '9');
    return value;
 }
 
@@ -225,7 +225,7 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
       if (c >= '0' && c <= '9')
       {
          // Parse argument index (followed by '$') or a width preceded with '0'.
-         arg_index = ParseNonnegativeInteger(it) - 1;
+         arg_index = ParseNonnegativeInteger(it, end) - 1;
       }
 
       if (arg_index == std::numeric_limits<uint32_t>::max())

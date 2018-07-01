@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 
+#include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/Graphics/VBO.h>
@@ -26,6 +27,7 @@ namespace Game
       Simple3DRender(const Simple3DRender& other);
       
       Engine::Graphics::VBO mVertices, mColors;
+      GLsizei mCount;
    };
 
    class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {
@@ -45,6 +47,9 @@ namespace Game
       static GLuint program;
       static GLuint aPosition, aColor;
       static GLuint uProjMatrix, uViewMatrix, uModelMatrix;
+
+   private:
+      Engine::Timer<100> mClock;
    };
 
 }; // namespace Game

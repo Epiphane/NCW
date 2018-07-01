@@ -11,6 +11,7 @@
 #include <Engine/Core/Scope.h>
 #include <Engine/Graphics/Program.h>
 
+#include <Game/DebugHelper.h>
 #include "VoxelRenderSystem.h"
 
 namespace CubeWorld
@@ -51,6 +52,9 @@ namespace Game
 
    VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
    {
+      Game::DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
+         return Format::FormatString("%1", mClock.Average());
+      });
    }
 
    VoxelRenderSystem::~VoxelRenderSystem()
@@ -92,6 +96,7 @@ namespace Game
       glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
       glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
 
+      mClock.Reset();
       entities.Each<Transform, VoxelRender>([&](Engine::Entity /*entity*/, Transform& transform, VoxelRender& render) {
          render.mVoxelData.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelData), (void*)0);
          render.mVoxelData.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelData), (void*)(sizeof(float) * 3));
@@ -106,6 +111,7 @@ namespace Game
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
       });
+      mClock.Elapsed();
 
       // Cleanup.
       glDisableVertexAttribArray(aPosition);
