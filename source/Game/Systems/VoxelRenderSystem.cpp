@@ -12,6 +12,7 @@
 #include <Engine/Graphics/Program.h>
 
 #include <Game/DebugHelper.h>
+#include <Game/Components/CubeModel.h>
 #include "VoxelRenderSystem.h"
 
 namespace CubeWorld
@@ -20,21 +21,11 @@ namespace CubeWorld
 namespace Game
 {
    
-   VoxelRender::VoxelRender(std::vector<VoxelData>&& voxels)
+   VoxelRender::VoxelRender(Voxel::Model&& voxels)
       : mVoxelData(Engine::Graphics::Vertices)
       , mSize(voxels.size())
    {
-      char* data = (char*)&voxels[0];
-
-      LOG_DEBUG("First element: (%1, %2, %3) (%4, %5, %6) %7"\
-         , *(float*)data\
-         , *(float*)(data + sizeof(float))\
-         , *(float*)(data + sizeof(float)*2)\
-         , *(float*)(data + sizeof(float)*3)\
-         , *(float*)(data + sizeof(float)*4)\
-         , *(float*)(data + sizeof(float)*5)\
-         , *(uint8_t*)(data + sizeof(float)*6));
-      mVoxelData.BufferData(sizeof(VoxelData) * int(voxels.size()), &voxels[0], GL_STATIC_DRAW);
+      mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), &voxels[0], GL_STATIC_DRAW);
    }
    
    VoxelRender::VoxelRender(const VoxelRender& other)
@@ -98,9 +89,9 @@ namespace Game
 
       mClock.Reset();
       entities.Each<Transform, VoxelRender>([&](Engine::Entity /*entity*/, Transform& transform, VoxelRender& render) {
-         render.mVoxelData.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelData), (void*)0);
-         render.mVoxelData.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelData), (void*)(sizeof(float) * 3));
-         render.mVoxelData.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(VoxelData), (void*)(sizeof(float) * 6));
+         render.mVoxelData.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+         render.mVoxelData.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+         render.mVoxelData.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
          glm::mat4 model(1);
          model = glm::translate(model, transform.position);
@@ -110,6 +101,21 @@ namespace Game
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
+      });
+
+      entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
+         cubModel.mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+         cubModel.mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+         cubModel.mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+
+         glm::mat4 model(1);
+         model = glm::translate(model, transform.position);
+         model = glm::rotate(model, transform.GetYaw(), glm::vec3(0, 1, 0));
+         model = glm::rotate(model, transform.GetPitch(), glm::vec3(1, 0, 0));
+         model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
+         glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
+
+         glDrawArrays(GL_POINTS, 0, cubModel.mNumVoxels);
       });
       mClock.Elapsed();
 

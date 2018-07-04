@@ -59,10 +59,6 @@ int main(int /* argc */, char ** /* argv */) {
 
    stateManager->SetState(initialState.get());
 
-   //nextState = new LoadingScreen();
-
-   //RendererDebug::instance()->log("Hey there handsome \2", true);
-
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
    debug->SetWindow(window.get());
 

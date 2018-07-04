@@ -17,6 +17,6 @@ void main()
    gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1);
    gPosition = vec4(aPosition, 1);
    
-	gColor = vec4(aColor, 1);
+   gColor = vec4(aColor / 255.0, 1);
    gEnabledFaces = aEnabledFaces;
 }

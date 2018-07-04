@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 namespace CubeWorld
 {
@@ -12,6 +14,8 @@ namespace Engine
 
 namespace Graphics
 {
+
+extern std::vector<int> gBufferReferences;
 
 enum DataType
 {
@@ -32,6 +36,9 @@ protected:
    GLuint mBufferType;
 
 public:
+   // CAUTION: When using the default constructor, you must either call vbo.Init() or assign it another VBO before it is usable.
+   VBO() : mBuffer(0) {};
+
    VBO(const DataType type);
    VBO(const DataType type, const GLuint buffer);
    VBO(const GLuint bufferType, const GLuint buffer);

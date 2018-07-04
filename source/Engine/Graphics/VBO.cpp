@@ -59,6 +59,11 @@ VBO::VBO(const GLuint bufferType, const GLuint buffer) : mBuffer(buffer), mBuffe
 VBO::VBO(const VBO& other) : VBO(other.mBufferType, other.mBuffer) {}
 
 VBO& VBO::operator=(const VBO& other) {
+   if (mBuffer != 0)
+   {
+      --gBufferReferences[mBuffer];
+   }
+
    mBuffer = other.mBuffer;
    mBufferType = other.mBufferType;
 
@@ -69,7 +74,8 @@ VBO& VBO::operator=(const VBO& other) {
 
 VBO::~VBO()
 {
-   if (mBuffer != GL_FALSE)
+   // Fun fact: gBufferReferences might have already been cleaned up at this point. If so, don't use it
+   if (mBuffer != GL_FALSE && mBuffer < gBufferReferences.size())
    {
       --gBufferReferences[mBuffer];
    }
@@ -84,7 +90,8 @@ void VBO::Init()
 
 void VBO::BufferData(GLsizei size, void* data, GLuint strategy)
 {
-   if (gBufferReferences[mBuffer] > 1)
+   assert(mBuffer != 0);
+   if (mBuffer < gBufferReferences.size() && gBufferReferences[mBuffer] > 1)
    {
       --gBufferReferences[mBuffer];
 
@@ -97,11 +104,13 @@ void VBO::BufferData(GLsizei size, void* data, GLuint strategy)
 
 void VBO::Bind()
 {
+   assert(mBuffer != 0);
    glBindBuffer(mBufferType, mBuffer);
 }
 
 void VBO::AttribPointer(GLuint location, GLint count, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer)
 {
+   assert(mBuffer != 0);
    glEnableVertexAttribArray(location);
    glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
    glVertexAttribPointer(location, count, type, normalized, stride, pointer);
@@ -109,6 +118,7 @@ void VBO::AttribPointer(GLuint location, GLint count, GLenum type, GLboolean nor
 
 void VBO::AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid *pointer)
 {
+   assert(mBuffer != 0);
    glEnableVertexAttribArray(location);
    glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
    glVertexAttribIPointer(location, count, type, stride, pointer);

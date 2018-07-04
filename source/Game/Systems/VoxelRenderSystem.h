@@ -13,36 +13,16 @@
 #include <Engine/Graphics/VBO.h>
 #include <Engine/System/System.h>
 
+#include <Game/Voxel.h>
+
 namespace CubeWorld
 {
 
 namespace Game
 {
-   // Back
-   enum VoxelSide {
-      Back = 0x01,
-      Bottom = 0x02,
-      Left = 0x04,
-      Front = 0x08,
-      Top = 0x10,
-      Right = 0x20,
-      All = 0x3f
-   };
-
-   struct VoxelData {
-      VoxelData(glm::vec3 position, glm::vec4 color, uint8_t faces = 0x3f)
-         : position(position)
-         , color(color)
-         , enabledFaces(faces)
-      {};
-
-      glm::vec3 position;
-      glm::vec3 color;
-      uint8_t enabledFaces;
-   };
 
    struct VoxelRender : public Engine::Component<VoxelRender> {
-      VoxelRender(std::vector<VoxelData>&& voxels);
+      VoxelRender(Voxel::Model&& voxels);
       VoxelRender(const VoxelRender& other);
       
       Engine::Graphics::VBO mVoxelData;

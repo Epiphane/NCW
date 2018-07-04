@@ -7,6 +7,7 @@
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
+#include <Game/Components/CubeModel.h>
 #include <Game/Components/RenderCamera.h>
 #include <Game/Systems/Simple3DRenderSystem.h>
 #include <Game/Systems/VoxelRenderSystem.h>
@@ -43,7 +44,7 @@ namespace Game
       Engine::Input::InputManager::Instance()->SetMouseLock(true);
       
       Entity player = mEntities.Create();
-      player.Add<Transform>(glm::vec3(0, 0, 0), glm::vec3(0, 0, -1));
+      player.Add<Transform>(glm::vec3(0, 0, -10), glm::vec3(0, 0, 1));
       Component::RenderCamera::Options cameraOptions;
       cameraOptions.aspect = float(mWindow->Width()) / mWindow->Height();
       cameraOptions.far = 500.0f;
@@ -57,7 +58,7 @@ namespace Game
       mCamera.Set(handle.get());
 
       // Add some voxels.
-      std::vector<VoxelData> carpet;
+      std::vector<Voxel::Data> carpet;
       std::vector<glm::vec3> points;
       std::vector<glm::vec3> colors;
 
@@ -87,7 +88,7 @@ namespace Game
       glm::vec4 SHORE(0, 0.5f, 1, 1);
       glm::vec4 SAND(0.941f, 0.941f, 0.25, 1);
       glm::vec4 GRASS(0.125f, 0.625f, 0, 1);
-      glm::vec4 DIRT(0.875f, 0.875f, 0, 1);
+      glm::vec4 DIRT(0.475f, 0.475f, 0, 1);
       glm::vec4 ROCK(0.5f, 0.5f, 0.5f, 1);
       glm::vec4 SNOW(1, 1, 1, 1);
 
@@ -108,10 +109,10 @@ namespace Game
 
             glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
             glm::vec4 color = dest * perc + source * (1 - perc);
-            carpet.push_back(VoxelData(position, color, VoxelSide::All));
+            carpet.push_back(Voxel::Data(position, color, Voxel::All));
          
             // Generate mesh automatically
-            points.push_back(position + glm::vec3(0, 0, 0));
+            /*points.push_back(position + glm::vec3(0, 0, 0));
             points.push_back(position + glm::vec3(1, 0, 0));
             points.push_back(position + glm::vec3(1, 1, 0));
             points.push_back(position + glm::vec3(0, 0, 0));
@@ -156,7 +157,7 @@ namespace Game
             for (int k = 0; k < 36; k ++)
             {
                colors.push_back(color);
-            }
+            }*/
          }
       }
 
@@ -172,9 +173,17 @@ namespace Game
       }
 
       Entity voxels = mEntities.Create();
-      voxels.Add<Transform>(glm::vec3(0, 0, 0));
-      voxels.Add<VoxelRender>(std::move(carpet));
-      voxels.Add<Simple3DRender>(std::move(p), std::move(c));
+      voxels.Add<Transform>(glm::vec3(0, 0, -5));
+      //voxels.Add<VoxelRender>(std::move(carpet));
+      //voxels.Add<Simple3DRender>(std::move(p), std::move(c));
+      voxels.Add<CubeModel>("Models/arrow.cub");
+
+      for (int i = -100; i < 100; i++)
+      {
+         voxels = mEntities.Create();
+         voxels.Add<Transform>(glm::vec3(3.5 * i, -5, 0));
+         voxels.Add<CubeModel>("Models/arrow.cub");
+      }
    }
 
 }; // namespace Game
