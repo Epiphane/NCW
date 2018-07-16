@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Engine/Core/Either.h>
+#include <Engine/Core/Maybe.h>
 #include <Engine/Core/Singleton.h>
 #include <Engine/Graphics/TextureAtlas.h>
 
@@ -65,7 +65,7 @@ public:
    FontManager();
    virtual ~FontManager() throw();
 
-   Either<Font*, std::string> GetFont(const std::string& path);
+   Maybe<Font*> GetFont(const std::string& path);
 
    bool IsValid() { return mValid; }
 

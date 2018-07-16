@@ -1,7 +1,9 @@
 // By Thomas Steinke
 
 #include <stdio.h>
-//#include <Windows.h>
+#if CUBEWORLD_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
 
 #include "DebugLogger.h"
 
@@ -45,7 +47,9 @@ DebugLogger* DebugLogger::Instance()
 
 void DebugLogger::Log(const char* message)
 {
-   //OutputDebugString(message);
+#if CUBEWORLD_PLATFORM_WINDOWS
+   OutputDebugString(message);
+#endif
 }
 
 }; // namespace Input

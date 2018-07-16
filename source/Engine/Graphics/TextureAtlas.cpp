@@ -103,7 +103,7 @@ namespace Graphics
 
       if (best == mNodes.end())
       {
-         return Maybe<void>();
+         return Failure{"Could not find any space"};
       }
 
       if (best->w <= width)

@@ -8,6 +8,7 @@
 
 #include <Engine/Core/Input.h>
 #include <Engine/Entity/EntityManager.h>
+#include <Engine/Event/EventManager.h>
 #include <Engine/System/System.h>
 
 namespace CubeWorld
@@ -29,7 +30,7 @@ public:
    CameraSystem(Engine::Input::InputManager* input) : mInput(input) {}
    ~CameraSystem() {}
    
-   void Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) override;
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
    
 private:
    Engine::Input::InputManager* mInput;

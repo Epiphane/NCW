@@ -7,7 +7,9 @@
 
 #include <Engine/Core/State.h>
 #include <Engine/Core/Window.h>
+#include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
+#include <Game/Event/NamedEvent.h>
 
 namespace CubeWorld
 {
@@ -15,12 +17,14 @@ namespace CubeWorld
 namespace Game
 {
 
-class StupidState : public Engine::State {
+class StupidState : public Engine::State, public Engine::Receiver<StupidState> {
 public:
    StupidState(Engine::Window* window);
    ~StupidState();
 
    void Start() override;
+
+   void Receive(const NamedEvent& namedEvent);
 
 private:
    Engine::Graphics::CameraHandle mCamera;

@@ -22,7 +22,7 @@ namespace Game
       FlySystem(Engine::Input::InputManager* input) : mInput(input) {}
       ~FlySystem() {}
       
-      void Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) override;
+      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
       
    private:
       Engine::Input::InputManager* mInput;

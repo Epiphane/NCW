@@ -14,7 +14,7 @@ namespace CubeWorld
 namespace Engine
 {
 
-State::State() : mSystems(mEntities)
+State::State() : mEntities(mEvents), mSystems(mEntities, mEvents)
 {
 }
 

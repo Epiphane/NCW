@@ -2,6 +2,7 @@
 
 #include <Engine/Logger/Logger.h>
 
+#include "../Event/NamedEvent.h"
 #include "FlySystem.h"
 
 namespace CubeWorld
@@ -10,7 +11,7 @@ namespace CubeWorld
 namespace Game
 {
    
-   void FlySystem::Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt)
+   void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
    {
       bool isW = mInput->IsKeyDown(GLFW_KEY_W);
       bool isA = mInput->IsKeyDown(GLFW_KEY_A);
@@ -19,6 +20,11 @@ namespace Game
       bool isQ = mInput->IsKeyDown(GLFW_KEY_Q);
       bool isE = mInput->IsKeyDown(GLFW_KEY_E);
 
+      if (mInput->IsKeyDown(GLFW_KEY_SPACE))
+      {
+         events.Emit<NamedEvent>("spawn arrow");
+      }
+
       if (!isW && !isA && !isS && !isD && !isQ && !isE)
       {
          return;
@@ -26,7 +32,6 @@ namespace Game
 
       glm::vec3 flyDirection = float(dt) * glm::normalize(glm::vec3(isD - isA, isE - isQ, isW - isS));
       
-      // TODO why can't I just put a lambda in here?
       entities.Each<Engine::Transform, FlySpeed>([&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly) {
          glm::vec3 dir = float(fly.speed) * glm::normalize(transform.GetFlatDirection());
 

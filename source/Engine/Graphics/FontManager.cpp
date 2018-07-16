@@ -141,7 +141,7 @@ FontManager::~FontManager() throw()
    FT_Done_FreeType(mLibrary);
 }
 
-Either<Font*, std::string> FontManager::GetFont(const std::string& path)
+Maybe<Font*> FontManager::GetFont(const std::string& path)
 {
    assert(mValid);
 

@@ -23,7 +23,7 @@ namespace Game
    
    VoxelRender::VoxelRender(Voxel::Model&& voxels)
       : mVoxelData(Engine::Graphics::Vertices)
-      , mSize(voxels.size())
+      , mSize(GLsizei(voxels.size()))
    {
       mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), &voxels[0], GL_STATIC_DRAW);
    }
@@ -52,7 +52,7 @@ namespace Game
    {
    }
 
-   void VoxelRenderSystem::Configure(Engine::EntityManager& /*entities*/)
+   void VoxelRenderSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
    {
       if (program != 0)
       {
@@ -78,7 +78,7 @@ namespace Game
 
    using Transform = Engine::Transform;
 
-   void VoxelRenderSystem::Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA)
+   void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
    {
       glUseProgram(program);
 
@@ -115,7 +115,7 @@ namespace Game
          model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
 
-         glDrawArrays(GL_POINTS, 0, cubModel.mNumVoxels);
+         glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
       });
       mClock.Elapsed();
 

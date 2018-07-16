@@ -86,6 +86,16 @@ list(APPEND LIBS
    freetype
 )
 
+# sqlite
+set(SQLITE_DIR "${DEP_DIR}/sqlite")
+add_subdirectory(${SQLITE_DIR})
+list(APPEND INCLUDES
+   ${SQLITE_DIR}/3.22.0
+)
+list(APPEND LIBS
+   sqlite
+)
+
 # FMOD
 set(FMOD_DIR "${DEP_DIR}/FMOD")
 set(FMOD_INCLUDE_DIR "${FMOD_DIR}/include")

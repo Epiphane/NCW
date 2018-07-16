@@ -12,7 +12,9 @@ class Either
 {
 public:
    constexpr Either(const L& left) : leftVal(left), isLeft(true) {};
+   constexpr Either(L&& left) : leftVal(std::move(left)), isLeft(true) {};
    constexpr Either(const R& right) : rightVal(right), isLeft(false) {};
+   constexpr Either(R&& right) : rightVal(std::move(right)), isLeft(false) {};
    constexpr Either(const Either<L, R>& other) : isLeft(other.isLeft)
    {
       if (isLeft)
@@ -36,18 +38,40 @@ public:
       }
    }
 
-   bool IsLeft() { return isLeft; }
-   bool IsRight() { return !isLeft; }
+   constexpr bool IsLeft() const { return isLeft; }
+   constexpr bool IsRight() const { return !isLeft; }
 
    L& Left() { return leftVal; }
+   //const L& Left() const { return leftVal; }
    R& Right() { return rightVal; }
+   //const R& Right() const { return rightVal; }
 
    constexpr Either& operator=(const L& left) { leftVal = left; isLeft = true; return *this; }
    constexpr Either& operator=(const R& right) { rightVal = right; isLeft = false; return *this; }
+   constexpr Either& operator=(const Either& other)
+   {
+      if (isLeft)
+      {
+         leftVal.~L();
+      }
+      else
+      {
+         rightVal.~R();
+      }
 
-   constexpr operator bool() const { return isLeft; }
+      isLeft = other.isLeft;
+      if (isLeft)
+      {
+         leftVal = other.leftVal;
+      }
+      else
+      {
+         rightVal = other.rightVal;
+      }
+      return *this;
+   }
 
-private:
+protected:
    union {
       L leftVal;
       R rightVal;

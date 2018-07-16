@@ -27,7 +27,7 @@ namespace Game
    {
       auto maybeResult = Engine::Graphics::FontManager::Instance()->GetFont("Fonts/debug.ttf");
       assert(maybeResult);
-      mFont = maybeResult.Left();
+      mFont = maybeResult.Result();
 
       program = Engine::Graphics::LoadProgram("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
 

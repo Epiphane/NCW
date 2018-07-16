@@ -1,0 +1,3009 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+
+  <name key="Wizard" tags="m">
+    <singular>Wizard</singular>    
+    <plural>Wizard</plural>
+  </name>
+
+  <name key="OldMan" tags="m an">
+    <singular>old Man</singular>   
+    <plural>old Men</plural>
+  </name>
+
+  <name key="LizardmanMale" tags="m">
+    <singular>Lizardman</singular>
+    <plural>Lizardmen</plural>
+  </name>
+
+  <name key="LizardmanFemale" tags="m">
+    <singular>Lizardman</singular>
+    <plural>Lizardmen</plural>
+  </name>
+
+  <name key="GoblinMale" tags="m">
+    <singular>Goblin</singular>
+    <plural>Goblins</plural>
+  </name>
+
+  <name key="GoblinFemale" tags="f">
+    <singular>Goblin</singular>
+    <plural>Goblins</plural>
+  </name>
+
+  <name key="Crow" tags="f">
+    <singular>Crow</singular>
+    <plural>Crows</plural>
+  </name>
+
+  <name key="Parrot" tags="m">
+    <singular>Parrot</singular>
+    <plural>Parrots</plural>
+  </name>
+
+  <name key="Peacock" tags="m">
+    <singular>Peacock</singular>
+    <plural>Peacocks</plural>
+  </name>
+
+  <name key="Seagull" tags="f">
+    <singular>Seagull</singular>
+    <plural>Seagulls</plural>
+  </name>
+
+  <name key="Bat" tags="f">
+    <singular>Bat</singular>
+    <plural>Bats</plural>
+  </name>
+
+  <name key="Hornet" tags="f">
+    <singular>Hornet</singular>
+    <plural>Hornets</plural>
+  </name>
+
+  <name key="Bumblebee" tags="f">
+    <singular>Bumblebee</singular>
+    <plural>Bumblebees</plural>
+  </name>
+
+  <name key="Koala" tags="f">
+    <singular>Koala</singular>
+    <plural>Koalas</plural>
+  </name>
+
+
+  <name key="InsectGuard" tags="m">
+    <singular>Insect Guard</singular>
+    <plural>Insect Guards</plural>
+  </name>
+
+  <name key="PlainRunner" tags="m">
+    <singular>Plain Runner</singular>
+    <plural>Plain Runners</plural>
+  </name>
+
+  <name key="LeafRunner" tags="m">
+    <singular>Leaf Runner</singular>
+    <plural>Leaf Runners</plural>
+  </name>
+
+  <name key="SnowRunner" tags="m">
+    <singular>Snow Runner</singular>
+    <plural>Snow Runners</plural>
+  </name>
+
+  <name key="DesertRunner" tags="m">
+    <singular>Desert Runner</singular>
+    <plural>Desert Runners</plural>
+  </name>
+
+  <name key="Frog" tags="m">
+    <singular>Frog</singular>
+    <plural>Frogs</plural>
+  </name>
+
+  <name key="DwarfMale" tags="m">
+    <singular>Dwarf</singular>
+    <plural>Dwarves</plural>
+  </name>
+
+  <name key="DwarfFemale" tags="f">
+    <singular>Dwarf</singular>
+    <plural>Dwarves</plural>
+  </name>
+
+  <name key="FrogmanMale" tags="m">
+    <singular>Frogman</singular>
+    <plural>Frogmen</plural>
+  </name>
+
+  <name key="FrogmanFemale" tags="f">
+    <singular>Frogman</singular>
+    <plural>Frogmen</plural>
+  </name>
+
+  <name key="Mole" tags="m">
+    <singular>Mole</singular>
+    <plural>Moles</plural>
+  </name>
+
+  <name key="Horus" tags="m">
+    <singular>Ancient Guardian</singular>
+    <plural>Ancient Guardian</plural>
+  </name>
+
+  <name key="Anubis" tags="m">
+    <singular>Ancient Guardian</singular>
+    <plural>Ancient Guardian</plural>
+  </name>
+
+  <name key="Biter" tags="m">
+    <singular>Biter</singular>
+    <plural>Biters</plural>
+  </name>
+
+  <name key="Squirrel" tags="m">
+    <singular>Squirrel</singular>
+    <plural>Squirrels</plural>
+  </name>
+
+  <name key="Raccoon" tags="m">
+    <singular>Raccoon</singular>
+    <plural>Raccoons</plural>
+  </name>
+
+  <name key="Duckbill" tags="n">
+    <singular>Duckbill</singular>
+    <plural>Duckbills</plural>
+  </name>
+
+  <name key="Crocodile" tags="n">
+    <singular>Crocodile</singular>
+    <plural>Crocodiles</plural>
+  </name>
+
+  <name key="Owl" tags="f">
+    <singular>Owl</singular>
+    <plural>Owls</plural>
+  </name>
+
+  <name key="Crab" tags="f">
+    <singular>Crab</singular>
+    <plural>Crabs</plural>
+  </name>
+
+  <name key="BarkBeetle" tags="m">
+    <singular>Bark Beetle</singular>
+    <plural>Bark Beetles</plural>
+  </name>
+
+  <name key="SnoutBeetle" tags="m">
+    <singular>Snout Beetle</singular>
+    <plural>Snout Beetles</plural>
+  </name>
+
+  <name key="LemonBeetle" tags="m">
+    <singular>Lemon Beetle</singular>
+    <plural>Lemon Beetles</plural>
+  </name>
+
+  <name key="FireBeetle" tags="m">
+    <singular>Fire Beetle</singular>
+    <plural>Fire Beetles</plural>
+  </name>
+
+  <name key="LemonFish" tags="m">
+    <singular>Lemon Fish</singular>
+    <plural>Lemon Fishes</plural>
+  </name>
+
+  <name key="SapphireFish" tags="m">
+    <singular>Sapphire Fish</singular>
+    <plural>Sapphire Fishes</plural>
+  </name>
+
+  <name key="Shark" tags="m">
+    <singular>Shark</singular>
+    <plural>Shark</plural>
+  </name>
+
+
+  <name key="LanternFish" tags="m">
+    <singular>Lantern Fish</singular>
+    <plural>Lantern Fishes</plural>
+  </name>
+
+  <name key="MawFish" tags="m">
+    <singular>Maw Fish</singular>
+    <plural>Maw Fishes</plural>
+  </name>
+
+  <name key="Piranha" tags="m">
+    <singular>Piranha</singular>
+    <plural>Piranhas</plural>
+  </name>
+
+
+  <name key="Blowfish" tags="m">
+    <singular>Blowfish</singular>
+    <plural>Blowfishes</plural>
+  </name>
+
+
+  <name key="Seahorse" tags="n">
+    <singular>Seahorse</singular>
+    <plural>Seahorses</plural>
+  </name>
+
+  <name key="Vase" tags="f">
+    <singular>Vase</singular>
+    <plural>Vases</plural>
+  </name>
+
+  <name key="SeaCrab" tags="f">
+    <singular>Sea Crab</singular>
+    <plural>Sea Crabs</plural>
+  </name>
+
+  <name key="Penguin" tags="m">
+    <singular>Penguin</singular>
+    <plural>Penguins</plural>
+  </name>
+
+  <name key="OrcMale" tags="m an">
+    <singular>Orc</singular>
+    <plural>Orcs</plural>
+  </name>
+
+  <name key="OrcFemale" tags="f an">
+    <singular>Orc</singular>
+    <plural>Orcs</plural>
+  </name>
+
+  <name key="UndeadMale" tags="m an">
+    <singular>Undead</singular>
+    <plural>Undeads</plural>
+  </name>
+
+  <name key="UndeadFemale" tags="m an">
+    <singular>Undead</singular>
+    <plural>Undeads</plural>
+  </name>
+
+  <name key="Skeleton" tags="n">
+    <singular>Skeleton</singular>
+    <plural>Skeletons</plural>
+  </name>
+
+  <name key="Dragon" tags="m">
+    <singular>Dragon</singular>
+    <plural>Dragons</plural>
+  </name>
+
+  <name key="IronDeposit" tags="n">
+    <singular>Iron Deposit</singular>
+    <plural>Iron Deposits</plural>
+  </name>
+
+  <name key="GoldDeposit" tags="n">
+    <singular>Gold Deposit</singular>
+    <plural>Gold Deposits</plural>
+  </name>
+
+  <name key="SilverDeposit" tags="n">
+    <singular>Silver Deposit</singular>
+    <plural>Silver Deposits</plural>
+  </name>
+
+  <name key="SandstoneDeposit" tags="n">
+    <singular>Sandstone Deposit</singular>
+    <plural>Sandstone Deposits</plural>
+  </name>
+
+  <name key="IceCrystalDeposit" tags="n">
+    <singular>Ice Crystal Deposit</singular>
+    <plural>Ice Crystal Deposits</plural>
+  </name>
+
+  <name key="EmeraldDeposit" tags="n">
+    <singular>Emerald Deposit</singular>
+    <plural>Emerald Deposits</plural>
+  </name>
+
+  <name key="DiamondDeposit" tags="n">
+    <singular>Diamond Deposit</singular>
+    <plural>Diamond Deposits</plural>
+  </name>
+
+  <name key="RubyDeposit" tags="n">
+    <singular>Ruby Deposit</singular>
+    <plural>Ruby Deposits</plural>
+  </name>
+
+  <name key="SapphireDeposit" tags="n">
+    <singular>Sapphire Deposit</singular>
+    <plural>Sapphire Deposits</plural>
+  </name>
+
+  <name key="HumanMale" tags="m">
+    <singular>Human</singular>
+    <plural>Humans</plural>
+  </name>
+
+  <name key="HumanFemale" tags="f">
+    <singular>Human</singular>
+    <plural>Humans</plural>
+  </name>
+
+  <name key="ElfMale" tags="m an">
+    <singular>Elf</singular>
+    <plural>Elves</plural>
+  </name>
+
+  <name key="ElfFemale" tags="f an">
+    <singular>Elf</singular>
+    <plural>Elves</plural>
+  </name>
+
+  <name key="Bunny" tags="m">
+    <singular>Bunny</singular>
+    <plural>Bunnies</plural>
+  </name>
+
+  <name key="Porcupine" tags="m">
+    <singular>Porcupine</singular>
+    <plural>Porcupines</plural>
+  </name>
+
+  <name key="Collie" tags="m">
+    <singular>Collie</singular>
+    <plural>Collies</plural>
+  </name>
+
+
+  <name key="ShepherdDog" tags="m">
+    <singular>Shepherd Dog</singular>
+    <plural>Shepherd Dogs</plural>
+  </name>
+
+  <name key="Cow" tags="m">
+    <singular>Cow</singular>
+    <plural>Cows</plural>
+  </name>
+
+  <name key="Alpaca" tags="n">
+    <singular>Alpaca</singular>
+    <plural>Alpacas</plural>
+  </name>
+
+  <name key="BrownAlpaca" tags="n">
+    <singular>Alpaca</singular>
+    <plural>Alpacas</plural>
+  </name>
+
+  <name key="SkullBull" tags="m">
+    <singular>Skull Bull</singular>
+    <plural>Skull Bulls</plural>
+  </name>
+
+  <name key="Egg" tags="n">
+    <singular>Egg</singular>
+    <plural>Eggs</plural>
+  </name>
+
+  <name key="Turtle" tags="f">
+    <singular>Turtle</singular>
+    <plural>Turtles</plural>
+  </name>
+
+  <name key="Terrier" tags="m">
+    <singular>Terrier</singular>
+    <plural>Terriers</plural>
+  </name>
+  
+   <name key="ScottishTerrier" tags="m">
+    <singular>Scottish Terrier</singular>
+    <plural>Scottish Terriers</plural>
+  </name>
+
+  <name key="Panther" tags="m">
+    <singular>Panther</singular>
+    <plural>Panthers</plural>
+  </name>
+
+  <name key="Cat" tags="f">
+    <singular>Cat</singular>
+    <plural>Cats</plural>
+  </name>
+
+  <name key="BrownCat" tags="f">
+    <singular>Cat</singular>
+    <plural>Cats</plural>
+  </name>
+
+  <name key="WhiteCat" tags="f">
+    <singular>Cat</singular>
+    <plural>Cats</plural>
+  </name>
+
+  <name key="Pig" tags="n">
+    <singular>Pig</singular>
+    <plural>Pigs</plural>
+  </name>
+
+  <name key="Sheep" tags="n">
+    <singular>Sheep</singular>
+    <plural>Sheeps</plural>
+  </name>
+
+  <name key="Horse" tags="n">
+    <singular>Horse</singular>
+    <plural>Horses</plural>
+  </name>
+
+  <name key="Camel" tags="n">
+    <singular>Camel</singular>
+    <plural>Camels</plural>
+  </name>
+
+  <name key="Monkey" tags="n">
+    <singular>Monkey</singular>
+    <plural>Monkeys</plural>
+  </name>
+
+  <name key="Chicken" tags="n">
+    <singular>Chicken</singular>
+    <plural>Chickens</plural>
+  </name>
+
+  <name key="Wolf" tags="n">
+    <singular>Wolf</singular>
+    <plural>Wolves</plural>
+  </name>
+
+  <name key="Devourer" tags="n">
+    <singular>Devourer</singular>
+    <plural>Devourers</plural>
+  </name>
+
+  <name key="Fly" tags="f">
+    <singular>Fly</singular>
+    <plural>Flies</plural>
+  </name>
+
+  <name key="Midge" tags="f">
+    <singular>Midge</singular>
+    <plural>Midges</plural>
+  </name>
+
+  <name key="Mosquito" tags="f">
+    <singular>Mosquito</singular>
+    <plural>Mosquitos</plural>
+  </name>
+
+  <name key="GreenSlime" tags="m">
+    <singular>Slime</singular>
+    <plural>Slimes</plural>
+  </name>
+
+  <name key="PinkSlime" tags="m">
+    <singular>Slime</singular>
+    <plural>Slimes</plural>
+  </name>
+
+  <name key="YellowSlime" tags="m">
+    <singular>Slime</singular>
+    <plural>Slimes</plural>
+  </name>
+
+  <name key="BlueSlime" tags="m">
+    <singular>Slime</singular>
+    <plural>Slimes</plural>
+  </name>
+
+  <name key="Witch" tags="f">
+    <singular>Witch</singular>
+    <plural>Witches</plural>
+  </name>
+
+  <name key="Gnobold" tags="m">
+    <singular>Gnobold</singular>
+    <plural>Gnobolds</plural>
+  </name>
+
+  <name key="Insectoid" tags="m">
+    <singular>Insektoid</singular>
+    <plural>Insektoiden</plural>
+  </name>
+
+  <name key="Jester" tags="m">
+    <singular>Jester</singular>
+    <plural>Jesters</plural>
+  </name>
+
+  <name key="Gnoll" tags="m">
+    <singular>Gnoll</singular>
+    <plural>Gnolls</plural>
+  </name>
+
+  <name key="PolarGnoll" tags="m">
+    <singular>Polar Gnoll</singular>
+    <plural>Polar Gnolls</plural>
+  </name>
+
+  <name key="Mermaid" tags="m">
+    <singular>Mermaid</singular>
+    <plural>Mermaids</plural>
+  </name>
+
+  <name key="Merman" tags="m">
+    <singular>Merman</singular>
+    <plural>Mermen</plural>
+  </name>
+
+  <name key="Mammoth" tags="n">
+    <singular>Mammoth</singular>
+    <plural>Mammoths</plural>
+  </name>
+
+  <name key="Cyclops" tags="m">
+    <singular>Cyclops</singular>
+    <plural>Cyclopses</plural>
+  </name>
+
+  <name key="RuneGiant" tags="m">
+    <singular>Rune Giant</singular>
+    <plural>Rune Giants</plural>
+  </name>
+
+  <name key="Yeti" tags="m">
+    <singular>Yeti</singular>
+    <plural>Yetis</plural>
+  </name>
+
+  <name key="Golem" tags="m">
+    <singular>Golem</singular>
+    <plural>Golems</plural>
+  </name>
+
+  <name key="EmberGolem" tags="m">
+    <singular>Ember Golem</singular>
+    <plural>Ember Golems</plural>
+  </name>
+
+  <name key="SnowGolem" tags="m">
+    <singular>Snow Golem</singular>
+    <plural>Snow Golems</plural>
+  </name>
+
+
+  <name key="HellDemon" tags="m">
+    <singular>Hell Demon</singular>
+    <plural>Hell Demon</plural>
+  </name>
+
+  <name key="Ogre" tags="m">
+    <singular>Ogre</singular>
+    <plural>Ogres</plural>
+  </name>
+
+  <name key="Rockling" tags="m">
+    <singular>Rockling</singular>
+    <plural>Rocklings</plural>
+  </name>
+
+  <name key="SpikeCreature" tags="n">
+    <singular>Spike Creature</singular>
+    <plural>Spike Creatures</plural>
+  </name>
+
+  <name key="Spectrino" tags="n">
+    <singular>Spectrino</singular>
+    <plural>Spectrinos</plural>
+  </name>
+
+  <name key="Djinn" tags="m">
+    <singular>Djinn</singular>
+    <plural>Djinns</plural>
+  </name>
+
+  <name key="Minotaur" tags="n">
+    <singular>Minotaur</singular>
+    <plural>Minotaurs</plural>
+  </name>
+
+  <name key="Frightener" tags="n">
+    <singular>Frightener</singular>
+    <plural>Frighteners</plural>
+  </name>
+
+  <name key="SandHorror" tags="n">
+    <singular>Sand Horror</singular>
+    <plural>Sand Horrors</plural>
+  </name>
+  
+  <name key="Imp" tags="n">
+    <singular>Imp</singular>
+    <plural>Imps</plural>
+  </name>
+
+  <name key="Vampire" tags="m">
+    <singular>Vampire</singular>
+    <plural>Vampires</plural>
+  </name>
+
+  <name key="Spitter" tags="m">
+    <singular>Spitter</singular>
+    <plural>Spitters</plural>
+  </name>
+
+  <name key="PlantCreature" tags="m">
+    <singular>Cormling</singular>
+    <plural>Cormlings</plural>
+  </name>
+
+  <name key="RadishCreature" tags="m">
+    <singular>Radishling</singular>
+    <plural>Radishlings</plural>
+  </name>
+
+  <name key="Onionling" tags="m">
+    <singular>Onionling</singular>
+    <plural>Onionlings</plural>
+  </name>
+
+
+  <name key="DesertOnionling" tags="m">
+    <singular>Desert Onionling</singular>
+    <plural>Desert Onionlings</plural>
+  </name>
+
+  <name key="Ginseng" tags="m">
+    <singular>Ginseng</singular>
+    <plural>Ginseng</plural>
+  </name>
+
+  <name key="Bush" tags="m">
+    <singular>Bush</singular>
+    <plural>Bushes</plural>
+  </name>
+
+  <name key="SnowBush" tags="m">
+    <singular>Bush</singular>
+    <plural>Bushes</plural>
+  </name>
+
+  <name key="SnowBerryBush" tags="m">
+    <singular>Snowberry Bush</singular>
+    <plural>Snowberry Bushes</plural>
+  </name>
+ 
+  <name key="SnowBerry" tags="m">
+    <singular>Snowberry</singular>
+    <plural>Snowberries</plural>
+  </name>
+
+  <name key="SnowBerryMash" tags="m">
+    <singular>Snowberry Mash</singular>
+    <plural>Snowberry Mashes</plural>
+  </name>
+
+  <name key="ThornTree" tags="m">
+    <singular>Thorn Tree</singular>
+    <plural>Thorn Trees</plural>
+  </name>
+
+  <name key="Cactus" tags="m">
+    <singular>Cactus</singular>
+    <plural>Cactus</plural>
+  </name>
+
+  <name key="Dummy" tags="m">
+    <singular>Dummy</singular>
+    <plural>Dummys</plural>
+  </name>
+
+  <name key="Aim" tags="m">
+    <singular>Aim</singular>
+    <plural>Aims</plural>
+  </name>
+
+  <name key="CottonPlant" tags="f">
+    <singular>Cotton Plant</singular>
+    <plural>Cotton Plants</plural>
+  </name>
+
+  <name key="Capsule" tags="f">
+    <singular>Capsule</singular>
+    <plural>Capsules</plural>
+  </name>
+
+  <name key="Scrub" tags="m">
+    <singular>Scrub</singular>
+    <plural>Scrubs</plural>
+  </name>
+
+  <name key="CobwebScrub" tags="m">
+    <singular>Scrub</singular>
+    <plural>Scrubs</plural>
+  </name>
+
+  <name key="FireScrub" tags="m">
+    <singular>Fire Scrub</singular>
+    <plural>Fire Scrub</plural>
+  </name>
+
+  <name key="Scarecrow" tags="f">
+    <singular>Scarecrow</singular>
+    <plural>Scarecrows</plural>
+  </name>
+
+  <name key="NomadMale" tags="m">
+    <singular>Nomad</singular>
+    <plural>Nomads</plural>
+  </name>
+
+  <name key="NomadFemale" tags="f">
+    <singular>Nomad</singular>
+    <plural>Nomads</plural>
+  </name>
+
+  <name key="Saurian" tags="m">
+    <singular>Saurian</singular>
+    <plural>Saurians</plural>
+  </name>
+
+  <name key="Zombie" tags="m">
+    <singular>Zombie</singular>
+    <plural>Zombies</plural>
+  </name>
+
+  <name key="Lich" tags="m">
+    <singular>Lich</singular>
+    <plural>Liches</plural>
+  </name>
+
+  <name key="Troll" tags="m">
+    <singular>Troll</singular>
+    <plural>Trolls</plural>
+  </name>
+
+  <name key="Werewolf" tags="m">
+    <singular>Werewolf</singular>
+    <plural>Werewolves</plural>
+  </name>
+
+  <name key="DarkTroll" tags="m">
+    <singular>Dark Troll</singular>
+    <plural>Dark Troll</plural>
+  </name>
+
+  <name key="Cave">
+    <singular>Cave</singular>
+    <plural>Caves</plural>
+  </name>
+
+
+
+
+
+  <name key="Artifact">
+    <singular>Artifact</singular>
+    <plural>Artifacts</plural>
+  </name>
+
+
+
+  <name key="Amulet" tags="n">
+    <singular>Amulet</singular>
+    <plural>Amulets</plural>
+  </name>
+
+  <name key="Ring" tags="m">
+    <singular>Ring</singular>
+    <plural>Rings</plural>
+  </name>
+
+  <name key="Amulet1">
+    <singular>Amulet</singular>
+    <plural>Amulets</plural>
+  </name>
+
+  <name key="Amulet2">
+    <singular>Amulet</singular>
+    <plural>Amulets</plural>
+  </name>
+
+  <name key="Statue">
+    <singular>Statue</singular>
+    <plural>Statues</plural>
+  </name>
+  <name key="Door">
+    <singular>Door</singular>
+  </name>
+  <name key="BigDoor">
+    <singular>Door</singular>
+  </name>
+  <name key="Window">
+    <singular>Window</singular>
+  </name>
+  <name key="CastleWindow">
+    <singular>Window</singular>
+  </name>
+  <name key="Gate">
+    <singular>Gate</singular>
+  </name>
+  <name key="FireTrap">
+    <singular>Fire Trap</singular>
+  </name>
+  <name key="SpikeTrap">
+    <singular>Spike Trap</singular>
+  </name>
+  <name key="StompTrap">
+    <singular>Stomp Trap</singular>
+  </name>
+  <name key="Lever">
+    <singular>Lever</singular>
+  </name>
+  <name key="Chest">
+    <singular>Chest</singular>
+  </name>
+  <name key="Table">
+    <singular>Table</singular>
+  </name>
+  <name key="Stool">
+    <singular>Stool</singular>
+  </name>
+  <name key="Bench">
+    <singular>Bench</singular>
+  </name>
+  <name key="Bed">
+    <singular>Bed</singular>
+  </name>
+  <name key="BedTable">
+    <singular>Bed Table</singular>
+  </name>
+  <name key="MarketStand1">
+    <singular>Market Stand</singular>
+  </name>
+  <name key="MarketStand2">
+    <singular>Market Stand</singular>
+  </name>
+  <name key="MarketStand3">
+    <singular>Market Stand</singular>
+  </name>
+  <name key="Barrel">
+    <singular>Barrel</singular>
+  </name>
+  <name key="Crate">
+    <singular>Crate</singular>
+  </name>
+  <name key="OpenCrate">
+    <singular>Crate</singular>
+  </name>
+  <name key="Sack">
+    <singular>Sack</singular>
+  </name>
+  <name key="Shelter">
+    <singular>Shelter</singular>
+  </name>
+  <name key="Cupboard">
+    <singular>Cupboard</singular>
+  </name>
+  <name key="Desktop">
+    <singular>Desktop</singular>
+  </name>
+  <name key="Counter">
+    <singular>Counter</singular>
+  </name>
+  <name key="Shelf1">
+    <singular>Shelf</singular>
+  </name>
+  <name key="Shelf2">
+    <singular>Shelf</singular>
+  </name>
+  <name key="Shelf3">
+    <singular>Shelf</singular>
+  </name>
+  <name key="Corpse">
+    <singular>Corpse</singular>
+  </name>
+  <name key="Statue">
+    <singular>Statue</singular>
+  </name>
+  <name key="RuneStone">
+    <singular>Rune Stone</singular>
+  </name>
+  <name key="Artifact">
+    <singular>Artifact</singular>
+  </name>
+  <name key="FlowerBox1">
+    <singular>Flower Box</singular>
+  </name>
+  <name key="FlowerBox2">
+    <singular>Flower Box</singular>
+  </name>
+  <name key="FlowerBox3">
+    <singular>Flower Box</singular>
+  </name>
+  <name key="StreetLight">
+    <singular>Street Light</singular>
+  </name>
+  <name key="FireStreetLight">
+    <singular>Street Light</singular>
+  </name>
+  <name key="Fence1">
+    <singular>Fence</singular>
+  </name>
+  <name key="Fence2">
+    <singular>Fence</singular>
+  </name>
+  <name key="Fence3">
+    <singular>Fence</singular>
+  </name>
+  <name key="Fence4">
+    <singular>Fence</singular>
+  </name>
+
+  <name key="Furnace">
+    <singular>Furnace</singular>
+  </name>
+
+  <name key="Anvil">
+    <singular>Anvil</singular>
+  </name>
+
+  <name key="SpinningWheel">
+    <singular>Spinning Wheel</singular>
+  </name>
+
+  <name key="Loom">
+    <singular>Loom</singular>
+  </name>
+
+  <name key="SawBench">
+    <singular>Saw</singular>
+  </name>
+
+  <name key="Workbench">
+    <singular>Workbench</singular>
+  </name>
+
+  <name key="CustomizationBench">
+    <singular>Customization Bench</singular>
+  </name>
+
+  <name key="Vase1">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase2">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase3">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase4">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase5">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase6">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase7">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase8">
+    <singular>Vase</singular>
+  </name>
+  <name key="Vase9">
+    <singular>Vase</singular>
+  </name>
+  <name key="Campfire">
+    <singular>Campfire</singular>
+  </name>
+  <name key="Tent">
+    <singular>Tent</singular>
+  </name>
+  <name key="BeachUmbrella">
+    <singular>Beach Umbrella</singular>
+  </name>
+  <name key="BeachTowel">
+    <singular>Beach Towel</singular>
+  </name>
+
+
+  <name key="Boots" tags="p m">
+    <singular>Boots</singular>
+    <plural>Boots</plural>
+  </name>
+
+  <name key="Gloves" tags="p m">
+    <singular>Gloves</singular>
+    <plural>Gloves</plural>
+  </name>
+
+  <name key="ChestArmor" tags="f">
+    <singular>Chest Armor</singular>
+    <plural>Chest Armors</plural>
+  </name>
+
+  <name key="ShoulderArmor" tags="f">
+    <singular>Shoulder Armor</singular>
+    <plural>Shoulder Armors</plural>
+  </name>
+
+  <name key="Sword" tags="n">
+    <singular>Sword</singular>
+    <plural>Swords</plural>
+  </name>
+
+  <name key="Dagger" tags="m">
+    <singular>Dagger</singular>
+    <plural>Daggers</plural>
+  </name>
+
+  <name key="Fist" tags="f">
+    <singular>Fist</singular>
+    <plural>Fists</plural>
+  </name>
+
+  <name key="Mace" tags="m">
+    <singular>Mace</singular>
+    <plural>Maces</plural>
+  </name>
+
+  <name key="Axe" tags="f">
+    <singular>Axe</singular>
+    <plural>Axes</plural>
+  </name>
+
+  <name key="Bow" tags="m">
+    <singular>Bow</singular>
+    <plural>Bows</plural>
+  </name>
+
+  <name key="Crossbow" tags="f">
+    <singular>Crossbow</singular>
+    <plural>Crossbows</plural>
+  </name>
+
+  <name key="Boomerang" tags="m">
+    <singular>Boomerang</singular>
+    <plural>Boomerangs</plural>
+  </name>
+
+  <name key="Arrows" tags="p m">
+    <singular>Arrows</singular>
+    <plural>Arrows</plural>
+  </name>
+
+  <name key="Arrow" tags="m">
+    <singular>Arrow</singular>
+    <plural>Arrows</plural>
+  </name>
+
+  <name key="Torch" tags="f">
+    <singular>Torch</singular>
+    <plural>Torches</plural>
+  </name>
+
+  <name key="Staff" tags="m">
+    <singular>Staff</singular>
+    <plural>Staves</plural>
+  </name>
+
+  <name key="Wand" tags="m">
+    <singular>Wand</singular>
+    <plural>Wands</plural>
+  </name>
+
+  <name key="Bracelet" tags="m">
+    <singular>Bracelet</singular>
+    <plural>Bracelets</plural>
+  </name>
+
+  <name key="Shield" tags="m">
+    <singular>Shield</singular>
+    <plural>Shields</plural>
+  </name>
+
+  <name key="Greatsword" tags="n">
+    <singular>Greatsword</singular>
+    <plural>Greatswords</plural>
+  </name>
+
+  <name key="Greataxe" tags="f">
+    <singular>Greataxe</singular>
+    <plural>Greataxes</plural>
+  </name>
+
+  <name key="Greatmace" tags="m">
+    <singular>Greatmace</singular>
+    <plural>Greatmaces</plural>
+  </name>
+
+  <name key="Longsword" tags="n">
+    <singular>Longsword</singular>
+    <plural>Longswords</plural>
+  </name>
+
+  <name key="Coin" tags="f">
+    <singular>Coin</singular>
+    <plural>Coins</plural>
+  </name>
+
+  <name key="Candle" tags="f">
+    <singular>Candle</singular>
+    <plural>Candles</plural>
+  </name>
+
+  <name key="HangGlider" tags="m">
+    <singular>Hang Glider</singular>
+    <plural>Hang Gliders</plural>
+  </name>
+  
+  <name key="Boat" tags="m">
+    <singular>Boat</singular>
+    <plural>Boats</plural>
+  </name>
+
+  <name key="Lamp" tags="f">
+    <singular>Lamp</singular>
+    <plural>Lamps</plural>
+  </name>
+
+  <name key="ManaCube" tags="m">
+    <singular>Mana Cube</singular>
+    <plural>Mana Cubes</plural>
+  </name>
+
+  <name key="Mushroom" tags="m">
+    <singular>Mushroom</singular>
+    <plural>Mushrooms</plural>
+  </name>
+
+  <name key="ShimmerMushroom" tags="m">
+    <singular>Shimmer Mushroom</singular>
+    <plural>Shimmer Mushrooms</plural>
+  </name>
+
+  <name key="GinsengRoot" tags="f">
+    <singular>Ginseng Root</singular>
+    <plural>Ginseng Roots</plural>
+  </name>
+
+  <name key="MushroomSpit" tags="m">
+    <singular>Mushroom Spit</singular>
+    <plural>Mushroom Spits</plural>
+  </name>
+
+  <name key="Cookie">
+    <singular>Cookie</singular>
+    <plural>Cookies</plural>
+  </name>
+
+  <name key="Bait">
+    <singular>Pet Food</singular>
+    <plural>Pet Food</plural>
+  </name>
+  
+   <name key="BlueJelly">
+    <singular>Blue Jelly</singular>
+    <plural>Blue Jellies</plural>
+  </name>
+
+  <name key="GreenJelly">
+    <singular>Green Jelly</singular>
+    <plural>Green Jellies</plural>
+  </name>
+
+  <name key="PinkJelly">
+    <singular>Pink Jelly</singular>
+    <plural>Pink Jellies</plural>
+  </name>
+
+  <name key="YellowJelly">
+    <singular>Yellow Jelly</singular>
+    <plural>Yellow Jellies</plural>
+  </name>
+
+  <name key="Carrot">
+    <singular>Carrot</singular>
+    <plural>Carrots</plural>
+  </name>
+
+  <name key="PumpkinMash">
+    <singular>Pumpkin Mash</singular>
+    <plural>Pumpkin Mashes</plural>
+  </name>
+
+  <name key="Candy">
+    <singular>Candy</singular>
+    <plural>Candies</plural>
+  </name>
+
+  <name key="Lollipop">
+    <singular>Lollipop</singular>
+    <plural>Lollipops</plural>
+  </name>
+
+  <name key="Softice">
+    <singular>Softice</singular>
+    <plural>Softice</plural>
+  </name>
+
+  <name key="ChocolateDonut">
+    <singular>Chocolate Donut</singular>
+    <plural>Chocolate Donuts</plural>
+  </name>
+
+  <name key="CottonCandy">
+    <singular>Cotton Candy</singular>
+    <plural>Cotton Candies</plural>
+  </name>
+
+  <name key="Popcorn">
+    <singular>Popcorn</singular>
+    <plural>Popcorn</plural>
+  </name>
+
+  <name key="CerealBar">
+    <singular>Cereal Bar</singular>
+    <plural>Cereal Bars</plural>
+  </name>
+
+  <name key="StrawberryCake">
+    <singular>Strawberry Cake</singular>
+    <plural>Strawberry Cakes</plural>
+  </name>
+
+  <name key="ChocolateCake">
+    <singular>Chocolate Cake</singular>
+    <plural>Chocolate Cakes</plural>
+  </name>
+
+  <name key="ChocolateCupcake">
+    <singular>Chocolate Cupcake</singular>
+    <plural>Chocolate Cupcakes</plural>
+  </name>
+
+  <name key="VanillaCupcake">
+    <singular>Vanilla Cupcake</singular>
+    <plural>Vanilla Cupcakes</plural>
+  </name>
+
+  <name key="BananaSplit">
+    <singular>Banana Split</singular>
+    <plural>Banana Splits</plural>
+  </name>
+
+  <name key="Croissant">
+    <singular>Croissant</singular>
+    <plural>Croissants</plural>
+  </name>
+
+  <name key="Bread">
+    <singular>Bread</singular>
+    <plural>Breads</plural>
+  </name>
+
+  <name key="Lolly">
+    <singular>Lolly</singular>
+    <plural>Lollies</plural>
+  </name>
+
+  <name key="LemonTart">
+    <singular>Lemon Tart</singular>
+    <plural>Lemon Tarts</plural>
+  </name>
+
+  <name key="ChocolateCookie">
+    <singular>Chocolate Cookie</singular>
+    <plural>Chocolate Cookies</plural>
+  </name>
+
+  <name key="BubbleGum">
+    <singular>Bubble Gum</singular>
+    <plural>Bubble Gums</plural>
+  </name>
+
+  <name key="LicoriceCandy">
+    <singular>Licorice Candy</singular>
+    <plural>Licorice Candies</plural>
+  </name>
+
+  <name key="CinnamonRole">
+    <singular>Cinnamon Role</singular>
+    <plural>Cinnamon Roles</plural>
+  </name>
+
+  <name key="AppleRing">
+    <singular>Apple Ring</singular>
+    <plural>Apple Rings</plural>
+  </name>
+
+  <name key="Waffle">
+    <singular>Waffle</singular>
+    <plural>Waffles</plural>
+  </name>
+
+  <name key="WaterIce">
+    <singular>Water Ice</singular>
+    <plural>Water Ice</plural>
+  </name>
+
+  <name key="DateCookie">
+    <singular>Date Cookie</singular>
+    <plural>Date Cookies</plural>
+  </name>
+
+  <name key="CandiedApple">
+    <singular>Candied Apple</singular>
+    <plural>Candied Apples</plural>
+  </name>
+
+  <name key="StrawberryCocktail">
+    <singular>Strawberry Cocktail</singular>
+    <plural>Strawberry Cocktails</plural>
+  </name>
+
+  <name key="MilkChocolateBar">
+    <singular>Milk Chocolate Bar</singular>
+    <plural>Milk Chocolate Bars</plural>
+  </name>
+
+  <name key="CaramelChocolateBar">
+    <singular>Caramel Chocolate Bar</singular>
+    <plural>Caramel Chocolate Bars</plural>
+  </name>
+
+  <name key="MintChocolateBar">
+    <singular>Mint Chocolate Bar</singular>
+    <plural>Mint Chocolate Bars</plural>
+  </name>
+
+  <name key="WhiteChocolateBar">
+    <singular>White Chocolate Bar</singular>
+    <plural>White Chocolate Bars</plural>
+  </name>
+
+  <name key="SugarCandy">
+    <singular>Sugar Candy</singular>
+    <plural>Sugar Candies</plural>
+  </name>
+
+  <name key="BlackberryMarmelade">
+    <singular>Blackberry Marmelade</singular>
+    <plural>Blackberry Marmelades</plural>
+  </name>
+
+  <name key="SaltedCaramel">
+    <singular>Salted Caramel</singular>
+    <plural>Salted Caramels</plural>
+  </name>
+
+  <name key="GingerTartlet">
+    <singular>Ginger Tartlet</singular>
+    <plural>Ginger Tartlets</plural>
+  </name>
+
+  <name key="MangoJuice">
+    <singular>Mango Juice</singular>
+    <plural>Mango Juices</plural>
+  </name>
+
+  <name key="FruitBasket">
+    <singular>Fruit Basket</singular>
+    <plural>Fruit Baskets</plural>
+  </name>
+
+  <name key="MelonIceCream">
+    <singular>Melon Ice Cream</singular>
+    <plural>Melon Ice Creams</plural>
+  </name>
+
+  <name key="BloodOrangeJuice">
+    <singular>Bloodorange Juice</singular>
+    <plural>Bloodorange Juices</plural>
+  </name>
+
+  <name key="Pancakes">
+    <singular>Pancakes</singular>
+    <plural>Pancakes</plural>
+  </name>
+
+  <name key="Curry">
+    <singular>Curry</singular>
+    <plural>Curries</plural>
+  </name>
+
+  <name key="BiscuitRole">
+    <singular>Biscuit Role</singular>
+    <plural>Biscuit Roles</plural>
+  </name>
+  
+  <name key="Pumpkin">
+    <singular>Pumpkin</singular>
+    <plural>Pumpkins</plural>
+  </name>
+  
+  <name key="Pineapple">
+    <singular>Pineapple</singular>
+    <plural>Pineapples</plural>
+  </name>
+
+  <name key="PineappleSlice">
+    <singular>Pineapple Slice</singular>
+    <plural>Pineapple Slices</plural>
+  </name>
+
+  <name key="PumpkinMuffin">
+    <singular>Pumpkin Muffin</singular>
+    <plural>Pumpkin Muffins</plural>
+  </name>
+
+  <name key="LifePotion">
+    <singular>Life Potion</singular>
+    <plural>Life Potions</plural>
+  </name>
+
+  <name key="CactusPotion">
+    <singular>Cactus Potion</singular>
+    <plural>Cactus Potions</plural>
+  </name>
+
+  <name key="ManaPotion">
+    <singular>Mana Potion</singular>
+    <plural>Mana Potions</plural>
+  </name>
+
+  <name key="Heartflower">
+    <singular>Heartflower</singular>
+    <plural>Heartflowers</plural>
+  </name>
+
+  <name key="PricklyPear">
+    <singular>Prickly Pear</singular>
+    <plural>Prickly Pears</plural>
+  </name>
+
+  <name key="FrozenHeartflower">
+    <singular>Iceflower</singular>
+    <plural>Iceflowers</plural>
+  </name>
+
+  <name key="Soulflower">
+    <singular>Soulflower</singular>
+    <plural>Soulflowers</plural>
+  </name>
+
+  <name key="GinsengSoup">
+    <singular>Ginseng Soup</singular>
+    <plural>Ginseng Soups</plural>
+  </name>
+
+  <name key="RadishSlice">
+    <singular>Radish Slice</singular>
+    <plural>Radish Slices</plural>
+  </name>
+
+  <name key="OnionSlice">
+    <singular>Onion Slice</singular>
+    <plural>Onion Slices</plural>
+  </name>
+
+  <name key="WaterFlask">
+    <singular>Water Flask</singular>
+    <plural>Water Flasks</plural>
+  </name>
+
+  <name key="Bomb">
+    <singular>Bomb</singular>
+    <plural>Bombs</plural>
+  </name>
+
+  <name key="Nugget">
+    <singular>Nugget</singular>
+    <plural>Nuggets</plural>
+  </name>
+
+  <name key="Log">
+    <singular>Log</singular>
+    <plural>Logs</plural>
+  </name>
+
+  <name key="Feather">
+    <singular>Feather</singular>
+    <plural>Feathers</plural>
+  </name>
+
+  <name key="Horn">
+    <singular>Horn</singular>
+    <plural>Horns</plural>
+  </name>
+
+  <name key="Claw">
+    <singular>Claw</singular>
+    <plural>Claws</plural>
+  </name>
+
+  <name key="Fiber">
+    <singular>Fiber</singular>
+    <plural>Fibers</plural>
+  </name>
+
+  <name key="Cobweb">
+    <singular>Cobweb</singular>
+    <plural>Cobwebs</plural>
+  </name>
+
+  <name key="Hair">
+    <singular>Hair</singular>
+    <plural>Hairs</plural>
+  </name>
+
+  <name key="Crystal">
+    <singular>Crystal</singular>
+    <plural>Crystals</plural>
+  </name>
+
+  <name key="PlatinumCoin">
+    <singular>Platinum Coin</singular>
+    <plural>Platinum Coins</plural>
+  </name>
+
+  <name key="Yarn">
+    <singular>Yarn</singular>
+    <plural>Yarns</plural>
+  </name>
+
+  <name key="Cube">
+    <singular>Cube</singular>
+    <plural>Cubes</plural>
+  </name>
+
+  <name key="Orb">
+    <singular>Orb</singular>
+    <plural>Orbs</plural>
+  </name>
+
+  <name key="Spirit">
+    <singular>Spirit</singular>
+    <plural>Spirits</plural>
+  </name>
+
+  <name key="Flask">
+    <singular>Flask</singular>
+    <plural>Flasks</plural>
+  </name>
+
+  <name key="Beak">
+    <singular>Beak</singular>
+    <plural>Beaks</plural>
+  </name>
+
+  <name key="JewelCase">
+    <singular>Jewel Case</singular>
+    <plural>Jewel Cases</plural>
+  </name>
+
+  <name key="Key">
+    <singular>Key</singular>
+    <plural>Keys</plural>
+  </name>
+
+  <name key="Medicine">
+    <singular>Medicine</singular>
+    <plural>Medicines</plural>
+  </name>
+
+  <name key="Antivenom">
+    <singular>Antivenom</singular>
+    <plural>Antivenoms</plural>
+  </name>
+
+  <name key="BandAid">
+    <singular>Band Aid</singular>
+    <plural>Band Aids</plural>
+  </name>
+
+  <name key="Crutch">
+    <singular>Crutch</singular>
+    <plural>Crutchs</plural>
+  </name>
+
+  <name key="Bandage">
+    <singular>Bandage</singular>
+    <plural>Bandages</plural>
+  </name>
+
+  <name key="Salve">
+    <singular>Salve</singular>
+    <plural>Salves</plural>
+  </name>
+
+  <name key="Leftovers">
+    <singular>Leftovers</singular>
+    <plural>Leftovers</plural>
+  </name>
+
+  <name key="Painting">
+    <singular>Painting</singular>
+    <plural>Paintings</plural>
+  </name>
+
+  <name key="MaterialIron">
+    <singular>Iron</singular>
+    <item>Iron @</item>
+  </name>
+  <name key="MaterialWood">
+    <singular>Wood</singular>
+    <item>Wood @</item>
+  </name>
+  <name key="MaterialGold">
+    <singular>Gold</singular>
+    <item>Gold @</item>
+  </name>
+  <name key="MaterialIce">
+    <singular>Ice</singular>
+    <item>Ice @</item>
+  </name>
+  <name key="MaterialLight">
+    <singular>Licht</singular>
+    <item>Licht-@</item>
+  </name>
+  <name key="MaterialGlass">
+    <singular>Glass</singular>
+    <item>Glass @</item>
+  </name>
+  <name key="MaterialSatin">
+    <singular>Satin</singular>
+    <item>Satin @</item>
+  </name>
+  <name key="MaterialSilk">
+    <singular>Silk</singular>
+    <item>Silk @</item>
+  </name>
+  <name key="MaterialLinen">
+    <singular>Linen</singular>
+    <item>Linen @</item>
+  </name>
+  <name key="MaterialCotton">
+    <singular>Cotton</singular>
+    <item>Cotton @</item>
+  </name>
+  <name key="MaterialSilver">
+    <singular>Silver</singular>
+    <item>Silver @</item>
+  </name>
+  <name key="MaterialCopper">
+    <singular>Copper</singular>
+    <item>Copper @</item>
+  </name>
+  <name key="MaterialSandstone">
+    <singular>Sandstone</singular>
+    <item>Sandstone @</item>
+  </name>
+  <name key="MaterialEmerald">
+    <singular>Emerald</singular>
+    <item>Emerald @</item>
+  </name>
+  <name key="MaterialSapphire">
+    <singular>Saphhire</singular>
+    <item>Saphhire @</item>
+  </name>
+  <name key="MaterialRuby">
+    <singular>Ruby</singular>
+    <item>Ruby @</item>
+  </name>
+  <name key="MaterialDiamond">
+    <singular>Diamond</singular>
+    <item>Diamond @</item>
+  </name>
+  <name key="MaterialObsidian">
+    <singular>Obsidian</singular>
+    <item>Obsidian @</item>
+  </name>
+  <name key="MaterialSaurian">
+    <singular>Saurian</singular>
+    <item>Saurian @</item>
+  </name>
+  <name key="MaterialParrot">
+    <singular>Parrot</singular>
+    <item>Parrot @</item>
+  </name>
+  <name key="MaterialMammoth">
+    <singular>Mammoth</singular>
+    <item>Mammoth @</item>
+  </name>
+  <name key="MaterialPlant">
+    <singular>Plant</singular>
+    <item>Plant @</item>
+  </name>
+  <name key="MaterialBone">
+    <singular>Bone</singular>
+    <item>Bone @</item>
+  </name>
+  <name key="MaterialFire">
+    <singular>Fire</singular>
+    <item>Fire @</item>
+  </name>
+  <name key="MaterialUnholy">
+    <singular>Unholy</singular>
+    <item>Unholy @</item>
+  </name>
+  <name key="MaterialIce">
+    <singular>Ice</singular>
+    <item>Ice @</item>
+  </name>
+  <name key="MaterialWind">
+    <singular>Wind</singular>
+    <item>Wind @</item>
+  </name>
+
+
+
+  <landscape key="Hills">
+    <normal>@ Hills</normal>
+    <to>in @ Hills</to>
+    <in>in @ Hills</in>
+    <the>the @ Hills</the>
+  </landscape>
+
+  <landscape key="Lands of">
+    <normal>Lands of @</normal>
+    <to>to the Lands of @</to>
+    <in>in the Lands of @</in>
+    <the>the Lands of @</the>
+  </landscape>
+
+  <landscape key="Plains">
+    <normal>@ Plains</normal>
+    <to>to the @ Plains</to>
+    <in>in the @ Plains</in>
+    <the>the @ Plains</the>
+  </landscape>
+
+  <landscape key="Forest">
+    <normal>@ Forest</normal>
+    <to>to @ Forest</to>
+    <in>in @ Forest</in>
+    <the>the @ Forest</the>
+  </landscape>
+
+  <landscape key="Beach">
+    <normal>@ Beach</normal>
+  </landscape>
+  <landscape key="Lake">
+    <normal>@ Lake</normal>
+  </landscape>
+  <landscape key="Canyon">
+    <normal>@ Canyon</normal>
+  </landscape>
+  <landscape key="Rock">
+    <normal>@ Rock</normal>
+  </landscape>
+  <landscape key="Crater">
+    <normal>@ Crater</normal>
+  </landscape>
+  <landscape key="Ocean">
+    <normal>@ Ocean</normal>
+  </landscape>
+  <landscape key="Village">
+    <normal>@ Village</normal>
+  </landscape>
+
+  <landscape key="City">
+    <normal>@ City</normal>
+  </landscape>
+
+  <landscape key="Trade Quarter">
+    <normal>Trade Quarter</normal>
+  </landscape>
+  <landscape key="Crafting Quarter">
+    <normal>Crafting Quarter</normal>
+  </landscape>
+  <landscape key="Adventurer Quarter">
+    <normal>Adventurer Quarter</normal>
+  </landscape>
+  <landscape key="Pet Quarter">
+    <normal>Pet Quarter</normal>
+  </landscape>
+
+  <landscape key="Castle">
+    <normal>@ Castle</normal>
+  </landscape>
+
+  <landscape key="Portal">
+    <normal>Portal of @</normal>
+  </landscape>
+
+
+  <landscape key="Ruins">
+    <normal>Ruins of @</normal>
+  </landscape>
+
+  <landscape key="Palace">
+    <normal>@ Palace</normal>
+  </landscape>
+
+  <landscape key="Temple">
+    <normal>Temple of @</normal>
+  </landscape>
+
+  <landscape key="Catacombs">
+    <normal>Catacombs of @</normal>
+  </landscape>
+
+  <landscape key="Mountains">
+    <normal>@ Mountains</normal>
+  </landscape>
+
+  <name key="Village" tags="f in2">
+    <singular>@ City</singular>
+    <dativ>@ City</dativ>
+    <akkusativ>@ City</akkusativ>
+  </name>
+
+  <name key="Trade Quarter" tags="n in">
+    <singular>Trade District</singular>
+  </name>
+
+  <name key="Crafting Quarter" tags="n in">
+    <singular>Crafting District</singular>
+  </name>
+
+  <name key="Class Quarter" tags="n in">
+    <singular>Adventurer District</singular>
+  </name>
+
+  <name key="Pet Quarter" tags="n in">
+    <singular>Pet District</singular>
+  </name>
+
+  <name key="Mountain" tags="p in">
+    <singular>@ Mountains</singular>
+  </name>
+
+  <name key="Valley" tags="n in">
+    <singular>@ Valley</singular>
+  </name>
+
+  <name key="Forest" tags="m in">
+    <singular>@ Forest</singular>
+  </name>
+
+  <name key="Lake" tags="m at the">
+    <singular>@ Lake</singular>
+  </name>
+
+  <name key="Ruins" tags="p in the">
+    <singular>Ruins of @</singular>
+  </name>
+
+  <name key="Gravesite" tags="f on">
+    <singular>Gravesite of @</singular>
+  </name>
+
+  <name key="Canyon" tags="f in">
+    <singular>@ Canyon</singular>
+  </name>
+
+  <name key="Rock" tags="m on the">
+    <singular>Rock of @</singular>
+  </name>
+
+  <name key="Tree" tags="m at the">
+    <singular>@ Tree</singular>
+  </name>
+
+  <name key="Peak" tags="m on">
+    <singular>@ Peak</singular>
+  </name>
+
+  <name key="Island" tags="f on">
+    <singular>@ Island</singular>
+  </name>
+
+  <name key="Crater" tags="m in the">
+    <singular>@ Crater</singular>
+  </name>
+
+  <name key="Cave" tags="f in the">
+    <singular>@ Cave</singular>
+  </name>
+
+  <name key="Portal" tags="n the">
+    <singular>Portal of @</singular>
+  </name>
+
+  <name key="Castle" tags="n in">
+    <singular>@ Castle</singular>
+  </name>
+
+  <name key="Catacombs" tags="p in the">
+    <singular>Catacombs of @</singular>
+  </name>
+
+  <name key="Palace" tags="m in">
+    <singular>@ Palace</singular>
+  </name>
+
+  <name key="Temple" tags="m in the">
+    <singular>Temple of @</singular>
+  </name>
+
+  <name key="Pyramid" tags="f in the">
+    <singular>@ Pyramid</singular>
+  </name>
+
+
+
+
+
+  <!--Rarity 0-->
+
+  <name key="item:shabby">
+    <m>shabby @</m>
+  </name>
+
+  <name key="item:plain">
+    <m>plain @</m>
+  </name>
+
+  <name key="item:battered">
+    <m>battered @</m>
+  </name>
+
+  <name key="item:artless">
+    <m>artless @</m>
+  </name>
+
+  <name key="item:unwieldy">
+    <m>unwieldy @</m>
+  </name>
+
+  <name key="item:used">
+    <m>used @</m>
+  </name>
+
+  <name key="item:dusty">
+    <m>dusty @</m>
+  </name>
+
+  <name key="item:scratched">
+    <m>scratched @</m>
+  </name>
+
+  <name key="item:worn">
+    <m>worn @</m>
+  </name>
+
+  <name key="item:common">
+    <m>common @</m>
+  </name>
+
+  <!--Rarity 1-->
+
+  <name key="item:adjusted">
+    <m>adjusted @</m>
+  </name>
+
+  <name key="item:balanced">
+    <m>balanced @</m>
+  </name>
+
+  <name key="item:battletested">
+    <m>battle-tested @</m>
+  </name>
+
+  <name key="item:good">
+    <m>good @</m>
+  </name>
+
+  <name key="item:handmade">
+    <m>handmade @</m>
+  </name>
+
+  <name key="item:fair">
+    <m>fair @</m>
+  </name>
+
+  <name key="item:neat">
+    <m>neat @</m>
+  </name>
+
+  <name key="item:clean">
+    <m>clean @</m>
+  </name>
+
+  <name key="item:undamaged">
+    <m>undamaged @</m>
+  </name>
+
+  <name key="item:flawless">
+    <m>flawless @</m>
+  </name>
+
+  <!--Rarity 2-->
+
+  <name key="item:exceptional">
+    <m>exceptional @</m>
+  </name>
+
+  <name key="item:polished">
+    <m>polished @</m>
+  </name>
+
+  <name key="item:extraordinary">
+    <m>extraordinary @</m>
+  </name>
+
+  <name key="item:exquisite">
+    <m>exquisite @</m>
+  </name>
+
+  <name key="item:superb">
+    <m>superb @</m>
+  </name>
+
+  <name key="item:unique">
+    <m>unique @</m>
+  </name>
+
+  <name key="item:handsome">
+    <m>handsome @</m>
+  </name>
+
+  <name key="item:grand">
+    <m>grand @</m>
+  </name>
+
+  <name key="item:magic">
+    <m>magic @</m>
+  </name>
+
+  <name key="item:decorated">
+    <m>decorated @</m>
+  </name>
+
+
+  <!--Rarity 3-->
+
+  <name key="item:exceptional2">
+    <m>#'s exceptional @</m>
+  </name>
+
+  <name key="item:polished2">
+    <m>polished @ of #</m>
+  </name>
+
+  <name key="item:extraordinary2">
+    <m>extraordinary @ of #</m>
+  </name>
+
+  <name key="item:exquisite2">
+    <m>exquisite @ of #</m>
+  </name>
+
+  <name key="item:superb2">
+    <m>#'s superb @</m>
+  </name>
+
+  <name key="item:unique2">
+    <m>unique @ of #</m>
+  </name>
+
+  <name key="item:handsome2">
+    <m>#'s handsome @</m>
+  </name>
+
+  <name key="item:grand2">
+    <m>grand @ of #</m>
+  </name>
+
+  <name key="item:magic2">
+    <m>magic @ of #</m>
+  </name>
+
+  <name key="item:decorated2">
+    <m>decorated @ of #</m>
+  </name>
+
+
+  <!--Rarity 4-->
+
+  <name key="item:brilliant">
+    <m>#'s brilliant @</m>
+  </name>
+
+  <name key="item:shining">
+    <m>shining @ of #</m>
+  </name>
+
+  <name key="item:magnificent">
+    <m>magnificent @ von #</m>
+  </name>
+
+  <name key="item:sublime">
+    <m>sublime @ of #</m>
+  </name>
+
+  <name key="item:pompous">
+    <m>#'s pompous @</m>
+  </name>
+
+  <name key="item:glorious">
+    <m>glorious @ of #</m>
+  </name>
+
+  <name key="item:splendid">
+    <m>#'s splendid @</m>
+  </name>
+
+  <name key="item:famous">
+    <m>famous @ of #</m>
+  </name>
+
+  <name key="item:legendary">
+    <m>legendary @ of #</m>
+  </name>
+
+  <name key="item:fabulous">
+    <m>fabulous @ of #</m>
+  </name>
+
+
+  <!-- Specializations -->
+
+  <speech key="specialization:warrior:berserker">
+    [Berserker $stress]
+    %
+    Berserkers jump into the fray to defeat their enemies with furious strikes.
+    %
+    [Berserker Rage $stress]: Your attack speed is increased with each hit.
+  </speech>
+
+  <speech key="specialization:warrior:guardian">
+    [Guardian $stress]
+    %
+    Guardians withstand the hardest attacks and biggest enemy crowds. They're well-suited to avert damage from allies.
+    %
+    [Toughness $stress]: Your health is increased by [25% $number].
+    %
+    [Barricade $stress]: Your shield block lasts twice as long as normal. Additionally you can parry damage with all weapons.
+  </speech>
+
+  <speech key="specialization:ranger:scout">
+    [Scout $stress]
+    %
+    Scouts are swift ranged combatants that fight their enemies with quick attacks.
+    %
+    [Intuition $stress]: Your attacks have a chance to make your next special attack instantly chargeable.
+  </speech>
+
+  <speech key="specialization:ranger:sniper">
+    [Sniper $stress]
+    %
+    Snipers use to hide away to eliminate their enemies with aimed shots.
+    %
+    [Hit Series $stress]: Your attack speed is increased with each hit.
+  </speech>
+
+  <speech key="specialization:mage:fire">
+    [Fire Mage $stress]
+    %
+    Fire Mages use the force of fire to burn their enemies with dangerous fire spells.
+    %
+    [Fire Spark $stress]: Your attacks have a chance to make your next special attack a free instant cast.
+  </speech>
+
+  <speech key="specialization:mage:water">
+    [Water Mage $stress]
+    %
+    Water Mages cast mighty water spells to fight enemies and heal allies.
+    %
+    [Torrent $stress]: Your attack speed is increased with each hit.
+  </speech>
+
+  <speech key="specialization:rogue:assassin">
+    [Assassin $stress]
+    %
+    Assassins are specialized on sneaking and stealth attacks.
+    %
+    [Way of the shadows $stress]: Each special attack increases your stealth. [Stealth $stress] increases damage, critical strike chance and regenerates MP.
+  </speech>
+
+  <speech key="specialization:rogue:ninja">
+    [Ninja $stress]
+    %
+    Ninjas are quick melee fighters who are specialized on evasion and counterattacks.
+    %
+    [Counter Strike $stress]: You dodge all attack while performing a special attack.
+    %
+    [Elusiveness $stress]: Each time you dodge an attack, you gain [25 MP $number] and your next special attack will be critical.
+  </speech>
+
+  <!--Skills-->
+
+  <speech key="skill:level">
+    % % [LVL @level $number] %
+  </speech>
+
+  <speech key="skill:nextlevel">
+    % % [Next Level $stress] %
+  </speech>
+
+  <speech key="description:SkillPetTaming">
+    [Pet Master $stress]
+    %
+    Your pets become stronger.
+  </speech>
+
+  <speech key="details:SkillPetTaming">
+    The health of your pet is increased by [@health $number].
+  </speech>
+
+  <speech key="description:SkillPetRiding">
+    [Riding $stress]
+    %
+    Enables pet riding for fast traveling.
+  </speech>
+
+  <speech key="details:SkillPetRiding">
+    Your riding speed amounts to [@ridingspeed $number].
+  </speech>
+
+  <speech key="description:SkillClimbing">
+    [Climbing $stress]
+    %
+    Enables more effective climbing on steep walls.
+  </speech>
+
+  <speech key="details:SkillClimbing">
+    You consume [@climbingpower $number] less stamina during climbing.
+  </speech>
+
+  <speech key="description:SkillHangGliding">
+    [Hang Gliding $stress]
+    %
+    Enables usage of hang gliders.
+  </speech>
+
+  <speech key="details:SkillHangGliding">
+    Your flying speed amounts to [@flyingspeed $number].
+  </speech>
+  
+  <speech key="description:SkillSwimming">
+    [Swimming $stress]
+    %
+    Enables faster swimming in water.
+  </speech>
+
+  <speech key="details:SkillSwimming">
+    Your swimming speed amounts to [@swimmingspeed $number].
+  </speech>
+
+  <speech key="description:SkillBoatDriving">
+    [Sailing $stress]
+    %
+    Enables usage of boats.
+  </speech>
+
+  <speech key="details:SkillBoatDriving">
+    Your boat speed amounts to [@boatspeed $number].
+  </speech>
+
+  <speech key="description:AbilitySmash">
+    [Smash $stress]
+    %
+    You jump to the selected spot and smash nearby enemies.
+  </speech>
+
+  <speech key="details:AbilitySmash">
+    The cooldown lasts [@smashcooldown $number] seconds.
+  </speech>
+
+  <speech key="description:AbilityCyclone">
+    [Cyclone $stress]
+    %
+    You spin around for [@cycloneduration $number] seconds and attack all enemies around you.
+  </speech>
+
+  <speech key="details:AbilityCyclone">
+    The cooldown lasts [@cyclonecooldown $number] seconds.
+  </speech>
+
+  <speech key="description:AbilityBulwark">
+    [Bulwark $stress]
+    %
+    You mobilize your forces to become immune against stuns and suffer less damage.
+    %
+    Can be used while you are stunned.
+    %
+    Lasts [@bulwarkduration $number] seconds.
+  </speech>
+
+  <speech key="details:AbilityBulwark">
+    The cooldown lasts [@bulwarkcooldown $number] seconds and you suffer [@bulwarkamount $number] less damage.
+  </speech>
+
+  <speech key="description:AbilityWarFrenzy">
+    [War Frenzy $stress]
+    %
+    You enter a war frenzy and can charge your special attacks faster.
+    %
+    Lasts [@warfrenzyduration $number] seconds.
+  </speech>
+
+  <speech key="details:AbilityWarFrenzy">
+   The cooldown lasts [@warfrenzycooldown $number] seconds and you can charge special attacks [@warfrenzyamount $number] faster.
+  </speech>
+
+
+  <speech key="description:AbilityRangerKick">
+    [Kick $stress]
+    %
+    You repulse all enemies in melee range with a bold kick. Enemies can be stunned thereby.
+  </speech>
+
+  <speech key="details:AbilityRangerKick">
+    The cooldown lasts [@rangerkickcooldown $number] seconds and the repulsion is increased by [@rangerkickknockback $number].
+  </speech>
+
+  <speech key="description:AbilityRetreat">
+    [Retreat $stress]
+    %
+    You jump back to seek shelter.
+  </speech>
+
+  <speech key="details:AbilityRetreat">
+   The cooldown lasts [@retreatcooldown $number] seconds and the jump distance is increased by [@retreatdistance $number].
+  </speech>
+
+
+  <speech key="description:AbilityAim">
+    [Aim $stress]
+    %
+    You lay down and camouflage yourself in stealth. [Stealth $stress] increases damage, critical strike chance and regenerates MP.
+    %
+    Gets canceled by movement.
+  </speech>
+
+  <speech key="details:AbilityAim">
+    The cooldown lasts [@aimcooldown $number] seconds and you enter stealth [@aimstealth $number] faster.
+  </speech>
+
+  <speech key="description:AbilitySwiftness">
+    [Scout's Swiftness $stress]
+    %
+    Thanks to your agility you can move and attack faster.
+    %
+    Lasts [@swiftnessduration $number] seconds.
+  </speech>
+
+  <speech key="details:AbilitySwiftness">
+    Your movement and attack speed is increased by [@swiftnessamount $number]. The cooldown lasts [@swiftnesscooldown $number] seconds.
+  </speech>
+
+
+
+  <speech key="description:AbilityFireExplosion">
+    [Fire Explosion $stress]
+    %
+    You cast a powerful explosion, that burns close enemies and knocks them back. Has a chance to stun enemies.
+  </speech>
+
+  <speech key="details:AbilityFireExplosion">
+    The cooldown lasts [@fireexplosioncooldown $number] seconds and the knock-back is increased by [@fireexplosionknockback $number].
+  </speech>
+
+
+  <speech key="description:AbilityManaShield">
+    [Mana Shield $stress]
+    %
+    You are protected by a magic shield which aborbs damage for up to [@manashieldduration $number] seconds.
+  </speech>
+
+  <speech key="details:AbilityManaShield">
+    The cooldown lasts [@manashieldcooldown $number] seconds and you absorb [@manashieldpower $number] more damage.
+  </speech>
+
+
+  <speech key="description:AbilityTeleport">
+    [Teleport $stress]
+    %
+    You teleport to the selected location.
+  </speech>
+
+  <speech key="details:AbilityTeleport">
+    The cooldown lasts [@teleportcooldown $number] seconds.
+  </speech>
+
+
+  <speech key="description:AbilityHealingStream">
+    [Healing Stream $stress]
+    %
+    You cast a stream of magic water to heal the selected ally or yourself.
+  </speech>
+
+  <speech key="details:AbilityHealingStream">
+    The mana costs amount to [@healingstreamcost $number] MP.
+  </speech>
+
+
+  <speech key="description:AbilityIntercept">
+    [Intercept $stress]
+    %
+    You move quickly to the selected location and attack close enemies with your special ability.
+  </speech>
+
+  <speech key="details:AbilityIntercept">
+    The cooldown lasts [@interceptcooldown $number] seconds.
+  </speech>
+
+  <speech key="description:AbilityShuriken">
+    [Shuriken Attack $stress]
+    %
+    You perform a backflip to seek shelter and throw multiple shuriken at your enemies.
+  </speech>
+
+  <speech key="details:AbilityShuriken">
+    The cooldown lasts [@shurikencooldown $number] seconds.
+  </speech>
+
+  <speech key="description:AbilityCamouflage">
+    [Camouflage $stress]
+    %
+    You camouflage yourself from enemies and stay in stealth even in combat. [Stealth $stress] increases damage, critical strike chance and MP regeneration.
+  </speech>
+
+  <speech key="details:AbilityCamouflage">
+    The cooldown lasts [@camouflagecooldown $number] seconds and the duration [@camouflageduration $number] seconds.
+  </speech>
+
+  <speech key="description:AbilitySneak">
+    [Sneak $stress]
+    %
+    You hide in the shadows to camouflage youself. [Stealth $stress] increases damage, critical strike chance and MP regeneration.
+  </speech>
+
+  <speech key="details:AbilitySneak">
+    Your sneaking speed is increased by [@sneakspeed $number] and your stealth ability is increased by [@sneakstealth $number].
+  </speech>
+
+
+
+
+  <speech key="materialitem">
+    @material @item
+  </speech>
+
+
+  <speech key="explored">
+    Have you already explored {#scenery_the the} [@scenery_singular $zone]?
+    %
+    Look, I've marked the location on your [map $stress]!
+  </speech>
+
+  <speech key="random:1">
+    How are you?
+  </speech>
+
+  <speech key="random:2">
+    The weather is nice!
+  </speech>
+
+  <speech key="random:3">
+    I love camping.
+    %
+    In [Cube World $stress]!
+  </speech>
+
+  <speech key="random:4">
+    You look like an adventurer!
+  </speech>
+
+  <speech key="random:5">
+    Are you looking for [@itemvendoritem_plural $item]?
+    You should visit the [Item Shop $stress]!
+  </speech>
+
+  <speech key="random:6">
+    Are you looking for Weapons?
+    You should visit the [Weapon Shop $stress]!
+  </speech>
+
+  <speech key="random:7">
+    Have you found [Leftovers $stress]?
+    You should visit the [Identifier $stress]!
+  </speech>
+
+  <speech key="random:8">
+    I like your style!
+  </speech>
+
+  <speech key="random:9">
+    You are strange looking!
+  </speech>
+
+  <speech key="random:10">
+    Do I know you?
+  </speech>
+
+  <speech key="random:11">
+    My [@pet_singular $creature] is adorable!
+  </speech>
+
+  <speech key="random:12">
+    I have a new [Pet $stress]. It's a [@pet_singular $creature]. I love it!
+  </speech>
+
+  <speech key="random:13">
+    I like your name.
+  </speech>
+
+  <speech key="random:14">
+    I haven't seen you before. Are you an adventurer?
+  </speech>
+
+  <speech key="random:15">
+    My favourite sport is [Hang Gliding $stress].
+  </speech>
+
+  <speech key="random:16">
+    My climbing skill is 285. I'm probably the best climber in Cube World!
+  </speech>
+
+  <speech key="random:17">
+    I love sailing!
+  </speech>
+
+  <speech key="random:18">
+    I love nature!
+  </speech>
+
+  <speech key="random:19">
+    I would love to have a [@pet_singular $creature] pet.
+  </speech>
+
+  <speech key="random:20">
+    I don't like hiking. I prefer riding.
+  </speech>
+
+  <speech key="random:21">
+    [@monster_plural $creature] are really strong.
+  </speech>
+
+  <speech key="random:22">
+    Dungeons are really dangerous places. Don't forget to take some potions with you.
+  </speech>
+
+  <speech key="random:23">
+    I have my own house!
+  </speech>
+  
+  <speech key="random:24">
+    My favourite food is Ginseng Soup.
+  </speech>
+
+  <speech key="random:25">
+    You can use better bombs when you become stronger.
+  </speech>
+
+  <speech key="random:26">
+    Some rocks can be destroyed with bombs. 
+    %
+    You can purchase them in the [Item Shop $stress]!
+  </speech>
+
+  <speech key="random:27">
+   I'm saving money to buy a hang glider.
+  </speech>
+
+  <speech key="random:28">
+    I'm saving money to buy a boat.
+  </speech>
+
+  <speech key="random:29">
+    I love traveling to cities of different lands.
+  </speech>
+
+  <speech key="random:30">
+    I love traveling from city to city.
+  </speech>
+  
+  <speech key="petfood">
+    Do you know what [@creature_plural $creature] like to eat? [@food_plural $item], of course!
+  </speech>
+
+  <speech key="innkeeper">
+    You can rest in our inn between [six 'o clock in the evening $stress] and [six 'o clock in the morning $stress].
+  </speech>
+
+  
+  
+
+
+
+  <speech key="description:monster">
+    { #creature_m #creature_n Ein | #creature_f Eine } [@creature_singular $creature] wurde
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_dativ $zone] | #scenery_f in der [@scenery_dativ $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_dativ $zone] | #scenery_f an der [@scenery_dativ $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_dativ $zone] | #scenery_f auf der [@scenery_dativ $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    } gesichtet!
+    Du musst  { #creature_m ihn | #creature_n es | #creature_f sie } besiegen!
+  </speech>
+
+  <speech key="objective:monster">
+    Defeat the [@creature_singular $creature] { #scenery_in in [@scenery_singular $zone] | on #scenery_on [@scenery_singular $zone] } .
+  </speech>
+
+  <speech key="description:rareboss">
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_dativ $zone] | #scenery_f in der [@scenery_dativ $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_dativ $zone] | #scenery_f an der [@scenery_dativ $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_dativ $zone] | #scenery_f auf der [@scenery_dativ $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }
+    treibt
+    { #creature_m #creature_n ein | #creature_f eine } [@creature_singular $creature]
+    namens [@name $name] { #creature_m #creature_n sein | #creature_f ihr } Unwesen.
+    %
+    Du musst  { #creature_m ihn | #creature_n es | #creature_f sie } bekämpfen! Aber pass auf, { #creature_m er | #creature_n es | #creature_f sie } ist viel stärker als gewöhnliche [@creature_plural $creature].
+  </speech>
+
+  <speech key="objective:rareboss">
+    Besiege [@name $name] { #creature_m den | #creature_f die | #creature_n das} [@creature_akkusativ $creature]
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_dativ $zone] | #scenery_f in der [@scenery_dativ $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_dativ $zone] | #scenery_f an der [@scenery_dativ $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_dativ $zone] | #scenery_f auf der [@scenery_dativ $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }.
+  </speech>
+
+  <speech key="description:villagerareboss">
+    { #creature_m Ein ungewöhnlich starker | #creature_n ein ungewöhnlich starkes | #creature_f eine ungewöhnlich starke} [@creature_singular $creature]
+    greift die Einwohner von [@scenery_singular $zone] an!
+    %
+    Du musst { #creature_m ihn | #creature_n es | #creature_f sie } vertreiben! Sein name scheint [@name $name] zu sein.
+  </speech>
+
+  <speech key="objective:villagerareboss">
+    Besiege [@name $name] { #creature_m den | #creature_f die | #creature_n das} [@creature_akkusativ $creature]
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_dativ $zone] | #scenery_f in der [@scenery_dativ $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_dativ $zone] | #scenery_f an der [@scenery_dativ $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_dativ $zone] | #scenery_f auf der [@scenery_dativ $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }.
+  </speech>
+
+  <speech key="description:villagemonster">
+    { #creature_m #creature_n Ein | #creature_f Eine } [@creature_singular $creature] greift die Stadt an! Die Einwohner brauchen dich!
+    %
+    Du musst  { #creature_m den | #creature_n das | #creature_f die } [@creature_akkusativ $creature] besiegen!
+  </speech>
+
+  <speech key="objective:villagemonster">
+    Besiege { #creature_m den | #creature_f die | #creature_n das} [@creature_akkusativ $creature]
+    in [@scenery_singular $zone].
+  </speech>
+
+  <speech key="description:invasion">
+    Bösartige [@creature_plural $creature] treiben sich im ganzen Land herum! Du musst etwas unternehmen.
+    %
+    Besiege so viele [@creature_plural $creature] wie möglich!
+  </speech>
+
+  <speech key="objective:invasion">
+    Besiege die [@creature_plural $creature] in den [Ländern von @land $zone].
+  </speech>
+
+  <speech key="description:caveinvasion">
+    In letzter Zeit werden in [Höhlen $zone] überall [@creature_plural $creature] gesichtet.
+    %
+    Sie stellen eine Gefahr für jeden Abenteurer da!
+    %
+    Spüre die [@creature_plural $creature] in [Höhlen $zone] auf und bekämpfe sie!
+  </speech>
+
+  <speech key="objective:caveinvasion">
+    Spüre die [@creature_plural $creature] in [Höhlen $zone] auf und bekämpfe sie.
+  </speech>
+
+  <speech key="description:riverinvasion">
+    Es häufen sich die Berichte über bösartige [@creature_plural $creature]!
+    %
+    Anscheinend sind sie vermehrt in der Nähe von [Flüssen $zone] zu finden.
+    %
+    Suche die [Flüsse $zone] im ganzen Land ab und bekämpfe die [@creature_plural $creature]!
+  </speech>
+
+  <speech key="objective:riverinvasion">
+    Suche die [Flüsse $zone] im ganzen Land ab und bekämpfe die [@creature_plural $creature].
+  </speech>
+
+  <speech key="description:dungeon">
+    {#zone_m #zone_n Im | #zone_f In der | #zone_p In den} [@zone_dativ $zone] scheint sich ein neuer [Herrscher $creature] eingenistet zu haben.
+    %
+    Er ist sehr mächtig und sehr gefährlich!
+    %
+    Du musst {#zone_m in den | #zone_n in das |  #zone_f #zone_p in die} [@zone_akkusativ $zone] eindringen und den [Herrscher $creature] besiegen.
+  </speech>
+
+  <speech key="objective:dungeon">
+    Defeat the ruler { #scenery_in in | on #scenery_on | at #scenery_at } { #scenery_the the } [@scenery_singular $zone] .
+  </speech>
+
+
+  <speech key="description:sceneryinvasion">
+    [@creature_plural $creature] wurden
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_dativ $zone] | #scenery_f in der [@scenery_dativ $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_dativ $zone] | #scenery_f an der [@scenery_dativ $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_dativ $zone] | #scenery_f auf der [@scenery_dativ $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }
+    gesichtet! Wir müssen sie zurückschlagen!
+    %
+    Besiege so viele [@creature_plural $creature] wie möglich!
+  </speech>
+
+  <speech key="objective:sceneryinvasion">
+    Besiege die [@creature_plural $creature]
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_singular $zone] | #scenery_f in der [@scenery_singular $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_singular $zone] | #scenery_f an der [@scenery_singular $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_singular $zone] | #scenery_f auf der [@scenery_singular $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }
+  </speech>
+
+  <speech key="description:villageinvasion">
+    [@creature_plural $creature] sind in der Stadt! Sie greifen alles und jeden an!
+    %
+    Wir müssen sie vertreiben! Besiege so viele [@creature_plural $creature] wie möglich!
+  </speech>
+
+  <speech key="objective:villageinvasion">
+    Besiege die [@creature_plural $creature] in [@scenery_singular $zone].
+  </speech>
+
+  <speech key="description:gang">
+    Zur Zeit macht eine [@creature_dativ-Bande $creature] Ärger
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_singular $zone] | #scenery_f in der [@scenery_singular $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_singular $zone] | #scenery_f an der [@scenery_singular $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_singular $zone] | #scenery_f auf der [@scenery_singular $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }.
+    %
+    Sie haben schon mehrere Einwohner überfallen und ausgeraubt!
+    %
+    Los, zeig es ihnen!
+  </speech>
+
+  <speech key="objective:gang">
+    Besiege die [@creature_dativ-Bande $creature]
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_singular $zone] | #scenery_f in der [@scenery_singular $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_singular $zone] | #scenery_f an der [@scenery_singular $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_singular $zone] | #scenery_f auf der [@scenery_singular $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }.
+  </speech>
+
+  <speech key="description:gangboss">
+    Eine Gruppe von [@creature_dativ-Banditen $creature] macht das Land unsicher!
+    %
+    Sie treiben sich zur Zeit anscheinend
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_singular $zone] | #scenery_f in der [@scenery_singular $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_singular $zone] | #scenery_f an der [@scenery_singular $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_singular $zone] | #scenery_f auf der [@scenery_singular $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    } herum.
+    %
+    Du musst ihren Anführer [@name $name] besiegen!
+  </speech>
+
+  <speech key="objective:gangboss">
+    Besiege [@name $name], den Anführer der [@creature_dativ-Banditen $creature]
+    { #scenery_in { #scenery_m #scenery_n im [@scenery_singular $zone] | #scenery_f in der [@scenery_singular $zone] | #scenery_p in den [@scenery_dativ $zone] }
+    | #scenery_an { #scenery_m #scenery_n am [@scenery_singular $zone] | #scenery_f an der [@scenery_singular $zone] | #scenery_p an den [@scenery_dativ $zone] }
+    | #scenery_auf { #scenery_m #scenery_n auf dem [@scenery_singular $zone] | #scenery_f auf der [@scenery_singular $zone] | #scenery_p auf den [@scenery_dativ $zone] }
+    | #scenery_in2 in [@scenery_singular $zone]
+    }.
+  </speech>
+
+
+  <speech key="objective:kill:creatures">
+    Defeat the @creature_plural.
+  </speech>
+
+  <speech key="objective:killsome">
+    Besiege die @creature_plural (@num/@amount)
+  </speech>
+
+  <speech key="experience">
+    Du hast alle Aufgaben hervorragend gemeistert! Aber du brauchst noch mehr Übung.
+    %
+    Wir sollten uns wieder unterhalten, sobald du [mehr Erfahrung $stress] gesammelt hast!
+  </speech>
+
+  <speech key="mission:giveup">
+    Möchtest du deine aktuelle Mission aufgeben?
+  </speech>
+
+  <speech key="level">
+    Ich kann dir nichts mehr beibringen.
+    %
+    Du solltest in ein [LVL @level Gebiet $zone] reisen und dort einen Meister aufsuchen!
+  </speech>
+
+  <!--Mage quest LVL 1-->
+
+  <speech key="title:mage:1.1">
+    Audienz beim Meister
+  </speech>
+
+  <speech key="objective:mage:master">
+    Sprich mit dem [Magier-Meister $creature] im [Abenteurer-Viertel $zone].
+  </speech>
+
+  <speech key="title:mage:1.2">
+    Eine magische Waffe
+  </speech>
+
+  <speech key="objective:gather">
+    Sammle [@item_plural $item] (@num/@amount)
+  </speech>
+
+  <speech key="objective:craft">
+    Stelle einen [@item_singular $item] her! (@num/@amount)
+  </speech>
+
+
+
+
+  <speech key="speech:mage:1.2.1">
+    Du willst also Magier werden? Nun, du siehst recht talentiert aus!
+    %
+    Doch bevor wir mit der Ausbildung beginnen können, brauchst du einen [Stab $item]!
+    %
+    Jeder Schüler der Magie muss sich seinen [Stab $item] selbst herstellen.
+    %
+    Dein erster [Stab $item] wird aus [Holz $item] gefertigt werden! Überall in der Gegend wachsen [Büsche $creature].
+    %
+    Zerkleinere ein paar von ihnen und bringe etwas [Holz $item] mit!
+  </speech>
+
+
+  <speech key="speech:mage:1.2.2">
+    Ah, sehr gut! Nun musst du nur noch deinen [Stab $item] herstellen.
+    %
+    Suche im [Handwerksviertel $zone] die [Werkbank $object] und fertige einen [Stab $item] an!
+  </speech>
+
+
+  <speech key="title:mage:1.3">
+    Übung macht den Meister
+  </speech>
+
+  <speech key="speech:mage:1.3">
+    Wie ich sehe hast du hast deinen [Stab $item] fertiggestellt!
+    %
+    Ich bringe dir nun den [Feuerschock $stress] bei.
+    %
+    Lege deinen Stab an und probiere [Feuerschock $stress] an einer [Übungspuppe $creature] aus!
+  </speech>
+
+  <speech key="objective:mage:1.3">
+    Übe [Feuerschock $stress] (@num/@amount)
+  </speech>
+
+
+  <speech key="title:mage:1.4">
+    Eine schleimige Angelegenheit
+  </speech>
+
+  <speech key="objective:mage:1.4">
+    [Schleime $creature] besiegt (@num/@amount)
+  </speech>
+
+  <speech key="speech:mage:1.4">
+    Sieht so aus als hättest du wirklich Talent! Es ist nun an der Zeit richtige [Monster $creature] zu bekämpfen.
+    %
+    Besiege ein paar [Schleime $creature] um deine fähigkeiten im Kampf zu trainieren.
+    %
+    Du findest [Schleime $creature] meistens in [Höhlen $zone]!
+  </speech>
+
+  <!--Warrior quest LVL 1-->
+
+  <speech key="title:warrior:1.1">
+    Audienz beim Meister
+  </speech>
+
+  <speech key="objective:warrior:master">
+    Sprich mit dem [Krieger-Meister $creature] im [Abenteurer-Viertel $zone].
+  </speech>
+
+  <speech key="title:warrior:1.2">
+    Die Waffe eines Kriegers
+  </speech>
+
+
+  <speech key="speech:warrior:1.2.1">
+    Du möchtest also [Krieger $stress] werden? Na gut, ich werde dich unterrichten.
+    %
+    Doch bevor wir mit der Ausbildung beginnen können, brauchst du eine Waffe!
+    %
+    Deine erste Waffe wird ein [Großstreitkolben $item] sein! Und du musst ihn selbst herstellen.
+    %
+    Dein [Großstreitkolben $item] wird aus [Holz $item] gefertigt werden! Überall in der Gegend wachsen [Büsche $creature].
+    %
+    Zerkleinere ein paar von ihnen und bringe etwas [Holz $item] mit!
+  </speech>
+
+
+  <speech key="speech:warrior:1.2.2">
+    Gute Arbeit! Nun musst du nur noch deinen [Großstreitkolben $item] herstellen.
+    %
+    Suche im [Handwerksviertel $zone] die [Werkbank $object] und fertige einen [Großstreitkolben $item] an!
+  </speech>
+
+
+  <speech key="title:warrior:1.3">
+    Übung macht den Meister
+  </speech>
+
+  <speech key="speech:warrior:1.3">
+    Wie ich sehe hast du hast deinen [Großstreitkolben $item] fertiggestellt!
+    %
+    Ich bringe dir nun das [Zuschlagen $stress] bei.
+    %
+    Lege deinen [Großstreitkolben $item] an und probiere [Zuschlagen $stress] an einer [Übungspuppe $creature] aus!
+  </speech>
+
+  <speech key="objective:warrior:1.3">
+    Übe [Zuschlagen $stress] (@num/@amount)
+  </speech>
+
+
+  <speech key="title:warrior:1.4">
+    Eine schleimige Angelegenheit
+  </speech>
+
+  <speech key="objective:warrior:1.4">
+    [Schleime $creature] besiegt (@num/@amount)
+  </speech>
+
+  <speech key="speech:warrior:1.4">
+    Ja, du hast wirklich das Talent zum [Krieger $stress]. Es ist nun an der Zeit richtige [Monster $creature] zu bekämpfen.
+    %
+    Besiege ein paar [Schleime $creature] um deine Fähigkeiten im Kampf zu trainieren.
+    %
+    Du findest [Schleime $creature] meistens in [Höhlen $zone]!
+  </speech>
+
+  <speech key="speech:warrior:2.1">
+    Die Ausbildung geht weiter!
+  </speech>
+
+  <speech key="title:defeatfirstcreature">
+    Besiege { #creature_m #creature_n einen | #creature_f eine} [@creature_singular $creature] !
+  </speech>
+
+  <speech key="objective:defeatfirst">
+    [@creature_singular $creature] besiegt (@num/@amount)
+  </speech>
+
+
+  <speech key="title:defeatcreatures">
+    Besiege @num [@creature_plural $creature] !
+  </speech>
+
+  <speech key="objective:defeatcreatures">
+    [@creature_plural $creature] besiegt (@num/@amount)
+  </speech>
+
+</root>

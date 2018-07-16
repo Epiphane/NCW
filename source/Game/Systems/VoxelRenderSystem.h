@@ -26,7 +26,7 @@ namespace Game
       VoxelRender(const VoxelRender& other);
       
       Engine::Graphics::VBO mVoxelData;
-      uint32_t mSize;
+      GLsizei mSize;
    };
 
    class VoxelRenderSystem : public Engine::System<VoxelRenderSystem> {
@@ -34,9 +34,9 @@ namespace Game
       VoxelRenderSystem(Engine::Graphics::Camera* camera = nullptr);
       ~VoxelRenderSystem();
 
-      void Configure(Engine::EntityManager& entities/*, EventManager& events*/) override;
+      void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
 
-      void Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) override;
+      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
       void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
       

@@ -11,7 +11,7 @@ namespace CubeWorld
 namespace Game
 {
    
-   void CameraSystem::Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt)
+   void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
    {
       double movement[2];
       mInput->GetMouse(nullptr, movement);

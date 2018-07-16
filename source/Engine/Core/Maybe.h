@@ -2,59 +2,89 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
+
+#include "Either.h"
+#include "Failure.h"
 
 namespace CubeWorld
 {
+/*
+template<typename T> class Maybe;
 
-   template<typename T> class Maybe;
+template<> class Maybe<void>
+{
+public:
+   Maybe() : isSuccess(true) {};
+   Maybe(const Failure& failure) : failure(failure), isSuccess(false) {};
+   Maybe(const Maybe<void>& other) : failure(other.failure), isSuccess(other.isSuccess) {};
+   ~Maybe() {}
 
-   // Encapsulates a "success-or-error" case, instead of using the inconsistent
-   // and hard to understand boolean.
-   template<> class Maybe<void> {};
+   bool Succeeded() { return isSuccess; }
+   bool Failed() { return !Succeeded(); }
 
-   template<typename T>
-   class Maybe
-   {
-   public:
-      constexpr Maybe() : hasValue(false) {};
-      constexpr Maybe(const T& value) : value(value), hasValue(true) {};
-      constexpr Maybe(T&& value) : value(std::move(value)), hasValue(true) {};
-      constexpr Maybe(Maybe<void>) : hasValue(false) {};
-      constexpr Maybe(const Maybe<T>& other) : hasValue(other.hasValue)
+   Failure& Failure() { assert(Failed()); return failure; }
+
+   constexpr Maybe& operator=(const Maybe& other)
+   { 
+      if (isSuccess = other.isSuccess)
       {
-         if (other.hasValue)
-         {
-            new (&value)T(other.value);
-         }
+         failure = other.failure;
       }
+      return *this;
+   }
 
-      ~Maybe()
-      {
-         if (hasValue)
-         {
-            value.~T();
-         }
-      }
+   constexpr void operator*() { assert(false); }
+   constexpr void* operator->() { assert(false); }
+   constexpr bool operator !() const { return !isSuccess; }
 
-      constexpr T get()
-      {
-         assert(hasValue);
-         return value;
-      }
+protected:
+   CubeWorld::Failure failure;
 
-      constexpr T operator*() { return get(); }
-      constexpr T* operator->() { return &value; }
-      constexpr operator bool() const { return hasValue; }
+   bool isSuccess;
+};*/
 
-      constexpr Maybe& operator=(const T& val) { value = val; hasValue = true; return *this; }
+template <typename T, typename FailureType>
+class MaybeType : protected Either<
+   typename std::conditional<std::is_void<T>::value, std::nullptr_t, T>::type,
+   FailureType
+>
+{
+public:
+   using ValueType = typename std::conditional<std::is_void<T>::value, std::nullptr_t, T>::type;
 
-   private:
-      union {
-         T value;
-      };
+   // Default constructor is not a success.
+   constexpr MaybeType() : Either(FailureType{}) {};
 
-      bool hasValue = false;
-   };
+   // Move and copy constructors for each side.
+   constexpr MaybeType(const ValueType& value) : Either(value) {};
+   constexpr MaybeType(ValueType&& value) : Either(std::move(value)) {};
+   constexpr MaybeType(const FailureType& failure) : Either(failure) {};
+   constexpr MaybeType(FailureType&& failure) : Either(std::move(failure)) {};
+
+public:
+   // Success and failure operators.
+   bool Succeeded() const { return IsLeft(); }
+   bool Failed() const { return IsRight(); }
+   constexpr bool operator !() const { return Failed(); }
+   constexpr operator bool() const { return Succeeded(); }
+
+   // Retrieving the error.
+   const FailureType& Failure() const { return Right(); }
+   FailureType& Failure() { return Right(); }
+
+   // Data access.
+   const ValueType& Result() const { return Left(); }
+   ValueType& Result() { return Left(); }
+
+   constexpr ValueType& operator*() { assert(Succeeded()); return Result(); }
+   constexpr T* operator->() { assert(Succeeded()); return &leftVal; }
+};
+
+template <typename T>
+using Maybe = MaybeType<T, Failure>;
+
+const nullptr_t Success = nullptr;
 
 }; // namespace CubeWorld

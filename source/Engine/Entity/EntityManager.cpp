@@ -8,6 +8,18 @@ namespace CubeWorld
 namespace Engine
 {
 
+EntityManager::EntityManager(EventManager &events) : mEventManager(events)
+{
+}
+
+EntityManager::~EntityManager()
+{
+   // TODO clean shit up:
+   // component pools
+   // component helpers
+   // entities for debugging?
+}
+
 Entity::ID EntityManager::MakeID(uint32_t index) const
 {
    return Entity::ID(index, mEntityVersion[index]);
@@ -38,7 +50,7 @@ Entity EntityManager::Create()
       version = mEntityVersion[index];
    }
    Entity entity(this, Entity::ID(index, version));
-   // TODO emit an event.
+   mEventManager.Emit<EntityCreatedEvent>(entity);
    return entity;
 }
 
@@ -56,6 +68,28 @@ Entity EntityManager::Clone(Entity original)
       }
    }
    return clone;
+}
+
+void EntityManager::Destroy(Entity::ID id)
+{
+   assert_valid(id);
+   Entity entity(this, id);
+
+   uint32_t index = id.index();
+   auto mask = mEntityComponentMask[index];
+   for (size_t i = 0; i < mComponentHelpers.size(); ++i)
+   {
+      BaseComponentHelper* helper = mComponentHelpers[i];
+      if (helper != nullptr && mask.test(i))
+      {
+         helper->RemoveComponent(entity);
+      }
+   }
+   mEventManager.Emit<EntityDestroyedEvent>(entity);
+
+   mEntityComponentMask[index].reset();
+   mEntityVersion[index]++;
+   mEntityFreeList.push_back(index);
 }
 
 }; // namespace Engine

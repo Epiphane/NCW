@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "../Entity/EntityManager.h"
+#include "../Event/EventManager.h"
 #include "System.h"
 
 namespace CubeWorld
@@ -18,10 +19,10 @@ namespace Engine
 class SystemManager
 {
 public:
-   SystemManager(EntityManager& entityManager /*, EventManager& eventManager */)
+   SystemManager(EntityManager& entityManager, EventManager& eventManager)
       : mInitialized(false)
       , mEntityManager(entityManager)
-      // , mEventManager(eventManager)
+      , mEventManager(eventManager)
    {};
 
    // Add a system to the manager. It will live for as long as the system manager does.
@@ -50,7 +51,7 @@ public:
 private:
    bool mInitialized;
    EntityManager& mEntityManager;
-   // EventManager& mEventManager;
+   EventManager& mEventManager;
    std::unordered_map<BaseSystem::Family, std::shared_ptr<BaseSystem>> mSystems;
 };
 

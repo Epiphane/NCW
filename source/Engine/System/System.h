@@ -6,6 +6,7 @@
 
 #include "../Core/Config.h"
 #include "../Entity/EntityManager.h"
+#include "../Event/EventManager.h"
 
 namespace CubeWorld
 {
@@ -24,10 +25,10 @@ public:
 
    // Called once all the systems are added to the manager.
    // Typically used for setting up event handlers.
-   virtual void Configure(EntityManager& /*entities*//*, EventManager& events*/) {}
+   virtual void Configure(EntityManager& /*entities*/, EventManager& /*events*/) {}
 
    // Apply system behavior, called once per game step.
-   virtual void Update(EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) = 0;
+   virtual void Update(EntityManager& entities, EventManager& events, TIMEDELTA dt) = 0;
 
    // This gets incremented with each unique call to System<C>::GetFamily();
    static Family sNumFamilies;

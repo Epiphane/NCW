@@ -35,9 +35,9 @@ namespace Game
       Simple3DRenderSystem(Engine::Graphics::Camera* camera = nullptr);
       ~Simple3DRenderSystem();
 
-      void Configure(Engine::EntityManager& entities/*, EventManager& events*/) override;
+      void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
 
-      void Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA dt) override;
+      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
       void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
       

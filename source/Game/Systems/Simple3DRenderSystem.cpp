@@ -50,7 +50,7 @@ Simple3DRenderSystem::~Simple3DRenderSystem()
 {
 }
 
-void Simple3DRenderSystem::Configure(Engine::EntityManager& /*entities*/)
+void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
    if (program != 0)
    {
@@ -78,7 +78,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager& /*entities*/)
 
 using Transform = Engine::Transform;
 
-void Simple3DRenderSystem::Update(Engine::EntityManager& entities/*, EventManager& events*/, TIMEDELTA)
+void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
 {
    glUseProgram(program);
 

@@ -5,11 +5,12 @@
 #include <memory>
 #include <vector>
 
-#include <Engine/Core/Config.h>
-#include <Engine/Core/Input.h>
-#include <Engine/Entity/EntityManager.h>
-#include <Engine/System/SystemManager.h>
-#include <Engine/Graphics/Camera.h>
+#include "Config.h"
+#include "Input.h"
+#include "../Entity/EntityManager.h"
+#include "../Event/EventManager.h"
+#include "../System/SystemManager.h"
+#include "../Graphics/Camera.h"
 
 namespace CubeWorld
 {
@@ -39,7 +40,7 @@ public:
    //void AddObject(std::unique_ptr<GameObject> obj);
 
 protected:
-   // EventManager events;
+   EventManager mEvents;
    EntityManager mEntities;
    SystemManager mSystems;
 };

@@ -33,6 +33,8 @@ namespace Game
       mSystems.Add<FlySystem>(Engine::Input::InputManager::Instance());
       
       mSystems.Configure();
+
+      mEvents.Subscribe<NamedEvent>(*this);
    }
 
    StupidState::~StupidState()
@@ -53,7 +55,7 @@ namespace Game
          cameraOptions
       );
       player.Add<MouseControlledCamera>();
-      player.Add<FlySpeed>(10);
+      player.Add<FlySpeed>(100);
 
       mCamera.Set(handle.get());
 
@@ -178,11 +180,21 @@ namespace Game
       //voxels.Add<Simple3DRender>(std::move(p), std::move(c));
       voxels.Add<CubeModel>("Models/arrow.cub");
 
-      for (int i = -100; i < 100; i++)
+      for (int i = -10; i < 10; i++)
       {
          voxels = mEntities.Create();
          voxels.Add<Transform>(glm::vec3(3.5 * i, -5, 0));
          voxels.Add<CubeModel>("Models/arrow.cub");
+      }
+   }
+
+   void StupidState::Receive(const NamedEvent& event)
+   {
+      if (event.name == "spawn arrow")
+      {
+         Entity arrow = mEntities.Create();
+         arrow.Add<Transform>(glm::vec3(3.5 * arrow.GetID().index(), -5, 5));
+         arrow.Add<CubeModel>("Models/arrow.cub");
       }
    }
 

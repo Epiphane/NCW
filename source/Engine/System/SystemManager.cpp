@@ -13,7 +13,7 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
    assert(mInitialized);
    for (auto& pair : mSystems)
    {
-      pair.second->Update(mEntityManager/*, mEventManager*/, dt);
+      pair.second->Update(mEntityManager, mEventManager, dt);
    }
 }
 
@@ -22,7 +22,7 @@ void SystemManager::Configure()
    assert(!mInitialized);
    for (auto& pair : mSystems)
    {
-      pair.second->Configure(mEntityManager/*, mEventManager*/);
+      pair.second->Configure(mEntityManager, mEventManager);
    }
    mInitialized = true;
 }

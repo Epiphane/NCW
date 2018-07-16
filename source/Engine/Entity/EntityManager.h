@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "../Core/Pool.h"
+#include "../Event/EventManager.h"
 #include "Entity.h"
 #include "Component.h"
 #include "ComponentHandle.h"
@@ -18,6 +19,53 @@ namespace CubeWorld
 {
 
 namespace Engine
+{
+
+//
+// Emitted when an entity is created.
+//
+struct EntityCreatedEvent : public Event<EntityCreatedEvent> {
+   explicit EntityCreatedEvent(Entity entity) : entity(entity) {}
+   virtual ~EntityCreatedEvent() {}
+
+   Entity entity;
+};
+
+//
+// Emitted when an entity is destroyed.
+//
+struct EntityDestroyedEvent : public Event<EntityDestroyedEvent> {
+   explicit EntityDestroyedEvent(Entity entity) : entity(entity) {}
+   virtual ~EntityDestroyedEvent() {}
+
+   Entity entity;
+};
+
+//
+// Emitted when any component is added to an entity.
+//
+template <typename C>
+struct ComponentAddedEvent : public Event<ComponentAddedEvent<C>> {
+   ComponentAddedEvent(Entity entity, ComponentHandle<C> component) :
+      entity(entity), component(component) {}
+
+   Entity entity;
+   ComponentHandle<C> component;
+};
+
+//
+// Emitted when any component is removed from an entity.
+//
+template <typename C>
+struct ComponentRemovedEvent : public Event<ComponentRemovedEvent<C>> {
+   ComponentRemovedEvent(Entity entity, ComponentHandle<C> component) :
+      entity(entity), component(component) {}
+
+   Entity entity;
+   ComponentHandle<C> component;
+};
+
+namespace
 {
 
 //
@@ -41,13 +89,18 @@ public:
    }
 };
 
-/**
- * EntityManager is in charge of managing all the entities themselves, as well as managing and locating their components.
- */
+}; // anonymous namespace
+
+//
+// EntityManager is in charge of managing all the entities themselves, as well as managing and locating their components.
+//
 class EntityManager {
 public:
-   // Entity and component access.
+   explicit EntityManager(EventManager &events);
+   // TODO CLEAN SHIT UP 
+   virtual ~EntityManager();
 
+   // Entity and component access.
    class EntityIterator : public std::iterator<std::input_iterator_tag, Entity::ID> {
    public:
       EntityIterator& operator++() // prefix
@@ -165,8 +218,9 @@ public:
 public:
    // Entity lifecycle management.
    Entity Create();
-
    Entity Clone(Entity original);
+
+   void Destroy(Entity::ID id);
 
    Entity GetEntity(Entity::ID id);
 
@@ -209,7 +263,7 @@ public:
 
       // Return handle to component.
       ComponentHandle<C> component(this, id);
-      // TODO emit event.
+      mEventManager.Emit<ComponentAddedEvent<C>>(Entity(this, id), component);
       return component;
    }
 
@@ -240,7 +294,7 @@ public:
 
       BasePool* pool = mComponentPools[family];
       ComponentHandle<C> component(this, id);
-      // TODO emit event.
+      mEventManager.Emit<ComponentRemovedEvent<C>>(Entity(this, id), component);
 
       mEntityComponentMask[id.index()].reset(family);
 
@@ -279,6 +333,9 @@ public:
    size_t size() { return mNumEntities - mEntityFreeList.size(); }
 
    size_t capacity() { return mNumEntities; }
+
+private:
+   EventManager& mEventManager;
 
 private:
    // Entity data.
