@@ -55,6 +55,9 @@ GLuint LoadShader(const std::string& filePath, GLenum shaderType) {
       }
    }
 
+   GLenum error = glGetError();
+   assert(error == 0);
+
    return shaderID;
 }
 
@@ -115,6 +118,9 @@ Program LoadProgram(
       }
    }
 
+   GLenum error = glGetError();
+   assert(error == 0);
+
    glDetachShader(programID, vertexShader);
    glDeleteShader(vertexShader);
    if (geomShader != 0)
@@ -124,6 +130,7 @@ Program LoadProgram(
    }
    glDetachShader(programID, fragShader);
    glDeleteShader(fragShader);
+
 
    return programID;
 }

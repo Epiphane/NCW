@@ -85,14 +85,14 @@ namespace Game
        0.7500, (128, 128, 128, 255)); // rock
       1.0000, (255, 255, 255, 255)); // snow
       */
-      glm::vec4 DEEP(0, 0, 0.5f, 1);
-      glm::vec4 SHALLOW(0, 0, 1, 1);
-      glm::vec4 SHORE(0, 0.5f, 1, 1);
-      glm::vec4 SAND(0.941f, 0.941f, 0.25, 1);
-      glm::vec4 GRASS(0.125f, 0.625f, 0, 1);
-      glm::vec4 DIRT(0.475f, 0.475f, 0, 1);
-      glm::vec4 ROCK(0.5f, 0.5f, 0.5f, 1);
-      glm::vec4 SNOW(1, 1, 1, 1);
+      glm::vec4 DEEP(0, 0, 128, 1);
+      glm::vec4 SHALLOW(0, 0, 255, 1);
+      glm::vec4 SHORE(0, 128, 255, 1);
+      glm::vec4 SAND(240, 240, 64, 1);
+      glm::vec4 GRASS(32, 159, 0, 1);
+      glm::vec4 DIRT(96, 96, 0, 1);
+      glm::vec4 ROCK(128, 128, 128, 1);
+      glm::vec4 SNOW(255, 255, 255, 1);
 
       std::vector<GLfloat> p, c;
       for (int i = -size; i <= size; ++i) {
@@ -176,9 +176,9 @@ namespace Game
 
       Entity voxels = mEntities.Create();
       voxels.Add<Transform>(glm::vec3(0, 0, -5));
-      //voxels.Add<VoxelRender>(std::move(carpet));
+      voxels.Add<VoxelRender>(std::move(carpet));
       //voxels.Add<Simple3DRender>(std::move(p), std::move(c));
-      voxels.Add<CubeModel>("Models/arrow.cub");
+      //voxels.Add<CubeModel>("Models/airship.cub");
 
       for (int i = -10; i < 10; i++)
       {

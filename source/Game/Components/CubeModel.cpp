@@ -1,5 +1,8 @@
 // By Thomas Steinke
 
+#if CUBEWORLD_PLATFORM_WINDOWS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <cstdio>
 #include <fstream>
 #include <GL/glew.h>
@@ -121,27 +124,30 @@ CubeModelInfo* CubeModelInfo::Load(const std::string& path)
       return nullptr;
    }
 
-   for (int i = 0; i < nElements; i++)
+   for (uint32_t i = 0; i < nElements; i++)
    {
       filled[i] = !(data[3*i] == 0 && data[3*i+1] == 0 && data[3*i+2] == 0);
    }
 
    // Now, construct the voxel data.
    Voxel::Data voxel;
-   for (voxel.position.y = 0; voxel.position.y < result->mMetadata.height; voxel.position.y++)
+   for (uint32_t y = 0; y < result->mMetadata.height; y++)
    {
-      for (voxel.position.z = 0; voxel.position.z < result->mMetadata.length; voxel.position.z++)
+      for (uint32_t z = 0; z < result->mMetadata.length; z++)
       {
-         for (voxel.position.x = 0; voxel.position.x < result->mMetadata.width; voxel.position.x++)
+         for (uint32_t x = 0; x < result->mMetadata.width; x++)
          {
-            int ndx = Index(result->mMetadata, voxel.position.x, voxel.position.y, voxel.position.z);
+            int ndx = Index(result->mMetadata, x, y, z);
             if (filled[ndx])
             {
                // Active voxel
                voxel.color.r = data[3 * ndx];
                voxel.color.g = data[3 * ndx + 1];
                voxel.color.b = data[3 * ndx + 2];
-               voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, voxel.position.x, voxel.position.y, voxel.position.z);
+               voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, x, y, z);
+               voxel.position.x = float(x) - result->mMetadata.width / 2;
+               voxel.position.y = float(y) - result->mMetadata.height / 2;
+               voxel.position.z = float(z) - result->mMetadata.length / 2;
                result->mVoxelData.push_back(voxel);
             }
          }

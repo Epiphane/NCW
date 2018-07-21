@@ -78,7 +78,7 @@ namespace Game
 
    using Transform = Engine::Transform;
 
-   void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
+   void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
    {
       glUseProgram(program);
 
@@ -101,9 +101,14 @@ namespace Game
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
+
+         GLenum error = glGetError();
+         assert(error == 0);
       });
 
       entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
+         transform.SetYaw(transform.GetYaw() + dt);
+
          cubModel.mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
          cubModel.mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
          cubModel.mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
@@ -116,6 +121,9 @@ namespace Game
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
 
          glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
+
+         GLenum error = glGetError();
+         assert(error == 0);
       });
       mClock.Elapsed();
 
