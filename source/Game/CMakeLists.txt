@@ -26,6 +26,7 @@ endif()
 # install libraries into /lib
 INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
 SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
+SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
 SOURCE_GROUP(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
 SOURCE_GROUP(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
 SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")

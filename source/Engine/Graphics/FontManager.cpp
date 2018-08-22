@@ -37,7 +37,7 @@ Either<bool, std::string> Font::Load(const FT_Library& library, const std::strin
       return "Failed to load font: " + path;
    }
 
-   if (FT_Set_Pixel_Sizes(mFace, 0, 48))
+   if (FT_Set_Pixel_Sizes(mFace, 0, 32))
    {
       return "Failed to set pixel size to 48";
    }
@@ -61,7 +61,7 @@ Either<bool, std::string> Font::Load(const FT_Library& library, const std::strin
       }
 
       //LOG_INFO("Region allocated: (%1 %2) (%3 %4)", region->x, region->y, region->w, region->h);
-      mAtlas.Fill(*region, mFace->glyph->bitmap.buffer, mFace->glyph->bitmap.width);  
+      mAtlas.Fill(*region, mFace->glyph->bitmap.buffer, mFace->glyph->bitmap.width);
 
       characters.push_back({
          glm::ivec2(mFace->glyph->bitmap.width, mFace->glyph->bitmap.rows),
@@ -84,14 +84,14 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat s
       if (c == '\n')
       {
          cursor = x;
-         y += 32 * scale;
+         y += 28 * scale;
          continue;
       }
 
       Character ch = characters[c];
 
       GLfloat xpos = cursor + ch.bearing.x * scale;
-      GLfloat ypos = y + (ch.bearing.y - ch.size.y + 32) * scale;
+      GLfloat ypos = y + (ch.size.y - ch.bearing.y + 32) * scale;
       GLfloat w = ch.size.x * scale;
       GLfloat h = ch.size.y * scale;
 

@@ -20,9 +20,12 @@ namespace Input
 {
 
 uint32_t InputManager::nInstances = 0;
+std::unique_ptr<InputManager> InputManager::sInstance = nullptr;
 
-void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*modes*/) {
-   InputManager *input = InputManager::Instance();
+void keyCallback(GLFWwindow* window, int key, int /*scancode*/, int action, int /*modes*/)
+{
+   InputManager *input = (InputManager *)glfwGetWindowUserPointer(window);
+   // TODO validate this is a real InputManager
 
    if (action == GLFW_PRESS && input->keyCallbacks[key])
       input->keyCallbacks[key]();
@@ -31,7 +34,15 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
       input->alphaCallback(static_cast<char>(key) - GLFW_KEY_A + 'A');
    }
 }
-std::unique_ptr<InputManager> InputManager::sInstance = nullptr;
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+   InputManager *input = (InputManager *)glfwGetWindowUserPointer(window);
+   // TODO validate this is a real InputManager
+
+   input->_mouseScroll[0] += xoffset;
+   input->_mouseScroll[1] += yoffset;
+}
 
 inline const void InputManager::SetContextCurrent() const
 {
@@ -47,6 +58,8 @@ InputManager::InputManager(Window* window)
    , mouseLocked(false)
    , mousePosition{0}
    , mouseMovement{0}
+   , mouseScroll{0}
+   , _mouseScroll{0}
 {
    assert(window != nullptr);
    glfwMakeContextCurrent(window->get());
@@ -56,6 +69,7 @@ InputManager::InputManager(Window* window)
    glfwSetInputMode(window->get(), GLFW_STICKY_KEYS, GL_TRUE);
 
    glfwSetKeyCallback(window->get(), &keyCallback);
+   glfwSetScrollCallback(window->get(), &scrollCallback);
 
    ++nInstances;
 }
@@ -95,6 +109,8 @@ void InputManager::Clear()
    memset(mousePosition, 0, sizeof(mousePosition));
    memset(mouseMovement, 0, sizeof(mouseMovement));
    memset(keyCallbacks, 0, sizeof(keyCallbacks));
+   memset(mouseScroll, 0, sizeof(mouseScroll));
+   memset(_mouseScroll, 0, sizeof(_mouseScroll));
 }
 
 void InputManager::Update()
@@ -103,6 +119,9 @@ void InputManager::Update()
    SetContextCurrent();
 
    glfwGetCursorPos(window->get(), &mousePosition[0], &mousePosition[1]);
+
+   memcpy(mouseScroll, _mouseScroll, sizeof(mouseScroll));
+   memset(_mouseScroll, 0, sizeof(_mouseScroll));
 
    if (!mouseLocked) {
       return;
@@ -144,6 +163,21 @@ void InputManager::GetMouse(double *position, double *movement) const
    {
       memcpy(position, mousePosition, sizeof(mousePosition));
    }
+}
+
+void InputManager::GetMousePos(double *position) const
+{
+   memcpy(position, mousePosition, sizeof(mousePosition));
+}
+
+void InputManager::GetMouseMovement(double *movement) const
+{
+   memcpy(movement, mouseMovement, sizeof(mouseMovement));
+}
+
+void InputManager::GetMouseScroll(double *scroll) const
+{
+   memcpy(scroll, mouseScroll, sizeof(mouseScroll));
 }
 
 void InputManager::OnAlphaKey(input_alpha_callback cb)

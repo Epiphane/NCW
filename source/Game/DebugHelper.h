@@ -15,6 +15,9 @@
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/VBO.h>
 
+// Included so that we get the CUBEWORLD_BENCHMARK_SYSTEMS define
+#include <Engine/System/SystemManager.h>
+
 namespace CubeWorld
 {
 
@@ -41,6 +44,10 @@ namespace Game
 
       void SetWindow(Engine::Window* window) { mWindow = window; }
 
+#if CUBEWORLD_BENCHMARK_SYSTEMS
+      void SetSystemManager(Engine::SystemManager* manager) { mSystemManager = manager; }
+#endif
+
    private:
       Engine::Window* mWindow;
 
@@ -48,11 +55,17 @@ namespace Game
 
       std::vector<std::pair<std::string, std::function<std::string(void)>>> mMetrics;
       std::vector<std::pair<std::string, std::string>> mMetricsState;
-      Engine::Graphics::VBO mMetricsTextVBO;
       std::string mMetricsText;
 
-      // Counter for how many elements exist in mMetricsText.
+      Engine::Graphics::VBO mMetricsTextVBO;
       GLint mMetricsCount;
+
+#if CUBEWORLD_BENCHMARK_SYSTEMS
+      Engine::Graphics::VBO mSystemsBenchmarkVBO;
+      GLint mSystemsCount;
+
+      Engine::SystemManager* mSystemManager;
+#endif
 
    private:
       static GLuint program;

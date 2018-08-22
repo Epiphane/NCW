@@ -25,11 +25,15 @@ public:
    void Start() override;
 
    void Receive(const NamedEvent& namedEvent);
+   
+   bool BuildFloorCollision(int32_t size, const std::vector<int32_t>& heights);
 
 private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window* mWindow;
+   int mSkip = 0;
+   std::vector<int32_t> heights;
 };
 
 }; // namespace Game

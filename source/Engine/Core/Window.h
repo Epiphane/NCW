@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <Engine/Graphics/VAO.h>

@@ -2,6 +2,7 @@
 // NotCubeWorld - An attempt to make something that looks like CubeWorld
 //
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
@@ -88,7 +89,7 @@ int main(int /* argc */, char ** /* argv */) {
          window->Clear();
          input->Update();
 
-         stateManager->Update(elapsed);
+         stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
 
          GLenum error = glGetError();
          assert(error == 0);
@@ -103,63 +104,6 @@ int main(int /* argc */, char ** /* argv */) {
          window->SwapBuffers();
          glfwPollEvents();
       }
-
-      /*double nextTime = glfwGetTime();
-      if (nextTime - clock > SEC_PER_FRAME) {
-         // Compute FPS
-         const int fps_sample_rate = 100;
-         static float samples[fps_sample_rate] = {1};
-         static int pos = 0;
-         samples[pos] = (float) (nextTime - clock);
-         pos = (pos + 1) % fps_sample_rate;
-         float elapsed = 0;
-         for (int i = 0; i < fps_sample_rate; i ++)
-            elapsed += samples[i];
-         elapsed = elapsed / fps_sample_rate;
-         
-         float fps = 1 / elapsed;
-         if (fps >= FRAMES_PER_SEC * 29.0f / 30.0f)
-            ;
-            //RendererDebug::instance()->log("FPS: " + std::to_string((int) FRAMES_PER_SEC) + " \2", false);
-         else {
-            std::string msg = "FPS: " + std::to_string((int) fps);
-            //RendererDebug::instance()->log(msg, false);
-            //RendererDebug::instance()->log("Time since last frame: " + std::to_string(elapsed), false);
-         }
-         
-         //input_update();
-         //audio_update();
-
-         // Update and render the game
-         // Use fixed time updating
-         if (!PAUSED || moveOneFrame) {
-            float dt = nextTime - clock;
-            if (dt > 0.5f) {
-               LOG_WARNING("Game hung. dt=" + std::to_string(dt));
-               dt = 0.5f;
-            }
-
-            stateManager->Update(input, dt);
-         }
-         else {
-            // Game is paused.
-            stateManager->Update(input, 0);
-         }
-         moveOneFrame = false;
-         
-         //COMPUTE_BENCHMARK(25, "Game Update: ", true)
-
-         currentState->render(glfwGetTime() - clock);*/
-         
-         //COMPUTE_BENCHMARK(25, "Game Render: ", true)
-         
-         //if (showDebugLog)
-         //   RendererDebug::instance()->renderLog();
-         //else
-         //   RendererDebug::instance()->clearLog();
-         
-         //clock = nextTime;
-      //}
    } // Check if the ESC key was pressed or the window was closed
    while (!window->ShouldClose() && !input->IsKeyDown(GLFW_KEY_ESCAPE));
 

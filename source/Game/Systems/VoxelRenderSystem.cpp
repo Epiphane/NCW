@@ -43,8 +43,9 @@ namespace Game
 
    VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
    {
+      // TODO allow deregister
       Game::DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
-         return Format::FormatString("%1", std::round(mClock.Average() * 100000.0));
+         return Format::FormatString("%1ms", std::round(mClock.Average() * 100000.0) / 100);
       });
    }
 
@@ -93,11 +94,7 @@ namespace Game
          render.mVoxelData.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
          render.mVoxelData.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
-         glm::mat4 model(1);
-         model = glm::translate(model, transform.position);
-         model = glm::rotate(model, transform.GetYaw(), glm::vec3(0, 1, 0));
-         model = glm::rotate(model, transform.GetPitch(), glm::vec3(1, 0, 0));
-         model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
+         glm::mat4 model = transform.GetMatrix();
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
@@ -107,17 +104,11 @@ namespace Game
       });
 
       entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
-         transform.SetYaw(transform.GetYaw() + dt);
-
          cubModel.mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
          cubModel.mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
          cubModel.mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
-         glm::mat4 model(1);
-         model = glm::translate(model, transform.position);
-         model = glm::rotate(model, transform.GetYaw(), glm::vec3(0, 1, 0));
-         model = glm::rotate(model, transform.GetPitch(), glm::vec3(1, 0, 0));
-         model = glm::rotate(model, transform.GetRoll(), glm::vec3(0, 0, 1));
+         glm::mat4 model = transform.GetMatrix();
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
 
          glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));

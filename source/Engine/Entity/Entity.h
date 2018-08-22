@@ -55,10 +55,10 @@ public:
    ComponentHandle<C, EntityManager> Add(Args&& ...args);
 
    template<typename C>
-   bool Has();
+   bool Has() const;
 
    template<typename C>
-   ComponentHandle<C, EntityManager> Get();
+   ComponentHandle<C, EntityManager> Get() const;
 
    // Remove a component from this entity.
    template<typename C>

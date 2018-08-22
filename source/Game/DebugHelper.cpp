@@ -24,10 +24,12 @@ namespace Game
       , mFont(nullptr)
       , mMetrics{}
       , mMetricsTextVBO(Engine::Graphics::Vertices)
+      , mSystemsBenchmarkVBO(Engine::Graphics::Vertices)
+      , mSystemManager(nullptr)
    {
-      auto maybeResult = Engine::Graphics::FontManager::Instance()->GetFont("Fonts/debug.ttf");
-      assert(maybeResult);
-      mFont = maybeResult.Result();
+      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont("Fonts/debug.ttf");
+      assert(maybeFont);
+      mFont = maybeFont.Result();
 
       program = Engine::Graphics::LoadProgram("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
 
@@ -71,6 +73,25 @@ namespace Game
          mMetricsCount = static_cast<GLint>(metricsText.size());
          mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
       }
+
+#if CUBEWORLD_BENCHMARK_SYSTEMS
+      if (mSystemManager != nullptr)
+      {
+         std::string leftText = "-------- Systems ------";
+         std::string rightText = "---";
+         for (auto system : mSystemManager->GetBenchmarks())
+         {
+            leftText += "\n" + system.first;
+            rightText += Format::FormatString("\n%1ms", std::round(system.second * 10000.0));
+         }
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(880, 0, 1, leftText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(1185, 0, 1, rightText);
+         systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
+
+         mSystemsCount = static_cast<GLint>(systemsText.size());
+         mSystemsBenchmarkVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mSystemsCount, &systemsText[0], GL_STATIC_DRAW);
+      }
+#endif
    }
 
    void DebugHelper::Render()
@@ -88,6 +109,11 @@ namespace Game
       mMetricsTextVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
 
       glDrawArrays(GL_LINES, 0, mMetricsCount);
+
+      mSystemsBenchmarkVBO.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
+      mSystemsBenchmarkVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
+
+      glDrawArrays(GL_LINES, 0, mSystemsCount);
 
       // Cleanup.
       glDisableVertexAttribArray(aPosition);

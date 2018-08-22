@@ -150,6 +150,8 @@ public:
          // Make sure the first element is valid.
          next();
       };
+
+   public:
       ~EntityIterator() {}
 
       EntityIterator& operator=(const EntityIterator& other)
@@ -160,6 +162,17 @@ public:
          return *this;
       }
 
+      EntityIterator operator+(uint16_t inc)
+      {
+         EntityIterator iter = *this;
+         while (inc--)
+         {
+            ++iter;
+         }
+         return iter;
+      }
+
+   private:
       EntityManager* mManager;
       ComponentMask mMask;
       uint32_t mIndex;
@@ -218,6 +231,13 @@ public:
 public:
    // Entity lifecycle management.
    Entity Create();
+   inline Entity Create(glm::vec3 position)
+   {
+      Entity result = Create();
+      result.Add<Transform>(position);
+      return result;
+   }
+   inline Entity Create(float x, float y, float z) { return Create(glm::vec3(x, y, z)); }
    Entity Clone(Entity original);
 
    void Destroy(Entity::ID id);
@@ -310,8 +330,10 @@ public:
 
    inline void assert_valid(Entity::ID id) const
    {
-      assert(id.index() < mNumEntities && "Entity::ID outside entity vector range");
-      assert(mEntityVersion[id.index()] == id.version() && "Attempt to access Entity with a stale id");
+      uint32_t index = id.index();
+      uint32_t version = id.version();
+      assert(index < mNumEntities && "Entity::ID outside entity vector range");
+      assert(mEntityVersion[id.index()] == version && "Attempt to access Entity with a stale id");
    }
 
    template<typename C>
@@ -371,14 +393,14 @@ ComponentHandle<C, EntityManager> Entity::Add(Args&& ...args)
 }
 
 template<typename C>
-bool Entity::Has()
+bool Entity::Has() const
 {
    assert(IsValid());
    return manager->Has<C>(id);
 }
 
 template<typename C>
-ComponentHandle<C, EntityManager> Entity::Get()
+ComponentHandle<C, EntityManager> Entity::Get() const
 {
    assert(IsValid());
    return manager->Get<C>(id);

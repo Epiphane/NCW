@@ -5,6 +5,8 @@
 #include <glm/ext.hpp>
 
 #include "Component.h"
+#include "ComponentHandle.h"
+#include "Entity.h"
 
 namespace CubeWorld
 {
@@ -23,25 +25,44 @@ public:
       glm::vec3 scale = glm::vec3(1, 1, 1)
    );
 
-   glm::vec3 position;
-   glm::vec3 up;
-   glm::vec3 scale;
-
 public:
-   glm::vec3 GetDirection() const { return mDirection; }
+   // Computations that take into account parent transformation.
+   glm::vec3 GetAbsolutePosition() const;
+   glm::vec3 GetAbsoluteDirection() const;
+   glm::vec3 GetAbsoluteScale() const;
+
+   // Traits relative to one's parent
+   glm::vec3 GetLocalPosition() const { return mPosition; }
+   glm::vec3 GetLocalScale() const { return mScale; }
+   glm::vec3 GetLocalDirection() const { return mDirection; }
    glm::vec3 GetFlatDirection() const { return mFlatDirection; }
    val GetPitch() const { return mPitch; }
    val GetYaw() const { return mYaw; }
    val GetRoll() const { return mRoll; }
+   ComponentHandle<Transform> GetParent() const { return mParent; }
+   glm::mat4 GetMatrix() const;
 
-   void SetDirection(glm::vec3 direction);
+   void SetLocalPosition(glm::vec3 position);
+   void SetLocalScale(glm::vec3 scale);
+   void SetLocalDirection(glm::vec3 direction);
    void SetPitch(val pitch);
    void SetYaw(val yaw);
-   void SetRole(val r) { mRoll = r; }
+   void SetRoll(val r) { mRoll = r; }
+   void SetParent(const ComponentHandle<Transform>& parent) { mParent = parent; }
+   void SetParent(const Entity& parent) { mParent = parent.Get<Transform>(); }
 
 private:
+   void ComputeMatrix();
+   glm::mat4 mMatrix;
+
+   glm::vec3 mPosition;
+   glm::vec3 mUp;
+   glm::vec3 mScale;
+
    glm::vec3 mDirection, mFlatDirection;
    val mPitch, mYaw, mRoll;
+
+   ComponentHandle<Transform> mParent;
 };
 
 }; // namespace Engine

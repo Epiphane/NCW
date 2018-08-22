@@ -92,6 +92,12 @@ void EntityManager::Destroy(Entity::ID id)
    mEntityFreeList.push_back(index);
 }
 
+Entity EntityManager::GetEntity(Entity::ID id)
+{
+   assert_valid(id);
+   return Entity(this, id);
+}
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

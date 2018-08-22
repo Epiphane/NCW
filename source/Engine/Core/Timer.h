@@ -6,6 +6,9 @@
 #include <cstring>
 #include <type_traits>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 namespace CubeWorld
 {
 

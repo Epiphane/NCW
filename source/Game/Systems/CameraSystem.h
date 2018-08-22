@@ -11,6 +11,9 @@
 #include <Engine/Event/EventManager.h>
 #include <Engine/System/System.h>
 
+// Arm cameras are defined separately, since they aren't strictly tied to this system.
+#include <Game/Components/ArmCamera.h>
+
 namespace CubeWorld
 {
 

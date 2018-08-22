@@ -4,6 +4,7 @@
 
 #include "../Event/NamedEvent.h"
 #include "FlySystem.h"
+#include "SimplePhysicsSystem.h"
 
 namespace CubeWorld
 {
@@ -11,34 +12,34 @@ namespace CubeWorld
 namespace Game
 {
    
-   void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
+   void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
    {
-      bool isW = mInput->IsKeyDown(GLFW_KEY_W);
-      bool isA = mInput->IsKeyDown(GLFW_KEY_A);
-      bool isS = mInput->IsKeyDown(GLFW_KEY_S);
-      bool isD = mInput->IsKeyDown(GLFW_KEY_D);
-      bool isQ = mInput->IsKeyDown(GLFW_KEY_Q);
-      bool isE = mInput->IsKeyDown(GLFW_KEY_E);
+      int isW = mInput->IsKeyDown(GLFW_KEY_W) ? 1 : 0;
+      int isA = mInput->IsKeyDown(GLFW_KEY_A) ? 1 : 0;
+      int isS = mInput->IsKeyDown(GLFW_KEY_S) ? 1 : 0;
+      int isD = mInput->IsKeyDown(GLFW_KEY_D) ? 1 : 0;
+      int isQ = mInput->IsKeyDown(GLFW_KEY_Q) ? 1 : 0;
+      int isE = mInput->IsKeyDown(GLFW_KEY_E) ? 1 : 0;
 
-      if (mInput->IsKeyDown(GLFW_KEY_SPACE))
+      glm::vec3 flyDirection(0);
+      if (isW || isA || isS || isD)
       {
-         events.Emit<NamedEvent>("spawn arrow");
+         flyDirection = glm::normalize(glm::vec3(isD - isA, 0, isW - isS));
       }
-
-      if (!isW && !isA && !isS && !isD && !isQ && !isE)
-      {
-         return;
-      }
-
-      glm::vec3 flyDirection = float(dt) * glm::normalize(glm::vec3(isD - isA, isE - isQ, isW - isS));
       
-      entities.Each<Engine::Transform, FlySpeed>([&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly) {
+      entities.Each<Engine::Transform, FlySpeed, SimplePhysics::Body>([&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly, SimplePhysics::Body& body) {
          glm::vec3 dir = float(fly.speed) * glm::normalize(transform.GetFlatDirection());
 
          glm::vec3 forward = glm::vec3(dir.x, 0, dir.z);
          glm::vec3 right = glm::vec3(-dir.z, 0, dir.x);
 
-         transform.position += forward * flyDirection.z + right * flyDirection.x + glm::vec3(0, fly.speed * flyDirection.y, 0);
+         body.velocity = glm::vec3(0, body.velocity.y, 0) + forward * flyDirection.z + right * flyDirection.x;
+
+         if (mInput->IsKeyDown(GLFW_KEY_SPACE))
+         {
+            body.velocity.y = 15;
+         }
+         //transform.SetLocalPosition(transform.GetLocalPosition() + forward * flyDirection.z + right * flyDirection.x + glm::vec3(0, fly.speed * flyDirection.y, 0));
       });
    }
    

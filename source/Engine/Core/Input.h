@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace CubeWorld
@@ -40,6 +41,7 @@ private:
    input_alpha_callback alphaCallback = nullptr;
 
    friend void keyCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
+   friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 public:
    //
@@ -54,16 +56,28 @@ public:
    void Clear();
    void Update();
    bool IsKeyDown(int key) const;
+
    //
    // Get the mouse's current position, and most recent movement.
    //
    // position and movement must refer to an array of size 2+, or nullptr
    //
    void GetMouse(double *position, double *movement) const;
+
+   // Position must refer to an array of size 2+
+   void GetMousePos(double *position) const;
+
+   // Movement must refer to an array of size 2+
+   void GetMouseMovement(double *movement) const;
+   
+   // Scroll must refer to an array of size 2+
+   void GetMouseScroll(double *scroll) const;
+
    //
    // Register a callback to be called on any alphabetical key
    //
    void OnAlphaKey(input_alpha_callback cb);
+
    //
    // Register a callback to a specific key press
    //
@@ -72,6 +86,9 @@ public:
 private:
    double mousePosition[2];
    double mouseMovement[2];
+
+   double mouseScroll[2];
+   double _mouseScroll[2]; // Accumulated between updates.
 };
 
 }; // namespace Input
