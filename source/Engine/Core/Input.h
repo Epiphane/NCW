@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,8 +18,11 @@ class Window;
 namespace Input
 {
 
-typedef void(*input_key_callback)(void);
-typedef void(*input_alpha_callback)(char);
+//typedef void(*input_key_callback)(void);
+//typedef void(*input_alpha_callback)(char);
+
+using input_key_callback = std::function<void(void)>;
+using input_alpha_callback = std::function<void(char)>;
 
 class InputManager
 {

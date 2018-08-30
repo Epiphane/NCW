@@ -45,7 +45,7 @@ namespace Game
 
       static GLuint program;
       static GLuint aPosition, aColor, aEnabledFaces;
-      static GLuint uProjMatrix, uViewMatrix, uModelMatrix, uVoxelSize;
+      static GLuint uTint, uProjMatrix, uViewMatrix, uModelMatrix, uVoxelSize;
 
    private:
       Engine::Timer<100> mClock;

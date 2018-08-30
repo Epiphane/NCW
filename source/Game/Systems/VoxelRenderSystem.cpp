@@ -11,8 +11,9 @@
 #include <Engine/Core/Scope.h>
 #include <Engine/Graphics/Program.h>
 
-#include <Game/DebugHelper.h>
-#include <Game/Components/CubeModel.h>
+#include "../Components/CubeModel.h"
+#include "../DebugHelper.h"
+#include "AnimationSystem.h"
 #include "VoxelRenderSystem.h"
 
 namespace CubeWorld
@@ -36,6 +37,7 @@ namespace Game
    REGISTER_GLUINT(VoxelRenderSystem, aPosition)
    REGISTER_GLUINT(VoxelRenderSystem, aColor)
    REGISTER_GLUINT(VoxelRenderSystem, aEnabledFaces)
+   REGISTER_GLUINT(VoxelRenderSystem, uTint)
    REGISTER_GLUINT(VoxelRenderSystem, uProjMatrix)
    REGISTER_GLUINT(VoxelRenderSystem, uViewMatrix)
    REGISTER_GLUINT(VoxelRenderSystem, uModelMatrix)
@@ -71,6 +73,7 @@ namespace Game
       DISCOVER_ATTRIBUTE(aPosition);
       DISCOVER_ATTRIBUTE(aColor);
       DISCOVER_ATTRIBUTE(aEnabledFaces);
+      DISCOVER_UNIFORM(uTint);
       DISCOVER_UNIFORM(uProjMatrix);
       DISCOVER_UNIFORM(uViewMatrix);
       DISCOVER_UNIFORM(uModelMatrix);
@@ -96,6 +99,7 @@ namespace Game
 
          glm::mat4 model = transform.GetMatrix();
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
+         glUniform3f(uTint, 255.0f, 255.0f, 255.0f);
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
 
@@ -110,11 +114,34 @@ namespace Game
 
          glm::mat4 model = transform.GetMatrix();
          glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
+         glUniform3fv(uTint, 1, glm::value_ptr(cubModel.mTint));
 
          glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
 
          GLenum error = glGetError();
          assert(error == 0);
+      });
+
+      entities.Each<Transform, AnimatedSkeleton>([&](Engine::Entity /*entity*/, Transform& transform, AnimatedSkeleton& skeleton) {
+         glm::mat4 matrix = transform.GetMatrix();
+
+         for (const AnimatedSkeleton::ModelAttachment& model : skeleton.models)
+         {
+            AnimatedSkeleton::Bone bone = skeleton.bones[model.bone];
+            glm::mat4 boneMatrix = matrix * bone.matrix;
+
+            model.model->mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+            model.model->mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+            model.model->mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+
+            glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(boneMatrix));
+            glUniform3fv(uTint, 1, glm::value_ptr(model.tint));
+
+            glDrawArrays(GL_POINTS, 0, GLsizei(model.model->mVoxelData.size()));
+
+            GLenum error = glGetError();
+            assert(error == 0);
+         }
       });
       mClock.Elapsed();
 

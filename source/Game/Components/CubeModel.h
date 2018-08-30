@@ -29,12 +29,13 @@ namespace Game
       CubeModelInfo();
       ~CubeModelInfo();
 
-      static CubeModelInfo* Load(const std::string& path);
+      static CubeModelInfo* Load(const std::string& path, bool tintable);
 
    public:
       std::vector<Voxel::Data> mVoxelData;
       Engine::Graphics::VBO mVBO;
       FileHeader mMetadata;
+      bool mIsTintable;
 
    private:
       friend class CubeModel;
@@ -47,6 +48,7 @@ namespace Game
    class CubeModel : public Engine::Component<CubeModel> {
    public:
       CubeModel(const std::string& path);
+      CubeModel(const std::string& path, glm::vec3 tint);
 
       CubeModelInfo* mModel;
      
@@ -57,6 +59,8 @@ namespace Game
       // To save space, mVoxelData isn't used if the model isn't modified. Instead, use mNumVoxels.
       std::vector<Voxel::Data> mVoxelData;
       size_t mNumVoxels;
+
+      glm::vec3 mTint;
    };
 
 }; // namespace Game

@@ -21,10 +21,22 @@ namespace Game
 
 CubeModel::CubeModel(const std::string& path)
 {
-   mModel = CubeModelInfo::Load(path);
+   mModel = CubeModelInfo::Load(path, false);
+   assert(mModel != nullptr);
    mNumVoxels = mModel->mVoxelData.size();
    mMetadata = mModel->mMetadata;
    mVBO = mModel->mVBO;
+   mTint = glm::vec3(255);
+}
+
+CubeModel::CubeModel(const std::string& path, glm::vec3 tint)
+{
+   mModel = CubeModelInfo::Load(path, true);
+   assert(mModel != nullptr);
+   mNumVoxels = mModel->mVoxelData.size();
+   mMetadata = mModel->mMetadata;
+   mVBO = mModel->mVBO;
+   mTint = tint;
 }
 
 std::unordered_map<std::string, std::unique_ptr<CubeModelInfo>> CubeModelInfo::sModels;
@@ -51,14 +63,15 @@ bool IsFilled(const std::vector<bool>& filled, int index)
 int Index(const CubeModelInfo::FileHeader& metadata, int x, int y, int z)
 {
    if (x < 0 || y < 0 || z < 0) { return -1; }
+   if (x >= metadata.width || y >= metadata.height || z >= metadata.length) { return -1; }
    return x + z * metadata.width + y * metadata.width * metadata.length;
 }
 
 uint8_t GetExposedFaces(const std::vector<bool>& filled, const CubeModelInfo::FileHeader& metadata, int x, int y, int z)
 {
    uint8_t faces = Voxel::All;
-   int right = Index(metadata, x + 1, y, z);
-   int left = Index(metadata, x - 1, y, z);
+   int right = Index(metadata, x - 1, y, z);
+   int left = Index(metadata, x + 1, y, z);
    int front = Index(metadata, x, y, z + 1);
    int behind = Index(metadata, x, y, z - 1);
    int above = Index(metadata, x, y + 1, z);
@@ -80,11 +93,13 @@ uint8_t GetExposedFaces(const std::vector<bool>& filled, const CubeModelInfo::Fi
 
 }; // namespace
 
-CubeModelInfo* CubeModelInfo::Load(const std::string& path)
+CubeModelInfo* CubeModelInfo::Load(const std::string& path, bool tintable)
 {
    auto maybeModel = sModels.find(path);
    if (maybeModel != sModels.end())
    {
+      assert(tintable == maybeModel->second->mIsTintable);
+
       return maybeModel->second.get();
    }
 
@@ -126,7 +141,16 @@ CubeModelInfo* CubeModelInfo::Load(const std::string& path)
 
    for (uint32_t i = 0; i < nElements; i++)
    {
-      filled[i] = !(data[3*i] == 0 && data[3*i+1] == 0 && data[3*i+2] == 0);
+      if (tintable)
+      {
+         // Ignored blocks are defined by being (255,0,0), (0,255,0), or (0,0,255).
+         filled[i] = !(data[3 * i] == 0 || data[3 * i + 1] == 0 || data[3 * i + 2] == 0);
+      }
+      else
+      {
+         // Anything that's not pure black is valid.
+         filled[i] = !(data[3 * i] == 0 && data[3 * i + 1] == 0 && data[3 * i + 2] == 0);
+      }
    }
 
    // Now, construct the voxel data.
@@ -145,7 +169,7 @@ CubeModelInfo* CubeModelInfo::Load(const std::string& path)
                voxel.color.g = data[3 * ndx + 1];
                voxel.color.b = data[3 * ndx + 2];
                voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, x, y, z);
-               voxel.position.x = float(x) - result->mMetadata.width / 2;
+               voxel.position.x = result->mMetadata.width / 2 - float(x);
                voxel.position.y = float(y) - result->mMetadata.height / 2;
                voxel.position.z = float(z) - result->mMetadata.length / 2;
                result->mVoxelData.push_back(voxel);
@@ -155,6 +179,7 @@ CubeModelInfo* CubeModelInfo::Load(const std::string& path)
    }
 
    result->mVBO.BufferData(sizeof(Voxel::Data) * int(result->mVoxelData.size()), &result->mVoxelData[0], GL_STATIC_DRAW);
+   result->mIsTintable = tintable;
 
    auto emplaceResult = sModels.emplace(path, std::move(result));
    return emplaceResult.first->second.get();

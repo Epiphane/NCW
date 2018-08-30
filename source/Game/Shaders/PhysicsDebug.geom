@@ -1,7 +1,7 @@
 #version 330 core
 
 layout (points) in;
-layout (triangle_strip, max_vertices=19) out;
+layout (line_strip, max_vertices=19) out;
 
 in vec3 gColor[];
 

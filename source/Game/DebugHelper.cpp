@@ -5,6 +5,7 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
+#include "Helpers/Asset.h"
 #include "DebugHelper.h"
 
 namespace CubeWorld
@@ -13,11 +14,11 @@ namespace CubeWorld
 namespace Game
 {
 
-   REGISTER_GLUINT(DebugHelper, program)
-   REGISTER_GLUINT(DebugHelper, aPosition)
-   REGISTER_GLUINT(DebugHelper, aUV)
-   REGISTER_GLUINT(DebugHelper, uTexture)
-   REGISTER_GLUINT(DebugHelper, uWindowSize)
+   REGISTER_GLUINT(DebugHelper, program);
+   REGISTER_GLUINT(DebugHelper, aPosition);
+   REGISTER_GLUINT(DebugHelper, aUV);
+   REGISTER_GLUINT(DebugHelper, uTexture);
+   REGISTER_GLUINT(DebugHelper, uWindowSize);
 
    DebugHelper::DebugHelper()
       : mWindow(nullptr)
@@ -27,7 +28,7 @@ namespace Game
       , mSystemsBenchmarkVBO(Engine::Graphics::Vertices)
       , mSystemManager(nullptr)
    {
-      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont("Fonts/debug.ttf");
+      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
       assert(maybeFont);
       mFont = maybeFont.Result();
 
@@ -78,14 +79,16 @@ namespace Game
       if (mSystemManager != nullptr)
       {
          std::string leftText = "-------- Systems ------";
-         std::string rightText = "---";
+         std::string rightText = "------";
          for (auto system : mSystemManager->GetBenchmarks())
          {
             leftText += "\n" + system.first;
-            rightText += Format::FormatString("\n%1ms", std::round(system.second * 10000.0));
+            std::string ms = Format::FormatString("%1ms", std::round(system.second * 10000.0) / 10.0);
+            ms.insert(ms.begin(), 7 - ms.size(), ' ');
+            rightText += "\n" + std::move(ms);
          }
          std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(880, 0, 1, leftText);
-         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(1185, 0, 1, rightText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(1175, 0, 1, rightText);
          systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
          mSystemsCount = static_cast<GLint>(systemsText.size());

@@ -25,6 +25,7 @@
 
 #include "DebugHelper.h"
 #include "Main.h"
+#include "States/AnimationStation.h"
 #include "States/StupidState.h"
 
 using namespace CubeWorld;
@@ -55,7 +56,7 @@ int main(int /* argc */, char ** /* argv */) {
    Input::InputManager* input = Input::InputManager::Instance();
    input->Clear();
 
-   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window.get());
+   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::AnimationStation>(window.get());
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
 
    stateManager->SetState(initialState.get());

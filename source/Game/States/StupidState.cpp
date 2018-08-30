@@ -17,6 +17,7 @@
 #include <Game/Systems/VoxelRenderSystem.h>
 
 #include <Game/DebugHelper.h>
+#include <Game/Helpers/Asset.h>
 #include "StupidState.h"
 
 namespace CubeWorld
@@ -35,7 +36,7 @@ namespace Game
       mSystems.Add<FlySystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
-      mSystems.Add<SimplePhysics::Debug>(mSystems.Get<SimplePhysics::System>(), false, &mCamera);
+      mSystems.Add<SimplePhysics::Debug>(mSystems.Get<SimplePhysics::System>(), true, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       
       mSystems.Configure();
@@ -91,151 +92,57 @@ namespace Game
 
             int32_t height = heights[ndx];
 
-            if (0) {
-               // Attempt 1: Create squares only.
-               // Result: Generated 3551 blocks
-               int boxSize = 1, nextSize = 1;
-               bool isDone = false;
-               while (!isDone)
-               {
-                  boxSize = nextSize;
-                  nextSize = boxSize + 1;
-                  if (i + nextSize - 1 >= 2 * size + 1 || j + nextSize - 1 >= 2 * size + 1)
-                  {
-                     isDone = true;
-                     break;
-                  }
+            // Attempt 3: Same as 2, but allow blocks to sit under each other
+            // Result: Generated 933 blocks
+            int width = 0, length = 0;
+            int nWidth = 1, nLength = 1;
+            bool isDone = false;
+            while (nWidth > width || nLength > length)
+            {
+               width = nWidth++;
+               length = nLength++;
 
-                  // First, check all the new boxes. I'm running out of bad letters
-                  for (int n = 0; n < nextSize; ++n)
+               if (i + nWidth - 1 >= 2 * size + 1)
+               {
+                  --nWidth;
+               }
+               else
+               {
+                  for (int n = 0; n < length; ++n)
                   {
                      if (
-                        used[index(i + nextSize - 1, j + n)] ||
-                        used[index(i + n, j + nextSize - 1)] ||
-                        heights[index(i + nextSize - 1, j + n)] != height ||
-                        heights[index(i + n, j + nextSize - 1)] != height
+                        used[index(i + nWidth - 1, j + n)] ||
+                        heights[index(i + nWidth - 1, j + n)] < height
                         )
                      {
-                        isDone = true;
+                        --nWidth;
                         break;
                      }
                   }
                }
 
-               if (++blocksCreated > mSkip) {
-                  makeCollider(i, j, height, boxSize, boxSize);
-                  mSkip++;
-                  //return true;
-               }
-            }
-
-            if (0) {
-               // Attempt 2: Expand w, then h, then w, etc
-               // Result: Generated 1691 blocks
-               int width = 0, length = 0;
-               int nWidth = 1, nLength = 1;
-               bool isDone = false;
-               while (nWidth > width || nLength > length)
+               if (j + nLength - 1 >= 2 * size + 1)
                {
-                  width = nWidth++;
-                  length = nLength++;
-
-                  if (j + nLength - 1 >= 2 * size + 1)
-                  {
-                     --nLength;
-                  }
-                  else
-                  {
-                     for (int n = 0; n < width; ++n)
-                     {
-                        if (
-                           used[index(i + n, j + nLength - 1)] ||
-                           heights[index(i + n, j + nLength - 1)] != height
-                           )
-                        {
-                           --nLength;
-                           break;
-                        }
-                     }
-                  }
-
-                  if (i + nWidth - 1 >= 2 * size + 1)
-                  {
-                     --nWidth;
-                  }
-                  else
-                  {
-                     for (int n = 0; n < nLength; ++n)
-                     {
-                        if (
-                           used[index(i + nWidth - 1, j + n)] ||
-                           heights[index(i + nWidth - 1, j + n)] != height
-                           )
-                        {
-                           --nWidth;
-                           break;
-                        }
-                     }
-                  }
+                  --nLength;
                }
-
-               makeCollider(i, j, height, width, length);
-               ++blocksCreated;
-            }
-
-            if (1) {
-               // Attempt 3: Same as 2, but allow blocks to sit under each other
-               // Result: Generated 933 blocks
-               int width = 0, length = 0;
-               int nWidth = 1, nLength = 1;
-               bool isDone = false;
-               while (nWidth > width || nLength > length)
+               else
                {
-                  width = nWidth++;
-                  length = nLength++;
-
-                  if (i + nWidth - 1 >= 2 * size + 1)
+                  for (int n = 0; n < nWidth; ++n)
                   {
-                     --nWidth;
-                  }
-                  else
-                  {
-                     for (int n = 0; n < length; ++n)
+                     if (
+                        used[index(i + n, j + nLength - 1)] ||
+                        heights[index(i + n, j + nLength - 1)] < height
+                        )
                      {
-                        if (
-                           used[index(i + nWidth - 1, j + n)] ||
-                           heights[index(i + nWidth - 1, j + n)] < height
-                           )
-                        {
-                           --nWidth;
-                           break;
-                        }
-                     }
-                  }
-
-                  if (j + nLength - 1 >= 2 * size + 1)
-                  {
-                     --nLength;
-                  }
-                  else
-                  {
-                     for (int n = 0; n < nWidth; ++n)
-                     {
-                        if (
-                           used[index(i + n, j + nLength - 1)] ||
-                           heights[index(i + n, j + nLength - 1)] < height
-                           )
-                        {
-                           --nLength;
-                           break;
-                        }
+                        --nLength;
+                        break;
                      }
                   }
                }
-
-               makeCollider(i, j, height, width, length);
-               ++blocksCreated;
             }
+
+            makeCollider(i, j, height, width, length);
+            ++blocksCreated;
          }
       }
 
@@ -250,32 +157,55 @@ namespace Game
       
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 2, -10), glm::vec3(0, 0, 1));
+      player.Get<Transform>()->SetLocalScale(glm::vec3(0.1));
       player.Add<FlySpeed>(10);
       player.Add<SimplePhysics::Body>();
-      player.Add<SimplePhysics::Collider>(glm::vec3(0.8));
+      player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8));
+      player.Add<CubeModel>(Asset::Model("body4.cub"));
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       playerCamera.Get<Transform>()->SetParent(player);
+      playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
       ArmCamera::Options cameraOptions;
       cameraOptions.aspect = float(mWindow->Width()) / mWindow->Height();
       cameraOptions.far = 1500.0f;
-      cameraOptions.distance = 3.0f;
+      cameraOptions.distance = 3.5f;
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
       playerCamera.Add<MouseControlledCamera>();
       playerCamera.Add<MouseControlledCameraArm>();
 
-      Entity playerHead = mEntities.Create(0, 0, 0);
+      Entity playerHead = mEntities.Create(0, 10, 0);
       playerHead.Get<Transform>()->SetParent(player);
-      playerHead.Get<Transform>()->SetLocalScale(glm::vec3(0.1));
-      playerHead.Add<CubeModel>("Models/head1.cub");
+      playerHead.Add<CubeModel>(Asset::Model("human-head-m01.cub"));
+
+      Entity playerHair = mEntities.Create(0, 0, 0);
+      playerHair.Get<Transform>()->SetParent(playerHead);
+      playerHair.Add<CubeModel>(Asset::Model("human-hair-m02.cub"), glm::vec3(0, 0, 255));
+
+      Entity playerHand1 = mEntities.Create(-6, 1, 0);
+      playerHand1.Get<Transform>()->SetParent(player);
+      playerHand1.Add<CubeModel>(Asset::Model("hand2.cub"));
+
+      Entity playerHand2 = mEntities.Create(6, 1, 0);
+      playerHand2.Get<Transform>()->SetParent(player);
+      playerHand2.Add<CubeModel>(Asset::Model("hand2.cub"));
 
       player.Add<Makeshift>([&, player, playerCamera](Engine::EntityManager&, Engine::EventManager& events, TIMEDELTA) {
-         player.Get<Transform>()->SetYaw(player.Get<Transform>()->GetYaw() + playerCamera.Get<Transform>()->GetYaw());
-         playerCamera.Get<Transform>()->SetYaw(0);
-
          if (Engine::Input::InputManager::Instance()->IsKeyDown(GLFW_KEY_SPACE))
          {
-            events.Emit(NamedEvent("whatever"));
+            player.Get<Transform>()->SetYaw(player.Get<Transform>()->GetYaw() + playerCamera.Get<Transform>()->GetYaw());
+            playerCamera.Get<Transform>()->SetYaw(0);
+            return;
+         }
+
+         float start = player.Get<Transform>()->GetYaw();
+         float dest = playerCamera.Get<Transform>()->GetYaw();
+
+         if (Engine::Input::InputManager::Instance()->IsKeyDown(GLFW_KEY_W))
+         {
+            float dYaw = dest / 2;
+            player.Get<Transform>()->SetYaw(start + dYaw);
+            playerCamera.Get<Transform>()->SetYaw(dYaw);
          }
       });
 
