@@ -160,7 +160,7 @@ Maybe<Font*> FontManager::GetFont(const std::string& path)
       return insertion.first->second.get();
    }
 
-   return result.Right();
+   return Failure{result.Right()};
 }
 
 }; // namespace Engine

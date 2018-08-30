@@ -7,7 +7,7 @@ layout (triangle_strip, max_vertices=24) out;
 
 // Input colors coming from the vertex shader.
 flat in vec4 gColor[];
-flat in vec4 gPosition[];
+//flat in vec4 gPosition[];
 flat in int gEnabledFaces[];
 
 // Output color going to the fragment shader.

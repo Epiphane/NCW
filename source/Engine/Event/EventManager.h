@@ -60,7 +60,7 @@ public:
       auto link = base.mConnections[family];
       link->Unlink();
 
-      base.mConnections.erase(family)
+      base.mConnections.erase(family);
    }
 
    template <typename E>
@@ -103,7 +103,7 @@ private:
       EventLink<E>* ring = static_cast<EventLink<E>*>(mEventRings[family]);
       if (ring == nullptr)
       {
-         ring = new EventLink<E>(EventLink<E>::Callback());
+         ring = new EventLink<E>(nullptr);
          ring->next = ring->prev = ring;
          mEventRings[family] = ring;
       }

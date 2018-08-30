@@ -67,7 +67,7 @@ Maybe<std::string> DumpCommand::Run(int argc, char** argv)
       return Success;
    });
 
-   return "Done.";
+   return std::string("Done.");
 }
 
 }; // namespace CubeWorld

@@ -5,6 +5,10 @@
 
 #if CUBEWORLD_PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include "Paths.h"
@@ -27,8 +31,8 @@ bool DirectoryExists(const char* path)
 #elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
    if (access(path, 0) == 0)
    {
-      stat_struct status;
-      if (0 == std_stat(path, &status)
+      struct stat status;
+      if (0 == stat(path, &status)
          && (status.st_mode & S_IFDIR))
       {
          return true;
@@ -201,7 +205,7 @@ Maybe<void> MakeDirectory(const std::string& path)
 #else
       if (mkdir(normalized.c_str(), 0755) != 0 && errno != EEXIST)
       {
-         return Failure{"Failed to create directory: Error %1", errno)};
+         return Failure{"Failed to create directory: Error %1", errno};
       }
 #endif
 
@@ -213,9 +217,13 @@ Maybe<void> MakeDirectory(const std::string& path)
 
 std::string GetWorkingDirectory()
 {
+#if CUBEWORLD_PLATFORM_WINDOWS
    TCHAR buf[256];
    GetCurrentDirectory(256, buf);
    return Normalize(std::string(buf));
+#else
+   return Normalize(std::string(getenv("PWD")));
+#endif
 }
 
 }; // namespace Paths

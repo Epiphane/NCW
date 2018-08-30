@@ -15,7 +15,7 @@ namespace Engine
 struct BaseEventLink {
    int32_t refs;
    explicit BaseEventLink() : refs(1) {};
-   ~BaseEventLink() { assert(refs == 0); }
+   virtual ~BaseEventLink() { assert(refs == 0); }
 
    // Manage refs count
    void IncRef()

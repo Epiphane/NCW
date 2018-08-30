@@ -41,7 +41,20 @@ size_t AddBoneToSkeleton(AnimatedSkeleton* skeleton, const size_t parent, const 
    {
       for (auto it = bones->begin(); it != bones->end(); it++)
       {
-         skeleton->bones[id].children.push_back(AddBoneToSkeleton(skeleton, id, it.key(), it.value()));
+         // Real talk: this was originally one line:
+         //   children.push_back(AddBoneToSkeleton(...));
+         // But this segfaults on Mac. Hypothesis is that skeleton->bones[id].children
+         // gets evaluated before AddBoneToSkeleton(...). As part of that function, 
+         // skeleton->bones changes, which technically invalidates all existing references
+         // including the previously-mentioned piece here. If the vector then gets reallocated
+         // skeleton->bones[id] won't change, but will reference garbage memory.
+         // There are two solutions
+         //   1. Do what has been done. Obviously I chose this one, referencing bones[id] only
+         //      after its state is guaranteed not to change
+         //   2. Evaluate a reference to skeleton->bones[id].children and then do the original
+         //      addition. That would be a lot more confusing IMO.
+         size_t child = AddBoneToSkeleton(skeleton, id, it.key(), it.value());
+         skeleton->bones[id].children.push_back(child);
       }
    }
 
@@ -172,7 +185,7 @@ AnimatedSkeleton::AnimatedSkeleton(const std::string& filename)
 
 void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& model)
 {
-   assert(bones.size() == 1, "Multiple bones not supported");
+   assert(bones.size() == 1 && "Multiple bones not supported");
    ModelAttachment attachment;
    assert(bonesByName.find(bones[0].first) != bonesByName.end());
    attachment.bone = bonesByName.find(bones[0].first)->second;
@@ -186,7 +199,7 @@ void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& mod
 
 void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& model, glm::vec3 tint)
 {
-   assert(bones.size() == 1, "Multiple bones not supported");
+   assert(bones.size() == 1 && "Multiple bones not supported");
    ModelAttachment attachment;
    assert(bonesByName.find(bones[0].first) != bonesByName.end());
    attachment.bone = bonesByName.find(bones[0].first)->second;

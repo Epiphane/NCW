@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <cstdio>
+
 namespace CubeWorld
 {
 
@@ -24,7 +26,6 @@ public:
    static Family GetFamily()
    {
       static Family family = sNumFamilies++;
-      assert(family < MAX_COMPONENTS);
       return family;
    }
 };
