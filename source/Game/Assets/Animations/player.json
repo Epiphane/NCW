@@ -49,7 +49,7 @@
                      "rotation": [ 0, 0, 0 ],
                      "bones": {
                         "left_foot": {
-                           "position": [ 0, -6.5, 0 ],
+                           "position": [ 0, -5.5, 0 ],
                            "rotation": [ 0, 0, 0 ]
                         }
                      }
@@ -76,9 +76,7 @@
          "length": 2,
          "keyframes": [
             {
-               "time": 0,
-               "position": {},
-               "rotation": {}
+               "time": 0
             }
          ]
       },
@@ -220,5 +218,57 @@
             }
          ]
       }
-   ]
+   ],
+   "transitions": {
+      "idle": [
+         {
+            "to": "walk",
+            "time": 0.5,
+            "triggers": [
+               { "parameter": "speed", "gte": 1 },
+               { "parameter": "speed", "lt": 8 }
+            ]
+         },
+         {
+            "to": "run",
+            "time": 0.5,
+            "triggers": [
+               { "parameter": "speed", "gte": 8 }
+            ]
+         }
+      ],
+      "walk": [
+         {
+            "to": "idle",
+            "time": 0.2,
+            "triggers": [
+               { "parameter": "speed", "lt": 1 }
+            ]
+         },
+         {
+            "to": "run",
+            "time": 0.5,
+            "triggers": [
+               { "parameter": "speed", "gte": 8 }
+            ]
+         }
+      ],
+      "run": [
+         {
+            "to": "idle",
+            "time": 0.2,
+            "triggers": [
+               { "parameter": "speed", "lt": 1 }
+            ]
+         },
+         {
+            "to": "walk",
+            "time": 0.5,
+            "triggers": [
+               { "parameter": "speed", "gte": 1 },
+               { "parameter": "speed", "lt": 8 }
+            ]
+         }
+      ]
+   }
 }

@@ -40,7 +40,12 @@ public:
 #if CUBEWORLD_BENCHMARK_SYSTEMS
       std::string name = typeid(S).name();
       // Cut off namespace.
+#if CUBEWORLD_PLATFORM_MACOSX
+      name = name.substr(18); // class Cubeworld::Game::
+      name.resize(name.size()-1);
+#else
       name = name.substr(23); // class Cubeworld::Game::
+#endif
       mBenchmarks.insert(std::make_pair(S::GetFamily(), std::make_pair(std::string(name), Timer<100>())));
 #endif
    }

@@ -168,6 +168,48 @@ AnimatedSkeleton::AnimatedSkeleton(const std::string& filename)
 
    assert(states.size() > 0);
 
+   // Add transitions.
+   if (data.find("transitions") != data.end())
+   {
+      for (auto it = data["transitions"].begin(); it != data["transitions"].end(); it++)
+      {
+         State& source = states[statesByName[it.key()]];
+
+         for (auto info : it.value())
+         {
+            Transition transition;
+            transition.destination = info["to"];
+            transition.time = info.value("time", 0.0);
+            for (auto triggerInfo : info["triggers"])
+            {
+               Transition::Trigger trigger;
+               trigger.parameter = triggerInfo["parameter"];
+               if (auto gte = triggerInfo.find("gte"); gte != triggerInfo.end())
+               {
+                  floatParams[trigger.parameter] = 0;
+                  trigger.type = Transition::Trigger::FloatGte;
+                  trigger.floatVal = gte.value();
+               }
+               if (auto lt = triggerInfo.find("lt"); lt != triggerInfo.end())
+               {
+                  floatParams[trigger.parameter] = 0;
+                  trigger.type = Transition::Trigger::FloatLt;
+                  trigger.floatVal = lt.value();
+               }
+               if (auto boolean = triggerInfo.find("bool"); boolean != triggerInfo.end())
+               {
+                  boolParams[trigger.parameter] = 0;
+                  trigger.type = Transition::Trigger::Bool;
+                  trigger.boolVal = boolean.value();
+               }
+
+               transition.triggers.push_back(std::move(trigger));
+            }
+            source.transitions.push_back(std::move(transition));
+         }
+      }
+   }
+
    if (data.find("default") != data.end())
    {
       Play(data["default"]);
@@ -215,6 +257,12 @@ void AnimatedSkeleton::Play(const std::string& state, double startTime)
 {
    auto it = statesByName.find(state);
    assert(it != statesByName.end());
+
+   if (current == it->second)
+   {
+      return;
+   }
+
    current = next = it->second;
    time = startTime;
 }
@@ -230,6 +278,12 @@ void AnimatedSkeleton::TransitionTo(const std::string& state, double transitionT
 
    auto it = statesByName.find(state);
    assert(it != statesByName.end());
+
+   if (current == it->second && next == it->second)
+   {
+      return;
+   }
+
    next = it->second;
    transitionStart = startTime;
    transitionCurrent = startTime;
@@ -304,9 +358,42 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             skeleton.bones[boneId].matrix = transitionProgress * matrix + (1 - transitionProgress) * skeleton.bones[boneId].matrix;
          }
       }
+
+      // Compute new transitions
+      if (skeleton.current == skeleton.next) {
+         AnimatedSkeleton::State& state = skeleton.states[skeleton.current];
+         for (AnimatedSkeleton::Transition& transition : state.transitions)
+         {
+            // Check triggers.
+            bool valid = true;
+            for (AnimatedSkeleton::Transition::Trigger& trigger : transition.triggers)
+            {
+               switch (trigger.type)
+               {
+               case AnimatedSkeleton::Transition::Trigger::FloatGte:
+                  valid &= skeleton.floatParams[trigger.parameter] >= trigger.floatVal;
+                  break;
+               case AnimatedSkeleton::Transition::Trigger::FloatLt:
+                  valid &= skeleton.floatParams[trigger.parameter] < trigger.floatVal;
+                  break;
+               case AnimatedSkeleton::Transition::Trigger::Bool:
+                  valid &= skeleton.boolParams[trigger.parameter] == trigger.boolVal;
+                  break;
+               default:
+                  assert(false && "Unrecognized trigger type");
+               }
+            }
+
+            if (valid)
+            {
+               skeleton.TransitionTo(transition.destination, transition.time);
+               break;
+            }
+         }
+      }
    });
 }
-   
+
 }; // namespace Game
 
 }; // namespace CubeWorld

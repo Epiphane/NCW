@@ -23,11 +23,31 @@ namespace Game
          std::vector<glm::mat4> matrixes;
       };
 
+      struct Transition {
+         struct Trigger {
+            typedef enum {
+               FloatGte, FloatLt, Bool
+            } Type;
+
+            Type type;
+            std::string parameter;
+            union {
+               float floatVal;
+               bool boolVal;
+            };
+         };
+
+         std::string destination;
+         double time;
+         std::vector<Trigger> triggers;
+      };
+
       struct State {
          std::string name;
 
          double length;
          std::vector<Keyframe> keyframes;
+         std::vector<Transition> transitions;
       };
 
       struct Bone {
@@ -53,6 +73,13 @@ namespace Game
       // Index 0 is the root of the skeleton.
       std::vector<Bone> bones;
       std::unordered_map<std::string, size_t> bonesByName;
+
+      // Animation FSM parameters
+      std::unordered_map<std::string, float> floatParams;
+      std::unordered_map<std::string, bool> boolParams;
+
+   public:
+      void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
 
    public:
       size_t current;

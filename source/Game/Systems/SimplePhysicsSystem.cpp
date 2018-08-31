@@ -95,16 +95,31 @@ void ResolveCollision(const Engine::Entity& entityA, const Engine::Entity& entit
    // TODO lol
    assert(!bodyB);
 
+   // Before we actually back off, try just stepping up <= one unit on the y-axis.
+   glm::vec3 halfSizeA = colliderA->size / 2.0f;
+   glm::vec3 halfSizeB = colliderB->size / 2.0f;
+   glm::vec3 positionA = transformA->GetLocalPosition();
+   glm::vec3 positionB = transformB->GetLocalPosition();
+   float stepSize = (positionB.y + halfSizeB.y) - (positionA.y - halfSizeA.y);
+   if (stepSize <= 1.2f)
+   {
+      transformA->SetLocalPosition(positionA + glm::vec3(0, stepSize / 3.0f, 0));
+      bodyA->velocity.y = 0;
+      if (bodyA->velocity.x != 0 || bodyA->velocity.z != 0)
+      {
+         float speed = std::max(0, bodyA->velocity.length() - 2);
+         bodyA->velocity = glm::normalize(bodyA->velocity) * speed;
+      }
+      return;
+   }
+
    // Step back until we're not colliding.
    const uint8_t STEPS = 8;
    TIMEDELTA step = dt / STEPS;
    uint8_t remaining = STEPS;
 
-   glm::vec3 positionA = transformA->GetLocalPosition() - float(dt) * bodyA->velocity;
+   positionA -= float(dt) * bodyA->velocity;
    glm::vec3 velocityA = float(step) * bodyA->velocity;
-   glm::vec3 halfSizeA = colliderA->size / 2.0f;
-   glm::vec3 positionB = transformB->GetLocalPosition();
-   glm::vec3 halfSizeB = colliderB->size / 2.0f;
    while (remaining > 0 && !TestAABB(positionA + velocityA, halfSizeA, halfSizeA, positionB, halfSizeB, halfSizeB))
    {
       positionA += velocityA;
@@ -210,6 +225,10 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 
                Engine::Entity other = entities.GetEntity(id);
                ResolveCollision(*entity, other, dt);
+
+               // Figure out the new hitbox.
+               glm::vec3 position = (*entity).Get<Engine::Transform>()->GetAbsolutePosition();
+               self = AABB(position - collider->size / 2.0f, position + collider->size / 2.0f);
             }
             else
             {

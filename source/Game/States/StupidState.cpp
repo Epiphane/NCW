@@ -9,12 +9,15 @@
 #include <Engine/Entity/Transform.h>
 #include <Game/Components/CubeModel.h>
 #include <Game/Components/ArmCamera.h>
+#include <Game/Systems/AnimationSystem.h>
 #include <Game/Systems/CameraSystem.h>
+#include <Game/Systems/FollowerSystem.h>
 #include <Game/Systems/FlySystem.h>
 #include <Game/Systems/MakeshiftSystem.h>
 #include <Game/Systems/Simple3DRenderSystem.h>
 #include <Game/Systems/SimplePhysicsSystem.h>
 #include <Game/Systems/VoxelRenderSystem.h>
+#include <Game/Systems/WalkSystem.h>
 
 #include <Game/DebugHelper.h>
 #include <Game/Helpers/Asset.h>
@@ -33,10 +36,13 @@ namespace Game
    {
       DebugHelper::Instance()->SetSystemManager(&mSystems);
       mSystems.Add<CameraSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<AnimationSystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<FlySystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<WalkSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
-      mSystems.Add<SimplePhysics::Debug>(mSystems.Get<SimplePhysics::System>(), true, &mCamera);
+      mSystems.Add<SimplePhysics::Debug>(mSystems.Get<SimplePhysics::System>(), false, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       
       mSystems.Configure();
@@ -156,16 +162,22 @@ namespace Game
       Engine::Input::InputManager::Instance()->SetMouseLock(true);
       
       Entity player = mEntities.Create();
-      player.Add<Transform>(glm::vec3(0, 2, -10), glm::vec3(0, 0, 1));
+      player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1));
-      player.Add<FlySpeed>(10);
+      player.Add<WalkSpeed>(10, 3, 15);
       player.Add<SimplePhysics::Body>();
-      player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8));
-      player.Add<CubeModel>(Asset::Model("body4.cub"));
+      player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 1.6, 0.8));
+      
+      Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
-      playerCamera.Get<Transform>()->SetParent(player);
-      playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
       ArmCamera::Options cameraOptions;
       cameraOptions.aspect = float(mWindow->Width()) / mWindow->Height();
       cameraOptions.far = 1500.0f;
@@ -173,41 +185,8 @@ namespace Game
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
       playerCamera.Add<MouseControlledCamera>();
       playerCamera.Add<MouseControlledCameraArm>();
-
-      Entity playerHead = mEntities.Create(0, 10, 0);
-      playerHead.Get<Transform>()->SetParent(player);
-      playerHead.Add<CubeModel>(Asset::Model("human-head-m01.cub"));
-
-      Entity playerHair = mEntities.Create(0, 0, 0);
-      playerHair.Get<Transform>()->SetParent(playerHead);
-      playerHair.Add<CubeModel>(Asset::Model("human-hair-m02.cub"), glm::vec3(0, 0, 255));
-
-      Entity playerHand1 = mEntities.Create(-6, 1, 0);
-      playerHand1.Get<Transform>()->SetParent(player);
-      playerHand1.Add<CubeModel>(Asset::Model("hand2.cub"));
-
-      Entity playerHand2 = mEntities.Create(6, 1, 0);
-      playerHand2.Get<Transform>()->SetParent(player);
-      playerHand2.Add<CubeModel>(Asset::Model("hand2.cub"));
-
-      player.Add<Makeshift>([&, player, playerCamera](Engine::EntityManager&, Engine::EventManager& events, TIMEDELTA) {
-         if (Engine::Input::InputManager::Instance()->IsKeyDown(GLFW_KEY_SPACE))
-         {
-            player.Get<Transform>()->SetYaw(player.Get<Transform>()->GetYaw() + playerCamera.Get<Transform>()->GetYaw());
-            playerCamera.Get<Transform>()->SetYaw(0);
-            return;
-         }
-
-         float start = player.Get<Transform>()->GetYaw();
-         float dest = playerCamera.Get<Transform>()->GetYaw();
-
-         if (Engine::Input::InputManager::Instance()->IsKeyDown(GLFW_KEY_W))
-         {
-            float dYaw = dest / 2;
-            player.Get<Transform>()->SetYaw(start + dYaw);
-            playerCamera.Get<Transform>()->SetYaw(dYaw);
-         }
-      });
+      playerCamera.Add<Follower>(player.Get<Transform>());
+      player.Add<WalkDirector>(playerCamera.Get<Transform>(), false);
 
       mCamera.Set(handle.get());
 
@@ -253,7 +232,7 @@ namespace Game
       for (int i = -size; i <= size; ++i) {
          int rowIndex = (i + size) * (2 * size + 1);
          for (int j = -size; j <= size; ++j) {
-            float elevation = pow(heightmap.GetValue(i + size, j + size), 2);
+            double elevation = 0.25 + 2 * pow(heightmap.GetValue(i + size, j + size), 2);
             glm::vec4 source, dest;
             double start, end;
             if (elevation >= 0.75) { source = ROCK; dest = SNOW; start = 0.75; end = 1.0; }
