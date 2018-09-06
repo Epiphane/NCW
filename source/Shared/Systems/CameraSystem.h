@@ -12,7 +12,7 @@
 #include <Engine/System/System.h>
 
 // Arm cameras are defined separately, since they aren't strictly tied to this system.
-#include <Game/Components/ArmCamera.h>
+#include "../Components/ArmCamera.h"
 
 namespace CubeWorld
 {
@@ -25,6 +25,23 @@ struct MouseControlledCamera : public Engine::Component<MouseControlledCamera> {
       : sensitivity{pitchSensitivity, yawSensitivity}
    {};
    
+   double sensitivity[2];
+};
+
+struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
+   KeyControlledCamera(
+      uint32_t up = GLFW_KEY_W,
+      uint32_t down = GLFW_KEY_S,
+      uint32_t left = GLFW_KEY_A,
+      uint32_t right = GLFW_KEY_D,
+      double pitchSpeed = 2.0,
+      double yawSpeed = 2.0
+   ) 
+      : keys{up, down, left, right}
+      , sensitivity{pitchSpeed, yawSpeed}
+   {};
+   
+   uint32_t keys[4];
    double sensitivity[2];
 };
 

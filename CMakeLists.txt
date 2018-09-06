@@ -12,7 +12,7 @@ endif()
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 -DGLEW_STATIC")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -DGLEW_STATIC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -DGLEW_STATIC -g")
 endif()
 set(CMAKE_MACOSX_RPATH 1)
 

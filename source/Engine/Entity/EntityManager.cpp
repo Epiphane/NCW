@@ -14,10 +14,28 @@ EntityManager::EntityManager(EventManager &events) : mEventManager(events)
 
 EntityManager::~EntityManager()
 {
-   // TODO clean shit up:
-   // component pools
-   // component helpers
-   // entities for debugging?
+   for (BasePool* pool : mComponentPools)
+   {
+      if (pool != nullptr)
+      {
+         delete pool;
+      }
+   }
+
+   for (BaseComponentHelper* helper : mComponentHelpers)
+   {
+      if (helper != nullptr)
+      {
+         delete helper;
+      }
+   }
+
+   mComponentPools.clear();
+   mComponentHelpers.clear();
+   mEntityComponentMask.clear();
+   mEntityVersion.clear();
+   mEntityFreeList.clear();
+   mNumEntities = 0;
 }
 
 Entity::ID EntityManager::MakeID(uint32_t index) const

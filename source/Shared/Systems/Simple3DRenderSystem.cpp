@@ -12,7 +12,6 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
 
-#include <Game/DebugHelper.h>
 #include "Simple3DRenderSystem.h"
 
 namespace CubeWorld
@@ -71,7 +70,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
    DISCOVER_UNIFORM(uViewMatrix);
    DISCOVER_UNIFORM(uModelMatrix);
 
-   Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
+   metric = Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
       return Format::FormatString("%1ms", std::round(mClock.Average() * 100000.0) / 100);
    });
 }

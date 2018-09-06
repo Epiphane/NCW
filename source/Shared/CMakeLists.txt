@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-SET(PROJECT_NAME Game)
+SET(PROJECT_NAME Shared)
 
 include_directories(${INCLUDES})
 include_directories(..)
@@ -13,18 +13,12 @@ file(GLOB SOURCES
    "Shaders/*"
 )
 
-# add_library(${PROJECT_NAME} SHARED ${SOURCES} )
-add_executable(${PROJECT_NAME} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/source/Game")
-target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine Shared)
-
-if (WIN32)
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-ADD_DEFINITIONS( "-W4 /wd4201" )
-endif()
+add_library(${PROJECT_NAME} STATIC ${SOURCES} )
+target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine)
 
 # install libraries into /lib
-INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+INSTALL(TARGETS ${PROJECT_NAME} DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+
 SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
 SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Event/*")
 SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
@@ -32,7 +26,6 @@ SOURCE_GROUP(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
 SOURCE_GROUP(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
 SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")
 SOURCE_GROUP(Systems REGULAR_EXPRESSION ".*/Systems/*")
-SOURCE_GROUP(Model REGULAR_EXPRESSION ".*/Model/*")
 
-file(COPY "${CMAKE_SOURCE_DIR}/source/Game/Shaders" DESTINATION ${PROJECT_BINARY_DIR})
+file(COPY "${CMAKE_SOURCE_DIR}/source/Shared/Shaders" DESTINATION ${PROJECT_BINARY_DIR})
 file(COPY "${CMAKE_SOURCE_DIR}/Assets" DESTINATION ${PROJECT_BINARY_DIR})

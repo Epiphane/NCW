@@ -18,11 +18,9 @@ class Window;
 namespace Input
 {
 
-//typedef void(*input_key_callback)(void);
-//typedef void(*input_alpha_callback)(char);
-
 using input_key_callback = std::function<void(void)>;
 using input_alpha_callback = std::function<void(char)>;
+using mouse_button_callback = std::function<void(int, double, double)>;
 
 class InputManager
 {
@@ -46,12 +44,14 @@ private:
 
    friend void keyCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
    friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+   friend void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
 public:
    //
    // Set whether the mouse should be locked to the center of the screen.
    //
    void SetMouseLock(bool locked);
+   bool IsMouseLocked() { return mouseLocked; }
 
 private:
    bool mouseLocked = false;
@@ -87,12 +87,29 @@ public:
    //
    void SetCallback(int key, input_key_callback cb);
 
+   //
+   // Register a callback to mouse events
+   //
+   void OnMouseDown(mouse_button_callback cb);
+   void OnMouseUp(mouse_button_callback cb);
+   void OnClick(mouse_button_callback cb);
+   void OnDrag(mouse_button_callback cb);
+
 private:
+   mouse_button_callback mouseDownCallback = nullptr;
+   mouse_button_callback mouseUpCallback = nullptr;
+   mouse_button_callback mouseClickCallback = nullptr;
+   mouse_button_callback mouseDragCallback = nullptr;
+
    double mousePosition[2];
    double mouseMovement[2];
 
    double mouseScroll[2];
    double _mouseScroll[2]; // Accumulated between updates.
+
+   bool mousePressed[GLFW_MOUSE_BUTTON_LAST];
+   bool mouseDragging[GLFW_MOUSE_BUTTON_LAST];
+   double mousePressOrigin[GLFW_MOUSE_BUTTON_LAST * 2];
 };
 
 }; // namespace Input

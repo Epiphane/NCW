@@ -15,14 +15,16 @@
                 ".."
             ],
             "type": "shell",
+            "group": "build",
             "command": "/Applications/CMake.app/Contents/bin/cmake",
             "problemMatcher": []
         },
         {
-            "label": "make",
+            "label": "make game",
             "args": [
                 "-j",
-                "8"
+                "8",
+                "Game"
             ],
             "type": "shell",
             "group": "build",
@@ -30,7 +32,21 @@
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
-            "dependsOn": "cmake",
+            "problemMatcher": []
+        },
+        {
+            "label": "make editor",
+            "args": [
+                "-j",
+                "8",
+                "Editor"
+            ],
+            "type": "shell",
+            "group": "build",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
             "problemMatcher": []
         }
     ]

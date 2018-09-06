@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "Config.h"
-#include "Input.h"
 #include "Singleton.h"
 #include "State.h"
 
@@ -26,10 +25,14 @@ public:
 
 public:
    void SetState(State* state);
+   void SetState(std::unique_ptr<State>&& state);
 
    void Update(TIMEDELTA dt);
 
 private:
+   std::unique_ptr<State> mOwned;
+   std::unique_ptr<State> mOwnNext;
+
    State* mState;
    State* mNext;
 };

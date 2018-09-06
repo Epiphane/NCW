@@ -23,11 +23,13 @@ namespace Game
    DebugHelper::DebugHelper()
       : mWindow(nullptr)
       , mFont(nullptr)
-      , mMetrics{}
       , mMetricsTextVBO(Engine::Graphics::Vertices)
       , mSystemsBenchmarkVBO(Engine::Graphics::Vertices)
       , mSystemManager(nullptr)
    {
+      mMetrics = std::make_unique<MetricLink>(this, "None", nullptr);
+      mMetrics->next = mMetrics->prev = mMetrics.get();
+
       auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
       assert(maybeFont);
       mFont = maybeFont.Result();
@@ -50,21 +52,54 @@ namespace Game
    {
    }
 
-   void DebugHelper::RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn)
+   std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn)
    {
-      mMetrics.push_back(std::make_pair(name, fn));
+      std::unique_ptr<MetricLink> link = std::make_unique<MetricLink>(this, name, fn);
+      
+      link->next = mMetrics.get();
+      link->prev = mMetrics->prev;
+      link->prev->next = link.get();
+      link->next->prev = link.get();
+
+      return std::move(link);
+   }
+
+   void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> metric)
+   {
+      // metric will be deconstructed at the end of this function, which is now the owner
+   }
+
+   void DebugHelper::RemoveLink(MetricLink* link)
+   {
+      if (link->next != nullptr)
+      {
+         link->next->prev = link->prev;
+      }
+
+      if (link->prev != nullptr)
+      {
+         link->prev->next = link->next;
+      }
+      
+      link->next = nullptr;
+      link->prev = nullptr;
    }
 
    void DebugHelper::Update()
    {
       mMetricsState.clear();
       std::string text = "DEBUG:";
-      for (auto metric : mMetrics)
+      MetricLink* metric = mMetrics->next;
+      while (metric != mMetrics.get())
       {
-         std::pair<std::string, std::string> result = std::make_pair(metric.first, metric.second());
-         mMetricsState.push_back(result);
+         if (metric->callback)
+         {
+            std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
+            mMetricsState.push_back(result);
 
-         text += "\n" + result.first + ": " + result.second;
+            text += "\n" + result.first + ": " + result.second;
+         }
+         metric = metric->next;
       }
       if (mMetricsText != text)
       {

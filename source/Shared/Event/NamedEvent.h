@@ -9,16 +9,11 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 struct NamedEvent : public Engine::Event<NamedEvent> {
    explicit NamedEvent(std::string name) : name(name) {}
    virtual ~NamedEvent() {}
 
    std::string name;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

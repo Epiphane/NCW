@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-SET(PROJECT_NAME Game)
+SET(PROJECT_NAME Editor)
 
 include_directories(${INCLUDES})
 include_directories(..)
@@ -24,7 +24,7 @@ ADD_DEFINITIONS( "-W4 /wd4201" )
 endif()
 
 # install libraries into /lib
-INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+INSTALL( TARGETS Editor DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
 SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
 SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Event/*")
 SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")

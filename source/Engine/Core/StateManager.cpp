@@ -34,12 +34,20 @@ void StateManager::SetState(State* state)
    mNext = state;
 }
 
+void StateManager::SetState(std::unique_ptr<State>&& state)
+{
+   mOwnNext = std::move(state);
+   SetState(mOwnNext.get());
+}
+
 void StateManager::Update(TIMEDELTA dt)
 {
    if (mNext != nullptr)
    {
       mState = mNext;
+      mOwned = std::move(mOwnNext);
       mNext = nullptr;
+      mOwnNext.reset();
       mState->Start();
    }
 

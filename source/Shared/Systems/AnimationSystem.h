@@ -9,7 +9,7 @@
 
 #include <Engine/Core/Input.h>
 #include <Engine/System/System.h>
-#include <Game/Components/CubeModel.h>
+#include "../Components/CubeModel.h"
 
 namespace CubeWorld
 {

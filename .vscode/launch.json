@@ -8,6 +8,19 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
+            "program": "${workspaceFolder}/build/source/Editor/Editor",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "make editor"
+        },
+        {
+            "name": "(lldb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
             "program": "${workspaceFolder}/build/source/Game/Game",
             "args": [],
             "stopAtEntry": false,
@@ -15,7 +28,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make"
+            "preLaunchTask": "make game"
         }
     ]
 }

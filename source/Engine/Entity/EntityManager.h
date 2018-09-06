@@ -22,6 +22,62 @@ namespace Engine
 {
 
 //
+// EntityManager is a long file with a lot of different parts, which are all mostly
+// documented individually, but at a high level, each state has one EntityManager,
+// which is responsible for managing the list of entities that exist in that state
+// as well as all their associated data.
+//
+// An "Entity" is simply an ID, which serves as an index for locating the component
+// data attached to it. Helper functions of Entity just call the EntityManager
+// analogs of those functions, providing the ID as an argument.
+//
+// Components are organized in per-component arrays, meaning that PhysicsComponent[0]
+// and PhysicsComponent[1] contains the physics-specific data for Entity 0 and 1,
+// respectively, and live directly next to each other in data. These components are
+// accessed through the EntityManager by using templated functions, for example:
+// 
+//    mEntities.Get<Transform>(myEntity);
+//      or
+//    myEntity.Get<Transform>();
+//
+// To iterate over all entities with components X and Y, simply call Each, as follows:
+//
+//    mEntities.Each<Transform, PhysicsBody>([&](Entity e, Transform& transform, PhysicsBody& body) {
+//       // Contents of lambda, presumably making use of those components...
+//    });
+//
+// Lastly, to create an entity and add components is simple. A complicated example is shown, to
+// demonstrate creation of an entity, some components, and optionally using those components further.
+//
+//   Entity player = mEntities.Create();
+//   player.Add<Transform>(glm::vec3(0, 10, 0));                    // Start the player at [0, 10, 0]
+//   player.Add<SimplePhysics::Body>();                             // Subject the player to gravity
+//   player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8)); // Subject the player to collision
+//   Engine::ComponentHandle<AnimatedSkeleton> skeleton = 
+//      player.Add<AnimatedSkeleton>("player.json");                // Add an animated skeleton
+//   skeleton->AddModel("torso", "body4.cub");                      // Add two models to the new skeleton
+//   skeleton->AddModel("head", "elf-head-m02.cub");
+//
+//   Entity playerCamera = mEntities.Create(0, 0, 0);               // Create a camera to attach to the player.
+//   playerCamera.Get<Transform>()->SetParent(player);
+//
+// EntityManager itself emits 4 different kind of events, at self-explanatory times:
+//   - EntityCreatedEvent
+//     Called when an entity is first created. It has no components attached to it at this time.
+//
+//   - ComponentAddedEvent<C>
+//     Called when a C component is added to any entity. The event provides the entity, as well
+//     as a handle to the component that has just been added.
+//
+//   - ComponentRemovedEvent<C>
+//     Called immediately before a C component is removed from any entity. The event provides the
+//     entity, as well as a handle to the component that is about to be removed.
+//     NOTE: This is called for each component on an entity that is about to be destroyed.
+//
+//   - EntityDestroyedEvent
+//     Called just before an entity is destroyed. It has no components attached to it at this time.
+
+//
 // Emitted when an entity is created.
 //
 struct EntityCreatedEvent : public Event<EntityCreatedEvent> {
@@ -97,7 +153,6 @@ public:
 class EntityManager {
 public:
    explicit EntityManager(EventManager &events);
-   // TODO CLEAN SHIT UP 
    virtual ~EntityManager();
 
    // Entity and component access.

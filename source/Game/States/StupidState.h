@@ -9,7 +9,7 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
-#include <Game/Event/NamedEvent.h>
+#include <Shared/Event/NamedEvent.h>
 
 namespace CubeWorld
 {

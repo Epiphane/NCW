@@ -8,9 +8,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 namespace Voxel
 {
 
@@ -40,7 +37,5 @@ struct Data {
 typedef std::vector<Data> Model;
 
 }; // namespace Voxel
-
-}; // namespace Game
 
 }; // namespace CubeWorld

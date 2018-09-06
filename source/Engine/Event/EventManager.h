@@ -15,6 +15,20 @@ namespace CubeWorld
 namespace Engine
 {
 
+//
+// At its core, EventManager serves as the de facto way of getting information from one place to another.
+// For example, if you want to do something each time an Entity is created, a specific component is added
+// an entity, or when the player clicks their mouse, you'll want to make use of the EventManager.
+//
+// Generally speaking, each State has one EventManager, which is uses for piping all this communication.
+// The manager is provided to the Update method of all Systems, so as part of the update loop you have
+// the opportunity to call events.Emit<WhateverEvent>(args, to, event, constructor);
+//
+// Whatever you'd like to receive this event (the state, another system, anything) just has to implement
+// Receive<WhateverEvent> (see below) and be registered at one point. For example, a state might subscribe
+// like this:
+//    mEvents.Subscribe<WhateverEvent>(*this);
+//
 class EventManager {
 public:
    EventManager();

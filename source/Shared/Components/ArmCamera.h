@@ -60,6 +60,21 @@ struct MouseControlledCameraArm : public Engine::Component<MouseControlledCamera
    double sensitivity;
 };
 
+struct KeyControlledCameraArm : public Engine::Component<KeyControlledCameraArm> {
+   KeyControlledCameraArm(
+      uint32_t zoomInKey = GLFW_KEY_Q,
+      uint32_t zoomOutKey = GLFW_KEY_E,
+      double sensitivity = 8.0
+   )
+      : zoomIn(zoomInKey)
+      , zoomOut(zoomOutKey)
+      , sensitivity(sensitivity)
+   {};
+
+   uint32_t zoomIn, zoomOut;
+   double sensitivity;
+};
+
 }; // namespace Game
 
 }; // namespace CubeWorld

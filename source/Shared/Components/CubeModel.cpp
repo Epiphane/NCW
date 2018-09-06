@@ -9,7 +9,7 @@
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Logger/Logger.h>
-#include <Game/Voxel.h>
+#include "../Voxel.h"
 
 #include "CubeModel.h"
 

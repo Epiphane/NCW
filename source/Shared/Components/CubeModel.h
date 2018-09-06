@@ -8,7 +8,7 @@
 
 #include <Engine/Entity/Component.h>
 #include <Engine/Graphics/VBO.h>
-#include <Game/Voxel.h>
+#include "../Voxel.h"
 
 namespace CubeWorld
 {

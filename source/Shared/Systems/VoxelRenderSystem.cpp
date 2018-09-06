@@ -45,8 +45,7 @@ namespace Game
 
    VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
    {
-      // TODO allow deregister
-      Game::DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
+      metric = Game::DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
          return Format::FormatString("%1ms", std::round(mClock.Average() * 100000.0) / 100);
       });
    }

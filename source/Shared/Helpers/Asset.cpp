@@ -1,13 +1,8 @@
 // By Thomas Steinke
 
-#pragma once
-
 #include "Asset.h"
 
 namespace CubeWorld
-{
-
-namespace Game
 {
 
 namespace Asset
@@ -29,7 +24,5 @@ std::string Font(const std::string& fontName)
 }
 
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

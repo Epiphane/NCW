@@ -9,9 +9,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 namespace Asset
 {
 
@@ -20,7 +17,5 @@ std::string Model(const std::string& model);
 std::string Font(const std::string& fontName);
 
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

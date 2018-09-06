@@ -30,7 +30,15 @@
         "__bit_reference": "cpp",
         "memory": "cpp",
         "__functional_03": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "locale": "cpp",
+        "__functional_base": "cpp",
+        "istream": "cpp",
+        "tuple": "cpp",
+        "queue": "cpp",
+        "atomic": "cpp",
+        "forward_list": "cpp",
+        "system_error": "cpp"
     },
     "editor.tabSize": 3
 }

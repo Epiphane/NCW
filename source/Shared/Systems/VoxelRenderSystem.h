@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <memory>
 #include <vector>
+#include <glm/glm.hpp>
 
 #include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
@@ -12,28 +13,27 @@
 #include <Engine/Graphics/VBO.h>
 #include <Engine/System/System.h>
 
+#include "../DebugHelper.h"
+#include "../Voxel.h"
+
 namespace CubeWorld
 {
 
 namespace Game
 {
-   
-   class Simple3DComponentCamera : public Engine::Graphics::Camera {
-      Engine::ComponentHandle<Engine::Transform> transform;
-   };
 
-   struct Simple3DRender : public Engine::Component<Simple3DRender> {
-      Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors);
-      Simple3DRender(const Simple3DRender& other);
+   struct VoxelRender : public Engine::Component<VoxelRender> {
+      VoxelRender(Voxel::Model&& voxels);
+      VoxelRender(const VoxelRender& other);
       
-      Engine::Graphics::VBO mVertices, mColors;
-      GLsizei mCount;
+      Engine::Graphics::VBO mVoxelData;
+      GLsizei mSize;
    };
 
-   class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {
+   class VoxelRenderSystem : public Engine::System<VoxelRenderSystem> {
    public:
-      Simple3DRenderSystem(Engine::Graphics::Camera* camera = nullptr);
-      ~Simple3DRenderSystem();
+      VoxelRenderSystem(Engine::Graphics::Camera* camera = nullptr);
+      ~VoxelRenderSystem();
 
       void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
 
@@ -45,10 +45,11 @@ namespace Game
       Engine::Graphics::Camera* mCamera;
 
       static GLuint program;
-      static GLuint aPosition, aColor;
-      static GLuint uProjMatrix, uViewMatrix, uModelMatrix;
+      static GLuint aPosition, aColor, aEnabledFaces;
+      static GLuint uTint, uProjMatrix, uViewMatrix, uModelMatrix, uVoxelSize;
 
    private:
+      std::unique_ptr<DebugHelper::MetricLink> metric;
       Engine::Timer<100> mClock;
    };
 

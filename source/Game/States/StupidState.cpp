@@ -7,20 +7,20 @@
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
-#include <Game/Components/CubeModel.h>
-#include <Game/Components/ArmCamera.h>
-#include <Game/Systems/AnimationSystem.h>
-#include <Game/Systems/CameraSystem.h>
-#include <Game/Systems/FollowerSystem.h>
-#include <Game/Systems/FlySystem.h>
-#include <Game/Systems/MakeshiftSystem.h>
-#include <Game/Systems/Simple3DRenderSystem.h>
-#include <Game/Systems/SimplePhysicsSystem.h>
-#include <Game/Systems/VoxelRenderSystem.h>
-#include <Game/Systems/WalkSystem.h>
+#include <Shared/Components/CubeModel.h>
+#include <Shared/Components/ArmCamera.h>
+#include <Shared/Systems/AnimationSystem.h>
+#include <Shared/Systems/CameraSystem.h>
+#include <Shared/Systems/FollowerSystem.h>
+#include <Shared/Systems/FlySystem.h>
+#include <Shared/Systems/MakeshiftSystem.h>
+#include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimplePhysicsSystem.h>
+#include <Shared/Systems/VoxelRenderSystem.h>
+#include <Shared/Systems/WalkSystem.h>
 
-#include <Game/DebugHelper.h>
-#include <Game/Helpers/Asset.h>
+#include <Shared/DebugHelper.h>
+#include <Shared/Helpers/Asset.h>
 #include "StupidState.h"
 
 namespace CubeWorld

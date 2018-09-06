@@ -44,6 +44,46 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
    input->_mouseScroll[1] += yoffset;
 }
 
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+   InputManager *input = (InputManager *)glfwGetWindowUserPointer(window);
+   // TODO validate this is a real InputManager
+
+   double w_width = static_cast<double>(input->window->Width());
+   double w_height = static_cast<double>(input->window->Height());
+
+   double xpos, ypos;
+   glfwGetCursorPos(window, &xpos, &ypos);
+   input->mousePressed[button] = (action == GLFW_PRESS);
+   if (input->mousePressed[button])
+   {
+      if (input->mouseDownCallback)
+      {
+         input->mouseDownCallback(button, xpos / w_width, ypos / w_height);
+      }
+      input->mousePressOrigin[2 * button] = xpos;
+      input->mousePressOrigin[2 * button + 1] = ypos;
+   }
+   else
+   {
+      if (input->mouseDragging[button])
+      {
+         if (input->mouseUpCallback)
+         {
+            input->mouseUpCallback(button, xpos / w_width, ypos / w_height);
+         }
+         input->mouseDragging[button] = false;
+      }
+      else
+      {
+         if (input->mouseClickCallback)
+         {
+            input->mouseClickCallback(button, xpos / w_width, ypos / w_height);
+         }
+      }
+   }
+}
+
 inline const void InputManager::SetContextCurrent() const
 {
    //if (nInstances > 1)
@@ -55,11 +95,19 @@ inline const void InputManager::SetContextCurrent() const
 InputManager::InputManager(Window* window)
    : window(window)
    , keyCallbacks{0}
+   , alphaCallback{nullptr}
    , mouseLocked(false)
+   , mouseDownCallback{nullptr}
+   , mouseUpCallback{nullptr}
+   , mouseClickCallback{nullptr}
+   , mouseDragCallback{nullptr}
    , mousePosition{0}
    , mouseMovement{0}
    , mouseScroll{0}
    , _mouseScroll{0}
+   , mousePressed{0}
+   , mouseDragging{0}
+   , mousePressOrigin{0}
 {
    assert(window != nullptr);
    glfwMakeContextCurrent(window->get());
@@ -70,6 +118,7 @@ InputManager::InputManager(Window* window)
 
    glfwSetKeyCallback(window->get(), &keyCallback);
    glfwSetScrollCallback(window->get(), &scrollCallback);
+   glfwSetMouseButtonCallback(window->get(), &mouseButtonCallback);
 
    ++nInstances;
 }
@@ -106,11 +155,19 @@ void InputManager::SetMouseLock(bool locked)
 
 void InputManager::Clear()
 {
+   alphaCallback = nullptr;
+   mouseDownCallback = nullptr;
+   mouseUpCallback = nullptr;
+   mouseClickCallback = nullptr;
+   mouseDragCallback = nullptr;
    memset(mousePosition, 0, sizeof(mousePosition));
    memset(mouseMovement, 0, sizeof(mouseMovement));
    memset(keyCallbacks, 0, sizeof(keyCallbacks));
    memset(mouseScroll, 0, sizeof(mouseScroll));
    memset(_mouseScroll, 0, sizeof(_mouseScroll));
+   memset(mousePressed, 0, sizeof(mousePressed));
+   memset(mouseDragging, 0, sizeof(mouseDragging));
+   memset(mousePressOrigin, 0, sizeof(mousePressOrigin));
 }
 
 void InputManager::Update()
@@ -123,23 +180,42 @@ void InputManager::Update()
    memcpy(mouseScroll, _mouseScroll, sizeof(mouseScroll));
    memset(_mouseScroll, 0, sizeof(_mouseScroll));
 
+   double w_width = static_cast<double>(window->Width());
+   double w_height = static_cast<double>(window->Height());
+
    if (!mouseLocked) {
-      return;
+      for (int button = GLFW_MOUSE_BUTTON_1; button < GLFW_MOUSE_BUTTON_LAST; ++button)
+      {
+         if (mousePressed[button] && !mouseDragging[button])
+         {
+            double distSquared = (mousePosition[0] - mousePressOrigin[2 * button]) *
+                                 (mousePosition[0] - mousePressOrigin[2 * button]) +
+                                 (mousePosition[1] - mousePressOrigin[2 * button + 1]) *
+                                 (mousePosition[1] - mousePressOrigin[2 * button + 1]);
+            if (distSquared > 3)
+            {
+               mouseDragging[button] = true;
+            }
+         }
+
+         if (mouseDragCallback && mouseDragging[button])
+         {
+            mouseDragCallback(button, mousePosition[0] / w_width, mousePosition[1] / w_height);
+         }
+      }
    }
-
-   // Update camera
-   double w_2 = static_cast<double>(window->Width()) / 2;
-   double h_2 = static_cast<double>(window->Height()) / 2;
-
-   mouseMovement[0] = w_2 - mousePosition[0];
-   mouseMovement[1] = h_2 - mousePosition[1];
-   // Edge case: window initialization
-   if (std::abs(mouseMovement[0]) > 200 || std::abs(mouseMovement[1]) > 200 || (mousePosition[0] == 0 && mousePosition[1] == 0)) {
-      mouseMovement[0] = mouseMovement[1] = 0;
-   }
-
-   if (mouseLocked)
+   else
    {
+      double w_2 = w_width / 2;
+      double h_2 = w_height / 2;
+
+      mouseMovement[0] = w_2 - mousePosition[0];
+      mouseMovement[1] = h_2 - mousePosition[1];
+      // Edge case: window initialization
+      if (std::abs(mouseMovement[0]) > 200 || std::abs(mouseMovement[1]) > 200 || (mousePosition[0] == 0 && mousePosition[1] == 0)) {
+         mouseMovement[0] = mouseMovement[1] = 0;
+      }
+
       glfwSetCursorPos(window->get(), w_2, h_2);
       mousePosition[0] = w_2;
       mousePosition[1] = h_2;
@@ -193,6 +269,26 @@ void InputManager::SetCallback(int key, input_key_callback cb)
    }
 
    keyCallbacks[key] = cb;
+}
+
+void InputManager::OnMouseDown(mouse_button_callback cb)
+{
+   mouseDownCallback = cb;
+}
+
+void InputManager::OnMouseUp(mouse_button_callback cb)
+{
+   mouseUpCallback = cb;
+}
+
+void InputManager::OnClick(mouse_button_callback cb)
+{
+   mouseClickCallback = cb;
+}
+
+void InputManager::OnDrag(mouse_button_callback cb)
+{
+   mouseDragCallback = cb;
 }
 
 }; // namespace Input

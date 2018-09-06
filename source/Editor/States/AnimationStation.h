@@ -7,14 +7,15 @@
 
 #include <Engine/Core/State.h>
 #include <Engine/Core/Window.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
-#include <Game/Event/NamedEvent.h>
+#include <Shared/Event/NamedEvent.h>
 
 namespace CubeWorld
 {
 
-namespace Game
+namespace Editor
 {
 
 class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
@@ -25,6 +26,10 @@ public:
    void Start() override;
 
    void Receive(const NamedEvent& namedEvent);
+   void Receive(const MouseDragEvent& evt);
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseUpEvent& evt);
+   void Receive(const MouseClickEvent& evt);
 
 private:
    Engine::Graphics::CameraHandle mCamera;
@@ -33,6 +38,6 @@ private:
    std::vector<int32_t> heights;
 };
 
-}; // namespace Game
+}; // namespace Editor
 
 }; // namespace CubeWorld

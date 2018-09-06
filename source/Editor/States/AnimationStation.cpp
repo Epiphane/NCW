@@ -5,42 +5,54 @@
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
 
+#include <Engine/Core/StateManager.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
-#include <Game/Components/CubeModel.h>
-#include <Game/Components/ArmCamera.h>
-#include <Game/Systems/AnimationSystem.h>
-#include <Game/Systems/CameraSystem.h>
-#include <Game/Systems/FlySystem.h>
-#include <Game/Systems/MakeshiftSystem.h>
-#include <Game/Systems/Simple3DRenderSystem.h>
-#include <Game/Systems/SimplePhysicsSystem.h>
-#include <Game/Systems/VoxelRenderSystem.h>
+#include <Engine/System/InputEventSystem.h>
+#include <Shared/Components/CubeModel.h>
+#include <Shared/Components/ArmCamera.h>
+#include <Shared/Systems/AnimationSystem.h>
+#include <Shared/Systems/CameraSystem.h>
+#include <Shared/Systems/FlySystem.h>
+#include <Shared/Systems/MakeshiftSystem.h>
+#include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimplePhysicsSystem.h>
+#include <Shared/Systems/VoxelRenderSystem.h>
 
-#include <Game/DebugHelper.h>
-#include <Game/Helpers/Asset.h>
+#include <Shared/DebugHelper.h>
+#include <Shared/Helpers/Asset.h>
 #include "AnimationStation.h"
 
 namespace CubeWorld
 {
 
-namespace Game
+namespace Editor
 {
 
    using Entity = Engine::Entity;
    using Transform = Engine::Transform;
 
+   using ArmCamera = Game::ArmCamera;
+   using AnimatedSkeleton = Game::AnimatedSkeleton;
+   using DebugHelper = Game::DebugHelper;
+
    AnimationStation::AnimationStation(Engine::Window* window) : mWindow(window)
    {
       DebugHelper::Instance()->SetSystemManager(&mSystems);
-      mSystems.Add<CameraSystem>(Engine::Input::InputManager::Instance());
-      mSystems.Add<AnimationSystem>(Engine::Input::InputManager::Instance());
-      mSystems.Add<MakeshiftSystem>();
-      mSystems.Add<VoxelRenderSystem>(&mCamera);
+      mSystems.Add<Engine::InputEventSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::CameraSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::MakeshiftSystem>();
+      mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
+      mSystems.Add<Game::SimplePhysics::System>();
       
       mSystems.Configure();
 
       mEvents.Subscribe<NamedEvent>(*this);
+      mEvents.Subscribe<MouseDownEvent>(*this);
+      mEvents.Subscribe<MouseUpEvent>(*this);
+      mEvents.Subscribe<MouseDragEvent>(*this);
+      mEvents.Subscribe<MouseClickEvent>(*this);
    }
 
    AnimationStation::~AnimationStation()
@@ -50,13 +62,11 @@ namespace Game
 
    void AnimationStation::Start()
    {
-      Engine::Input::InputManager::Instance()->SetMouseLock(true);
+      Engine::Input::InputManager::Instance()->SetMouseLock(false);
       
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 5, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-      player.Add<SimplePhysics::Body>();
-      player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8));
       Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
 
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
@@ -75,11 +85,8 @@ namespace Game
       cameraOptions.far = 1500.0f;
       cameraOptions.distance = 3.5f;
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
-      playerCamera.Add<MouseControlledCamera>();
-      playerCamera.Add<MouseControlledCameraArm>();
-
-      player.Add<Makeshift>([&, player, playerCamera](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-      });
+      playerCamera.Add<Game::KeyControlledCamera>();
+      playerCamera.Add<Game::KeyControlledCameraArm>();
 
       Engine::Input::InputManager::Instance()->SetCallback(GLFW_KEY_SPACE, [player](){
          static int state = 0;
@@ -160,7 +167,7 @@ namespace Game
       assert(carpet.size() > 0);
 
       Entity voxels = mEntities.Create(0, 0, 0);
-      voxels.Add<VoxelRender>(std::move(carpet));
+      voxels.Add<Game::VoxelRender>(std::move(carpet));
    }
 
    void AnimationStation::Receive(const NamedEvent&)
@@ -169,6 +176,30 @@ namespace Game
       //BuildFloorCollision(size, heights);
    }
 
-}; // namespace Game
+   void AnimationStation::Receive(const MouseDragEvent& evt)
+   {
+   }
+
+   void AnimationStation::Receive(const MouseDownEvent& evt)
+   {
+   }
+
+   void AnimationStation::Receive(const MouseUpEvent& evt)
+   {
+   }
+
+   void AnimationStation::Receive(const MouseClickEvent& evt)
+   {
+      if (evt.button == GLFW_MOUSE_BUTTON_LEFT)
+      {
+         // Bottom left of the screen == reset scene
+         if (evt.x <= 0.1 && evt.y >= 0.9)
+         {
+            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mWindow));
+         }
+      }
+   }
+
+}; // namespace Editor
 
 }; // namespace CubeWorld

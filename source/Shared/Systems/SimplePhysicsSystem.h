@@ -7,7 +7,9 @@
 #include <Engine/Graphics/VBO.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/System/System.h>
-#include <Game/Helpers/AABBTree.h>
+
+#include "../DebugHelper.h"
+#include "../Helpers/AABBTree.h"
 
 namespace CubeWorld
 {
@@ -67,6 +69,7 @@ namespace SimplePhysics
       std::vector<size_t> mEntitiesFreeList;
 
    private:
+      std::unique_ptr<DebugHelper::MetricLink> updateMetric, collisionMetric;
       Engine::Timer<100> mUpdateClock;
       Engine::Timer<100> mCollisionClock;
    };
