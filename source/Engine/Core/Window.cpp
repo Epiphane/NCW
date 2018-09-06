@@ -1,17 +1,18 @@
 // By Thomas Steinke
 
-#include <GL/glew.h>
-
-#include <Engine/Core/Input.h>
-#include <Engine/Logger/Logger.h>
-#include <Engine/Graphics/VAO.h>
+#include "../Core/Input.h"
+#include "../Logger/Logger.h"
+#include "../Graphics/VAO.h"
 #include "Window.h"
+#include "Singleton.h"
 
 namespace CubeWorld
 {
 
 namespace Engine
 {
+
+Window* Window::root = nullptr;
 
 Window::Window(Window::Options options)
    : window(nullptr)
@@ -22,11 +23,14 @@ Window::Window(Window::Options options)
       return;
    }
 
+   const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+   int monitorWidth = mode->width;
+   int monitorHeight = mode->height;
+
    if (options.width < 0 || options.height < 0)
    {
-      const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-      options.width = mode->width;
-      options.height = mode->height;
+      options.width = monitorWidth;
+      options.height = monitorHeight;
    }
 
    glfwWindowHint(GLFW_SAMPLES, 4);
@@ -36,8 +40,21 @@ Window::Window(Window::Options options)
    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+   // Add to the list of windows
+   if (root == nullptr)
+   {
+      root = this;
+   }
+   next = root;
+   prev = root->prev;
+   root->prev = this;
+   prev->next = this;
+
+   // Get the "origin context"
+   GLFWwindow* glContext = root->window;
+
    GLFWmonitor *monitor = options.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
-   GLFWwindow *newWindow = glfwCreateWindow(options.width, options.height, options.title.c_str(), monitor, window);
+   GLFWwindow *newWindow = glfwCreateWindow(options.width, options.height, options.title.c_str(), monitor, glContext);
    if (newWindow == nullptr) {
       LOG_ERROR("Failed to initialize GLFW");
       return;
@@ -49,40 +66,42 @@ Window::Window(Window::Options options)
    window = newWindow;
 
    glfwMakeContextCurrent(window);
-   Input::InputManager::Initialize(this);
 
-   glewExperimental = true;
+   glfwSetWindowPos(window, options.x + monitorWidth / 2 - options.width / 2, options.y + monitorHeight / 2 - options.height / 2);// + (monitorWidth - options.width) / 2, options.y + (monitorHeight - options.height) / 2);
 
-   if (GLenum result = glewInit(); result != GLEW_OK) {
-      LOG_ERROR("Failed to initialize GLEW: %s", glewGetErrorString(result));
-      return;
+   if (glContext == nullptr)
+   {
+      glewExperimental = true;
+
+      if (GLenum result = glewInit(); result != GLEW_OK) {
+         LOG_ERROR("Failed to initialize GLEW: %s", glewGetErrorString(result));
+         return;
+      }
+
+      // Clear any errors that might be lying around.
+      glGetError();
+
+      //glEnable(GL_MULTISAMPLE);
+      glEnable(GL_DEPTH_TEST);
+      //glEnable(GL_CULL_FACE);
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+      glClearColor(options.r, options.g, options.b, options.a);
+
+      // Get some info about the situation
+      const GLubyte *vendor = glGetString(GL_VENDOR);
+      const GLubyte *renderer = glGetString(GL_RENDERER);
+      LOG_INFO("Vendor: %s", vendor);
+      LOG_INFO("Renderer: %s", renderer);
    }
 
-   // Clear any errors that might be lying around.
-   glGetError();
-
-   //glEnable(GL_MULTISAMPLE);
-   glEnable(GL_DEPTH_TEST);
-   //glEnable(GL_CULL_FACE);
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-   glClearColor(options.r, options.g, options.b, options.a);
-
    mVAO.Bind();
-
-   // Get some info about the situation
-   const GLubyte *vendor = glGetString(GL_VENDOR);
-   const GLubyte *renderer = glGetString(GL_RENDERER);
-   LOG_INFO("Vendor: %s", vendor);
-   LOG_INFO("Renderer: %s", renderer);
 
    if (options.lockCursor)
    {
       LockCursor();
    }
-   {GLenum error = glGetError();
-   assert(error == 0); }
 }
 
 Window::~Window()
@@ -102,6 +121,12 @@ void Window::LockCursor()
 
 void Window::UnlockCursor()
 {
+}
+
+void Window::Use()
+{
+   glfwMakeContextCurrent(window);
+   mVAO.Bind();
 }
 
 }; // namespace Engine

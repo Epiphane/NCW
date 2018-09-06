@@ -83,6 +83,11 @@ void AnimatedSkeleton::ComputeBoneMatrix(size_t boneId)
 
 AnimatedSkeleton::AnimatedSkeleton(const std::string& filename)
 {
+   Load(filename);
+}
+
+void AnimatedSkeleton::Load(const std::string& filename)
+{
    std::ifstream file(filename);
    nlohmann::json data;
    file >> data;

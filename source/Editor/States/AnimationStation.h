@@ -12,6 +12,8 @@
 #include <Engine/Graphics/Camera.h>
 #include <Shared/Event/NamedEvent.h>
 
+#include "../Helpers/Controls.h"
+
 namespace CubeWorld
 {
 
@@ -20,7 +22,7 @@ namespace Editor
 
 class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
 public:
-   AnimationStation(Engine::Window* window);
+   AnimationStation(Engine::Window* window, Controls* controls);
    ~AnimationStation();
 
    void Start() override;
@@ -35,7 +37,7 @@ private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window* mWindow;
-   std::vector<int32_t> heights;
+   Controls* mControls;
 };
 
 }; // namespace Editor

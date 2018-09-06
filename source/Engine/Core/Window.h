@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <Engine/Graphics/VAO.h>
+#include "../Graphics/VAO.h"
 
 namespace CubeWorld
 {
@@ -36,6 +36,12 @@ public:
       int32_t height = -1;
 
       //
+      // Starting position of the window, relative to the center of the screen.
+      //
+      int32_t x = 0;
+      int32_t y = 0;
+
+      //
       // Window clear color
       //
       float r = 0.0f;
@@ -56,9 +62,10 @@ public:
    bool IsReady() { return window != nullptr; }
 
 public:
-   inline void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+   inline void Clear() { Use(); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
    inline void SwapBuffers() { glfwSwapBuffers(window); }
    inline bool ShouldClose() { return glfwWindowShouldClose(window) != 0; }
+   inline void Focus() {  }
    void LockCursor();
    void UnlockCursor();
 
@@ -66,14 +73,21 @@ public:
    int32_t Height() { return mOptions.height; }
    GLFWwindow* get() { return window; }
 
+   void Use();
+
 private:
-   GLFWwindow * window;
+   GLFWwindow* window;
    Graphics::VAO mVAO;
 
    Options mOptions;
 
-public:
+private:
+   // Each window contains a reference to its previous and next window, so that
+   // if one is removed we still have an "origin" window.
+   Window* prev;
+   Window* next;
 
+   static Window* root;
 };
 
 }; // namespace Engine

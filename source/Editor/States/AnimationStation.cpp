@@ -36,7 +36,9 @@ namespace Editor
    using AnimatedSkeleton = Game::AnimatedSkeleton;
    using DebugHelper = Game::DebugHelper;
 
-   AnimationStation::AnimationStation(Engine::Window* window) : mWindow(window)
+   AnimationStation::AnimationStation(Engine::Window* window, Controls* controls)
+      : mWindow(window)
+      , mControls(controls)
    {
       mEvents.Subscribe<NamedEvent>(*this);
       mEvents.Subscribe<MouseDownEvent>(*this);
@@ -58,6 +60,11 @@ namespace Editor
 
    void AnimationStation::Start()
    {
+      // Open side windows
+      mControls->Rebuild({
+         {Controls::Layout::Element("Test")}
+      });
+
       // Create systems and configure
       DebugHelper::Instance()->SetSystemManager(&mSystems);
       mSystems.Add<Engine::InputEventSystem>(Engine::Input::InputManager::Instance());
@@ -65,7 +72,6 @@ namespace Editor
       mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<Game::MakeshiftSystem>();
       mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
-      mSystems.Add<Game::SimplePhysics::System>();
       mSystems.Configure();
 
       // Unlock the mouse
@@ -146,7 +152,7 @@ namespace Editor
       glm::vec4 ROCK(128, 128, 128, 1);
       glm::vec4 SNOW(255, 255, 255, 1);
 
-      heights.clear();
+      std::vector<int32_t> heights;
       heights.resize(4 * (size + 1) * (size + 1));
 
       for (int i = -size; i <= size; ++i) {
@@ -178,10 +184,8 @@ namespace Editor
       voxels.Add<Game::VoxelRender>(std::move(carpet));
    }
 
-   void AnimationStation::Receive(const NamedEvent&)
+   void AnimationStation::Receive(const NamedEvent& evt)
    {
-      const int size = 50;
-      //BuildFloorCollision(size, heights);
    }
 
    void AnimationStation::Receive(const MouseDragEvent& evt)
@@ -203,7 +207,7 @@ namespace Editor
          // Bottom left of the screen == reset scene
          if (evt.x <= 0.1 && evt.y >= 0.9)
          {
-            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mWindow));
+            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mWindow, mControls));
          }
       }
    }

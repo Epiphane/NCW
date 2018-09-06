@@ -83,7 +83,12 @@ namespace Game
 
    void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
    {
+      {GLenum error = glGetError();
+   assert(error == 0); }
+
       glUseProgram(program);
+      {GLenum error = glGetError();
+   assert(error == 0); }
 
       glm::mat4 perspective = mCamera->GetPerspective();
       glm::mat4 view = mCamera->GetView();

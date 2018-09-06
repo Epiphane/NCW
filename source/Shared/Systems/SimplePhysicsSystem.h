@@ -85,7 +85,7 @@ namespace SimplePhysics
       void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
       void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
-      void SetActive(bool active) { mActive =active; }
+      void SetActive(bool active) { mActive = active; }
       bool IsActive() { return mActive; }
 
       void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }

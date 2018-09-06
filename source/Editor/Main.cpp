@@ -24,73 +24,87 @@
 #include <Engine/Graphics/Program.h>
 
 #include <Shared/DebugHelper.h>
+#include "Helpers/Controls.h"
 #include "States/AnimationStation.h"
 
 #include "Main.h"
 
 using namespace CubeWorld;
+using namespace Engine;
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
-void setWindowSizeDefault() {
-   //const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-   //setWindowSize(mode->width, mode->height);
-}
-
 int main(int /* argc */, char ** /* argv */) {
-   using namespace Engine;
-
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
 
-   Window::Options windowOptions;
-   windowOptions.title = "Not Cube World";
-   windowOptions.fullscreen = false;
-   windowOptions.width = 1280;
-   windowOptions.height = 760;
-   windowOptions.b = 0.4f;
-   std::unique_ptr<Window> window = std::make_unique<Window>(windowOptions);
+   // Setup main window
+   Window::Options mainWindowOptions;
+   mainWindowOptions.title = "NCW Editor";
+   mainWindowOptions.fullscreen = false;
+   mainWindowOptions.width = 1280;
+   mainWindowOptions.height = 760;
+   mainWindowOptions.b = 0.4f;
+   mainWindowOptions.x = -120;
+   std::unique_ptr<Window> mainWindow = std::make_unique<Window>(mainWindowOptions);
    
-   Input::InputManager* input = Input::InputManager::Instance();
-   input->Clear();
+   Input::InputManager::Initialize(mainWindow.get());
+   Input::InputManager* mainInput = Input::InputManager::Instance();
+   mainInput->Clear();
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window.get());
+   debug->SetWindow(mainWindow.get());
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
       return Format::FormatString("%1", std::round(1.0 / clock.Average()));
    });
 
+   // Setup controls window
+   Window::Options controlsWindowOptions;
+   controlsWindowOptions.title = "NCW Editor Controls";
+   controlsWindowOptions.fullscreen = false;
+   controlsWindowOptions.width = 250;
+   controlsWindowOptions.height = 760;
+   controlsWindowOptions.lockCursor = false;
+   controlsWindowOptions.x = mainWindowOptions.width / 2 + 20;
+   std::unique_ptr<Window> controlsWindow = std::make_unique<Window>(controlsWindowOptions);
+   std::unique_ptr<Input::InputManager> controlsInput = std::make_unique<Input::InputManager>(controlsWindow.get());
+   controlsInput->Clear();
+
+   glfwFocusWindow(mainWindow->get());
+
+   std::unique_ptr<Editor::Controls> controls = std::make_unique<Editor::Controls>(controlsWindow.get());
+
+   // Start with AnimationStation
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation>(window.get()));
+   stateManager->SetState(std::make_unique<Editor::AnimationStation>(mainWindow.get(), controls.get()));
 
    do {
-      /*if (nextState != NULL) {
-         if (currentState != nullptr)
-            currentState->pause();
-         
-         currentState = nextState;
-         if (!currentState->initialized)
-            currentState->start();
-         
-         currentState->unpause();
-         
-         nextState = NULL;
-      }
-      assert(currentState != NULL);*/
-
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
       {
-         window->Clear();
-         input->Update();
+         // Update/Render controls window first...
+         controlsWindow->Clear();
+         controlsInput->Update();
+
+         controls->Update();
+
+         GLenum error = glGetError();
+         assert(error == 0);
+
+         controlsWindow->SwapBuffers();
+         glfwPollEvents();
+
+         // Then Update/Render main window
+         mainWindow->Clear();
+         mainInput->Update();
 
          stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
 
-         GLenum error = glGetError();
+         error = glGetError();
          assert(error == 0);
 
          debug->Update();
@@ -100,11 +114,11 @@ int main(int /* argc */, char ** /* argv */) {
          assert(error == 0);
 
          // Swap buffers
-         window->SwapBuffers();
+         mainWindow->SwapBuffers();
          glfwPollEvents();
       }
    } // Check if the ESC key was pressed or the window was closed
-   while (!window->ShouldClose() && !input->IsKeyDown(GLFW_KEY_ESCAPE));
+   while (!mainWindow->ShouldClose() && !mainInput->IsKeyDown(GLFW_KEY_ESCAPE));
 
    stateManager->Shutdown();
 

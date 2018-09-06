@@ -27,7 +27,7 @@ public:
    void SetState(State* state);
    void SetState(std::unique_ptr<State>&& state);
 
-   void Update(TIMEDELTA dt);
+   virtual void Update(TIMEDELTA dt);
 
 private:
    std::unique_ptr<State> mOwned;

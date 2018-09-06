@@ -66,6 +66,7 @@ namespace Game
       void ComputeBoneMatrix(size_t boneId);
       
       AnimatedSkeleton(const std::string& file);
+      void Load(const std::string& file);
       
       std::vector<State> states;
       std::unordered_map<std::string, size_t> statesByName;
