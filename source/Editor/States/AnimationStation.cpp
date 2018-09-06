@@ -38,16 +38,6 @@ namespace Editor
 
    AnimationStation::AnimationStation(Engine::Window* window) : mWindow(window)
    {
-      DebugHelper::Instance()->SetSystemManager(&mSystems);
-      mSystems.Add<Engine::InputEventSystem>(Engine::Input::InputManager::Instance());
-      mSystems.Add<Game::CameraSystem>(Engine::Input::InputManager::Instance());
-      mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
-      mSystems.Add<Game::MakeshiftSystem>();
-      mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
-      mSystems.Add<Game::SimplePhysics::System>();
-      
-      mSystems.Configure();
-
       mEvents.Subscribe<NamedEvent>(*this);
       mEvents.Subscribe<MouseDownEvent>(*this);
       mEvents.Subscribe<MouseUpEvent>(*this);
@@ -58,14 +48,32 @@ namespace Editor
    AnimationStation::~AnimationStation()
    {
       DebugHelper::Instance()->SetSystemManager(nullptr);
+
+      mEvents.Unsubscribe<NamedEvent>(*this);
+      mEvents.Unsubscribe<MouseDownEvent>(*this);
+      mEvents.Unsubscribe<MouseUpEvent>(*this);
+      mEvents.Unsubscribe<MouseDragEvent>(*this);
+      mEvents.Unsubscribe<MouseClickEvent>(*this);
    }
 
    void AnimationStation::Start()
    {
+      // Create systems and configure
+      DebugHelper::Instance()->SetSystemManager(&mSystems);
+      mSystems.Add<Engine::InputEventSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::CameraSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
+      mSystems.Add<Game::MakeshiftSystem>();
+      mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
+      mSystems.Add<Game::SimplePhysics::System>();
+      mSystems.Configure();
+
+      // Unlock the mouse
       Engine::Input::InputManager::Instance()->SetMouseLock(false);
       
+      // Create a player component
       Entity player = mEntities.Create();
-      player.Add<Transform>(glm::vec3(0, 5, -10), glm::vec3(0, 0, 1));
+      player.Add<Transform>(glm::vec3(0, 4.3, 0));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
 
@@ -77,9 +85,11 @@ namespace Editor
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
+      // Create a camera
       Entity playerCamera = mEntities.Create(0, 0, 0);
       playerCamera.Get<Transform>()->SetParent(player);
       playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
+      playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
       ArmCamera::Options cameraOptions;
       cameraOptions.aspect = float(mWindow->Width()) / mWindow->Height();
       cameraOptions.far = 1500.0f;
@@ -88,16 +98,14 @@ namespace Editor
       playerCamera.Add<Game::KeyControlledCamera>();
       playerCamera.Add<Game::KeyControlledCameraArm>();
 
+      // Add transitioning
       Engine::Input::InputManager::Instance()->SetCallback(GLFW_KEY_SPACE, [player](){
          static int state = 0;
-         std::vector<std::string> next = { "idle", "walk", "run", "walk" };
-         state = (state + 1) % next.size();
+         std::vector<float> speed = { 0, 5, 10, 5 };
+         state = (state + 1) % speed.size();
 
          Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Get<AnimatedSkeleton>();
-         double start = 0;
-         if (state % 2 == 0) { start = skeleton->time / 2; }
-         else if (state == 3) { start = skeleton->time * 2; }
-         skeleton->TransitionTo(next[state], 0.5);
+         skeleton->SetParameter("speed", speed[state]);
       });
 
       mCamera.Set(handle.get());
