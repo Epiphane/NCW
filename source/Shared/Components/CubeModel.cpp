@@ -41,7 +41,7 @@ CubeModel::CubeModel(const std::string& path, glm::vec3 tint)
 
 std::unordered_map<std::string, std::unique_ptr<CubeModelInfo>> CubeModelInfo::sModels;
 
-CubeModelInfo::CubeModelInfo() : mVBO(Engine::Graphics::Vertices)
+CubeModelInfo::CubeModelInfo() : mVBO(Engine::Graphics::VBO::Vertices)
 {}
 
 CubeModelInfo::~CubeModelInfo()

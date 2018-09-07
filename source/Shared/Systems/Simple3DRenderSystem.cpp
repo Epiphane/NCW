@@ -21,8 +21,8 @@ namespace Game
 {
    
 Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
-   : mVertices(Engine::Graphics::Vertices)
-   , mColors(Engine::Graphics::Colors)
+   : mVertices(Engine::Graphics::VBO::Vertices)
+   , mColors(Engine::Graphics::VBO::Colors)
    , mCount(int(points.size()))
 {
    mVertices.BufferData(sizeof(GLfloat) * mCount, &points[0], GL_STATIC_DRAW);

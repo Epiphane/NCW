@@ -1,23 +1,9 @@
 // By Thomas Steinke
 
 #include <cassert>
-#include <functional>
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
 
-#include <Engine/Core/StateManager.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
-#include <Engine/Entity/Transform.h>
-#include <Engine/System/InputEventSystem.h>
-#include <Shared/Components/CubeModel.h>
-#include <Shared/Components/ArmCamera.h>
-#include <Shared/Systems/AnimationSystem.h>
-#include <Shared/Systems/CameraSystem.h>
-#include <Shared/Systems/FlySystem.h>
-#include <Shared/Systems/MakeshiftSystem.h>
-#include <Shared/Systems/Simple3DRenderSystem.h>
-#include <Shared/Systems/SimplePhysicsSystem.h>
-#include <Shared/Systems/VoxelRenderSystem.h>
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
@@ -29,9 +15,36 @@ namespace CubeWorld
 namespace Editor
 {
 
-Controls::Controls(Engine::Window* window)
+REGISTER_GLUINT(Controls, program);
+REGISTER_GLUINT(Controls, aPosition);
+REGISTER_GLUINT(Controls, aUV);
+REGISTER_GLUINT(Controls, uTexture);
+REGISTER_GLUINT(Controls, uWindowSize);
+
+Controls::Controls(Engine::Window* window, Engine::Input::InputManager* input)
    : mWindow(window)
+   , mInput(input)
+   , mControlsTextVBO(Engine::Graphics::VBO::Vertices)
+   , mControlsTextCount(0)
 {
+   mWindow->Use();
+
+   auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
+   assert(maybeFont);
+   mFont = std::move(*maybeFont);
+
+   program = Engine::Graphics::LoadProgram("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
+
+   if (program == 0)
+   {
+      LOG_ERROR("Could not load DebugText shader");
+      return;
+   }
+
+   DISCOVER_ATTRIBUTE(aPosition);
+   DISCOVER_ATTRIBUTE(aUV);
+   DISCOVER_UNIFORM(uTexture);
+   DISCOVER_UNIFORM(uWindowSize);
 }
 
 Controls::~Controls()
@@ -41,11 +54,45 @@ Controls::~Controls()
 void Controls::Update()
 {
    // Render
+   assert(mWindow);
+
+   mWindow->Use();
+
+   glUseProgram(program);
+
+   glActiveTexture(GL_TEXTURE0);
+   glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
+   glUniform1i(uTexture, 0);
+   glUniform2f(uWindowSize, static_cast<GLfloat>(mWindow->Width()), static_cast<GLfloat>(mWindow->Height()));
+
+   mControlsTextVBO.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
+   mControlsTextVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
+
+   glDrawArrays(GL_LINES, 0, mControlsTextCount);
+
+   {
+      GLenum err = glGetError();
+      assert(err == 0);
+   }
+
+   // Cleanup.
+   glDisableVertexAttribArray(aPosition);
+   glDisableVertexAttribArray(aUV);
+   glUseProgram(0);
 }
 
 void Controls::Rebuild(const Layout& layout)
 {
-
+   std::string controls;
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs;
+   for (size_t i = 0; i < layout.elements.size(); ++i)
+   {
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> item = mFont->Write(10, i * 20 + 10, 1, layout.elements[i].name);
+      uvs.insert(uvs.end(), item.begin(), item.end());
+   }
+      
+   mControlsTextCount = static_cast<GLint>(uvs.size());
+   mControlsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mControlsTextCount, &uvs[0], GL_STATIC_DRAW);
 }
 
 }; // namespace Editor

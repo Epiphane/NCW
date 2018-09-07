@@ -32,6 +32,7 @@
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
+            "dependsOn": "cmake",
             "problemMatcher": []
         },
         {
@@ -47,6 +48,7 @@
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
+            "dependsOn": "cmake",
             "problemMatcher": []
         }
     ]

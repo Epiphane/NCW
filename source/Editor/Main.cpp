@@ -21,7 +21,9 @@
 #include <Engine/Core/StateManager.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
+#include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
+#include <Engine/Graphics/VBO.h>
 
 #include <Shared/DebugHelper.h>
 #include "Helpers/Controls.h"
@@ -41,84 +43,133 @@ int main(int /* argc */, char ** /* argv */) {
    Logger::DebugLogger::Instance();
 
    // Setup main window
-   Window::Options mainWindowOptions;
-   mainWindowOptions.title = "NCW Editor";
-   mainWindowOptions.fullscreen = false;
-   mainWindowOptions.width = 1280;
-   mainWindowOptions.height = 760;
-   mainWindowOptions.b = 0.4f;
-   mainWindowOptions.x = -120;
-   std::unique_ptr<Window> mainWindow = std::make_unique<Window>(mainWindowOptions);
+   Window::Options windowOptions;
+   windowOptions.title = "NCW Editor";
+   windowOptions.fullscreen = false;
+   windowOptions.width = 1280;
+   windowOptions.height = 760;
+   windowOptions.b = 0.4f;
+   Window* window = Window::Instance();
+   if (auto result = window->Initialize(windowOptions); !result)
+   {
+      LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
+      return 1;
+   }
    
-   Input::InputManager::Initialize(mainWindow.get());
-   Input::InputManager* mainInput = Input::InputManager::Instance();
-   mainInput->Clear();
+   Input::InputManager::Initialize(window);
+   Input::InputManager* input = Input::InputManager::Instance();
+   input->Clear();
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(mainWindow.get());
+   debug->SetWindow(window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
       return Format::FormatString("%1", std::round(1.0 / clock.Average()));
    });
 
-   // Setup controls window
-   Window::Options controlsWindowOptions;
-   controlsWindowOptions.title = "NCW Editor Controls";
-   controlsWindowOptions.fullscreen = false;
-   controlsWindowOptions.width = 250;
-   controlsWindowOptions.height = 760;
-   controlsWindowOptions.lockCursor = false;
-   controlsWindowOptions.x = mainWindowOptions.width / 2 + 20;
-   std::unique_ptr<Window> controlsWindow = std::make_unique<Window>(controlsWindowOptions);
-   std::unique_ptr<Input::InputManager> controlsInput = std::make_unique<Input::InputManager>(controlsWindow.get());
-   controlsInput->Clear();
-
-   glfwFocusWindow(mainWindow->get());
-
-   std::unique_ptr<Editor::Controls> controls = std::make_unique<Editor::Controls>(controlsWindow.get());
+   std::unique_ptr<Editor::Controls> controls = std::make_unique<Editor::Controls>(window, input);
 
    // Start with AnimationStation
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation>(mainWindow.get(), controls.get()));
+   stateManager->SetState(std::make_unique<Editor::AnimationStation>(window, controls.get()));
+
+   Engine::Graphics::Framebuffer framebuffer(1280, 760);
+
+   GLint program = Graphics::LoadProgram("Shaders/PassthroughTexture.vert", "Shaders/PassthroughTexture.frag");
+
+   if (program == 0)
+   {
+      LOG_ERROR("Could not load DebugText shader");
+      return 1;
+   }
+
+   GLuint aPosition, aUV, uTexture;
+   DISCOVER_ATTRIBUTE(aPosition);
+   DISCOVER_ATTRIBUTE(aUV);
+   DISCOVER_UNIFORM(uTexture);
+
+   Graphics::VBO vbo(Graphics::VBO::DataType::Vertices);
+   static const GLfloat vboData[] = {
+      -0.8f, -0.8f, 0.0f, 0.0f, 0.0f,
+      0.8f, -0.8f, 0.0f, 1.0f, 0.0f,
+      -0.8f,  0.8f, 0.0f, 0.0f, 1.0f,
+      -0.8f,  0.8f, 0.0f, 0.0f, 1.0f,
+      0.8f, -0.8f, 0.0f, 1.0f, 0.0f,
+      0.8f,  0.8f, 0.0f, 1.0f, 1.0f,
+   };
+   vbo.BufferData(sizeof(vboData), (void*)vboData, GL_STATIC_DRAW);
+
+   // ------------ /TEMP ------------ */
 
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
       {
-         // Update/Render controls window first...
-         controlsWindow->Clear();
-         controlsInput->Update();
+         GLenum error;
 
-         controls->Update();
+         // Basic prep
+         window->Clear();
+         input->Update();
 
-         GLenum error = glGetError();
-         assert(error == 0);
+         framebuffer.Bind();
 
-         controlsWindow->SwapBuffers();
-         glfwPollEvents();
+         // Render game state
+         {
+            stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
 
-         // Then Update/Render main window
-         mainWindow->Clear();
-         mainInput->Update();
+            error = glGetError();
+            assert(error == 0);
+         }
 
-         stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
+         // Render debug stuff
+         {
+            debug->Update();
+            debug->Render();
 
-         error = glGetError();
-         assert(error == 0);
+            error = glGetError();
+            assert(error == 0);
+         }
 
-         debug->Update();
-         debug->Render();
+         // Pop game/debug into game section
+         framebuffer.Unbind();
+         {
+            glUseProgram(program);
 
-         error = glGetError();
-         assert(error == 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, framebuffer.GetTexture());
+            glUniform1i(uTexture, 0);
+
+            vbo.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+            vbo.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(float) * 3));
+
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            GLenum err = glGetError();
+            assert(err == 0);
+
+            // Cleanup.
+            glDisableVertexAttribArray(aPosition);
+            glDisableVertexAttribArray(aUV);
+
+            glUseProgram(0);
+         }
+
+         // Render controls
+         {
+            controls->Update();
+
+            error = glGetError();
+            assert(error == 0);
+         }
 
          // Swap buffers
-         mainWindow->SwapBuffers();
-         glfwPollEvents();
+         {
+            window->SwapBuffers();
+            glfwPollEvents();
+         }
       }
    } // Check if the ESC key was pressed or the window was closed
-   while (!mainWindow->ShouldClose() && !mainInput->IsKeyDown(GLFW_KEY_ESCAPE));
+   while (!window->ShouldClose() && !input->IsKeyDown(GLFW_KEY_ESCAPE));
 
    stateManager->Shutdown();
 

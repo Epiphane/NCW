@@ -4,7 +4,7 @@
 in vec2 fUV;
 
 // Ouput data
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 uniform sampler2D uTexture;
 

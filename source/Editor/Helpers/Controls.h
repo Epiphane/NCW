@@ -5,11 +5,10 @@
 #include <memory>
 #include <vector>
 
-#include <Engine/Core/State.h>
+#include <Engine/Core/Input.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Event/Event.h>
-#include <Engine/Event/Receiver.h>
-#include <Engine/Graphics/Camera.h>
+#include <Engine/Graphics/FontManager.h>
+#include <Engine/Graphics/VBO.h>
 
 namespace CubeWorld
 {
@@ -39,7 +38,7 @@ public:
    };
 
 public:
-   Controls(Engine::Window* window);
+   Controls(Engine::Window* window, Engine::Input::InputManager* input);
    ~Controls();
 
    //
@@ -53,10 +52,17 @@ public:
    void Rebuild(const Layout& layout);
 
 private:
-   Engine::Graphics::CameraHandle mCamera;
-
    Engine::Window* mWindow;
-   std::unique_ptr<Engine::Input::InputManager> mInput;
+   Engine::Input::InputManager* mInput;
+
+   std::unique_ptr<Engine::Graphics::Font> mFont;
+   Engine::Graphics::VBO mControlsTextVBO;
+   GLint mControlsTextCount;
+
+private:
+   static GLuint program;
+   static GLuint aPosition, aUV;
+   static GLuint uTexture, uWindowSize;
 };
 
 }; // namespace Editor

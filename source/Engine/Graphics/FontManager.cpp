@@ -29,17 +29,17 @@ Font::Font(Font&& other)
    }
 }
 
-Either<bool, std::string> Font::Load(const FT_Library& library, const std::string& path)
+Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
 {
    assert(!mFace);
    if (FT_New_Face(library, path.c_str(), 0, &mFace))
    {
-      return "Failed to load font: " + path;
+      return Failure{"Failed to load font: " + path};
    }
 
    if (FT_Set_Pixel_Sizes(mFace, 0, 32))
    {
-      return "Failed to set pixel size to 48";
+      return Failure{"Failed to set pixel size to 48"};
    }
 
    // Disable byte-alignment restriction
@@ -71,7 +71,7 @@ Either<bool, std::string> Font::Load(const FT_Library& library, const std::strin
       });
    }
 
-   return true; // Success
+   return Success;
 }
 
 std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat scale, const std::string& text)
@@ -125,8 +125,6 @@ Font::~Font()
 
 FontManager::FontManager() : mValid(false)
 {
-   mFonts.clear();
-
    if (FT_Init_FreeType(&mLibrary))
    {
       LOG_ERROR("Could not init FreeType Library");
@@ -137,30 +135,22 @@ FontManager::FontManager() : mValid(false)
 
 FontManager::~FontManager() throw()
 {
-   mFonts.clear();
    FT_Done_FreeType(mLibrary);
 }
 
-Maybe<Font*> FontManager::GetFont(const std::string& path)
+Maybe<std::unique_ptr<Font>> FontManager::GetFont(const std::string& path)
 {
    assert(mValid);
 
-   auto existing = mFonts.find(path);
-   if (existing != mFonts.end())
-   {
-      return existing->second.get();
-   }
-
    // Attempt to load the font.
    std::unique_ptr<Font> newFont = std::make_unique<Font>();
-   auto result = newFont->Load(mLibrary, path);
-   if (result.IsLeft())
+   Maybe<void> result = newFont->Load(mLibrary, path);
+   if (result)
    {
-      auto insertion = mFonts.emplace(path, std::move(newFont));
-      return insertion.first->second.get();
+      return std::move(newFont);
    }
 
-   return Failure{result.Right()};
+   return result.Failure();
 }
 
 }; // namespace Engine

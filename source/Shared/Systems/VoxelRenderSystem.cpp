@@ -23,7 +23,7 @@ namespace Game
 {
    
    VoxelRender::VoxelRender(Voxel::Model&& voxels)
-      : mVoxelData(Engine::Graphics::Vertices)
+      : mVoxelData(Engine::Graphics::VBO::Vertices)
       , mSize(GLsizei(voxels.size()))
    {
       mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), &voxels[0], GL_STATIC_DRAW);

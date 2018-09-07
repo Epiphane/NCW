@@ -4,7 +4,7 @@
 in vec3 fColor;
 
 // Ouput data
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 void main()
 {

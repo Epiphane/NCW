@@ -23,8 +23,8 @@ namespace Game
    DebugHelper::DebugHelper()
       : mWindow(nullptr)
       , mFont(nullptr)
-      , mMetricsTextVBO(Engine::Graphics::Vertices)
-      , mSystemsBenchmarkVBO(Engine::Graphics::Vertices)
+      , mMetricsTextVBO(Engine::Graphics::VBO::Vertices)
+      , mSystemsBenchmarkVBO(Engine::Graphics::VBO::Vertices)
       , mSystemManager(nullptr)
    {
       mMetrics = std::make_unique<MetricLink>(this, "None", nullptr);
@@ -32,7 +32,7 @@ namespace Game
 
       auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
       assert(maybeFont);
-      mFont = maybeFont.Result();
+      mFont = std::move(*maybeFont);
 
       program = Engine::Graphics::LoadProgram("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
 

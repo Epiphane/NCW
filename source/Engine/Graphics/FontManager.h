@@ -4,6 +4,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <memory>
@@ -44,7 +45,7 @@ public:
    Font(Font&& other);
    ~Font();
 
-   Either<bool, std::string> Load(const FT_Library& library, const std::string& path);
+   Maybe<void> Load(const FT_Library& library, const std::string& path);
 
    std::vector<CharacterVertexUV> Write(GLfloat x, GLfloat y, GLfloat scale, const std::string& text);
 
@@ -65,15 +66,13 @@ public:
    FontManager();
    virtual ~FontManager() throw();
 
-   Maybe<Font*> GetFont(const std::string& path);
+   Maybe<std::unique_ptr<Font>> GetFont(const std::string& path);
 
    bool IsValid() { return mValid; }
 
 private:
    FT_Library mLibrary;
    bool mValid;
-
-   std::unordered_map<std::string, std::unique_ptr<Font>> mFonts;
 };
 
 }; // namespace Engine

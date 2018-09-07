@@ -5,7 +5,7 @@ flat in vec3 fNormal;
 flat in vec4 fColor;
 
 // Ouput data
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 vec3 lightDir = vec3(0, -5, -1);
 

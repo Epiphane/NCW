@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <functional>
+
 namespace CubeWorld
 {
 

@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Maybe.h"
+#include "Singleton.h"
 #include "../Graphics/VAO.h"
 
 namespace CubeWorld
@@ -13,8 +15,16 @@ namespace CubeWorld
 namespace Engine
 {
 
+// -------------------------- IMPORTANT NOTE ---------------------------
+//              (see VBO.h for a more thorough explanation)
+//
+// Right now, multi-window isn't supported, so to make that explicit
+// the Window class is a Singleton. One day, it would be nice to enable
+// multi-window support, but that would require lots of change and it's
+// not really worth pretending it's possible right now.
+
 // Wrapper for a glfwWindow, allowing for management of input, etc
-class Window
+class Window : public Singleton<Window>
 {
 public:
    struct Options
@@ -55,9 +65,13 @@ public:
       bool lockCursor = true;
    };
 
-public:
-   Window(Options options);
+protected:
+   Window();
    ~Window();
+   friend class Singleton<Window>;
+
+public:
+   Maybe<void> Initialize(const Options& options);
 
    bool IsReady() { return window != nullptr; }
 
@@ -65,7 +79,7 @@ public:
    inline void Clear() { Use(); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
    inline void SwapBuffers() { glfwSwapBuffers(window); }
    inline bool ShouldClose() { return glfwWindowShouldClose(window) != 0; }
-   inline void Focus() {  }
+   inline void Focus() { glfwFocusWindow(window); }
    void LockCursor();
    void UnlockCursor();
 
@@ -80,14 +94,6 @@ private:
    Graphics::VAO mVAO;
 
    Options mOptions;
-
-private:
-   // Each window contains a reference to its previous and next window, so that
-   // if one is removed we still have an "origin" window.
-   Window* prev;
-   Window* next;
-
-   static Window* root;
 };
 
 }; // namespace Engine

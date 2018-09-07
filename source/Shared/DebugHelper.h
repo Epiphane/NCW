@@ -82,7 +82,7 @@ public:
 private:
    Engine::Window* mWindow;
 
-   Engine::Graphics::Font* mFont;
+   std::unique_ptr<Engine::Graphics::Font> mFont;
 
 private:
    std::unique_ptr<MetricLink> mMetrics;

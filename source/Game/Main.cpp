@@ -24,7 +24,6 @@
 #include <Engine/Graphics/Program.h>
 
 #include <Shared/DebugHelper.h>
-#include <Shared/States/AnimationStation.h>
 
 #include "States/StupidState.h"
 #include "Main.h"
@@ -52,18 +51,24 @@ int main(int /* argc */, char ** /* argv */) {
    windowOptions.width = 1280;
    windowOptions.height = 760;
    windowOptions.b = 0.4f;
-   std::unique_ptr<Window> window = std::make_unique<Window>(windowOptions);
+   Window* window = Window::Instance();
+   if (auto result = window->Initialize(windowOptions); !result)
+   {
+      LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
+      return 1;
+   }
    
+   Input::InputManager::Initialize(window);
    Input::InputManager* input = Input::InputManager::Instance();
    input->Clear();
 
-   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window.get());
+   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window);
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
 
    stateManager->SetState(std::move(initialState));
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window.get());
+   debug->SetWindow(window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
