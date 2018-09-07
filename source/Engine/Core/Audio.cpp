@@ -1,15 +1,19 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
-#include <FMOD/fmod.hpp>
-#include <FMOD/fmod_errors.h>
+//#include <FMOD/fmod.hpp>
+//#include <FMOD/fmod_errors.h>
 #include <unordered_map>
 
 //#include "State.h"
 //#include "Main.h"
 #include "Audio.h"
 
-typedef enum {
+// As you can see, this unused code is all gutted out. In the future it needs to be
+// rewritten from this shoddy piece of garbage (holla CPE 476 flyin' fast) to something
+// we can use well.
+
+/*typedef enum {
    Warning,
    Error,
    Fatal
@@ -325,4 +329,4 @@ void Music::pause() {
 void Music::stop() {
    pause();
    check(channel->setPosition(0, FMOD_TIMEUNIT_MS), "Resetting music");
-}
+}*/

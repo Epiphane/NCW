@@ -3,7 +3,7 @@
 SET(PROJECT_NAME noiseutils)
 
 set(libSrcs 
-   noiseutils.cpp
+   noiseutils/noiseutils.cpp
 )
 
 add_library( noiseutils-static STATIC ${libSrcs} )
@@ -11,7 +11,7 @@ target_link_libraries( noiseutils-static noise-static )
 
 # this value is set in the root CMakeLists.txt
 SET_TARGET_PROPERTIES( noiseutils-static PROPERTIES OUTPUT_NAME "noiseutils" )
-include_directories("../libnoise/src")
+include_directories("../../libnoise/1.0.0/src")
 
 # i would like to see more projects using these defaults
 ADD_DEFINITIONS( "-Wall -ansi -pedantic -O3" )

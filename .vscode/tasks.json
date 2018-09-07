@@ -50,6 +50,21 @@
             },
             "dependsOn": "cmake",
             "problemMatcher": []
+        },
+        {
+            "label": "make all",
+            "args": [
+                "-j",
+                "8"
+            ],
+            "type": "shell",
+            "group": "build",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "dependsOn": "cmake",
+            "problemMatcher": []
         }
     ]
 }

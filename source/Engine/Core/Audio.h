@@ -6,7 +6,11 @@
 //
 //
 
-#ifndef __RGBZero__audio_manager__
+// As you can see, this unused code is all gutted out. In the future it needs to be
+// rewritten from this shoddy piece of garbage (holla CPE 476 flyin' fast) to something
+// we can use well.
+
+/*#ifndef __RGBZero__audio_manager__
 #define __RGBZero__audio_manager__
 
 #include <string>
@@ -51,13 +55,13 @@ public:
    FMOD::Sound *getSound() { return sound; }
    FMOD::DSP *getDSP() { return dsp; }
    
-   /* 
+    * 
     * Get the nth sample out of an index size outOf
     * outOf must be a power of 2
     *
     * Maximum: MAX_SPECTRA
     * Minimum: 1 (for volume, perhaps)
-    */
+    *
    float getSample(int index, int outOf);
    float getLow()  { return getSample(0, 4); }
    float getMid()  { return getSample(2, 4); }
@@ -93,4 +97,5 @@ void audio_play_music(Music *music);
 
 void audio_stuff();
 
-#endif /* defined(__RGBZero__audio_manager__) */
+#endif * defined(__RGBZero__audio_manager__) 
+*/
