@@ -79,7 +79,7 @@ public:
    inline void Clear() { Use(); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
    inline void SwapBuffers() { glfwSwapBuffers(window); }
    inline bool ShouldClose() { return glfwWindowShouldClose(window) != 0; }
-   inline void Focus() { glfwFocusWindow(window); }
+   inline void Focus() { /* TODO update GLFW glfwFocusWindow(window); */ }
    void LockCursor();
    void UnlockCursor();
 
