@@ -15,15 +15,15 @@ public:
    constexpr Either(L&& left) : leftVal(std::move(left)), isLeft(true) {};
    constexpr Either(const R& right) : rightVal(right), isLeft(false) {};
    constexpr Either(R&& right) : rightVal(std::move(right)), isLeft(false) {};
-   constexpr Either(const Either<L, R>& other) : isLeft(other.isLeft)
+   constexpr Either(Either<L, R>&& other) : isLeft(other.isLeft)
    {
       if (isLeft)
       {
-         leftVal = other.leftVal;
+         leftVal = std::move(other.leftVal);
       }
       else
       {
-         rightVal = other.rightVal;
+         rightVal = std::move(other.rightVal);
       }
    };
    ~Either()
