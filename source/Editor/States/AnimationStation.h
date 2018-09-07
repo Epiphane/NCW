@@ -22,7 +22,7 @@ namespace Editor
 
 class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
 public:
-   AnimationStation(Engine::Window* window, Controls* controls);
+   AnimationStation(float aspectRatio, Controls* controls);
    ~AnimationStation();
 
    void Start() override;
@@ -36,7 +36,7 @@ public:
 private:
    Engine::Graphics::CameraHandle mCamera;
 
-   Engine::Window* mWindow;
+   float mAspectRatio;
    Controls* mControls;
 };
 

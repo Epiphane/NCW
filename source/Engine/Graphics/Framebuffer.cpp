@@ -47,8 +47,8 @@ Framebuffer::Framebuffer(GLsizei width, GLsizei height)
          GL_TEXTURE_2D,    // target
          0,                // level of detail
          GL_RGB,           // internal format
-         1280,             // width
-         760,              // height
+         width,            // width
+         height,           // height
          0,                // border - "This value must be 0." LOL
          GL_RGB,           // format
          GL_UNSIGNED_BYTE, // type
@@ -91,6 +91,7 @@ void Framebuffer::Bind(bool clear)
    glGetIntegerv(GL_VIEWPORT, mPreviousViewport);
    
    BindFramebuffer(mFBO);
+   LOG_DEBUG("Framebuffer: (%1) %2 %3 %4 %5", mFBO, 0, 0, mWidth, mHeight);
    glViewport(0, 0, mWidth, mHeight);
 
    if (clear)
@@ -107,6 +108,12 @@ void Framebuffer::Unbind()
       mPreviousViewport[2],
       mPreviousViewport[3]
    );
+   LOG_DEBUG("Framebuffer: (%1) %2 %3 %4 %5", 
+      mPreviousFBO,
+      mPreviousViewport[0],
+      mPreviousViewport[1],
+      mPreviousViewport[2],
+      mPreviousViewport[3]);
    BindFramebuffer(mPreviousFBO);
 }
 

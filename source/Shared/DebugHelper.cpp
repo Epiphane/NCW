@@ -21,7 +21,7 @@ namespace Game
    REGISTER_GLUINT(DebugHelper, uWindowSize);
 
    DebugHelper::DebugHelper()
-      : mWindow(nullptr)
+      : mBounds(nullptr)
       , mFont(nullptr)
       , mMetricsTextVBO(Engine::Graphics::VBO::Vertices)
       , mSystemsBenchmarkVBO(Engine::Graphics::VBO::Vertices)
@@ -122,8 +122,8 @@ namespace Game
             ms.insert(ms.begin(), 7 - ms.size(), ' ');
             rightText += "\n" + std::move(ms);
          }
-         std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(880, 0, 1, leftText);
-         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(1175, 0, 1, rightText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(mBounds->Width() - 400, 0, 1, leftText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(mBounds->Width() - 105, 0, 1, rightText);
          systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
          mSystemsCount = static_cast<GLint>(systemsText.size());
@@ -134,14 +134,14 @@ namespace Game
 
    void DebugHelper::Render()
    {
-      assert(mWindow);
+      assert(mBounds);
 
       glUseProgram(program);
 
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
       glUniform1i(uTexture, 0);
-      glUniform2f(uWindowSize, static_cast<GLfloat>(mWindow->Width()), static_cast<GLfloat>(mWindow->Height()));
+      glUniform2f(uWindowSize, static_cast<GLfloat>(mBounds->Width()), static_cast<GLfloat>(mBounds->Height()));
 
       mMetricsTextVBO.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
       mMetricsTextVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));

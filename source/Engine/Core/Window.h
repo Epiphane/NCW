@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Bounded.h"
 #include "Maybe.h"
 #include "Singleton.h"
 #include "../Graphics/VAO.h"
@@ -24,7 +25,7 @@ namespace Engine
 // not really worth pretending it's possible right now.
 
 // Wrapper for a glfwWindow, allowing for management of input, etc
-class Window : public Singleton<Window>
+class Window : public Bounded, public Singleton<Window>
 {
 public:
    struct Options
@@ -83,8 +84,8 @@ public:
    void LockCursor();
    void UnlockCursor();
 
-   int32_t Width() { return mOptions.width; }
-   int32_t Height() { return mOptions.height; }
+   uint32_t Width() const override { return mOptions.width; }
+   uint32_t Height() const override { return mOptions.height; }
    GLFWwindow* get() { return window; }
 
    void Use();

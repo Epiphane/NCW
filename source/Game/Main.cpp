@@ -68,7 +68,7 @@ int main(int /* argc */, char ** /* argv */) {
    stateManager->SetState(std::move(initialState));
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window);
+   debug->SetBounds(window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {

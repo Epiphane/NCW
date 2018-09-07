@@ -27,6 +27,7 @@
 
 #include <Shared/DebugHelper.h>
 #include "Helpers/Controls.h"
+#include "Helpers/SubWindow.h"
 #include "States/AnimationStation.h"
 
 #include "Main.h"
@@ -60,47 +61,27 @@ int main(int /* argc */, char ** /* argv */) {
    Input::InputManager* input = Input::InputManager::Instance();
    input->Clear();
 
+   std::unique_ptr<Editor::Controls> controls = std::make_unique<Editor::Controls>(window, input);
+
+   Editor::SubWindow::Options gameWindowOptions;
+   gameWindowOptions.x = 250;
+   gameWindowOptions.y = 250;
+   gameWindowOptions.w = 1280 - 250;
+   gameWindowOptions.h = 760 - 250;
+   Editor::SubWindow gameWindow(window, input, gameWindowOptions);
+
+   // Configure Debug helper
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window);
+   debug->SetBounds(&gameWindow);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
       return Format::FormatString("%1", std::round(1.0 / clock.Average()));
    });
 
-   std::unique_ptr<Editor::Controls> controls = std::make_unique<Editor::Controls>(window, input);
-
    // Start with AnimationStation
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation>(window, controls.get()));
-
-   Engine::Graphics::Framebuffer framebuffer(1280, 760);
-
-   GLint program = Graphics::LoadProgram("Shaders/PassthroughTexture.vert", "Shaders/PassthroughTexture.frag");
-
-   if (program == 0)
-   {
-      LOG_ERROR("Could not load DebugText shader");
-      return 1;
-   }
-
-   GLuint aPosition, aUV, uTexture;
-   DISCOVER_ATTRIBUTE(aPosition);
-   DISCOVER_ATTRIBUTE(aUV);
-   DISCOVER_UNIFORM(uTexture);
-
-   Graphics::VBO vbo(Graphics::VBO::DataType::Vertices);
-   static const GLfloat vboData[] = {
-      -0.8f, -0.8f, 0.0f, 0.0f, 0.0f,
-      0.8f, -0.8f, 0.0f, 1.0f, 0.0f,
-      -0.8f,  0.8f, 0.0f, 0.0f, 1.0f,
-      -0.8f,  0.8f, 0.0f, 0.0f, 1.0f,
-      0.8f, -0.8f, 0.0f, 1.0f, 0.0f,
-      0.8f,  0.8f, 0.0f, 1.0f, 1.0f,
-   };
-   vbo.BufferData(sizeof(vboData), (void*)vboData, GL_STATIC_DRAW);
-
-   // ------------ /TEMP ------------ */
+   stateManager->SetState(std::make_unique<Editor::AnimationStation>(float(gameWindowOptions.w) / gameWindowOptions.h, controls.get()));
 
    do {
       double elapsed = clock.Elapsed();
@@ -112,7 +93,7 @@ int main(int /* argc */, char ** /* argv */) {
          window->Clear();
          input->Update();
 
-         framebuffer.Bind();
+         gameWindow.Bind();
 
          // Render game state
          {
@@ -132,27 +113,8 @@ int main(int /* argc */, char ** /* argv */) {
          }
 
          // Pop game/debug into game section
-         framebuffer.Unbind();
-         {
-            glUseProgram(program);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, framebuffer.GetTexture());
-            glUniform1i(uTexture, 0);
-
-            vbo.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-            vbo.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(float) * 3));
-
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            GLenum err = glGetError();
-            assert(err == 0);
-
-            // Cleanup.
-            glDisableVertexAttribArray(aPosition);
-            glDisableVertexAttribArray(aUV);
-
-            glUseProgram(0);
-         }
+         gameWindow.Unbind();
+         gameWindow.Render();
 
          // Render controls
          {

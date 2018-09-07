@@ -73,14 +73,14 @@ public:
    void Update();
    void Render();
 
-   void SetWindow(Engine::Window* window) { mWindow = window; }
+   void SetBounds(Bounded* bounds) { mBounds = bounds; }
 
 #if CUBEWORLD_BENCHMARK_SYSTEMS
    void SetSystemManager(Engine::SystemManager* manager) { mSystemManager = manager; }
 #endif
 
 private:
-   Engine::Window* mWindow;
+   Bounded* mBounds;
 
    std::unique_ptr<Engine::Graphics::Font> mFont;
 
