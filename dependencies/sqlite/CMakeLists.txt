@@ -17,3 +17,15 @@ ADD_DEFINITIONS( "-Wall -ansi -pedantic -O3" )
 
 # install libraries into /lib
 INSTALL( TARGETS sqlite DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+
+##
+## Custom addition for NCW
+##
+set(VERSION "3.22.0")
+
+list(APPEND CW_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
+list(APPEND CW_LIBS sqlite)
+
+# Propagate variables back up
+set(CW_INCLUDES ${CW_INCLUDES} PARENT_SCOPE)
+set(CW_LIBS ${CW_LIBS} PARENT_SCOPE)

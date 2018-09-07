@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-
-SET(PROJECT_NAME Shared)
-
-include_directories(${INCLUDES})
-include_directories(..)
+project(Shared)
 
 file(GLOB SOURCES
    "*.h"
@@ -14,18 +10,15 @@ file(GLOB SOURCES
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
-target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine)
+target_link_libraries(${PROJECT_NAME} ${LIBS} Engine)
 
-# install libraries into /lib
-INSTALL(TARGETS ${PROJECT_NAME} DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
+# Nice-looking separation for VS2017
+source_group(Components REGULAR_EXPRESSION ".*/Components/*")
+source_group(Event REGULAR_EXPRESSION ".*/Event/*")
+source_group(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
+source_group(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
+source_group(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
+source_group(States REGULAR_EXPRESSION ".*/States/*")
+source_group(Systems REGULAR_EXPRESSION ".*/Systems/*")
 
-SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
-SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Event/*")
-SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
-SOURCE_GROUP(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
-SOURCE_GROUP(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
-SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")
-SOURCE_GROUP(Systems REGULAR_EXPRESSION ".*/Systems/*")
-
-file(COPY "${CMAKE_SOURCE_DIR}/source/Shared/Shaders" DESTINATION ${PROJECT_BINARY_DIR})
-file(COPY "${CMAKE_SOURCE_DIR}/Assets" DESTINATION ${PROJECT_BINARY_DIR})
+set(SHARED_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Shaders" PARENT_SCOPE)

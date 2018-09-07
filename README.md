@@ -28,10 +28,11 @@ Cube World seemed like the perfect starting point for doing a game engine from s
 
 ### Mac-Specific
 
-1. Ensure that the CMake executable exists at `/Applications/CMake.app/Contents/bin/cmake`
-2. `mkdir build && cd build`
-3. `/Applications/CMake.app/Contents/bin/cmake -G "Unix Makefiles" ..`
-4. Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
+1. Get `clang v9.0.0`. This can be checked by running `clang -v`. If you can't upgrade, I have no idea if it'll work. #YOLO
+2. Ensure that the CMake executable exists at `/Applications/CMake.app/Contents/bin/cmake`
+3. `mkdir build && cd build`
+4. `/Applications/CMake.app/Contents/bin/cmake -G "Unix Makefiles" ..`
+5. Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
 
 ## Repo Layout
 

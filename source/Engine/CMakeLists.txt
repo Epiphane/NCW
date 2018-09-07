@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-
-SET(PROJECT_NAME Engine)
-
-include_directories(${INCLUDES})
-INCLUDE_DIRECTORIES (noise)
-INCLUDE_DIRECTORIES (..)
+project(Engine)
 
 file(GLOB SOURCES
    "*.h"
@@ -14,14 +9,13 @@ file(GLOB SOURCES
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
-target_link_libraries(${PROJECT_NAME} ${LIBS} glew)
+target_link_libraries(${PROJECT_NAME} ${CW_LIBS})
 
-# install libraries into /lib
-INSTALL(TARGETS Engine DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-SOURCE_GROUP(Logger REGULAR_EXPRESSION ".*/Engine/Logger/.*$")
-SOURCE_GROUP(Graphics REGULAR_EXPRESSION ".*/Engine/Graphics/.*$")
-SOURCE_GROUP(Core REGULAR_EXPRESSION ".*/Engine/Core/.*$")
-SOURCE_GROUP(GameObject REGULAR_EXPRESSION ".*/Engine/GameObject/.*$")
-SOURCE_GROUP(Entity REGULAR_EXPRESSION ".*/Engine/Entity/.*$")
-SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Engine/Event/.*$")
-SOURCE_GROUP(System REGULAR_EXPRESSION ".*/Engine/System/.*$")
+# Nice-looking separation for VS2017
+source_group(Logger REGULAR_EXPRESSION ".*/Engine/Logger/.*$")
+source_group(Graphics REGULAR_EXPRESSION ".*/Engine/Graphics/.*$")
+source_group(Core REGULAR_EXPRESSION ".*/Engine/Core/.*$")
+source_group(GameObject REGULAR_EXPRESSION ".*/Engine/GameObject/.*$")
+source_group(Entity REGULAR_EXPRESSION ".*/Engine/Entity/.*$")
+source_group(Event REGULAR_EXPRESSION ".*/Engine/Event/.*$")
+source_group(System REGULAR_EXPRESSION ".*/Engine/System/.*$")

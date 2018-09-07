@@ -1,0 +1,10 @@
+# Add GLFW
+set(VERSION "0.9.0.1")
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
+list(APPEND CW_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
+list(APPEND CW_LIBS noiseutils-static)
+
+# Propagate variables back up
+set(CW_INCLUDES ${CW_INCLUDES} PARENT_SCOPE)
+set(CW_LIBS ${CW_LIBS} PARENT_SCOPE)

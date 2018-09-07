@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-
-SET(PROJECT_NAME Game)
-
-include_directories(${INCLUDES})
-include_directories(..)
+project(Game)
 
 file(GLOB SOURCES
    "*.h"
@@ -13,26 +9,30 @@ file(GLOB SOURCES
    "Shaders/*"
 )
 
-# add_library(${PROJECT_NAME} SHARED ${SOURCES} )
 add_executable(${PROJECT_NAME} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/source/Game")
-target_link_libraries(${PROJECT_NAME} ${LIBS} glew Engine Shared)
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+target_link_libraries(${PROJECT_NAME} ${CW_LIBS} Engine Shared)
 
 if (WIN32)
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-ADD_DEFINITIONS( "-W4 /wd4201" )
+   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
-# install libraries into /lib
-INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
-SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
-SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Event/*")
-SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
-SOURCE_GROUP(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
-SOURCE_GROUP(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
-SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")
-SOURCE_GROUP(Systems REGULAR_EXPRESSION ".*/Systems/*")
-SOURCE_GROUP(Model REGULAR_EXPRESSION ".*/Model/*")
+# Nice-looking separation for VS2017
+source_group(Components REGULAR_EXPRESSION ".*/Components/*")
+source_group(Event REGULAR_EXPRESSION ".*/Event/*")
+source_group(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
+source_group(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
+source_group(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
+source_group(States REGULAR_EXPRESSION ".*/States/*")
+source_group(Systems REGULAR_EXPRESSION ".*/Systems/*")
+source_group(Model REGULAR_EXPRESSION ".*/Model/*")
 
-file(COPY "${CMAKE_SOURCE_DIR}/source/Game/Shaders" DESTINATION ${PROJECT_BINARY_DIR})
-file(COPY "${CMAKE_SOURCE_DIR}/Assets" DESTINATION ${PROJECT_BINARY_DIR})
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_SOURCE_DIR}/Assets ${PROJECT_BINARY_DIR}/Assets)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${SHARED_SHADERS_DIR} ${PROJECT_BINARY_DIR}/Shaders)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_CURRENT_SOURCE_DIR}/Shaders ${PROJECT_BINARY_DIR}/Shaders)
