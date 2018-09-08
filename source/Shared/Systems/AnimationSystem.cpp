@@ -88,6 +88,20 @@ AnimatedSkeleton::AnimatedSkeleton(const std::string& filename)
 
 void AnimatedSkeleton::Load(const std::string& filename)
 {
+   states.clear();
+   statesByName.clear();
+   bones.clear();
+   bonesByName.clear();
+   floatParams.clear();
+   boolParams.clear();
+   models.clear();
+   current = 0;
+   time = 0;
+   next = 0;
+   transitionCurrent = 0;
+   transitionStart = 0;
+   transitionEnd = 0;
+
    std::ifstream file(filename);
    nlohmann::json data;
    file >> data;

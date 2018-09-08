@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
@@ -14,6 +15,7 @@
 #include <Shared/Event/NamedEvent.h>
 
 #include "../Helpers/Controls.h"
+#include "../Helpers/SubWindow.h"
 
 namespace CubeWorld
 {
@@ -27,6 +29,7 @@ public:
    ~AnimationStation();
 
    void Start() override;
+   void Update(TIMEDELTA dt) override;
 
    void Receive(const NamedEvent& namedEvent);
    void Receive(const MouseDragEvent& evt);
@@ -35,10 +38,21 @@ public:
    void Receive(const MouseClickEvent& evt);
 
 private:
+   void LoadNewFile();
+
+   void LoadFile(const std::string& filename);
+
+private:
    Engine::Graphics::CameraHandle mCamera;
 
    Bounded& mParent;
    Controls* mControls;
+
+   SubWindow mPreview;
+   SubWindow mDock;
+
+   Engine::Entity mPlayer;
+   std::string mFilename;
 };
 
 }; // namespace Editor

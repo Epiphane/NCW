@@ -106,7 +106,7 @@ int main(int /* argc */, char ** /* argv */) {
    // Attach mouse events to state
    // TODO this is hella hacky, don't tell on me...
 #define MOUSE_EVENT(Type) [&](int button, double x, double y) {\
-      if (x < MAIN_X)\
+      if (x < SIDEBAR_W)\
       {\
          x /= SIDEBAR_W;\
          y /= SIDEBAR_H;\
@@ -118,8 +118,8 @@ int main(int /* argc */, char ** /* argv */) {
       }\
       else\
       {\
-         x = (x - MAIN_X) / MAIN_W;\
-         y = (y - MAIN_Y) / MAIN_H;\
+         x = (x - MAIN_X) / (MAIN_W);\
+         y = (y - MAIN_Y) / (MAIN_H);\
          stateManager->Emit<Type##Event>(button, x, y);\
       }\
    }
@@ -151,6 +151,10 @@ int main(int /* argc */, char ** /* argv */) {
 
          // Render debug stuff
          {
+            // TODO tech debt? It's getting covered by the stuff the same draws,
+            // but I mean we always want debug text on top soooo can't hurt.
+            glClear(GL_DEPTH_BUFFER_BIT);
+
             debug->Update();
             debug->Render();
 
@@ -166,6 +170,17 @@ int main(int /* argc */, char ** /* argv */) {
 
          // Render controls
          {
+            double position[2];
+            input->GetMousePos(position);
+            if (position[0] < SIDEBAR_W * window->Width())
+            {
+               controls->MouseMove(position[0] / (SIDEBAR_W * window->Width()), position[1] / (SIDEBAR_H * window->Height()));
+            }
+            else
+            {
+               controls->MouseMove(0, 0);
+            }
+            
             controls->Update();
 
             error = glGetError();

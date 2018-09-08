@@ -74,15 +74,25 @@ void Controls::Update()
    glUseProgram(0);
 }
 
-void Controls::Rebuild(const Layout& layout)
+void Controls::SetLayout(const Layout& layout)
 {
    mLayout = layout;
 
+   Rebuild();
+}
+
+void Controls::Rebuild()
+{
    std::string controls;
    std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs;
-   for (size_t i = 0; i < layout.elements.size(); ++i)
+   for (size_t i = 0; i < mLayout.elements.size(); ++i)
    {
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> item = mFont->Write(10, i * 35 + 10, 1, layout.elements[i].name);
+      std::string label = mLayout.elements[i].label;
+      if (i == mHoveredItem)
+      {
+         label = "> " + label;
+      }
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> item = mFont->Write(10, i * 35 + 10, 1, label);
       uvs.insert(uvs.end(), item.begin(), item.end());
    }
       
@@ -105,12 +115,35 @@ void Controls::MouseClick(int button, double x, double y)
 
    if (item < mLayout.elements.size())
    {
-      LOG_ALWAYS("CLick item %1", mLayout.elements[item].name);
+      if (mLayout.elements[item].callback)
+      {
+         mLayout.elements[item].callback();
+      }
+      else
+      {
+         LOG_ALWAYS("Clicked \"%1\", but it has no callback.", mLayout.elements[item].label);
+      }
    }
 }
 
 void Controls::MouseDrag(int button, double x, double y)
 {
+}
+
+void Controls::MouseMove(double x, double y)
+{
+   double pixelY = y * mBounds->Height();
+   uint32_t item = (pixelY - 10) / 35;
+   if (item >= mLayout.elements.size())
+   {
+      item = -1;
+   }
+
+   if (item != mHoveredItem)
+   {
+      mHoveredItem = item;
+      Rebuild();
+   }
 }
 
 }; // namespace Editor

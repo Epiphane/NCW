@@ -26,9 +26,10 @@ public:
    // Describes the layout of the Controls Panel
    struct Layout {
       struct Element {
-         Element(const std::string& name) : name(name) {};
+         using Callback = std::function<void(void)>;
 
-         std::string name;
+         std::string label;
+         Callback callback;
       };
 
       Layout(const std::vector<Element>& elements) : elements(elements) {};
@@ -48,8 +49,12 @@ public:
    //
    // Rebuild the UI.
    //
-   void Rebuild(const Layout& layout);
+   void SetLayout(const Layout& layout);
 
+private:
+   void Rebuild();
+
+public:
    //
    // React to mouse events
    //
@@ -57,11 +62,13 @@ public:
    void MouseUp(int button, double x, double y);
    void MouseClick(int button, double x, double y);
    void MouseDrag(int button, double x, double y);
+   void MouseMove(double x, double y);
 
 private:
    Bounded* mBounds;
 
    Layout mLayout;
+   int32_t mHoveredItem = -1;
 
    std::unique_ptr<Engine::Graphics::Font> mFont;
    Engine::Graphics::VBO mControlsTextVBO;

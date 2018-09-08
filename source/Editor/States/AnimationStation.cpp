@@ -21,6 +21,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/Platform/fileDialog.h>
 #include "AnimationStation.h"
 
 namespace CubeWorld
@@ -39,12 +40,17 @@ namespace Editor
    AnimationStation::AnimationStation(Bounded& parent, Controls* controls)
       : mParent(parent)
       , mControls(controls)
+      , mPreview(parent, SubWindow::Options{0, 0.2f, 1, 0.8f})
+      , mDock(parent, SubWindow::Options{0, 0, 1, 0.2f})
+      , mPlayer(Entity(nullptr, Entity::ID(0)))
    {
       mEvents.Subscribe<NamedEvent>(*this);
       mEvents.Subscribe<MouseDownEvent>(*this);
       mEvents.Subscribe<MouseUpEvent>(*this);
       mEvents.Subscribe<MouseDragEvent>(*this);
       mEvents.Subscribe<MouseClickEvent>(*this);
+
+      mFilename = Paths::Normalize(Asset::Animation("player.json"));
    }
 
    AnimationStation::~AnimationStation()
@@ -58,14 +64,38 @@ namespace Editor
       mEvents.Unsubscribe<MouseClickEvent>(*this);
    }
 
+   void AnimationStation::LoadNewFile()
+   {
+      std::string file = openFileDialog(mFilename, {});
+      if (!file.empty())
+      {
+         mFilename = file;
+         LoadFile(file);
+      }
+   }
+   
+   void AnimationStation::LoadFile(const std::string& filename)
+   {
+      Engine::ComponentHandle<AnimatedSkeleton> skeleton = mPlayer.Get<AnimatedSkeleton>();
+      
+      skeleton->Load(filename);
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
+      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+   }
+
    void AnimationStation::Start()
    {
       // Open side windows
-      mControls->Rebuild({
+      mControls->SetLayout({
          {
-            Controls::Layout::Element("Test"),
-            Controls::Layout::Element("Test2"),
-            Controls::Layout::Element("Test3")
+            Controls::Layout::Element{"Load", std::bind(&AnimationStation::LoadNewFile, this)},
+            Controls::Layout::Element{"Test2", nullptr},
+            Controls::Layout::Element{"Test3", nullptr}
          },
       });
 
@@ -81,22 +111,16 @@ namespace Editor
       Engine::Input::InputManager::Instance()->SetMouseLock(false);
       
       // Create a player component
-      Entity player = mEntities.Create();
-      player.Add<Transform>(glm::vec3(0, 4.3, 0));
-      player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
-
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+      mPlayer = mEntities.Create();
+      mPlayer.Add<Transform>(glm::vec3(0, 4.3, 0));
+      mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+      mPlayer.Add<AnimatedSkeleton>(mFilename);
+      
+      LoadFile(mFilename);
 
       // Create a camera
       Entity playerCamera = mEntities.Create(0, 0, 0);
-      playerCamera.Get<Transform>()->SetParent(player);
+      playerCamera.Get<Transform>()->SetParent(mPlayer);
       playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
       playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
       ArmCamera::Options cameraOptions;
@@ -108,14 +132,14 @@ namespace Editor
       playerCamera.Add<Game::KeyControlledCameraArm>();
 
       // Add transitioning
-      Engine::Input::InputManager::Instance()->SetCallback(GLFW_KEY_SPACE, [player](){
+      /*Engine::Input::InputManager::Instance()->SetCallback(GLFW_KEY_SPACE, [player](){
          static int state = 0;
          std::vector<float> speed = { 0, 5, 10, 5 };
          state = (state + 1) % speed.size();
 
-         Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Get<AnimatedSkeleton>();
+         Engine::ComponentHandle<AnimatedSkeleton> skeleton = mPlayer.Get<AnimatedSkeleton>();
          skeleton->SetParameter("speed", speed[state]);
-      });
+      });*/
 
       mCamera.Set(handle.get());
 
@@ -185,6 +209,21 @@ namespace Editor
 
       Entity voxels = mEntities.Create(0, 0, 0);
       voxels.Add<Game::VoxelRender>(std::move(carpet));
+   }
+
+   void AnimationStation::Update(TIMEDELTA dt)
+   {
+      // Render the game to the "preview" subwindow.
+      mPreview.Bind();
+      mSystems.UpdateAll(dt);
+      mPreview.Unbind();
+      mPreview.Render();
+
+      // Render the dock.
+      mDock.Bind();
+      // TODO...
+      mDock.Unbind();
+      mDock.Render();
    }
 
    void AnimationStation::Receive(const NamedEvent& evt)

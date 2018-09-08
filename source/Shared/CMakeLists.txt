@@ -1,12 +1,19 @@
 cmake_minimum_required(VERSION 3.1)
 project(Shared)
 
+if (APPLE)
+   file(GLOB PLATFORM_SOURCES "Platform/OSX/*")
+else()
+   file(GLOB PLATFORM_SOURCES "Platform/Windows/*")
+endif()
+
 file(GLOB SOURCES
    "*.h"
    "*.cpp"
    "**/*.h"
    "**/*.cpp"
    "Shaders/*"
+   ${PLATFORM_SOURCES}
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
