@@ -34,6 +34,39 @@ Cube World seemed like the perfect starting point for doing a game engine from s
 4. `/Applications/CMake.app/Contents/bin/cmake -G "Unix Makefiles" ..`
 5. Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
 
+### Running the game
+
+#### Visual Studio (Windows)
+
+Set "Editor" or "Game" as your startup project and hit F5, or Debug.
+
+#### VS Code (Mac)
+
+If you have the [C++ Extension](https://github.com/Microsoft/vscode-cpptools) installed and this file is at the base of your workspace, you should also be able to hit F5 to debug the Editor.
+
+To change what gets launched, modify `.vscode/launch.json`.
+
+#### Manually
+
+After building either the `Game` or `Editor` targets, navigate to `build/source/{target}` and run the executable from there.
+
+```bash
+Game$ ./Game
+```
+
+Working directory is important!!! If the working directory doesn't have `Assets` in it, you may see the following:
+
+```bash
+$ ./build/source/Editor/Editor
+INFO  | Vendor: ATI Technologies Inc.
+INFO  | Renderer: AMD Radeon Pro 460 OpenGL Engine
+ERROR | Failed to clean up font face
+Assertion failed: (maybeFont), function Controls, file /Users/tsteinke/CubeWorld/source/Editor/Helpers/Controls.cpp, line 33.
+[1]    53081 abort      /Users/tsteinke/CubeWorld/build/source/Editor/Editor
+```
+
+In this case, just navigate to the directory where the executable lives.
+
 ## Repo Layout
 
 Here are the important folders:
