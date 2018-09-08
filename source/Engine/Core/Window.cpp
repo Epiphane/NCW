@@ -67,10 +67,8 @@ Maybe<void> Window::Initialize(const Options& options)
 
    glfwSetWindowPos(window, mOptions.x + monitorWidth / 2 - mOptions.width / 2, mOptions.y + monitorHeight / 2 - mOptions.height / 2);
 
-   glewExperimental = true;
-
-   if (GLenum result = glewInit(); result != GLEW_OK) {
-      return Failure{"Failed to initialize GLEW: %s", glewGetErrorString(result)};
+   if (!gladLoadGL()) {
+      return Failure{"Failed to initialize glad!"};
    }
 
    // Clear any errors that might be lying around.

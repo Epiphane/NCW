@@ -5,7 +5,7 @@
 #endif
 #include <cstdio>
 #include <fstream>
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Logger/Logger.h>

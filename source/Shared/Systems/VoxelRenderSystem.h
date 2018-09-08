@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>

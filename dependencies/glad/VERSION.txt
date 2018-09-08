@@ -1,0 +1,14 @@
+Built from https://glad.dav1d.de/, using the following parameters:
+
+Language: C/C++
+Specification: OpenGL
+Profile: Compatibility
+API:
+  gl: Version 3.3
+  gles1: None
+  gles2: None
+  glsc2: none
+
+Loader: true
+Local files: False
+Omit khrplatform: False

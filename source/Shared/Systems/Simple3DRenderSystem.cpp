@@ -4,7 +4,7 @@
 #include <cassert>
 #include <functional>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <glm/ext.hpp>
 
 #include <Engine/Core/Scope.h>

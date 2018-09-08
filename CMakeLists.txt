@@ -17,26 +17,13 @@ set(CMAKE_MACOSX_RPATH 1)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 
-# GLFW
 add_subdirectory("${DEP_DIR}/glfw")
-
-# glew
-add_subdirectory("${DEP_DIR}/glew")
-
-#glm
+add_subdirectory("${DEP_DIR}/glad")
 add_subdirectory("${DEP_DIR}/glm")
-
-#noise
 add_subdirectory("${DEP_DIR}/libnoise")
 add_subdirectory("${DEP_DIR}/noiseutils")
-
-# FreeType
 add_subdirectory("${DEP_DIR}/freetype")
-
-# sqlite
 add_subdirectory("${DEP_DIR}/sqlite")
-
-# FMOD
 add_subdirectory("${DEP_DIR}/FMOD")
 
 # Ensure everything after draws from header files

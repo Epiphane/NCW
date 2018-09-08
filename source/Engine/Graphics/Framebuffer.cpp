@@ -1,6 +1,6 @@
 // By Thomas Steinke
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "../Core/Scope.h"
 #include "../Logger/Logger.h"

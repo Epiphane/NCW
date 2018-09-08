@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include <fstream>
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <stdio.h>
 
 #include <Engine/Logger/Logger.h>

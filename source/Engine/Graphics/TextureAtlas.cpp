@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <cstdlib>
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <algorithm>
 
 #include <Engine/Core/Format.h>

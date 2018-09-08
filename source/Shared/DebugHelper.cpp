@@ -1,6 +1,6 @@
 // By Thomas Steinke
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
