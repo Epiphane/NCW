@@ -62,12 +62,15 @@ namespace Editor
    {
       // Open side windows
       mControls->Rebuild({
-         {Controls::Layout::Element("Test")}
+         {
+            Controls::Layout::Element("Test"),
+            Controls::Layout::Element("Test2"),
+            Controls::Layout::Element("Test3")
+         },
       });
 
       // Create systems and configure
       DebugHelper::Instance()->SetSystemManager(&mSystems);
-      mSystems.Add<Engine::InputEventSystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<Game::CameraSystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
       mSystems.Add<Game::MakeshiftSystem>();

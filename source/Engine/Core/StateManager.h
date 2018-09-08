@@ -29,6 +29,21 @@ public:
 
    virtual void Update(TIMEDELTA dt);
 
+   //
+   // Emit an event to the current state.
+   //
+   template <typename E>
+   inline void Emit(const E& evt)
+   {
+      mState->Emit<E>(evt);
+   }
+
+   template <typename E, typename ... Args>
+   void Emit(Args && ... args)
+   {
+      Emit(E(std::forward<Args>(args)...));
+   }
+
 private:
    std::unique_ptr<State> mOwned;
    std::unique_ptr<State> mOwnNext;

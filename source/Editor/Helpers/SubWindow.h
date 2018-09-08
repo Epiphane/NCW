@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
-#include <Engine/Core/Input.h>
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/VBO.h>
 
@@ -34,7 +33,6 @@ public:
 public:
    SubWindow(
       Bounded* bounds,
-      Engine::Input::InputManager* input,
       const Options& options
    );
    ~SubWindow();
@@ -58,8 +56,6 @@ public:
    uint32_t Height() const override { return mOptions.h; }
 
 private:
-   Engine::Input::InputManager* mInput;
-
    Options mOptions;
 
 private:

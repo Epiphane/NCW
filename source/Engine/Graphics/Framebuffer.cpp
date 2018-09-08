@@ -91,7 +91,6 @@ void Framebuffer::Bind(bool clear)
    glGetIntegerv(GL_VIEWPORT, mPreviousViewport);
    
    BindFramebuffer(mFBO);
-   LOG_DEBUG("Framebuffer: (%1) %2 %3 %4 %5", mFBO, 0, 0, mWidth, mHeight);
    glViewport(0, 0, mWidth, mHeight);
 
    if (clear)
@@ -108,12 +107,6 @@ void Framebuffer::Unbind()
       mPreviousViewport[2],
       mPreviousViewport[3]
    );
-   LOG_DEBUG("Framebuffer: (%1) %2 %3 %4 %5", 
-      mPreviousFBO,
-      mPreviousViewport[0],
-      mPreviousViewport[1],
-      mPreviousViewport[2],
-      mPreviousViewport[3]);
    BindFramebuffer(mPreviousFBO);
 }
 

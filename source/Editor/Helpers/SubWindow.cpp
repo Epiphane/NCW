@@ -20,10 +20,8 @@ REGISTER_GLUINT(SubWindow, uTexture);
 
 SubWindow::SubWindow(
    Bounded* bounds,
-   Engine::Input::InputManager* input,
-   const Options& options
-)  : mInput(input)
-   , mOptions(options)
+   const Options& options)
+   : mOptions(options)
    , mFramebuffer(options.w, options.h)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
@@ -46,9 +44,6 @@ SubWindow::SubWindow(
    float y = 2.0f * float(mOptions.y) / bounds->Height() - 1.0f;
    float w = 2.0f * float(mOptions.w) / bounds->Width();
    float h = 2.0f * float(mOptions.h) / bounds->Height();
-
-   LOG_DEBUG("[%1, %2, %3, %4]", x, w, y, h);
-   LOG_DEBUG("[%1, %2, %3, %4]", mOptions.x, bounds->Width(), mOptions.y, bounds->Height());
 
    std::vector<GLfloat> vboData = {
       x,     y,     0.0f, 0.0f, 0.0f,
@@ -82,8 +77,6 @@ void SubWindow::Render()
    glActiveTexture(GL_TEXTURE0);
    glBindTexture(GL_TEXTURE_2D, mFramebuffer.GetTexture());
    glUniform1i(uTexture, 0);
-
-   LOG_DEBUG("Drawing subwindow");
 
    mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
    mVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));

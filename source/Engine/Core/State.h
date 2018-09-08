@@ -21,23 +21,25 @@ namespace Engine
 class GameObject;
 
 class State {
-private:
-   //void UpdateRendererQueue();
-
 public:
    State();
    ~State();
 
    bool initialized = false;
    virtual void Start() = 0;
-   //virtual void pause();
-   //virtual void unpause();
    virtual void Update(TIMEDELTA dt);
-   //virtual void regen_resources();
 
-   //virtual void send(std::string message, void *data);
-
-   //void AddObject(std::unique_ptr<GameObject> obj);
+   //
+   // Emit an event to the state. Intentionally disallows
+   // referencing mEvents directly, because there's too much
+   // opportunity for misusing that dependency, i.e. subscribing
+   // permanently to a temporary event manager.
+   //
+   template <typename E>
+   inline void Emit(const E& evt)
+   {
+      mEvents.Emit<E>(evt);
+   }
 
 protected:
    EventManager mEvents;

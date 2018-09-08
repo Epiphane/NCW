@@ -5,8 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include <Engine/Core/Input.h>
-#include <Engine/Core/Window.h>
+#include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/VBO.h>
 
@@ -38,7 +37,7 @@ public:
    };
 
 public:
-   Controls(Engine::Window* window, Engine::Input::InputManager* input);
+   Controls(Bounded* bounds);
    ~Controls();
 
    //
@@ -51,9 +50,18 @@ public:
    //
    void Rebuild(const Layout& layout);
 
+   //
+   // React to mouse events
+   //
+   void MouseDown(int button, double x, double y);
+   void MouseUp(int button, double x, double y);
+   void MouseClick(int button, double x, double y);
+   void MouseDrag(int button, double x, double y);
+
 private:
-   Engine::Window* mWindow;
-   Engine::Input::InputManager* mInput;
+   Bounded* mBounds;
+
+   Layout mLayout;
 
    std::unique_ptr<Engine::Graphics::Font> mFont;
    Engine::Graphics::VBO mControlsTextVBO;
