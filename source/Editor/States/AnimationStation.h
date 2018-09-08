@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include <Engine/Core/Bounded.h>
 #include <Engine/Core/State.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Event/InputEvent.h>
@@ -22,7 +23,7 @@ namespace Editor
 
 class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
 public:
-   AnimationStation(float aspectRatio, Controls* controls);
+   AnimationStation(Bounded& parent, Controls* controls);
    ~AnimationStation();
 
    void Start() override;
@@ -36,7 +37,7 @@ public:
 private:
    Engine::Graphics::CameraHandle mCamera;
 
-   float mAspectRatio;
+   Bounded& mParent;
    Controls* mControls;
 };
 

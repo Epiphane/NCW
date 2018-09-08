@@ -13,7 +13,8 @@
                 "${workspaceFolder}/source",
                 "${workspaceFolder}/dependencies",
                 "${workspaceFolder}/dependencies/glad/09072018/include",
-                "${workspaceFolder}/dependencies/libnoise/1.0.0/source",
+                "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
+                "${workspaceFolder}/dependencies/noiseutils/0.9.0.1",
                 "${workspaceFolder}/dependencies/freetype/2.9.1/include",
                 "${workspaceFolder}/dependencies/glfw/3.2.1/include",
                 "${workspaceFolder}/dependencies/glm/0.9.9.0"

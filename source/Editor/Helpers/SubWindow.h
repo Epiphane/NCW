@@ -24,15 +24,15 @@ class SubWindow : public Bounded
 {
 public:
    struct Options {
-      uint32_t x = 0;
-      uint32_t y = 0;
-      uint32_t w = 1280;
-      uint32_t h = 760;
+      float x = 0;
+      float y = 0;
+      float w = 1;
+      float h = 1;
    };
 
 public:
    SubWindow(
-      Bounded* bounds,
+      Bounded& parent,
       const Options& options
    );
    ~SubWindow();
@@ -52,10 +52,11 @@ public:
    //
    void Render();
 
-   uint32_t Width() const override { return mOptions.w; }
-   uint32_t Height() const override { return mOptions.h; }
+   uint32_t Width() const override { return mParent.Width() * mOptions.w; }
+   uint32_t Height() const override { return mParent.Height() * mOptions.h; }
 
 private:
+   Bounded& mParent;
    Options mOptions;
 
 private:

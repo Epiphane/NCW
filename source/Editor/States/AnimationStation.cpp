@@ -36,8 +36,8 @@ namespace Editor
    using AnimatedSkeleton = Game::AnimatedSkeleton;
    using DebugHelper = Game::DebugHelper;
 
-   AnimationStation::AnimationStation(float aspectRatio, Controls* controls)
-      : mAspectRatio(aspectRatio)
+   AnimationStation::AnimationStation(Bounded& parent, Controls* controls)
+      : mParent(parent)
       , mControls(controls)
    {
       mEvents.Subscribe<NamedEvent>(*this);
@@ -100,7 +100,7 @@ namespace Editor
       playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
       playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
       ArmCamera::Options cameraOptions;
-      cameraOptions.aspect = mAspectRatio;
+      cameraOptions.aspect = float(mParent.Width()) / mParent.Height();
       cameraOptions.far = 1500.0f;
       cameraOptions.distance = 3.5f;
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
@@ -210,7 +210,7 @@ namespace Editor
          // Bottom left of the screen == reset scene
          if (evt.x <= 0.1 && evt.y >= 0.9)
          {
-            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mAspectRatio, mControls));
+            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mParent, mControls));
          }
       }
    }

@@ -19,10 +19,11 @@ REGISTER_GLUINT(SubWindow, aUV);
 REGISTER_GLUINT(SubWindow, uTexture);
 
 SubWindow::SubWindow(
-   Bounded* bounds,
+   Bounded& parent,
    const Options& options)
    : mOptions(options)
-   , mFramebuffer(options.w, options.h)
+   , mParent(parent)
+   , mFramebuffer(parent.Width() * options.w, parent.Height() * options.h)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
    if (program == 0)
@@ -40,10 +41,10 @@ SubWindow::SubWindow(
       DISCOVER_UNIFORM(uTexture);
    }
 
-   float x = 2.0f * float(mOptions.x) / bounds->Width() - 1.0f;
-   float y = 2.0f * float(mOptions.y) / bounds->Height() - 1.0f;
-   float w = 2.0f * float(mOptions.w) / bounds->Width();
-   float h = 2.0f * float(mOptions.h) / bounds->Height();
+   float x = 2.0f * mOptions.x - 1.0f;
+   float y = 2.0f * mOptions.y - 1.0f;
+   float w = 2.0f * mOptions.w;
+   float h = 2.0f * mOptions.h;
 
    std::vector<GLfloat> vboData = {
       x,     y,     0.0f, 0.0f, 0.0f,
