@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GL/includes.h>
 
 #include "Bounded.h"
 #include "Maybe.h"

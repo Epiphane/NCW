@@ -4,8 +4,7 @@
 
 #include <functional>
 #include <memory>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GL/includes.h>
 
 namespace CubeWorld
 {

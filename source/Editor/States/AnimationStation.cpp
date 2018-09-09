@@ -6,6 +6,7 @@
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
 
+#include <Engine/Core/File.h>
 #include <Engine/Core/StateManager.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
@@ -23,7 +24,6 @@
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/Helpers/json.hpp>
-#include <Shared/Platform/fileDialog.h>
 #include "AnimationStation.h"
 
 namespace CubeWorld
@@ -39,8 +39,9 @@ namespace Editor
    using AnimatedSkeleton = Game::AnimatedSkeleton;
    using DebugHelper = Game::DebugHelper;
 
-   AnimationStation::AnimationStation(Bounded& parent, Controls* controls)
-      : mParent(parent)
+   AnimationStation::AnimationStation(Engine::Window* window, Bounded& parent, Controls* controls)
+      : mWindow(window)
+      , mParent(parent)
       , mControls(controls)
       , mPreview(parent, SubWindow::Options{0, 0.2f, 1, 0.8f})
       , mDock(parent, SubWindow::Options{0, 0, 1, 0.2f})
@@ -68,7 +69,7 @@ namespace Editor
 
    void AnimationStation::LoadNewFile()
    {
-      std::string file = openFileDialog(mFilename, {});
+      std::string file = OpenFileDialog(mFilename, {});
       if (!file.empty())
       {
          mFilename = file;
@@ -92,7 +93,7 @@ namespace Editor
 
    void AnimationStation::SaveNewFile()
    {
-      std::string file = saveFileDialog(mFilename);
+      std::string file = SaveFileDialog(mFilename);
       if (!file.empty())
       {
          mFilename = file;
@@ -269,7 +270,7 @@ namespace Editor
          // Bottom left of the screen == reset scene
          if (evt.x <= 0.1 && evt.y >= 0.9)
          {
-            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mParent, mControls));
+            Engine::StateManager::Instance()->SetState(std::make_unique<AnimationStation>(mWindow, mParent, mControls));
          }
       }
    }

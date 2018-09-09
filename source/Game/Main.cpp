@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GL/includes.h>
 #include <glm/ext.hpp>
 #include <iostream>
 #include <fstream>

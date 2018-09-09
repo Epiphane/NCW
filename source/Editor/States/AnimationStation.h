@@ -25,7 +25,7 @@ namespace Editor
 
 class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
 public:
-   AnimationStation(Bounded& parent, Controls* controls);
+   AnimationStation(Engine::Window* window, Bounded& parent, Controls* controls);
    ~AnimationStation();
 
    void Start() override;
@@ -47,6 +47,7 @@ private:
 private:
    Engine::Graphics::CameraHandle mCamera;
 
+   Engine::Window* mWindow;
    Bounded& mParent;
    Controls* mControls;
 

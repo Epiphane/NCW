@@ -4,8 +4,7 @@
 #include <cassert>
 #include <functional>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GL/includes.h>
 #include <glm/ext.hpp>
 
 #include <Engine/Logger/Logger.h>

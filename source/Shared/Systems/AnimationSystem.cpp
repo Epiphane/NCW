@@ -215,12 +215,12 @@ void AnimatedSkeleton::Load(const std::string& filename)
          for (auto info : it.value())
          {
             Transition transition;
-            transition.destination = info["to"];
+            transition.destination = info.value("to", "");
             transition.time = info.value("time", 0.0);
             for (auto triggerInfo : info["triggers"])
             {
                Transition::Trigger trigger;
-               trigger.parameter = triggerInfo["parameter"];
+               trigger.parameter = triggerInfo.value("parameter", "");
                if (auto gte = triggerInfo.find("gte"); gte != triggerInfo.end())
                {
                   floatParams[trigger.parameter] = 0;

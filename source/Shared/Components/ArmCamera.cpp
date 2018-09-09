@@ -1,6 +1,6 @@
 // By Thomas Steinke
 
-#include <glad/glad.h>
+#include <GL/includes.h>
 #include <glm/ext.hpp>
 
 #include <Engine/Entity/EntityManager.h>

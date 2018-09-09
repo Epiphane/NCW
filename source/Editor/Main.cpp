@@ -3,8 +3,7 @@
 //
 
 #include <algorithm>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GL/includes.h>
 #include <cassert>
 #include <cmath>
 
@@ -104,7 +103,7 @@ int main(int argc, char** argv) {
 
    // Start with AnimationStation
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation>(gameWindow, controls.get()));
+   stateManager->SetState(std::make_unique<Editor::AnimationStation>(window, gameWindow, controls.get()));
 
    // Attach mouse events to state
    // TODO this is hella hacky, don't tell on me...
