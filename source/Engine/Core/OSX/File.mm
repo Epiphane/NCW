@@ -1,9 +1,16 @@
+// By Thomas Steinke
+
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #include <string>
 #include <vector>
 
-std::string openFileDialog(
+#include "../File.h"
+
+namespace CubeWorld
+{
+
+std::string OpenFileDialog(
    const std::string& defaultFilename,
    const std::vector<std::string>& fileTypes
 )
@@ -42,7 +49,7 @@ std::string openFileDialog(
    return "";
 }
 
-std::string saveFileDialog(
+std::string SaveFileDialog(
    const std::string& defaultFilename
 )
 {
@@ -59,3 +66,5 @@ std::string saveFileDialog(
 
    return "";   
 }
+
+}; // namespace CubeWorld
