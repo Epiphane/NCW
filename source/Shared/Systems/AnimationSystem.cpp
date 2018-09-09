@@ -61,6 +61,27 @@ size_t AddBoneToSkeleton(AnimatedSkeleton* skeleton, const size_t parent, const 
    return id;
 }
 
+nlohmann::json Vec3ToJson(const glm::vec3& vec3)
+{
+   return {vec3.x, vec3.y, vec3.z};
+}
+
+nlohmann::json SerializeBone(AnimatedSkeleton* skeleton, AnimatedSkeleton::Bone& bone)
+{
+   nlohmann::json data;
+
+   data["position"] = Vec3ToJson(bone.position);
+   data["rotation"] = Vec3ToJson(bone.rotation);
+   
+   for (auto childId : bone.children)
+   {
+      AnimatedSkeleton::Bone& child = skeleton->bones[childId];
+      data["bones"][child.name] = SerializeBone(skeleton, child);
+   }
+
+   return data;
+}
+
 }; // anonymous namespace
 
 void AnimatedSkeleton::ComputeBoneMatrix(size_t boneId)
@@ -131,12 +152,9 @@ void AnimatedSkeleton::Load(const std::string& filename)
          assert(keyframe.time > lastTime);
          lastTime = keyframe.time;
 
-         std::vector<glm::vec3> positions;
-         std::vector<glm::vec3> rotations;
-         std::transform(bones.begin(), bones.end(), std::back_inserter(positions), [](const Bone& b) { return b.position; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(rotations), [](const Bone& b) { return b.rotation; });
-
          // By default, every bone is in its original spot.
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
          std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
 
          if (auto boneData = frame.find("bones"); boneData != frame.end())
@@ -151,11 +169,11 @@ void AnimatedSkeleton::Load(const std::string& filename)
                {
                   if (auto pos = modification.value().find("position"); pos != modification.value().end())
                   {
-                     position = JsonToVec3(pos.value());
+                     position = keyframe.positions[boneId] = JsonToVec3(pos.value());
                   }
                   if (auto rot = modification.value().find("rotation"); rot != modification.value().end())
                   {
-                     rotation = JsonToVec3(rot.value());
+                     rotation = keyframe.rotations[boneId] = JsonToVec3(rot.value());
                   }
                }
 
@@ -242,6 +260,88 @@ void AnimatedSkeleton::Load(const std::string& filename)
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
+}
+
+std::string AnimatedSkeleton::Serialize()
+{
+   nlohmann::json data;
+   data["version"] = 1;
+
+   // Bones
+   data["bones"][bones[0].name] = SerializeBone(this, bones[0]);
+   data["default"] = states[0].name;
+
+   // States and their transitions
+   for (auto state : states)
+   {
+      nlohmann::json stateData;
+      stateData["name"] = state.name;
+      stateData["length"] = state.length;
+
+      for (auto keyframe : state.keyframes)
+      {
+         if (keyframe.time == state.length)
+         {
+            continue;
+         }
+
+         nlohmann::json keyframeData;
+
+         keyframeData["time"] = keyframe.time;
+
+         for (size_t boneId = 0; boneId < bones.size(); boneId++)
+         {
+            Bone& bone = bones[boneId];
+            if (keyframe.positions[boneId] != bone.position)
+            {
+               keyframeData["bones"][bone.name]["position"] = Vec3ToJson(keyframe.positions[boneId]);
+            }
+            if (keyframe.rotations[boneId] != bone.rotation)
+            {
+               keyframeData["bones"][bone.name]["rotation"] = Vec3ToJson(keyframe.rotations[boneId]);
+            }
+         }
+
+         stateData["keyframes"].push_back(keyframeData);
+      }
+
+      data["states"].push_back(stateData);
+
+      // Add transitions for this state.
+      for (auto transition : state.transitions)
+      {
+         nlohmann::json transitionData;
+
+         transitionData["to"] = transition.destination;
+         transitionData["time"] = transition.time;
+         for (auto trigger : transition.triggers)
+         {
+            nlohmann::json triggerData;
+
+            triggerData["parameter"] = trigger.parameter;
+            switch (trigger.type)
+            {
+               case AnimatedSkeleton::Transition::Trigger::FloatGte:
+                  triggerData["gte"] = trigger.floatVal;
+                  break;
+               case AnimatedSkeleton::Transition::Trigger::FloatLt:
+                  triggerData["lt"] = trigger.floatVal;
+                  break;
+               case AnimatedSkeleton::Transition::Trigger::Bool:
+                  triggerData["bool"] = trigger.boolVal;
+                  break;
+               default:
+                  assert(false && "Unrecognized trigger type");
+            }
+
+            transitionData["triggers"].push_back(triggerData);
+         }
+      
+         data["transitions"][state.name].push_back(transitionData);
+      }
+   }
+
+   return data.dump(3);
 }
 
 void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& model)

@@ -4,7 +4,7 @@
 #include <vector>
 
 std::string openFileDialog(
-   const std::string& defaultFile,
+   const std::string& defaultFilename,
    const std::vector<std::string>& fileTypes
 )
 {
@@ -27,7 +27,7 @@ std::string openFileDialog(
    // Enable options in the dialog.
    [openDlg setCanChooseFiles:YES];
    [openDlg setAllowsMultipleSelection:FALSE];
-   [openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithUTF8String:defaultFile.c_str()]]];
+   [openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithUTF8String:defaultFilename.c_str()]]];
 
    // Display the dialog box. If the OK pressed, process the files.
    if ([openDlg runModal] == NSModalResponseOK)
@@ -40,4 +40,22 @@ std::string openFileDialog(
    }
 
    return "";
+}
+
+std::string saveFileDialog(
+   const std::string& defaultFilename
+)
+{
+   NSSavePanel* saveDlg = [NSSavePanel savePanel];
+   [saveDlg setLevel:CGShieldingWindowLevel()];
+   [saveDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithUTF8String:defaultFilename.c_str()]]];
+
+   if ([saveDlg runModal] == NSModalResponseOK)
+   {
+      NSURL *saveURL = [saveDlg URL];
+      NSString* path = [saveURL path];
+      return std::string([path UTF8String]);
+   }
+
+   return "";   
 }

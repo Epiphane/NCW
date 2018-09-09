@@ -1,4 +1,5 @@
 {
+   "version": 1,
    "bones": {
       "root": {
          "position": [ 0, 0, 0 ],

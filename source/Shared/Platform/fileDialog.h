@@ -9,3 +9,7 @@ std::string openFileDialog(
    const std::string& defaultFilename,
    const std::vector<std::string>& fileTypes
 );
+
+std::string saveFileDialog(
+   const std::string& defaultFilename
+);

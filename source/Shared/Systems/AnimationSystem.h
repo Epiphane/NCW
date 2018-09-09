@@ -21,6 +21,8 @@ namespace Game
       struct Keyframe {
          double time;
          std::vector<glm::mat4> matrixes;
+         std::vector<glm::vec3> positions;
+         std::vector<glm::vec3> rotations;
       };
 
       struct Transition {
@@ -67,6 +69,7 @@ namespace Game
       
       AnimatedSkeleton(const std::string& file);
       void Load(const std::string& file);
+      std::string Serialize();
       
       std::vector<State> states;
       std::unordered_map<std::string, size_t> statesByName;

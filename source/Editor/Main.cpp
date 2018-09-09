@@ -16,6 +16,7 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
 
+#include <Shared/Helpers/Asset.h>
 #include <Shared/DebugHelper.h>
 
 #include "Helpers/Controls.h"
@@ -43,7 +44,9 @@ const float MAIN_Y = 0.0f;
 const float MAIN_W = 1.0f - SIDEBAR_W;
 const float MAIN_H = 1.0f;
 
-int main(int /* argc */, char ** /* argv */) {
+int main(int argc, char** argv) {
+
+
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();

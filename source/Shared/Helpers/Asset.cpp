@@ -8,6 +8,13 @@ namespace CubeWorld
 namespace Asset
 {
 
+std::string gAssetRoot = ".";
+
+void SetAssetRoot(std::string root)
+{
+   gAssetRoot = Paths::Normalize(root);
+}
+
 std::string Animation(const std::string& animation)
 {
    return Paths::Join("Assets", "Animations", animation);

@@ -39,7 +39,9 @@ public:
 
 private:
    void LoadNewFile();
+   void SaveNewFile();
 
+   void SaveFile();
    void LoadFile(const std::string& filename);
 
 private:

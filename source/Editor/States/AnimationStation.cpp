@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <cassert>
+#include <fstream>
 #include <functional>
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
@@ -21,6 +22,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/Helpers/json.hpp>
 #include <Shared/Platform/fileDialog.h>
 #include "AnimationStation.h"
 
@@ -88,13 +90,31 @@ namespace Editor
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
    }
 
+   void AnimationStation::SaveNewFile()
+   {
+      std::string file = saveFileDialog(mFilename);
+      if (!file.empty())
+      {
+         mFilename = file;
+         SaveFile();
+      }
+   }
+
+   void AnimationStation::SaveFile()
+   {
+      std::string serialized = mPlayer.Get<AnimatedSkeleton>()->Serialize();
+      std::ofstream out(mFilename);
+      out << serialized << std::endl;
+   }
+
    void AnimationStation::Start()
    {
       // Open side windows
       mControls->SetLayout({
          {
             Controls::Layout::Element{"Load", std::bind(&AnimationStation::LoadNewFile, this)},
-            Controls::Layout::Element{"Test2", nullptr},
+            Controls::Layout::Element{"Save", std::bind(&AnimationStation::SaveFile, this)},
+            Controls::Layout::Element{"Save As...", std::bind(&AnimationStation::SaveNewFile, this)},
             Controls::Layout::Element{"Test3", nullptr}
          },
       });
