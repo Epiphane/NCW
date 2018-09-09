@@ -27,6 +27,9 @@ std::string Join(const std::string& part1, const std::string& part2, Strings&&..
 std::string Normalize(std::string path);
 std::string Canonicalize(const std::string& path);
 
+std::string GetFilename(const std::string& path);
+std::string GetDirectory(const std::string& path);
+
 Maybe<void> MakeDirectory(const std::string& path);
 
 std::string GetWorkingDirectory();

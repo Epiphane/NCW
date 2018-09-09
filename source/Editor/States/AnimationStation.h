@@ -38,18 +38,33 @@ public:
    void Receive(const MouseClickEvent& evt);
 
 private:
+   void SetModified(bool modified);
+   bool mModified;
+
    void LoadNewFile();
    void SaveNewFile();
 
    void SaveFile();
    void LoadFile(const std::string& filename);
 
+   void DiscardChanges();
+   void Quit();
+
 private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window* mWindow;
    Bounded& mParent;
+
    Controls* mControls;
+
+   // Layout elements
+   Controls::Layout mLayout;
+   Controls::Layout::Element& mLoad;
+   Controls::Layout::Element& mSave;
+   Controls::Layout::Element& mSaveAs;
+   Controls::Layout::Element& mDiscard;
+   Controls::Layout::Element& mQuit;
 
    SubWindow mPreview;
    SubWindow mDock;

@@ -76,10 +76,14 @@ public:
    bool IsReady() { return window != nullptr; }
 
 public:
+   inline void SetTitle(const std::string& title) { glfwSetWindowTitle(window, title.c_str()); }
+
+public:
    inline void Clear() { Use(); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
    inline void SwapBuffers() { glfwSwapBuffers(window); }
+   inline void SetShouldClose(bool close) { glfwSetWindowShouldClose(window, close); }
    inline bool ShouldClose() { return glfwWindowShouldClose(window) != 0; }
-   inline void Focus() { /* TODO update GLFW glfwFocusWindow(window); */ }
+   inline void Focus() { glfwFocusWindow(window); }
    void LockCursor();
    void UnlockCursor();
 

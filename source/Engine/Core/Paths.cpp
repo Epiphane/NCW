@@ -159,6 +159,32 @@ std::string Canonicalize(const std::string& path)
    }
 }
 
+std::string GetFilename(const std::string& path)
+{
+   std::string normalized = Normalize(path);
+   if (auto last = normalized.rfind('/'); last != std::string::npos)
+   {
+      return path.substr(last + 1);
+   }
+   else
+   {
+      return path;
+   }
+}
+
+std::string GetDirectory(const std::string& path)
+{
+   std::string normalized = Normalize(path);
+   if (auto last = normalized.rfind('/'); last != std::string::npos)
+   {
+      return path.substr(0, last);
+   }
+   else
+   {
+      return path;
+   }
+}
+
 Maybe<void> MakeDirectory(const std::string& path)
 {
    std::string normalized = Normalize(path);

@@ -7,6 +7,7 @@
 #include <noiseutils/noiseutils.h>
 
 #include <Engine/Core/File.h>
+#include <Engine/Core/Paths.h>
 #include <Engine/Core/StateManager.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
@@ -40,12 +41,27 @@ namespace Editor
    using DebugHelper = Game::DebugHelper;
 
    AnimationStation::AnimationStation(Engine::Window* window, Bounded& parent, Controls* controls)
-      : mWindow(window)
+      : mModified(false)
+      , mWindow(window)
       , mParent(parent)
       , mControls(controls)
       , mPreview(parent, SubWindow::Options{0, 0.2f, 1, 0.8f})
       , mDock(parent, SubWindow::Options{0, 0, 1, 0.2f})
       , mPlayer(Entity(nullptr, Entity::ID(0)))
+      , mLayout({
+         {
+            Controls::Layout::Element{"Load", std::bind(&AnimationStation::LoadNewFile, this)},
+            Controls::Layout::Element{"Save", std::bind(&AnimationStation::SaveFile, this)},
+            Controls::Layout::Element{"Save As...", std::bind(&AnimationStation::SaveNewFile, this)},
+            Controls::Layout::Element{"Discard Changes", std::bind(&AnimationStation::DiscardChanges, this)},
+            Controls::Layout::Element{"Quit", std::bind(&AnimationStation::Quit, this)}
+         },
+      })
+      , mLoad(mLayout.elements[0])
+      , mSave(mLayout.elements[1])
+      , mSaveAs(mLayout.elements[2])
+      , mDiscard(mLayout.elements[3])
+      , mQuit(mLayout.elements[4])
    {
       mEvents.Subscribe<NamedEvent>(*this);
       mEvents.Subscribe<MouseDownEvent>(*this);
@@ -65,6 +81,29 @@ namespace Editor
       mEvents.Unsubscribe<MouseUpEvent>(*this);
       mEvents.Unsubscribe<MouseDragEvent>(*this);
       mEvents.Unsubscribe<MouseClickEvent>(*this);
+   }
+
+   void AnimationStation::SetModified(bool modified)
+   {
+      if (mModified == modified)
+      {
+         // Unchanged.
+         return;
+      }
+
+      mModified = modified;
+
+      std::string title = "NCW - Animation Station - ";
+      if (mModified)
+      {
+         title += "*";
+      }
+      title += Paths::GetFilename(mFilename);
+      mWindow->SetTitle(title);
+
+      mSave.label = modified ? "*Save" : "Save";
+      mQuit.label = "Quit";
+      mControls->SetLayout(mLayout);
    }
 
    void AnimationStation::LoadNewFile()
@@ -89,6 +128,8 @@ namespace Editor
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+
+      SetModified(true /* TODO */);
    }
 
    void AnimationStation::SaveNewFile()
@@ -106,19 +147,32 @@ namespace Editor
       std::string serialized = mPlayer.Get<AnimatedSkeleton>()->Serialize();
       std::ofstream out(mFilename);
       out << serialized << std::endl;
+
+      SetModified(false);
+   }
+
+   void AnimationStation::DiscardChanges()
+   {
+      LoadFile(mFilename);
+   }
+
+   void AnimationStation::Quit()
+   {
+      if (!mModified)
+      {
+         mWindow->SetShouldClose(true);
+      }
+      else
+      {
+         mQuit.label = "Save first!";
+         mControls->SetLayout(mLayout);
+      }
    }
 
    void AnimationStation::Start()
    {
       // Open side windows
-      mControls->SetLayout({
-         {
-            Controls::Layout::Element{"Load", std::bind(&AnimationStation::LoadNewFile, this)},
-            Controls::Layout::Element{"Save", std::bind(&AnimationStation::SaveFile, this)},
-            Controls::Layout::Element{"Save As...", std::bind(&AnimationStation::SaveNewFile, this)},
-            Controls::Layout::Element{"Test3", nullptr}
-         },
-      });
+      mControls->SetLayout(mLayout);
 
       // Create systems and configure
       DebugHelper::Instance()->SetSystemManager(&mSystems);
