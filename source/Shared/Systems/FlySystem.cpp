@@ -12,14 +12,12 @@ namespace CubeWorld
 namespace Game
 {
    
-   void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
+   void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
    {
       int isW = mInput->IsKeyDown(GLFW_KEY_W) ? 1 : 0;
       int isA = mInput->IsKeyDown(GLFW_KEY_A) ? 1 : 0;
       int isS = mInput->IsKeyDown(GLFW_KEY_S) ? 1 : 0;
       int isD = mInput->IsKeyDown(GLFW_KEY_D) ? 1 : 0;
-      int isQ = mInput->IsKeyDown(GLFW_KEY_Q) ? 1 : 0;
-      int isE = mInput->IsKeyDown(GLFW_KEY_E) ? 1 : 0;
 
       glm::vec3 flyDirection(0);
       if (isW || isA || isS || isD)
@@ -39,7 +37,6 @@ namespace Game
          {
             body.velocity.y = 15;
          }
-         //transform.SetLocalPosition(transform.GetLocalPosition() + forward * flyDirection.z + right * flyDirection.x + glm::vec3(0, fly.speed * flyDirection.y, 0));
       });
    }
    

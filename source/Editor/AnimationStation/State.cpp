@@ -3,8 +3,10 @@
 #include <cassert>
 #include <fstream>
 #include <functional>
+#pragma warning(push, 0)
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
+#pragma warning(pop)
 
 #include <Engine/Core/File.h>
 #include <Engine/Core/Paths.h>
@@ -304,19 +306,19 @@ void MainState::Update(TIMEDELTA dt)
    mDock.Render();
 }
 
-void MainState::Receive(const NamedEvent& evt)
+void MainState::Receive(const NamedEvent&)
 {
 }
 
-void MainState::Receive(const MouseDragEvent& evt)
+void MainState::Receive(const MouseDragEvent&)
 {
 }
 
-void MainState::Receive(const MouseDownEvent& evt)
+void MainState::Receive(const MouseDownEvent&)
 {
 }
 
-void MainState::Receive(const MouseUpEvent& evt)
+void MainState::Receive(const MouseUpEvent&)
 {
 }
 

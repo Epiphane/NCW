@@ -245,12 +245,12 @@ void AABBTree::FixTreeUpwards(Node cursor)
    }
 }
 
-void AABBTree::Remove(Node& node)
+void AABBTree::Remove(Node& /*node*/)
 {
    assert(false);
 }
 
-AABBTree::Node AABBTree::Find(Node::ID id)
+AABBTree::Node AABBTree::Find(Node::ID /*id*/)
 {
    return Node::INVALID;
 }

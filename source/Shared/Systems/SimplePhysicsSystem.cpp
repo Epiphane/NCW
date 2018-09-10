@@ -106,7 +106,7 @@ void ResolveCollision(const Engine::Entity& entityA, const Engine::Entity& entit
       bodyA->velocity.y = 0;
       if (bodyA->velocity.x != 0 || bodyA->velocity.z != 0)
       {
-         float speed = std::max(0, bodyA->velocity.length() - 2);
+         float speed = std::max(0.0f, bodyA->velocity.length() - 2.0f);
          bodyA->velocity = glm::normalize(bodyA->velocity) * speed;
       }
       return;
@@ -225,8 +225,8 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
                ResolveCollision(*entity, other, dt);
 
                // Figure out the new hitbox.
-               glm::vec3 position = (*entity).Get<Engine::Transform>()->GetAbsolutePosition();
-               self = AABB(position - collider->size / 2.0f, position + collider->size / 2.0f);
+               glm::vec3 newPosition = (*entity).Get<Engine::Transform>()->GetAbsolutePosition();
+               self = AABB(newPosition - collider->size / 2.0f, newPosition + collider->size / 2.0f);
             }
             else
             {
@@ -340,8 +340,7 @@ void Debug::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMED
 
       glDrawArrays(GL_POINTS, 0, 1);
 
-      GLenum error = glGetError();
-      assert(error == 0);
+      CHECK_GL_ERRORS();
    });
 
    // Cleanup.

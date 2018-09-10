@@ -81,14 +81,9 @@ namespace Game
 
    using Transform = Engine::Transform;
 
-   void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
+   void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
    {
-      {GLenum error = glGetError();
-   assert(error == 0); }
-
       glUseProgram(program);
-      {GLenum error = glGetError();
-   assert(error == 0); }
 
       glm::mat4 perspective = mCamera->GetPerspective();
       glm::mat4 view = mCamera->GetView();
@@ -107,8 +102,7 @@ namespace Game
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
 
-         GLenum error = glGetError();
-         assert(error == 0);
+         CHECK_GL_ERRORS();
       });
 
       entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
@@ -122,8 +116,7 @@ namespace Game
 
          glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
 
-         GLenum error = glGetError();
-         assert(error == 0);
+         CHECK_GL_ERRORS();
       });
 
       entities.Each<Transform, AnimatedSkeleton>([&](Engine::Entity /*entity*/, Transform& transform, AnimatedSkeleton& skeleton) {
@@ -143,8 +136,7 @@ namespace Game
 
             glDrawArrays(GL_POINTS, 0, GLsizei(model.model->mVoxelData.size()));
 
-            GLenum error = glGetError();
-            assert(error == 0);
+            CHECK_GL_ERRORS();
          }
       });
       mClock.Elapsed();

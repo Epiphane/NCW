@@ -6,7 +6,9 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Core/Config.h>
 
+#pragma warning(push, 0)
 #include "../Helpers/json.hpp"
+#pragma warning(pop)
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
 
@@ -430,7 +432,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 
          const AnimatedSkeleton::Keyframe& src = state.keyframes[keyframeIndex];
          const AnimatedSkeleton::Keyframe& dst = state.keyframes[keyframeIndex + 1];
-         const float progress = (skeleton.time - src.time) / (dst.time - src.time);
+         const float progress = float((skeleton.time - src.time) / (dst.time - src.time));
 
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
          {
@@ -446,7 +448,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          float transitionProgress;
          if (skeleton.transitionCurrent < skeleton.transitionEnd)
          {
-            transitionProgress = skeleton.transitionCurrent / (skeleton.transitionEnd - skeleton.transitionStart);
+            transitionProgress = float(skeleton.transitionCurrent / (skeleton.transitionEnd - skeleton.transitionStart));
          }
          else
          {
@@ -455,7 +457,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             skeleton.time = skeleton.transitionCurrent;
          }
 
-         float time = skeleton.transitionCurrent;
+         double time = skeleton.transitionCurrent;
          while (time >= state.length)
          {
             time -= state.length;
@@ -469,7 +471,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 
          const AnimatedSkeleton::Keyframe& src = state.keyframes[keyframeIndex];
          const AnimatedSkeleton::Keyframe& dst = state.keyframes[keyframeIndex + 1];
-         const float progress = (time - src.time) / (dst.time - src.time);
+         const float progress = float((time - src.time) / (dst.time - src.time));
 
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
          {

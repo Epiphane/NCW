@@ -57,7 +57,9 @@ namespace Graphics
 
    Maybe<TextureAtlas::Region> TextureAtlas::Allocate(GLsizei width, GLsizei height)
    {
-      Region alloc;
+      // Default initialized because the compiler didn't think alloc.y (referenced later)
+      // was guaranteed to be initialized. We're smarter than that though.
+      Region alloc{0,0,0,0};
       
       GLsizei bestY = -1;
       std::forward_list<Region>::iterator best = mNodes.end();
@@ -108,8 +110,6 @@ namespace Graphics
 
       if (best->w <= width)
       {
-         //LOG_INFO("Resize node: (%1 %2) (%3) -> (%4 %5) (%6)", best->x, best->y, best->w, best->x, alloc.y + height, width);
-         
          // If we're larger than one node, resize it and any subsequent nodes.
          best->w = width;
          best->y = alloc.y + height;

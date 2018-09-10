@@ -385,10 +385,14 @@ public:
 
    inline void assert_valid(Entity::ID id) const
    {
+#ifdef NDEBUG
+      id;
+#else
       uint32_t index = id.index();
       uint32_t version = id.version();
       assert(index < mNumEntities && "Entity::ID outside entity vector range");
       assert(mEntityVersion[id.index()] == version && "Attempt to access Entity with a stale id");
+#endif
    }
 
    template<typename C>

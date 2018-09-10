@@ -6,6 +6,8 @@
 //
 //
 
+extern const nullptr_t ThisIsARandomSymbolJustToSilenceLinkerWarnings;
+
 // As you can see, this unused code is all gutted out. In the future it needs to be
 // rewritten from this shoddy piece of garbage (holla CPE 476 flyin' fast) to something
 // we can use well.

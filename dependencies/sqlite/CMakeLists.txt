@@ -13,7 +13,11 @@ add_library( sqlite STATIC ${libSrcs} )
 SET_TARGET_PROPERTIES( sqlite PROPERTIES OUTPUT_NAME "sqlite" )
 
 # i would like to see more projects using these defaults
+if (APPLE)
 ADD_DEFINITIONS( "-Wall -ansi -pedantic -O3" )
+else()
+add_definitions("/W0")
+endif()
 
 # install libraries into /lib
 INSTALL( TARGETS sqlite DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )

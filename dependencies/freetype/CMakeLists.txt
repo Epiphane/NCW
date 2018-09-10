@@ -1,6 +1,9 @@
 # Add GLFW
 set(VERSION "2.9.1")
 
+if (WIN32)
+add_definitions("/W0")
+endif()
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
 list(APPEND CW_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}/include")
 list(APPEND CW_LIBS freetype)

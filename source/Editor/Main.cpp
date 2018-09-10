@@ -45,6 +45,10 @@ const float MAIN_H = 1.0f;
 
 int main(int argc, char** argv)
 {
+   // Parse arguments
+   argc;
+   argv;
+
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
@@ -103,7 +107,7 @@ int main(int argc, char** argv)
 
    // Attach mouse events to state
    // TODO this is hella hacky, don't tell on me...
-#define MOUSE_EVENT(Type) [&](int button, double x, double y) {\
+#define ONMOUSE(Type) [&](int button, double x, double y) {\
       if (x < SIDEBAR_W)\
       {\
          x /= SIDEBAR_W;\
@@ -122,10 +126,10 @@ int main(int argc, char** argv)
       }\
    }
 
-   window->GetInput()->OnMouseDown(MOUSE_EVENT(MouseDown));
-   window->GetInput()->OnMouseUp(MOUSE_EVENT(MouseUp));
-   window->GetInput()->OnDrag(MOUSE_EVENT(MouseDrag));
-   window->GetInput()->OnClick(MOUSE_EVENT(MouseClick));
+   window->GetInput()->OnMouseDown(ONMOUSE(MouseDown));
+   window->GetInput()->OnMouseUp(ONMOUSE(MouseUp));
+   window->GetInput()->OnDrag(ONMOUSE(MouseDrag));
+   window->GetInput()->OnClick(ONMOUSE(MouseClick));
 
    do {
       double elapsed = clock.Elapsed();

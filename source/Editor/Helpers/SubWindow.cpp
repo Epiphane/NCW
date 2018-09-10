@@ -23,7 +23,7 @@ SubWindow::SubWindow(
    const Options& options)
    : mOptions(options)
    , mParent(parent)
-   , mFramebuffer(parent.Width() * options.w, parent.Height() * options.h)
+   , mFramebuffer(GLsizei(parent.Width() * options.w), GLsizei(parent.Height() * options.h))
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
    if (program == 0)
@@ -54,7 +54,7 @@ SubWindow::SubWindow(
       x + w, y,     0.0f, 1.0f, 0.0f,
       x + w, y + h, 0.0f, 1.0f, 1.0f,
    };
-   mVBO.BufferData(sizeof(GLfloat) * vboData.size(), &vboData[0], GL_STATIC_DRAW);
+   mVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 }
 
 SubWindow::~SubWindow()
@@ -83,8 +83,7 @@ void SubWindow::Render()
    mVBO.AttribPointer(aUV, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));
 
    glDrawArrays(GL_TRIANGLES, 0, 6);
-   GLenum err = glGetError();
-   assert(err == 0);
+   CHECK_GL_ERRORS();
 
    // Cleanup.
    glDisableVertexAttribArray(aPosition);

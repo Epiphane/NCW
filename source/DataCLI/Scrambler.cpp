@@ -32,7 +32,7 @@ void Scrambler::Scramble(char* data, size_t size)
 
 void Scrambler::Unscramble(char* data, size_t size)
 {
-   for (int currOff = size - 1; currOff >= 0; --currOff)
+   for (int currOff = int(size) - 1; currOff >= 0; --currOff)
    {
       int offset = (currOff + offsets[currOff % 44]) % size;
 

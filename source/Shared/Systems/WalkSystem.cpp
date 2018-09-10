@@ -70,7 +70,6 @@ namespace Game
 
          float directorAngle = director.director->GetYaw();
          float walkAngle = directorAngle + RADIANS(inputAngle);
-         float currentAngle = transform.GetYaw();
          transform.SetYaw(walkAngle);
 
          // Make sure the director stays facing how it was (globally)
@@ -93,11 +92,11 @@ namespace Game
 
          if (walk.currentSpeed < goalSpeed)
          {
-            walk.currentSpeed += walk.accel * dt;
+            walk.currentSpeed += walk.accel * float(dt);
          }
          if (walk.currentSpeed > goalSpeed)
          {
-            walk.currentSpeed -= walk.accel * dt;
+            walk.currentSpeed -= walk.accel * float(dt);
 
             if (walk.currentSpeed < goalSpeed)
             {

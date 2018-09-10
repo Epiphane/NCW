@@ -22,7 +22,7 @@ namespace Game
    };
 
    struct WalkSpeed : public Engine::Component<WalkSpeed> {
-      WalkSpeed(double runSpeed, double walkSpeed, double accel)
+      WalkSpeed(float runSpeed, float walkSpeed, float accel)
          : walkSpeed(walkSpeed)
          , runSpeed(runSpeed)
          , accel(accel)
@@ -33,10 +33,10 @@ namespace Game
       
       bool walking;
       bool running;
-      double walkSpeed;
-      double runSpeed;
-      double accel;
-      double currentSpeed;
+      float walkSpeed;
+      float runSpeed;
+      float accel;
+      float currentSpeed;
    };
    
    class WalkSystem : public Engine::System<WalkSystem> {

@@ -52,8 +52,8 @@ public:
    //
    void Render();
 
-   uint32_t Width() const override { return mParent.Width() * mOptions.w; }
-   uint32_t Height() const override { return mParent.Height() * mOptions.h; }
+   uint32_t Width() const override { return uint32_t(mParent.Width() * mOptions.w); }
+   uint32_t Height() const override { return uint32_t(mParent.Height() * mOptions.h); }
 
 private:
    Bounded& mParent;

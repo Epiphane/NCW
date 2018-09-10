@@ -122,8 +122,8 @@ namespace Game
             ms.insert(ms.begin(), 7 - ms.size(), ' ');
             rightText += "\n" + std::move(ms);
          }
-         std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(mBounds->Width() - 400, 0, 1, leftText);
-         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(mBounds->Width() - 105, 0, 1, rightText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(GLfloat(mBounds->Width()) - 400, 0, 1, leftText);
+         std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(GLfloat(mBounds->Width()) - 105, 0, 1, rightText);
          systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
          mSystemsCount = static_cast<GLint>(systemsText.size());

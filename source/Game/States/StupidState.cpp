@@ -2,8 +2,10 @@
 
 #include <cassert>
 #include <functional>
+#pragma warning(push, 0)
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
+#pragma warning(pop)
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
@@ -46,8 +48,6 @@ namespace Game
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       
       mSystems.Configure();
-
-      mEvents.Subscribe<NamedEvent>(*this);
    }
 
    StupidState::~StupidState()
@@ -64,7 +64,7 @@ namespace Game
 
    }; // anonymous namespace
 
-   bool StupidState::BuildFloorCollision(int32_t size, const std::vector<int32_t>& heights)
+   bool StupidState::BuildFloorCollision(int32_t size)
    {
       static std::vector<bool> used(heights.size(), false);
 
@@ -75,7 +75,7 @@ namespace Game
       };
 
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
-         Entity collider = mEntities.Create(i - size + float(width - 1) / 2, height, j - size + float(length - 1) / 2);
+         Entity collider = mEntities.Create(i - size + float(width - 1) / 2, float(height), j - size + float(length - 1) / 2);
          collider.Add<SimplePhysics::Collider>(glm::vec3(width, 1, length));
 
          for (int x = i; x < i + width; ++x)
@@ -102,7 +102,6 @@ namespace Game
             // Result: Generated 933 blocks
             int width = 0, length = 0;
             int nWidth = 1, nLength = 1;
-            bool isDone = false;
             while (nWidth > width || nLength > length)
             {
                width = nWidth++;
@@ -163,10 +162,10 @@ namespace Game
       
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
-      player.Get<Transform>()->SetLocalScale(glm::vec3(0.1));
-      player.Add<WalkSpeed>(10, 3, 15);
+      player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+      player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
-      player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 1.6, 0.8));
+      player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
       
       Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
       skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
@@ -226,22 +225,22 @@ namespace Game
       glm::vec4 ROCK(128, 128, 128, 1);
       glm::vec4 SNOW(255, 255, 255, 1);
 
-      heights.empty();
+      heights.clear();
       heights.resize(4 * (size + 1) * (size + 1));
 
       for (int i = -size; i <= size; ++i) {
          int rowIndex = (i + size) * (2 * size + 1);
          for (int j = -size; j <= size; ++j) {
-            double elevation = 0.25 + 2 * pow(heightmap.GetValue(i + size, j + size), 2);
+            float elevation = 0.25f + 2 * pow(heightmap.GetValue(i + size, j + size), 2);
             glm::vec4 source, dest;
-            double start, end;
-            if (elevation >= 0.75) { source = ROCK; dest = SNOW; start = 0.75; end = 1.0; }
-            else if (elevation >= 0.375) { source = DIRT; dest = ROCK; start = 0.375; end = 0.75; }
-            else if (elevation >= 0.125) { source = GRASS; dest = DIRT; start = 0.125; end = 0.375; }
-            else if (elevation >= 0.0625) { source = SAND; dest = GRASS; start = 0.0625; end = 0.125; }
-            else if (elevation >= 0.0) { source = SHORE; dest = SAND; start = 0; end = 0.0625; }
-            else if (elevation >= -0.25) { source = SHALLOW; dest = SHORE; start = -0.25; end = 0; }
-            else { source = DEEP; dest = SHALLOW; start = -1.0; end = -0.25; }
+            float start, end;
+            if (elevation >= 0.75f) { source = ROCK; dest = SNOW; start = 0.75f; end = 1.0f; }
+            else if (elevation >= 0.375f) { source = DIRT; dest = ROCK; start = 0.375f; end = 0.75f; }
+            else if (elevation >= 0.125f) { source = GRASS; dest = DIRT; start = 0.125f; end = 0.375f; }
+            else if (elevation >= 0.0625f) { source = SAND; dest = GRASS; start = 0.0625f; end = 0.125f; }
+            else if (elevation >= 0.0f) { source = SHORE; dest = SAND; start = 0; end = 0.0625f; }
+            else if (elevation >= -0.25f) { source = SHALLOW; dest = SHORE; start = -0.25f; end = 0; }
+            else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
             float perc = (elevation - start) / (end - start);
 
             glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
@@ -257,13 +256,7 @@ namespace Game
       Entity voxels = mEntities.Create(0, 0, 0);
       voxels.Add<VoxelRender>(std::move(carpet));
 
-      BuildFloorCollision(size, heights);
-   }
-
-   void StupidState::Receive(const NamedEvent& event)
-   {
-      const int size = 50;
-      //BuildFloorCollision(size, heights);
+      BuildFloorCollision(size);
    }
 
 }; // namespace Game

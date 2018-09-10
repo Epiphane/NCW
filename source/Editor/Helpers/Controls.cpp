@@ -63,10 +63,7 @@ void Controls::Update()
 
    glDrawArrays(GL_LINES, 0, mControlsTextCount);
 
-   {
-      GLenum err = glGetError();
-      assert(err == 0);
-   }
+   CHECK_GL_ERRORS();
 
    // Cleanup.
    glDisableVertexAttribArray(aPosition);
@@ -92,7 +89,7 @@ void Controls::Rebuild()
       {
          label = "> " + label;
       }
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> item = mFont->Write(10, i * 35 + 10, 1, label);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> item = mFont->Write(10.0f, i * 35.0f + 10, 1, label);
       uvs.insert(uvs.end(), item.begin(), item.end());
    }
       
@@ -100,18 +97,18 @@ void Controls::Rebuild()
    mControlsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mControlsTextCount, &uvs[0], GL_STATIC_DRAW);
 }
 
-void Controls::MouseDown(int button, double x, double y)
+void Controls::MouseDown(int, double, double)
 {
 }
 
-void Controls::MouseUp(int button, double x, double y)
+void Controls::MouseUp(int, double, double)
 {
 }
 
-void Controls::MouseClick(int button, double x, double y)
+void Controls::MouseClick(int, double, double y)
 {
-   double pixelY = y * mBounds->Height();
-   uint32_t item = (pixelY - 10) / 35;
+   int32_t pixelY = int32_t(y * mBounds->Height());
+   int32_t item = (pixelY - 10) / 35;
 
    if (item < mLayout.elements.size())
    {
@@ -126,14 +123,14 @@ void Controls::MouseClick(int button, double x, double y)
    }
 }
 
-void Controls::MouseDrag(int button, double x, double y)
+void Controls::MouseDrag(int, double, double)
 {
 }
 
-void Controls::MouseMove(double x, double y)
+void Controls::MouseMove(double, double y)
 {
-   double pixelY = y * mBounds->Height();
-   uint32_t item = (pixelY - 10) / 35;
+   int32_t pixelY = int32_t(y * mBounds->Height());
+   int32_t item = (pixelY - 10) / 35;
    if (item >= mLayout.elements.size())
    {
       item = -1;

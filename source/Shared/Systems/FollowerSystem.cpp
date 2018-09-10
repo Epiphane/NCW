@@ -19,7 +19,7 @@ namespace Game
          // TODO lol
          assert(!transform.GetParent());
 
-         float move = follower.elasticity * dt;
+         float move = float(follower.elasticity * dt);
          transform.SetLocalPosition(move * target + (1 - move) * current);
       });
    }

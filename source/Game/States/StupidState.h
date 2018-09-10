@@ -24,9 +24,7 @@ public:
 
    void Start() override;
 
-   void Receive(const NamedEvent& namedEvent);
-   
-   bool BuildFloorCollision(int32_t size, const std::vector<int32_t>& heights);
+   bool BuildFloorCollision(int32_t size);
 
 private:
    Engine::Graphics::CameraHandle mCamera;

@@ -18,7 +18,7 @@ namespace CubeWorld
 
 std::string OpenFileDialog(
    const std::string& defaultFile,
-   const std::vector<std::string>& fileTypes
+   const std::vector<std::string>& /*fileTypes*/
 )
 {
    // Inspiration: https://docs.microsoft.com/en-us/windows/desktop/dlgbox/using-common-dialog-boxes
@@ -29,7 +29,7 @@ std::string OpenFileDialog(
    std::string canonical = Paths::Canonicalize(defaultFile);
    std::replace(canonical.begin(), canonical.end(), '/', '\\');
 
-   strncpy(szFile, canonical.c_str(), sizeof(szFile));
+   strncpy_s(szFile, canonical.c_str(), sizeof(szFile));
 
    // Initialize ofn options
    ZeroMemory(&ofn, sizeof(ofn));
@@ -65,7 +65,7 @@ std::string SaveFileDialog(
    std::string canonical = Paths::Canonicalize(defaultFile);
    std::replace(canonical.begin(), canonical.end(), '/', '\\');
 
-   strncpy(szFile, canonical.c_str(), sizeof(szFile));
+   strncpy_s(szFile, canonical.c_str(), sizeof(szFile));
 
    // Initialize ofn options
    ZeroMemory(&ofn, sizeof(ofn));

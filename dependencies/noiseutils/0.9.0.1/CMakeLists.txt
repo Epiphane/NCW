@@ -14,7 +14,9 @@ SET_TARGET_PROPERTIES( noiseutils-static PROPERTIES OUTPUT_NAME "noiseutils" )
 include_directories("../../libnoise/1.0.0/src")
 
 # i would like to see more projects using these defaults
+if (!WIN32)
 ADD_DEFINITIONS( "-Wall -ansi -pedantic -O3" )
+endif()
 
 # install libraries into /lib
 INSTALL( TARGETS noiseutils-static DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )

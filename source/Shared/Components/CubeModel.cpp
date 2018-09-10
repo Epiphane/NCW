@@ -60,14 +60,14 @@ bool IsFilled(const std::vector<bool>& filled, int index)
    return filled[index];
 }
 
-int Index(const CubeModelInfo::FileHeader& metadata, int x, int y, int z)
+int Index(const CubeModelInfo::FileHeader& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    if (x < 0 || y < 0 || z < 0) { return -1; }
    if (x >= metadata.width || y >= metadata.height || z >= metadata.length) { return -1; }
    return x + z * metadata.width + y * metadata.width * metadata.length;
 }
 
-uint8_t GetExposedFaces(const std::vector<bool>& filled, const CubeModelInfo::FileHeader& metadata, int x, int y, int z)
+uint8_t GetExposedFaces(const std::vector<bool>& filled, const CubeModelInfo::FileHeader& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    uint8_t faces = Voxel::All;
    int right = Index(metadata, x - 1, y, z);
