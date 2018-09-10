@@ -43,9 +43,8 @@ const float MAIN_Y = 0.0f;
 const float MAIN_W = 1.0f - SIDEBAR_W;
 const float MAIN_H = 1.0f;
 
-int main(int argc, char** argv) {
-
-
+int main(int argc, char** argv)
+{
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
@@ -65,11 +64,8 @@ int main(int argc, char** argv) {
    }
    
    // Setup input
-   Input::InputManager::Initialize(window);
-   Input::InputManager* input = Input::InputManager::Instance();
-   input->Clear();
-   input->SetCallback(GLFW_KEY_ESCAPE, [&]{
-      glfwSetWindowShouldClose(window->get(), GL_TRUE);
+   auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
+      window->SetShouldClose(true);
    });
 
    // Create subwindow for the controls
@@ -126,10 +122,10 @@ int main(int argc, char** argv) {
       }\
    }
 
-   input->OnMouseDown(MOUSE_EVENT(MouseDown));
-   input->OnMouseUp(MOUSE_EVENT(MouseUp));
-   input->OnDrag(MOUSE_EVENT(MouseDrag));
-   input->OnClick(MOUSE_EVENT(MouseClick));
+   window->GetInput()->OnMouseDown(MOUSE_EVENT(MouseDown));
+   window->GetInput()->OnMouseUp(MOUSE_EVENT(MouseUp));
+   window->GetInput()->OnDrag(MOUSE_EVENT(MouseDrag));
+   window->GetInput()->OnClick(MOUSE_EVENT(MouseClick));
 
    do {
       double elapsed = clock.Elapsed();
@@ -139,7 +135,7 @@ int main(int argc, char** argv) {
 
          // Basic prep
          window->Clear();
-         input->Update();
+         window->GetInput()->Update();
 
          gameWindow.Bind();
 
@@ -172,11 +168,10 @@ int main(int argc, char** argv) {
 
          // Render controls
          {
-            double position[2];
-            input->GetMousePos(position);
-            if (position[0] < SIDEBAR_W * window->Width())
+            glm::tvec2<double> position = window->GetInput()->GetMousePosition();
+            if (position.x < SIDEBAR_W * window->Width())
             {
-               controls->MouseMove(position[0] / (SIDEBAR_W * window->Width()), position[1] / (SIDEBAR_H * window->Height()));
+               controls->MouseMove(position.x / (SIDEBAR_W * window->Width()), position.y / (SIDEBAR_H * window->Height()));
             }
             else
             {

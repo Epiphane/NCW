@@ -41,13 +41,13 @@ namespace Game
    
    class WalkSystem : public Engine::System<WalkSystem> {
    public:
-      WalkSystem(Engine::Input::InputManager* input) : mInput(input) {}
+      WalkSystem(Engine::Input* input) : mInput(input) {}
       ~WalkSystem() {}
       
       void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
       
    private:
-      Engine::Input::InputManager* mInput;
+      Engine::Input* mInput;
    };
 }; // namespace Game
 

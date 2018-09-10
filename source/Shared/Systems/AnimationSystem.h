@@ -139,13 +139,13 @@ namespace Game
    
    class AnimationSystem : public Engine::System<AnimationSystem> {
    public:
-      AnimationSystem(Engine::Input::InputManager* input) : mInput(input) {}
+      AnimationSystem(Engine::Input* input) : mInput(input) {}
       ~AnimationSystem() {}
       
       void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
       
    private:
-      Engine::Input::InputManager* mInput;
+      Engine::Input* mInput;
    };
 
 }; // namespace Game

@@ -179,14 +179,14 @@ void MainState::Start()
 
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
-   mSystems.Add<Game::CameraSystem>(Engine::Input::InputManager::Instance());
-   mSystems.Add<Game::AnimationSystem>(Engine::Input::InputManager::Instance());
+   mSystems.Add<Game::CameraSystem>(mWindow->GetInput());
+   mSystems.Add<Game::AnimationSystem>(mWindow->GetInput());
    mSystems.Add<Game::MakeshiftSystem>();
    mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
 
    // Unlock the mouse
-   Engine::Input::InputManager::Instance()->SetMouseLock(false);
+   mWindow->GetInput()->SetMouseLock(false);
       
    // Create a player component
    mPlayer = mEntities.Create();

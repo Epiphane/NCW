@@ -344,12 +344,12 @@ std::string AnimatedSkeleton::Serialize()
    return data.dump(3);
 }
 
-void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& model)
+void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& model)
 {
-   assert(bones.size() == 1 && "Multiple bones not supported");
+   assert(weights.size() == 1 && "Multiple bones not supported");
    ModelAttachment attachment;
-   assert(bonesByName.find(bones[0].first) != bonesByName.end());
-   attachment.bone = bonesByName.find(bones[0].first)->second;
+   assert(bonesByName.find(weights[0].first) != bonesByName.end());
+   attachment.bone = bonesByName.find(weights[0].first)->second;
    attachment.weight = 1;
    attachment.model = CubeModelInfo::Load(model, false);
    assert(attachment.model != nullptr);
@@ -358,12 +358,12 @@ void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& mod
    models.push_back(std::move(attachment));
 }
 
-void AnimatedSkeleton::AddModel(const BoneWeights& bones, const std::string& model, glm::vec3 tint)
+void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& model, glm::vec3 tint)
 {
-   assert(bones.size() == 1 && "Multiple bones not supported");
+   assert(weights.size() == 1 && "Multiple bones not supported");
    ModelAttachment attachment;
-   assert(bonesByName.find(bones[0].first) != bonesByName.end());
-   attachment.bone = bonesByName.find(bones[0].first)->second;
+   assert(bonesByName.find(weights[0].first) != bonesByName.end());
+   attachment.bone = bonesByName.find(weights[0].first)->second;
    attachment.weight = 1;
    attachment.model = CubeModelInfo::Load(model, true);
    assert(attachment.model != nullptr);

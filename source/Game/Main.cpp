@@ -56,10 +56,6 @@ int main(int /* argc */, char ** /* argv */) {
       LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
       return 1;
    }
-   
-   Input::InputManager::Initialize(window);
-   Input::InputManager* input = Input::InputManager::Instance();
-   input->Clear();
 
    std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window);
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
@@ -74,12 +70,17 @@ int main(int /* argc */, char ** /* argv */) {
       return Format::FormatString("%1", std::round(1.0 / clock.Average()));
    });
 
+   // Setup input
+   auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+      window->SetShouldClose(true);
+   });
+
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
       {
          window->Clear();
-         input->Update();
+         window->GetInput()->Update();
 
          stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
 
@@ -97,7 +98,7 @@ int main(int /* argc */, char ** /* argv */) {
          glfwPollEvents();
       }
    } // Check if the ESC key was pressed or the window was closed
-   while (!window->ShouldClose() && !input->IsKeyDown(GLFW_KEY_ESCAPE));
+   while (!window->ShouldClose());
 
    stateManager->Shutdown();
 

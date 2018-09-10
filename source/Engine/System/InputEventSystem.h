@@ -16,14 +16,14 @@ namespace Engine
 
 class InputEventSystem : public Engine::System<InputEventSystem> {
 public:
-   InputEventSystem(Engine::Input::InputManager* input)
+   InputEventSystem(Input* input)
       : mEvents{}
       , mInput(input)
    {}
    ~InputEventSystem() {}
    
    void Configure(EntityManager& entities, EventManager& events) override;
-   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
+   void Update(EntityManager& entities, EventManager& events, TIMEDELTA dt) override;
    
 private:
    void MouseDown(int button, double x, double y);
@@ -31,7 +31,7 @@ private:
    void MouseClick(int button, double x, double y);
    void MouseDrag(int button, double x, double y);
 
-   Input::InputManager* mInput;
+   Input* mInput;
 
 private:
    struct EventToLog {

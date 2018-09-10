@@ -47,13 +47,13 @@ struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
 
 class CameraSystem : public Engine::System<CameraSystem> {
 public:
-   CameraSystem(Engine::Input::InputManager* input) : mInput(input) {}
+   CameraSystem(Engine::Input* input) : mInput(input) {}
    ~CameraSystem() {}
    
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
    
 private:
-   Engine::Input::InputManager* mInput;
+   Engine::Input* mInput;
 };
 
 }; // namespace Game

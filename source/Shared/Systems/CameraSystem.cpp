@@ -14,15 +14,13 @@ namespace Game
    {
       if (mInput->IsMouseLocked())
       {
-         double movement[2];
-         double scroll[2];
-         mInput->GetMouseMovement(movement);
-         mInput->GetMouseScroll(scroll);
+         glm::tvec2<double> movement = mInput->GetMouseMovement();
+         glm::tvec2<double> scroll = mInput->GetMouseScroll();
          
          entities.Each<Engine::Transform, MouseControlledCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseControlledCamera& opts) {
-            transform.SetYaw(transform.GetYaw() + opts.sensitivity[0] * movement[0]);
+            transform.SetYaw(transform.GetYaw() + opts.sensitivity[0] * movement.x);
 
-            float newPitch = transform.GetPitch() - opts.sensitivity[1] * movement[1];
+            float newPitch = transform.GetPitch() - opts.sensitivity[1] * movement.y;
             if (newPitch < -M_PI / 2.0f + 0.01f)
             {
                newPitch = -M_PI / 2.0f + 0.01f;
@@ -35,7 +33,7 @@ namespace Game
          });
 
          entities.Each<ArmCamera, MouseControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, MouseControlledCameraArm& opts) {
-            camera.distance -= opts.sensitivity * scroll[1];
+            camera.distance -= opts.sensitivity * scroll.y;
 
             if (camera.distance < camera.minDistance)
             {

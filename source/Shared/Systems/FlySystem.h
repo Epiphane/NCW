@@ -19,13 +19,13 @@ namespace Game
    
    class FlySystem : public Engine::System<FlySystem> {
    public:
-      FlySystem(Engine::Input::InputManager* input) : mInput(input) {}
+      FlySystem(Engine::Input* input) : mInput(input) {}
       ~FlySystem() {}
       
       void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
       
    private:
-      Engine::Input::InputManager* mInput;
+      Engine::Input* mInput;
    };
 }; // namespace Game
 

@@ -5,6 +5,7 @@
 #include <GL/includes.h>
 
 #include "Bounded.h"
+#include "Input.h"
 #include "Maybe.h"
 #include "Singleton.h"
 #include "../Graphics/VAO.h"
@@ -66,35 +67,43 @@ public:
    };
 
 protected:
+   // Instantiate this by calling Window::Instance()->Initialize(...);
    Window();
    ~Window();
    friend class Singleton<Window>;
 
 public:
-   Maybe<void> Initialize(const Options& options);
+   // Returns a pointer to the instance that already exists, for chaining.
+   Maybe<Window*> Initialize(const Options& options);
 
-   bool IsReady() { return window != nullptr; }
-
-public:
-   inline void SetTitle(const std::string& title) { glfwSetWindowTitle(window, title.c_str()); }
+   bool IsReady() { return mGLFW != nullptr; }
 
 public:
-   inline void Clear() { Use(); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-   inline void SwapBuffers() { glfwSwapBuffers(window); }
-   inline void SetShouldClose(bool close) { glfwSetWindowShouldClose(window, close); }
-   inline bool ShouldClose() { return glfwWindowShouldClose(window) != 0; }
-   inline void Focus() { glfwFocusWindow(window); }
-   void LockCursor();
-   void UnlockCursor();
+   // Reconfigure the window at runtime
+   inline void SetTitle(const std::string& title) { glfwSetWindowTitle(mGLFW, title.c_str()); }
 
+public:
+   // Implement Bounded
    uint32_t Width() const override { return mOptions.width; }
    uint32_t Height() const override { return mOptions.height; }
-   GLFWwindow* get() { return window; }
 
-   void Use();
+public:
+   // Typical GLFW methods
+   void Clear();
+   void SwapBuffers();
+   void SetShouldClose(bool close);
+   bool ShouldClose();
+   void Focus();
+
+public:
+   Input* GetInput() { return &mInput; }
 
 private:
-   GLFWwindow* window;
+   // They might as well be one class, but it would be a very large unwieldy class.
+   friend class Input;
+   Input mInput;
+
+   GLFWwindow* mGLFW;
    Graphics::VAO mVAO;
 
    Options mOptions;
