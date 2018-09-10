@@ -20,7 +20,7 @@
 
 #include "Helpers/Controls.h"
 #include "Helpers/SubWindow.h"
-#include "States/AnimationStation.h"
+#include "AnimationStation/State.h"
 
 #include "Main.h"
 
@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
 
    // Start with AnimationStation
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation>(window, gameWindow, controls.get()));
+   stateManager->SetState(std::make_unique<Editor::AnimationStation::MainState>(window, gameWindow, controls.get()));
 
    // Attach mouse events to state
    // TODO this is hella hacky, don't tell on me...

@@ -23,10 +23,13 @@ namespace CubeWorld
 namespace Editor
 {
 
-class AnimationStation : public Engine::State, public Engine::Receiver<AnimationStation> {
+namespace AnimationStation
+{
+
+class MainState : public Engine::State, public Engine::Receiver<MainState> {
 public:
-   AnimationStation(Engine::Window* window, Bounded& parent, Controls* controls);
-   ~AnimationStation();
+   MainState(Engine::Window* window, Bounded& parent, Controls* controls);
+   ~MainState();
 
    void Start() override;
    void Update(TIMEDELTA dt) override;
@@ -72,6 +75,8 @@ private:
    Engine::Entity mPlayer;
    std::string mFilename;
 };
+
+}; // namespace AnimationStation
 
 }; // namespace Editor
 

@@ -13,12 +13,11 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${LIBS} Engine)
 
 # Nice-looking separation for VS2017
-source_group(Components REGULAR_EXPRESSION ".*/Components/*")
-source_group(Event REGULAR_EXPRESSION ".*/Event/*")
-source_group(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
-source_group(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
-source_group(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
-source_group(States REGULAR_EXPRESSION ".*/States/*")
-source_group(Systems REGULAR_EXPRESSION ".*/Systems/*")
+foreach(source IN LISTS SOURCES)
+   file(RELATIVE_PATH source_relative "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
+   get_filename_component(source_path "${source_relative}" PATH)
+   string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+   source_group("${source_path_msvc}" FILES "${source}")
+endforeach()
 
 set(SHARED_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Shaders" PARENT_SCOPE)

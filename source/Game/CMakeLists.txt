@@ -18,14 +18,12 @@ if (WIN32)
 endif()
 
 # Nice-looking separation for VS2017
-source_group(Components REGULAR_EXPRESSION ".*/Components/*")
-source_group(Event REGULAR_EXPRESSION ".*/Event/*")
-source_group(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
-source_group(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
-source_group(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
-source_group(States REGULAR_EXPRESSION ".*/States/*")
-source_group(Systems REGULAR_EXPRESSION ".*/Systems/*")
-source_group(Model REGULAR_EXPRESSION ".*/Model/*")
+foreach(source IN LISTS SOURCES)
+   file(RELATIVE_PATH source_relative "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
+   get_filename_component(source_path "${source_relative}" PATH)
+   string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+   source_group("${source_path_msvc}" FILES "${source}")
+endforeach()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy_directory
