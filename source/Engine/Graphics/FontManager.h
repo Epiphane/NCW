@@ -65,13 +65,15 @@ public:
    FontManager();
    virtual ~FontManager() throw();
 
-   Maybe<std::unique_ptr<Font>> GetFont(const std::string& path);
+   Maybe<Font*> GetFont(const std::string& path);
 
    bool IsValid() { return mValid; }
 
 private:
    FT_Library mLibrary;
    bool mValid;
+
+   std::unordered_map<std::string, std::unique_ptr<Font>> mFonts;
 };
 
 }; // namespace Engine

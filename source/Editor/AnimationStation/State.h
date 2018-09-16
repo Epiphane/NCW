@@ -15,7 +15,6 @@
 #include <Shared/Event/NamedEvent.h>
 
 #include "../Helpers/Controls.h"
-#include "../Helpers/SubWindow.h"
 
 namespace CubeWorld
 {
@@ -32,7 +31,6 @@ public:
    ~MainState();
 
    void Start() override;
-   void Update(TIMEDELTA dt) override;
 
    void Receive(const NamedEvent& namedEvent);
    void Receive(const MouseDragEvent& evt);
@@ -68,9 +66,6 @@ private:
    Controls::Layout::Element& mSaveAs;
    Controls::Layout::Element& mDiscard;
    Controls::Layout::Element& mQuit;
-
-   SubWindow mPreview;
-   SubWindow mDock;
 
    Engine::Entity mPlayer;
    std::string mFilename;

@@ -33,15 +33,7 @@ namespace Game
       : mVoxelData(other.mVoxelData)
    {}
 
-   REGISTER_GLUINT(VoxelRenderSystem, program)
-   REGISTER_GLUINT(VoxelRenderSystem, aPosition)
-   REGISTER_GLUINT(VoxelRenderSystem, aColor)
-   REGISTER_GLUINT(VoxelRenderSystem, aEnabledFaces)
-   REGISTER_GLUINT(VoxelRenderSystem, uTint)
-   REGISTER_GLUINT(VoxelRenderSystem, uProjMatrix)
-   REGISTER_GLUINT(VoxelRenderSystem, uViewMatrix)
-   REGISTER_GLUINT(VoxelRenderSystem, uModelMatrix)
-   REGISTER_GLUINT(VoxelRenderSystem, uVoxelSize)
+   std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;
 
    VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
    {
@@ -56,49 +48,46 @@ namespace Game
 
    void VoxelRenderSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
    {
-      if (program != 0)
+      if (!program)
       {
-         return;
+         auto maybeProgram = Engine::Graphics::Program::Load("Shaders/Voxel.vert", "Shaders/Voxel.geom", "Shaders/Voxel.frag");
+         if (!maybeProgram)
+         {
+            LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Voxel shader").GetMessage());
+            return;
+         }
+
+         program = std::move(*maybeProgram);
+         program->Attrib("aPosition");
+         program->Attrib("aColor");
+         program->Attrib("aEnabledFaces");
+         program->Uniform("uProjMatrix");
+         program->Uniform("uViewMatrix");
+         program->Uniform("uModelMatrix");
+         program->Uniform("uTint");
       }
-
-      program = Engine::Graphics::LoadProgram("Shaders/Voxel.vert", "Shaders/Voxel.geom", "Shaders/Voxel.frag");
-
-      if (program == 0)
-      {
-         LOG_ERROR("Could not load Voxel shader");
-         return;
-      }
-
-      DISCOVER_ATTRIBUTE(aPosition);
-      DISCOVER_ATTRIBUTE(aColor);
-      DISCOVER_ATTRIBUTE(aEnabledFaces);
-      DISCOVER_UNIFORM(uTint);
-      DISCOVER_UNIFORM(uProjMatrix);
-      DISCOVER_UNIFORM(uViewMatrix);
-      DISCOVER_UNIFORM(uModelMatrix);
-      DISCOVER_UNIFORM(uVoxelSize);
    }
 
    using Transform = Engine::Transform;
 
    void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
    {
-      glUseProgram(program);
+      BIND_PROGRAM_IN_SCOPE(program);
 
       glm::mat4 perspective = mCamera->GetPerspective();
       glm::mat4 view = mCamera->GetView();
-      glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
-      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
+      program->UniformMatrix4f("uProjMatrix", perspective);
+      program->UniformMatrix4f("uViewMatrix", view);
 
       mClock.Reset();
       entities.Each<Transform, VoxelRender>([&](Engine::Entity /*entity*/, Transform& transform, VoxelRender& render) {
-         render.mVoxelData.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
-         render.mVoxelData.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
-         render.mVoxelData.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+         render.mVoxelData.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+         render.mVoxelData.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+         render.mVoxelData.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
          glm::mat4 model = transform.GetMatrix();
-         glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
-         glUniform3f(uTint, 255.0f, 255.0f, 255.0f);
+         program->UniformMatrix4f("uModelMatrix", model);
+         program->UniformVector3f("uTint", glm::vec3(255.0f));
          
          glDrawArrays(GL_POINTS, 0, render.mSize);
 
@@ -106,13 +95,13 @@ namespace Game
       });
 
       entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
-         cubModel.mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
-         cubModel.mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
-         cubModel.mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+         cubModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+         cubModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+         cubModel.mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
          glm::mat4 model = transform.GetMatrix();
-         glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
-         glUniform3fv(uTint, 1, glm::value_ptr(cubModel.mTint));
+         program->UniformMatrix4f("uModelMatrix", model);
+         program->UniformVector3f("uTint", cubModel.mTint);
 
          glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
 
@@ -127,12 +116,12 @@ namespace Game
             AnimatedSkeleton::Bone bone = skeleton.bones[model.bone];
             glm::mat4 boneMatrix = matrix * bone.matrix;
 
-            model.model->mVBO.AttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
-            model.model->mVBO.AttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
-            model.model->mVBO.AttribIPointer(aEnabledFaces, 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+            model.model->mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+            model.model->mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+            model.model->mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
 
-            glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(boneMatrix));
-            glUniform3fv(uTint, 1, glm::value_ptr(model.tint));
+            program->UniformMatrix4f("uModelMatrix", boneMatrix);
+            program->UniformVector3f("uTint", model.tint);
 
             glDrawArrays(GL_POINTS, 0, GLsizei(model.model->mVoxelData.size()));
 
@@ -142,10 +131,7 @@ namespace Game
       mClock.Elapsed();
 
       // Cleanup.
-      glDisableVertexAttribArray(aPosition);
-      glDisableVertexAttribArray(aColor);
-      glDisableVertexAttribArray(aEnabledFaces);
-      glUseProgram(0);
+      
    }
 
 }; // namespace Game

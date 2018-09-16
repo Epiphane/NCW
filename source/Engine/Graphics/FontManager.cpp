@@ -84,14 +84,14 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat s
       if (c == '\n')
       {
          cursor = x;
-         y += 28 * scale;
+         y -= 28 * scale;
          continue;
       }
 
       Character ch = characters[c];
 
       GLfloat xpos = cursor + ch.bearing.x * scale;
-      GLfloat ypos = y + (ch.size.y - ch.bearing.y + 32) * scale;
+      GLfloat ypos = y + (ch.bearing.y - ch.size.y) * scale;
       GLfloat w = ch.size.x * scale;
       GLfloat h = ch.size.y * scale;
 
@@ -105,7 +105,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat s
          glm::vec2(xuv, yuv + huv)
       });
       result.push_back({
-         glm::vec2(xpos + w, ypos - h),
+         glm::vec2(xpos + w, ypos + h),
          glm::vec2(xuv + wuv, yuv)
       });
 
@@ -125,6 +125,8 @@ Font::~Font()
 
 FontManager::FontManager() : mValid(false)
 {
+   mFonts.clear();
+
    if (FT_Init_FreeType(&mLibrary))
    {
       LOG_ERROR("Could not init FreeType Library");
@@ -135,19 +137,27 @@ FontManager::FontManager() : mValid(false)
 
 FontManager::~FontManager() throw()
 {
+   mFonts.clear();
    FT_Done_FreeType(mLibrary);
 }
 
-Maybe<std::unique_ptr<Font>> FontManager::GetFont(const std::string& path)
+Maybe<Font*> FontManager::GetFont(const std::string& path)
 {
    assert(mValid);
+
+   auto existing = mFonts.find(path);
+   if (existing != mFonts.end())
+   {
+      return existing->second.get();
+   }
 
    // Attempt to load the font.
    std::unique_ptr<Font> newFont = std::make_unique<Font>();
    Maybe<void> result = newFont->Load(mLibrary, path);
    if (result)
    {
-      return std::move(newFont);
+      auto insertion = mFonts.emplace(path, std::move(newFont));
+      return insertion.first->second.get();
    }
 
    return result.Failure();

@@ -53,11 +53,13 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int /*mods*
    Input *input = (Input *)glfwGetWindowUserPointer(window);
    // TODO validate this is a real Input
 
-   double w_width = static_cast<double>(input->mWindow->Width());
-   double w_height = static_cast<double>(input->mWindow->Height());
+   double w_width = static_cast<double>(input->mWindow->GetWidth());
+   double w_height = static_cast<double>(input->mWindow->GetHeight());
 
    double xpos, ypos;
    glfwGetCursorPos(window, &xpos, &ypos);
+   // Fix y-axis
+   ypos = w_height - ypos;
    input->mMousePressed[button] = (action == GLFW_PRESS);
 
    // If the mouse is pressed, then try for a MouseDown callback.
@@ -163,6 +165,8 @@ void Input::Update()
 {
    // Don't lock up mouse
    glfwGetCursorPos(mWindow->mGLFW, &mMousePosition.x, &mMousePosition.y);
+   // Fix y-axis
+   mMousePosition.y = mWindow->GetHeight() - mMousePosition.y;
 
    mLastMouseScroll = mMouseScroll;
    mMouseScroll = {0, 0};
@@ -181,13 +185,13 @@ void Input::Update()
 
          if (mMouseDragCallback && mMouseDragging[button])
          {
-            mMouseDragCallback(button, mMousePosition.x / mWindow->Width(), mMousePosition.y / mWindow->Height());
+            mMouseDragCallback(button, mMousePosition.x / mWindow->GetWidth(), mMousePosition.y / mWindow->GetHeight());
          }
       }
    }
    else
    {
-      glm::tvec2<double> middle = glm::tvec2<double>(mWindow->Width(), mWindow->Height()) / 2.0;
+      glm::tvec2<double> middle = glm::tvec2<double>(mWindow->GetWidth(), mWindow->GetHeight()) / 2.0;
 
       mMouseMovement = middle - mMousePosition;
       // Edge case: window initialization makes things funky
@@ -205,6 +209,11 @@ void Input::Update()
 bool Input::IsKeyDown(int key) const
 {
    return glfwGetKey(mWindow->mGLFW, key) == GLFW_PRESS;
+}
+
+glm::tvec2<double> Input::GetMousePosition() const
+{
+   return mMousePosition / glm::tvec2<double>(mWindow->GetWidth(), mWindow->GetHeight());
 }
 
 void Input::RemoveCallback(std::unique_ptr<KeyCallbackLink> link)

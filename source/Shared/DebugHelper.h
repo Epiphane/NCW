@@ -14,6 +14,7 @@
 #include <Engine/Core/Singleton.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/FontManager.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 
 // Included so that we get the CUBEWORLD_BENCHMARK_SYSTEMS define
@@ -82,7 +83,7 @@ public:
 private:
    Bounded* mBounds;
 
-   std::unique_ptr<Engine::Graphics::Font> mFont;
+   Engine::Graphics::Font* mFont;
 
 private:
    std::unique_ptr<MetricLink> mMetrics;
@@ -103,9 +104,7 @@ private:
 #endif
 
 private:
-   static GLuint program;
-   static GLuint aPosition, aUV;
-   static GLuint uTexture, uWindowSize;
+   static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
 }; // namespace Game

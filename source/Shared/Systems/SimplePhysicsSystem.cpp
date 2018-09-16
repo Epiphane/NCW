@@ -3,6 +3,7 @@
 #include <deque>
 #include <glad/glad.h>
 
+#include <Engine/Core/Scope.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
@@ -275,15 +276,7 @@ void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)
 ///
 ///
 ///
-REGISTER_GLUINT(Debug, program)
-REGISTER_GLUINT(Debug, aPosition)
-REGISTER_GLUINT(Debug, aColor)
-REGISTER_GLUINT(Debug, uProjMatrix)
-REGISTER_GLUINT(Debug, uViewMatrix)
-REGISTER_GLUINT(Debug, uModelMatrix)
-REGISTER_GLUINT(Debug, uPosition)
-REGISTER_GLUINT(Debug, uRotation)
-REGISTER_GLUINT(Debug, uSize)
+std::unique_ptr<Engine::Graphics::Program> Debug::program = nullptr;
 
 ///
 ///
@@ -291,27 +284,22 @@ REGISTER_GLUINT(Debug, uSize)
 
 void Debug::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
-   if (program != 0)
+   if (!program)
    {
-      return;
+      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/PhysicsDebug.vert", "Shaders/PhysicsDebug.geom", "Shaders/PhysicsDebug.frag");
+      if (!maybeProgram)
+      {
+         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Physics Debug shader").GetMessage());
+         return;
+      }
+
+      program = std::move(*maybeProgram);
+      program->Uniform("uProjMatrix");
+      program->Uniform("uViewMatrix");
+      program->Uniform("uModelMatrix");
+      program->Uniform("uPosition");
+      program->Uniform("uSize");
    }
-
-   program = Engine::Graphics::LoadProgram("Shaders/PhysicsDebug.vert", "Shaders/PhysicsDebug.geom", "Shaders/PhysicsDebug.frag");
-
-   if (program == 0)
-   {
-      LOG_ERROR("Could not load PhysicsDebug shader");
-      return;
-   }
-
-   //DISCOVER_ATTRIBUTE(aPosition);
-   //DISCOVER_ATTRIBUTE(aColor);
-   DISCOVER_UNIFORM(uProjMatrix);
-   DISCOVER_UNIFORM(uViewMatrix);
-   DISCOVER_UNIFORM(uModelMatrix);
-   DISCOVER_UNIFORM(uPosition);
-   //DISCOVER_UNIFORM(uRotation);
-   DISCOVER_UNIFORM(uSize);
 }
 
 ///
@@ -324,29 +312,22 @@ void Debug::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMED
       return;
    }
 
-   glUseProgram(program);
+   BIND_PROGRAM_IN_SCOPE(program);
 
    glm::mat4 perspective = mCamera->GetPerspective();
    glm::mat4 view = mCamera->GetView();
-   glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(perspective));
-   glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
+   program->UniformMatrix4f("uProjMatrix", perspective);
+   program->UniformMatrix4f("uViewMatrix", view);
 
    entities.Each<Engine::Transform, Collider>([&](Engine::Entity, Engine::Transform& transform, Collider& collider) {
-      //glm::mat4 model = transform.GetMatrix();
-      //glUniformMatrix4fv(uModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
       glm::vec3 pos = transform.GetAbsolutePosition();
-      glUniform3fv(uPosition, 1, glm::value_ptr(pos));
-      glUniform3fv(uSize, 1, glm::value_ptr(collider.size));
+      program->UniformVector3f("uPosition", pos);
+      program->UniformVector3f("uSize", collider.size);
 
       glDrawArrays(GL_POINTS, 0, 1);
 
       CHECK_GL_ERRORS();
    });
-
-   // Cleanup.
-   //glDisableVertexAttribArray(aPosition);
-   //glDisableVertexAttribArray(aColor);
-   glUseProgram(0);
 }
 
 }; // namespace SimplePhysics

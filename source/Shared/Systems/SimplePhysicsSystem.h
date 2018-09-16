@@ -4,6 +4,7 @@
 
 #include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Camera.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/System/System.h>
@@ -97,10 +98,7 @@ namespace SimplePhysics
    private:
       Engine::Graphics::Camera* mCamera;
 
-      static GLuint program;
-      static GLuint aPosition, aColor;
-      static GLuint uProjMatrix, uViewMatrix, uModelMatrix;
-      static GLuint uPosition, uRotation, uSize;
+      static std::unique_ptr<Engine::Graphics::Program> program;
    };
 }; // namespace SimplePhysics
 

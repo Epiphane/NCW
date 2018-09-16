@@ -9,6 +9,8 @@
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/VBO.h>
 
+#include "../UI/SubWindow.h"
+
 namespace CubeWorld
 {
 
@@ -21,7 +23,7 @@ namespace Editor
 // It should be one persistent instance, that updates depending on the
 // current state of the editor (e.g. AnimationStation vs something else).
 //
-class Controls {
+class Controls : public SubWindow {
 public:
    // Describes the layout of the Controls Panel
    struct Layout {
@@ -38,13 +40,10 @@ public:
    };
 
 public:
-   Controls(Bounded* bounds);
-   ~Controls();
-
-   //
-   // Check input, issue events, and rebuild the window.
-   //
-   void Update();
+   Controls(
+      Bounded& parent,
+      const Options& options
+   );
 
    //
    // Rebuild the UI.
@@ -54,30 +53,8 @@ public:
 private:
    void Rebuild();
 
-public:
-   //
-   // React to mouse events
-   //
-   void MouseDown(int button, double x, double y);
-   void MouseUp(int button, double x, double y);
-   void MouseClick(int button, double x, double y);
-   void MouseDrag(int button, double x, double y);
-   void MouseMove(double x, double y);
-
 private:
-   Bounded* mBounds;
-
    Layout mLayout;
-   int32_t mHoveredItem = -1;
-
-   std::unique_ptr<Engine::Graphics::Font> mFont;
-   Engine::Graphics::VBO mControlsTextVBO;
-   GLint mControlsTextCount;
-
-private:
-   static GLuint program;
-   static GLuint aPosition, aUV;
-   static GLuint uTexture, uWindowSize;
 };
 
 }; // namespace Editor

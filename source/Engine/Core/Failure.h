@@ -6,6 +6,10 @@
 
 #include "Format.h"
 
+#if defined(_WIN32)
+#define NOMSG
+#endif
+
 namespace CubeWorld
 {
 

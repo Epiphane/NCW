@@ -8,8 +8,8 @@
 
 // Windows.h includes windef.h includes minwindef.h defines these
 #if defined(_WIN32)
-   #undef near
-   #undef far
+#undef near
+#undef far
 #endif
 
 #ifdef NDEBUG

@@ -9,6 +9,7 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Graphics/Camera.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/System/System.h>
 
@@ -46,9 +47,7 @@ namespace Game
    private:
       Engine::Graphics::Camera* mCamera;
 
-      static GLuint program;
-      static GLuint aPosition, aColor;
-      static GLuint uProjMatrix, uViewMatrix, uModelMatrix;
+      static std::unique_ptr<Engine::Graphics::Program> program;
 
    private:
       std::unique_ptr<DebugHelper::MetricLink> metric;

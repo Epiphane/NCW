@@ -134,7 +134,7 @@ public:
    //
    // Get the mouse's current position.
    //
-   glm::tvec2<double> GetMousePosition() const { return mMousePosition; }
+   glm::tvec2<double> GetMousePosition() const;
 
    //
    // Get the mouse's most recent movement.

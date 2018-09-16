@@ -84,8 +84,10 @@ public:
 
 public:
    // Implement Bounded
-   uint32_t Width() const override { return mOptions.width; }
-   uint32_t Height() const override { return mOptions.height; }
+   uint32_t GetX() const override { return 0; }
+   uint32_t GetY() const override { return 0; }
+   uint32_t GetWidth() const override { return mOptions.width; }
+   uint32_t GetHeight() const override { return mOptions.height; }
 
 public:
    // Typical GLFW methods

@@ -178,7 +178,7 @@ namespace Game
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;
-      cameraOptions.aspect = float(mWindow->Width()) / mWindow->Height();
+      cameraOptions.aspect = float(mWindow->GetWidth()) / mWindow->GetHeight();
       cameraOptions.far = 1500.0f;
       cameraOptions.distance = 3.5f;
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);

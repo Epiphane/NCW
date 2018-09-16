@@ -26,7 +26,9 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#pragma warning(push, 0)
 #include <Shared/Helpers/json.hpp>
+#pragma warning(pop)
 #include "State.h"
 
 namespace CubeWorld
@@ -50,8 +52,6 @@ MainState::MainState(Engine::Window* window, Bounded& parent, Controls* controls
    , mWindow(window)
    , mParent(parent)
    , mControls(controls)
-   , mPreview(parent, SubWindow::Options{0, 0.4f, 1, 0.6f})
-   , mDock(parent, SubWindow::Options{0, 0, 1, 0.4f})
    , mPlayer(Entity(nullptr, Entity::ID(0)))
    , mLayout({
       {
@@ -204,22 +204,12 @@ void MainState::Start()
    playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
    playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
-   cameraOptions.aspect = float(mPreview.Width()) / mPreview.Height();
+   cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
    Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
    playerCamera.Add<Game::KeyControlledCamera>();
    playerCamera.Add<Game::KeyControlledCameraArm>();
-
-   // Add transitioning
-   /*Engine::Input::InputManager::Instance()->SetCallback(GLFW_KEY_SPACE, [player](){
-      static int state = 0;
-      std::vector<float> speed = { 0, 5, 10, 5 };
-      state = (state + 1) % speed.size();
-
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = mPlayer.Get<AnimatedSkeleton>();
-      skeleton->SetParameter("speed", speed[state]);
-   });*/
 
    mCamera.Set(handle.get());
 
@@ -289,21 +279,6 @@ void MainState::Start()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<Game::VoxelRender>(std::move(carpet));
-}
-
-void MainState::Update(TIMEDELTA dt)
-{
-   // Render the game to the "preview" subwindow.
-   mPreview.Bind();
-   mSystems.UpdateAll(dt);
-   mPreview.Unbind();
-   mPreview.Render();
-
-   // Render the dock.
-   mDock.Bind();
-   // TODO...
-   mDock.Unbind();
-   mDock.Render();
 }
 
 void MainState::Receive(const NamedEvent&)
