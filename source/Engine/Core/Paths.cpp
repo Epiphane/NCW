@@ -185,6 +185,26 @@ std::string GetDirectory(const std::string& path)
    }
 }
 
+bool Exists(const std::string& path)
+{
+#if defined(CUBEWORLD_PLATFORM_WINDOWS)
+   DWORD ret = ::GetFileAttributes(path.c_str());
+   return ret != INVALID_FILE_ATTRIBUTES;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   if (access(path, 0) == 0)
+   {
+      struct stat status;
+      if (stat(path, &status) == 0)
+      {
+         return true;
+      }
+   }
+   return false;
+#else
+#error "Unhandled platform"
+#endif
+}
+
 Maybe<void> MakeDirectory(const std::string& path)
 {
    std::string normalized = Normalize(path);

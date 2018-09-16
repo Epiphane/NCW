@@ -1,0 +1,246 @@
+{
+   "height": 512,
+   "images": {
+      "keyframe_bar": {
+         "x": 0,
+         "y": 0,
+         "w": 512,
+         "h": 35
+      },
+      "keyframe": {
+         "x": 0,
+         "y": 36,
+         "w": 10,
+         "h": 35
+      },
+      "frame_pointer": {
+         "x": 12,
+         "y": 36,
+         "w": 8,
+         "h": 10
+      },
+      "reset": {
+         "x": 22,
+         "y": 27,
+         "w": 35,
+         "h": 32 
+      }, 
+      "button_left": {
+         "x": 60,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_right": {
+         "x": 81,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_up": {
+         "x": 102 ,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_down": {
+         "x": 123,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_add": {
+         "x": 144,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_remove": {
+         "x": 165,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
+      "button_prev": {
+         "x": 186,
+         "y": 37,
+         "w": 42,
+         "h": 19
+      },
+      "button_next": {
+         "x": 230,
+         "y": 37,
+         "w": 42,
+         "h": 19
+      },
+      "hover_button_left": {
+         "x": 60,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_right": {
+         "x": 81,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_up": {
+         "x": 102 ,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_down": {
+         "x": 123,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_add": {
+         "x": 144,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_remove": {
+         "x": 165,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
+      "hover_button_prev": {
+         "x": 186,
+         "y": 58,
+         "w": 42,
+         "h": 19
+      },
+      "hover_button_next": {
+         "x": 230,
+         "y": 58,
+         "w": 42,
+         "h": 19
+      },
+      "press_button_left": {
+         "x": 60,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_right": {
+         "x": 81,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_up": {
+         "x": 102 ,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_down": {
+         "x": 123,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_add": {
+         "x": 144,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_remove": {
+         "x": 165,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_prev": {
+         "x": 186,
+         "y": 79,
+         "w": 42,
+         "h": 19
+      },
+      "press_button_next": {
+         "x": 230,
+         "y": 79,
+         "w": 42,
+         "h": 19
+      },
+      "button_play": {
+         "x": 60,
+         "y": 100,
+         "w": 38,
+         "h": 38
+      },
+      "button_next_frame": {
+         "x": 102,
+         "y": 100,
+         "w": 38,
+         "h": 38
+      },
+      "button_pause": {
+         "x": 143,
+         "y": 100,
+         "w": 38,
+         "h": 38
+      },
+      "hover_button_play": {
+         "x": 60,
+         "y": 140,
+         "w": 38,
+         "h": 38
+      },
+      "hover_button_next_frame": {
+         "x": 102,
+         "y": 140,
+         "w": 38,
+         "h": 38
+      },
+      "hover_button_pause": {
+         "x": 143,
+         "y": 140,
+         "w": 38,
+         "h": 38
+      },
+      "press_button_play": {
+         "x": 60,
+         "y": 180,
+         "w": 38,
+         "h": 38
+      },
+      "press_button_next_frame": {
+         "x": 102,
+         "y": 180,
+         "w": 38,
+         "h": 38
+      },
+      "press_button_pause": {
+         "x": 143,
+         "y": 180,
+         "w": 38,
+         "h": 38
+      },
+      "drag_number": {
+         "x": 183,
+         "y": 58,
+         "w": 32,
+         "h": 7
+      },
+      "position": {
+         "x": 2,
+         "y": 73,
+         "w": 37,
+         "h": 37
+      },
+      "rotation": {
+         "x": 2,
+         "y": 112,
+         "w": 40,
+         "h": 37
+      }
+   },
+   "width": 512
+}

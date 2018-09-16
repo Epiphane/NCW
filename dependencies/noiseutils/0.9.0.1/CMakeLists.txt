@@ -20,6 +20,3 @@ endif()
 
 # install libraries into /lib
 INSTALL( TARGETS noiseutils-static DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
-
-
-

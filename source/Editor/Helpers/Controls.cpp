@@ -9,6 +9,7 @@
 #include <Shared/Helpers/Asset.h>
 #include "Controls.h"
 #include "../UI/Label.h"
+#include "../UI/Image.h"
 
 namespace CubeWorld
 {
@@ -51,6 +52,18 @@ void Controls::Rebuild()
       Add<Label>(elementOptions, labelOptions);
       elementOptions.y -= 35.0f / GetHeight();
    }
+
+   Image::Options imageOptions;
+   imageOptions.x = 8.0f / GetWidth();
+   imageOptions.y = 10.0f / GetHeight();
+   imageOptions.w = 40.0f / GetWidth();
+   imageOptions.h = 40.0f / GetHeight();
+   imageOptions.filename = Asset::Image("EditorIcons.png");
+   imageOptions.image = "button_play";
+   imageOptions.hoverImage = "hover_button_play";
+   imageOptions.pressImage = "press_button_play";
+   imageOptions.onClick = []() { LOG_DEBUG("OUch!"); };
+   Add<Image>(imageOptions);
 }
 
 }; // namespace Editor

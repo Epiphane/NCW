@@ -25,6 +25,11 @@ std::string Model(const std::string& model)
    return Paths::Join("Assets", "Models", model);
 }
 
+std::string Image(const std::string& model)
+{
+   return Paths::Join("Assets", "Images", model);
+}
+
 std::string Font(const std::string& fontName)
 {
    return Paths::Join("Assets", "Fonts", fontName + ".ttf");
