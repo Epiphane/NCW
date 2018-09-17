@@ -138,7 +138,14 @@ void DebugHelper::Update()
 
 void DebugHelper::Render()
 {
-   assert(mBounds);
+   if (mBounds == nullptr)
+   {
+      return;
+   }
+
+   // TODO tech debt? It's getting covered by the stuff the same draws,
+   // but I mean we always want debug text on top soooo can't hurt.
+   glClear(GL_DEPTH_BUFFER_BIT);
 
    BIND_PROGRAM_IN_SCOPE(program);
 

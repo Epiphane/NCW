@@ -47,11 +47,6 @@ public:
    void MouseMove(double x, double y) override;
 
    //
-   // Add an element to this window
-   //
-   Element* AddChild(std::unique_ptr<Element>&& element);
-
-   //
    // Construct a child and add it to the window
    //
    template <typename E, typename ...Args>
@@ -60,10 +55,22 @@ public:
       return static_cast<E*>(AddChild(std::make_unique<E>(*this, std::forward<Args>(args) ...)));
    }
 
+   void SetActive(bool active) {
+      mActive = active;
+   }
+
+protected:
+   //
+   // Add an element to this window
+   //
+   virtual Element* AddChild(std::unique_ptr<Element>&& element);
+
 protected:
    std::vector<std::unique_ptr<Element>> mChildren;
 
 private:
+   bool mActive;
+
    Engine::Graphics::Framebuffer mFramebuffer;
    Engine::Graphics::VBO mVBO;
 

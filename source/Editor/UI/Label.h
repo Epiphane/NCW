@@ -28,16 +28,15 @@ namespace Editor
 class Label : public Element
 {
 public:
-   struct Options {
-      std::string font = "debug";
+   struct Options : public Element::Options {
       std::string text;
       std::function<void(void)> onClick;
+      std::string font = "debug";
    };
 
 public:
    Label(
       Bounded& parent,
-      const Element::Options& elementOptions,
       const Options& options
    );
 
@@ -49,13 +48,20 @@ public:
    //
    // Render the text on this label
    //
-   void SetText(const std::string& text);
+   void SetText(const std::string& text)
+   {
+      mText = text;
+      RenderText(text);
+   }
 
    void MouseMove(double x, double y) override;
    void MouseClick(int button, double x, double y) override;
 
 private:
-   Options mLabelOptions;
+   void RenderText(const std::string& text);
+
+   std::string mText;
+   std::function<void(void)> mCallback;
    bool mIsHovered;
 
 private:

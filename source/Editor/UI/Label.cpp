@@ -20,11 +20,11 @@ std::unique_ptr<Engine::Graphics::Program> Label::renderProgram = nullptr;
 
 Label::Label(
    Bounded& parent,
-   const Element::Options& elementOptions,
    const Options& options
 )
-   : Element(parent, elementOptions)
-   , mLabelOptions(options)
+   : Element(parent, options)
+   , mText(options.text)
+   , mCallback(options.onClick)
    , mIsHovered(false)
    , mFramebuffer(GLsizei(GetWidth()), GLsizei(GetHeight()))
    , mTextVBO(Engine::Graphics::VBO::DataType::Vertices)
@@ -82,32 +82,32 @@ Label::Label(
    };
    mRenderVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 
-   SetText(mLabelOptions.text);
+   SetText(options.text);
 }
 
 void Label::MouseClick(int button, double x, double y)
 {
-   if (mLabelOptions.onClick && ContainsPoint(x, y))
+   if (mCallback && ContainsPoint(x, y))
    {
-      mLabelOptions.onClick();
+      mCallback();
    }
 }
 
 void Label::MouseMove(double x, double y)
 {
-   if (ContainsPoint(x, y) && !mIsHovered)
+   if (mCallback && ContainsPoint(x, y) && !mIsHovered)
    {
-      SetText("> " + mLabelOptions.text);
+      RenderText("> " + mText);
       mIsHovered = true;
    }
    else if (!ContainsPoint(x, y) && mIsHovered)
    {
-      SetText(mLabelOptions.text);
+      RenderText(mText);
       mIsHovered = false;
    }
 }
 
-void Label::SetText(const std::string& text)
+void Label::RenderText(const std::string& text)
 {
    std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(0, 0, 1, text);
 

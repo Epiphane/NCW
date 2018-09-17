@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <vector>
 #include <GL/includes.h>
 
 #include "Bounded.h"

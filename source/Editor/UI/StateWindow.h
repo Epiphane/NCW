@@ -47,11 +47,6 @@ public:
    void MouseMove(double x, double y) override;
 
    //
-   // Add an element to this window
-   //
-   void AddChild(std::unique_ptr<Element>&& element) { mChildren.push_back(std::move(element)); }
-
-   //
    // Construct a child and add it to the window
    //
    template <typename E, typename ...Args>
@@ -59,9 +54,6 @@ public:
    {
       AddChild(std::make_unique<E>(std::forward<Args>(args) ...));
    }
-
-private:
-   std::vector<std::unique_ptr<Element>> mChildren;
 
 private:
    Engine::Graphics::Framebuffer mFramebuffer;

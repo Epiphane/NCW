@@ -20,6 +20,7 @@ SubWindow::SubWindow(
    Bounded& parent,
    const Options& options)
    : Element(parent, options)
+   , mActive(true)
    , mChildren{}
    , mFramebuffer(GLsizei(parent.GetWidth() * options.w), GLsizei(parent.GetHeight() * options.h))
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
@@ -62,6 +63,11 @@ SubWindow::~SubWindow()
 
 void SubWindow::Update(TIMEDELTA dt)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    // Draw elements
    mFramebuffer.Bind();
    for (std::unique_ptr<Element> &child : mChildren)
@@ -85,6 +91,11 @@ void SubWindow::Update(TIMEDELTA dt)
 
 void SubWindow::MouseDown(int button, double x, double y)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
 
@@ -96,6 +107,11 @@ void SubWindow::MouseDown(int button, double x, double y)
 
 void SubWindow::MouseUp(int button, double x, double y)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
 
@@ -107,6 +123,11 @@ void SubWindow::MouseUp(int button, double x, double y)
 
 void SubWindow::MouseClick(int button, double x, double y)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
 
@@ -118,6 +139,11 @@ void SubWindow::MouseClick(int button, double x, double y)
 
 void SubWindow::MouseDrag(int button, double x, double y)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
 
@@ -129,6 +155,11 @@ void SubWindow::MouseDrag(int button, double x, double y)
 
 void SubWindow::MouseMove(double x, double y)
 {
+   if (!mActive)
+   {
+      return;
+   }
+
    // TODO: Consider not sending events if they don't occur within this SubWindow.
    // The problem: if something reacts to being moused over (e.g. a button highlighting)
    // it needs to know if the mouse has left, so it can update to reflect that.

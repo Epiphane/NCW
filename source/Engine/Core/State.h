@@ -25,8 +25,15 @@ public:
    State();
    ~State();
 
-   bool initialized = false;
-   virtual void Start() = 0;
+   // Can be done in advance, so that it doesn't have to get done by the StateManager in realtime.
+   void Load()
+   {
+      Initialize();
+      initialized = true;
+   }
+
+   virtual void Pause() {}
+   virtual void Unpause() {}
    virtual void Update(TIMEDELTA dt);
 
    //
@@ -40,6 +47,11 @@ public:
    {
       mEvents.Emit<E>(evt);
    }
+
+private:
+   friend class StateManager;
+   bool initialized = false;
+   virtual void Initialize() = 0;
 
 protected:
    EventManager mEvents;

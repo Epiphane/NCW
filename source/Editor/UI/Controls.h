@@ -50,7 +50,7 @@ public:
    //
    void SetLayout(const Layout& layout);
 
-private:
+protected:
    void Rebuild();
 
 private:

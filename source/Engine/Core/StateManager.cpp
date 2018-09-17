@@ -44,11 +44,20 @@ void StateManager::Update(TIMEDELTA dt)
 {
    if (mNext != nullptr)
    {
+      if (!mNext->initialized)
+      {
+         mNext->Initialize();
+         mNext->initialized = true;
+      }
+      if (mState != nullptr)
+      {
+         mState->Pause();
+      }
       mState = mNext;
       mOwned = std::move(mOwnNext);
       mNext = nullptr;
       mOwnNext.reset();
-      mState->Start();
+      mState->Unpause();
    }
 
    if (mState == nullptr)

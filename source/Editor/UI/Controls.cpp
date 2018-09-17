@@ -37,33 +37,20 @@ void Controls::Rebuild()
 {
    mChildren.clear();
 
-   Element::Options elementOptions;
-   elementOptions.x = 8.0f / GetWidth();
-   elementOptions.y = 1.0f - 43.0f / GetHeight();
-   elementOptions.w = 1.0f - 16.0f / GetWidth();
-   elementOptions.h = 35.0f / GetHeight();
    Label::Options labelOptions;
+   labelOptions.x = 8.0f / GetWidth();
+   labelOptions.y = 1.0f - 43.0f / GetHeight();
+   labelOptions.w = 1.0f - 16.0f / GetWidth();
+   labelOptions.h = 35.0f / GetHeight();
    labelOptions.text = "N/A";
    labelOptions.onClick = nullptr;
    for (size_t i = 0; i < mLayout.elements.size(); ++i)
    {
       labelOptions.text = mLayout.elements[i].label;
       labelOptions.onClick = mLayout.elements[i].callback;
-      Add<Label>(elementOptions, labelOptions);
-      elementOptions.y -= 35.0f / GetHeight();
+      Add<Label>(labelOptions);
+      labelOptions.y -= 35.0f / GetHeight();
    }
-
-   Image::Options imageOptions;
-   imageOptions.x = 8.0f / GetWidth();
-   imageOptions.y = 10.0f / GetHeight();
-   imageOptions.w = 40.0f / GetWidth();
-   imageOptions.h = 40.0f / GetHeight();
-   imageOptions.filename = Asset::Image("EditorIcons.png");
-   imageOptions.image = "button_play";
-   imageOptions.hoverImage = "hover_button_play";
-   imageOptions.pressImage = "press_button_play";
-   imageOptions.onClick = []() { LOG_DEBUG("OUch!"); };
-   Add<Image>(imageOptions);
 }
 
 }; // namespace Editor

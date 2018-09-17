@@ -156,7 +156,7 @@ namespace Game
       return false;
    }
 
-   void StupidState::Start()
+   void StupidState::Initialize()
    {
       mWindow->GetInput()->SetMouseLock(true);
       

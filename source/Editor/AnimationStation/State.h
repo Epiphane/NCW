@@ -13,8 +13,9 @@
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
 #include <Shared/Event/NamedEvent.h>
+#include <Shared/Systems/AnimationSystem.h>
 
-#include "../Helpers/Controls.h"
+#include "../UI/Controls.h"
 
 namespace CubeWorld
 {
@@ -27,45 +28,21 @@ namespace AnimationStation
 
 class MainState : public Engine::State, public Engine::Receiver<MainState> {
 public:
-   MainState(Engine::Window* window, Bounded& parent, Controls* controls);
+   MainState(Engine::Window* window, Bounded& parent);
    ~MainState();
 
-   void Start() override;
+   void Initialize() override;
 
-   void Receive(const NamedEvent& namedEvent);
-   void Receive(const MouseDragEvent& evt);
-   void Receive(const MouseDownEvent& evt);
-   void Receive(const MouseUpEvent& evt);
-   void Receive(const MouseClickEvent& evt);
-
-private:
-   void SetModified(bool modified);
-   bool mModified;
-
-   void LoadNewFile();
-   void SaveNewFile();
-
-   void SaveFile();
-   void LoadFile(const std::string& filename);
-
-   void DiscardChanges();
-   void Quit();
+   Engine::ComponentHandle<Game::AnimatedSkeleton> GetPlayerSkeleton()
+   {
+      return mPlayer.Get<Game::AnimatedSkeleton>();
+   }
 
 private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window* mWindow;
    Bounded& mParent;
-
-   Controls* mControls;
-
-   // Layout elements
-   Controls::Layout mLayout;
-   Controls::Layout::Element& mLoad;
-   Controls::Layout::Element& mSave;
-   Controls::Layout::Element& mSaveAs;
-   Controls::Layout::Element& mDiscard;
-   Controls::Layout::Element& mQuit;
 
    Engine::Entity mPlayer;
    std::string mFilename;

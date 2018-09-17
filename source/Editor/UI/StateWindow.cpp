@@ -21,7 +21,6 @@ StateWindow::StateWindow(
    Bounded& parent,
    const Options& options)
    : Element(parent, options)
-   , mChildren{}
    , mFramebuffer(GLsizei(parent.GetWidth() * options.w), GLsizei(parent.GetHeight() * options.h))
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
@@ -85,63 +84,30 @@ void StateWindow::MouseDown(int button, double x, double y)
 {
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      child->MouseDown(button, localX, localY);
-   }
 }
 
 void StateWindow::MouseUp(int button, double x, double y)
 {
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      child->MouseUp(button, localX, localY);
-   }
 }
 
 void StateWindow::MouseClick(int button, double x, double y)
 {
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      child->MouseClick(button, localX, localY);
-   }
 }
 
 void StateWindow::MouseDrag(int button, double x, double y)
 {
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      child->MouseDrag(button, localX, localY);
-   }
 }
 
 void StateWindow::MouseMove(double x, double y)
 {
-   // TODO: Consider not sending events if they don't occur within this StateWindow.
-   // The problem: if something reacts to being moused over (e.g. a button highlighting)
-   // it needs to know if the mouse has left, so it can update to reflect that.
-   //if (!ContainsPoint(x, y))
-   //{
-   //   return;
-   //}
-
    double localX = (x - mOptions.x) / mOptions.w;
    double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      child->MouseMove(localX, localY);
-   }
 }
 
 }; // namespace Editor

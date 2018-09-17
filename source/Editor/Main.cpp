@@ -18,10 +18,12 @@
 #include <Shared/Helpers/Asset.h>
 #include <Shared/DebugHelper.h>
 
-#include "Helpers/Controls.h"
+#include "AnimationStation/Editor.h"
+#include "Command/CommandStack.h"
+#include "Command/Commands.h"
+#include "UI/Controls.h"
 #include "UI/StateWindow.h"
-#include "UI/SubWindow.h"
-#include "AnimationStation/State.h"
+#include "UI/SubWindowSwapper.h"
 
 #include "Main.h"
 
@@ -48,6 +50,7 @@ int main(int argc, char** argv)
    windowOptions.width = 1280;
    windowOptions.height = 760;
    windowOptions.b = 0.4f;
+   windowOptions.lockCursor = false;
    Window* window = Window::Instance();
    if (auto result = window->Initialize(windowOptions); !result)
    {
@@ -61,32 +64,45 @@ int main(int argc, char** argv)
    });
 
    // Create "SubWindow" that has everything in it
-   Editor::SubWindow::Options windowContentOptions;
+   Editor::SubWindowSwapper::Options windowContentOptions;
    windowContentOptions.x = 0;
    windowContentOptions.y = 0;
    windowContentOptions.w = 1;
    windowContentOptions.h = 1;
-   Editor::SubWindow windowContent(*window, windowContentOptions);
+   Editor::SubWindowSwapper windowContent(*window, windowContentOptions);
 
-   // Create subwindow for the controls
+   // Create subwindow for the current editor
+   Editor::AnimationStation::Editor::Options animationStationOptions;
+   animationStationOptions.x = 0.0f;
+   animationStationOptions.y = 0.0f;
+   animationStationOptions.w = 1.0f;
+   animationStationOptions.h = 1.0f;
+   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(animationStationOptions);
+
+   // Create subwindow for the overarching Editor controls.
    Editor::Controls::Options controlsOptions;
    controlsOptions.x = 0.0f;
    controlsOptions.y = 0.0f;
    controlsOptions.w = 0.2f;
-   controlsOptions.h = 1.0f;
+   controlsOptions.h = 0.2f;
    Editor::Controls* controls = windowContent.Add<Editor::Controls>(controlsOptions);
 
-   // Create subwindow for the game state
-   Editor::StateWindow::Options gameWindowOptions;
-   gameWindowOptions.x = controlsOptions.w;
-   gameWindowOptions.y = 0.3f;
-   gameWindowOptions.w = 1.0f - controlsOptions.w;
-   gameWindowOptions.h = 0.7f;
-   Editor::StateWindow* gameWindow = windowContent.Add<Editor::StateWindow>(gameWindowOptions);
+   // Always enable controls.
+   // TODO this relies on SubWindowSwapper "forgetting" about this element, so swapping to
+   // it later on would disable the element. There's probably a better way (e.g. creating
+   // another base SubWindow, but it seems overkill /shrug
+   controls->SetActive(true);
+   controls->SetLayout({{
+      Editor::Controls::Layout::Element{"Animation Station", [&](){
+         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
+      }},
+      Editor::Controls::Layout::Element{"Quit", [&]() {
+         window->SetShouldClose(true);
+      }}
+   }});
 
    // Configure Debug helper
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetBounds(gameWindow);
 
    // FPS clock
    Timer<100> clock(SEC_PER_FRAME);
@@ -95,8 +111,7 @@ int main(int argc, char** argv)
    });
 
    // Start with AnimationStation
-   Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(std::make_unique<Editor::AnimationStation::MainState>(window, *gameWindow, controls));
+   animationStation->Start();
 
    // Attach mouse events to state
    window->GetInput()->OnMouseDown([&](int button, double x, double y) {
@@ -111,6 +126,16 @@ int main(int argc, char** argv)
    window->GetInput()->OnClick([&](int button, double x, double y) {
       windowContent.MouseClick(button, x, y);
    });
+   // Save the pointers so that the callback doesn't get deregistered.
+   auto _1 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
+      Editor::CommandStack::Instance()->Undo();
+   });
+   auto _2 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Y), [&](int, int, int) {
+      Editor::CommandStack::Instance()->Redo();
+   });
+
+   // Start in Animation Station
+   windowContent.Swap(animationStation);
 
    do {
       double elapsed = clock.Elapsed();
@@ -128,20 +153,12 @@ int main(int argc, char** argv)
          {
             windowContent.MouseMove(mouse.x, mouse.y);
             windowContent.Update(dt);
-
-            CHECK_GL_ERRORS();
          }
 
          // Render debug stuff
          {
-            // TODO tech debt? It's getting covered by the stuff the same draws,
-            // but I mean we always want debug text on top soooo can't hurt.
-            glClear(GL_DEPTH_BUFFER_BIT);
-
             debug->Update();
             debug->Render();
-
-            CHECK_GL_ERRORS();
          }
 
          // Swap buffers
@@ -153,7 +170,7 @@ int main(int argc, char** argv)
    } // Check if the ESC key was pressed or the window was closed
    while (!window->ShouldClose());
 
-   stateManager->Shutdown();
+   Engine::StateManager::Instance()->Shutdown();
 
    return 0;
 }

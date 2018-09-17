@@ -22,7 +22,7 @@ public:
    StupidState(Engine::Window* window);
    ~StupidState();
 
-   void Start() override;
+   void Initialize() override;
 
    bool BuildFloorCollision(int32_t size);
 
