@@ -25,7 +25,6 @@ Editor::Editor(
 {
    // Sidebar options
    Sidebar::Options controlsOptions;
-   controlsOptions.x = 0.0f;
    controlsOptions.y = 0.2f;
    controlsOptions.w = 0.2f;
    controlsOptions.h = 0.8f;
@@ -33,9 +32,8 @@ Editor::Editor(
    // Dock options
    Dock::Options dockOptions;
    dockOptions.x = controlsOptions.w;
-   dockOptions.y = 0.0f;
    dockOptions.w = 1.0f - controlsOptions.w;
-   dockOptions.h = 0.3f;
+   dockOptions.h = 0.4f;
 
    // Preview of skeleton in the game state
    StateWindow::Options currentEditorOptions;

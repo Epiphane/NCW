@@ -65,24 +65,14 @@ int main(int argc, char** argv)
 
    // Create "SubWindow" that has everything in it
    Editor::SubWindowSwapper::Options windowContentOptions;
-   windowContentOptions.x = 0;
-   windowContentOptions.y = 0;
-   windowContentOptions.w = 1;
-   windowContentOptions.h = 1;
    Editor::SubWindowSwapper windowContent(*window, windowContentOptions);
 
    // Create subwindow for the current editor
    Editor::AnimationStation::Editor::Options animationStationOptions;
-   animationStationOptions.x = 0.0f;
-   animationStationOptions.y = 0.0f;
-   animationStationOptions.w = 1.0f;
-   animationStationOptions.h = 1.0f;
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(animationStationOptions);
 
    // Create subwindow for the overarching Editor controls.
    Editor::Controls::Options controlsOptions;
-   controlsOptions.x = 0.0f;
-   controlsOptions.y = 0.0f;
    controlsOptions.w = 0.2f;
    controlsOptions.h = 0.2f;
    Editor::Controls* controls = windowContent.Add<Editor::Controls>(controlsOptions);

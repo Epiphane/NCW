@@ -13,8 +13,9 @@ namespace Editor
 Element::Element(
    Bounded& parent,
    const Options& options)
-   : mOptions(options)
+   : mActive(true)
    , mParent(parent)
+   , mOptions(options)
 {
 }
 

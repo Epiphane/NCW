@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Engine/Event/Command.h>
+#include <Engine/Core/Command.h>
 
 namespace CubeWorld
 {

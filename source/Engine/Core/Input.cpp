@@ -176,7 +176,8 @@ void Input::Update()
       {
          if (mMousePressed[button] && !mMouseDragging[button])
          {
-            double dist = (mMousePosition - mMousePressOrigin[button]).length();
+            glm::tvec2<double> diff = mMousePosition - mMousePressOrigin[button];
+            double dist = diff.x * diff.x + diff.y * diff.y;
             if (dist > 2)
             {
                mMouseDragging[button] = true;

@@ -5,6 +5,7 @@
 #include <Engine/Core/Window.h>
 #include <Shared/Helpers/Asset.h>
 
+#include "../UI/Image.h"
 #include "../UI/Label.h"
 
 #include "Sidebar.h"
@@ -27,6 +28,13 @@ Sidebar::Sidebar(
    , mState(state)
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
+   {
+      Image::Options imageOptions;
+      imageOptions.z = 0.5f;
+      imageOptions.filename = Asset::Image("EditorSidebar.png");
+      Add<Image>(imageOptions);
+   }
+
    Label::Options labelOptions;
    labelOptions.x = 8.0f / GetWidth();
    labelOptions.y = 1.0f - 43.0f / GetHeight();
@@ -106,6 +114,12 @@ void Sidebar::LoadFile(const std::string& filename)
    skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
    skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
    skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+
+   // No transitioning
+   for (AnimatedSkeleton::State& state : skeleton->states)
+   {
+      state.transitions.clear();
+   }
 
    SetModified(true);
 }

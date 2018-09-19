@@ -24,19 +24,19 @@ namespace Editor
 // binding and unbinding them in an understandable way, and re-rendering those pieces into
 // the space they belong.
 //
-class Image : public Element
+class Scrubber : public Element
 {
 public:
    struct Options : public Element::Options {
       std::string filename;
       std::string image = "";
-      std::string hoverImage = "";
-      std::string pressImage = "";
-      std::function<void(void)> onClick = nullptr;
+      std::function<void(double)> onPress = nullptr;
+      std::function<void(double)> onMove = nullptr;
+      std::function<void(double)> onRelease = nullptr;
    };
 
 public:
-   Image(
+   Scrubber(
       Bounded& parent,
       const Options& options
    );
@@ -46,15 +46,17 @@ public:
    //
    void Update(TIMEDELTA dt) override;
 
-   void MouseMove(double x, double y) override;
    void MouseDown(int button, double x, double y) override;
    void MouseUp(int button, double x, double y) override;
-   void MouseClick(int button, double x, double y) override;
+   void MouseDrag(int button, double x, double y) override;
+
+   void SetValue(double value);
 
 private:
-   std::function<void(void)> mCallback;
-   bool mIsHovered;
+   std::function<void(double)> mPressCallback, mMoveCallback, mReleaseCallback;
    bool mIsPressed;
+
+   double mMin, mValue, mMax;
 
 private:
    Engine::Graphics::Texture* mTexture;

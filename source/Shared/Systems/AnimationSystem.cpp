@@ -413,6 +413,12 @@ void AnimatedSkeleton::TransitionTo(const std::string& state, double transitionT
 
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   if (mIsPaused)
+   {
+      dt = mNextTick;
+   }
+   mNextTick = 0;
+
    // First, update skeletons.
    entities.Each<AnimatedSkeleton>([&](Engine::Entity /*entity*/, AnimatedSkeleton& skeleton) {
       // Advance basic animation
@@ -478,6 +484,11 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             glm::mat4 matrix = progress * dst.matrixes[boneId] + (1 - progress) * src.matrixes[boneId];
             skeleton.bones[boneId].matrix = transitionProgress * matrix + (1 - transitionProgress) * skeleton.bones[boneId].matrix;
          }
+      }
+
+      if (!mTransitions)
+      {
+         return;
       }
 
       // Compute new transitions

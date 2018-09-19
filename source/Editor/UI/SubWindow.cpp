@@ -20,7 +20,6 @@ SubWindow::SubWindow(
    Bounded& parent,
    const Options& options)
    : Element(parent, options)
-   , mActive(true)
    , mChildren{}
    , mFramebuffer(GLsizei(parent.GetWidth() * options.w), GLsizei(parent.GetHeight() * options.h))
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
@@ -72,7 +71,9 @@ void SubWindow::Update(TIMEDELTA dt)
    mFramebuffer.Bind();
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->Update(dt);
+      if (child->IsActive()) {
+         child->Update(dt);
+      }
    }
    mFramebuffer.Unbind();
 
@@ -101,7 +102,9 @@ void SubWindow::MouseDown(int button, double x, double y)
 
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->MouseDown(button, localX, localY);
+      if (child->IsActive()) {
+         child->MouseDown(button, localX, localY);
+      }
    }
 }
 
@@ -117,7 +120,9 @@ void SubWindow::MouseUp(int button, double x, double y)
 
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->MouseUp(button, localX, localY);
+      if (child->IsActive()) {
+         child->MouseUp(button, localX, localY);
+      }
    }
 }
 
@@ -133,7 +138,9 @@ void SubWindow::MouseClick(int button, double x, double y)
 
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->MouseClick(button, localX, localY);
+      if (child->IsActive()) {
+         child->MouseClick(button, localX, localY);
+      }
    }
 }
 
@@ -149,7 +156,9 @@ void SubWindow::MouseDrag(int button, double x, double y)
 
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->MouseDrag(button, localX, localY);
+      if (child->IsActive()) {
+         child->MouseDrag(button, localX, localY);
+      }
    }
 }
 
@@ -173,7 +182,9 @@ void SubWindow::MouseMove(double x, double y)
 
    for (std::unique_ptr<Element> &child : mChildren)
    {
-      child->MouseMove(localX, localY);
+      if (child->IsActive()) {
+         child->MouseMove(localX, localY);
+      }
    }
 }
 

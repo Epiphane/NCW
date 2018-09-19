@@ -139,13 +139,30 @@ namespace Game
    
    class AnimationSystem : public Engine::System<AnimationSystem> {
    public:
-      AnimationSystem(Engine::Input* input) : mInput(input) {}
+      AnimationSystem(Engine::Input* input)
+         : mInput(input)
+         , mIsPaused(false)
+         , mNextTick(0)
+         , mTransitions(true)
+      {};
       ~AnimationSystem() {}
+
+      void Pause() { mIsPaused = true; }
+      void Unpause() { mIsPaused = false; }
+      void SetTransitions(bool enabled) { mTransitions = enabled; }
+      void TickAnimation(TIMEDELTA dt) { mNextTick = dt; }
       
       void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
       
    private:
       Engine::Input* mInput;
+
+      //
+      // Editing switches. Pause all animations and disable transitions.
+      //
+      bool mIsPaused;
+      TIMEDELTA mNextTick;
+      bool mTransitions;
    };
 
 }; // namespace Game

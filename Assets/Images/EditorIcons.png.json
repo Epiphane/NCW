@@ -55,6 +55,12 @@
          "w": 19,
          "h": 19
       },
+      "button_subtract": {
+         "x": 274,
+         "y": 37,
+         "w": 19,
+         "h": 19
+      },
       "button_remove": {
          "x": 165,
          "y": 37,
@@ -103,6 +109,12 @@
          "w": 19,
          "h": 19
       },
+      "hover_button_subtract": {
+         "x": 274,
+         "y": 58,
+         "w": 19,
+         "h": 19
+      },
       "hover_button_remove": {
          "x": 165,
          "y": 58,
@@ -147,6 +159,12 @@
       },
       "press_button_add": {
          "x": 144,
+         "y": 79,
+         "w": 19,
+         "h": 19
+      },
+      "press_button_subtract": {
+         "x": 274,
          "y": 79,
          "w": 19,
          "h": 19

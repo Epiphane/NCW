@@ -37,6 +37,13 @@ void Controls::Rebuild()
 {
    mChildren.clear();
 
+   {
+      Image::Options imageOptions;
+      imageOptions.z = 0.5f;
+      imageOptions.filename = Asset::Image("EditorSidebar.png");
+      Add<Image>(imageOptions);
+   }
+
    Label::Options labelOptions;
    labelOptions.x = 8.0f / GetWidth();
    labelOptions.y = 1.0f - 43.0f / GetHeight();

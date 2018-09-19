@@ -22,6 +22,7 @@ public:
    struct Options {
       float x = 0;
       float y = 0;
+      float z = 0;
       float w = 1;
       float h = 1;
    };
@@ -60,6 +61,12 @@ public:
    uint32_t GetWidth() const override { return uint32_t(mParent.GetWidth() * mOptions.w); }
    // Get the height of this element, in pixels.
    uint32_t GetHeight() const override { return uint32_t(mParent.GetHeight() * mOptions.h); }
+
+   bool IsActive() { return mActive; }
+   void SetActive(bool active) { mActive = active; }
+
+protected:
+   bool mActive;
 
 protected:
    // Returns whether the point [x, y] in parent space

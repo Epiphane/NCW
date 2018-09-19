@@ -66,11 +66,12 @@ void MainState::Initialize()
    mSystems.Add<Game::AnimationSystem>(mWindow->GetInput());
    mSystems.Add<Game::MakeshiftSystem>();
    mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
+   mSystems.Get<Game::AnimationSystem>()->SetTransitions(false);
    mSystems.Configure();
 
    // Unlock the mouse
    mWindow->GetInput()->SetMouseLock(false);
-      
+
    // Create a player component
    mPlayer = mEntities.Create();
    mPlayer.Add<Transform>(glm::vec3(0, 4.3, 0));
@@ -158,6 +159,21 @@ void MainState::Initialize()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<Game::VoxelRender>(std::move(carpet));
+}
+
+void MainState::PlayAnimation()
+{
+   mSystems.Get<Game::AnimationSystem>()->Unpause();
+}
+
+void MainState::TickAnimation(TIMEDELTA dt)
+{
+   mSystems.Get<Game::AnimationSystem>()->TickAnimation(dt);
+}
+
+void MainState::PauseAnimation()
+{
+   mSystems.Get<Game::AnimationSystem>()->Pause();
 }
 
 }; // namespace AnimationStation

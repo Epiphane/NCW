@@ -38,6 +38,10 @@ public:
       return mPlayer.Get<Game::AnimatedSkeleton>();
    }
 
+   void PlayAnimation();
+   void TickAnimation(TIMEDELTA dt);
+   void PauseAnimation();
+
 private:
    Engine::Graphics::CameraHandle mCamera;
 
