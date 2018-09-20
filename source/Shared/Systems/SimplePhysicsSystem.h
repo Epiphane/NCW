@@ -61,7 +61,7 @@ namespace SimplePhysics
       friend class SimplePhysicsDebug;
 
       // A tree of bodies, for evaluating collisions quickly.
-      AABBTree mBodies;
+      AABBTree<Engine::Entity::ID> mBodies;
 
       // A list of entity IDs that are registered in mBodies.
       // Each time a body is added to the tree, the node references

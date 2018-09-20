@@ -26,6 +26,7 @@ add_subdirectory("${DEP_DIR}/noiseutils")
 add_subdirectory("${DEP_DIR}/freetype")
 add_subdirectory("${DEP_DIR}/sqlite")
 add_subdirectory("${DEP_DIR}/FMOD")
+add_subdirectory("${DEP_DIR}/zlib")
 
 # Ensure everything after draws from header files
 # specified in the dependencies.

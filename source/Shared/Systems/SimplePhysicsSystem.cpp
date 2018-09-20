@@ -204,11 +204,11 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
       uint32_t checks = 0;
 
       // Use the AABB Tree to find all colliding AABBs
-      std::deque<AABBTree::Node> pending;
+      std::deque<AABBTree<Engine::Entity::ID>::Node> pending;
       pending.push_back(mBodies.GetRoot());
       while(!pending.empty())
       {
-         AABBTree::Node node = pending.back();
+         AABBTree<Engine::Entity::ID>::Node node = pending.back();
          pending.pop_back();
 
          ++checks;
@@ -216,7 +216,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
          {
             if (node.IsLeaf())
             {
-               Engine::Entity::ID id(reinterpret_cast<uint64_t>(node->data));
+               Engine::Entity::ID id = node.data();
                if (id == (*entity).GetID())
                {
                   continue;
@@ -265,7 +265,7 @@ void System::Receive(const Engine::ComponentAddedEvent<Collider>& e)
    }
    mEntities[index] = e.entity.GetID();
    // Store the index as a "pointer"
-   mBodies.Insert(aabb, (void*)mEntities[index].id());
+   mBodies.Insert(aabb, e.entity.GetID());
 }
 
 void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)

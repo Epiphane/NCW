@@ -28,12 +28,11 @@ namespace Game
 // the Defragment() function invalidates all node references and rebalances
 // the tree in a data-optimized way.
 //
-class AABBTree
+class BaseAABBTree
 {
 public:
-   struct NodeData {
+   struct BaseNodeData {
       AABB aabb;
-      void* data;
 
       //
       // References to other nodes, by index.
@@ -44,7 +43,7 @@ public:
       uint32_t rightChild = INVALID;
    };
 
-   class Node {
+   class BaseNode {
    public:
       struct ID {
       public:
@@ -64,21 +63,22 @@ public:
          uint64_t _id;
       };
 
-   private:
+   protected:
+      friend class BaseAABBTree;
+      template <typename DataType>
       friend class AABBTree;
 
-      Node(AABBTree* tree) : mTree(tree), id(0) {};
-      Node(AABBTree* tree, ID id) : mTree(tree), id(id) {};
+      BaseNode(BaseAABBTree* tree) : mTree(tree), id(0) {};
+      BaseNode(BaseAABBTree* tree, ID id) : mTree(tree), id(id) {};
 
    public:
-      static const Node INVALID;
+      static const BaseNode INVALID;
 
    public:
-
       // Traversal.
-      Node parent();
-      Node left();
-      Node right();
+      BaseNode parent();
+      BaseNode left();
+      BaseNode right();
 
       // Tree info.
       bool IsLeaf();
@@ -86,41 +86,40 @@ public:
       // Data access.
       operator bool() const;
       bool IsValid() const;
-      NodeData* operator->() const;
-      void* data() const;
+      BaseNodeData* operator->() const;
       AABB& aabb() const;
 
-   private:
-      AABBTree* mTree;
+   protected:
+      BaseAABBTree* mTree;
       ID id;
    };
 
 public:
-   AABBTree(uint32_t initialSize = 128);
-   ~AABBTree();
+   BaseAABBTree(uint32_t initialSize = 128);
+   ~BaseAABBTree();
 
    //
    // Returns whether a node ID is still valid.
    //
-   bool IsValid(Node::ID id);
+   bool IsValid(BaseNode::ID id);
 
    //
    // Insert a node into the tree.
    // Return value is an iterator referencing the node.
    //
-   Node Insert(AABB bounds, void* data);
+   BaseNode Insert(AABB bounds);
 
    //
    // Remove a node from the tree.
    // This may invalidate all other nodes.
    //
-   void Remove(Node& node);
+   void Remove(BaseNode& node);
 
    //
    // In the case of an invalidated node, use
    // this to find it again.
    //
-   Node Find(Node::ID id);
+   BaseNode Find(BaseNode::ID id);
 
    //
    // Reorganize the data in a cache-friendly way.
@@ -132,36 +131,36 @@ public:
    //
    // Get a reference to the root node.
    //
-   Node GetRoot();
+   BaseNode GetRoot();
 
    // Traversal functions.
-   Node GetParent(Node::ID id);
-   Node GetLeftChild(Node::ID id);
-   Node GetRightChild(Node::ID id);
+   BaseNode GetParent(BaseNode::ID id);
+   BaseNode GetLeftChild(BaseNode::ID id);
+   BaseNode GetRightChild(BaseNode::ID id);
 
 private:
    //
    // Instantiate a node
    //
-   Node Create(AABB bounds, void* data);
+   BaseNode Create(AABB bounds);
 
    //
    // Get a node at the specified index.
    // Private because we want other classes to use an ID,
    // not a versionless index.
    //
-   Node Get(uint32_t index);
+   BaseNode Get(uint32_t index);
 
    //
    // Move upward, fixing all the parent AABBs to accommodate their children.
    //
-   void FixTreeUpwards(Node start);
+   void FixTreeUpwards(BaseNode start);
 
 private:
-   std::vector<NodeData> mNodes;
+   std::vector<BaseNodeData> mNodes;
 
    // Index of the root node.
-   uint32_t mRoot = NodeData::INVALID;
+   uint32_t mRoot = BaseNodeData::INVALID;
 
    // mNumNodes is the source of truth for number of nodes registered.
    uint32_t mNumNodes = 0;
@@ -169,6 +168,59 @@ private:
    std::vector<uint32_t> mNodeVersion;
    // List of free node slots
    std::vector<uint32_t> mNodeFreeList;
+};
+
+template <typename DataType>
+class AABBTree : public BaseAABBTree
+{
+public:
+   class Node : public BaseNode
+   {
+   public:
+      Node(BaseNode base) : BaseNode(base.mTree, base.id) {};
+
+      const DataType& data() const
+      {
+         return static_cast<AABBTree*>(mTree)->mData[id.index()];
+      }
+
+      // Traversal.
+      Node parent() { return Node(BaseNode::parent()); }
+      Node left() { return Node(BaseNode::left()); }
+      Node right() { return Node(BaseNode::right()); }
+
+   private:
+      friend class AABBTree;
+   };
+
+public:
+   //
+   // Reskin functions to return a Node object
+   //
+   Node GetRoot() { return Node(BaseAABBTree::GetRoot()); }
+   Node Find(BaseNode::ID id) { return Node(BaseAABBTree::Find(id)); }
+   Node GetParent(BaseNode::ID id) { return Node(BaseAABBTree::GetParent(id)); }
+   Node GetLeftChild(BaseNode::ID id) { return Node(BaseAABBTree::GetLeftChild(id)); }
+   Node GetRightChild(BaseNode::ID id) { return Node(BaseAABBTree::GetRightChild(id)); }
+
+public:
+   //
+   // Insert a node with attached data
+   //
+   Node Insert(AABB bounds, DataType data)
+   {
+      Node node = Node(BaseAABBTree::Insert(bounds));
+      if (mData.size() <= node.id.index())
+      {
+         mData.resize(node.id.index() + 1);
+      }
+      mData[node.id.index()] = data;
+
+      return node;
+   }
+
+private:
+   std::vector<DataType> mData;
 };
 
 }; // namespace Game

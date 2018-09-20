@@ -12,12 +12,12 @@ namespace Game
 // Node Mechanics.
 //
 
-const AABBTree::Node AABBTree::Node::INVALID{nullptr, ID()};
+const BaseAABBTree::BaseNode BaseAABBTree::BaseNode::INVALID{nullptr, ID()};
 
 ///
 ///
 ///
-AABBTree::Node AABBTree::Node::parent()
+BaseAABBTree::BaseNode BaseAABBTree::BaseNode::parent()
 {
    if (!IsValid()) { return INVALID; }
    return mTree->GetParent(id);
@@ -26,7 +26,7 @@ AABBTree::Node AABBTree::Node::parent()
 ///
 ///
 ///
-AABBTree::Node AABBTree::Node::left()
+BaseAABBTree::BaseNode BaseAABBTree::BaseNode::left()
 {
    if (!IsValid()) { return INVALID; }
    return mTree->GetLeftChild(id);
@@ -35,7 +35,7 @@ AABBTree::Node AABBTree::Node::left()
 ///
 ///
 ///
-AABBTree::Node AABBTree::Node::right()
+BaseAABBTree::BaseNode BaseAABBTree::BaseNode::right()
 {
    if (!IsValid()) { return INVALID; }
    return mTree->GetRightChild(id);
@@ -44,17 +44,17 @@ AABBTree::Node AABBTree::Node::right()
 ///
 ///
 ///
-bool AABBTree::Node::IsLeaf()
+bool BaseAABBTree::BaseNode::IsLeaf()
 {
    assert(IsValid());
-   NodeData nodeData = mTree->mNodes[id.index()];
-   return nodeData.leftChild == NodeData::INVALID && nodeData.rightChild == NodeData::INVALID;
+   BaseNodeData nodeData = mTree->mNodes[id.index()];
+   return nodeData.leftChild == BaseNodeData::INVALID && nodeData.rightChild == BaseNodeData::INVALID;
 }
 
 ///
 ///
 ///
-bool AABBTree::Node::IsValid() const
+bool BaseAABBTree::BaseNode::IsValid() const
 {
    return mTree != nullptr && mTree->IsValid(id);
 }
@@ -62,7 +62,7 @@ bool AABBTree::Node::IsValid() const
 ///
 ///
 ///
-AABBTree::Node::operator bool() const
+BaseAABBTree::BaseNode::operator bool() const
 {
    return IsValid();
 }
@@ -70,7 +70,7 @@ AABBTree::Node::operator bool() const
 ///
 ///
 ///
-AABBTree::NodeData* AABBTree::Node::operator->() const
+BaseAABBTree::BaseNodeData* BaseAABBTree::BaseNode::operator->() const
 {
    assert(IsValid());
    return &mTree->mNodes[id.index()];
@@ -79,16 +79,7 @@ AABBTree::NodeData* AABBTree::Node::operator->() const
 ///
 ///
 ///
-void* AABBTree::Node::data() const
-{
-   assert(IsValid());
-   return mTree->mNodes[id.index()].data;
-}
-
-///
-///
-///
-AABB& AABBTree::Node::aabb() const
+AABB& BaseAABBTree::BaseNode::aabb() const
 {
    assert(IsValid());
    return mTree->mNodes[id.index()].aabb;
@@ -101,22 +92,22 @@ AABB& AABBTree::Node::aabb() const
 ///
 ///
 ///
-AABBTree::AABBTree(uint32_t /* initialSize */)
-   : mRoot(NodeData::INVALID)
+BaseAABBTree::BaseAABBTree(uint32_t /* initialSize */)
+   : mRoot(BaseNodeData::INVALID)
    , mNumNodes(0)
 {
 }
 
-AABBTree::~AABBTree()
+BaseAABBTree::~BaseAABBTree()
 {
 }
 
-bool AABBTree::IsValid(Node::ID id)
+bool BaseAABBTree::IsValid(BaseNode::ID id)
 {
    return id.index() < mNumNodes && mNodeVersion[id.index()] == id.version();
 }
 
-AABBTree::Node AABBTree::Create(AABB bounds, void* data)
+BaseAABBTree::BaseNode BaseAABBTree::Create(AABB bounds)
 {
    uint32_t index, version;
    if (mNodeFreeList.empty())
@@ -133,30 +124,29 @@ AABBTree::Node AABBTree::Create(AABB bounds, void* data)
       mNodeFreeList.pop_back();
       version = mNodeVersion[index];
    }
-   Node node(this, Node::ID(index, version));
+   BaseNode node(this, BaseNode::ID(index, version));
 
    // Initialize object.
-   NodeData* nodeData = &mNodes[index];
+   BaseNodeData* nodeData = &mNodes[index];
    nodeData->aabb = bounds;
-   nodeData->data = data;
-   nodeData->parent = NodeData::INVALID;
-   nodeData->leftChild = NodeData::INVALID;
-   nodeData->rightChild = NodeData::INVALID;
+   nodeData->parent = BaseNodeData::INVALID;
+   nodeData->leftChild = BaseNodeData::INVALID;
+   nodeData->rightChild = BaseNodeData::INVALID;
 
    return node;
 }
 
-AABBTree::Node AABBTree::Insert(AABB bounds, void* data)
+BaseAABBTree::BaseNode BaseAABBTree::Insert(AABB bounds)
 {
-   Node node = Create(bounds, data);
+   BaseNode node = Create(bounds);
 
-   if (mRoot == NodeData::INVALID)
+   if (mRoot == BaseNodeData::INVALID)
    {
       mRoot = node.id.index();
       return node;
    }
 
-   Node cursor = GetRoot();
+   BaseNode cursor = GetRoot();
    while (!cursor.IsLeaf())
    {
       AABB combined = cursor.aabb().Merge(bounds);
@@ -167,7 +157,7 @@ AABBTree::Node AABBTree::Insert(AABB bounds, void* data)
       // have to add to the existing node's AABB.
       float pushDownCost = 2.0f * (combined.GetSurfaceArea() - cursor.aabb().GetSurfaceArea());
 
-      Node left = cursor.left();
+      BaseNode left = cursor.left();
       float leftCost = pushDownCost;
       if (left.IsLeaf())
       {
@@ -180,7 +170,7 @@ AABBTree::Node AABBTree::Insert(AABB bounds, void* data)
          leftCost += left.aabb().Merge(bounds).GetSurfaceArea() - left.aabb().GetSurfaceArea();
       }
 
-      Node right = cursor.right();
+      BaseNode right = cursor.right();
       float rightCost = pushDownCost;
       if (right.IsLeaf())
       {
@@ -204,19 +194,19 @@ AABBTree::Node AABBTree::Insert(AABB bounds, void* data)
    }
 
    // At this point, we want node and cursor to be siblings. Create a new parent for them.
-   Node parent = Create(node.aabb().Merge(cursor.aabb()), nullptr);
+   BaseNode parent = Create(node.aabb().Merge(cursor.aabb()));
    parent->parent = cursor->parent;
    parent->leftChild = cursor.id.index();
    parent->rightChild = node.id.index();
    node->parent = cursor->parent = parent.id.index();
 
-   if (parent->parent == NodeData::INVALID)
+   if (parent->parent == BaseNodeData::INVALID)
    {
       mRoot = parent.id.index();
    }
    else
    {
-      Node grandparent = parent.parent();
+      BaseNode grandparent = parent.parent();
       if (grandparent->leftChild == cursor.id.index())
       {
          grandparent->leftChild = parent.id.index();
@@ -232,12 +222,12 @@ AABBTree::Node AABBTree::Insert(AABB bounds, void* data)
    return node;
 }
 
-void AABBTree::FixTreeUpwards(Node cursor)
+void BaseAABBTree::FixTreeUpwards(BaseNode cursor)
 {
-   while (cursor != Node::INVALID)
+   while (cursor != BaseNode::INVALID)
    {
-      Node left = cursor.left();
-      Node right = cursor.right();
+      BaseNode left = cursor.left();
+      BaseNode right = cursor.right();
       assert(left && right);
 
       cursor->aabb = left->aabb.Merge(right->aabb);
@@ -245,48 +235,48 @@ void AABBTree::FixTreeUpwards(Node cursor)
    }
 }
 
-void AABBTree::Remove(Node& /*node*/)
+void BaseAABBTree::Remove(BaseNode& /*node*/)
 {
    assert(false);
 }
 
-AABBTree::Node AABBTree::Find(Node::ID /*id*/)
+BaseAABBTree::BaseNode BaseAABBTree::Find(BaseNode::ID /*id*/)
 {
-   return Node::INVALID;
+   return BaseNode::INVALID;
 }
 
-void AABBTree::Defragment()
+void BaseAABBTree::Defragment()
 {
    assert(false);
 }
 
-AABBTree::Node AABBTree::GetRoot()
+BaseAABBTree::BaseNode BaseAABBTree::GetRoot()
 {
    return Get(mRoot);
 }
 
-AABBTree::Node AABBTree::GetParent(Node::ID id)
+BaseAABBTree::BaseNode BaseAABBTree::GetParent(BaseNode::ID id)
 {
    assert(IsValid(id));
    return Get(mNodes[id.index()].parent);
 }
 
-AABBTree::Node AABBTree::GetLeftChild(Node::ID id)
+BaseAABBTree::BaseNode BaseAABBTree::GetLeftChild(BaseNode::ID id)
 {
    assert(IsValid(id));
    return Get(mNodes[id.index()].leftChild);
 }
 
-AABBTree::Node AABBTree::GetRightChild(Node::ID id)
+BaseAABBTree::BaseNode BaseAABBTree::GetRightChild(BaseNode::ID id)
 {
    assert(IsValid(id));
    return Get(mNodes[id.index()].rightChild);
 }
 
-AABBTree::Node AABBTree::Get(uint32_t index)
+BaseAABBTree::BaseNode BaseAABBTree::Get(uint32_t index)
 {
-   if (index == NodeData::INVALID) { return Node::INVALID; }
-   return Node(this, Node::ID(index, mNodeVersion[index]));
+   if (index == BaseNodeData::INVALID) { return BaseNode::INVALID; }
+   return BaseNode(this, BaseNode::ID(index, mNodeVersion[index]));
 }
 
 }; // namespace Game
