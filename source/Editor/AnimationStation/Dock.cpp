@@ -48,19 +48,19 @@ Dock::Dock(
       labelOptions.w = 20 * EIGHT_X;
       labelOptions.h = 2 * EIGHT_Y;
       labelOptions.text = "Walk away from the thing";
-      Add<Label>(labelOptions);
+      mStateName = Add<Label>(labelOptions);
 
       labelOptions.y -= 5 * EIGHT_Y;
       labelOptions.text = "0.0";
-      Add<Label>(labelOptions);
+      mStateLength = Add<Label>(labelOptions);
 
       labelOptions.y -= 15 * EIGHT_Y;
       labelOptions.text = "1";
-      Add<Label>(labelOptions);
+      mKeyframeIndex = Add<Label>(labelOptions);
 
       labelOptions.y -= 5 * EIGHT_Y;
       labelOptions.text = "0.0";
-      Add<Label>(labelOptions);
+      mTime = Add<Label>(labelOptions);
    }
 
    // State buttons
@@ -238,6 +238,8 @@ void Dock::Update(TIMEDELTA dt)
 {
    Engine::ComponentHandle<AnimatedSkeleton> skeleton = mState->GetPlayerSkeleton();
    mScrubber->SetValue(skeleton->time / skeleton->states[skeleton->current].length);
+
+   mTime->SetText(Format::FormatString("%.1f", skeleton->time));
 
    SubWindow::Update(dt);
 }

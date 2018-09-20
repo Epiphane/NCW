@@ -122,7 +122,7 @@ void DebugHelper::Update()
       for (auto system : mSystemManager->GetBenchmarks())
       {
          leftText += "\n" + system.first;
-         std::string ms = Format::FormatString("%1ms", std::round(system.second * 10000.0) / 10.0);
+         std::string ms = Format::FormatString("%.1fms", system.second * 1000.0);
          ms.insert(ms.begin(), 7 - ms.size(), ' ');
          rightText += "\n" + std::move(ms);
       }

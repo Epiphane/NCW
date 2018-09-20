@@ -97,7 +97,7 @@ int main(int argc, char** argv)
    // FPS clock
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
-      return Format::FormatString("%1", std::round(1.0 / clock.Average()));
+      return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
    });
 
    // Start with AnimationStation

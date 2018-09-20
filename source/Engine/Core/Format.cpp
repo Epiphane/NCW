@@ -91,7 +91,7 @@ void AppendFloatLength(char *&, T) {}
 void AppendFloatLength(char *&p, long double) { *p++ = 'L'; }
 
 template <typename T>
-std::string FormatDouble(T value)
+std::string FormatDouble(T value, const impl::format_specs& specs)
 {
    switch (fpclassify(value)) {
    case FP_INFINITE:  return "<inf>";
@@ -108,8 +108,14 @@ std::string FormatDouble(T value)
    char *pFmt = fmt;
    *pFmt++ = '%';
    // TODO #-*.* flags
+   if (specs.precision != UINT32_MAX)
+   {
+      assert(specs.precision < 10);
+      *pFmt++ = '.';
+      *pFmt++ = ('0' + static_cast<char>(specs.precision));
+   }
    AppendFloatLength(pFmt, value);
-   *pFmt++ = 'g'; // TODO more things
+   *pFmt++ = 'f'; // TODO more things
    *pFmt = '\0';
 
    // TODO snprintf_s or _snprintf_s by platform
@@ -127,7 +133,7 @@ std::string FormatPointer(const void *pointer)
 }
 
 namespace impl {
-std::string FormatArg(impl::basic_arg argument)
+std::string FormatArg(const impl::basic_arg& argument, const format_specs& specs)
 {
    switch (argument.type_)
    {
@@ -147,9 +153,9 @@ std::string FormatArg(impl::basic_arg argument)
    case impl::type::char_type:
       return FormatChar(static_cast<char>(argument.value_.int32_value));
    case impl::type::double_type:
-      return FormatDouble(argument.value_.double_value);
+      return FormatDouble(argument.value_.double_value, specs);
    case impl::type::long_double_type:
-      return FormatDouble(argument.value_.long_double_value);
+      return FormatDouble(argument.value_.long_double_value, specs);
    case impl::type::cstring_type:
       return std::string(argument.value_.string.value);
    case impl::type::string_type:
@@ -172,7 +178,7 @@ size_t BufferSize(std::string_view string, impl::basic_format_args args)
 
 // Parse a nonnegative integer out of a string.
 // NO ERROR HANDLING. If a number is too big, rest in peace my dude.
-uint32_t ParseNonnegativeInteger(std::string_view::iterator it, std::string_view::iterator end)
+uint32_t ParseNonnegativeInteger(std::string_view::iterator& it, std::string_view::iterator end)
 {
    assert('0' <= *it && *it <= '9');
    uint32_t value = 0;
@@ -233,27 +239,29 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
          arg_index = _arg++;
       }
 
-      // Parse precision
-      // TODO
-      //uint32_t precision = 0;
-      if (*it == '.')
+      impl::format_specs specs;
+      if (it != end)
       {
-         ++it;
-         if ('0' <= *it && *it <= '9')
+         // Parse format
+         // TODO
+         if (*it == '.')
          {
-            // TODO
-            //precision = static_cast<uint32_t>(ParseNonnegativeInteger(it));
-         }
+            ++it;
+            if ('0' <= *it && *it <= '9')
+            {
+               specs.precision = ParseNonnegativeInteger(it, end);
+            }
 
-         // Unimplemented.
-         assert(*it == '*');
+            // TODO there's a lot more to worry about here i think
+            assert(*it++ == 'f', "Format type of f is the only one implemented with precision");
+         }
       }
 
       impl::basic_arg arg = args[arg_index];
 
-      result.append(FormatArg(arg));
+      result.append(FormatArg(arg, specs));
 
-      start = ++it;
+      start = it;
    }
    result.append(start, it);
 

@@ -3,6 +3,8 @@
 #pragma once
 
 #include <cassert>
+#include <cstdint>
+#include <limits>
 #include <string>
 #include <string_view>
 
@@ -107,6 +109,11 @@ struct typed_value : value {
    constexpr typed_value(const T &val) : value(val) {}
 };
 
+struct format_specs
+{
+   uint32_t precision = UINT32_MAX;
+};
+
 class basic_arg
 {
 private:
@@ -116,7 +123,7 @@ private:
    template <typename T>
    friend constexpr basic_arg make_arg(const T &value);
 
-   friend std::string FormatArg(basic_arg argument);
+   friend std::string FormatArg(const basic_arg& argument, const format_specs& precision);
    friend class basic_format_args;
 
 public:

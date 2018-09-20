@@ -64,7 +64,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
    }
 
    metric = Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
-      return Format::FormatString("%1ms", std::round(mClock.Average() * 100000.0) / 100);
+      return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }
 

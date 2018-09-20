@@ -61,8 +61,8 @@ struct MouseControlledCameraArm : public Engine::Component<MouseControlledCamera
 
 struct KeyControlledCameraArm : public Engine::Component<KeyControlledCameraArm> {
    KeyControlledCameraArm(
-      uint32_t zoomInKey = GLFW_KEY_Q,
-      uint32_t zoomOutKey = GLFW_KEY_E,
+      uint32_t zoomInKey = GLFW_KEY_E,
+      uint32_t zoomOutKey = GLFW_KEY_Q,
       double sensitivity = 8.0
    )
       : zoomIn(zoomInKey)

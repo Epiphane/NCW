@@ -153,11 +153,11 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
    events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
 
    updateMetric = Game::DebugHelper::Instance()->RegisterMetric("Physics Update", [this]() -> std::string {
-      return Format::FormatString("%1ms", std::round(mUpdateClock.Average() * 100000.0) / 100);
+      return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
 
    collisionMetric = Game::DebugHelper::Instance()->RegisterMetric("Collision Checks", [this]() -> std::string {
-      return Format::FormatString("%1ms", std::round(mCollisionClock.Average() * 100000.0) / 100);
+      return Format::FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
    });
 }
 

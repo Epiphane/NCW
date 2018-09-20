@@ -68,6 +68,10 @@ private:
    Image* mPause;
    Image* mTick;
    Scrubber* mScrubber;
+   Label* mStateName;
+   Label* mStateLength;
+   Label* mKeyframeIndex;
+   Label* mTime;
 };
 
 class DockCommand : public Command

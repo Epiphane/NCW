@@ -20,7 +20,7 @@ namespace Game
          entities.Each<Engine::Transform, MouseControlledCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseControlledCamera& opts) {
             transform.SetYaw(transform.GetYaw() + float(opts.sensitivity[0] * movement.x));
 
-            float newPitch = transform.GetPitch() - float(opts.sensitivity[1] * movement.y);
+            float newPitch = transform.GetPitch() + float(opts.sensitivity[1] * movement.y);
             if (newPitch < -M_PI / 2.0f + 0.01f)
             {
                newPitch = -M_PI / 2.0f + 0.01f;

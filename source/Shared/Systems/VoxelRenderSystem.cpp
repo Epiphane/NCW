@@ -38,7 +38,7 @@ namespace Game
    VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
    {
       metric = Game::DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
-         return Format::FormatString("%1ms", std::round(mClock.Average() * 100000.0) / 100);
+         return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
       });
    }
 
