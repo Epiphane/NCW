@@ -23,9 +23,12 @@ Label::Label(
    const Options& options
 )
    : Element(parent, options)
-   , mText(options.text)
-   , mCallback(options.onClick)
+   , mText("")
+   , mClickCallback(options.onClick)
+   , mChangeCallback(options.onChange)
    , mIsHovered(false)
+   , mIsFocused(false)
+   , mKeyCallbacks{}
    , mFramebuffer(GLsizei(GetWidth()), GLsizei(GetHeight()))
    , mTextVBO(Engine::Graphics::VBO::DataType::Vertices)
    , mRenderVBO(Engine::Graphics::VBO::DataType::Vertices)
@@ -83,32 +86,86 @@ Label::Label(
    mRenderVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 
    SetText(options.text);
+
+   if (mChangeCallback)
+   {
+      auto onAlpha = std::bind(&Label::OnAlphaKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+      for (int key = GLFW_KEY_A; key <= GLFW_KEY_Z; key++)
+      {
+         mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(key), onAlpha));
+         mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::ShiftKey(key), onAlpha));
+      }
+      mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(GLFW_KEY_BACKSPACE), onAlpha));
+      mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(GLFW_KEY_ENTER), onAlpha));
+   }
+}
+
+void Label::OnAlphaKey(int key, int action, int mods)
+{
+   if (!mIsFocused || action != GLFW_PRESS)
+   {
+      return;
+   }
+
+   switch (key)
+   {
+   case GLFW_KEY_BACKSPACE:
+      if (mText.size() > 1)
+      {
+         // Erase the second to last character
+         mText.erase(mText.end() - 2, mText.end() - 1);
+         RenderText(mText);
+      }
+      break;
+   case GLFW_KEY_ENTER:
+      mIsFocused = false;
+      mText.pop_back();
+      mChangeCallback(mText);
+      RenderText(mText);
+      break;
+   default:
+      // It's a letter
+      char ch = (key - GLFW_KEY_A) + 'a';
+      if ((mods & GLFW_MOD_SHIFT) != 0)
+      {
+         ch += 'A' - 'a';
+      }
+      mText.insert(mText.end() - 1, ch);
+      RenderText(mText);
+   }
 }
 
 void Label::MouseClick(int button, double x, double y)
 {
-   if (mCallback && ContainsPoint(x, y))
+   if (mClickCallback && ContainsPoint(x, y))
    {
-      mCallback();
+      mClickCallback();
    }
-}
-
-void Label::MouseMove(double x, double y)
-{
-   if (mCallback && ContainsPoint(x, y) && !mIsHovered)
+   if (mChangeCallback)
    {
-      RenderText("> " + mText);
-      mIsHovered = true;
-   }
-   else if (!ContainsPoint(x, y) && mIsHovered)
-   {
-      RenderText(mText);
-      mIsHovered = false;
+      bool wasFocused = mIsFocused;
+      mIsFocused = ContainsPoint(x, y);
+      if (mIsFocused && !wasFocused)
+      {
+         mText.push_back('_');
+         RenderText(mText);
+      }
+      else if (!mIsFocused && wasFocused)
+      {
+         mText.pop_back();
+         mChangeCallback(mText);
+         RenderText(mText);
+      }
    }
 }
 
 void Label::RenderText(const std::string& text)
 {
+   if (text.empty())
+   {
+      return;
+   }
+
    std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(0, 0, 1, text);
 
    mTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * uvs.size(), &uvs[0], GL_STATIC_DRAW);
@@ -130,6 +187,27 @@ void Label::RenderText(const std::string& text)
 
 void Label::Update(TIMEDELTA dt)
 {
+   if (mText.empty())
+   {
+      return;
+   }
+
+   if (mClickCallback)
+   {
+      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetMousePosition();
+      bool hovered = ContainsPoint((mouse.x - mParent.GetX()) / mParent.GetWidth(), (mouse.y - mParent.GetY()) / mParent.GetHeight());
+      if (hovered && !mIsHovered)
+      {
+         RenderText("> " + mText);
+         mIsHovered = true;
+      }
+      else if (!hovered && mIsHovered)
+      {
+         RenderText(mText);
+         mIsHovered = false;
+      }
+   }
+
    // Draw framebuffer to the screen
    BIND_PROGRAM_IN_SCOPE(renderProgram);
 

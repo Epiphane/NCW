@@ -31,6 +31,7 @@ public:
    struct Options : public Element::Options {
       std::string text;
       std::function<void(void)> onClick;
+      std::function<void(std::string)> onChange;
       std::string font = "debug";
    };
 
@@ -50,19 +51,28 @@ public:
    //
    void SetText(const std::string& text)
    {
+      if (text == mText)
+      {
+         return;
+      }
+
       mText = text;
       RenderText(text);
    }
 
-   void MouseMove(double x, double y) override;
    void MouseClick(int button, double x, double y) override;
 
 private:
    void RenderText(const std::string& text);
 
    std::string mText;
-   std::function<void(void)> mCallback;
+   std::function<void(void)> mClickCallback;
+   std::function<void(std::string)> mChangeCallback;
    bool mIsHovered;
+   bool mIsFocused;
+
+   std::vector<std::unique_ptr<Engine::Input::KeyCallbackLink>> mKeyCallbacks;
+   void OnAlphaKey(int key, int action, int mods);
 
 private:
    Engine::Graphics::Framebuffer mFramebuffer;

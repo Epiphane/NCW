@@ -33,6 +33,7 @@ public:
       std::function<void(double)> onPress = nullptr;
       std::function<void(double)> onMove = nullptr;
       std::function<void(double)> onRelease = nullptr;
+      bool alignCenter = true;
    };
 
 public:
@@ -50,13 +51,15 @@ public:
    void MouseUp(int button, double x, double y) override;
    void MouseDrag(int button, double x, double y) override;
 
-   void SetValue(double value);
+   virtual void SetValue(double value);
 
-private:
+protected:
    std::function<void(double)> mPressCallback, mMoveCallback, mReleaseCallback;
    bool mIsPressed;
 
    double mMin, mValue, mMax;
+   double mPercent;
+   glm::vec3 mOffset;
 
 private:
    Engine::Graphics::Texture* mTexture;

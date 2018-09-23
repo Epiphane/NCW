@@ -41,17 +41,14 @@ public:
    // the constraints on x and y.
    //
 
-#define ELEMENT_UNREFERENCED_PARAMETER(param) { param; }
    // React to the mouse being pressed. x and y are relative to the parent's bounds.
-   virtual void MouseDown(int button, double x, double y) { ELEMENT_UNREFERENCED_PARAMETER(button); ELEMENT_UNREFERENCED_PARAMETER(x); ELEMENT_UNREFERENCED_PARAMETER(y); }
+   virtual void MouseDown(int button, double x, double y);
    // React to the mouse being released. x and y are relative to the parent's bounds.
-   virtual void MouseUp(int button, double x, double y) { ELEMENT_UNREFERENCED_PARAMETER(button); ELEMENT_UNREFERENCED_PARAMETER(x); ELEMENT_UNREFERENCED_PARAMETER(y); }
+   virtual void MouseUp(int button, double x, double y);
    // React to the mouse being clicked. x and y are relative to the parent's bounds.
-   virtual void MouseClick(int button, double x, double y) { ELEMENT_UNREFERENCED_PARAMETER(button); ELEMENT_UNREFERENCED_PARAMETER(x); ELEMENT_UNREFERENCED_PARAMETER(y); }
+   virtual void MouseClick(int button, double x, double y);
    // React to the mouse dragging. x and y are relative to the parent's bounds.
-   virtual void MouseDrag(int button, double x, double y) { ELEMENT_UNREFERENCED_PARAMETER(button); ELEMENT_UNREFERENCED_PARAMETER(x); ELEMENT_UNREFERENCED_PARAMETER(y); }
-   // React to the mouse moving. x and y are relative to the parent's bounds.
-   virtual void MouseMove(double x, double y) { ELEMENT_UNREFERENCED_PARAMETER(x); ELEMENT_UNREFERENCED_PARAMETER(y); }
+   virtual void MouseDrag(int button, double x, double y);
 
    // Get the absolute x value of this element, in pixels.
    uint32_t GetX() const override { return uint32_t(mParent.GetX() + mParent.GetWidth() * mOptions.x); }

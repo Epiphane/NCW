@@ -26,8 +26,8 @@ Image::Image(
 )
    : Element(parent, options)
    , mCallback(options.onClick)
-   , mIsHovered(false)
    , mIsPressed(false)
+   , mOffset(0, 0, 0)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
    if (!program)
@@ -44,6 +44,7 @@ Image::Image(
       program->Attrib("aPosition");
       program->Attrib("aUV");
       program->Uniform("uTexture");
+      program->Uniform("uOffset");
    }
    
    LOG_DEBUG("Loading %1", Paths::Canonicalize(options.filename));
@@ -118,25 +119,24 @@ void Image::MouseClick(int button, double x, double y)
    mIsPressed = false;
 }
 
-void Image::MouseMove(double x, double y)
-{
-   mIsHovered = ContainsPoint(x, y);
-}
-
 void Image::Update(TIMEDELTA dt)
 {
+   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetMousePosition();
+   bool hovered = ContainsPoint((mouse.x - mParent.GetX()) / mParent.GetWidth(), (mouse.y - mParent.GetY()) / mParent.GetHeight());
+
    // Draw framebuffer to the screen
    BIND_PROGRAM_IN_SCOPE(program);
 
    glActiveTexture(GL_TEXTURE0);
    glBindTexture(GL_TEXTURE_2D, mTexture->GetTexture());
    program->Uniform1i("uTexture", 0);
+   program->UniformVector3f("uOffset", mOffset);
 
    mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
    mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));
 
    GLint first = 0;
-   if (mIsHovered)
+   if (hovered)
    {
       first = mIsPressed ? 12 : 6;
    }

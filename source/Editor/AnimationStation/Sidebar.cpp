@@ -19,54 +19,70 @@ namespace Editor
 namespace AnimationStation
 {
 
+using Game::AnimatedSkeleton;
+
 Sidebar::Sidebar(
    Bounded& parent,
-   const Options& options,
-   MainState* state
+   const Options& options
 )
    : SubWindow(parent, options)
-   , mState(state)
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
    {
+      // Backdrop
       Image::Options imageOptions;
       imageOptions.z = 0.5f;
       imageOptions.filename = Asset::Image("EditorSidebar.png");
       Add<Image>(imageOptions);
    }
 
-   Label::Options labelOptions;
-   labelOptions.x = 8.0f / GetWidth();
-   labelOptions.y = 1.0f - 43.0f / GetHeight();
-   labelOptions.w = 1.0f - 16.0f / GetWidth();
-   labelOptions.h = 35.0f / GetHeight();
+   {
+      // Labels
+      Label::Options labelOptions;
+      labelOptions.x = 8.0f / GetWidth();
+      labelOptions.y = 1.0f - 43.0f / GetHeight();
+      labelOptions.w = 1.0f - 16.0f / GetWidth();
+      labelOptions.h = 35.0f / GetHeight();
 
-   labelOptions.text = "Load";
-   labelOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-   mLoad = Add<Label>(labelOptions);
-   labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.text = "Load";
+      labelOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
+      Add<Label>(labelOptions);
 
-   labelOptions.text = "Save";
-   labelOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-   mSave = Add<Label>(labelOptions);
-   labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.text = "Save";
+      labelOptions.onClick = std::bind(&Sidebar::SaveFile, this);
+      mSave = Add<Label>(labelOptions);
+      
+      labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.text = "Save As...";
+      labelOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
+      Add<Label>(labelOptions);
+      
+      labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.text = "Discard Changes";
+      labelOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
+      Add<Label>(labelOptions);
+      
+      labelOptions.y -= 35.0f / GetHeight();
+      labelOptions.text = "Quit";
+      labelOptions.onClick = std::bind(&Sidebar::Quit, this);
+      mQuit = Add<Label>(labelOptions);
+   }
 
-   labelOptions.text = "Save As...";
-   labelOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-   mSaveAs = Add<Label>(labelOptions);
-   labelOptions.y -= 35.0f / GetHeight();
+   Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
+   Subscribe<SkeletonModifiedEvent>(*this);
+}
 
-   labelOptions.text = "Discard Changes";
-   labelOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-   mDiscard = Add<Label>(labelOptions);
-   labelOptions.y -= 35.0f / GetHeight();
-
-   labelOptions.text = "Quit";
-   labelOptions.onClick = std::bind(&Sidebar::Quit, this);
-   mQuit = Add<Label>(labelOptions);
-   labelOptions.y -= 35.0f / GetHeight();
+void Sidebar::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
+{
+   mSkeleton = evt.component;
 
    LoadFile(mFilename);
+}
+
+void Sidebar::Receive(const SkeletonModifiedEvent&)
+{
+   SetModified(true);
 }
 
 void Sidebar::SetModified(bool modified)
@@ -103,25 +119,29 @@ void Sidebar::LoadNewFile()
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   using Game::AnimatedSkeleton;
-   Engine::ComponentHandle<AnimatedSkeleton> skeleton = mState->GetPlayerSkeleton();
+   if (!mSkeleton)
+   {
+      // Wait until the component exists!
+      return;
+   }
 
-   skeleton->Load(filename);
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-   skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+   mSkeleton->Load(filename);
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
+   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
    // No transitioning
-   for (AnimatedSkeleton::State& state : skeleton->states)
+   for (AnimatedSkeleton::State& state : mSkeleton->states)
    {
       state.transitions.clear();
    }
 
-   SetModified(true);
+   Emit<SkeletonLoadedEvent>();
+   SetModified(false);
 }
 
 void Sidebar::SaveNewFile()
@@ -136,10 +156,11 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mState->GetPlayerSkeleton()->Serialize();
+   std::string serialized = mSkeleton->Serialize();
    std::ofstream out(mFilename);
    out << serialized << std::endl;
 
+   Emit<SkeletonSavedEvent>();
    SetModified(false);
 }
 

@@ -11,10 +11,14 @@ template<typename L, typename R>
 class Either
 {
 public:
-   constexpr Either(const L& left) : leftVal(left), isLeft(true) {};
-   constexpr Either(L&& left) : leftVal(std::move(left)), isLeft(true) {};
-   constexpr Either(const R& right) : rightVal(right), isLeft(false) {};
-   constexpr Either(R&& right) : rightVal(std::move(right)), isLeft(false) {};
+   using LeftType = typename std::conditional<std::is_void<L>::value, std::nullptr_t, L>::type;
+   using RightType = typename std::conditional<std::is_void<R>::value, std::nullptr_t, R>::type;
+
+public:
+   constexpr Either(const LeftType& left) : leftVal(left), isLeft(true) {};
+   constexpr Either(LeftType&& left) : leftVal(std::move(left)), isLeft(true) {};
+   constexpr Either(const RightType& right) : rightVal(right), isLeft(false) {};
+   constexpr Either(RightType&& right) : rightVal(std::move(right)), isLeft(false) {};
    constexpr Either(Either<L, R>&& other) : isLeft(other.isLeft)
    {
       if (isLeft)
@@ -30,33 +34,33 @@ public:
    {
       if (isLeft)
       {
-         leftVal.~L();
+         leftVal.~LeftType();
       }
       else
       {
-         rightVal.~R();
+         rightVal.~RightType();
       }
    }
 
    constexpr bool IsLeft() const { return isLeft; }
    constexpr bool IsRight() const { return !isLeft; }
 
-   L& Left() { return leftVal; }
+   LeftType& Left() { return leftVal; }
    //const L& Left() const { return leftVal; }
-   R& Right() { return rightVal; }
+   RightType& Right() { return rightVal; }
    //const R& Right() const { return rightVal; }
 
-   constexpr Either& operator=(const L& left) { leftVal = left; isLeft = true; return *this; }
-   constexpr Either& operator=(const R& right) { rightVal = right; isLeft = false; return *this; }
+   constexpr Either& operator=(const LeftType& left) { leftVal = left; isLeft = true; return *this; }
+   constexpr Either& operator=(const RightType& right) { rightVal = right; isLeft = false; return *this; }
    constexpr Either& operator=(const Either& other)
    {
       if (isLeft)
       {
-         leftVal.~L();
+         leftVal.~LeftType();
       }
       else
       {
-         rightVal.~R();
+         rightVal.~RightType();
       }
 
       isLeft = other.isLeft;
@@ -73,8 +77,8 @@ public:
 
 protected:
    union {
-      L leftVal;
-      R rightVal;
+      LeftType leftVal;
+      RightType rightVal;
    };
 
    bool isLeft;

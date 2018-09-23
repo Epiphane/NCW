@@ -116,11 +116,15 @@ int main(int argc, char** argv)
    window->GetInput()->OnClick([&](int button, double x, double y) {
       windowContent.MouseClick(button, x, y);
    });
+
    // Save the pointers so that the callback doesn't get deregistered.
    auto _1 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
       Editor::CommandStack::Instance()->Undo();
    });
-   auto _2 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Y), [&](int, int, int) {
+   auto _2 = window->GetInput()->AddCallback({
+      Engine::Input::CtrlShiftKey(GLFW_KEY_Z),
+      Engine::Input::CtrlKey(GLFW_KEY_Y)
+   }, [&](int, int, int) {
       Editor::CommandStack::Instance()->Redo();
    });
 
@@ -137,11 +141,8 @@ int main(int argc, char** argv)
          window->Clear();
          window->GetInput()->Update();
 
-         glm::tvec2<double> mouse = window->GetInput()->GetMousePosition();
-
          // Render game state
          {
-            windowContent.MouseMove(mouse.x, mouse.y);
             windowContent.Update(dt);
          }
 

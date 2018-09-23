@@ -54,7 +54,7 @@ class MaybeType : protected Either<
 public:
    using ValueType = typename std::conditional<std::is_void<T>::value, std::nullptr_t, T>::type;
    using Either = Either<
-      typename std::conditional<std::is_void<T>::value, std::nullptr_t, T>::type,
+      ValueType,
       FailureType
    >;
 

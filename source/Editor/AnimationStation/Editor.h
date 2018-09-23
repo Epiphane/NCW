@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <Engine/Event/EventManager.h>
+
 #include "../UI/StateWindow.h"
 #include "../UI/SubWindow.h"
 #include "Dock.h"
@@ -33,6 +35,8 @@ public:
    void Start();
 
 private:
+   Engine::EventManager mEvents;
+
    Sidebar* mSidebar;
    Dock* mDock;
    StateWindow* mStateWindow;

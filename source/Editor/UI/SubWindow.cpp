@@ -162,37 +162,23 @@ void SubWindow::MouseDrag(int button, double x, double y)
    }
 }
 
-void SubWindow::MouseMove(double x, double y)
-{
-   if (!mActive)
-   {
-      return;
-   }
-
-   // TODO: Consider not sending events if they don't occur within this SubWindow.
-   // The problem: if something reacts to being moused over (e.g. a button highlighting)
-   // it needs to know if the mouse has left, so it can update to reflect that.
-   //if (!ContainsPoint(x, y))
-   //{
-   //   return;
-   //}
-
-   double localX = (x - mOptions.x) / mOptions.w;
-   double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      if (child->IsActive()) {
-         child->MouseMove(localX, localY);
-      }
-   }
-}
-
 Element* SubWindow::AddChild(std::unique_ptr<Element>&& element)
 {
    Element* elem = element.get();
    mChildren.push_back(std::move(element));
    return elem;
+}
+
+void SubWindow::RemoveChild(Element* reference)
+{
+   for (auto it = mChildren.begin(); it != mChildren.end(); it++)
+   {
+      if (it->get() == reference)
+      {
+         mChildren.erase(it);
+         return;
+      }
+   }
 }
 
 }; // namespace Editor

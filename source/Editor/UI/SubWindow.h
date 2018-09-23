@@ -44,7 +44,6 @@ public:
    void MouseUp(int button, double x, double y) override;
    void MouseClick(int button, double x, double y) override;
    void MouseDrag(int button, double x, double y) override;
-   void MouseMove(double x, double y) override;
 
    //
    // Construct a child and add it to the window
@@ -60,6 +59,11 @@ protected:
    // Add an element to this window
    //
    virtual Element* AddChild(std::unique_ptr<Element>&& element);
+
+   //
+   // Remove an element from this window
+   //
+   virtual void RemoveChild(Element* reference);
 
 protected:
    std::vector<std::unique_ptr<Element>> mChildren;

@@ -44,7 +44,7 @@ using mouse_button_callback = std::function<void(int, double, double)>;
 // Often, that means there is one instance of this class for each Engine::Window.
 //
 // The only reason it's not implemented in Window.cpp is because 1) that would make it super
-// lengthy, and 2) it's helpful to understand when you're interacting with the window itself
+// lengthy, and 2) it's helpful to understand whether you're interacting with the window itself
 // or input in it.
 //
 class Input

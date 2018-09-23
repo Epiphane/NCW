@@ -44,7 +44,6 @@ public:
    void MouseUp(int button, double x, double y) override;
    void MouseClick(int button, double x, double y) override;
    void MouseDrag(int button, double x, double y) override;
-   void MouseMove(double x, double y) override;
 
    //
    // Construct a child and add it to the window

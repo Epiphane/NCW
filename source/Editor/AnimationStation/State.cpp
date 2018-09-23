@@ -27,6 +27,7 @@
 #pragma warning(push, 0)
 #include <Shared/Helpers/json.hpp>
 #pragma warning(pop)
+#include "../Systems/AnimationSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -48,9 +49,7 @@ using DebugHelper = Game::DebugHelper;
 MainState::MainState(Engine::Window* window, Bounded& parent)
    : mWindow(window)
    , mParent(parent)
-   , mPlayer(Entity(nullptr, Entity::ID(0)))
 {
-   mFilename = Paths::Normalize(Asset::Animation("player.json"));
 }
 
 MainState::~MainState()
@@ -63,24 +62,27 @@ void MainState::Initialize()
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
    mSystems.Add<Game::CameraSystem>(mWindow->GetInput());
-   mSystems.Add<Game::AnimationSystem>(mWindow->GetInput());
+   mSystems.Add<Editor::AnimationSystem>();
    mSystems.Add<Game::MakeshiftSystem>();
    mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
-   mSystems.Get<Game::AnimationSystem>()->SetTransitions(false);
    mSystems.Configure();
 
    // Unlock the mouse
    mWindow->GetInput()->SetMouseLock(false);
 
+   // Add a shell entity for controlling animation state
+   Entity controls = mEntities.Create();
+   controls.Add<AnimationSystemController>();
+
    // Create a player component
-   mPlayer = mEntities.Create();
-   mPlayer.Add<Transform>(glm::vec3(0, 4.3, 0));
-   mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   mPlayer.Add<AnimatedSkeleton>(mFilename);
+   Entity player = mEntities.Create();
+   player.Add<Transform>(glm::vec3(0, 4.3, 0));
+   player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+   player.Add<AnimatedSkeleton>();
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 0, 0);
-   playerCamera.Get<Transform>()->SetParent(mPlayer);
+   playerCamera.Get<Transform>()->SetParent(player);
    playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
    playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
@@ -159,21 +161,6 @@ void MainState::Initialize()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<Game::VoxelRender>(std::move(carpet));
-}
-
-void MainState::PlayAnimation()
-{
-   mSystems.Get<Game::AnimationSystem>()->Unpause();
-}
-
-void MainState::TickAnimation(TIMEDELTA dt)
-{
-   mSystems.Get<Game::AnimationSystem>()->TickAnimation(dt);
-}
-
-void MainState::PauseAnimation()
-{
-   mSystems.Get<Game::AnimationSystem>()->Pause();
 }
 
 }; // namespace AnimationStation

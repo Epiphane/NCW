@@ -48,6 +48,12 @@ public:
       mEvents.Emit<E>(evt);
    }
 
+   template <typename E, typename ... Args>
+   void Emit(Args && ... args)
+   {
+      Emit(E(std::forward<Args>(args)...));
+   }
+
 private:
    friend class StateManager;
    bool initialized = false;

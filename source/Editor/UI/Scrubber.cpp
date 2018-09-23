@@ -24,8 +24,10 @@ Scrubber::Scrubber(
    , mMoveCallback(options.onMove)
    , mReleaseCallback(options.onRelease)
    , mIsPressed(false)
-   , mMin(0)//options.x * parent.GetWidth())
-   , mMax(1)//(options.x + options.w) * parent.GetWidth())
+   , mMin(0)
+   , mMax(1)
+   , mPercent(0)
+   , mOffset(0)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
    if (!program)
@@ -65,7 +67,11 @@ Scrubber::Scrubber(
 
    float h = 2.0f * mOptions.h;
    float w = 2.0f * pixelWidth / parent.GetWidth();
-   float x = 2.0f * mOptions.x - 1.0f - w / 2;
+   float x = 2.0f * mOptions.x - 1.0f;
+   if (options.alignCenter)
+   {
+      x -= w / 2;
+   }
    float y = 2.0f * mOptions.y - 1.0f;
 
    std::vector<GLfloat> vboData = {
@@ -89,7 +95,7 @@ void Scrubber::MouseDown(int button, double x, double y)
       SetValue((x - mOptions.x) / mOptions.w);
       if (mPressCallback)
       {
-         mPressCallback((mValue - mMin) / (mMax - mMin));
+         mPressCallback(mPercent);
       }
    }
 }
@@ -101,7 +107,7 @@ void Scrubber::MouseUp(int button, double x, double y)
       SetValue((x - mOptions.x) / mOptions.w);
       if (mReleaseCallback)
       {
-         mReleaseCallback((mValue - mMin) / (mMax - mMin));
+         mReleaseCallback(mPercent);
       }
    }
    mIsPressed = false;
@@ -114,7 +120,7 @@ void Scrubber::MouseDrag(int button, double x, double y)
       SetValue((x - mOptions.x) / mOptions.w);
       if (mMoveCallback)
       {
-         mMoveCallback((mValue - mMin) / (mMax - mMin));
+         mMoveCallback(mPercent);
       }
    }
 }
@@ -130,6 +136,8 @@ void Scrubber::SetValue(double value)
    {
       mValue = mMax;
    }
+   mPercent = (mValue - mMin) / (mMax - mMin);
+   mOffset = glm::vec3(mPercent, 0, 0);
 }
 
 void Scrubber::Update(TIMEDELTA dt)
@@ -140,7 +148,7 @@ void Scrubber::Update(TIMEDELTA dt)
    glActiveTexture(GL_TEXTURE0);
    glBindTexture(GL_TEXTURE_2D, mTexture->GetTexture());
    program->Uniform1i("uTexture", 0);
-   program->UniformVector3f("uOffset", glm::vec3((mValue - mMin) / (mMax - mMin), 0, 0));
+   program->UniformVector3f("uOffset", mOffset);
 
    mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
    mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));

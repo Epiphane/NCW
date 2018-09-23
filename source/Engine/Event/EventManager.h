@@ -78,24 +78,53 @@ public:
    }
 
    template <typename E>
+   void EmitInternal(const E& evt)
+   {
+      {
+         // Send the event to any direct subscribers
+         EventLink<E>* ring = GetEventRing<E>();
+         EventLink<E>* link = ring;
+         link->IncRef();
+         do
+         {
+            if (link->callback)
+            {
+               link->callback(evt);
+            }
+            EventLink<E>* old = link;
+            link = link->next;
+            link->IncRef();
+            old->DecRef();
+         } while (link != ring);
+         link->DecRef();
+      }
+
+      {
+         // Then send it to any downstream managers
+         ManagerLink* ring = mDownstreamConnections.get();
+         ManagerLink* link = ring;
+         do
+         {
+            if (link->target != nullptr)
+            {
+               link->target->EmitInternal<E>(evt);
+            }
+            link = link->next;
+         } while (link != ring);
+      }
+   }
+
+   template <typename E>
    void Emit(const E& evt)
    {
-      EventLink<E>* ring = GetEventRing<E>();
-      EventLink<E>* link = ring;
-      link->IncRef();
-      do
+      if (!mParent)
       {
-         if (link->callback)
-         {
-            link->callback(evt);
-         }
-         EventLink<E>* old = link;
-         link = link->next;
-         link->IncRef();
-         old->DecRef();
+         EmitInternal<E>(evt);
       }
-      while (link != ring);
-      link->DecRef();
+      else
+      {
+         mParent->source->Emit<E>(evt);
+      }
    }
 
    template <typename E, typename ... Args>
@@ -125,6 +154,66 @@ private:
    }
 
    std::vector<BaseEventLink*> mEventRings;
+
+private:
+   //
+   // All the following code pertains to multiple EventManagers coexisting, and
+   // more importantly, communicating with each other. Any EventManager can
+   // SubscribeTo(another), which will cause it to propagate all events it receives
+   // up to that manager. There isn't much in place to prevent circular dependencies,
+   // so good luck - be smart.
+   //
+
+   // Downstream managers are stored as a doubly-linked list, to allow for easy insertion and removal.
+   struct ManagerLink {
+      ManagerLink(EventManager* source, EventManager* target)
+         : source(source)
+         , target(target)
+         , next(nullptr)
+         , prev(nullptr)
+      {};
+      ~ManagerLink()
+      {
+         source->RemoveLink(this);
+      }
+
+   private:
+      friend class EventManager;
+      EventManager* source;
+      EventManager* target;
+
+      ManagerLink* next;
+      ManagerLink* prev;
+   };
+
+   void RemoveLink(ManagerLink* link);
+   
+public:
+   void SetParent(EventManager* parent)
+   {
+      mParent = parent->AddChild(this);
+   }
+
+private:
+   std::unique_ptr<ManagerLink> AddChild(EventManager* child);
+
+   //
+   // Adventure of the unique pointers! An EventManager holds ownership of:
+   // - The head of its downstream event ring
+   // - All the links it received when subscribing to another EventManager
+   //
+   // When an EventManager goes away, the following happens: the head of its
+   // event ring is collected, which closes up to convert all existing links
+   // in the ring (which are owned by downstream EventManager) into a complete
+   // ring that is not referenced by anything. Then, its upstream link is
+   // deallocated, removing them from the ring it might be a part of.
+   //
+   // As a result of this method, a Unsubscribe or Remove endpoint isn't
+   // necessary. Just release your handle to the ManagerLink and it will
+   // be cleaned up.
+   //
+   std::unique_ptr<ManagerLink> mDownstreamConnections;
+   std::unique_ptr<ManagerLink> mParent;
 };
 
 }; // namespace Engine

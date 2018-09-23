@@ -46,17 +46,18 @@ public:
    //
    void Update(TIMEDELTA dt) override;
 
-   void MouseMove(double x, double y) override;
+   void SetOffset(glm::vec3 offset) { mOffset = offset; }
+
    void MouseDown(int button, double x, double y) override;
    void MouseUp(int button, double x, double y) override;
    void MouseClick(int button, double x, double y) override;
 
 private:
    std::function<void(void)> mCallback;
-   bool mIsHovered;
    bool mIsPressed;
 
 private:
+   glm::vec3 mOffset;
    Engine::Graphics::Texture* mTexture;
    Engine::Graphics::VBO mVBO;
 

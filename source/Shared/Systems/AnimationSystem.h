@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Engine/Core/Input.h>
 #include <Engine/System/System.h>
 #include "../Components/CubeModel.h"
 
@@ -67,7 +66,9 @@ namespace Game
    public:
       void ComputeBoneMatrix(size_t boneId);
       
+      AnimatedSkeleton();
       AnimatedSkeleton(const std::string& file);
+      void Reset();
       void Load(const std::string& file);
       std::string Serialize();
       
@@ -137,32 +138,24 @@ namespace Game
       {};
    };
    
-   class AnimationSystem : public Engine::System<AnimationSystem> {
+   class BaseAnimationSystem {
    public:
-      AnimationSystem(Engine::Input* input)
-         : mInput(input)
-         , mIsPaused(false)
-         , mNextTick(0)
-         , mTransitions(true)
-      {};
-      ~AnimationSystem() {}
-
-      void Pause() { mIsPaused = true; }
-      void Unpause() { mIsPaused = false; }
-      void SetTransitions(bool enabled) { mTransitions = enabled; }
-      void TickAnimation(TIMEDELTA dt) { mNextTick = dt; }
+      BaseAnimationSystem() : mTransitions(true) {};
+      ~BaseAnimationSystem() {}
       
-      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-      
-   private:
-      Engine::Input* mInput;
+      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
-      //
-      // Editing switches. Pause all animations and disable transitions.
-      //
-      bool mIsPaused;
-      TIMEDELTA mNextTick;
+   protected:
+      // Whether transitions are enabled. Used for editing.
       bool mTransitions;
+   };
+
+   class AnimationSystem : public Engine::System<AnimationSystem>, public BaseAnimationSystem {
+   public:
+      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override
+      {
+         BaseAnimationSystem::Update(entities, events, dt);
+      }
    };
 
 }; // namespace Game

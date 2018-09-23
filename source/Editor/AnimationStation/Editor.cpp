@@ -44,10 +44,15 @@ Editor::Editor(
 
    mStateWindow = Add<StateWindow>(currentEditorOptions);
    mState = std::make_unique<MainState>(Engine::Window::Instance(), *mStateWindow);
-   mState->Load();
+   mSidebar = Add<Sidebar>(controlsOptions);
+   mDock = Add<Dock>(dockOptions);
 
-   mSidebar = Add<Sidebar>(controlsOptions, mState.get());
-   mDock = Add<Dock>(dockOptions, mState.get());
+   // EventManager tree!
+   mState->SetParent(&mEvents);
+   mSidebar->SetParent(&mEvents);
+   mDock->SetParent(&mEvents);
+
+   mState->Load();
 }
 
 void Editor::Start()

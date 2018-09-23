@@ -104,12 +104,17 @@ void AnimatedSkeleton::ComputeBoneMatrix(size_t boneId)
    bone.matrix = glm::rotate(bone.matrix, RADIANS(bone.rotation.z), glm::vec3(0, 0, 1));
 }
 
+AnimatedSkeleton::AnimatedSkeleton()
+{
+   Reset();
+}
+
 AnimatedSkeleton::AnimatedSkeleton(const std::string& filename)
 {
    Load(filename);
 }
 
-void AnimatedSkeleton::Load(const std::string& filename)
+void AnimatedSkeleton::Reset()
 {
    states.clear();
    statesByName.clear();
@@ -124,6 +129,11 @@ void AnimatedSkeleton::Load(const std::string& filename)
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
+}
+
+void AnimatedSkeleton::Load(const std::string& filename)
+{
+   Reset();
 
    std::ifstream file(filename);
    nlohmann::json data;
@@ -411,16 +421,16 @@ void AnimatedSkeleton::TransitionTo(const std::string& state, double transitionT
    transitionEnd = startTime + transitionTime;
 }
 
-void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
+void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
-   if (mIsPaused)
-   {
-      dt = mNextTick;
-   }
-   mNextTick = 0;
-
    // First, update skeletons.
    entities.Each<AnimatedSkeleton>([&](Engine::Entity /*entity*/, AnimatedSkeleton& skeleton) {
+      // Check for an un-loaded skeleton
+      if (skeleton.states.empty())
+      {
+         return;
+      }
+
       // Advance basic animation
       {
          AnimatedSkeleton::State& state = skeleton.states[skeleton.current];
@@ -444,6 +454,11 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          {
             skeleton.bones[boneId].matrix = progress * dst.matrixes[boneId] + (1 - progress) * src.matrixes[boneId];
          }
+      }
+
+      if (!mTransitions)
+      {
+         return;
       }
 
       // Transitions!
@@ -484,11 +499,6 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             glm::mat4 matrix = progress * dst.matrixes[boneId] + (1 - progress) * src.matrixes[boneId];
             skeleton.bones[boneId].matrix = transitionProgress * matrix + (1 - transitionProgress) * skeleton.bones[boneId].matrix;
          }
-      }
-
-      if (!mTransitions)
-      {
-         return;
       }
 
       // Compute new transitions

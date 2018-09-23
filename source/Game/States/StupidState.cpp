@@ -38,7 +38,7 @@ namespace Game
    {
       DebugHelper::Instance()->SetSystemManager(&mSystems);
       mSystems.Add<CameraSystem>(window->GetInput());
-      mSystems.Add<AnimationSystem>(window->GetInput());
+      mSystems.Add<AnimationSystem>();
       mSystems.Add<FlySystem>(window->GetInput());
       mSystems.Add<WalkSystem>(window->GetInput());
       mSystems.Add<FollowerSystem>();
