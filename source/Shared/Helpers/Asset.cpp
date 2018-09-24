@@ -8,7 +8,7 @@ namespace CubeWorld
 namespace Asset
 {
 
-std::string gAssetRoot = ".";
+std::string gAssetRoot = "./Assets";
 
 void SetAssetRoot(std::string root)
 {
@@ -17,22 +17,22 @@ void SetAssetRoot(std::string root)
 
 std::string Animation(const std::string& animation)
 {
-   return Paths::Join("Assets", "Animations", animation);
+   return Paths::Join(gAssetRoot, "Animations", animation);
 }
 
 std::string Model(const std::string& model)
 {
-   return Paths::Join("Assets", "Models", model);
+   return Paths::Join(gAssetRoot, "Models", model);
 }
 
 std::string Image(const std::string& model)
 {
-   return Paths::Join("Assets", "Images", model);
+   return Paths::Join(gAssetRoot, "Images", model);
 }
 
 std::string Font(const std::string& fontName)
 {
-   return Paths::Join("Assets", "Fonts", fontName + ".ttf");
+   return Paths::Join(gAssetRoot, "Fonts", fontName + ".ttf");
 }
 
 };

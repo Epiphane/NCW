@@ -46,7 +46,7 @@ public:
    //
    void Update(TIMEDELTA dt) override;
 
-   void SetOffset(glm::vec3 offset) { mOffset = offset; }
+   void SetOffset(glm::vec3 offset) { mOffset = 2.0f * offset; }
 
    void MouseDown(int button, double x, double y) override;
    void MouseUp(int button, double x, double y) override;

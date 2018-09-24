@@ -3,6 +3,8 @@
 #pragma once
 
 #include <Engine/Event/Event.h>
+#include <Engine/Entity/ComponentHandle.h>
+#include <Shared/Systems/AnimationSystem.h>
 
 namespace CubeWorld
 {
@@ -13,14 +15,26 @@ namespace Editor
 namespace AnimationStation
 {
 
-class SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
-{};
+struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
+{
+   SkeletonLoadedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
 
-class SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
-{};
+   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+};
 
-class SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
-{};
+struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
+{
+   SkeletonSavedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
+
+   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+};
+
+struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
+{
+   SkeletonModifiedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
+
+   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+};
 
 }; // namespace AnimationStation
 

@@ -169,7 +169,7 @@ Element* SubWindow::AddChild(std::unique_ptr<Element>&& element)
    return elem;
 }
 
-void SubWindow::RemoveChild(Element* reference)
+void SubWindow::Remove(Element* reference)
 {
    for (auto it = mChildren.begin(); it != mChildren.end(); it++)
    {

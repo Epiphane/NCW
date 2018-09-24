@@ -194,7 +194,7 @@ void Label::Update(TIMEDELTA dt)
 
    if (mClickCallback)
    {
-      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetMousePosition();
+      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
       bool hovered = ContainsPoint((mouse.x - mParent.GetX()) / mParent.GetWidth(), (mouse.y - mParent.GetY()) / mParent.GetHeight());
       if (hovered && !mIsHovered)
       {

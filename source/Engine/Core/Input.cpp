@@ -212,6 +212,11 @@ bool Input::IsKeyDown(int key) const
    return glfwGetKey(mWindow->mGLFW, key) == GLFW_PRESS;
 }
 
+glm::tvec2<double> Input::GetRawMousePosition() const
+{
+   return mMousePosition;
+}
+
 glm::tvec2<double> Input::GetMousePosition() const
 {
    return mMousePosition / glm::tvec2<double>(mWindow->GetWidth(), mWindow->GetHeight());

@@ -36,8 +36,15 @@ const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 int main(int argc, char** argv)
 {
    // Parse arguments
-   argc;
-   argv;
+   int argi = 0;
+   while (argi < argc)
+   {
+      std::string arg(argv[argi++]);
+      if (arg == "--asset-root")
+      {
+         Asset::SetAssetRoot(argv[argi++]);
+      }
+   }
 
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
@@ -131,6 +138,11 @@ int main(int argc, char** argv)
    // Start in Animation Station
    windowContent.Swap(animationStation);
 
+   Timer<100> windowContentRender;
+   auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {
+      return Format::FormatString("%.1f", windowContentRender.Average());
+   });
+
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
@@ -143,7 +155,9 @@ int main(int argc, char** argv)
 
          // Render game state
          {
+            windowContentRender.Reset();
             windowContent.Update(dt);
+            windowContentRender.Elapsed();
          }
 
          // Render debug stuff

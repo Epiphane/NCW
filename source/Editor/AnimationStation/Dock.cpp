@@ -95,7 +95,7 @@ std::pair<glm::vec3, glm::vec3> GetLocalPositionAndRotation(const AnimatedSkelet
 ///
 ///
 ///
-void RecomputeBoneMatrix(State& state, Keyframe& keyframe, std::vector<Bone>& bones, size_t bone) {
+void RecomputeBoneMatrix(Keyframe& keyframe, std::vector<Bone>& bones, size_t bone) {
    if (bone == 0)
    {
       keyframe.matrixes[bone] = glm::mat4(1);
@@ -112,17 +112,9 @@ void RecomputeBoneMatrix(State& state, Keyframe& keyframe, std::vector<Bone>& bo
    keyframe.matrixes[bone] = glm::rotate(keyframe.matrixes[bone], RADIANS(rotation.x), glm::vec3(1, 0, 0));
    keyframe.matrixes[bone] = glm::rotate(keyframe.matrixes[bone], RADIANS(rotation.z), glm::vec3(0, 0, 1));
 
-   if (keyframe.time == 0)
-   {
-      Keyframe& tail = state.keyframes[state.keyframes.size() - 1];
-      tail.positions[bone] = keyframe.positions[bone];
-      tail.rotations[bone] = keyframe.rotations[bone];
-      tail.matrixes[bone] = keyframe.matrixes[bone];
-   }
-
    for (size_t child : bones[bone].children)
    {
-      RecomputeBoneMatrix(state, keyframe, bones, child);
+      RecomputeBoneMatrix(keyframe, bones, child);
    }
 }
 
@@ -157,7 +149,7 @@ Dock::Dock(
       labelOptions.y = 1.0f - 5 * EIGHT_Y;
       labelOptions.w = 20 * EIGHT_X;
       labelOptions.h = 2 * EIGHT_Y;
-      labelOptions.text = "Walk";
+      labelOptions.text = "N/A";
       labelOptions.onChange = [&](std::string value) { CommandStack::Instance()->Do<SetStateNameCommand>(this, value); };
       mStateName = Add<Label>(labelOptions);
 
@@ -168,7 +160,6 @@ Dock::Dock(
 
       labelOptions.y -= 15 * EIGHT_Y;
       labelOptions.text = "1";
-      // mKeyframeIndex = Add<Label>(labelOptions);
 
       labelOptions.y -= 5 * EIGHT_Y;
       labelOptions.text = "0.0";
@@ -213,24 +204,18 @@ Dock::Dock(
 
    // State length buttons
    {
-      Image::Options imageOptions;
-      imageOptions.x = 30 * EIGHT_X;
-      imageOptions.y = 1.0f - 10 * EIGHT_Y;
-      imageOptions.w = 19.0f / GetWidth();
-      imageOptions.h = 19.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "button_subtract";
-      imageOptions.hoverImage = "hover_button_subtract";
-      imageOptions.pressImage = "press_button_subtract";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<ChangeStateLengthCommand>(this, -0.1f); };
-      Add<Image>(imageOptions);
-
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_add";
-      imageOptions.hoverImage = "hover_button_add";
-      imageOptions.pressImage = "press_button_add";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<ChangeStateLengthCommand>(this, 0.1f); };
-      Add<Image>(imageOptions);
+      StationaryScrubber::Options scrubberOptions;
+      scrubberOptions.x = 30 * EIGHT_X;
+      scrubberOptions.y = 1.0f - 10 * EIGHT_Y;
+      scrubberOptions.w = 64.0f / GetWidth();
+      scrubberOptions.h = 14.0f / GetHeight();
+      scrubberOptions.filename = Asset::Image("EditorIcons.png");
+      scrubberOptions.image = "drag_number";
+      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::STATE_LENGTH);
+      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::STATE_LENGTH, std::placeholders::_1);
+      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
+      scrubberOptions.alignCenter = false;
+      Add<StationaryScrubber>(scrubberOptions);
    }
 
    // Keyframe buttons
@@ -238,28 +223,10 @@ Dock::Dock(
       Image::Options imageOptions;
       imageOptions.x = 30 * EIGHT_X;
       imageOptions.y = 1.0f - 25 * EIGHT_Y;
-      imageOptions.w = 42.0f / GetWidth();
+      imageOptions.w = 19.0f / GetWidth();
       imageOptions.h = 19.0f / GetHeight();
       imageOptions.filename = Asset::Image("EditorIcons.png");
-      
-      /*
-      imageOptions.image = "button_prev";
-      imageOptions.hoverImage = "hover_button_prev";
-      imageOptions.pressImage = "press_button_prev";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<SnapKeyframeCommand>(this, false); };
-      Add<Image>(imageOptions);
 
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_next";
-      imageOptions.hoverImage = "hover_button_next";
-      imageOptions.pressImage = "press_button_next";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<SnapKeyframeCommand>(this, true); };
-      Add<Image>(imageOptions);
-
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      */
-
-      imageOptions.w = 19.0f / GetWidth();
       imageOptions.image = "button_add";
       imageOptions.hoverImage = "hover_button_add";
       imageOptions.pressImage = "press_button_add";
@@ -277,10 +244,11 @@ Dock::Dock(
       imageOptions.hoverImage = "hover_button_remove";
       imageOptions.pressImage = "press_button_remove";
       imageOptions.onClick = [&]() {
-         Either<size_t, void> snapped = SetTime(mSkeleton->time);
-         if (snapped.IsLeft())
+         State& state = GetCurrentState();
+         size_t index = GetKeyframeIndex(state, mSkeleton->time);
+         if (mSkeleton->time == state.keyframes[index].time)
          {
-            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, snapped.Left());
+            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
          }
       };
       Add<Image>(imageOptions);
@@ -296,8 +264,8 @@ Dock::Dock(
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::KEYFRAME_TIME);
-      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::KEYFRAME_TIME, std::placeholders::_1);
+      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
       scrubberOptions.alignCenter = false;
       Add<StationaryScrubber>(scrubberOptions);
    }
@@ -328,9 +296,9 @@ Dock::Dock(
       imageOptions.pressImage = "press_button_next_frame";
       imageOptions.onClick = [&]() { mController->nextTick = 0.1; };
       mTick = Add<Image>(imageOptions);
-      mTick->SetActive(false);
    }
 
+   // Playback controls
    {
       Image::Options imageOptions;
       imageOptions.x = 60 * EIGHT_X;
@@ -432,8 +400,8 @@ Dock::Dock(
       mBonePosX = Add<Label>(labelOptions);
 
       StationaryScrubber::Options scrubberOptions;
-      scrubberOptions.x = labelOptions.x + 2 * EIGHT_X;
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.x = labelOptions.x - 3 * EIGHT_X;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.w = 64.0f / GetWidth();
       scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
@@ -448,7 +416,7 @@ Dock::Dock(
       labelOptions.y -= 7 * EIGHT_Y;
       mBonePosY = Add<Label>(labelOptions);
 
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::POS_Y);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::POS_Y, std::placeholders::_1);
       Add<StationaryScrubber>(scrubberOptions);
@@ -456,7 +424,7 @@ Dock::Dock(
       labelOptions.y -= 7 * EIGHT_Y;
       mBonePosZ = Add<Label>(labelOptions);
 
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::POS_Z);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::POS_Z, std::placeholders::_1);
       Add<StationaryScrubber>(scrubberOptions);
@@ -465,8 +433,8 @@ Dock::Dock(
       labelOptions.y = 1.0f - 15 * EIGHT_Y;
       mBoneRotX = Add<Label>(labelOptions);
 
-      scrubberOptions.x = labelOptions.x + 2 * EIGHT_X;
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.x = labelOptions.x - 3 * EIGHT_X;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_X);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_X, std::placeholders::_1);
       Add<StationaryScrubber>(scrubberOptions);
@@ -474,7 +442,7 @@ Dock::Dock(
       labelOptions.y -= 7 * EIGHT_Y;
       mBoneRotY = Add<Label>(labelOptions);
 
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_Y);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_Y, std::placeholders::_1);
       Add<StationaryScrubber>(scrubberOptions);
@@ -482,7 +450,7 @@ Dock::Dock(
       labelOptions.y -= 7 * EIGHT_Y;
       mBoneRotZ = Add<Label>(labelOptions);
 
-      scrubberOptions.y = labelOptions.y - 2 * EIGHT_Y;
+      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
       scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_Z);
       scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_Z, std::placeholders::_1);
       Add<StationaryScrubber>(scrubberOptions);
@@ -497,16 +465,50 @@ Dock::Dock(
       imageOptions.h = 32.0f / GetHeight();
       imageOptions.filename = Asset::Image("EditorIcons.png");
       imageOptions.image = "reset";
-      imageOptions.onClick = std::bind(&Dock::ResetPosition, this);
+      imageOptions.onClick = [&]() {
+         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
+         if (mSkeleton->time == keyframe.time)
+         {
+            CommandStack::Instance()->Do<SetBoneCommand>(this, mSkeleton->bones[mBone].position, keyframe.rotations[mBone]);
+         }
+      };
       Add<Image>(imageOptions);
 
       imageOptions.x += 18 * EIGHT_X;
-      imageOptions.onClick = std::bind(&Dock::ResetRotation, this);
+      imageOptions.onClick = [&]() {
+         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
+         if (mSkeleton->time == keyframe.time)
+         {
+            CommandStack::Instance()->Do<SetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].rotation);
+         }
+      };
       Add<Image>(imageOptions);
    }
 
+   // Container for keyframe icons
+   {
+      SubWindow::Options keyframeContainerOptions;
+      keyframeContainerOptions.x = 19.0f / GetWidth();
+      keyframeContainerOptions.y = 1.0f - 136.0f / GetHeight();
+      keyframeContainerOptions.w = 512.0f / GetWidth();
+      keyframeContainerOptions.h = 32.0f / GetHeight();
+      mKeyframes = Add<SubWindow>(keyframeContainerOptions);
+   }
+
+   Subscribe<SkeletonLoadedEvent>(*this);
    Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
    Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
+}
+
+///
+///
+///
+void Dock::Receive(const SkeletonLoadedEvent& evt)
+{
+   mSkeleton = evt.component;
+   SetState(0);
+   SetTime(0);
+   SetBone(0);
 }
 
 ///
@@ -538,75 +540,70 @@ State& Dock::GetCurrentState()
 ///
 void Dock::Update(TIMEDELTA dt)
 {
-   State& state = mSkeleton->states[mSkeleton->current];
+   State& state = GetCurrentState();
 
-   // Update the UI according to the current state of the skeleton
+   // Update the UI according to the current animation time
    mScrubber->SetValue(mSkeleton->time / state.length);
    mTime->SetText(Format::FormatString("%.2f", mSkeleton->time));
 
-   // Add all but the ends of the animation as visible keyframes.
-   while (mKeyframeIcons.size() < state.keyframes.size() - 1)
-   {
-      Image::Options keyframeOptions;
-      keyframeOptions.x = 19.0f / GetWidth();
-      keyframeOptions.y = 1.0f - 136.0f / GetHeight();
-      keyframeOptions.w = 10.0f / GetWidth();
-      keyframeOptions.h = 32.0f / GetHeight();
-      keyframeOptions.filename = Asset::Image("EditorIcons.png");
-      keyframeOptions.image = "keyframe";
-      mKeyframeIcons.push_back(Add<Image>(keyframeOptions));
-   }
-   while (mKeyframeIcons.size() > state.keyframes.size() - 1)
-   {
-      Image* toRemove = mKeyframeIcons.back();
-      mKeyframeIcons.pop_back();
-      RemoveChild(toRemove);
-   }
-   for (size_t i = 0; i < mKeyframeIcons.size(); i++)
-   {
-      mKeyframeIcons[i]->SetOffset(glm::vec3(state.keyframes[i].time / state.length, 0, 0));
-   }
+   // Do it every frame, whatever
+   UpdateBoneInfo();
 
-   // Update bone info
-   Bone& bone = mSkeleton->bones[mBone];
-   {
-      mBoneName->SetText(bone.name);
-
-      if (mBone == 0)
-      {
-         mBoneParent->SetText(GetCurrentState().name);
-      }
-      else
-      {
-         mBoneParent->SetText("root");
-      }
-
-      glm::mat4 localMatrix = bone.matrix;
-      // Is this too expensive to do every frame? Who knows! Wheeee! It's probably fine!
-      std::pair<glm::vec3, glm::vec3> posAndRot = GetLocalPositionAndRotation(*mSkeleton, mBone);
-      glm::vec3 position = posAndRot.first;
-      glm::vec3 rotation = posAndRot.second;
-
-      if (std::abs(position.x) < 0.1) { position.x = 0; }
-      if (std::abs(position.y) < 0.1) { position.y = 0; }
-      if (std::abs(position.z) < 0.1) { position.z = 0; }
-      if (std::abs(rotation.x) < 0.1) { rotation.x = 0; }
-      if (std::abs(rotation.y) < 0.1) { rotation.y = 0; }
-      if (std::abs(rotation.z) < 0.1) { rotation.z = 0; }
-
-      mBonePosX->SetText(Format::FormatString("%.1f", position.x));
-      mBonePosY->SetText(Format::FormatString("%.1f", position.y));
-      mBonePosZ->SetText(Format::FormatString("%.1f", position.z));
-      mBoneRotX->SetText(Format::FormatString("%.1f", rotation.x));
-      mBoneRotY->SetText(Format::FormatString("%.1f", rotation.y));
-      mBoneRotZ->SetText(Format::FormatString("%.1f", rotation.z));
-   }
-
+   // Update the play/pause buttons
    mPlay->SetActive(mController->paused);
    mTick->SetActive(mController->paused);
    mPause->SetActive(!mController->paused);
 
    SubWindow::Update(dt);
+}
+
+///
+///
+///
+void Dock::UpdateKeyframeIcons()
+{
+   State& state = GetCurrentState();
+
+   while (mKeyframeIcons.size() < state.keyframes.size())
+   {
+      Image::Options keyframeOptions;
+      keyframeOptions.w = 10.0f / mKeyframes->GetWidth();
+      keyframeOptions.filename = Asset::Image("EditorIcons.png");
+      keyframeOptions.image = "keyframe";
+
+      size_t keyframeIndex = mKeyframeIcons.size();
+      keyframeOptions.onClick = [&, keyframeIndex]() {
+         SetTime(GetCurrentState().keyframes[keyframeIndex].time);
+      };
+
+      mKeyframeIcons.push_back(mKeyframes->Add<Image>(keyframeOptions));
+   }
+   while (mKeyframeIcons.size() > state.keyframes.size())
+   {
+      Image* toRemove = mKeyframeIcons.back();
+      mKeyframeIcons.pop_back();
+      mKeyframes->Remove(toRemove);
+   }
+   for (size_t i = 0; i < mKeyframeIcons.size(); i++)
+   {
+      mKeyframeIcons[i]->SetOffset(glm::vec3(state.keyframes[i].time / state.length, 0, 0));
+   }
+}
+
+///
+///
+///
+void Dock::UpdateBoneInfo()
+{
+   glm::vec3 position, rotation;
+   std::tie(position, rotation) = GetLocalPositionAndRotation(*mSkeleton, mBone);
+
+   SetFloat(mBonePosX, position.x);
+   SetFloat(mBonePosY, position.y);
+   SetFloat(mBonePosZ, position.z);
+   SetFloat(mBoneRotX, rotation.x);
+   SetFloat(mBoneRotY, rotation.y);
+   SetFloat(mBoneRotZ, rotation.z);
 }
 
 ///
@@ -619,150 +616,160 @@ void Dock::SetState(const size_t& index)
    State& state = GetCurrentState();
    mStateName->SetText(state.name);
    mStateLength->SetText(Format::FormatString("%.1f", state.length));
+
+   UpdateKeyframeIcons();
 }
 
 ///
 ///
 ///
-void Dock::NextState()
+void Dock::SetBone(const size_t& boneId)
 {
-   if (mSkeleton->current >= mSkeleton->states.size() - 1)
-   {
-      SetState(0);
-   }
-   else
-   {
-      SetState(mSkeleton->current + 1);
-   }
+   mBone = boneId;
+
+   // Update bone info
+   Bone& bone = mSkeleton->bones[mBone];
+   Bone& parent = mSkeleton->bones[mBone != 0 ? bone.parent : 0];
+   mBoneName->SetText(bone.name);
+   mBoneParent->SetText(parent.name);
+
+   UpdateBoneInfo();
 }
 
 ///
 ///
 ///
-void Dock::PrevState()
+void Dock::SetFloat(Label* label, float value)
 {
-   if (mSkeleton->current == 0)
-   {
-      SetState(mSkeleton->states.size() - 1);
-   }
-   else
-   {
-      SetState(mSkeleton->current - 1);
-   }
+   if (std::abs(value) < 0.1) { value = 0; }
+   label->SetText(Format::FormatString("%.1f", value));
 }
 
 ///
 ///
 ///
-void Dock::AddState(State state, bool afterCurrent)
+void Dock::AddStateCommand::Do()
 {
    if (state.keyframes.size() == 0)
    {
       Keyframe keyframe;
-      std::transform(mSkeleton->bones.begin(), mSkeleton->bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-      std::transform(mSkeleton->bones.begin(), mSkeleton->bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
-      std::transform(mSkeleton->bones.begin(), mSkeleton->bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
+      std::vector<Bone>& bones = dock->mSkeleton->bones;
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
 
-      for (size_t boneId = 0; boneId < mSkeleton->bones.size(); boneId++)
+      for (size_t boneId = 0; boneId < bones.size(); boneId++)
       {
-         RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, boneId);
+         RecomputeBoneMatrix(keyframe, bones, boneId);
       }
 
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
-
-      keyframe.time = state.length;
-      state.keyframes.push_back(keyframe);
    }
 
-   mSkeleton->states.insert(mSkeleton->states.begin() + mSkeleton->current + (afterCurrent ? 1 : 0), state);
+   dock->mSkeleton->states.insert(dock->mSkeleton->states.begin() + dock->mSkeleton->current + (afterCurrent ? 1 : 0), state);
    if (afterCurrent)
    {
-      SetState(mSkeleton->current + 1);
+      dock->SetState(dock->mSkeleton->current + 1);
    }
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-State Dock::RemoveState()
+void Dock::AddStateCommand::Undo()
 {
-   // GetCurrentState() as a copy not a reference
-   State state = GetCurrentState();
-   mSkeleton->states.erase(mSkeleton->states.begin() + mSkeleton->current);
-   if (mSkeleton->current > 0)
+   afterCurrent = dock->mSkeleton->current > 0;
+   // Get current state as a copy not a reference
+   state = dock->GetCurrentState();
+
+   dock->mSkeleton->states.erase(dock->mSkeleton->states.begin() + dock->mSkeleton->current);
+   if (afterCurrent)
    {
-      SetState(mSkeleton->current - 1);
+      dock->SetState(dock->mSkeleton->current - 1);
    }
-   return state;
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-void Dock::ChangeStateLength(double increment)
+void Dock::SetStateLengthCommand::Do()
 {
-   State& state = GetCurrentState();
+   State& state = dock->GetCurrentState();
 
-   double stretch = (state.length + increment) / state.length;
-   state.length += increment;
+   double stretch = value / state.length;
+   double last = state.length;
+   state.length = value;
+   value = last;
 
    for (Keyframe& keyframe : state.keyframes)
    {
       keyframe.time *= stretch;
    }
-   mSkeleton->time *= stretch;
+
+   dock->SetTime(dock->mSkeleton->time * stretch);
+   dock->mStateLength->SetText(Format::FormatString("%.1f", state.length));
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-void Dock::SetStateName(std::string name)
+void Dock::SetStateNameCommand::Do()
 {
-   State& state = GetCurrentState();
+   State& state = dock->GetCurrentState();
+   std::string last = state.name;
    state.name = name;
-   mStateName->SetText(state.name);
+   name = last;
+   dock->mStateName->SetText(state.name);
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-size_t Dock::AddKeyframe(Keyframe keyframe)
+void Dock::AddKeyframeCommand::Do()
 {
-   State& state = GetCurrentState();
+   State& state = dock->GetCurrentState();
 
    if (keyframe.matrixes.size() == 0)
    {
-      std::transform(mSkeleton->bones.begin(), mSkeleton->bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
-      for (size_t boneId = 0; boneId < mSkeleton->bones.size(); boneId++)
+      std::vector<Bone>& bones = dock->mSkeleton->bones;
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
+      for (size_t boneId = 0; boneId < bones.size(); boneId++)
       {
-         auto posAndRot = GetLocalPositionAndRotation(*mSkeleton, boneId);
+         auto posAndRot = GetLocalPositionAndRotation(*(dock->mSkeleton), boneId);
          keyframe.positions.push_back(posAndRot.first);
          keyframe.rotations.push_back(posAndRot.second);
       }
    }
 
-   size_t keyframeIndex = GetKeyframeIndex(state, mSkeleton->time);
-   state.keyframes.insert(state.keyframes.begin() + keyframeIndex + 1, keyframe);
-   return keyframeIndex + 1;
+   keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
+   state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
+   dock->UpdateKeyframeIcons();
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-Keyframe Dock::RemoveKeyframe(size_t index)
+void Dock::AddKeyframeCommand::Undo()
 {
-   State& state = GetCurrentState();
+   State& state = dock->GetCurrentState();
 
-   Keyframe keyframe = state.keyframes[index];
-   state.keyframes.erase(state.keyframes.begin() + index);
-   return keyframe;
+   // Copy by value not reference
+   keyframe = state.keyframes[keyframeIndex];
+   state.keyframes.erase(state.keyframes.begin() + keyframeIndex);
+   dock->UpdateKeyframeIcons();
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
 ///
 ///
-Either<size_t, void> Dock::SetTime(double time)
+void Dock::SetTime(double time)
 {
    State& state = GetCurrentState();
 
@@ -772,53 +779,24 @@ Either<size_t, void> Dock::SetTime(double time)
    if ((time - prev.time) / state.length < 0.02)
    {
       mSkeleton->time = prev.time;
-      return keyframeIndex;
    }
    else if (
-      (keyframeIndex < state.keyframes.size() - 2) && 
-      (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02)
+      (keyframeIndex < state.keyframes.size() - 1) && 
+      (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02
+   )
    {
       mSkeleton->time = state.keyframes[keyframeIndex + 1].time;
-      return keyframeIndex + 1;
+   }
+   else if ((state.length - time) / state.length < 0.02)
+   {
+      mSkeleton->time = state.length;
    }
    else
    {
       mSkeleton->time = time;
-      return nullptr;
    }
-}
 
-///
-///
-///
-void Dock::NextBone()
-{
-   if (++mBone >= mSkeleton->bones.size())
-   {
-      mBone = 0;
-   }
-}
-
-///
-///
-///
-void Dock::PrevBone()
-{
-   if (++mBone >= mSkeleton->bones.size())
-   {
-      mBone = 0;
-   }
-}
-
-///
-///
-///
-void Dock::ParentBone()
-{
-   if (mBone > 0)
-   {
-      mBone = mSkeleton->bones[mBone].parent;
-   }
+   UpdateBoneInfo();
 }
 
 ///
@@ -829,15 +807,17 @@ void Dock::StartScrubbing(ScrubType type)
    State& state = GetCurrentState();
 
    Keyframe& keyframe = GetKeyframe(state, mSkeleton->time);
-   if (mSkeleton->time != keyframe.time)
-   {
-      return;
-   }
 
    switch (type)
    {
+   case STATE_LENGTH:
+      mScrubbing = std::make_unique<SetStateLengthCommand>(this, state.length);
+      break;
    case KEYFRAME_TIME:
-      mScrubbing = std::make_unique<SetKeyframeTimeCommand>(this, keyframe.time);
+      if (mSkeleton->time == keyframe.time)
+      {
+         mScrubbing = std::make_unique<SetKeyframeTimeCommand>(this, keyframe.time);
+      }
       break;
    case POS_X:
    case POS_Y:
@@ -845,7 +825,10 @@ void Dock::StartScrubbing(ScrubType type)
    case ROT_X:
    case ROT_Y:
    case ROT_Z:
-      mScrubbing = std::make_unique<SetBoneCommand>(this, keyframe.positions[mBone], keyframe.rotations[mBone]);
+      if (mSkeleton->time == keyframe.time)
+      {
+         mScrubbing = std::make_unique<SetBoneCommand>(this, keyframe.positions[mBone], keyframe.rotations[mBone]);
+      }
       break;
    }
 }
@@ -861,8 +844,11 @@ void Dock::FinishScrubbing(double)
    // twice, once immediately to revert to the old state, and then
    // again when it gets placed on the stack to go back to the new
    // state.
-   mScrubbing->Do();
-   CommandStack::Instance()->Do(std::move(mScrubbing));
+   if (mScrubbing)
+   {
+      mScrubbing->Do();
+      CommandStack::Instance()->Do(std::move(mScrubbing));
+   }
 }
 
 ///
@@ -870,17 +856,31 @@ void Dock::FinishScrubbing(double)
 ///
 void Dock::Scrub(ScrubType type, double amount)
 {
-   State& state = GetCurrentState();
-
-   size_t index = GetKeyframeIndex(state, mSkeleton->time);
-   Keyframe& keyframe = state.keyframes[index];
-   if (mSkeleton->time != keyframe.time)
+   if (!mScrubbing)
    {
       return;
    }
 
+   State& state = GetCurrentState();
+   size_t index = GetKeyframeIndex(state, mSkeleton->time);
+   Keyframe& keyframe = state.keyframes[index];
+
    switch (type)
    {
+   case STATE_LENGTH:
+   {
+      double stretch = (state.length + amount) / state.length;
+      state.length += amount;
+
+      for (Keyframe& frame : state.keyframes)
+      {
+         frame.time *= stretch;
+      }
+
+      SetTime(mSkeleton->time * stretch);
+      mStateLength->SetText(Format::FormatString("%.2f", state.length));
+   }
+      break;
    case KEYFRAME_TIME:
       keyframe.time += amount * state.length / 4.0f;
 
@@ -888,44 +888,50 @@ void Dock::Scrub(ScrubType type, double amount)
       {
          keyframe.time = 0;
       }
-      else if (index == state.keyframes.size() - 1)
-      {
-         keyframe.time = state.length;
-      }
       else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
       {
          keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
       }
-      else if (keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
+      else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
       {
          keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
+      }
+      else if (keyframe.time >= state.length * 0.99f)
+      {
+         keyframe.time = state.length * 0.99f;
       }
 
       mSkeleton->time = keyframe.time;
       break;
    case POS_X:
       keyframe.positions[mBone].x += (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBonePosX, keyframe.positions[mBone].x);
       break;
    case POS_Y:
       keyframe.positions[mBone].y += (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBonePosY, keyframe.positions[mBone].y);
       break;
    case POS_Z:
       keyframe.positions[mBone].z += (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBonePosZ, keyframe.positions[mBone].z);
       break;
    case ROT_X:
       keyframe.rotations[mBone].x += 10 * (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBoneRotX, keyframe.rotations[mBone].x);
       break;
    case ROT_Y:
       keyframe.rotations[mBone].y += 10 * (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBoneRotY, keyframe.rotations[mBone].y);
       break;
    case ROT_Z:
       keyframe.rotations[mBone].z += 10 * (float)amount;
-      RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
+      SetFloat(mBoneRotZ, keyframe.rotations[mBone].z);
       break;
    }
 }
@@ -933,37 +939,31 @@ void Dock::Scrub(ScrubType type, double amount)
 ///
 ///
 ///
-void Dock::ResetPosition()
+void Dock::NextStateCommand::Do()
 {
-   State& state = GetCurrentState();
-
-   Keyframe& keyframe = GetKeyframe(state, mSkeleton->time);
-   if (mSkeleton->time != keyframe.time)
+   if (dock->mSkeleton->current >= dock->mSkeleton->states.size() - 1)
    {
-      return;
+      dock->SetState(0);
    }
-
-   keyframe.positions[mBone] = mSkeleton->bones[mBone].position;
-
-   RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+   else
+   {
+      dock->SetState(dock->mSkeleton->current + 1);
+   }
 }
 
 ///
 ///
 ///
-void Dock::ResetRotation()
+void Dock::NextStateCommand::Undo()
 {
-   State& state = GetCurrentState();
-
-   Keyframe& keyframe = GetKeyframe(state, mSkeleton->time);
-   if (mSkeleton->time != keyframe.time)
+   if (dock->mSkeleton->current == 0)
    {
-      return;
+      dock->SetState(dock->mSkeleton->states.size() - 1);
    }
-
-   keyframe.rotations[mBone] = mSkeleton->bones[mBone].rotation;
-
-   RecomputeBoneMatrix(state, keyframe, mSkeleton->bones, mBone);
+   else
+   {
+      dock->SetState(dock->mSkeleton->current - 1);
+   }
 }
 
 ///
@@ -980,7 +980,60 @@ void Dock::SetKeyframeTimeCommand::Do()
 
    double last = keyframe.time;
    dock->mSkeleton->time = keyframe.time = value;
+   dock->UpdateKeyframeIcons();
    value = last;
+
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+}
+
+///
+///
+///
+void Dock::NextBoneCommand::Do()
+{
+   if (dock->mBone >= dock->mSkeleton->bones.size() - 1)
+   {
+      dock->SetBone(0);
+   }
+   else
+   {
+      dock->SetBone(dock->mBone + 1);
+   }
+}
+
+///
+///
+///
+void Dock::NextBoneCommand::Undo()
+{
+   if (dock->mBone == 0)
+   {
+      dock->SetBone(dock->mSkeleton->bones.size() - 1);
+   }
+   else
+   {
+      dock->SetBone(dock->mBone - 1);
+   }
+}
+
+///
+///
+///
+void Dock::ParentBoneCommand::Do()
+{
+   last = dock->mBone;
+   if (dock->mBone > 0)
+   {
+      dock->SetBone(dock->mSkeleton->bones[dock->mBone].parent);
+   }
+}
+
+///
+///
+///
+void Dock::ParentBoneCommand::Undo()
+{
+   dock->SetBone(last);
 }
 
 ///
@@ -1003,7 +1056,15 @@ void Dock::SetBoneCommand::Do()
    position = pos;
    rotation = rot;
 
-   RecomputeBoneMatrix(state, keyframe, dock->mSkeleton->bones, bone);
+   dock->SetFloat(dock->mBonePosX, keyframe.positions[bone].x);
+   dock->SetFloat(dock->mBonePosY, keyframe.positions[bone].y);
+   dock->SetFloat(dock->mBonePosZ, keyframe.positions[bone].z);
+   dock->SetFloat(dock->mBoneRotX, keyframe.rotations[bone].x);
+   dock->SetFloat(dock->mBoneRotY, keyframe.rotations[bone].y);
+   dock->SetFloat(dock->mBoneRotZ, keyframe.rotations[bone].z);
+
+   RecomputeBoneMatrix(keyframe, dock->mSkeleton->bones, bone);
+   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 }; // namespace AnimationStation

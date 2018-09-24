@@ -207,10 +207,6 @@ void AnimatedSkeleton::Load(const std::string& filename)
          state.keyframes.push_back(std::move(keyframe));
       }
 
-      Keyframe end = state.keyframes[0];
-      end.time = state.length;
-      state.keyframes.push_back(end);
-
       statesByName.emplace(state.name, states.size());
       states.push_back(std::move(state));
    }
@@ -423,6 +419,10 @@ void AnimatedSkeleton::TransitionTo(const std::string& state, double transitionT
 
 void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   using Keyframe = AnimatedSkeleton::Keyframe;
+   using State = AnimatedSkeleton::State;
+   using Transition = AnimatedSkeleton::Transition;
+
    // First, update skeletons.
    entities.Each<AnimatedSkeleton>([&](Engine::Entity /*entity*/, AnimatedSkeleton& skeleton) {
       // Check for an un-loaded skeleton
@@ -433,7 +433,7 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
       // Advance basic animation
       {
-         AnimatedSkeleton::State& state = skeleton.states[skeleton.current];
+         State& state = skeleton.states[skeleton.current];
          skeleton.time += dt;
          while (skeleton.time >= state.length)
          {
@@ -446,9 +446,12 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
             keyframeIndex--;
          }
 
-         const AnimatedSkeleton::Keyframe& src = state.keyframes[keyframeIndex];
-         const AnimatedSkeleton::Keyframe& dst = state.keyframes[keyframeIndex + 1];
-         const float progress = float((skeleton.time - src.time) / (dst.time - src.time));
+         bool isLastFrame = (keyframeIndex == state.keyframes.size() - 1);
+
+         const Keyframe& src = state.keyframes[keyframeIndex];
+         const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
+         const float dstTime = isLastFrame ? state.length : dst.time;
+         const float progress = float(skeleton.time - src.time) / (dstTime - src.time);
 
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
          {
@@ -464,7 +467,7 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       // Transitions!
       if (skeleton.current != skeleton.next)
       {
-         AnimatedSkeleton::State& state = skeleton.states[skeleton.next];
+         State& state = skeleton.states[skeleton.next];
          skeleton.transitionCurrent = skeleton.transitionCurrent + dt;
          float transitionProgress;
          if (skeleton.transitionCurrent < skeleton.transitionEnd)
@@ -490,8 +493,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
             keyframeIndex--;
          }
 
-         const AnimatedSkeleton::Keyframe& src = state.keyframes[keyframeIndex];
-         const AnimatedSkeleton::Keyframe& dst = state.keyframes[keyframeIndex + 1];
+         const Keyframe& src = state.keyframes[keyframeIndex];
+         const Keyframe& dst = state.keyframes[keyframeIndex + 1];
          const float progress = float((time - src.time) / (dst.time - src.time));
 
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
@@ -503,22 +506,22 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
       // Compute new transitions
       if (skeleton.current == skeleton.next) {
-         AnimatedSkeleton::State& state = skeleton.states[skeleton.current];
-         for (AnimatedSkeleton::Transition& transition : state.transitions)
+         State& state = skeleton.states[skeleton.current];
+         for (Transition& transition : state.transitions)
          {
             // Check triggers.
             bool valid = true;
-            for (AnimatedSkeleton::Transition::Trigger& trigger : transition.triggers)
+            for (Transition::Trigger& trigger : transition.triggers)
             {
                switch (trigger.type)
                {
-               case AnimatedSkeleton::Transition::Trigger::FloatGte:
+               case Transition::Trigger::FloatGte:
                   valid &= skeleton.floatParams[trigger.parameter] >= trigger.floatVal;
                   break;
-               case AnimatedSkeleton::Transition::Trigger::FloatLt:
+               case Transition::Trigger::FloatLt:
                   valid &= skeleton.floatParams[trigger.parameter] < trigger.floatVal;
                   break;
-               case AnimatedSkeleton::Transition::Trigger::Bool:
+               case Transition::Trigger::Bool:
                   valid &= skeleton.boolParams[trigger.parameter] == trigger.boolVal;
                   break;
                default:

@@ -132,7 +132,12 @@ public:
    bool IsKeyDown(int key) const;
 
    //
-   // Get the mouse's current position.
+   // Get the mouse's current position, in pixel space
+   //
+   glm::tvec2<double> GetRawMousePosition() const;
+
+   //
+   // Get the mouse's current position, in [-1,1] space.
    //
    glm::tvec2<double> GetMousePosition() const;
 

@@ -54,16 +54,17 @@ public:
       return static_cast<E*>(AddChild(std::make_unique<E>(*this, std::forward<Args>(args) ...)));
    }
 
+   //
+   // Remove an element from this window
+   //
+   virtual void Remove(Element* reference);
+
 protected:
    //
    // Add an element to this window
    //
    virtual Element* AddChild(std::unique_ptr<Element>&& element);
 
-   //
-   // Remove an element from this window
-   //
-   virtual void RemoveChild(Element* reference);
 
 protected:
    std::vector<std::unique_ptr<Element>> mChildren;

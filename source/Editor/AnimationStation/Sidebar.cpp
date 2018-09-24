@@ -140,7 +140,7 @@ void Sidebar::LoadFile(const std::string& filename)
       state.transitions.clear();
    }
 
-   Emit<SkeletonLoadedEvent>();
+   Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);
 }
 
@@ -160,7 +160,7 @@ void Sidebar::SaveFile()
    std::ofstream out(mFilename);
    out << serialized << std::endl;
 
-   Emit<SkeletonSavedEvent>();
+   Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);
 }
 
