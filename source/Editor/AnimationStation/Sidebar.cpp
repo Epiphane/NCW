@@ -134,12 +134,6 @@ void Sidebar::LoadFile(const std::string& filename)
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
-   // No transitioning
-   for (AnimatedSkeleton::State& state : mSkeleton->states)
-   {
-      state.transitions.clear();
-   }
-
    Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);
 }

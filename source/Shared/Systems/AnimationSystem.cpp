@@ -26,9 +26,13 @@ glm::vec3 JsonToVec3(const nlohmann::json& json)
    return glm::vec3(json[0], json[1], json[2]);
 }
 
-nlohmann::json Vec3ToJson(const glm::vec3& vec3)
+nlohmann::json Vec3ToJson(glm::vec3 vec3)
 {
-   return {vec3.x, vec3.y, vec3.z};
+   return {
+      (double)std::round(vec3.x * 100) / 100,
+      (double)std::round(vec3.y * 100) / 100,
+      (double)std::round(vec3.z * 100) / 100
+   };
 }
 
 void Transform(glm::mat4& matrix, glm::vec3 position, glm::vec3 rotation)
@@ -274,7 +278,7 @@ std::string AnimatedSkeleton::Serialize()
    {
       nlohmann::json stateData;
       stateData["name"] = state.name;
-      stateData["length"] = state.length;
+      stateData["length"] = std::round(state.length * 100) / 100;
 
       for (auto keyframe : state.keyframes)
       {
@@ -285,7 +289,7 @@ std::string AnimatedSkeleton::Serialize()
 
          nlohmann::json keyframeData;
 
-         keyframeData["time"] = keyframe.time;
+         keyframeData["time"] = std::round(keyframe.time * 100) / 100;
 
          for (size_t boneId = 0; boneId < bones.size(); boneId++)
          {
@@ -311,7 +315,7 @@ std::string AnimatedSkeleton::Serialize()
          nlohmann::json transitionData;
 
          transitionData["to"] = transition.destination;
-         transitionData["time"] = transition.time;
+         transitionData["time"] = std::round(transition.time * 100) / 100;
          for (auto trigger : transition.triggers)
          {
             nlohmann::json triggerData;
@@ -320,10 +324,10 @@ std::string AnimatedSkeleton::Serialize()
             switch (trigger.type)
             {
                case AnimatedSkeleton::Transition::Trigger::FloatGte:
-                  triggerData["gte"] = trigger.floatVal;
+                  triggerData["gte"] = (double)std::round(trigger.floatVal * 100) / 100;
                   break;
                case AnimatedSkeleton::Transition::Trigger::FloatLt:
-                  triggerData["lt"] = trigger.floatVal;
+                  triggerData["lt"] = (double)std::round(trigger.floatVal * 100) / 100;
                   break;
                case AnimatedSkeleton::Transition::Trigger::Bool:
                   triggerData["bool"] = trigger.boolVal;
