@@ -26,12 +26,25 @@ glm::vec3 JsonToVec3(const nlohmann::json& json)
    return glm::vec3(json[0], json[1], json[2]);
 }
 
+nlohmann::json Vec3ToJson(const glm::vec3& vec3)
+{
+   return {vec3.x, vec3.y, vec3.z};
+}
+
+void Transform(glm::mat4& matrix, glm::vec3 position, glm::vec3 rotation)
+{
+   matrix = glm::translate(matrix, position);
+   matrix = glm::rotate(matrix, RADIANS(rotation.y), glm::vec3(0, 1, 0));
+   matrix = glm::rotate(matrix, RADIANS(rotation.x), glm::vec3(1, 0, 0));
+   matrix = glm::rotate(matrix, RADIANS(rotation.z), glm::vec3(0, 0, 1));
+}
+
 size_t AddBoneToSkeleton(AnimatedSkeleton* skeleton, const size_t parent, const std::string& name, const nlohmann::json& data)
 {
    AnimatedSkeleton::Bone bone;
    bone.name = name;
-   bone.position = JsonToVec3(data["position"]);
-   bone.rotation = JsonToVec3(data["rotation"]);
+   bone.position = bone.originalPosition = JsonToVec3(data["position"]);
+   bone.rotation = bone.originalRotation = JsonToVec3(data["rotation"]);
    bone.parent = parent;
 
    size_t id = skeleton->bones.size();
@@ -63,17 +76,12 @@ size_t AddBoneToSkeleton(AnimatedSkeleton* skeleton, const size_t parent, const 
    return id;
 }
 
-nlohmann::json Vec3ToJson(const glm::vec3& vec3)
-{
-   return {vec3.x, vec3.y, vec3.z};
-}
-
 nlohmann::json SerializeBone(AnimatedSkeleton* skeleton, AnimatedSkeleton::Bone& bone)
 {
    nlohmann::json data;
 
-   data["position"] = Vec3ToJson(bone.position);
-   data["rotation"] = Vec3ToJson(bone.rotation);
+   data["position"] = Vec3ToJson(bone.originalPosition);
+   data["rotation"] = Vec3ToJson(bone.originalRotation);
    
    for (auto childId : bone.children)
    {
@@ -98,10 +106,7 @@ void AnimatedSkeleton::ComputeBoneMatrix(size_t boneId)
       bone.matrix = bones[bone.parent].matrix;
    }
 
-   bone.matrix = glm::translate(bone.matrix, bone.position);
-   bone.matrix = glm::rotate(bone.matrix, RADIANS(bone.rotation.y), glm::vec3(0, 1, 0));
-   bone.matrix = glm::rotate(bone.matrix, RADIANS(bone.rotation.x), glm::vec3(1, 0, 0));
-   bone.matrix = glm::rotate(bone.matrix, RADIANS(bone.rotation.z), glm::vec3(0, 0, 1));
+   Transform(bone.matrix, bone.position, bone.rotation);
 }
 
 AnimatedSkeleton::AnimatedSkeleton()
@@ -165,9 +170,8 @@ void AnimatedSkeleton::Load(const std::string& filename)
          lastTime = keyframe.time;
 
          // By default, every bone is in its original spot.
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
 
          if (auto boneData = frame.find("bones"); boneData != frame.end())
          {
@@ -175,8 +179,8 @@ void AnimatedSkeleton::Load(const std::string& filename)
             {
                Bone original = bones[boneId];
 
-               glm::vec3 position = original.position;
-               glm::vec3 rotation = original.rotation;
+               glm::vec3 position = original.originalPosition;
+               glm::vec3 rotation = original.originalRotation;
                if (auto modification = boneData.value().find(original.name); modification != boneData.value().end())
                {
                   if (auto pos = modification.value().find("position"); pos != modification.value().end())
@@ -188,20 +192,6 @@ void AnimatedSkeleton::Load(const std::string& filename)
                      rotation = keyframe.rotations[boneId] = JsonToVec3(rot.value());
                   }
                }
-
-               if (boneId == 0)
-               {
-                  keyframe.matrixes[boneId] = glm::mat4(1);
-               }
-               else
-               {
-                  keyframe.matrixes[boneId] = keyframe.matrixes[original.parent];
-               }
-
-               keyframe.matrixes[boneId] = glm::translate(keyframe.matrixes[boneId], position);
-               keyframe.matrixes[boneId] = glm::rotate(keyframe.matrixes[boneId], RADIANS(rotation.y), glm::vec3(0, 1, 0));
-               keyframe.matrixes[boneId] = glm::rotate(keyframe.matrixes[boneId], RADIANS(rotation.x), glm::vec3(1, 0, 0));
-               keyframe.matrixes[boneId] = glm::rotate(keyframe.matrixes[boneId], RADIANS(rotation.z), glm::vec3(0, 0, 1));
             }
          }
          state.keyframes.push_back(std::move(keyframe));
@@ -300,11 +290,11 @@ std::string AnimatedSkeleton::Serialize()
          for (size_t boneId = 0; boneId < bones.size(); boneId++)
          {
             Bone& bone = bones[boneId];
-            if (keyframe.positions[boneId] != bone.position)
+            if (keyframe.positions[boneId] != bone.originalPosition)
             {
                keyframeData["bones"][bone.name]["position"] = Vec3ToJson(keyframe.positions[boneId]);
             }
-            if (keyframe.rotations[boneId] != bone.rotation)
+            if (keyframe.rotations[boneId] != bone.originalRotation)
             {
                keyframeData["bones"][bone.name]["rotation"] = Vec3ToJson(keyframe.rotations[boneId]);
             }
@@ -453,88 +443,98 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
          const float dstTime = isLastFrame ? state.length : dst.time;
          const float progress = float(skeleton.time - src.time) / (dstTime - src.time);
 
+         skeleton.bones[0].matrix = glm::mat4(1);
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
          {
-            skeleton.bones[boneId].matrix = progress * dst.matrixes[boneId] + (1 - progress) * src.matrixes[boneId];
+            skeleton.bones[boneId].position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
+            skeleton.bones[boneId].rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
          }
       }
 
-      if (!mTransitions)
+      if (mTransitions)
       {
-         return;
-      }
-
-      // Transitions!
-      if (skeleton.current != skeleton.next)
-      {
-         State& state = skeleton.states[skeleton.next];
-         skeleton.transitionCurrent = skeleton.transitionCurrent + dt;
-         float transitionProgress;
-         if (skeleton.transitionCurrent < skeleton.transitionEnd)
+         // Transitions!
+         if (skeleton.current != skeleton.next)
          {
-            transitionProgress = float(skeleton.transitionCurrent / (skeleton.transitionEnd - skeleton.transitionStart));
-         }
-         else
-         {
-            transitionProgress = 1;
-            skeleton.current = skeleton.next;
-            skeleton.time = skeleton.transitionCurrent;
-         }
-
-         double time = skeleton.transitionCurrent;
-         while (time >= state.length)
-         {
-            time -= state.length;
-         }
-
-         size_t keyframeIndex = state.keyframes.size() - 1;
-         while (time < state.keyframes[keyframeIndex].time && keyframeIndex > 0)
-         {
-            keyframeIndex--;
-         }
-
-         const Keyframe& src = state.keyframes[keyframeIndex];
-         const Keyframe& dst = state.keyframes[keyframeIndex + 1];
-         const float progress = float((time - src.time) / (dst.time - src.time));
-
-         for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
-         {
-            glm::mat4 matrix = progress * dst.matrixes[boneId] + (1 - progress) * src.matrixes[boneId];
-            skeleton.bones[boneId].matrix = transitionProgress * matrix + (1 - transitionProgress) * skeleton.bones[boneId].matrix;
-         }
-      }
-
-      // Compute new transitions
-      if (skeleton.current == skeleton.next) {
-         State& state = skeleton.states[skeleton.current];
-         for (Transition& transition : state.transitions)
-         {
-            // Check triggers.
-            bool valid = true;
-            for (Transition::Trigger& trigger : transition.triggers)
+            State& state = skeleton.states[skeleton.next];
+            skeleton.transitionCurrent = skeleton.transitionCurrent + dt;
+            float transitionProgress;
+            if (skeleton.transitionCurrent < skeleton.transitionEnd)
             {
-               switch (trigger.type)
+               transitionProgress = float(skeleton.transitionCurrent / (skeleton.transitionEnd - skeleton.transitionStart));
+            }
+            else
+            {
+               transitionProgress = 1;
+               skeleton.current = skeleton.next;
+               skeleton.time = skeleton.transitionCurrent;
+            }
+
+            double time = skeleton.transitionCurrent;
+            while (time >= state.length)
+            {
+               time -= state.length;
+            }
+
+            size_t keyframeIndex = state.keyframes.size() - 1;
+            while (time < state.keyframes[keyframeIndex].time && keyframeIndex > 0)
+            {
+               keyframeIndex--;
+            }
+
+            const Keyframe& src = state.keyframes[keyframeIndex];
+            const Keyframe& dst = state.keyframes[keyframeIndex + 1];
+            const float progress = float((time - src.time) / (dst.time - src.time));
+
+            for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
+            {
+               glm::vec3 position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
+               glm::vec3 rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
+               skeleton.bones[boneId].position = transitionProgress * position + (1 - transitionProgress) * skeleton.bones[boneId].position;
+               skeleton.bones[boneId].rotation = transitionProgress * rotation + (1 - transitionProgress) * skeleton.bones[boneId].rotation;
+            }
+         }
+
+         // Compute new transitions
+         if (skeleton.current == skeleton.next) {
+            State& state = skeleton.states[skeleton.current];
+            for (Transition& transition : state.transitions)
+            {
+               // Check triggers.
+               bool valid = true;
+               for (Transition::Trigger& trigger : transition.triggers)
                {
-               case Transition::Trigger::FloatGte:
-                  valid &= skeleton.floatParams[trigger.parameter] >= trigger.floatVal;
+                  switch (trigger.type)
+                  {
+                  case Transition::Trigger::FloatGte:
+                     valid &= skeleton.floatParams[trigger.parameter] >= trigger.floatVal;
+                     break;
+                  case Transition::Trigger::FloatLt:
+                     valid &= skeleton.floatParams[trigger.parameter] < trigger.floatVal;
+                     break;
+                  case Transition::Trigger::Bool:
+                     valid &= skeleton.boolParams[trigger.parameter] == trigger.boolVal;
+                     break;
+                  default:
+                     assert(false && "Unrecognized trigger type");
+                  }
+               }
+
+               if (valid)
+               {
+                  skeleton.TransitionTo(transition.destination, transition.time);
                   break;
-               case Transition::Trigger::FloatLt:
-                  valid &= skeleton.floatParams[trigger.parameter] < trigger.floatVal;
-                  break;
-               case Transition::Trigger::Bool:
-                  valid &= skeleton.boolParams[trigger.parameter] == trigger.boolVal;
-                  break;
-               default:
-                  assert(false && "Unrecognized trigger type");
                }
             }
-
-            if (valid)
-            {
-               skeleton.TransitionTo(transition.destination, transition.time);
-               break;
-            }
          }
+      }
+   
+      // IMPORTANT: This is where the actual matrix transformation gets done, after all the
+      // transitioning and looping work. Don't early out before here! If you do, nothing will
+      // animate ever.
+      for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
+      {
+         skeleton.ComputeBoneMatrix(boneId);
       }
    });
 }

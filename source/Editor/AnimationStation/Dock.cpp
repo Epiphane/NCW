@@ -49,75 +49,6 @@ Keyframe& GetKeyframe(State& state, double time)
    return state.keyframes[GetKeyframeIndex(state, time)];
 }
 
-///
-///
-///
-std::pair<glm::vec3, glm::vec3> GetLocalPositionAndRotation(const AnimatedSkeleton& skeleton, size_t boneId)
-{
-   const Bone& bone = skeleton.bones[boneId];
-   glm::mat4 localMatrix = bone.matrix;
-   if (boneId > 0)
-   {
-      // Is this too expensive to do every frame? Who knows! Wheeee! It's probably fine!
-      glm::mat4 parentMatrixInv = glm::inverse(skeleton.bones[bone.parent].matrix);
-      localMatrix = glm::inverse(skeleton.bones[bone.parent].matrix) * localMatrix;
-   }
-   glm::vec3 scale;
-   glm::vec3 position;
-   glm::quat rotation;
-   glm::vec3 skew;
-   glm::vec4 perspective;
-   glm::decompose(localMatrix, scale, rotation, position, skew, perspective);
-
-   glm::vec3 localPos(localMatrix[3][0], localMatrix[3][1], localMatrix[3][2]);
-
-   // roll (x-axis rotation)
-   float sinr_cosp = +2.0f * (rotation.w * rotation.x + rotation.y * rotation.z);
-   float cosr_cosp = +1.0f - 2.0f * (rotation.x * rotation.x + rotation.y * rotation.y);
-   float roll = atan2(sinr_cosp, cosr_cosp);
-
-   // pitch (y-axis rotation)
-   float sinp = +2.0f * (rotation.w * rotation.y - rotation.z * rotation.x);
-   float pitch;
-   if (fabs(sinp) >= 1)
-      pitch = copysign((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
-   else
-      pitch = asin(sinp);
-
-   // yaw (z-axis rotation)
-   float siny_cosp = +2.0f * (rotation.w * rotation.z + rotation.x * rotation.y);
-   float cosy_cosp = +1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
-   float yaw = atan2(siny_cosp, cosy_cosp);
-
-   return std::make_pair(position, glm::vec3(DEGREES(roll), DEGREES(pitch), DEGREES(yaw)));
-}
-
-///
-///
-///
-void RecomputeBoneMatrix(Keyframe& keyframe, std::vector<Bone>& bones, size_t bone) {
-   if (bone == 0)
-   {
-      keyframe.matrixes[bone] = glm::mat4(1);
-   }
-   else
-   {
-      keyframe.matrixes[bone] = keyframe.matrixes[bones[bone].parent];
-   }
-
-   glm::vec3 position = keyframe.positions[bone];
-   glm::vec3 rotation = keyframe.rotations[bone];
-   keyframe.matrixes[bone] = glm::translate(keyframe.matrixes[bone], position);
-   keyframe.matrixes[bone] = glm::rotate(keyframe.matrixes[bone], RADIANS(rotation.y), glm::vec3(0, 1, 0));
-   keyframe.matrixes[bone] = glm::rotate(keyframe.matrixes[bone], RADIANS(rotation.x), glm::vec3(1, 0, 0));
-   keyframe.matrixes[bone] = glm::rotate(keyframe.matrixes[bone], RADIANS(rotation.z), glm::vec3(0, 0, 1));
-
-   for (size_t child : bones[bone].children)
-   {
-      RecomputeBoneMatrix(keyframe, bones, child);
-   }
-}
-
 }; // anonymous namespace
 
 Dock::Dock(
@@ -595,15 +526,14 @@ void Dock::UpdateKeyframeIcons()
 ///
 void Dock::UpdateBoneInfo()
 {
-   glm::vec3 position, rotation;
-   std::tie(position, rotation) = GetLocalPositionAndRotation(*mSkeleton, mBone);
+   const Bone& bone = mSkeleton->bones[mBone];
 
-   SetFloat(mBonePosX, position.x);
-   SetFloat(mBonePosY, position.y);
-   SetFloat(mBonePosZ, position.z);
-   SetFloat(mBoneRotX, rotation.x);
-   SetFloat(mBoneRotY, rotation.y);
-   SetFloat(mBoneRotZ, rotation.z);
+   SetFloat(mBonePosX, bone.position.x);
+   SetFloat(mBonePosY, bone.position.y);
+   SetFloat(mBonePosZ, bone.position.z);
+   SetFloat(mBoneRotX, bone.rotation.x);
+   SetFloat(mBoneRotY, bone.rotation.y);
+   SetFloat(mBoneRotZ, bone.rotation.z);
 }
 
 ///
@@ -656,12 +586,6 @@ void Dock::AddStateCommand::Do()
       std::vector<Bone>& bones = dock->mSkeleton->bones;
       std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
       std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
-
-      for (size_t boneId = 0; boneId < bones.size(); boneId++)
-      {
-         RecomputeBoneMatrix(keyframe, bones, boneId);
-      }
 
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
@@ -734,16 +658,15 @@ void Dock::AddKeyframeCommand::Do()
 {
    State& state = dock->GetCurrentState();
 
-   if (keyframe.matrixes.size() == 0)
+   if (keyframe.positions.size() != dock->mSkeleton->bones.size())
    {
+      keyframe.positions.clear();
+      keyframe.rotations.clear();
+
+      // Insert the CURRENT values of position and rotation at this timestamp.
       std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.matrixes), [](const Bone& b) { return b.matrix; });
-      for (size_t boneId = 0; boneId < bones.size(); boneId++)
-      {
-         auto posAndRot = GetLocalPositionAndRotation(*(dock->mSkeleton), boneId);
-         keyframe.positions.push_back(posAndRot.first);
-         keyframe.rotations.push_back(posAndRot.second);
-      }
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
    }
 
    keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
@@ -905,32 +828,26 @@ void Dock::Scrub(ScrubType type, double amount)
       break;
    case POS_X:
       keyframe.positions[mBone].x += (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBonePosX, keyframe.positions[mBone].x);
       break;
    case POS_Y:
       keyframe.positions[mBone].y += (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBonePosY, keyframe.positions[mBone].y);
       break;
    case POS_Z:
       keyframe.positions[mBone].z += (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBonePosZ, keyframe.positions[mBone].z);
       break;
    case ROT_X:
       keyframe.rotations[mBone].x += 10 * (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBoneRotX, keyframe.rotations[mBone].x);
       break;
    case ROT_Y:
       keyframe.rotations[mBone].y += 10 * (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBoneRotY, keyframe.rotations[mBone].y);
       break;
    case ROT_Z:
       keyframe.rotations[mBone].z += 10 * (float)amount;
-      RecomputeBoneMatrix(keyframe, mSkeleton->bones, mBone);
       SetFloat(mBoneRotZ, keyframe.rotations[mBone].z);
       break;
    }
@@ -1063,7 +980,6 @@ void Dock::SetBoneCommand::Do()
    dock->SetFloat(dock->mBoneRotY, keyframe.rotations[bone].y);
    dock->SetFloat(dock->mBoneRotZ, keyframe.rotations[bone].z);
 
-   RecomputeBoneMatrix(keyframe, dock->mSkeleton->bones, bone);
    dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 

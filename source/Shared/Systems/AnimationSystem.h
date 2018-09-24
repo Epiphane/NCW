@@ -19,7 +19,6 @@ namespace Game
    struct AnimatedSkeleton : public Engine::Component<AnimatedSkeleton> {
       struct Keyframe {
          double time;
-         std::vector<glm::mat4> matrixes;
          std::vector<glm::vec3> positions;
          std::vector<glm::vec3> rotations;
       };
@@ -53,6 +52,12 @@ namespace Game
 
       struct Bone {
          std::string name;
+
+         // Original position and rotation are stored for the editor.
+         // Memory _really_ shouldn't matter that much since its 6 floats
+         // per bone, but this can potentially be revisited
+         glm::vec3 originalPosition;
+         glm::vec3 originalRotation;
 
          glm::vec3 position;
          glm::vec3 rotation;
