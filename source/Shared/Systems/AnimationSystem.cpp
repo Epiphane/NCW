@@ -486,9 +486,12 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
                keyframeIndex--;
             }
 
+            bool isLastFrame = (keyframeIndex == state.keyframes.size() - 1);
+
             const Keyframe& src = state.keyframes[keyframeIndex];
-            const Keyframe& dst = state.keyframes[keyframeIndex + 1];
-            const float progress = float((time - src.time) / (dst.time - src.time));
+            const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
+            const float dstTime = isLastFrame ? state.length : dst.time;
+            const float progress = float(time - src.time) / (dstTime - src.time);
 
             for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
             {
