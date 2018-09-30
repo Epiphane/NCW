@@ -1,5 +1,6 @@
 build/*
 Build2/*
+xcode_build/*
 .DS_Store
 source/.config
 source/RGBzero.exe
