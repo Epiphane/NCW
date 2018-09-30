@@ -1,7 +1,7 @@
 //
 // UISystem - Provides the ability to render game UI components
 //
-// By Thomas Steinke + Elliot Fiske
+// By Thomas Steinke
 //
 
 #pragma once
@@ -37,7 +37,7 @@ protected:
    rhea::simplex_solver  mSolver;         ///< Solves for the constraints we provide
    
 private:
-   std::vector<VertexData> mUIVertices;   ///< Holds all the vertices pushed by this element's children.
+   std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;   ///< Holds all the vertices pushed by this element's children.
    Engine::Graphics::VBO mRectanglesVBO;  ///< VBO that ALL the UI elements will use
 };
    

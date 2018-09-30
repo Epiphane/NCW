@@ -38,7 +38,7 @@ namespace Engine
     * Update all this node's children. Pass in the vertex data array to my children
     *  so they can add their vertices to it.
     */
-   void UIElement::AddVertices(std::vector<VertexData>& outVertices) {
+   void UIElement::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices) {
       for (int ndx = 0; ndx < mpChildren.size(); ndx++) {
          mpChildren[ndx]->AddVertices(outVertices);
       }
@@ -49,10 +49,12 @@ namespace Engine
     * Render all this node's children. Pass in the VBO to my children in case
     *    they want to render with it.
     */
-   void UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
+   int UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
       for (int ndx = 0; ndx < mpChildren.size(); ndx++) {
-         mpChildren[ndx]->Render(vbo, offset);
+         offset = mpChildren[ndx]->Render(vbo, offset);
       }
+      
+      return offset;
    }
    
 }; // namespace Engine

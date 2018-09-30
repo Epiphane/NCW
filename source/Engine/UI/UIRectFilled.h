@@ -1,7 +1,7 @@
 //
 // UIRectFilled – render a solid rectangle with a given color in the UI.
 //
-// By Thomas Steinke + Elliot Fiske
+// By Thomas Steinke
 //
 
 #pragma once
@@ -20,10 +20,15 @@ namespace Engine
    public:
       UIRectFilled();
       
-      virtual void AddVertices(std::vector<VertexData>& outVertices);
-      virtual void Render(Engine::Graphics::VBO& vbo, size_t offset);
+      virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
+      virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
+      
+      void SetColor(float r, float g, float b, float a);
+      glm::vec4 GetColor();
       
    private:
+      glm::vec4 mColor;
+      
       static GLuint program;
       static GLuint aPosition;
       static GLuint uWindowSize, uColor;

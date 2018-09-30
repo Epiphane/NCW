@@ -1,7 +1,7 @@
 //
 // UIMainScreen – contains the standard game UI. Pause screen, overlays, etc.
 //
-// By Thomas Steinke + Elliot Fiske
+// By Thomas Steinke
 //
 
 #pragma once

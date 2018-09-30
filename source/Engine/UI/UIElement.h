@@ -2,16 +2,21 @@
 // UIElement – Basic UI element. Stores its "frame," which gives the element
 //                its coordinates and size.
 //
-// By Thomas Steinke + Elliot Fiske
+// By Thomas Steinke
 //
 
 #pragma once
 
+#include <string>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <Engine/Graphics/VBO.h>
+#include <Engine/Graphics/FontManager.h>
+
 #include <rhea/rhea/variable.hpp>
+#include <rhea/rhea/constraint.hpp>
 
 namespace CubeWorld
 {
@@ -54,16 +59,19 @@ public:
    
    virtual void AddChild(UIElement& newChild);
    
-   virtual void AddVertices(std::vector<VertexData>& outVertices);
-   virtual void Render(Engine::Graphics::VBO& vbo, size_t offset);
+   virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
+   virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
    
-   UIFrame mFrame;         ///< Contains the coordinates and size of the element.
+   void AddConstraint(std::string nameKey, rhea::constraint constraint);
    
 protected:
-   UIRoot* mpRoot;         ///< The parent of all parents
+   UIFrame mFrame;         ///< Contains the coordinates and size of the element.
    
-   UIElement* mpParent;    ///< My parent in the UI heirarchy
+   std::map<std::string, rhea::constraint> mConstraints; ///< Map where key is the constraint's name and value is the constraint
    std::vector<UIElement*> mpChildren;
+   
+   UIRoot* mpRoot;         ///< The parent of all parents
+   UIElement* mpParent;    ///< My parent in the UI heirarchy
 };
    
 }; // namespace Engine
