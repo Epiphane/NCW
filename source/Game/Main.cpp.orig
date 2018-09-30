@@ -24,6 +24,10 @@
 #include <Engine/UI/UIMainScreen.h>
 
 #include <Shared/DebugHelper.h>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 263f55c... Sweet sweet new UI
 
 #include "States/StupidState.h"
 #include "Main.h"
@@ -64,9 +68,13 @@ int main(int /* argc */, char ** /* argv */) {
    stateManager->SetState(std::move(initialState));
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
+<<<<<<< HEAD
+   debug->SetBounds(window);
+=======
    debug->SetWindow(window);
    
    Engine::UIMainScreen* ui = new Engine::UIMainScreen(window);
+>>>>>>> 263f55c... Sweet sweet new UI
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
@@ -92,9 +100,12 @@ int main(int /* argc */, char ** /* argv */) {
 
          debug->Update();
          debug->Render();
+<<<<<<< HEAD
+=======
          
          ui->UpdateRoot();
          ui->RenderRoot();
+>>>>>>> 263f55c... Sweet sweet new UI
 
          error = glGetError();
          assert(error == 0);

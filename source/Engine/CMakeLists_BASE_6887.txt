@@ -1,23 +1,20 @@
 cmake_minimum_required(VERSION 3.1)
-project(Engine)
 
-file(GLOB_RECURSE OSX_SOURCES "*/OSX/*")
-file(GLOB_RECURSE WIN_SOURCES "*/Windows/*")
+SET(PROJECT_NAME Engine)
 
-file(GLOB_RECURSE SOURCES
+include_directories(${INCLUDES})
+INCLUDE_DIRECTORIES (noise)
+INCLUDE_DIRECTORIES (..)
+
+file(GLOB SOURCES
    "*.h"
    "*.cpp"
-   "*.mm"
+   "**/*.h"
+   "**/*.cpp"
 )
 
-if (APPLE)
-list(REMOVE_ITEM SOURCES ${WIN_SOURCES})
-elseif(WIN32)
-list(REMOVE_ITEM SOURCES ${OSX_SOURCES})
-endif()
-
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
-target_link_libraries(${PROJECT_NAME} ${CW_LIBS})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glew)
 
 # install libraries into /lib
 INSTALL(TARGETS Engine DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
@@ -28,4 +25,3 @@ SOURCE_GROUP(GameObject REGULAR_EXPRESSION ".*/Engine/GameObject/.*$")
 SOURCE_GROUP(Entity REGULAR_EXPRESSION ".*/Engine/Entity/.*$")
 SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Engine/Event/.*$")
 SOURCE_GROUP(System REGULAR_EXPRESSION ".*/Engine/System/.*$")
-SOURCE_GROUP(UI REGULAR_EXPRESSION ".*/Engine/UI/.*$")
