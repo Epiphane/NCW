@@ -222,6 +222,11 @@ void Program::Uniform3f(const std::string& name, const float value1, const float
 {
    glUniform3f(Uniform(name), value1, value2, value3);
 }
+   
+void Program::Uniform4f(const std::string& name, const float value1, const float value2, const float value3, const float value4)
+{
+   glUniform4f(Uniform(name), value1, value2, value3, value4);
+}
 
 void Program::UniformVector3f(const std::string& name, const glm::vec3& vector)
 {

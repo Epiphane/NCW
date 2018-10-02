@@ -11,7 +11,7 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/VBO.h>
 
-#include <rhea/rhea/simplex_solver.hpp>
+#include <rhea/simplex_solver.hpp>
 
 #include "UIElement.h"
 

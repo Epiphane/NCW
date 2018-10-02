@@ -1,7 +1,5 @@
 // By Thomas Steinke
 
-#include <GL/glew.h>
-
 #include <Engine/Graphics/Program.h>
 
 //#include <rhea/rhea/iostream.hpp> // Uncomment if you want to do something like `cout << rhea::variable`
@@ -26,8 +24,8 @@ namespace Engine
       
       // UIRoot's frame is at (0,0) and matches the window's size
       mSolver.add_constraints({
-         mFrame.width  == pWindow->Width(),
-         mFrame.height == pWindow->Height(),
+         mFrame.width  == pWindow->GetWidth(),
+         mFrame.height == pWindow->GetHeight(),
          
          mFrame.left == 0,
          mFrame.top == 0

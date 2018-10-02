@@ -15,8 +15,9 @@
 #include <Engine/Graphics/VBO.h>
 #include <Engine/Graphics/FontManager.h>
 
-#include <rhea/rhea/variable.hpp>
-#include <rhea/rhea/constraint.hpp>
+//#include <rhea/rhea/variable.hpp>
+#include <rhea/variable.hpp>
+#include <rhea/constraint.hpp>
 
 namespace CubeWorld
 {

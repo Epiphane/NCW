@@ -50,6 +50,7 @@ public:
    void Uniform1f(const std::string& name, const float value);
    void Uniform2f(const std::string& name, const float value1, const float value2);
    void Uniform3f(const std::string& name, const float value1, const float value2, const float value3);
+   void Uniform4f(const std::string& name, const float value1, const float value2, const float value3, const float value4);
    void UniformVector3f(const std::string& name, const glm::vec3& vector);
    void UniformMatrix4f(const std::string& name, const glm::mat4& matrix);
 

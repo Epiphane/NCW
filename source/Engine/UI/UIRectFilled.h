@@ -8,6 +8,7 @@
 
 #include <Engine/UI/UIElement.h>
 #include <Engine/Graphics/VBO.h>
+#include <Engine/Graphics/Program.h>
 
 
 namespace CubeWorld
@@ -29,9 +30,7 @@ namespace Engine
    private:
       glm::vec4 mColor;
       
-      static GLuint program;
-      static GLuint aPosition;
-      static GLuint uWindowSize, uColor;
+      static std::unique_ptr<Engine::Graphics::Program> program;
    };
 
    

@@ -1,7 +1,5 @@
 // By Thomas Steinke
 
-#include <GL/glew.h>
-
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/Asset.h>
 
@@ -13,16 +11,16 @@ namespace CubeWorld
 namespace Engine
 {
 
-   REGISTER_GLUINT(UILabel, program);
-   
-   REGISTER_GLUINT(UILabel, aPosition);
-   REGISTER_GLUINT(UILabel, uColor);
-   REGISTER_GLUINT(UILabel, uWindowSize);
+//   REGISTER_GLUINT(UILabel, program);
+//   
+//   REGISTER_GLUINT(UILabel, aPosition);
+//   REGISTER_GLUINT(UILabel, uColor);
+//   REGISTER_GLUINT(UILabel, uWindowSize);
 
    UILabel::UILabel() {
-      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
-      assert(maybeFont);
-      mpFont = std::move(*maybeFont);
+//      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
+//      assert(maybeFont);
+//      mpFont = std::move(*maybeFont);
    }
    
    /** Set the label's text. Will change the label's innate size. */
@@ -74,24 +72,24 @@ namespace Engine
     *    past the previous offset)
     */
    int UILabel::Render(Engine::Graphics::VBO& vbo, size_t offset) {
-      Window* pWindow = Window::Instance();
-      
-      glUseProgram(program);
-      
-      glUniform4f(uColor, mTextColor.r, mTextColor.g, mTextColor.b, mTextColor.a);
-      glUniform2f(uWindowSize, static_cast<GLfloat>(pWindow->Width()), static_cast<GLfloat>(pWindow->Height()));
-      
-      vbo.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)offset);
-      
-      glDrawArrays(GL_LINES, 0, 2);
-      
-      // Cleanup.
-      glDisableVertexAttribArray(aPosition);
-      glUseProgram(0);
-      
-      offset = UIElement::Render(vbo, offset + sizeof(glm::vec2) * 2);
-      
-      return offset;
+//      Window* pWindow = Window::Instance();
+//      
+//      glUseProgram(program);
+//      
+//      glUniform4f(uColor, mTextColor.r, mTextColor.g, mTextColor.b, mTextColor.a);
+//      glUniform2f(uWindowSize, static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
+//      
+//      vbo.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)offset);
+//      
+//      glDrawArrays(GL_LINES, 0, 2);
+//      
+//      // Cleanup.
+//      glDisableVertexAttribArray(aPosition);
+//      glUseProgram(0);
+//      
+//      offset = UIElement::Render(vbo, offset + sizeof(glm::vec2) * 2);
+//      
+//      return offset;
    }
    
 }; // namespace Engine

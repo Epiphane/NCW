@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <glm/glm.hpp>
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
@@ -15,27 +15,23 @@ namespace CubeWorld
 namespace Engine
 {
    
-   REGISTER_GLUINT(UIRectFilled, program);
-   
-   REGISTER_GLUINT(UIRectFilled, aPosition);
-   REGISTER_GLUINT(UIRectFilled, uColor);
-   REGISTER_GLUINT(UIRectFilled, uWindowSize);
-
+   std::unique_ptr<Engine::Graphics::Program> UIRectFilled::program = nullptr;
    
    UIRectFilled::UIRectFilled() {
-      if (program == 0) {
-         program = Engine::Graphics::LoadProgram("Shaders/DebugRect.vert", "Shaders/DebugRect.geom", "Shaders/DebugRect.frag");
-      }
-      
-      if (program == 0)
+      if (!program)
       {
-         LOG_ERROR("Could not load DebugRect shader");
-         return;
+         auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugRect.vert", "Shaders/DebugRect.geom", "Shaders/DebugRect.frag");
+         if (!maybeProgram)
+         {
+            LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugRect shader").GetMessage());
+            return;
+         }
+         
+         program = std::move(*maybeProgram);
+         program->Attrib("aPosition");
+         program->Uniform("uColor");
+         program->Uniform("uWindowSize");
       }
-      
-      DISCOVER_ATTRIBUTE(aPosition);
-      DISCOVER_UNIFORM(uColor);
-      DISCOVER_UNIFORM(uWindowSize);
    }
    
    
@@ -75,17 +71,17 @@ namespace Engine
    int UIRectFilled::Render(Engine::Graphics::VBO& vbo, size_t offset) {
       Window* pWindow = Window::Instance();
       
-      glUseProgram(program);
+      program->Bind();
       
-      glUniform4f(uColor, mColor.r, mColor.g, mColor.b, mColor.a);
-      glUniform2f(uWindowSize, static_cast<GLfloat>(pWindow->Width()), static_cast<GLfloat>(pWindow->Height()));
+      program->Uniform4f("uColor", mColor.r, mColor.g, mColor.b, mColor.a);
+      program->Uniform2f("uWindowSize", pWindow->GetWidth(), pWindow->GetHeight());
       
-      vbo.AttribPointer(aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
+      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
       
       glDrawArrays(GL_LINES, 0, 2);
       
       // Cleanup.
-      glDisableVertexAttribArray(aPosition);
+      glDisableVertexAttribArray(program->Attrib("aPosition"));
       glUseProgram(0);
       
       offset = UIElement::Render(vbo, offset + sizeof(Graphics::Font::CharacterVertexUV) * 2);

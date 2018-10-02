@@ -63,15 +63,15 @@ int main(int /* argc */, char ** /* argv */) {
 
    stateManager->SetState(std::move(initialState));
 
-   Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window);
+//   Game::DebugHelper* debug = Game::DebugHelper::Instance();
+//   debug->SetWindow(window);
    
    Engine::UIMainScreen* ui = new Engine::UIMainScreen(window);
 
    Timer<100> clock(SEC_PER_FRAME);
-   auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
-      return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
-   });
+//   auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
+//      return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
+//   });
 
    // Setup input
    auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
@@ -90,8 +90,8 @@ int main(int /* argc */, char ** /* argv */) {
          GLenum error = glGetError();
          assert(error == 0);
 
-         debug->Update();
-         debug->Render();
+//         debug->Update();
+//         debug->Render();
          
          ui->UpdateRoot();
          ui->RenderRoot();
