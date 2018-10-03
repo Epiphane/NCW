@@ -21,6 +21,7 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
+#include <Engine/UI/UIMainScreen.h>
 
 #include <Shared/DebugHelper.h>
 
@@ -64,6 +65,8 @@ int main(int /* argc */, char ** /* argv */) {
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
    debug->SetBounds(window);
+   
+   Engine::UIMainScreen* ui = new Engine::UIMainScreen(window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
@@ -89,6 +92,9 @@ int main(int /* argc */, char ** /* argv */) {
 
          debug->Update();
          debug->Render();
+         
+         ui->UpdateRoot();
+         ui->RenderRoot();
 
          error = glGetError();
          assert(error == 0);

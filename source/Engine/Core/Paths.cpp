@@ -191,10 +191,10 @@ bool Exists(const std::string& path)
    DWORD ret = ::GetFileAttributes(path.c_str());
    return ret != INVALID_FILE_ATTRIBUTES;
 #elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
-   if (access(path, 0) == 0)
+   if (access(path.c_str(), 0) == 0)
    {
       struct stat status;
-      if (stat(path, &status) == 0)
+      if (stat(path.c_str(), &status) == 0)
       {
          return true;
       }
