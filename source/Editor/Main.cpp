@@ -19,6 +19,7 @@
 #include <Shared/DebugHelper.h>
 
 #include "AnimationStation/Editor.h"
+#include "ModelMaker/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "UI/Controls.h"
@@ -74,9 +75,12 @@ int main(int argc, char** argv)
    Editor::SubWindowSwapper::Options windowContentOptions;
    Editor::SubWindowSwapper windowContent(*window, windowContentOptions);
 
-   // Create subwindow for the current editor
+   // Create subwindow for each editor
    Editor::AnimationStation::Editor::Options animationStationOptions;
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(animationStationOptions);
+
+   Editor::ModelMaker::Editor::Options modelMakerOptions;
+   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(modelMakerOptions);
 
    // Create subwindow for the overarching Editor controls.
    Editor::Controls::Options controlsOptions;
@@ -90,8 +94,13 @@ int main(int argc, char** argv)
    // another base SubWindow, but it seems overkill /shrug
    controls->SetActive(true);
    controls->SetLayout({{
+      Editor::Controls::Layout::Element{"Model Maker", [&](){
+         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
+         modelMaker->Start();
+      }},
       Editor::Controls::Layout::Element{"Animation Station", [&](){
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
+         animationStation->Start();
       }},
       Editor::Controls::Layout::Element{"Quit", [&]() {
          window->SetShouldClose(true);
@@ -107,18 +116,12 @@ int main(int argc, char** argv)
       return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
    });
 
-   // Start with AnimationStation
-   animationStation->Start();
-
    // Attach mouse events to state
    window->GetInput()->OnMouseDown([&](int button, double x, double y) {
       windowContent.MouseDown(button, x, y);
    });
    window->GetInput()->OnMouseUp([&](int button, double x, double y) {
       windowContent.MouseUp(button, x, y);
-   });
-   window->GetInput()->OnDrag([&](int button, double x, double y) {
-      windowContent.MouseDrag(button, x, y);
    });
    window->GetInput()->OnClick([&](int button, double x, double y) {
       windowContent.MouseClick(button, x, y);
@@ -136,6 +139,7 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
+   animationStation->Start();
    windowContent.Swap(animationStation);
 
    Timer<100> windowContentRender;

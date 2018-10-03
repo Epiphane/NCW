@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <Engine/Core/Config.h>
 #include <Engine/Core/Bounded.h>
 
@@ -47,8 +49,6 @@ public:
    virtual void MouseUp(int button, double x, double y);
    // React to the mouse being clicked. x and y are relative to the parent's bounds.
    virtual void MouseClick(int button, double x, double y);
-   // React to the mouse dragging. x and y are relative to the parent's bounds.
-   virtual void MouseDrag(int button, double x, double y);
 
    // Get the absolute x value of this element, in pixels.
    uint32_t GetX() const override { return uint32_t(mParent.GetX() + mParent.GetWidth() * mOptions.x); }
@@ -69,6 +69,11 @@ protected:
    // Returns whether the point [x, y] in parent space
    // is contained within this element.
    bool ContainsPoint(double x, double y);
+
+protected:
+   // Convert absolute [-1, 1] space mouse location to a [0, 1] vector
+   // relative to this element.
+   glm::tvec2<double> AbsoluteToRelative(glm::tvec2<double> mouse);
 
 protected:
    Bounded& mParent;

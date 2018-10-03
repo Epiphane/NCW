@@ -16,7 +16,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace AnimationStation
+namespace ModelMaker
 {
 
 using Game::AnimatedSkeleton;
@@ -26,7 +26,7 @@ Sidebar::Sidebar(
    const Options& options
 )
    : SubWindow(parent, options)
-   , mFilename(Paths::Normalize(Asset::Animation("player.json")))
+   , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
    {
       // Backdrop
@@ -69,18 +69,18 @@ Sidebar::Sidebar(
       mQuit = Add<TextButton>(buttonOptions);
    }
 
-   Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
-   Subscribe<SkeletonModifiedEvent>(*this);
+   Subscribe<Engine::ComponentAddedEvent<Game::CubeModel>>(*this);
+   Subscribe<ModelModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<Game::CubeModel>& evt)
 {
-   mSkeleton = evt.component;
+   mModel = evt.component;
 
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const SkeletonModifiedEvent&)
+void Sidebar::Receive(const ModelModifiedEvent&)
 {
    SetModified(true);
 }
@@ -95,7 +95,7 @@ void Sidebar::SetModified(bool modified)
 
    mModified = modified;
 
-   std::string title = "NCW - Animation Station - ";
+   std::string title = "NCW - Model Maker - ";
    if (mModified)
    {
       title += "*";
@@ -119,22 +119,15 @@ void Sidebar::LoadNewFile()
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   if (!mSkeleton)
+   if (!mModel)
    {
       // Wait until the component exists!
       return;
    }
 
-   mSkeleton->Load(filename);
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+   // Load
 
-   Emit<SkeletonLoadedEvent>(mSkeleton);
+   Emit<ModelLoadedEvent>(mModel);
    SetModified(false);
 }
 
@@ -150,11 +143,13 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mSkeleton->Serialize();
-   std::ofstream out(mFilename);
-   out << serialized << std::endl;
+   // TODO
+   return;
+   //std::string serialized = mModel->Serialize();
+   //std::ofstream out(mFilename);
+   //out << serialized << std::endl;
 
-   Emit<SkeletonSavedEvent>(mSkeleton);
+   Emit<ModelSavedEvent>(mModel);
    SetModified(false);
 }
 

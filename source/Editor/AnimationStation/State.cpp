@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #pragma warning(push, 0)
@@ -76,7 +77,7 @@ void MainState::Initialize()
 
    // Create a player component
    Entity player = mEntities.Create();
-   player.Add<Transform>(glm::vec3(0, 4.3, 0));
+   player.Add<Transform>(glm::vec3(0, 1.3, 0));
    player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
    player.Add<AnimatedSkeleton>();
 
@@ -100,60 +101,28 @@ void MainState::Initialize()
    std::vector<glm::vec3> points;
    std::vector<glm::vec3> colors;
 
-   noise::module::Perlin heightmodule;
-   heightmodule.SetFrequency(0.5);
-   noise::utils::NoiseMap heightmap;
-   noise::utils::NoiseMapBuilderPlane builder;
-   builder.SetSourceModule(heightmodule);
-   builder.SetDestNoiseMap(heightmap);
-   const int size = 150;
-   builder.SetDestSize(2 * size + 1, 2 * size + 1);
-   builder.SetBounds(6, 10, 1, 5);
-   builder.Build();
-
    // Colors
-   /*
-   -1.0000, (  0,   0, 128, 255)); // deeps
-   -0.2500, (  0,   0, 255, 255)); // shallow
-      0.0000, (  0, 128, 255, 255)); // shore
-      0.0625, (240, 240,  64, 255)); // sand
-      0.1250, ( 32, 160,   0, 255)); // grass
-      0.3750, (224, 224,   0, 255)); // dirt
-      0.7500, (128, 128, 128, 255)); // rock
-   1.0000, (255, 255, 255, 255)); // snow
-   */
-   glm::vec4 DEEP(0, 0, 128, 1);
-   glm::vec4 SHALLOW(0, 0, 255, 1);
-   glm::vec4 SHORE(0, 128, 255, 1);
-   glm::vec4 SAND(240, 240, 64, 1);
-   glm::vec4 GRASS(32, 160, 0, 1);
-   glm::vec4 DIRT(224, 224, 0, 1);
-   glm::vec4 ROCK(128, 128, 128, 1);
-   glm::vec4 SNOW(255, 255, 255, 1);
-
-   std::vector<int32_t> heights;
-   heights.resize(4 * (size + 1) * (size + 1));
-
+   const glm::vec4 BASE(18, 18, 18, 1);
+   const glm::vec4 LINE(0, 160, 51, 1);
+   const int size = 150;
    for (int i = -size; i <= size; ++i) {
-      int rowIndex = (i + size) * (2 * size + 1);
       for (int j = -size; j <= size; ++j) {
-         double elevation = 0.25 + 2 * pow(heightmap.GetValue(i + size, j + size), 2);
-         glm::vec4 source, dest;
-         double start, end;
-         if (elevation >= 0.75) { source = ROCK; dest = SNOW; start = 0.75; end = 1.0; }
-         else if (elevation >= 0.375) { source = DIRT; dest = ROCK; start = 0.375; end = 0.75; }
-         else if (elevation >= 0.125) { source = GRASS; dest = DIRT; start = 0.125; end = 0.375; }
-         else if (elevation >= 0.0625) { source = SAND; dest = GRASS; start = 0.0625; end = 0.125; }
-         else if (elevation >= 0.0) { source = SHORE; dest = SAND; start = 0; end = 0.0625; }
-         else if (elevation >= -0.25) { source = SHALLOW; dest = SHORE; start = -0.25; end = 0; }
-         else { source = DEEP; dest = SHALLOW; start = -1.0; end = -0.25; }
-         float perc = float(elevation - start) / float(end - start);
+         double x = (double)i / (2 * size);
+         double y = (double)j / (2 * size);
+         double expectedX = 1.0 - 4.0 * std::pow(y - 0.5, 2);
+         double dist = 5.0 * std::abs(x - expectedX);
+         dist += (rand() % 500) / 1000.0 - 0.25;
+         // Curve it from (0, 1)
+         dist = 1.0 / (1 + std::pow(2, dist));
 
-         glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
-         glm::vec4 color = dest * perc + source * (1 - perc);
-         carpet.push_back(Voxel::Data(position, color, Voxel::All));
+         glm::vec4 color(
+            std::floor((1 - dist) * BASE.r + dist * LINE.r),
+            std::floor((1 - dist) * BASE.g + dist * LINE.g),
+            std::floor((1 - dist) * BASE.b + dist * LINE.b),
+            1);
 
-         heights[rowIndex + j + size] = int32_t(position.y);
+         glm::vec3 position = glm::vec3(i, 0, j);
+         carpet.push_back(Voxel::Data(position, color, Voxel::Top));
       }
    }
 

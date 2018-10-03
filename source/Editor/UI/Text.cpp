@@ -7,7 +7,7 @@
 #include <Engine/Logger/Logger.h>
 #include <Shared/Helpers/Asset.h>
 
-#include "Label.h"
+#include "Text.h"
 
 namespace CubeWorld
 {
@@ -15,20 +15,15 @@ namespace CubeWorld
 namespace Editor
 {
 
-std::unique_ptr<Engine::Graphics::Program> Label::textProgram = nullptr;
-std::unique_ptr<Engine::Graphics::Program> Label::renderProgram = nullptr;
+std::unique_ptr<Engine::Graphics::Program> Text::textProgram = nullptr;
+std::unique_ptr<Engine::Graphics::Program> Text::renderProgram = nullptr;
 
-Label::Label(
+Text::Text(
    Bounded& parent,
    const Options& options
 )
    : Element(parent, options)
    , mText("")
-   , mClickCallback(options.onClick)
-   , mChangeCallback(options.onChange)
-   , mIsHovered(false)
-   , mIsFocused(false)
-   , mKeyCallbacks{}
    , mFramebuffer(GLsizei(GetWidth()), GLsizei(GetHeight()))
    , mTextVBO(Engine::Graphics::VBO::DataType::Vertices)
    , mRenderVBO(Engine::Graphics::VBO::DataType::Vertices)
@@ -86,80 +81,9 @@ Label::Label(
    mRenderVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 
    SetText(options.text);
-
-   if (mChangeCallback)
-   {
-      auto onAlpha = std::bind(&Label::OnAlphaKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-      for (int key = GLFW_KEY_A; key <= GLFW_KEY_Z; key++)
-      {
-         mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(key), onAlpha));
-         mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::ShiftKey(key), onAlpha));
-      }
-      mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(GLFW_KEY_BACKSPACE), onAlpha));
-      mKeyCallbacks.push_back(Engine::Window::Instance()->GetInput()->AddCallback(Engine::Input::Key(GLFW_KEY_ENTER), onAlpha));
-   }
 }
 
-void Label::OnAlphaKey(int key, int action, int mods)
-{
-   if (!mIsFocused || action != GLFW_PRESS)
-   {
-      return;
-   }
-
-   switch (key)
-   {
-   case GLFW_KEY_BACKSPACE:
-      if (mText.size() > 1)
-      {
-         // Erase the second to last character
-         mText.erase(mText.end() - 2, mText.end() - 1);
-         RenderText(mText);
-      }
-      break;
-   case GLFW_KEY_ENTER:
-      mIsFocused = false;
-      mText.pop_back();
-      mChangeCallback(mText);
-      RenderText(mText);
-      break;
-   default:
-      // It's a letter
-      char ch = (key - GLFW_KEY_A) + 'a';
-      if ((mods & GLFW_MOD_SHIFT) != 0)
-      {
-         ch += 'A' - 'a';
-      }
-      mText.insert(mText.end() - 1, ch);
-      RenderText(mText);
-   }
-}
-
-void Label::MouseClick(int button, double x, double y)
-{
-   if (mClickCallback && ContainsPoint(x, y))
-   {
-      mClickCallback();
-   }
-   if (mChangeCallback)
-   {
-      bool wasFocused = mIsFocused;
-      mIsFocused = ContainsPoint(x, y);
-      if (mIsFocused && !wasFocused)
-      {
-         mText.push_back('_');
-         RenderText(mText);
-      }
-      else if (!mIsFocused && wasFocused)
-      {
-         mText.pop_back();
-         mChangeCallback(mText);
-         RenderText(mText);
-      }
-   }
-}
-
-void Label::RenderText(const std::string& text)
+void Text::RenderText(const std::string& text)
 {
    if (text.empty())
    {
@@ -185,27 +109,11 @@ void Label::RenderText(const std::string& text)
    mFramebuffer.Unbind();
 }
 
-void Label::Update(TIMEDELTA dt)
+void Text::Update(TIMEDELTA)
 {
    if (mText.empty())
    {
       return;
-   }
-
-   if (mClickCallback)
-   {
-      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
-      bool hovered = ContainsPoint((mouse.x - mParent.GetX()) / mParent.GetWidth(), (mouse.y - mParent.GetY()) / mParent.GetHeight());
-      if (hovered && !mIsHovered)
-      {
-         RenderText("> " + mText);
-         mIsHovered = true;
-      }
-      else if (!hovered && mIsHovered)
-      {
-         RenderText(mText);
-         mIsHovered = false;
-      }
    }
 
    // Draw framebuffer to the screen

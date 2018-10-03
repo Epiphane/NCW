@@ -27,7 +27,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace AnimationStation
+namespace ModelMaker
 {
 
 class Sidebar : public SubWindow, public Engine::EventManager, public Engine::Receiver<Sidebar> {
@@ -57,17 +57,17 @@ private:
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt);
-   void Receive(const SkeletonModifiedEvent& evt);
+   void Receive(const Engine::ComponentAddedEvent<Game::CubeModel>& evt);
+   void Receive(const ModelModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<Game::AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<Game::CubeModel> mModel;
    bool mModified;
 };
 
-}; // namespace AnimationStation
+}; // namespace ModelMaker
 
 }; // namespace Editor
 

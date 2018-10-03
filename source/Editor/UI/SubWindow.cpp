@@ -144,24 +144,6 @@ void SubWindow::MouseClick(int button, double x, double y)
    }
 }
 
-void SubWindow::MouseDrag(int button, double x, double y)
-{
-   if (!mActive)
-   {
-      return;
-   }
-
-   double localX = (x - mOptions.x) / mOptions.w;
-   double localY = (y - mOptions.y) / mOptions.h;
-
-   for (std::unique_ptr<Element> &child : mChildren)
-   {
-      if (child->IsActive()) {
-         child->MouseDrag(button, localX, localY);
-      }
-   }
-}
-
 Element* SubWindow::AddChild(std::unique_ptr<Element>&& element)
 {
    Element* elem = element.get();

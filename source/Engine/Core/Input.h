@@ -177,7 +177,6 @@ public:
    void OnMouseDown(mouse_button_callback cb) { mMouseDownCallback = cb; }
    void OnMouseUp(mouse_button_callback cb) { mMouseUpCallback = cb; }
    void OnClick(mouse_button_callback cb) { mMouseClickCallback = cb; }
-   void OnDrag(mouse_button_callback cb) { mMouseDragCallback = cb; }
 
 private:
    // They might as well be one class, but it would be a very large unwieldy class.
@@ -192,7 +191,6 @@ private:
    mouse_button_callback mMouseDownCallback = nullptr;
    mouse_button_callback mMouseUpCallback = nullptr;
    mouse_button_callback mMouseClickCallback = nullptr;
-   mouse_button_callback mMouseDragCallback = nullptr;
 
    glm::tvec2<double> mMousePosition;
    glm::tvec2<double> mMouseMovement;

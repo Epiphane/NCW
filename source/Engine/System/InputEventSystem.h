@@ -29,13 +29,12 @@ private:
    void MouseDown(int button, double x, double y);
    void MouseUp(int button, double x, double y);
    void MouseClick(int button, double x, double y);
-   void MouseDrag(int button, double x, double y);
 
    Input* mInput;
 
 private:
    struct EventToLog {
-      enum { DOWN, UP, CLICK, DRAG } type;
+      enum { DOWN, UP, CLICK } type;
       int button;
       double x, y;
    };

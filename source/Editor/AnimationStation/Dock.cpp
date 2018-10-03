@@ -1,8 +1,6 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_decompose.hpp>
 #include <Shared/Helpers/Asset.h>
 
 #include "../Command/CommandStack.h"
@@ -75,26 +73,29 @@ Dock::Dock(
 
    // Left-hand labels (name, length, keyframe info)
    {
-      Label::Options labelOptions;
-      labelOptions.x = 19 * EIGHT_X;
-      labelOptions.y = 1.0f - 5 * EIGHT_Y;
-      labelOptions.w = 20 * EIGHT_X;
-      labelOptions.h = 2 * EIGHT_Y;
-      labelOptions.text = "N/A";
-      labelOptions.onChange = [&](std::string value) { CommandStack::Instance()->Do<SetStateNameCommand>(this, value); };
-      mStateName = Add<Label>(labelOptions);
+      NumDisplay<double>::Options textOptions;
+      textOptions.x = 19 * EIGHT_X;
+      textOptions.y = 1.0f - 5 * EIGHT_Y;
+      textOptions.w = 20 * EIGHT_X;
+      textOptions.h = 2 * EIGHT_Y;
+      textOptions.text = "N/A";
 
-      labelOptions.y -= 5 * EIGHT_Y;
-      labelOptions.text = "0.0";
-      labelOptions.onChange = nullptr;
-      mStateLength = Add<Label>(labelOptions);
+      mStateName = Add<TextField>(TextField::Options(
+         textOptions,
+         [&](std::string value) {
+            CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
+         }
+      ));
 
-      labelOptions.y -= 15 * EIGHT_Y;
-      labelOptions.text = "1";
+      textOptions.y -= 5 * EIGHT_Y;
+      textOptions.text = "0.0";
+      textOptions.precision = 1;
+      mStateLength.text = Add<NumDisplay<double>>(textOptions);
 
-      labelOptions.y -= 5 * EIGHT_Y;
-      labelOptions.text = "0.0";
-      mTime = Add<Label>(labelOptions);
+      textOptions.y -= 20 * EIGHT_Y;
+      textOptions.text = "0.0";
+      textOptions.precision = 2;
+      mTime = Add<NumDisplay<double>>(textOptions);
    }
 
    // State buttons
@@ -133,20 +134,18 @@ Dock::Dock(
       Add<Image>(imageOptions);
    }
 
-   // State length buttons
+   // State length scrubber
    {
-      StationaryScrubber::Options scrubberOptions;
+      Scrubber<double>::Options scrubberOptions;
       scrubberOptions.x = 30 * EIGHT_X;
       scrubberOptions.y = 1.0f - 10 * EIGHT_Y;
       scrubberOptions.w = 64.0f / GetWidth();
       scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::STATE_LENGTH);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::STATE_LENGTH, std::placeholders::_1);
-      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
-      scrubberOptions.alignCenter = false;
-      Add<StationaryScrubber>(scrubberOptions);
+      scrubberOptions.min = 0.1;
+      scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
+      mStateLength.scrubber = Add<Scrubber<double>>(scrubberOptions);
    }
 
    // Keyframe buttons
@@ -185,20 +184,40 @@ Dock::Dock(
       Add<Image>(imageOptions);
    }
 
-   // Keyframe time buttons
+   // Scrubber for setting a keyframe's time
    {
-      StationaryScrubber::Options scrubberOptions;
+      Scrubber<double>::Options scrubberOptions;
       scrubberOptions.x = 30 * EIGHT_X;
       scrubberOptions.y = 1.0f - 30 * EIGHT_Y;
       scrubberOptions.w = 64.0f / GetWidth();
       scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::KEYFRAME_TIME);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::KEYFRAME_TIME, std::placeholders::_1);
-      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
-      scrubberOptions.alignCenter = false;
-      Add<StationaryScrubber>(scrubberOptions);
+      scrubberOptions.onChange = [&](double /* newValue */, double /* oldValue */) {
+         State& state = GetCurrentState();
+         size_t index = GetKeyframeIndex(state, mSkeleton->time);
+         Keyframe& keyframe = state.keyframes[index];
+
+         if (index == 0)
+         {
+            keyframe.time = 0;
+         }
+         else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
+         {
+            keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
+         }
+         else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
+         {
+            keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
+         }
+         else if (keyframe.time >= state.length * 0.99f)
+         {
+            keyframe.time = state.length * 0.99f;
+         }
+
+         mSkeleton->time = keyframe.time;
+      };
+      mKeyframeTime = Add<Scrubber<double>>(scrubberOptions);
    }
 
    // Playback controls
@@ -255,37 +274,32 @@ Dock::Dock(
       Add<Image>(imageOptions);
    }
 
-   // Keyframe scrubber
+   // ScrollBar for setting the current time in the animation
    {
-      Scrubber::Options scrubberOptions;
-      scrubberOptions.x = 3 * EIGHT_X;
-      scrubberOptions.y = 1.0f - 20 * EIGHT_Y;
-      scrubberOptions.w = 64 * EIGHT_X;
-      scrubberOptions.h = 2 * EIGHT_Y;
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "frame_pointer";
-      scrubberOptions.onPress = [&](double value) {
-         mController->paused = true;
-         SetTime(GetCurrentState().length * value);
-      };
-      scrubberOptions.onMove = scrubberOptions.onPress;
-      scrubberOptions.onRelease = scrubberOptions.onPress;
-      mScrubber = Add<Scrubber>(scrubberOptions);
+      ScrollBar::Options scrollbarOptions;
+      scrollbarOptions.x = 3 * EIGHT_X;
+      scrollbarOptions.y = 1.0f - 20 * EIGHT_Y;
+      scrollbarOptions.w = 512.0f / GetWidth();
+      scrollbarOptions.h = 2 * EIGHT_Y;
+      scrollbarOptions.filename = Asset::Image("EditorIcons.png");
+      scrollbarOptions.image = "frame_pointer";
+      scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
+      mScrubber = Add<ScrollBar>(scrollbarOptions);
    }
 
    // Bone information
    {
-      Label::Options labelOptions;
-      labelOptions.x = 82 * EIGHT_X;
-      labelOptions.y = 1.0f - 5 * EIGHT_Y;
-      labelOptions.w = 20 * EIGHT_X;
-      labelOptions.h = 2 * EIGHT_Y;
-      labelOptions.text = "Bone Name";
-      mBoneName = Add<Label>(labelOptions);
+      Text::Options textOptions;
+      textOptions.x = 82 * EIGHT_X;
+      textOptions.y = 1.0f - 5 * EIGHT_Y;
+      textOptions.w = 20 * EIGHT_X;
+      textOptions.h = 2 * EIGHT_Y;
+      textOptions.text = "Bone Name";
+      mBoneName = Add<Text>(textOptions);
 
       Image::Options imageOptions;
-      imageOptions.x = labelOptions.x - 3 * EIGHT_X;
-      imageOptions.y = labelOptions.y;
+      imageOptions.x = textOptions.x - 3 * EIGHT_X;
+      imageOptions.y = textOptions.y;
       imageOptions.w = 19.0f / GetWidth();
       imageOptions.h = 19.0f / GetHeight();
       imageOptions.filename = Asset::Image("EditorIcons.png");
@@ -295,24 +309,24 @@ Dock::Dock(
       imageOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
       Add<Image>(imageOptions);
 
-      imageOptions.x = labelOptions.x + labelOptions.w;
+      imageOptions.x = textOptions.x + textOptions.w;
       imageOptions.image = "button_right";
       imageOptions.hoverImage = "hover_button_right";
       imageOptions.pressImage = "press_button_right";
       imageOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
       Add<Image>(imageOptions);
 
-      labelOptions.x -= 7 * EIGHT_X;
-      labelOptions.y -= 5 * EIGHT_Y;
-      labelOptions.text = "Parent";
-      Add<Label>(labelOptions);
+      textOptions.x -= 7 * EIGHT_X;
+      textOptions.y -= 5 * EIGHT_Y;
+      textOptions.text = "Parent";
+      Add<Text>(textOptions);
 
-      labelOptions.x += labelOptions.w;
-      labelOptions.text = "Parent Bone";
-      mBoneParent = Add<Label>(labelOptions);
+      textOptions.x += textOptions.w;
+      textOptions.text = "Parent Bone";
+      mBoneParent = Add<Text>(textOptions);
 
-      imageOptions.x = labelOptions.x - 3 * EIGHT_X;
-      imageOptions.y = labelOptions.y;
+      imageOptions.x = textOptions.x - 3 * EIGHT_X;
+      imageOptions.y = textOptions.y;
       imageOptions.image = "button_up";
       imageOptions.hoverImage = "hover_button_up";
       imageOptions.pressImage = "press_button_up";
@@ -322,69 +336,54 @@ Dock::Dock(
 
    // Bone Numbers
    {
-      Label::Options labelOptions;
-      labelOptions.x = 81 * EIGHT_X;
-      labelOptions.y = 1.0f - 15 * EIGHT_Y;
-      labelOptions.w = 8 * EIGHT_X;
-      labelOptions.h = 2 * EIGHT_Y;
-      labelOptions.text = "0.0";
-      mBonePosX = Add<Label>(labelOptions);
+      NumDisplay<float>::Options textOptions;
+      textOptions.x = 81 * EIGHT_X;
+      textOptions.y = 1.0f - 15 * EIGHT_Y;
+      textOptions.w = 8 * EIGHT_X;
+      textOptions.h = 2 * EIGHT_Y;
+      textOptions.text = "0.0";
+      textOptions.precision = 1;
 
-      StationaryScrubber::Options scrubberOptions;
-      scrubberOptions.x = labelOptions.x - 3 * EIGHT_X;
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
+      Scrubber<float>::Options scrubberOptions;
+      scrubberOptions.x = textOptions.x - 3 * EIGHT_X;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
       scrubberOptions.w = 64.0f / GetWidth();
       scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onRelease = std::bind(&Dock::FinishScrubbing, this, std::placeholders::_1);
+      scrubberOptions.onChange = [&](double, double) { Emit<SkeletonModifiedEvent>(mSkeleton); };
 
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::POS_X);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::POS_X, std::placeholders::_1);
-      scrubberOptions.alignCenter = false;
-      Add<StationaryScrubber>(scrubberOptions);
+      mBonePosX.text = Add<NumDisplay<float>>(textOptions);
+      mBonePosX.scrubber = Add<Scrubber<float>>(scrubberOptions);
 
-      labelOptions.y -= 7 * EIGHT_Y;
-      mBonePosY = Add<Label>(labelOptions);
+      textOptions.y -= 7 * EIGHT_Y;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
+      mBonePosY.text = Add<NumDisplay<float>>(textOptions);
+      mBonePosY.scrubber = Add<Scrubber<float>>(scrubberOptions);
 
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::POS_Y);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::POS_Y, std::placeholders::_1);
-      Add<StationaryScrubber>(scrubberOptions);
+      textOptions.y -= 7 * EIGHT_Y;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
+      mBonePosZ.text = Add<NumDisplay<float>>(textOptions);
+      mBonePosZ.scrubber = Add<Scrubber<float>>(scrubberOptions);
 
-      labelOptions.y -= 7 * EIGHT_Y;
-      mBonePosZ = Add<Label>(labelOptions);
+      // Rotation column
+      textOptions.x += 18 * EIGHT_X;
+      textOptions.y = 1.0f - 15 * EIGHT_Y;
 
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::POS_Z);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::POS_Z, std::placeholders::_1);
-      Add<StationaryScrubber>(scrubberOptions);
+      scrubberOptions.x = textOptions.x - 3 * EIGHT_X;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
+      mBoneRotX.text = Add<NumDisplay<float>>(textOptions);
+      mBoneRotX.scrubber = Add<Scrubber<float>>(scrubberOptions);
 
-      labelOptions.x += 18 * EIGHT_X;
-      labelOptions.y = 1.0f - 15 * EIGHT_Y;
-      mBoneRotX = Add<Label>(labelOptions);
+      textOptions.y -= 7 * EIGHT_Y;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
+      mBoneRotY.text = Add<NumDisplay<float>>(textOptions);
+      mBoneRotY.scrubber = Add<Scrubber<float>>(scrubberOptions);
 
-      scrubberOptions.x = labelOptions.x - 3 * EIGHT_X;
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_X);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_X, std::placeholders::_1);
-      Add<StationaryScrubber>(scrubberOptions);
-
-      labelOptions.y -= 7 * EIGHT_Y;
-      mBoneRotY = Add<Label>(labelOptions);
-
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_Y);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_Y, std::placeholders::_1);
-      Add<StationaryScrubber>(scrubberOptions);
-
-      labelOptions.y -= 7 * EIGHT_Y;
-      mBoneRotZ = Add<Label>(labelOptions);
-
-      scrubberOptions.y = labelOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.onPress = std::bind(&Dock::StartScrubbing, this, ScrubType::ROT_Z);
-      scrubberOptions.onMove = std::bind(&Dock::Scrub, this, ScrubType::ROT_Z, std::placeholders::_1);
-      Add<StationaryScrubber>(scrubberOptions);
+      textOptions.y -= 7 * EIGHT_Y;
+      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
+      mBoneRotZ.text = Add<NumDisplay<float>>(textOptions);
+      mBoneRotZ.scrubber = Add<Scrubber<float>>(scrubberOptions);
    }
 
    // Reset buttons
@@ -400,7 +399,7 @@ Dock::Dock(
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
          if (mSkeleton->time == keyframe.time)
          {
-            CommandStack::Instance()->Do<SetBoneCommand>(this, mSkeleton->bones[mBone].position, keyframe.rotations[mBone]);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].position, keyframe.rotations[mBone]);
          }
       };
       Add<Image>(imageOptions);
@@ -410,7 +409,7 @@ Dock::Dock(
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
          if (mSkeleton->time == keyframe.time)
          {
-            CommandStack::Instance()->Do<SetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].rotation);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].rotation);
          }
       };
       Add<Image>(imageOptions);
@@ -448,6 +447,8 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 void Dock::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
+   mScrubber->Bind(&mSkeleton->time);
+   mTime->Bind(&mSkeleton->time);
 }
 
 ///
@@ -469,16 +470,20 @@ State& Dock::GetCurrentState()
 ///
 ///
 ///
+Keyframe& Dock::GetCurrentKeyframe()
+{
+   return GetKeyframe(GetCurrentState(), mSkeleton->time);
+}
+
+///
+///
+///
 void Dock::Update(TIMEDELTA dt)
 {
-   State& state = GetCurrentState();
+   //State& state = GetCurrentState();
 
    // Update the UI according to the current animation time
-   mScrubber->SetValue(mSkeleton->time / state.length);
-   mTime->SetText(Format::FormatString("%.2f", mSkeleton->time));
-
-   // Do it every frame, whatever
-   UpdateBoneInfo();
+   // mScrubber->SetValue(mSkeleton->time / state.length);
 
    // Update the play/pause buttons
    mPlay->SetActive(mController->paused);
@@ -524,28 +529,15 @@ void Dock::UpdateKeyframeIcons()
 ///
 ///
 ///
-void Dock::UpdateBoneInfo()
-{
-   const Bone& bone = mSkeleton->bones[mBone];
-
-   SetFloat(mBonePosX, bone.position.x);
-   SetFloat(mBonePosY, bone.position.y);
-   SetFloat(mBonePosZ, bone.position.z);
-   SetFloat(mBoneRotX, bone.rotation.x);
-   SetFloat(mBoneRotY, bone.rotation.y);
-   SetFloat(mBoneRotZ, bone.rotation.z);
-}
-
-///
-///
-///
 void Dock::SetState(const size_t& index)
 {
    mSkeleton->current = index;
 
    State& state = GetCurrentState();
    mStateName->SetText(state.name);
-   mStateLength->SetText(Format::FormatString("%.1f", state.length));
+   mStateLength.text->Bind(&state.length);
+   mStateLength.scrubber->Bind(&state.length);
+   mScrubber->SetBounds(0, state.length);
 
    UpdateKeyframeIcons();
 }
@@ -563,16 +555,8 @@ void Dock::SetBone(const size_t& boneId)
    mBoneName->SetText(bone.name);
    mBoneParent->SetText(parent.name);
 
-   UpdateBoneInfo();
-}
-
-///
-///
-///
-void Dock::SetFloat(Label* label, float value)
-{
-   if (std::abs(value) < 0.1) { value = 0; }
-   label->SetText(Format::FormatString("%.1f", value));
+   mBonePosX.text->Bind(&bone.position.x);
+   mBonePosX.text->Bind(&bone.position.y);
 }
 
 ///
@@ -619,23 +603,20 @@ void Dock::AddStateCommand::Undo()
 ///
 ///
 ///
-void Dock::SetStateLengthCommand::Do()
+void Dock::SetStateLength(double newValue, double oldValue)
 {
-   State& state = dock->GetCurrentState();
+   State& state = GetCurrentState();
 
-   double stretch = value / state.length;
-   double last = state.length;
-   state.length = value;
-   value = last;
+   double stretch = newValue / oldValue;
 
    for (Keyframe& keyframe : state.keyframes)
    {
       keyframe.time *= stretch;
    }
 
-   dock->SetTime(dock->mSkeleton->time * stretch);
-   dock->mStateLength->SetText(Format::FormatString("%.1f", state.length));
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   mScrubber->SetBounds(0, newValue);
+   SetTime(mSkeleton->time * stretch);
+   Emit<SkeletonModifiedEvent>(mSkeleton);
 }
 
 ///
@@ -717,139 +698,6 @@ void Dock::SetTime(double time)
    else
    {
       mSkeleton->time = time;
-   }
-
-   UpdateBoneInfo();
-}
-
-///
-///
-///
-void Dock::StartScrubbing(ScrubType type)
-{
-   State& state = GetCurrentState();
-
-   Keyframe& keyframe = GetKeyframe(state, mSkeleton->time);
-
-   switch (type)
-   {
-   case STATE_LENGTH:
-      mScrubbing = std::make_unique<SetStateLengthCommand>(this, state.length);
-      break;
-   case KEYFRAME_TIME:
-      if (mSkeleton->time == keyframe.time)
-      {
-         mScrubbing = std::make_unique<SetKeyframeTimeCommand>(this, keyframe.time);
-      }
-      break;
-   case POS_X:
-   case POS_Y:
-   case POS_Z:
-   case ROT_X:
-   case ROT_Y:
-   case ROT_Z:
-      if (mSkeleton->time == keyframe.time)
-      {
-         mScrubbing = std::make_unique<SetBoneCommand>(this, keyframe.positions[mBone], keyframe.rotations[mBone]);
-      }
-      break;
-   }
-}
-
-///
-///
-///
-void Dock::FinishScrubbing(double)
-{
-   // Funky time: at this point, the current bone position/rotation
-   // represents the NEW state, and mScrubbing represents a command
-   // to set the bone to the OLD state. So we perform the command
-   // twice, once immediately to revert to the old state, and then
-   // again when it gets placed on the stack to go back to the new
-   // state.
-   if (mScrubbing)
-   {
-      mScrubbing->Do();
-      CommandStack::Instance()->Do(std::move(mScrubbing));
-   }
-}
-
-///
-///
-///
-void Dock::Scrub(ScrubType type, double amount)
-{
-   if (!mScrubbing)
-   {
-      return;
-   }
-
-   State& state = GetCurrentState();
-   size_t index = GetKeyframeIndex(state, mSkeleton->time);
-   Keyframe& keyframe = state.keyframes[index];
-
-   switch (type)
-   {
-   case STATE_LENGTH:
-   {
-      double stretch = (state.length + amount) / state.length;
-      state.length += amount;
-
-      for (Keyframe& frame : state.keyframes)
-      {
-         frame.time *= stretch;
-      }
-
-      SetTime(mSkeleton->time * stretch);
-      mStateLength->SetText(Format::FormatString("%.2f", state.length));
-   }
-      break;
-   case KEYFRAME_TIME:
-      keyframe.time += amount * state.length / 4.0f;
-
-      if (index == 0)
-      {
-         keyframe.time = 0;
-      }
-      else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
-      {
-         keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
-      }
-      else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
-      {
-         keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
-      }
-      else if (keyframe.time >= state.length * 0.99f)
-      {
-         keyframe.time = state.length * 0.99f;
-      }
-
-      mSkeleton->time = keyframe.time;
-      break;
-   case POS_X:
-      keyframe.positions[mBone].x += (float)amount;
-      SetFloat(mBonePosX, keyframe.positions[mBone].x);
-      break;
-   case POS_Y:
-      keyframe.positions[mBone].y += (float)amount;
-      SetFloat(mBonePosY, keyframe.positions[mBone].y);
-      break;
-   case POS_Z:
-      keyframe.positions[mBone].z += (float)amount;
-      SetFloat(mBonePosZ, keyframe.positions[mBone].z);
-      break;
-   case ROT_X:
-      keyframe.rotations[mBone].x += 10 * (float)amount;
-      SetFloat(mBoneRotX, keyframe.rotations[mBone].x);
-      break;
-   case ROT_Y:
-      keyframe.rotations[mBone].y += 10 * (float)amount;
-      SetFloat(mBoneRotY, keyframe.rotations[mBone].y);
-      break;
-   case ROT_Z:
-      keyframe.rotations[mBone].z += 10 * (float)amount;
-      SetFloat(mBoneRotZ, keyframe.rotations[mBone].z);
-      break;
    }
 }
 
@@ -956,7 +804,7 @@ void Dock::ParentBoneCommand::Undo()
 ///
 ///
 ///
-void Dock::SetBoneCommand::Do()
+void Dock::ResetBoneCommand::Do()
 {
    State& state = dock->GetCurrentState();
    Keyframe& keyframe = GetKeyframe(state, dock->mSkeleton->time);
@@ -972,13 +820,6 @@ void Dock::SetBoneCommand::Do()
    keyframe.rotations[bone] = rotation;
    position = pos;
    rotation = rot;
-
-   dock->SetFloat(dock->mBonePosX, keyframe.positions[bone].x);
-   dock->SetFloat(dock->mBonePosY, keyframe.positions[bone].y);
-   dock->SetFloat(dock->mBonePosZ, keyframe.positions[bone].z);
-   dock->SetFloat(dock->mBoneRotX, keyframe.rotations[bone].x);
-   dock->SetFloat(dock->mBoneRotY, keyframe.rotations[bone].y);
-   dock->SetFloat(dock->mBoneRotZ, keyframe.rotations[bone].z);
 
    dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }

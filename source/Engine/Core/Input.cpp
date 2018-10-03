@@ -71,25 +71,23 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int /*mods*
       }
       input->mMousePressOrigin[button] = {xpos, ypos};
    }
-   // Otherwise, it's released - check whether we were dragging (MouseUp)
-   // or not (MouseClick).
+   // Otherwise, it's released - always issue MouseUp, but only call MouseClick
+   // if we didn't move far.
    else
    {
-      if (input->mMouseDragging[button])
+      if (input->mMouseUpCallback)
       {
-         if (input->mMouseUpCallback)
-         {
-            input->mMouseUpCallback(button, xpos / w_width, ypos / w_height);
-         }
-         input->mMouseDragging[button] = false;
+         input->mMouseUpCallback(button, xpos / w_width, ypos / w_height);
       }
-      else
+
+      if (!input->mMouseDragging[button])
       {
          if (input->mMouseClickCallback)
          {
             input->mMouseClickCallback(button, xpos / w_width, ypos / w_height);
          }
       }
+      input->mMouseDragging[button] = false;
    }
 }
 
@@ -100,7 +98,6 @@ Input::Input()
    , mMouseDownCallback{nullptr}
    , mMouseUpCallback{nullptr}
    , mMouseClickCallback{nullptr}
-   , mMouseDragCallback{nullptr}
    , mMousePosition{0, 0}
    , mMouseMovement{0, 0}
    , mLastMouseScroll{0, 0}
@@ -151,7 +148,6 @@ void Input::Clear()
    mMouseDownCallback = nullptr;
    mMouseUpCallback = nullptr;
    mMouseClickCallback = nullptr;
-   mMouseDragCallback = nullptr;
    mMousePosition = {0, 0};
    mMouseMovement = {0, 0};
    mLastMouseScroll = {0, 0};
@@ -182,11 +178,6 @@ void Input::Update()
             {
                mMouseDragging[button] = true;
             }
-         }
-
-         if (mMouseDragCallback && mMouseDragging[button])
-         {
-            mMouseDragCallback(button, mMousePosition.x / mWindow->GetWidth(), mMousePosition.y / mWindow->GetHeight());
          }
       }
    }

@@ -8,7 +8,7 @@
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include "Controls.h"
-#include "../UI/Label.h"
+#include "../UI/TextButton.h"
 #include "../UI/Image.h"
 
 namespace CubeWorld
@@ -44,7 +44,7 @@ void Controls::Rebuild()
       Add<Image>(imageOptions);
    }
 
-   Label::Options labelOptions;
+   TextButton::Options labelOptions;
    labelOptions.x = 8.0f / GetWidth();
    labelOptions.y = 1.0f - 43.0f / GetHeight();
    labelOptions.w = 1.0f - 16.0f / GetWidth();
@@ -55,7 +55,7 @@ void Controls::Rebuild()
    {
       labelOptions.text = mLayout.elements[i].label;
       labelOptions.onClick = mLayout.elements[i].callback;
-      Add<Label>(labelOptions);
+      Add<TextButton>(labelOptions);
       labelOptions.y -= 35.0f / GetHeight();
    }
 }

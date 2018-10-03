@@ -25,18 +25,16 @@ namespace Editor
 // binding and unbinding them in an understandable way, and re-rendering those pieces into
 // the space they belong.
 //
-class Label : public Element
+class Text : public Element
 {
 public:
    struct Options : public Element::Options {
       std::string text;
-      std::function<void(void)> onClick;
-      std::function<void(std::string)> onChange;
       std::string font = "debug";
    };
 
 public:
-   Label(
+   Text(
       Bounded& parent,
       const Options& options
    );
@@ -60,19 +58,10 @@ public:
       RenderText(text);
    }
 
-   void MouseClick(int button, double x, double y) override;
-
-private:
+protected:
    void RenderText(const std::string& text);
 
    std::string mText;
-   std::function<void(void)> mClickCallback;
-   std::function<void(std::string)> mChangeCallback;
-   bool mIsHovered;
-   bool mIsFocused;
-
-   std::vector<std::unique_ptr<Engine::Input::KeyCallbackLink>> mKeyCallbacks;
-   void OnAlphaKey(int key, int action, int mods);
 
 private:
    Engine::Graphics::Framebuffer mFramebuffer;

@@ -9,18 +9,6 @@
 namespace CubeWorld
 {
 
-struct MouseDragEvent : public Engine::Event<MouseDragEvent> {
-   explicit MouseDragEvent(int button, double x, double y)
-      : button{button}
-      , x{x}
-      , y{y}
-   {};
-   virtual ~MouseDragEvent() {}
-
-   int button;
-   double x, y;
-};
-
 struct MouseDownEvent : public Engine::Event<MouseDownEvent> {
    explicit MouseDownEvent(int button, double x, double y)
       : button{button}

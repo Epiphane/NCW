@@ -4,6 +4,7 @@
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Core/StateManager.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
 
@@ -80,28 +81,25 @@ void StateWindow::Update(TIMEDELTA dt)
    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void StateWindow::MouseDown(int, double, double)
+void StateWindow::MouseDown(int button, double x, double y)
 {
-   //double localX = (x - mOptions.x) / mOptions.w;
-   //double localY = (y - mOptions.y) / mOptions.h;
+   double localX = (x - mOptions.x) / mOptions.w;
+   double localY = (y - mOptions.y) / mOptions.h;
+   Engine::StateManager::Instance()->Emit<MouseDownEvent>(button, x, y);
 }
 
-void StateWindow::MouseUp(int, double, double)
+void StateWindow::MouseUp(int button, double x, double y)
 {
-   //double localX = (x - mOptions.x) / mOptions.w;
-   //double localY = (y - mOptions.y) / mOptions.h;
+   double localX = (x - mOptions.x) / mOptions.w;
+   double localY = (y - mOptions.y) / mOptions.h;
+   Engine::StateManager::Instance()->Emit<MouseUpEvent>(button, x, y);
 }
 
-void StateWindow::MouseClick(int, double, double)
+void StateWindow::MouseClick(int button, double x, double y)
 {
-   //double localX = (x - mOptions.x) / mOptions.w;
-   //double localY = (y - mOptions.y) / mOptions.h;
-}
-
-void StateWindow::MouseDrag(int, double, double)
-{
-   //double localX = (x - mOptions.x) / mOptions.w;
-   //double localY = (y - mOptions.y) / mOptions.h;
+   double localX = (x - mOptions.x) / mOptions.w;
+   double localY = (y - mOptions.y) / mOptions.h;
+   Engine::StateManager::Instance()->Emit<MouseClickEvent>(button, x, y);
 }
 
 }; // namespace Editor

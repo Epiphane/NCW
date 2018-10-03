@@ -18,10 +18,12 @@
 #include <Shared/Event/NamedEvent.h>
 
 #include "../UI/Image.h"
-#include "../UI/Label.h"
+#include "../UI/NumDisplay.h"
 #include "../UI/Scrubber.h"
-#include "../UI/StationaryScrubber.h"
+#include "../UI/ScrollBar.h"
 #include "../UI/SubWindow.h"
+#include "../UI/TextButton.h"
+#include "../UI/TextField.h"
 #include "../Systems/AnimationSystem.h"
 #include "Events.h"
 #include "State.h"
@@ -49,28 +51,21 @@ public:
    void Update(TIMEDELTA dt) override;
 
    void UpdateKeyframeIcons();
-   void UpdateBoneInfo();
 
 public:
    // Dock state actions
    void SetState(const size_t& index);
    void SetBone(const size_t& boneId);
-   void SetFloat(Label* label, float value);
    void SetTime(double time);
 
-   enum ScrubType {
-      STATE_LENGTH,
-      KEYFRAME_TIME,
-      POS_X, POS_Y, POS_Z,
-      ROT_X, ROT_Y, ROT_Z
-   };
-   void StartScrubbing(ScrubType type);
-   void FinishScrubbing(double);
-   void Scrub(ScrubType type, double amount);
+public:
+   // Reactions to the scrubbers
+   void SetStateLength(double newValue, double oldValue);
 
 private:
    // Helper functions
    State& GetCurrentState();
+   Keyframe& GetCurrentKeyframe();
 
 public:
    // Event handlers
@@ -86,28 +81,35 @@ private:
    Engine::ComponentHandle<AnimationSystemController> mController;
 
 private:
+   template <typename N>
+   struct LabelAndScrubber {
+      NumDisplay<N>* text;
+      Scrubber<N>* scrubber;
+   };
+
    // General state info
    Image* mPlay;
    Image* mPause;
    Image* mTick;
-   Scrubber* mScrubber;
-   Label* mStateName;
-   Label* mStateLength;
-   Label* mTime;
+   ScrollBar* mScrubber;
+   Scrubber<double>* mKeyframeTime;
+   TextField* mStateName;
+   LabelAndScrubber<double> mStateLength;
+   NumDisplay<double>* mTime;
 
    // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
    SubWindow* mKeyframes;
    std::vector<Image*> mKeyframeIcons;
 
    // Bone inspector
-   Label* mBoneName;
-   Label* mBoneParent;
-   Label* mBonePosX;
-   Label* mBonePosY;
-   Label* mBonePosZ;
-   Label* mBoneRotX;
-   Label* mBoneRotY;
-   Label* mBoneRotZ;
+   Text* mBoneName;
+   Text* mBoneParent;
+   LabelAndScrubber<float> mBonePosX;
+   LabelAndScrubber<float> mBonePosY;
+   LabelAndScrubber<float> mBonePosZ;
+   LabelAndScrubber<float> mBoneRotX;
+   LabelAndScrubber<float> mBoneRotY;
+   LabelAndScrubber<float> mBoneRotZ;
 
 private:
    //
@@ -245,10 +247,10 @@ private:
    //
    //
    //
-   class SetBoneCommand : public DockCommand
+   class ResetBoneCommand : public DockCommand
    {
    public:
-      SetBoneCommand(Dock* dock, glm::vec3 position, glm::vec3 rotation)
+      ResetBoneCommand(Dock* dock, glm::vec3 position, glm::vec3 rotation)
          : DockCommand(dock)
          , position(position)
          , rotation(rotation)

@@ -1,16 +1,14 @@
 // By Thomas Steinke
 
 #include <cassert>
+#include <algorithm>
 
-#include <Engine/Core/Scope.h>
+#include <Engine/Core/Input.h>
+#include <Engine/Core/Paths.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
-#include <Shared/Helpers/Asset.h>
-#pragma warning(push, 0)
-#include <Shared/Helpers/json.hpp>
-#pragma warning(pop)
 
-#include "Image.h"
+#include "ScrollBar.h"
 
 namespace CubeWorld
 {
@@ -18,16 +16,18 @@ namespace CubeWorld
 namespace Editor
 {
 
-std::unique_ptr<Engine::Graphics::Program> Image::program = nullptr;
+std::unique_ptr<Engine::Graphics::Program> ScrollBar::program = nullptr;
 
-Image::Image(
+ScrollBar::ScrollBar(
    Bounded& parent,
    const Options& options
 )
    : Element(parent, options)
-   , mCallback(options.onClick)
-   , mIsPressed(false)
-   , mOffset(0, 0, 0)
+   , mScrubbing(nullptr)
+   , mOffset(0)
+   , mMin(options.min)
+   , mRange(options.max - options.min)
+   , mCallback(options.onChange)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
    if (!program)
@@ -57,19 +57,18 @@ Image::Image(
    mTexture = *maybeTexture;
 
    glm::vec4 coords(0, 0, 1, 1);
-   glm::vec4 hover(0, 0, 1, 1);
-   glm::vec4 press(0, 0, 1, 1);
    if (!options.image.empty())
    {
       coords = mTexture->GetImage(options.image);
-      hover = options.hoverImage.empty() ? coords : mTexture->GetImage(options.hoverImage);
-      press = options.pressImage.empty() ? coords : mTexture->GetImage(options.pressImage);
    }
 
-   float x = 2.0f * mOptions.x - 1.0f;
-   float y = 2.0f * mOptions.y - 1.0f;
-   float w = 2.0f * mOptions.w;
+   float pixelHeight = mOptions.h * parent.GetHeight();
+   float pixelWidth = pixelHeight * coords.z / coords.w;
+
    float h = 2.0f * mOptions.h;
+   float w = 2.0f * pixelWidth / parent.GetWidth();
+   float x = 2.0f * mOptions.x - 1.0f - w / 2;
+   float y = 2.0f * mOptions.y - 1.0f;
 
    std::vector<GLfloat> vboData = {
       x,     y,     mOptions.z, coords.x,            coords.y + coords.w,
@@ -78,52 +77,41 @@ Image::Image(
       x,     y + h, mOptions.z, coords.x,            coords.y,
       x + w, y,     mOptions.z, coords.x + coords.z, coords.y + coords.w,
       x + w, y + h, mOptions.z, coords.x + coords.z, coords.y,
-
-      x,     y,     mOptions.z, hover.x,           hover.y + hover.w,
-      x + w, y,     mOptions.z, hover.x + hover.z, hover.y + hover.w,
-      x,     y + h, mOptions.z, hover.x,           hover.y,
-      x,     y + h, mOptions.z, hover.x,           hover.y,
-      x + w, y,     mOptions.z, hover.x + hover.z, hover.y + hover.w,
-      x + w, y + h, mOptions.z, hover.x + hover.z, hover.y,
-
-      x,     y,     mOptions.z, press.x,           press.y + press.w,
-      x + w, y,     mOptions.z, press.x + press.z, press.y + press.w,
-      x,     y + h, mOptions.z, press.x,           press.y,
-      x,     y + h, mOptions.z, press.x,           press.y,
-      x + w, y,     mOptions.z, press.x + press.z, press.y + press.w,
-      x + w, y + h, mOptions.z, press.x + press.z, press.y,
    };
    mVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 }
 
-void Image::MouseDown(int button, double x, double y)
+void ScrollBar::MouseDown(int button, double x, double y)
 {
-   if (button != GLFW_MOUSE_BUTTON_LEFT)
+   if (button == GLFW_MOUSE_BUTTON_LEFT)
    {
-      return;
+      mScrubbing = ContainsPoint(x, y);
    }
-
-   mIsPressed = ContainsPoint(x, y);
 }
 
-void Image::MouseUp(int button, double x, double y)
+void ScrollBar::MouseUp(int button, double x, double y)
 {
-   if (button != GLFW_MOUSE_BUTTON_LEFT)
+   if (button == GLFW_MOUSE_BUTTON_LEFT)
    {
-      return;
+      mScrubbing = false;
    }
-
-   if (mCallback && mIsPressed && ContainsPoint(x, y))
-   {
-      mCallback();
-   }
-   mIsPressed = false;
 }
 
-void Image::Update(TIMEDELTA)
+void ScrollBar::Update(TIMEDELTA dt)
 {
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetMousePosition();
-   bool hovered = ContainsPoint((mouse.x - mParent.GetX()) / mParent.GetWidth(), (mouse.y - mParent.GetY()) / mParent.GetHeight());
+   if (mScrubbing)
+   {
+      glm::tvec2<double> mouse = AbsoluteToRelative(Engine::Window::Instance()->GetInput()->GetRawMousePosition());
+      double relative = std::clamp(mouse.x, 0.0, 1.0);
+      SetValue(mMin + mRange * relative);
+      if (mCallback)
+      {
+         mCallback(GetValue());
+      }
+   }
+
+   Binding::Update();
+   mOffset.x = (GetValue() - mMin) / mRange;
 
    // Draw framebuffer to the screen
    BIND_PROGRAM_IN_SCOPE(program);
@@ -137,11 +125,6 @@ void Image::Update(TIMEDELTA)
    mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));
 
    GLint first = 0;
-   if (hovered)
-   {
-      first = mIsPressed ? 12 : 6;
-   }
-
    glDrawArrays(GL_TRIANGLES, first, 6);
 }
 

@@ -3,8 +3,10 @@
 #include <cassert>
 
 #include <Engine/Core/Paths.h>
+#include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
 
+#include "../Command/CommandStack.h"
 #include "Scrubber.h"
 
 namespace CubeWorld
@@ -13,20 +15,15 @@ namespace CubeWorld
 namespace Editor
 {
 
-std::unique_ptr<Engine::Graphics::Program> Scrubber::program = nullptr;
+std::unique_ptr<Engine::Graphics::Program> BaseScrubber::program = nullptr;
 
-Scrubber::Scrubber(
+BaseScrubber::BaseScrubber(
    Bounded& parent,
    const Options& options
 )
    : Element(parent, options)
-   , mPressCallback(options.onPress)
-   , mMoveCallback(options.onMove)
-   , mReleaseCallback(options.onRelease)
-   , mIsPressed(false)
-   , mMin(0)
-   , mMax(1)
-   , mPercent(0)
+   , mScrubbing(nullptr)
+   , mLastPosition(0)
    , mOffset(0)
    , mVBO(Engine::Graphics::VBO::DataType::Vertices)
 {
@@ -62,16 +59,9 @@ Scrubber::Scrubber(
       coords = mTexture->GetImage(options.image);
    }
 
-   float pixelHeight = mOptions.h * parent.GetHeight();
-   float pixelWidth = pixelHeight * coords.z / coords.w;
-
    float h = 2.0f * mOptions.h;
-   float w = 2.0f * pixelWidth / parent.GetWidth();
+   float w = 2.0f * mOptions.w;
    float x = 2.0f * mOptions.x - 1.0f;
-   if (options.alignCenter)
-   {
-      x -= w / 2;
-   }
    float y = 2.0f * mOptions.y - 1.0f;
 
    std::vector<GLfloat> vboData = {
@@ -83,65 +73,50 @@ Scrubber::Scrubber(
       x + w, y + h, mOptions.z, coords.x + coords.z, coords.y,
    };
    mVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
-
-   mValue = mMax;
 }
 
-void Scrubber::MouseDown(int button, double x, double y)
+void BaseScrubber::MouseDown(int button, double x, double y)
 {
-   mIsPressed = ContainsPoint(x, y);
-   if (mIsPressed)
+   if (button != GLFW_MOUSE_BUTTON_LEFT)
    {
-      SetValue((x - mOptions.x) / mOptions.w);
-      if (mPressCallback)
-      {
-         mPressCallback(mPercent);
-      }
+      return;
+   }
+
+   if (ContainsPoint(x, y))
+   {
+      mLastPosition = glm::tvec2<double>((x - mOptions.x) / mOptions.w, (y - mOptions.y) / mOptions.h);
+      StartScrubbing();
    }
 }
 
-void Scrubber::MouseUp(int button, double x, double y)
+void BaseScrubber::MouseUp(int button, double, double)
 {
-   if (mIsPressed)
+   if (button != GLFW_MOUSE_BUTTON_LEFT)
    {
-      SetValue((x - mOptions.x) / mOptions.w);
-      if (mReleaseCallback)
-      {
-         mReleaseCallback(mPercent);
-      }
+      return;
    }
-   mIsPressed = false;
-}
 
-void Scrubber::MouseDrag(int button, double x, double y)
-{
-   if (mIsPressed)
+   if (mScrubbing)
    {
-      SetValue((x - mOptions.x) / mOptions.w);
-      if (mMoveCallback)
-      {
-         mMoveCallback(mPercent);
-      }
+      // Funky time: at this point, the current value represents the NEW state,
+      // and mScrubbing represents a command to set it to the OLD state. So we
+      // perform the command twice, once immediately to revert to the old state,
+      // and then again when it gets placed on the stack to go back to the new
+      // state.
+      mScrubbing->Do();
+      CommandStack::Instance()->Do(std::move(mScrubbing));
    }
 }
 
-void Scrubber::SetValue(double value)
+void BaseScrubber::Update(TIMEDELTA)
 {
-   mValue = value;
-   if (mValue < mMin)
+   if (mScrubbing)
    {
-      mValue = mMin;
+      glm::tvec2<double> mouse = AbsoluteToRelative(Engine::Window::Instance()->GetInput()->GetRawMousePosition());
+      Scrub(mouse.x - mLastPosition.x);
+      mLastPosition = mouse;
    }
-   if (mValue > mMax)
-   {
-      mValue = mMax;
-   }
-   mPercent = (mValue - mMin) / (mMax - mMin);
-   mOffset = glm::vec3(mPercent, 0, 0);
-}
 
-void Scrubber::Update(TIMEDELTA dt)
-{
    // Draw framebuffer to the screen
    BIND_PROGRAM_IN_SCOPE(program);
 

@@ -18,7 +18,6 @@ void InputEventSystem::Configure(EntityManager&, EventManager&)
    mInput->OnMouseDown(std::bind(&InputEventSystem::MouseDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
    mInput->OnMouseUp(std::bind(&InputEventSystem::MouseUp, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
    mInput->OnClick(std::bind(&InputEventSystem::MouseClick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-   mInput->OnDrag(std::bind(&InputEventSystem::MouseDrag, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 void InputEventSystem::MouseDown(int button, double x, double y)
@@ -34,11 +33,6 @@ void InputEventSystem::MouseUp(int button, double x, double y)
 void InputEventSystem::MouseClick(int button, double x, double y)
 {
    mEvents.push(EventToLog{EventToLog::CLICK, button, x, y});
-}
-
-void InputEventSystem::MouseDrag(int button, double x, double y)
-{
-   mEvents.push(EventToLog{EventToLog::DRAG, button, x, y});
 }
 
 void InputEventSystem::Update(Engine::EntityManager&, Engine::EventManager& events, TIMEDELTA)
@@ -58,9 +52,6 @@ void InputEventSystem::Update(Engine::EntityManager&, Engine::EventManager& even
          break;
       case EventToLog::CLICK:
          events.Emit<MouseClickEvent>(info.button, info.x, info.y);
-         break;
-      case EventToLog::DRAG:
-         events.Emit<MouseDragEvent>(info.button, info.x, info.y);
          break;
       }
    }
