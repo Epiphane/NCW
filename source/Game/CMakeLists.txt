@@ -17,18 +17,17 @@ if (WIN32)
    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
-# install libraries into /lib
-INSTALL( TARGETS Game DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" )
-SOURCE_GROUP(Components REGULAR_EXPRESSION ".*/Components/*")
-SOURCE_GROUP(Event REGULAR_EXPRESSION ".*/Event/*")
-SOURCE_GROUP(Helpers REGULAR_EXPRESSION ".*/Helpers/*")
-SOURCE_GROUP(Renderers REGULAR_EXPRESSION ".*/Renderers/*")
-SOURCE_GROUP(Shaders REGULAR_EXPRESSION ".*/Shaders/*")
-SOURCE_GROUP(States REGULAR_EXPRESSION ".*/States/*")
-SOURCE_GROUP(Systems REGULAR_EXPRESSION ".*/Systems/*")
-SOURCE_GROUP(Model REGULAR_EXPRESSION ".*/Model/*")
+# Nice-looking separation for VS2017
+foreach(source IN LISTS SOURCES)
+   file(RELATIVE_PATH source_relative "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
+   get_filename_component(source_path "${source_relative}" PATH)
+   string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+   source_group("${source_path_msvc}" FILES "${source}")
+endforeach()
 
-# configure_file("${CMAKE_SOURCE_DIR}/source/Shared/Shaders" "${PROJECT_BINARY_DIR}/source/Game/Debug" COPYONLY)
-
-file(COPY "${CMAKE_SOURCE_DIR}/source/Shared/Shaders" DESTINATION "${PROJECT_BINARY_DIR}/source/Game/Debug")
-file(COPY "${CMAKE_SOURCE_DIR}/Assets" DESTINATION "${PROJECT_BINARY_DIR}/source/Game/Debug")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_SOURCE_DIR}/Assets ${PROJECT_BINARY_DIR}/Assets)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${SHARED_SHADERS_DIR} ${PROJECT_BINARY_DIR}/Shaders)

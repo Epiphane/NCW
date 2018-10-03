@@ -64,7 +64,7 @@ int main(int /* argc */, char ** /* argv */) {
    stateManager->SetState(std::move(initialState));
 
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
-   debug->SetWindow(window);
+   debug->SetBounds(window);
    
    Engine::UIMainScreen* ui = new Engine::UIMainScreen(window);
 
