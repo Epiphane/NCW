@@ -1,15 +1,13 @@
 // By Thomas Steinke
 
-#if 0
-
 #include <algorithm>
 #include <string>
 #include <vector>
 
-//#include <Windows.h>
+#include <Windows.h>
 #include <GL/includes.h>
 
-#define GLFW_EXPOSE_NATIVE_COCOA
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
 #include "../Paths.h"
@@ -93,4 +91,3 @@ std::string SaveFileDialog(
 
 }; // namespace CubeWorld
 
-#endif

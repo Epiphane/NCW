@@ -253,7 +253,7 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
             }
 
             // TODO there's a lot more to worry about here i think
-//            assert(*it++ == 'f', "Format type of f is the only one implemented with precision");
+            assert(*it++ == 'f', "Format type of f is the only one implemented with precision");
          }
       }
 

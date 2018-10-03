@@ -9,7 +9,7 @@
 //#include "Main.h"
 #include "Audio.h"
 
-const std::nullptr_t ThisIsARandomSymbolJustToSilenceLinkerWarnings = nullptr;
+const nullptr_t ThisIsARandomSymbolJustToSilenceLinkerWarnings = nullptr;
 
 // As you can see, this unused code is all gutted out. In the future it needs to be
 // rewritten from this shoddy piece of garbage (holla CPE 476 flyin' fast) to something
