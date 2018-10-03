@@ -33,11 +33,16 @@ namespace Engine
       void SetTextColor(float r, float g, float b, float a);
       glm::vec4 GetTextColor();
       
+      void SetUsesInnateSizeConstraint(bool bUseHorizontalSizeConstraint, bool bUseVerticalSizeConstraint);
+      
    private:
       std::string mText;
       
       glm::vec4 mTextColor;
-      std::unique_ptr<Engine::Graphics::Font> mpFont;
+      Engine::Graphics::Font* mpFont;
+      
+      rhea::constraint mInnateHorizontalSize;
+      rhea::constraint mInnateVerticalSize;
       
       static GLuint program;
       static GLuint aPosition;

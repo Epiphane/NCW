@@ -24,7 +24,8 @@ namespace Engine
       mSolver.add_constraints({
          funFrame.centerX == mFrame.centerX,
          funFrame.centerY == mFrame.centerY,
-         funFrame.width == 200,
+         
+         funFrame.width  == 200,
          funFrame.height == 300,
          
          funnerFrame.height == funFrame.height / 2,

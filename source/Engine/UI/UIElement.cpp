@@ -14,7 +14,8 @@ namespace CubeWorld
 namespace Engine
 {
    UIElement::UIElement()
-      : mpParent(nullptr)
+      : mpRoot(nullptr)
+      , mpParent(nullptr)
    {
    }
    
@@ -55,6 +56,15 @@ namespace Engine
       }
       
       return offset;
+   }
+   
+   
+   /**
+    * Add a constraint to this element. Element will report this to its mpRoot.
+    */
+   void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint) {
+      mConstraints[nameKey] = constraint;
+      
    }
    
 }; // namespace Engine

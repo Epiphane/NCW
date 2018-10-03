@@ -18,9 +18,12 @@ namespace Engine
 //   REGISTER_GLUINT(UILabel, uWindowSize);
 
    UILabel::UILabel() {
-//      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
-//      assert(maybeFont);
-//      mpFont = std::move(*maybeFont);
+      auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
+      assert(maybeFont);
+      mpFont = *maybeFont;
+      
+      mInnateHorizontalSize = (mFrame.width  == 0);
+      mInnateVerticalSize =   (mFrame.height == 0);
    }
    
    /** Set the label's text. Will change the label's innate size. */

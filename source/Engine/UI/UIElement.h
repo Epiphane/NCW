@@ -46,8 +46,8 @@ struct VertexData {
       std::memset(this, 0, sizeof(VertexData));
    };
    
-   glm::vec2 position;//, uv;
-//   glm::vec4 color;
+   glm::vec2 position, uv;
+//   glm::vec4 color; // Maybe someday
 };
    
 class UIRoot; // Forward declare
@@ -63,7 +63,7 @@ public:
    virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
    virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
    
-   void AddConstraint(std::string nameKey, rhea::constraint constraint);
+   void AddConstraint(std::string nameKey, const rhea::constraint& constraint);
    
 protected:
    UIFrame mFrame;         ///< Contains the coordinates and size of the element.
