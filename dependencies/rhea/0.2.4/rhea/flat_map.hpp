@@ -19,73 +19,62 @@ namespace rhea
 namespace detail
 {
 
-template <class value_type, class C>
-class flat_map_compare : public C
+template <class value_type, class key_type>
+class flat_map_compare : public key_type
 {
-    typedef std::pair<typename C::first_argument_type, value_type> Data;
-    typedef typename C::first_argument_type first_argument_type;
+    typedef std::pair<key_type, value_type> Data;
 
 public:
     flat_map_compare() {}
 
-    flat_map_compare(const C& src)
-        : C(src)
+    bool operator()(const key_type& lhs, const key_type& rhs) const
     {
-    }
-
-    bool operator()(const first_argument_type& lhs,
-                    const first_argument_type& rhs) const
-    {
-        return C::operator()(lhs, rhs);
+        return lhs < rhs;
     }
 
     bool operator()(const Data& lhs, const Data& rhs) const
     {
-        return operator()(lhs.first, rhs.first);
+        return lhs.first < rhs.first;
     }
 
-    bool operator()(const Data& lhs, const first_argument_type& rhs) const
+    bool operator()(const Data& lhs, const key_type& rhs) const
     {
-        return operator()(lhs.first, rhs);
+        return lhs.first < rhs;
     }
 
-    bool operator()(const first_argument_type& lhs, const Data& rhs) const
+    bool operator()(const key_type& lhs, const Data& rhs) const
     {
-        return operator()(lhs, rhs.first);
+        return lhs < rhs.first;
     }
 };
 }
 
-template <class K, class V, class C = std::less<K>,
+template <class K, class V,
           class A = std::allocator<std::pair<K, V>>>
 class flat_map : private std::vector<std::pair<K, V>, A>,
-                 private detail::flat_map_compare<V, C>
+                 private detail::flat_map_compare<V, K>
 {
     typedef std::vector<std::pair<K, V>, A> base_type;
-    typedef detail::flat_map_compare<V, C> compare_type;
+    typedef detail::flat_map_compare<V, K> compare_type;
 
 public:
     typedef K key_type;
     typedef V mapped_type;
     typedef typename base_type::value_type value_type;
 
-    typedef C key_compare;
+    typedef compare_type key_compare;
     typedef A allocator_type;
-    typedef typename A::reference reference;
-    typedef typename A::const_reference const_reference;
     typedef typename base_type::iterator iterator;
     typedef typename base_type::const_iterator const_iterator;
     typedef typename base_type::size_type size_type;
     typedef typename base_type::difference_type difference_type;
-    typedef typename A::pointer pointer;
-    typedef typename A::const_pointer const_pointer;
     typedef typename base_type::reverse_iterator reverse_iterator;
     typedef typename base_type::const_reverse_iterator const_reverse_iterator;
 
-    typedef flat_map<K, V, C, A> self;
+    typedef flat_map<K, V, A> self;
 
     class value_compare
-        : public std::binary_function<value_type, value_type, bool>,
+        : public std::function<bool(value_type, value_type)>,
           private key_compare
     {
         friend class flat_map;
@@ -292,9 +281,9 @@ public:
         return std::equal_range(begin(), end(), k, me);
     }
 
-    template <class K1, class V1, class C1, class A1>
-    friend bool operator==(const flat_map<K1, V1, C1, A1>& lhs,
-                           const flat_map<K1, V1, C1, A1>& rhs);
+    template <class K1, class V1, class A1>
+    friend bool operator==(const flat_map<K1, V1, A1>& lhs,
+                           const flat_map<K1, V1, A1>& rhs);
 
     bool operator<(const flat_map& rhs) const
     {
@@ -303,61 +292,61 @@ public:
         return me < yo;
     }
 
-    template <class K1, class V1, class C1, class A1>
-    friend bool operator!=(const flat_map<K1, V1, C1, A1>& lhs,
-                           const flat_map<K1, V1, C1, A1>& rhs);
+    template <class K1, class V1, class A1>
+    friend bool operator!=(const flat_map<K1, V1, A1>& lhs,
+                           const flat_map<K1, V1, A1>& rhs);
 
-    template <class K1, class V1, class C1, class A1>
-    friend bool operator>(const flat_map<K1, V1, C1, A1>& lhs,
-                          const flat_map<K1, V1, C1, A1>& rhs);
+    template <class K1, class V1, class A1>
+    friend bool operator>(const flat_map<K1, V1, A1>& lhs,
+                          const flat_map<K1, V1, A1>& rhs);
 
-    template <class K1, class V1, class C1, class A1>
-    friend bool operator>=(const flat_map<K1, V1, C1, A1>& lhs,
-                           const flat_map<K1, V1, C1, A1>& rhs);
+    template <class K1, class V1, class A1>
+    friend bool operator>=(const flat_map<K1, V1, A1>& lhs,
+                           const flat_map<K1, V1, A1>& rhs);
 
-    template <class K1, class V1, class C1, class A1>
-    friend bool operator<=(const flat_map<K1, V1, C1, A1>& lhs,
-                           const flat_map<K1, V1, C1, A1>& rhs);
+    template <class K1, class V1, class A1>
+    friend bool operator<=(const flat_map<K1, V1, A1>& lhs,
+                           const flat_map<K1, V1, A1>& rhs);
 };
 
-template <class K, class V, class C, class A>
-inline bool operator==(const flat_map<K, V, C, A>& lhs,
-                       const flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+inline bool operator==(const flat_map<K, V, A>& lhs,
+                       const flat_map<K, V, A>& rhs)
 {
     const std::vector<std::pair<K, V>, A>& me(lhs);
     return me == rhs;
 }
 
-template <class K, class V, class C, class A>
-inline bool operator!=(const flat_map<K, V, C, A>& lhs,
-                       const flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+inline bool operator!=(const flat_map<K, V, A>& lhs,
+                       const flat_map<K, V, A>& rhs)
 {
     return !(lhs == rhs);
 }
 
-template <class K, class V, class C, class A>
-inline bool operator>(const flat_map<K, V, C, A>& lhs,
-                      const flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+inline bool operator>(const flat_map<K, V, A>& lhs,
+                      const flat_map<K, V, A>& rhs)
 {
     return rhs < lhs;
 }
 
-template <class K, class V, class C, class A>
-inline bool operator>=(const flat_map<K, V, C, A>& lhs,
-                       const flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+inline bool operator>=(const flat_map<K, V, A>& lhs,
+                       const flat_map<K, V, A>& rhs)
 {
     return !(lhs < rhs);
 }
 
-template <class K, class V, class C, class A>
-inline bool operator<=(const flat_map<K, V, C, A>& lhs,
-                       const flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+inline bool operator<=(const flat_map<K, V, A>& lhs,
+                       const flat_map<K, V, A>& rhs)
 {
     return !(rhs < lhs);
 }
 
-template <class K, class V, class C, class A>
-void swap(flat_map<K, V, C, A>& lhs, flat_map<K, V, C, A>& rhs)
+template <class K, class V, class A>
+void swap(flat_map<K, V, A>& lhs, flat_map<K, V, A>& rhs)
 {
     lhs.swap(rhs);
 }

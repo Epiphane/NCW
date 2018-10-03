@@ -147,7 +147,7 @@ namespace std
 
 /** Hash function, required for std::unordered_map. */
 template <>
-struct hash<rhea::constraint> : public unary_function<rhea::constraint, size_t>
+struct hash<rhea::constraint> : public function<size_t(rhea::constraint)>
 {
     size_t operator()(const rhea::constraint& c) const { return c.hash(); }
 };

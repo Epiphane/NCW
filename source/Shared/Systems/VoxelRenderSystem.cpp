@@ -21,17 +21,35 @@ namespace CubeWorld
 
 namespace Game
 {
+
+   VoxelRender::VoxelRender()
+      : mVoxelData(Engine::Graphics::VBO::Vertices)
+      , mSize(0)
+   {}
    
    VoxelRender::VoxelRender(Voxel::Model&& voxels)
       : mVoxelData(Engine::Graphics::VBO::Vertices)
       , mSize(GLsizei(voxels.size()))
    {
-      mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), &voxels[0], GL_STATIC_DRAW);
+      Set(std::move(voxels));
    }
    
    VoxelRender::VoxelRender(const VoxelRender& other)
       : mVoxelData(other.mVoxelData)
+      , mSize(other.mSize)
    {}
+
+   void VoxelRender::Set(Voxel::Model&& voxels)
+   {
+      mSize = GLsizei(voxels.size());
+      mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), voxels.data(), GL_STATIC_DRAW);
+   }
+
+   void VoxelRender::Set(const Voxel::Model& voxels)
+   {
+      mSize = GLsizei(voxels.size());
+      mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), (void*)voxels.data(), GL_STATIC_DRAW);
+   }
 
    std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;
 

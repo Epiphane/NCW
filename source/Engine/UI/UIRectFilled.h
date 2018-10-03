@@ -21,8 +21,8 @@ namespace Engine
    public:
       UIRectFilled();
       
-      virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
-      virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
+      virtual void   AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices) override;
+      virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
       
       void SetColor(float r, float g, float b, float a);
       glm::vec4 GetColor();

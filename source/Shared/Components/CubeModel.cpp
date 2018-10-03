@@ -19,7 +19,26 @@ namespace CubeWorld
 namespace Game
 {
 
+CubeModel::CubeModel()
+   : mModel(nullptr)
+   , mNumVoxels(0)
+   , mMetadata{0, 0, 0}
+   , mVBO(Engine::Graphics::VBO::Vertices)
+   , mTint(glm::vec3(255))
+{
+}
+
 CubeModel::CubeModel(const std::string& path)
+{
+   Load(path);
+}
+
+CubeModel::CubeModel(const std::string& path, glm::vec3 tint)
+{
+   Load(path, tint);
+}
+
+void CubeModel::Load(const std::string& path)
 {
    mModel = CubeModelInfo::Load(path, false);
    assert(mModel != nullptr);
@@ -29,7 +48,7 @@ CubeModel::CubeModel(const std::string& path)
    mTint = glm::vec3(255);
 }
 
-CubeModel::CubeModel(const std::string& path, glm::vec3 tint)
+void CubeModel::Load(const std::string& path, glm::vec3 tint)
 {
    mModel = CubeModelInfo::Load(path, true);
    assert(mModel != nullptr);

@@ -9,6 +9,8 @@
 #include <Engine/Core/Input.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Event/EventManager.h>
+#include <Engine/Event/InputEvent.h>
+#include <Engine/Event/Receiver.h>
 #include <Engine/System/System.h>
 
 // Arm cameras are defined separately, since they aren't strictly tied to this system.
@@ -25,6 +27,16 @@ struct MouseControlledCamera : public Engine::Component<MouseControlledCamera> {
       : sensitivity{pitchSensitivity, yawSensitivity}
    {};
    
+   double sensitivity[2];
+};
+
+struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
+   MouseDragCamera(uint32_t button, double pitchSensitivity = 0.007, double yawSensitivity = 0.007)
+      : button(button)
+      , sensitivity{pitchSensitivity, yawSensitivity}
+   {};
+
+   uint32_t button;
    double sensitivity[2];
 };
 
@@ -45,15 +57,23 @@ struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
    double sensitivity[2];
 };
 
-class CameraSystem : public Engine::System<CameraSystem> {
+class CameraSystem : public Engine::System<CameraSystem>, public Engine::Receiver<CameraSystem> {
 public:
    CameraSystem(Engine::Input* input) : mInput(input) {}
    ~CameraSystem() {}
    
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
    
+public:
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseUpEvent& evt);
+
 private:
    Engine::Input* mInput;
+
+   bool mDragging;
+   glm::tvec2<double> mLast;
+   glm::tvec2<double> mDragged;
 };
 
 }; // namespace Game

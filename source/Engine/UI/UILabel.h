@@ -24,8 +24,8 @@ namespace Engine
    public:
       UILabel();
       
-      virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
-      virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
+      virtual void   AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices) override;
+      virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
       
       void SetText(const std::string& text);
       std::string GetText();

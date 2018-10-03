@@ -72,7 +72,7 @@ namespace Engine
       mUIVertices.clear();
       AddVertices(mUIVertices);
       
-      mRectanglesVBO.BufferData(mUIVertices.size() * sizeof(Graphics::Font::CharacterVertexUV), &mUIVertices[0], GL_STATIC_DRAW);
+      mRectanglesVBO.BufferData(static_cast<GLsizei>(mUIVertices.size()) * sizeof(Graphics::Font::CharacterVertexUV), &mUIVertices[0], GL_STATIC_DRAW);
       Render(mRectanglesVBO, 0);
    }
    

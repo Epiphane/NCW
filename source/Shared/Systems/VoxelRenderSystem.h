@@ -24,9 +24,13 @@ namespace Game
 {
 
    struct VoxelRender : public Engine::Component<VoxelRender> {
+      VoxelRender();
       VoxelRender(Voxel::Model&& voxels);
       VoxelRender(const VoxelRender& other);
-      
+
+      void Set(const Voxel::Model& voxels);
+      void Set(Voxel::Model&& voxels);
+
       Engine::Graphics::VBO mVoxelData;
       GLsizei mSize;
    };

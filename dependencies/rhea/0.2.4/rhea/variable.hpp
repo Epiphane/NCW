@@ -246,6 +246,9 @@ public:
     /** Helper function so rhea::variable can be used in a std::map */
     bool is_less(const variable& x) const { return id() < x.id(); }
 
+    /** Alternative to using std::less */
+    const bool operator<(const variable& rhs) const { return id() < rhs.id(); }
+
     /** Get the variable's unique ID.
      *  Do not use: this function may disappear in future versions. */
     size_t id() const { return p_->id(); }
@@ -274,7 +277,7 @@ namespace std
 
 /** Hash function, required for std::unordered_map and -set. */
 template <>
-struct hash<rhea::variable> : public unary_function<rhea::variable, size_t>
+struct hash<rhea::variable> : public function<size_t(rhea::variable)>
 {
     size_t operator()(const rhea::variable& v) const { return v.hash(); }
 };
@@ -282,7 +285,7 @@ struct hash<rhea::variable> : public unary_function<rhea::variable, size_t>
 /** Equality test, required for std::unordered_map and -set. */
 template <>
 struct equal_to<rhea::variable>
-    : public binary_function<rhea::variable, rhea::variable, bool>
+    : public function<bool(rhea::variable, rhea::variable)>
 {
     bool operator()(const rhea::variable& a, const rhea::variable& b) const
     {
@@ -293,7 +296,7 @@ struct equal_to<rhea::variable>
 /** Strict weak ordering, required for std::map and set. */
 template <>
 struct less<rhea::variable>
-    : public binary_function<rhea::variable, rhea::variable, bool>
+   : public function<bool(rhea::variable, rhea::variable)>
 {
     bool operator()(const rhea::variable& a, const rhea::variable& b) const
     {

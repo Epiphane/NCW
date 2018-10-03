@@ -74,7 +74,7 @@ namespace Engine
     *    This method returns the NEW offset (in this case, 2 vertices
     *    past the previous offset)
     */
-   int UILabel::Render(Engine::Graphics::VBO& vbo, size_t offset) {
+   size_t UILabel::Render(Engine::Graphics::VBO& /*vbo*/, size_t offset) {
 //      Window* pWindow = Window::Instance();
 //      
 //      glUseProgram(program);
@@ -93,6 +93,7 @@ namespace Engine
 //      offset = UIElement::Render(vbo, offset + sizeof(glm::vec2) * 2);
 //      
 //      return offset;
+      return offset;
    }
    
 }; // namespace Engine

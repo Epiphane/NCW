@@ -50,7 +50,7 @@ namespace Engine
     * Render all this node's children. Pass in the VBO to my children in case
     *    they want to render with it.
     */
-   int UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
+   size_t UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
       for (int ndx = 0; ndx < mpChildren.size(); ndx++) {
          offset = mpChildren[ndx]->Render(vbo, offset);
       }

@@ -47,8 +47,12 @@ namespace Game
    //
    class CubeModel : public Engine::Component<CubeModel> {
    public:
+      CubeModel();
       CubeModel(const std::string& path);
       CubeModel(const std::string& path, glm::vec3 tint);
+
+      void Load(const std::string& path);
+      void Load(const std::string& path, glm::vec3 tint);
 
       CubeModelInfo* mModel;
      

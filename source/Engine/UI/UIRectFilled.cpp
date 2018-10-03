@@ -68,13 +68,13 @@ namespace Engine
     *    This method returns the NEW offset (in this case, 2 vertices
     *    past the previous offset)
     */
-   int UIRectFilled::Render(Engine::Graphics::VBO& vbo, size_t offset) {
+   size_t UIRectFilled::Render(Engine::Graphics::VBO& vbo, size_t offset) {
       Window* pWindow = Window::Instance();
       
       program->Bind();
       
       program->Uniform4f("uColor", mColor.r, mColor.g, mColor.b, mColor.a);
-      program->Uniform2f("uWindowSize", pWindow->GetWidth(), pWindow->GetHeight());
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
       
       vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
       

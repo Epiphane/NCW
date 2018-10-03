@@ -73,8 +73,6 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
 #if !NDEBUG
    LOG_DEBUG("Compiling shader %1", filePath);
    LOG_DEBUG("----------------------------------------------");
-   LOG_DEBUG("%1", code);
-   LOG_DEBUG("----------------------------------------------");
 #endif
 
    const char *code_cstr = code.c_str();

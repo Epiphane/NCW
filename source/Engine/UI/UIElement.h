@@ -60,8 +60,8 @@ public:
    
    virtual void AddChild(UIElement& newChild);
    
-   virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
-   virtual int  Render(Engine::Graphics::VBO& vbo, size_t offset);
+   virtual void   AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
+   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset);
    
    void AddConstraint(std::string nameKey, const rhea::constraint& constraint);
    
