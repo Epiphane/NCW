@@ -6,18 +6,18 @@
 
 #pragma once
 
-#include <Engine/UI/UIRoot.h>
-#include <Engine/UI/UIRectFilled.h>
+#include "UIRoot.h"
 
 namespace CubeWorld
 {
 
 namespace Engine
 {
-   class UIMainScreen : public UIRoot {
-   public:
-      UIMainScreen(Window* pWindow);
-   };
+
+class UIMainScreen : public UIRoot {
+public:
+   UIMainScreen(const Bounded& bounds);
+};
    
 }; // namespace Engine
 

@@ -8,7 +8,9 @@
 
 #include <vector>
 
-#include <Engine/Core/Window.h>
+#include <Engine/Core/Bounded.h>
+#include <Engine/Core/Maybe.h>
+#include <Engine/Core/Singleton.h>
 #include <Engine/Graphics/VBO.h>
 
 #include <rhea/simplex_solver.hpp>
@@ -21,24 +23,37 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIRoot : public UIElement {
+class UIRoot : public UIElement
+{
 public:
-   static UIRoot* Initialize(Window* window);
-   static UIRoot* Instance();
+   UIRoot(const Bounded& bounds);
+   ~UIRoot();
    
-   UIRoot(Window *pWindow);
+   //
+   // Populate the simple constraints for a UIFrame.
+   //
+   void AddConstraintsForElement(UIFrame& frame);
    
-   void AddConstraintsForElement(UIElement& element);    ///< New element. Populate the constraints for it.
-   
+   //
+   // Rebalance all elements according to contraints.
+   //
    void UpdateRoot();
+
+   //
+   // Render the entire UI.
+   //
    void RenderRoot();
    
 protected:
-   rhea::simplex_solver  mSolver;         ///< Solves for the constraints we provide
+   // Solves for the constraints we provide.
+   rhea::simplex_solver mSolver;
    
 private:
-   std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;   ///< Holds all the vertices pushed by this element's children.
-   Engine::Graphics::VBO mRectanglesVBO;  ///< VBO that ALL the UI elements will use
+   // Holds all the vertices pushed by this element's children.
+   std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;
+
+   // VBO that ALL the UI elements will use.
+   Engine::Graphics::VBO mRectanglesVBO;
 };
    
 }; // namespace Engine
