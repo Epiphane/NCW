@@ -108,7 +108,7 @@ void DebugHelper::Update()
    if (mMetricsText != text)
    {
       mMetricsText = text;
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, 760, 1, text);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 1, text);
 
       mMetricsCount = static_cast<GLint>(metricsText.size());
       mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
