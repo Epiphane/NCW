@@ -13,11 +13,11 @@ void main()
    // Calculate the middle two vertices of the quad
    vertices[1] = vertices[2] = vertices[0];
    
-   // Bottom left
-   vertices[1].y = vertices[3].y;
+   // Bottom right
+   vertices[1].x = vertices[3].x;
    
-   // Top right
-   vertices[2].x = vertices[3].x;
+   // Top left
+   vertices[2].y = vertices[3].y;
    
    float zVal = 0; // TODO: me :3
    

@@ -21,13 +21,13 @@ void main()
    vertices[1] = vertices[2] = vertices[0];
    uv[1]       = uv[2]       = uv[0];
    
-   // Bottom left
-   vertices[1].y = vertices[3].y;
-   uv[1].y       = uv[3].y;
+   // Bottom right
+   vertices[1].x = vertices[3].x;
+   uv[1].x       = uv[3].x;
    
-   // Top right
-   vertices[2].x = vertices[3].x;
-   uv[2].x       = uv[3].x;
+   // Top left
+   vertices[2].y = vertices[3].y;
+   uv[2].y       = uv[3].y;
    
    float zVal = 0;
    //if (zVal >= 1) zVal -= 0.0000001;
