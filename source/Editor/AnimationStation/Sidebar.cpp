@@ -3,6 +3,7 @@
 #include <fstream>
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
+#include <Engine/UI/UIRectFilled.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "../UI/Image.h"
@@ -21,56 +22,74 @@ namespace AnimationStation
 
 using Game::AnimatedSkeleton;
 
-Sidebar::Sidebar(
-   Bounded& parent,
-   const Options& options
-)
-   : SubWindow(parent, options)
+Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
+   : UIElement(root, parent)
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
    {
       // Backdrop
-      Image::Options imageOptions;
-      imageOptions.z = 0.5f;
-      imageOptions.filename = Asset::Image("EditorSidebar.png");
-      Add<Image>(imageOptions);
+      Engine::UIRectFilled* bg = Add<Engine::UIRectFilled>();
+      bg->SetColor(glm::vec4(0, 0, 0, 1));
    }
 
    {
       // Labels
       TextButton::Options buttonOptions;
-      buttonOptions.x = 8.0f / GetWidth();
-      buttonOptions.y = 1.0f - 43.0f / GetHeight();
-      buttonOptions.w = 1.0f - 16.0f / GetWidth();
-      buttonOptions.h = 35.0f / GetHeight();
-
       buttonOptions.text = "Load";
       buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-      Add<TextButton>(buttonOptions);
+      TextButton* load = Add<TextButton>(buttonOptions);
 
-      buttonOptions.y -= 35.0f / GetHeight();
       buttonOptions.text = "Save";
       buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
       mSave = Add<TextButton>(buttonOptions);
       
-      buttonOptions.y -= 35.0f / GetHeight();
       buttonOptions.text = "Save As...";
       buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-      Add<TextButton>(buttonOptions);
+      TextButton* saveAs = Add<TextButton>(buttonOptions);
       
-      buttonOptions.y -= 35.0f / GetHeight();
       buttonOptions.text = "Discard Changes";
       buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-      Add<TextButton>(buttonOptions);
+      TextButton* discard = Add<TextButton>(buttonOptions);
       
-      buttonOptions.y -= 35.0f / GetHeight();
       buttonOptions.text = "Quit";
       buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
       mQuit = Add<TextButton>(buttonOptions);
+
+      Engine::UIFrame& fLoad = load->GetFrame();
+      Engine::UIFrame& fSave = mSave->GetFrame();
+      Engine::UIFrame& fSaveAs = saveAs->GetFrame();
+      Engine::UIFrame& fDiscard = discard->GetFrame();
+      Engine::UIFrame& fQuit = mQuit->GetFrame();
+      root->AddContraints({
+         fLoad.left == mFrame.left + 8,
+         fLoad.right == mFrame.right - 8,
+         fLoad.top == mFrame.top - 8,
+         fLoad.height == 32,
+
+         fSave.left == fLoad.left,
+         fSave.right == fLoad.right,
+         fSave.top == fLoad.bottom - 8,
+         fSave.height == fLoad.height,
+
+         fSaveAs.left == fSave.left,
+         fSaveAs.right == fSave.right,
+         fSaveAs.top == fSave.bottom - 8,
+         fSaveAs.height == fSave.height,
+
+         fDiscard.left == fSaveAs.left,
+         fDiscard.right == fSaveAs.right,
+         fDiscard.top == fSaveAs.bottom - 8,
+         fDiscard.height == fSaveAs.height,
+
+         fQuit.left == fDiscard.left,
+         fQuit.right == fDiscard.right,
+         fQuit.top == fDiscard.bottom - 8,
+         fQuit.height == fDiscard.height,
+      });
    }
 
-   Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
-   Subscribe<SkeletonModifiedEvent>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
+   root->Subscribe<SkeletonModifiedEvent>(*this);
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
@@ -134,7 +153,7 @@ void Sidebar::LoadFile(const std::string& filename)
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
-   Emit<SkeletonLoadedEvent>(mSkeleton);
+   mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);
 }
 
@@ -154,7 +173,7 @@ void Sidebar::SaveFile()
    std::ofstream out(mFilename);
    out << serialized << std::endl;
 
-   Emit<SkeletonSavedEvent>(mSkeleton);
+   mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);
 }
 

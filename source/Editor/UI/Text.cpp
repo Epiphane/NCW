@@ -15,24 +15,18 @@ namespace CubeWorld
 namespace Editor
 {
 
-std::unique_ptr<Engine::Graphics::Program> Text::textProgram = nullptr;
-std::unique_ptr<Engine::Graphics::Program> Text::renderProgram = nullptr;
+std::unique_ptr<Engine::Graphics::Program> Text::program = nullptr;
 
-Text::Text(
-   Bounded& parent,
-   const Options& options
-)
-   : Element(parent, options)
+Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
+   : UIElement(root, parent)
    , mText("")
-   , mFramebuffer(GLsizei(GetWidth()), GLsizei(GetHeight()))
-   , mTextVBO(Engine::Graphics::VBO::DataType::Vertices)
-   , mRenderVBO(Engine::Graphics::VBO::DataType::Vertices)
+   , mTextToRender("")
 {
    auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font(options.font));
    assert(maybeFont);
    mFont = *maybeFont;
 
-   if (!textProgram)
+   if (!program)
    {
       auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
       if (!maybeProgram)
@@ -41,92 +35,55 @@ Text::Text(
          return;
       }
 
-      textProgram = std::move(*maybeProgram);
+      program = std::move(*maybeProgram);
 
-      textProgram->Attrib("aPosition");
-      textProgram->Attrib("aUV");
-      textProgram->Uniform("uTexture");
-      textProgram->Uniform("uWindowSize");
+      program->Attrib("aPosition");
+      program->Attrib("aUV");
+      program->Uniform("uTexture");
+      program->Uniform("uWindowSize");
    }
-
-   if (!renderProgram)
-   {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/PassthroughTexture.vert", "Shaders/PassthroughTexture.frag");
-      if (!maybeProgram)
-      {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading PassthroughTexture shader").GetMessage());
-         return;
-      }
-
-      renderProgram = std::move(*maybeProgram);
-
-      renderProgram->Attrib("aPosition");
-      renderProgram->Attrib("aUV");
-      renderProgram->Uniform("uTexture");
-   }
-
-   float x = 2.0f * mOptions.x - 1.0f;
-   float y = 2.0f * mOptions.y - 1.0f;
-   float w = 2.0f * mOptions.w;
-   float h = 2.0f * mOptions.h;
-
-   std::vector<GLfloat> vboData = {
-      x,     y,     0.0f, 0.0f, 0.0f,
-      x + w, y,     0.0f, 1.0f, 0.0f,
-      x,     y + h, 0.0f, 0.0f, 1.0f,
-      x,     y + h, 0.0f, 0.0f, 1.0f,
-      x + w, y,     0.0f, 1.0f, 0.0f,
-      x + w, y + h, 0.0f, 1.0f, 1.0f,
-   };
-   mRenderVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
 
    SetText(options.text);
 }
 
-void Text::RenderText(const std::string& text)
+void Text::AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices)
 {
-   if (text.empty())
-   {
-      return;
-   }
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(mFrame.left.int_value(), mFrame.bottom.int_value(), 1, mTextToRender);
 
-   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(0, 0, 1, text);
+   outVertices.insert(outVertices.end(), uvs.begin(), uvs.end());
 
-   mTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * uvs.size(), &uvs[0], GL_STATIC_DRAW);
-
-   mFramebuffer.Bind();
-   BIND_PROGRAM_IN_SCOPE(textProgram);
-
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
-   textProgram->Uniform1i("uTexture", 0);
-   textProgram->Uniform2f("uWindowSize", static_cast<GLfloat>(GetWidth()), static_cast<GLfloat>(GetHeight()));
-
-   mTextVBO.AttribPointer(textProgram->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
-   mTextVBO.AttribPointer(textProgram->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
-
-   glDrawArrays(GL_LINES, 0, uvs.size());
-   mFramebuffer.Unbind();
+   UIElement::AddVertices(outVertices);
 }
 
-void Text::Update(TIMEDELTA)
+size_t Text::Render(Engine::Graphics::VBO& vbo, size_t offset)
 {
-   if (mText.empty())
+   if (mTextToRender.empty())
    {
-      return;
+      return offset;
    }
 
-   // Draw framebuffer to the screen
-   BIND_PROGRAM_IN_SCOPE(renderProgram);
+   Engine::Window* pWindow = Engine::Window::Instance();
 
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, mFramebuffer.GetTexture());
-   renderProgram->Uniform1i("uTexture", 0);
+   {
+      BIND_PROGRAM_IN_SCOPE(program);
 
-   mRenderVBO.AttribPointer(renderProgram->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-   mRenderVBO.AttribPointer(renderProgram->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
+      program->Uniform1i("uTexture", 0);
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
 
-   glDrawArrays(GL_TRIANGLES, 0, 6);
+      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)offset);
+      vbo.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2 + offset));
+
+      glDrawArrays(GL_LINES, 0, 2 * mTextToRender.size());
+   }
+
+   return UIElement::Render(vbo, offset + sizeof(Engine::Graphics::Font::CharacterVertexUV) * 2);
+}
+
+void Text::RenderText(const std::string& text)
+{
+   mTextToRender = text;
 }
 
 }; // namespace Editor

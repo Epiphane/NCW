@@ -6,11 +6,12 @@
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
+#include <Engine/Core/State.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "Element.h"
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
@@ -19,43 +20,37 @@ namespace Editor
 {
 
 //
-// Manages a subsection of the Editor. Notably, allows for hooking up different framebuffers,
-// binding and unbinding them in an understandable way, and re-rendering those pieces into
-// the space they belong.
+// Renders a state to a framebuffer, for translating before rendering to the screen.
 //
-class StateWindow : public Element
+class StateWindow : public Engine::UIElement
 {
 public:
-   StateWindow(
-      Bounded& parent,
-      const Options& options
-   );
-   ~StateWindow();
+   StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state);
+   ~StateWindow() {}
 
    //
-   // Render the State.
+   // Add the state to this window. Does not support nice transitions, so don't do any crazy swappin'
+   //
+   void SetState(std::unique_ptr<Engine::State>&& state);
+
+   //
+   // Add vertices for this window's framebuffer to outVertices.
+   //
+   virtual void AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices) override;
+
+   //
+   // Update the state and render it to the internal framebuffer.
    //
    void Update(TIMEDELTA dt) override;
 
    //
-   // React to mouse events. A SubWindow passes the event down to all its children.
+   // Render the state to the screen
    //
-   void MouseDown(int button, double x, double y) override;
-   void MouseUp(int button, double x, double y) override;
-   void MouseClick(int button, double x, double y) override;
-
-   //
-   // Construct a child and add it to the window
-   //
-   template <typename E, typename ...Args>
-   void Add(Args&& ...args)
-   {
-      AddChild(std::make_unique<E>(std::forward<Args>(args) ...));
-   }
+   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
 
 private:
+   std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;
-   Engine::Graphics::VBO mVBO;
 
 private:
    static std::unique_ptr<Engine::Graphics::Program> program;

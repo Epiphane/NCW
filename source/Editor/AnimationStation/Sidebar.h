@@ -13,10 +13,10 @@
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Event/NamedEvent.h>
 #include <Shared/Systems/AnimationSystem.h>
 
-#include "../UI/SubWindow.h"
 #include "../UI/TextButton.h"
 #include "Events.h"
 #include "State.h"
@@ -30,12 +30,9 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Sidebar : public SubWindow, public Engine::EventManager, public Engine::Receiver<Sidebar> {
+class Sidebar : public Engine::UIElement {
 public:
-   Sidebar(
-      Bounded& parent,
-      const Options& options
-   );
+   Sidebar(Engine::UIRoot* root, UIElement* parent);
 
 private:
    // Actions

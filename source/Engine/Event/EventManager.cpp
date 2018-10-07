@@ -19,8 +19,11 @@ EventManager::~EventManager()
 {
    for (auto ring : mEventRings)
    {
-      assert(ring->refs == 1);
-      ring->Unlink();
+      if (ring != nullptr)
+      {
+         assert(ring->refs == 1);
+         ring->Unlink();
+      }
    }
 }
 

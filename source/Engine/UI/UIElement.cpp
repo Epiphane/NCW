@@ -20,13 +20,22 @@ UIElement::UIElement(UIRoot* root, UIElement* parent)
 {
 }
 
-void UIElement::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices) {
+void UIElement::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices)
+{
    for (auto& child : mChildren) {
       child->AddVertices(outVertices);
    }
 }
 
-size_t UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
+void UIElement::Update(TIMEDELTA dt)
+{
+   for (auto& child : mChildren) {
+      child->Update(dt);
+   }
+}
+
+size_t UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset)
+{
    for (auto& child : mChildren) {
       offset = child->Render(vbo, offset);
    }
@@ -34,10 +43,22 @@ size_t UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset) {
    return offset;
 }
 
-void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint) {
+void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint)
+{
    mConstraints[nameKey] = constraint;
-      
+   
+   // TODO send this to mpRoot. Using an event maybe?
 }
+
+bool UIElement::ContainsPoint(double x, double y)
+{
+   return
+      x >= mFrame.left.int_value() &&
+      x <= mFrame.right.int_value() &&
+      y <= mFrame.top.int_value() &&
+      y >= mFrame.bottom.int_value();
+}
+
    
 }; // namespace Engine
 

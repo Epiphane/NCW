@@ -12,14 +12,14 @@ namespace Engine
 UIMainScreen::UIMainScreen(const Bounded& bounds)
    : UIRoot(bounds)
 {
-   UIRectFilled *testRect = AddChild<UIRectFilled>();
+   UIRectFilled *testRect = Add<UIRectFilled>();
    testRect->SetColor({1.0f, 0.0f, 0.0f, 0.5f});
    UIFrame funFrame = testRect->GetFrame();
 
-   UIRectFilled *testRect2 = AddChild<UIRectFilled>();
+   UIRectFilled *testRect2 = Add<UIRectFilled>();
    testRect2->SetColor({0.0f, 1.0f, 1.0f, 0.5f});
    UIFrame funnerFrame = testRect2->GetFrame();
-      
+
    mSolver.add_constraints({
       funFrame.centerX == mFrame.centerX,
       funFrame.centerY == mFrame.centerY,

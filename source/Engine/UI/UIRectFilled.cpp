@@ -36,15 +36,15 @@ UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent) : UIElement(root, pa
 
 void UIRectFilled::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices)
 {
-   Graphics::Font::CharacterVertexUV topLeft, bottomRight;
-   topLeft    .position = glm::vec2(mFrame.left.int_value(),  mFrame.top.int_value());
-   bottomRight.position = glm::vec2(mFrame.right.int_value(), mFrame.bottom.int_value());
+   Engine::Graphics::Font::CharacterVertexUV bottomLeft, topRight;
+   bottomLeft.position = glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value());
+   topRight.position = glm::vec2(mFrame.right.int_value(), mFrame.top.int_value());
 
-   topLeft.uv = glm::vec2(0, 0);
-   bottomRight.uv = glm::vec2(0, 0);
+   bottomLeft.uv = glm::vec2(0, 0);
+   topRight.uv = glm::vec2(0, 0);
 
-   outVertices.push_back(topLeft);
-   outVertices.push_back(bottomRight);
+   outVertices.push_back(bottomLeft);
+   outVertices.push_back(topRight);
 
    UIElement::AddVertices(outVertices);
 }
@@ -53,17 +53,16 @@ size_t UIRectFilled::Render(Engine::Graphics::VBO& vbo, size_t offset)
 {
    Window* pWindow = Window::Instance();
 
-   BIND_PROGRAM_IN_SCOPE(program);
+   {
+      BIND_PROGRAM_IN_SCOPE(program);
 
-   program->Uniform4f("uColor", mColor.r, mColor.g, mColor.b, mColor.a);
-   program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
+      program->Uniform4f("uColor", mColor.r, mColor.g, mColor.b, mColor.a);
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
 
-   vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
+      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
 
-   glDrawArrays(GL_LINES, 0, 2);
-
-   // Cleanup.
-   glDisableVertexAttribArray(program->Attrib("aPosition"));
+      glDrawArrays(GL_LINES, 0, 2);
+   }
 
    offset = UIElement::Render(vbo, offset + sizeof(Graphics::Font::CharacterVertexUV) * 2);
 

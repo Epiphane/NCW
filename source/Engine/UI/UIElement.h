@@ -13,12 +13,17 @@
 #include <map>
 
 #include <glm/glm.hpp>
-#include <Engine/Graphics/VBO.h>
-#include <Engine/Graphics/FontManager.h>
-
-//#include <rhea/rhea/variable.hpp>
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
+
+#include "../Core/Bounded.h"
+#include "../Core/Config.h"
+#include "../Event/Event.h"
+#include "../Event/Receiver.h"
+#include "../Graphics/VBO.h"
+#include "../Graphics/FontManager.h"
+
+//#include <rhea/rhea/variable.hpp>
 
 namespace CubeWorld
 {
@@ -31,10 +36,15 @@ namespace Engine
  *  such as `bottom - top == height`. Used as the backbone for
  *  laying out UI elements.
  */
-struct UIFrame
+struct UIFrame : public Bounded
 {
    rhea::variable left, right, top, bottom;
    rhea::variable centerX, centerY, width, height;
+
+   uint32_t GetX() const override { return left.int_value(); }
+   uint32_t GetY() const override { return bottom.int_value(); }
+   uint32_t GetWidth() const override { return width.int_value(); }
+   uint32_t GetHeight() const override { return height.int_value(); }
 };
 
 /**
@@ -52,8 +62,25 @@ struct VertexData
 };
 
 class UIRoot; // Forward declare
+class UIElement; // Forward declare
 
-class UIElement
+//
+// Emitted whenever an element is added to the tree.
+// Attached is a pointer to the new element.
+//
+class ElementAddedEvent : public Event<ElementAddedEvent>
+{
+public:
+   ElementAddedEvent(UIElement* element) : element(element) {};
+
+   UIElement* element;
+};
+
+//
+// UIElement extends EventManager, so that events can easily be passed down all the way to any leaf elements from
+// a central EventManager.
+//
+class UIElement : public Engine::Receiver<UIElement>
 {
 public:
    UIElement(UIRoot* root, UIElement* parent);
@@ -68,15 +95,16 @@ public:
    // Returns a pointer to the element, for referencing, configuring, etc.
    //
    template <typename E, typename ...Args>
-   E* AddChild(Args ...args)
+   E* Add(Args ...args)
    {
+      static_assert(std::is_base_of<UIElement, E>::value, "Only subclasses of UIElement may be added to a UIElement");
       std::unique_ptr<E> elem(new E(mpRoot, this, std::forward<Args>(args)...));
-      E* result = elem.get();
+      E* element = elem.get();
 
       mChildren.push_back(std::move(elem));
-      mpRoot->AddConstraintsForElement(result->GetFrame());
+      mpRoot->Emit<ElementAddedEvent>(element);
 
-      return result;
+      return element;
    }
 
    //
@@ -84,6 +112,12 @@ public:
    // so they can add their vertices to it.
    //
    virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
+
+   //
+   // Update the element, called once per frame with the time elapsed.
+   // Useful for animations, resizing, and responding to input.
+   //
+   virtual void Update(TIMEDELTA dt);
 
    //
    // Render all this node's children. Pass in the VBO to my children in case
@@ -96,16 +130,24 @@ public:
    //
    void AddConstraint(std::string nameKey, const rhea::constraint& constraint);
 
-protected:
-   UIFrame mFrame;         ///< Contains the coordinates and size of the element.
+   //
+   // Returns whether the point [x, y] in pixel space
+   // is contained within this element.
+   //
+   bool ContainsPoint(double x, double y);
 
-   std::map<std::string, rhea::constraint> mConstraints; ///< Map where key is the constraint's name and value is the constraint
+protected:
+   // Contains the coordinates and size of the element
+   UIFrame mFrame;
+
+   // Map where from a constraint's name to its value
+   std::map<std::string, rhea::constraint> mConstraints;
 
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
 
    UIRoot* mpRoot;
-   UIElement* mpParent;    ///< My parent in the UI heirarchy
+   UIElement* mpParent;
 };
 
 }; // namespace Engine

@@ -11,8 +11,7 @@
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "Element.h"
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
@@ -25,24 +24,26 @@ namespace Editor
 // binding and unbinding them in an understandable way, and re-rendering those pieces into
 // the space they belong.
 //
-class Text : public Element
+class Text : public Engine::UIElement
 {
 public:
-   struct Options : public Element::Options {
-      std::string text;
+   struct Options {
+      std::string text = "";
       std::string font = "debug";
    };
 
 public:
-   Text(
-      Bounded& parent,
-      const Options& options
-   );
+   Text(Engine::UIRoot* root, UIElement* parent, const Options& options);
 
    //
-   // Render the framebuffer to this subwindow's location.
+   // Add vertices for this text to outVertices.
    //
-   void Update(TIMEDELTA dt) override;
+   virtual void AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices) override;
+
+   //
+   // Render the text to the screen
+   //
+   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
 
    //
    // Render the text on this label
@@ -63,15 +64,14 @@ protected:
 
    std::string mText;
 
-private:
-   Engine::Graphics::Framebuffer mFramebuffer;
-   Engine::Graphics::Font* mFont;
-   Engine::Graphics::VBO mTextVBO;
-   Engine::Graphics::VBO mRenderVBO;
+   // Could be different from mText, see TextButton
+   std::string mTextToRender;
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> textProgram;
-   static std::unique_ptr<Engine::Graphics::Program> renderProgram;
+   Engine::Graphics::Font* mFont;
+
+private:
+   static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
 }; // namespace Editor

@@ -9,8 +9,7 @@
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "Element.h"
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
@@ -23,13 +22,10 @@ namespace Editor
 // binding and unbinding them in an understandable way, and re-rendering those pieces into
 // the space they belong.
 //
-class SubWindow : public Element
+class SubWindow : public Engine::UIElement
 {
 public:
-   SubWindow(
-      Bounded& parent,
-      const Options& options
-   );
+   SubWindow(Bounded& parent);
    ~SubWindow();
 
    //
@@ -56,17 +52,17 @@ public:
    //
    // Remove an element from this window
    //
-   virtual void Remove(Element* reference);
+   virtual void Remove(UIElement* reference);
 
 protected:
    //
    // Add an element to this window
    //
-   virtual Element* AddChild(std::unique_ptr<Element>&& element);
+   virtual Element* AddChild(std::unique_ptr<UIElement>&& element);
 
 
 protected:
-   std::vector<std::unique_ptr<Element>> mChildren;
+   std::vector<std::unique_ptr<UIElement>> mChildren;
 
    Engine::Graphics::Framebuffer mFramebuffer;
    Engine::Graphics::VBO mVBO;

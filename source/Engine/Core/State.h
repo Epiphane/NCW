@@ -26,10 +26,13 @@ public:
    ~State();
 
    // Can be done in advance, so that it doesn't have to get done by the StateManager in realtime.
-   void Load()
+   void EnsureLoaded()
    {
-      Initialize();
-      initialized = true;
+      if (!initialized)
+      {
+         Initialize();
+         initialized = true;
+      }
    }
 
    virtual void Pause() {}
@@ -55,6 +58,7 @@ public:
    }
 
 private:
+   friend class StateWindow;
    friend class StateManager;
    bool initialized = false;
    virtual void Initialize() = 0;

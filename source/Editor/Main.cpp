@@ -11,7 +11,6 @@
 #include <Engine/Logger/StdoutLogger.h>
 #include <Engine/Logger/DebugLogger.h>
 #include <Engine/Core/Input.h>
-#include <Engine/Core/StateManager.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
 
@@ -19,12 +18,10 @@
 #include <Shared/DebugHelper.h>
 
 #include "AnimationStation/Editor.h"
-#include "ModelMaker/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "UI/Controls.h"
-#include "UI/StateWindow.h"
-#include "UI/SubWindowSwapper.h"
+#include "UI/UISwapper.h"
 
 #include "Main.h"
 
@@ -71,32 +68,23 @@ int main(int argc, char** argv)
       window->SetShouldClose(true);
    });
 
-   // Create "SubWindow" that has everything in it
-   Editor::SubWindowSwapper::Options windowContentOptions;
-   Editor::SubWindowSwapper windowContent(*window, windowContentOptions);
+   // Swaps between the different editors
+   Editor::UISwapper windowContent;
 
    // Create subwindow for each editor
-   Editor::AnimationStation::Editor::Options animationStationOptions;
-   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(animationStationOptions);
+   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
 
-   Editor::ModelMaker::Editor::Options modelMakerOptions;
-   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(modelMakerOptions);
-
-   // Create subwindow for the overarching Editor controls.
-   Editor::Controls::Options controlsOptions;
-   controlsOptions.w = 0.2f;
-   controlsOptions.h = 0.2f;
-   Editor::Controls* controls = windowContent.Add<Editor::Controls>(controlsOptions);
+   // Create the overarching Editor controls.
+   /*Editor::Controls* controls = Editor::Controls>();
 
    // Always enable controls.
    // TODO this relies on SubWindowSwapper "forgetting" about this element, so swapping to
    // it later on would disable the element. There's probably a better way (e.g. creating
    // another base SubWindow, but it seems overkill /shrug
-   controls->SetActive(true);
    controls->SetLayout({{
       Editor::Controls::Layout::Element{"Model Maker", [&](){
-         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
-         modelMaker->Start();
+         // Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
+         // modelMaker->Start();
       }},
       Editor::Controls::Layout::Element{"Animation Station", [&](){
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
@@ -105,7 +93,7 @@ int main(int argc, char** argv)
       Editor::Controls::Layout::Element{"Quit", [&]() {
          window->SetShouldClose(true);
       }}
-   }});
+   }});*/
 
    // Configure Debug helper
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
@@ -118,13 +106,13 @@ int main(int argc, char** argv)
 
    // Attach mouse events to state
    window->GetInput()->OnMouseDown([&](int button, double x, double y) {
-      windowContent.MouseDown(button, x, y);
+      windowContent.GetCurrent()->Emit<MouseDownEvent>(button, x, y);
    });
    window->GetInput()->OnMouseUp([&](int button, double x, double y) {
-      windowContent.MouseUp(button, x, y);
+      windowContent.GetCurrent()->Emit<MouseUpEvent>(button, x, y);
    });
    window->GetInput()->OnClick([&](int button, double x, double y) {
-      windowContent.MouseClick(button, x, y);
+      windowContent.GetCurrent()->Emit<MouseClickEvent>(button, x, y);
    });
 
    // Save the pointers so that the callback doesn't get deregistered.
@@ -147,6 +135,8 @@ int main(int argc, char** argv)
       return Format::FormatString("%.1f", windowContentRender.Average());
    });
 
+   windowContent.GetCurrent()->UpdateRoot();
+
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
@@ -160,7 +150,9 @@ int main(int argc, char** argv)
          // Render game state
          {
             windowContentRender.Reset();
-            windowContent.Update(dt);
+            // TODO call UpdateRoot to resolve everything?
+            windowContent.GetCurrent()->Update(dt);
+            windowContent.GetCurrent()->RenderRoot();
             windowContentRender.Elapsed();
          }
 
@@ -179,7 +171,7 @@ int main(int argc, char** argv)
    } // Check if the ESC key was pressed or the window was closed
    while (!window->ShouldClose());
 
-   Engine::StateManager::Instance()->Shutdown();
+   // We don't use the StateManager, so don't shut it down.
 
    return 0;
 }

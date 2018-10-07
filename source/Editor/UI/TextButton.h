@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
@@ -40,14 +41,11 @@ public:
    };
 
 public:
-   TextButton(
-      Bounded& parent,
-      const Options& options
-   );
+   TextButton(Engine::UIRoot* root, UIElement* parent, const Options& options);
 
    void Update(TIMEDELTA dt) override;
 
-   void MouseClick(int button, double x, double y) override;
+   void Receive(const MouseClickEvent& evt);
 
 private:
    std::function<void(void)> mClickCallback;

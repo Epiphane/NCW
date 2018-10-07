@@ -3,10 +3,11 @@
 #include <cassert>
 
 #include <Engine/Core/Scope.h>
-#include <Engine/Core/StateManager.h>
+#include <Engine/Core/Window.h>
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "StateWindow.h"
 
@@ -18,88 +19,80 @@ namespace Editor
 
 std::unique_ptr<Engine::Graphics::Program> StateWindow::program = nullptr;
 
-StateWindow::StateWindow(
-   Bounded& parent,
-   const Options& options)
-   : Element(parent, options)
-   , mFramebuffer(GLsizei(parent.GetWidth() * options.w), GLsizei(parent.GetHeight() * options.h))
-   , mVBO(Engine::Graphics::VBO::DataType::Vertices)
+StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
+   : UIElement(root, parent)
+   , mState(nullptr)
+   , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
 {
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/PassthroughTexture.vert", "Shaders/PassthroughTexture.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
       if (!maybeProgram)
       {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading PassthroughTexture shader").GetMessage());
+         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
          return;
       }
 
       program = std::move(*maybeProgram);
-
       program->Attrib("aPosition");
-      program->Attrib("aUV");
       program->Uniform("uTexture");
+      program->Uniform("uWindowSize");
    }
 
-   float x = 2.0f * mOptions.x - 1.0f;
-   float y = 2.0f * mOptions.y - 1.0f;
-   float w = 2.0f * mOptions.w;
-   float h = 2.0f * mOptions.h;
-   
-   std::vector<GLfloat> vboData = {
-      x,     y,     0.0f, 0.0f, 0.0f,
-      x + w, y,     0.0f, 1.0f, 0.0f,
-      x,     y + h, 0.0f, 0.0f, 1.0f,
-      x,     y + h, 0.0f, 0.0f, 1.0f,
-      x + w, y,     0.0f, 1.0f, 0.0f,
-      x + w, y + h, 0.0f, 1.0f, 1.0f,
-   };
-   mVBO.BufferData(GLsizei(sizeof(GLfloat) * vboData.size()), &vboData[0], GL_STATIC_DRAW);
+   if (state)
+   {
+      SetState(std::move(state));
+   }
 }
 
-StateWindow::~StateWindow()
+void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
 {
+   mState = std::move(state);
+   mState->EnsureLoaded();
+}
+
+void StateWindow::AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices)
+{
+   Engine::Graphics::Font::CharacterVertexUV bottomLeft, topRight;
+   bottomLeft.position = glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value());
+   topRight.position = glm::vec2(mFrame.right.int_value(), mFrame.top.int_value());
+
+   bottomLeft.uv = glm::vec2(0, 0);
+   topRight.uv = glm::vec2(1, 1);
+
+   outVertices.push_back(bottomLeft);
+   outVertices.push_back(topRight);
+
+   UIElement::AddVertices(outVertices);
 }
 
 void StateWindow::Update(TIMEDELTA dt)
 {
    // Draw elements
    mFramebuffer.Bind();
-   Engine::StateManager::Instance()->Update(dt);
+   mState->Update(dt);
    mFramebuffer.Unbind();
-
-   // Draw to the screen
-   BIND_PROGRAM_IN_SCOPE(program);
-
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, mFramebuffer.GetTexture());
-   program->Uniform1i("uTexture", 0);
-
-   mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-   mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));
-
-   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void StateWindow::MouseDown(int button, double x, double y)
+size_t StateWindow::Render(Engine::Graphics::VBO& vbo, size_t offset)
 {
-   double localX = (x - mOptions.x) / mOptions.w;
-   double localY = (y - mOptions.y) / mOptions.h;
-   Engine::StateManager::Instance()->Emit<MouseDownEvent>(button, x, y);
-}
+   Engine::Window* pWindow = Engine::Window::Instance();
 
-void StateWindow::MouseUp(int button, double x, double y)
-{
-   double localX = (x - mOptions.x) / mOptions.w;
-   double localY = (y - mOptions.y) / mOptions.h;
-   Engine::StateManager::Instance()->Emit<MouseUpEvent>(button, x, y);
-}
+   {
+      BIND_PROGRAM_IN_SCOPE(program);
 
-void StateWindow::MouseClick(int button, double x, double y)
-{
-   double localX = (x - mOptions.x) / mOptions.w;
-   double localY = (y - mOptions.y) / mOptions.h;
-   Engine::StateManager::Instance()->Emit<MouseClickEvent>(button, x, y);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, mFramebuffer.GetTexture());
+      program->Uniform1i("uTexture", 0);
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
+
+      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)offset);
+      vbo.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(glm::vec2) + offset));
+
+      glDrawArrays(GL_LINES, 0, 2);
+   }
+
+   return UIElement::Render(vbo, offset + sizeof(Engine::Graphics::Font::CharacterVertexUV) * 2);
 }
 
 }; // namespace Editor

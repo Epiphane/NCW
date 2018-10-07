@@ -12,11 +12,8 @@ namespace CubeWorld
 namespace Editor
 {
 
-TextField::TextField(
-   Bounded& parent,
-   const Options& options
-)
-   : Text(parent, options)
+TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+   : Text(root, parent, options)
    , mChangeCallback(options.onChange)
    , mIsFocused(false)
    , mKeyCallbacks{}
@@ -66,15 +63,15 @@ void TextField::OnAlphaKey(int key, int action, int mods)
    }
 }
 
-void TextField::MouseClick(int button, double x, double y)
+void TextField::Receive(const MouseClickEvent& evt)
 {
-   if (button != GLFW_MOUSE_BUTTON_LEFT)
+   if (evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
       return;
    }
 
    bool wasFocused = mIsFocused;
-   mIsFocused = ContainsPoint(x, y);
+   mIsFocused = ContainsPoint(evt.x, evt.y);
    if (mIsFocused && !wasFocused)
    {
       mText.push_back('_');

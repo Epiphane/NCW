@@ -17,11 +17,8 @@ namespace CubeWorld
 namespace Editor
 {
 
-Controls::Controls(
-   Bounded& parent,
-   const Options& options
-)
-   : SubWindow(parent, options)
+Controls::Controls(Engine::UIRoot* root, Engine::UIElement* parent)
+   : UIElement(root, parent)
    , mLayout{{}}
 {
 }
@@ -37,6 +34,7 @@ void Controls::Rebuild()
 {
    mChildren.clear();
 
+   /*
    {
       Image::Options imageOptions;
       imageOptions.z = 0.5f;
@@ -58,6 +56,7 @@ void Controls::Rebuild()
       Add<TextButton>(labelOptions);
       labelOptions.y -= 35.0f / GetHeight();
    }
+   */
 }
 
 }; // namespace Editor

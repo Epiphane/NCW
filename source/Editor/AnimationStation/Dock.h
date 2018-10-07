@@ -15,13 +15,14 @@
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
+#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Event/NamedEvent.h>
 
 #include "../UI/Image.h"
 #include "../UI/NumDisplay.h"
 #include "../UI/Scrubber.h"
 #include "../UI/ScrollBar.h"
-#include "../UI/SubWindow.h"
 #include "../UI/TextButton.h"
 #include "../UI/TextField.h"
 #include "../Systems/AnimationSystem.h"
@@ -37,16 +38,13 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Dock : public SubWindow, public Engine::EventManager, public Engine::Receiver<Dock> {
+class Dock : public Engine::UIElement, public Engine::EventManager, public Engine::Receiver<Dock> {
 public:
    using State = Game::AnimatedSkeleton::State;
    using Keyframe = Game::AnimatedSkeleton::Keyframe;
    using Bone = Game::AnimatedSkeleton::Bone;
 
-   Dock(
-      Bounded& parent,
-      const Options& options
-   );
+   Dock(Engine::UIRoot* root, Engine::UIElement* parent);
 
    void Update(TIMEDELTA dt) override;
 
@@ -98,7 +96,6 @@ private:
    NumDisplay<double>* mTime;
 
    // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   SubWindow* mKeyframes;
    std::vector<Image*> mKeyframeIcons;
 
    // Bone inspector

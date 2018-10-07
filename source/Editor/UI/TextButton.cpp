@@ -4,6 +4,7 @@
 
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "TextButton.h"
@@ -15,18 +16,20 @@ namespace Editor
 {
 
 TextButton::TextButton(
-   Bounded& parent,
+   Engine::UIRoot* root,
+   Engine::UIElement* parent,
    const Options& options
 )
-   : Text(parent, options)
+   : Text(root, parent, options)
    , mClickCallback(options.onClick)
    , mIsHovered(false)
 {
+   root->Subscribe<MouseClickEvent>(*this);
 }
 
-void TextButton::MouseClick(int button, double x, double y)
+void TextButton::Receive(const MouseClickEvent& evt)
 {
-   if (mClickCallback && ContainsPoint(x, y))
+   if (mClickCallback && ContainsPoint(evt.x, evt.y))
    {
       mClickCallback();
    }
@@ -36,7 +39,7 @@ void TextButton::Update(TIMEDELTA dt)
 {
    if (mClickCallback)
    {
-      glm::tvec2<double> mouse = AbsoluteToRelative(Engine::Window::Instance()->GetInput()->GetRawMousePosition());
+      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
       bool hovered = ContainsPoint(mouse.x, mouse.y);
       if (hovered && !mIsHovered)
       {

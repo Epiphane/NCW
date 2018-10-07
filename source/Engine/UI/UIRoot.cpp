@@ -25,10 +25,11 @@ UIRoot::UIRoot(const Bounded& bounds)
       mFrame.height == bounds.GetHeight(),
 
       mFrame.left == bounds.GetX(),
-      mFrame.top == bounds.GetY()
+      mFrame.bottom == bounds.GetY()
    });
 
    AddConstraintsForElement(mFrame);
+   Subscribe<ElementAddedEvent>(*this);
 }
 
 UIRoot::~UIRoot()
@@ -41,13 +42,25 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
       frame.centerY == (frame.top  + frame.bottom) / 2,
          
       frame.width  == (frame.right  - frame.left),
-      frame.height == (frame.bottom - frame.top),
+      frame.height == (frame.top - frame.bottom),
    });
+}
+
+void UIRoot::AddContraints(const rhea::constraint_list& constraints)
+{
+   mSolver.add_constraints(constraints);
+}
+
+
+void UIRoot::Receive(const ElementAddedEvent& evt)
+{
+   AddConstraintsForElement(evt.element->GetFrame());
 }
 
 void UIRoot::UpdateRoot()
 {
    mSolver.solve();
+   Emit<UIRebalancedEvent>();
 }
 
 void UIRoot::RenderRoot()

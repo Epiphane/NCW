@@ -14,8 +14,8 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Components/CubeModel.h>
-#include <Shared/Components/ArmCamera.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
@@ -90,11 +90,11 @@ void MainState::Initialize()
    cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
-   Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
+   mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
    playerCamera.Add<Game::KeyControlledCamera>();
    playerCamera.Add<Game::KeyControlledCameraArm>();
 
-   mCamera.Set(handle.get());
+   mCamera.Set(mPlayerCam.get());
 
    // Add some voxels.
    std::vector<Voxel::Data> carpet;
@@ -130,6 +130,13 @@ void MainState::Initialize()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<Game::VoxelRender>(std::move(carpet));
+
+   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
+}
+
+void MainState::Receive(const Engine::UIRebalancedEvent&)
+{
+   mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
 }
 
 }; // namespace AnimationStation

@@ -15,11 +15,19 @@ namespace Game
 
 ArmCamera::ArmCamera(const Engine::ComponentHandle<Engine::Transform>& transform, const Options& options)
    : transform(transform)
+   , aspect(options.aspect)
+   , fov(options.fov)
+   , near(options.near)
+   , far(options.far)
    , distance(options.distance)
    , minDistance(options.minDistance)
    , maxDistance(options.maxDistance)
 {
-   perspective = glm::perspective(options.fov, options.aspect, options.near, options.far);
+}
+
+glm::mat4 ArmCamera::GetPerspective() const
+{
+   return glm::perspective(fov, aspect, near, far);
 }
 
 glm::mat4 ArmCamera::GetView() const

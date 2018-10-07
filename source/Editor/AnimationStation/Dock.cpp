@@ -49,16 +49,14 @@ Keyframe& GetKeyframe(State& state, double time)
 
 }; // anonymous namespace
 
-Dock::Dock(
-   Bounded& parent,
-   const Options& options
-)
-   : SubWindow(parent, options)
+Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
+   : UIElement(root, parent)
    , mBone(9)
 {
-   const float EIGHT_X = 8.0f / GetWidth();
-   const float EIGHT_Y = 8.0f / GetHeight();
+   const float EIGHT_X = 1.0f;// 8.0f / GetWidth();
+   const float EIGHT_Y = 8.0f;// 8.0f / GetHeight();
 
+   /*
    // Background
    {
       Image::Options imageOptions;
@@ -193,7 +191,7 @@ Dock::Dock(
       scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double /* newValue */, double /* oldValue */) {
+      scrubberOptions.onChange = [&](double /* newValue *, double /* oldValue *) {
          State& state = GetCurrentState();
          size_t index = GetKeyframeIndex(state, mSkeleton->time);
          Keyframe& keyframe = state.keyframes[index];
@@ -428,6 +426,7 @@ Dock::Dock(
    Subscribe<SkeletonLoadedEvent>(*this);
    Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
    Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
+   */
 }
 
 ///
@@ -486,11 +485,11 @@ void Dock::Update(TIMEDELTA dt)
    // mScrubber->SetValue(mSkeleton->time / state.length);
 
    // Update the play/pause buttons
-   mPlay->SetActive(mController->paused);
-   mTick->SetActive(mController->paused);
-   mPause->SetActive(!mController->paused);
+   //mPlay->SetActive(mController->paused);
+   //mTick->SetActive(mController->paused);
+   //mPause->SetActive(!mController->paused);
 
-   SubWindow::Update(dt);
+   UIElement::Update(dt);
 }
 
 ///
@@ -500,6 +499,7 @@ void Dock::UpdateKeyframeIcons()
 {
    State& state = GetCurrentState();
 
+   /*/
    while (mKeyframeIcons.size() < state.keyframes.size())
    {
       Image::Options keyframeOptions;
@@ -524,6 +524,7 @@ void Dock::UpdateKeyframeIcons()
    {
       mKeyframeIcons[i]->SetOffset(glm::vec3(state.keyframes[i].time / state.length, 0, 0));
    }
+   */
 }
 
 ///

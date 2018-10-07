@@ -8,8 +8,7 @@
 #include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "../UI/SubWindow.h"
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
@@ -23,7 +22,7 @@ namespace Editor
 // It should be one persistent instance, that updates depending on the
 // current state of the editor (e.g. AnimationStation vs something else).
 //
-class Controls : public SubWindow {
+class Controls : public Engine::UIElement {
 public:
    // Describes the layout of the Controls Panel
    struct Layout {
@@ -40,10 +39,7 @@ public:
    };
 
 public:
-   Controls(
-      Bounded& parent,
-      const Options& options
-   );
+   Controls(Engine::UIRoot* root, Engine::UIElement* parent);
 
    //
    // Rebuild the UI.

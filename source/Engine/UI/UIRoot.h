@@ -7,14 +7,14 @@
 #pragma once
 
 #include <vector>
-
-#include <Engine/Core/Bounded.h>
-#include <Engine/Core/Maybe.h>
-#include <Engine/Core/Singleton.h>
-#include <Engine/Graphics/VBO.h>
-
 #include <rhea/simplex_solver.hpp>
 
+#include "../Core/Bounded.h"
+#include "../Core/Maybe.h"
+#include "../Core/Singleton.h"
+#include "../Event/EventManager.h"
+#include "../Event/Receiver.h"
+#include "../Graphics/VBO.h"
 #include "UIElement.h"
 
 namespace CubeWorld
@@ -23,7 +23,14 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIRoot : public UIElement
+//
+// Emitted whenever the UIRoot is rebalanced.
+//
+class UIRebalancedEvent : public Event<UIRebalancedEvent>
+{
+};
+
+class UIRoot : public UIElement, public EventManager
 {
 public:
    UIRoot(const Bounded& bounds);
@@ -33,7 +40,12 @@ public:
    // Populate the simple constraints for a UIFrame.
    //
    void AddConstraintsForElement(UIFrame& frame);
-   
+
+   //
+   // Add arbitrary contraints.
+   //
+   void AddContraints(const rhea::constraint_list& constraints);
+
    //
    // Rebalance all elements according to contraints.
    //
@@ -43,6 +55,12 @@ public:
    // Render the entire UI.
    //
    void RenderRoot();
+
+   //
+   // Receives an event whenever a new element is added.
+   // This is where we set up simple constraints for that element's UIFrame.
+   //
+   void Receive(const ElementAddedEvent& evt);
    
 protected:
    // Solves for the constraints we provide.

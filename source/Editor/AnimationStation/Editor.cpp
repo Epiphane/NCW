@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
+#include <Engine/UI/UIRectFilled.h>
 #include <Shared/DebugHelper.h>
 
 #include "../UI/Controls.h"
@@ -17,50 +18,42 @@ namespace Editor
 namespace AnimationStation
 {
 
-Editor::Editor(
-   Bounded& parent,
-   const Options& options
-)
-   : SubWindow(parent, options)
+Editor::Editor(Bounded& parent) : UIRoot(parent)
 {
-   // Sidebar options
-   Sidebar::Options controlsOptions;
-   controlsOptions.y = 0.2f;
-   controlsOptions.w = 0.2f;
-   controlsOptions.h = 0.8f;
+   // I wanna do this better
+   mStateWindow = Add<StateWindow>(nullptr);
+   std::unique_ptr<MainState> state{new MainState(Engine::Window::Instance(), mStateWindow->GetFrame())};
+   state->SetParent(this);
+   mStateWindow->SetState(std::move(state));
 
-   // Dock options
-   Dock::Options dockOptions;
-   dockOptions.x = controlsOptions.w;
-   dockOptions.w = 1.0f - controlsOptions.w;
-   dockOptions.h = 0.4f;
+   Sidebar* sidebar = Add<Sidebar>();
+   Dock* dock = Add<Dock>();
 
-   // Preview of skeleton in the game state
-   StateWindow::Options currentEditorOptions;
-   currentEditorOptions.x = controlsOptions.w;
-   currentEditorOptions.y = dockOptions.h;
-   currentEditorOptions.w = 1.0f - controlsOptions.w;
-   currentEditorOptions.h = 1.0f - dockOptions.h;
+   // Organize everything
+   Engine::UIFrame& fSidebar = sidebar->GetFrame();
+   Engine::UIFrame& fDock = dock->GetFrame();
+   Engine::UIFrame& fPreview = mStateWindow->GetFrame();
+   mSolver.add_constraints({
+      fSidebar.left == mFrame.left,
+      fSidebar.top == mFrame.top,
+      fSidebar.width == mFrame.width * 0.2,
+      fSidebar.height == mFrame.height * 0.8,
 
-   mStateWindow = Add<StateWindow>(currentEditorOptions);
-   mState = std::make_unique<MainState>(Engine::Window::Instance(), *mStateWindow);
-   mSidebar = Add<Sidebar>(controlsOptions);
-   mDock = Add<Dock>(dockOptions);
+      fDock.left == mFrame.left + fSidebar.width,
+      fDock.bottom == mFrame.bottom,
+      fDock.right == mFrame.right,
+      fDock.height == mFrame.height * 0.4,
 
-   // EventManager tree!
-   mState->SetParent(&mEvents);
-   mSidebar->SetParent(&mEvents);
-   mDock->SetParent(&mEvents);
-
-   mState->Load();
+      fPreview.left == fSidebar.right,
+      fPreview.top == mFrame.top,
+      fPreview.right == mFrame.right,
+      fPreview.bottom == fDock.top,
+   });
 }
 
 void Editor::Start()
 {
-   Engine::StateManager* stateManager = Engine::StateManager::Instance();
-   stateManager->SetState(mState.get());
-
-   Game::DebugHelper::Instance()->SetBounds(mStateWindow);
+   Game::DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
 }
 
 }; // namespace AnimationStation

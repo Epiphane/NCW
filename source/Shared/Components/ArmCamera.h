@@ -41,14 +41,18 @@ public:
    ArmCamera(const Engine::ComponentHandle<Engine::Transform>& transform, const Options& options);
    ~ArmCamera() {};
 
-   glm::mat4 GetPerspective() const override { return perspective; }
+   glm::mat4 GetPerspective() const override;
    glm::mat4 GetView() const override;
 
-   glm::mat4 perspective;
-
    Engine::ComponentHandle<Engine::Transform> transform;
+
+   double aspect;
+   double fov;
+   double near;
+   double far;
    float distance;
-   float minDistance, maxDistance;
+   float minDistance;
+   float maxDistance;
 };
 
 struct MouseControlledCameraArm : public Engine::Component<MouseControlledCameraArm> {
