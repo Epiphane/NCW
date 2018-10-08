@@ -26,7 +26,7 @@ StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_pt
 {
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/2DTexture.vert", "Shaders/2DTexture.geom", "Shaders/2DTexture.frag");
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
