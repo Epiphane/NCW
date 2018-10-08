@@ -12,6 +12,7 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/UIElement.h>
+#include <Engine/UI/TextAggregator.h>
 
 namespace CubeWorld
 {
@@ -34,26 +35,19 @@ public:
    void SetState(std::unique_ptr<Engine::State>&& state);
 
    //
-   // Add vertices for this window's framebuffer to outVertices.
-   //
-   virtual void AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices) override;
-
-   //
    // Update the state and render it to the internal framebuffer.
    //
    void Update(TIMEDELTA dt) override;
 
-   //
-   // Render the state to the screen
-   //
-   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
+public:
+   void Receive(const Engine::UIRebalancedEvent& evt);
 
 private:
    std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
+   Engine::TextAggregator::Region mRegion;
 };
 
 }; // namespace Editor

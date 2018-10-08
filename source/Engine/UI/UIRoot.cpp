@@ -71,6 +71,12 @@ void UIRoot::RenderRoot()
       
    mRectanglesVBO.BufferData(static_cast<GLsizei>(mUIVertices.size()) * sizeof(Graphics::Font::CharacterVertexUV), &mUIVertices[0], GL_STATIC_DRAW);
    Render(mRectanglesVBO, 0);
+
+   for (auto& aggregator : mAggregators)
+   {
+      aggregator->Update();
+      aggregator->Render();
+   }
 }
 
 }; // namespace Engine

@@ -15,6 +15,7 @@
 #include "../Event/EventManager.h"
 #include "../Event/Receiver.h"
 #include "../Graphics/VBO.h"
+#include "UIAggregator.h"
 #include "UIElement.h"
 
 namespace CubeWorld
@@ -47,6 +48,16 @@ public:
    void AddContraints(const rhea::constraint_list& constraints);
 
    //
+   // Reserve a section of data in the appropriate UIAggregator.
+   //
+   template<typename Aggregator>
+   typename Aggregator::Region Reserve(const size_t& numElements)
+   {
+      Aggregator* aggregator = GetAggregator<Aggregator>();
+      return aggregator->Reserve(numElements);
+   }
+
+   //
    // Rebalance all elements according to contraints.
    //
    void UpdateRoot();
@@ -65,8 +76,31 @@ public:
 protected:
    // Solves for the constraints we provide.
    rhea::simplex_solver mSolver;
-   
+
+public:
+   // Get an aggregator, and ensure it exists.
+   template<typename Aggregator>
+   Aggregator* GetAggregator()
+   {
+      const BaseUIAggregator::Family family = Aggregator::GetFamily();
+      if (family >= mAggregators.size())
+      {
+         mAggregators.resize(family + 1);
+      }
+
+      Aggregator* ring = static_cast<Aggregator*>(mAggregators[family].get());
+      if (ring == nullptr)
+      {
+         ring = new Aggregator();
+         mAggregators[family].reset(ring);
+      }
+      return ring;
+   }
+
 private:
+   // Aggregators for batch rendering.
+   std::vector<std::unique_ptr<BaseUIAggregator>> mAggregators;
+   
    // Holds all the vertices pushed by this element's children.
    std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;
 

@@ -497,9 +497,8 @@ void Dock::Update(TIMEDELTA dt)
 ///
 void Dock::UpdateKeyframeIcons()
 {
-   State& state = GetCurrentState();
+   /*State& state = GetCurrentState();
 
-   /*/
    while (mKeyframeIcons.size() < state.keyframes.size())
    {
       Image::Options keyframeOptions;
