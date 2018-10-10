@@ -22,6 +22,16 @@ UIElement::UIElement(UIRoot* root, UIElement* parent)
    mpRoot->Subscribe<UIRebalancedEvent>(*this);
 }
 
+UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
+{
+   UIElement* element = ptr.get();
+
+   mChildren.push_back(std::move(ptr));
+   mpRoot->Emit<ElementAddedEvent>(element);
+
+   return element;
+}
+
 void UIElement::Update(TIMEDELTA dt)
 {
    for (auto& child : mChildren) {

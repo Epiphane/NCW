@@ -90,7 +90,7 @@ public:
 
    void Update(TIMEDELTA dt) override
    {
-      Binding::Update();
+      Editor::Binding<N>::Update();
       BaseScrubber::Update(dt);
    }
 
@@ -128,9 +128,9 @@ private:
 
 
 private:
-   void Scrub(double amount)
+   void Scrub(double amount) override
    {
-      SetValue(std::clamp(GetValue() + static_cast<N>(amount), mMin, mMax));
+      SetValue(std::clamp(this->GetValue() + static_cast<N>(amount), mMin, mMax));
    }
 
 protected:
