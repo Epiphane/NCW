@@ -71,7 +71,7 @@ public:
    template<typename Aggregator>
    Aggregator* GetAggregator()
    {
-      const Aggregator::BaseAggregator::Family family = Aggregator::GetFamily();
+      const typename Aggregator::BaseAggregator::Family family = Aggregator::GetFamily();
       if (family >= mAggregators.size())
       {
          mAggregators.resize(family + 1);

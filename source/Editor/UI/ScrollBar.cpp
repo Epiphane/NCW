@@ -23,7 +23,7 @@ ScrollBar::ScrollBar(
    const Options& options
 )
    : Element(parent, options)
-   , mScrubbing(nullptr)
+   , mScrubbing(false)
    , mOffset(0)
    , mMin(options.min)
    , mRange(options.max - options.min)

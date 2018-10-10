@@ -383,17 +383,16 @@ public:
       return id.index() < mNumEntities && mEntityVersion[id.index()] == id.version();
    }
 
-   inline void assert_valid(Entity::ID id) const
-   {
 #ifdef NDEBUG
-      id;
+   inline void assert_valid(Entity::ID) {}
 #else
+   inline void assert_valid(Entity::ID id) const
       uint32_t index = id.index();
       uint32_t version = id.version();
       assert(index < mNumEntities && "Entity::ID outside entity vector range");
       assert(mEntityVersion[id.index()] == version && "Attempt to access Entity with a stale id");
-#endif
    }
+#endif
 
    template<typename C>
    C* GetComponentPtr(Entity::ID id)

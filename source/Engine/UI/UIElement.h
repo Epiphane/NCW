@@ -97,6 +97,11 @@ public:
    UIFrame& GetFrame() { return mFrame; }
 
    //
+   // Add a UIElement as a child of this one.
+   //
+   UIElement* AddChild(std::unique_ptr<UIElement>&& element);
+
+   //
    // Add a new element of type E as a child of this one.
    // Returns a pointer to the element, for referencing, configuring, etc.
    //
@@ -104,13 +109,8 @@ public:
    E* Add(Args ...args)
    {
       static_assert(std::is_base_of<UIElement, E>::value, "Only subclasses of UIElement may be added to a UIElement");
-      std::unique_ptr<E> elem(new E(mpRoot, this, std::forward<Args>(args)...));
-      E* element = elem.get();
 
-      mChildren.push_back(std::move(elem));
-      mpRoot->Emit<ElementAddedEvent>(element);
-
-      return element;
+      return static_cast<E*>(AddChild(std::make_unique<E>(mpRoot, this, std::forward<Args>(args)...)));
    }
 
    //

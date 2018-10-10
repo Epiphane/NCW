@@ -43,7 +43,8 @@
         "__tuple": "cpp",
         "chrono": "cpp",
         "limits": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "list": "cpp"
     },
     "editor.tabSize": 3
 }

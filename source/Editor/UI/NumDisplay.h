@@ -17,7 +17,7 @@ namespace Editor
 //
 //
 template <typename N>
-class NumDisplay : public Text, public Binding<N>
+class NumDisplay : public Text, public Editor::Binding<N>
 {
 public:
    struct Options : public Text::Options {
@@ -35,9 +35,9 @@ public:
    //
    void Update(TIMEDELTA dt) override
    {
-      if (Binding::Update())
+      if (Binding<N>::Update())
       {
-         SetText(Format::FormatString(mFormat, GetValue()));
+         SetText(Format::FormatString(mFormat, this->GetValue()));
       }
 
       Text::Update(dt);
