@@ -3,9 +3,9 @@
 // Ouput data
 layout(location = 0) out vec4 fragColor;
 
-uniform vec4 uColor;
+in vec4 fColor;
 
 void main()
 {
-   fragColor = uColor;
+   fragColor = fColor;
 }

@@ -12,7 +12,7 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/UIElement.h>
-#include <Engine/UI/TextAggregator.h>
+#include <Engine/Aggregator/Image.h>
 
 namespace CubeWorld
 {
@@ -40,14 +40,14 @@ public:
    void Update(TIMEDELTA dt) override;
 
 public:
-   void Receive(const Engine::UIRebalancedEvent& evt);
+   void Receive(const Engine::UIRebalancedEvent& evt) override;
 
 private:
    std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;
 
 private:
-   Engine::TextAggregator::Region mRegion;
+   Engine::Aggregator::Image::Region mRegion;
 };
 
 }; // namespace Editor

@@ -8,9 +8,7 @@
 #include <unordered_map>
 
 #include "../Graphics/FontManager.h"
-#include "../Graphics/Program.h"
-#include "../Graphics/VBO.h"
-#include "UIAggregator.h"
+#include "Aggregator.h"
 
 namespace CubeWorld
 {
@@ -18,13 +16,22 @@ namespace CubeWorld
 namespace Engine
 {
 
+namespace Aggregator
+{
+
+struct ImageData
+{
+   glm::vec2 position;
+   glm::vec2 uv;
+};
+
 //
 // Actual aggregator. There will be one per texture.
 //
-class TextAggregator : public UIAggregator<Graphics::Font::CharacterVertexUV>
+class Image : public Aggregator<ImageData>
 {
 public:
-   TextAggregator();
+   Image();
 
    void ConnectToTexture(const Region& region, GLuint texture);
 
@@ -38,6 +45,8 @@ private:
 private:
    static std::unique_ptr<Engine::Graphics::Program> program;
 };
+
+}; // namespace Aggregator
    
 }; // namespace Engine
 

@@ -5,6 +5,7 @@
 #include <Engine/Core/Scope.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "Text.h"
@@ -15,75 +16,47 @@ namespace CubeWorld
 namespace Editor
 {
 
-std::unique_ptr<Engine::Graphics::Program> Text::program = nullptr;
-
 Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    : UIElement(root, parent)
    , mText("")
-   , mTextToRender("")
+   , mRendered("")
+   , mRegion(root->Reserve<Engine::Aggregator::Text>(2 * options.text.size() + 4))
 {
    auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font(options.font));
    assert(maybeFont);
    mFont = *maybeFont;
 
-   if (!program)
+   uint32_t size = options.size;
+   if (size == 0)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
-      if (!maybeProgram)
-      {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
-         return;
-      }
-
-      program = std::move(*maybeProgram);
-
-      program->Attrib("aPosition");
-      program->Attrib("aUV");
-      program->Uniform("uTexture");
-      program->Uniform("uWindowSize");
+      size = options.text.size() + 2;
    }
 
    SetText(options.text);
+   root->GetAggregator<Engine::Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
 }
 
-void Text::AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices)
+void Text::Receive(const Engine::UIRebalancedEvent& evt)
 {
-   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(mFrame.left.int_value(), mFrame.bottom.int_value(), 1, mTextToRender);
-
-   outVertices.insert(outVertices.end(), uvs.begin(), uvs.end());
-
-   UIElement::AddVertices(outVertices);
-}
-
-size_t Text::Render(Engine::Graphics::VBO& vbo, size_t offset)
-{
-   if (mTextToRender.empty())
-   {
-      return offset;
-   }
-
-   Engine::Window* pWindow = Engine::Window::Instance();
-
-   {
-      BIND_PROGRAM_IN_SCOPE(program);
-
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
-      program->Uniform1i("uTexture", 0);
-      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
-
-      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)offset);
-      vbo.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2 + offset));
-
-      glDrawArrays(GL_LINES, 0, 2 * mTextToRender.size());
-   }
-
-   return UIElement::Render(vbo, offset + sizeof(Engine::Graphics::Font::CharacterVertexUV) * 2);
+   RenderText(mRendered);
 }
 
 void Text::RenderText(const std::string& text)
 {
-   mTextToRender = text;
+   mRendered = text;
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(mFrame.left.int_value(), mFrame.bottom.int_value(), 1, mRendered);
+   std::vector<Engine::Aggregator::TextData> data;
+
+   std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [](const Engine::Graphics::Font::CharacterVertexUV& character) {
+      return Engine::Aggregator::TextData{character.position, character.uv};
+   });
+
+   while (data.size() < mRegion.size())
+   {
+      data.push_back(Engine::Aggregator::TextData{glm::vec2(0),glm::vec2(0)});
+   }
+
+   mRegion.Set(data.data());
 }
 
 }; // namespace Editor

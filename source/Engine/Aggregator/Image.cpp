@@ -3,7 +3,7 @@
 #include "../Core/Window.h"
 #include "../Logger/Logger.h"
 
-#include "ImageAggregator.h"
+#include "Image.h"
 
 namespace CubeWorld
 {
@@ -11,9 +11,12 @@ namespace CubeWorld
 namespace Engine
 {
 
-std::unique_ptr<Engine::Graphics::Program> ImageAggregator::program = nullptr;
+namespace Aggregator
+{
 
-ImageAggregator::ImageAggregator()
+std::unique_ptr<Engine::Graphics::Program> Image::program = nullptr;
+
+Image::Image()
 {
    if (!program)
    {
@@ -33,7 +36,7 @@ ImageAggregator::ImageAggregator()
    }
 }
 
-void ImageAggregator::ConnectToTexture(const Region& region, GLuint texture)
+void Image::ConnectToTexture(const Region& region, GLuint texture)
 {
    auto entry = mTextureIndices.find(texture);
    if (entry == mTextureIndices.end())
@@ -45,12 +48,12 @@ void ImageAggregator::ConnectToTexture(const Region& region, GLuint texture)
    VBOWithData& vboData = mTextureIndices[texture];
    for (size_t index = region.index(); index < region.index() + region.size(); index++)
    {
-      vboData.second.push_back(index);
+      vboData.second.push_back(static_cast<GLuint>(index));
    }
-   vboData.first.BufferData(sizeof(GLuint) * vboData.second.size(), vboData.second.data(), GL_STATIC_DRAW);
+   vboData.first.BufferData(GLuint(sizeof(GLuint) * vboData.second.size()), vboData.second.data(), GL_STATIC_DRAW);
 }
 
-void ImageAggregator::Render()
+void Image::Render()
 {
    Window* pWindow = Window::Instance();
 
@@ -68,9 +71,11 @@ void ImageAggregator::Render()
 
       VBOWithData indices = pair.second;
       indices.first.Bind();
-      glDrawElements(GL_LINES, indices.second.size(), GL_UNSIGNED_INT, (void*)0);
+      glDrawElements(GL_LINES, GLuint(indices.second.size()), GL_UNSIGNED_INT, (void*)0);
    }
 }
+
+}; // namespace Aggregator
    
 }; // namespace Engine
 

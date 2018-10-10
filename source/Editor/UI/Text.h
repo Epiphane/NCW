@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include <Engine/Aggregator/Text.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/Framebuffer.h>
@@ -30,20 +31,11 @@ public:
    struct Options {
       std::string text = "";
       std::string font = "debug";
+      uint32_t size = 0;
    };
 
 public:
    Text(Engine::UIRoot* root, UIElement* parent, const Options& options);
-
-   //
-   // Add vertices for this text to outVertices.
-   //
-   virtual void AddVertices(std::vector<Engine::Graphics::Font::CharacterVertexUV>& outVertices) override;
-
-   //
-   // Render the text to the screen
-   //
-   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset) override;
 
    //
    // Render the text on this label
@@ -59,19 +51,21 @@ public:
       RenderText(text);
    }
 
+   void Receive(const Engine::UIRebalancedEvent& evt) override;
+
 protected:
    void RenderText(const std::string& text);
 
    std::string mText;
 
    // Could be different from mText, see TextButton
-   std::string mTextToRender;
+   std::string mRendered;
 
 private:
    Engine::Graphics::Font* mFont;
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
+   Engine::Aggregator::Text::Region mRegion;
 };
 
 }; // namespace Editor

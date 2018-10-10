@@ -6,8 +6,8 @@
 #include <cstring>
 #include <vector>
 
-#include <Engine/Graphics/Program.h>
-#include <Engine/Graphics/VBO.h>
+#include "../Graphics/Program.h"
+#include "../Graphics/VBO.h"
 
 namespace CubeWorld
 {
@@ -15,12 +15,17 @@ namespace CubeWorld
 namespace Engine
 {
 
+namespace Aggregator
+{
+
+const uint32_t MAX_AGGREGATORS = 64;
+
 //
 // Base aggregatpr class, only used for insertion into collections.
 //
 // Family is used for registration by the UIRoot.
 //
-struct BaseUIAggregator {
+struct BaseAggregator {
 public:
    virtual void Update() = 0;
    virtual void Render() = 0;
@@ -33,8 +38,8 @@ public:
 };
 
 //
-// UIAggregator serves as a single-point renderer for a group of
-// similar UIElements. For example, a hundred images simply consist
+// Aggregator serves as a single-point renderer for a group of
+// similar elements. For example, a hundred images simply consist
 // of two glm::vec2 pairs: one for position, and one for UVs. In
 // this case, 2DTextureAggregator is used to collect all these images
 // in a single VBO and render them in one batch, to speed up rendering.
@@ -42,7 +47,7 @@ public:
 // To implement a new type of rendering, simply extend UIAggregator<DataType>.
 //
 template <typename DataType>
-class UIAggregator : public BaseUIAggregator {
+class Aggregator : public BaseAggregator {
 public:
    //
    // A Region represents a block of space in the VBO that was claimed.
@@ -50,7 +55,7 @@ public:
    class Region {
    public:
       Region() : aggregator(nullptr), begin(0), elements(0) {};
-      Region(UIAggregator* aggregator, size_t begin, size_t elements)
+      Region(Aggregator* aggregator, size_t begin, size_t elements)
          : aggregator(aggregator)
          , begin(begin)
          , elements(elements)
@@ -58,20 +63,21 @@ public:
 
       // Set the data in this region. data must contain size() DataTypes.
       void Set(DataType* data) { aggregator->Set(*this, data); }
+      void Set(std::vector<DataType>& data) { aggregator->Set(*this, data.data()); }
 
       DataType* data() { return &aggregator->mData[begin]; }
       size_t index() const { return begin; }
       size_t size() const { return elements; }
 
    protected:
-      friend class UIAggregator;
-      UIAggregator* aggregator;
+      friend class Aggregator;
+      Aggregator* aggregator;
       size_t begin;
       size_t elements;
    };
 
 public:
-   UIAggregator()
+   Aggregator()
       : mVBO(Graphics::VBO::Vertices)
       , mData{}
       , mDirty(false)
@@ -85,7 +91,7 @@ public:
    static Family GetFamily()
    {
       static Family family = sNumFamilies++;
-      assert(family < MAX_COMPONENTS);
+      assert(family < MAX_AGGREGATORS);
       return family;
    }
 
@@ -139,7 +145,7 @@ public:
       // TODO make use of glBufferSubData.
       if (mDirty)
       {
-         mVBO.BufferData(sizeof(DataType) * mData.size(), mData.data(), GL_STATIC_DRAW);
+         mVBO.BufferData(GLsizei(sizeof(DataType) * mData.size()), mData.data(), GL_STATIC_DRAW);
          mDirty = false;
       }
    }
@@ -153,6 +159,7 @@ protected:
    std::vector<Region> mFree;
 };
 
+}; // namespace Aggregator
    
 }; // namespace Engine
 

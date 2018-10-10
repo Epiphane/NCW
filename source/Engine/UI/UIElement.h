@@ -77,6 +77,12 @@ public:
 };
 
 //
+// Emitted whenever the UIRoot is rebalanced.
+//
+class UIRebalancedEvent : public Event<UIRebalancedEvent>
+{};
+
+//
 // UIElement extends EventManager, so that events can easily be passed down all the way to any leaf elements from
 // a central EventManager.
 //
@@ -108,22 +114,16 @@ public:
    }
 
    //
-   // Update all this node's children. Pass in the vertex data array to my children
-   // so they can add their vertices to it.
+   // Called whenever the UI is rebalanced. Use this for setting up VBO data,
+   // responding to the current size, etc.
    //
-   virtual void AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices);
+   virtual void Receive(const Engine::UIRebalancedEvent&) {}
 
    //
    // Update the element, called once per frame with the time elapsed.
    // Useful for animations, resizing, and responding to input.
    //
    virtual void Update(TIMEDELTA dt);
-
-   //
-   // Render all this node's children. Pass in the VBO to my children in case
-   // they want to render with it.
-   //
-   virtual size_t Render(Engine::Graphics::VBO& vbo, size_t offset);
 
    //
    // Add a named constraint to this element. Element will report this to its mpRoot.

@@ -65,13 +65,6 @@ void UIRoot::UpdateRoot()
 
 void UIRoot::RenderRoot()
 {
-   // Add all the vertices from my children
-   mUIVertices.clear();
-   AddVertices(mUIVertices);
-      
-   mRectanglesVBO.BufferData(static_cast<GLsizei>(mUIVertices.size()) * sizeof(Graphics::Font::CharacterVertexUV), &mUIVertices[0], GL_STATIC_DRAW);
-   Render(mRectanglesVBO, 0);
-
    for (auto& aggregator : mAggregators)
    {
       aggregator->Update();

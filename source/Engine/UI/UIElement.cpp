@@ -18,13 +18,8 @@ UIElement::UIElement(UIRoot* root, UIElement* parent)
    : mpRoot(root)
    , mpParent(parent)
 {
-}
-
-void UIElement::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices)
-{
-   for (auto& child : mChildren) {
-      child->AddVertices(outVertices);
-   }
+   if (parent != nullptr)
+   mpRoot->Subscribe<UIRebalancedEvent>(*this);
 }
 
 void UIElement::Update(TIMEDELTA dt)
@@ -32,15 +27,6 @@ void UIElement::Update(TIMEDELTA dt)
    for (auto& child : mChildren) {
       child->Update(dt);
    }
-}
-
-size_t UIElement::Render(Engine::Graphics::VBO& vbo, size_t offset)
-{
-   for (auto& child : mChildren) {
-      offset = child->Render(vbo, offset);
-   }
-      
-   return offset;
 }
 
 void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint)

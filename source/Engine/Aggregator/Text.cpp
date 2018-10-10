@@ -3,7 +3,7 @@
 #include "../Core/Window.h"
 #include "../Logger/Logger.h"
 
-#include "TextAggregator.h"
+#include "Text.h"
 
 namespace CubeWorld
 {
@@ -11,13 +11,16 @@ namespace CubeWorld
 namespace Engine
 {
 
-std::unique_ptr<Engine::Graphics::Program> TextAggregator::program = nullptr;
+namespace Aggregator
+{
 
-TextAggregator::TextAggregator()
+std::unique_ptr<Engine::Graphics::Program> Text::program = nullptr;
+
+Text::Text()
 {
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/2DTexture.vert", "Shaders/2DTexture.geom", "Shaders/2DTexture.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
@@ -33,7 +36,7 @@ TextAggregator::TextAggregator()
    }
 }
 
-void TextAggregator::ConnectToTexture(const Region& region, GLuint texture)
+void Text::ConnectToTexture(const Region& region, GLuint texture)
 {
    auto entry = mTextureIndices.find(texture);
    if (entry == mTextureIndices.end())
@@ -50,7 +53,7 @@ void TextAggregator::ConnectToTexture(const Region& region, GLuint texture)
    vboData.first.BufferData(sizeof(GLuint) * vboData.second.size(), vboData.second.data(), GL_STATIC_DRAW);
 }
 
-void TextAggregator::Render()
+void Text::Render()
 {
    Window* pWindow = Window::Instance();
 
@@ -71,6 +74,8 @@ void TextAggregator::Render()
       glDrawElements(GL_LINES, indices.second.size(), GL_UNSIGNED_INT, (void*)0);
    }
 }
+
+}; // namespace Aggregator
    
 }; // namespace Engine
 

@@ -2,10 +2,10 @@
 
 #include <glm/glm.hpp>
 
-#include <Engine/Core/Window.h>
-#include <Engine/Graphics/Program.h>
-#include <Engine/Logger/Logger.h>
+#include "../Core/Window.h"
+#include "../Logger/Logger.h"
 
+#include "UIRoot.h"
 #include "UIRectFilled.h"
 
 namespace CubeWorld
@@ -16,7 +16,10 @@ namespace Engine
 
 std::unique_ptr<Engine::Graphics::Program> UIRectFilled::program = nullptr;
 
-UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent) : UIElement(root, parent)
+UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent)
+   : UIElement(root, parent)
+   , mColor(1, 1, 1, 1)
+   , mRegion(root->Reserve<Engine::Aggregator::Rect>(2))
 {
    if (!program)
    {
@@ -34,39 +37,31 @@ UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent) : UIElement(root, pa
    }
 }
 
-void UIRectFilled::AddVertices(std::vector<Graphics::Font::CharacterVertexUV>& outVertices)
+void UIRectFilled::Update()
 {
-   Engine::Graphics::Font::CharacterVertexUV bottomLeft, topRight;
-   bottomLeft.position = glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value());
-   topRight.position = glm::vec2(mFrame.right.int_value(), mFrame.top.int_value());
+   std::vector<Engine::Aggregator::RectData> data({
+      {
+         glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value()),
+         mColor
+      },
+      {
+         glm::vec2(mFrame.right.int_value(), mFrame.top.int_value()),
+         mColor
+      },
+   });
 
-   bottomLeft.uv = glm::vec2(0, 0);
-   topRight.uv = glm::vec2(0, 0);
-
-   outVertices.push_back(bottomLeft);
-   outVertices.push_back(topRight);
-
-   UIElement::AddVertices(outVertices);
+   mRegion.Set(data);
 }
 
-size_t UIRectFilled::Render(Engine::Graphics::VBO& vbo, size_t offset)
+void UIRectFilled::SetColor(glm::vec4 color)
 {
-   Window* pWindow = Window::Instance();
+   mColor = color;
+   Update();
+}
 
-   {
-      BIND_PROGRAM_IN_SCOPE(program);
-
-      program->Uniform4f("uColor", mColor.r, mColor.g, mColor.b, mColor.a);
-      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
-
-      vbo.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Graphics::Font::CharacterVertexUV), (void*)offset);
-
-      glDrawArrays(GL_LINES, 0, 2);
-   }
-
-   offset = UIElement::Render(vbo, offset + sizeof(Graphics::Font::CharacterVertexUV) * 2);
-
-   return offset;
+void UIRectFilled::Receive(const Engine::UIRebalancedEvent&)
+{
+   Update();
 }
 
 }; // namespace Engine

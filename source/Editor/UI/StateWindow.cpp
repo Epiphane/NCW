@@ -8,7 +8,7 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
-#include <Engine/UI/ImageAggregator.h>
+#include <Engine/Aggregator/Image.h>
 
 #include "StateWindow.h"
 
@@ -22,15 +22,14 @@ StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_pt
    : UIElement(root, parent)
    , mState(nullptr)
    , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
-   , mRegion(root->Reserve<Engine::TextAggregator>(2))
+   , mRegion(root->Reserve<Engine::Aggregator::Image>(2))
 {
    if (state)
    {
       SetState(std::move(state));
    }
 
-   root->Subscribe<Engine::UIRebalancedEvent>(*this);
-   root->GetAggregator<Engine::ImageAggregator>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
+   root->GetAggregator<Engine::Aggregator::Image>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
 }
 
 void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
@@ -47,9 +46,9 @@ void StateWindow::Update(TIMEDELTA dt)
    mFramebuffer.Unbind();
 }
 
-void StateWindow::Receive(const Engine::UIRebalancedEvent& evt)
+void StateWindow::Receive(const Engine::UIRebalancedEvent&)
 {
-   std::vector<Engine::Graphics::Font::CharacterVertexUV> vertices{
+   std::vector<Engine::Aggregator::ImageData> vertices{
       {
          glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value()),
          glm::vec2(0, 0),

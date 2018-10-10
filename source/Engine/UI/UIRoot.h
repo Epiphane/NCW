@@ -9,13 +9,9 @@
 #include <vector>
 #include <rhea/simplex_solver.hpp>
 
-#include "../Core/Bounded.h"
-#include "../Core/Maybe.h"
-#include "../Core/Singleton.h"
+#include "../Aggregator/Aggregator.h"
 #include "../Event/EventManager.h"
-#include "../Event/Receiver.h"
 #include "../Graphics/VBO.h"
-#include "UIAggregator.h"
 #include "UIElement.h"
 
 namespace CubeWorld
@@ -23,13 +19,6 @@ namespace CubeWorld
 
 namespace Engine
 {
-
-//
-// Emitted whenever the UIRoot is rebalanced.
-//
-class UIRebalancedEvent : public Event<UIRebalancedEvent>
-{
-};
 
 class UIRoot : public UIElement, public EventManager
 {
@@ -82,7 +71,7 @@ public:
    template<typename Aggregator>
    Aggregator* GetAggregator()
    {
-      const BaseUIAggregator::Family family = Aggregator::GetFamily();
+      const Aggregator::BaseAggregator::Family family = Aggregator::GetFamily();
       if (family >= mAggregators.size())
       {
          mAggregators.resize(family + 1);
@@ -99,7 +88,7 @@ public:
 
 private:
    // Aggregators for batch rendering.
-   std::vector<std::unique_ptr<BaseUIAggregator>> mAggregators;
+   std::vector<std::unique_ptr<Aggregator::BaseAggregator>> mAggregators;
    
    // Holds all the vertices pushed by this element's children.
    std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;
