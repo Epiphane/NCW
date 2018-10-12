@@ -20,7 +20,6 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    : UIElement(root, parent)
    , mText("")
    , mRendered("")
-   , mRegion(root->Reserve<Engine::Aggregator::Text>(2 * options.text.size() + 4))
 {
    auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font(options.font));
    assert(maybeFont);
@@ -29,14 +28,15 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    uint32_t size = options.size;
    if (size == 0)
    {
-      size = options.text.size() + 2;
+      size = options.DefaultSize();
    }
+   mRegion = root->Reserve<Engine::Aggregator::Text>(2 * size);
 
    SetText(options.text);
    root->GetAggregator<Engine::Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
 }
 
-void Text::Receive(const Engine::UIRebalancedEvent& evt)
+void Text::Receive(const Engine::UIRebalancedEvent&)
 {
    RenderText(mRendered);
 }
@@ -44,7 +44,7 @@ void Text::Receive(const Engine::UIRebalancedEvent& evt)
 void Text::RenderText(const std::string& text)
 {
    mRendered = text;
-   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(mFrame.left.int_value(), mFrame.bottom.int_value(), 1, mRendered);
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.int_value()), GLfloat(mFrame.bottom.int_value()), 1, mRendered);
    std::vector<Engine::Aggregator::TextData> data;
 
    std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [](const Engine::Graphics::Font::CharacterVertexUV& character) {

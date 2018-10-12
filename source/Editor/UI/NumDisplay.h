@@ -4,7 +4,8 @@
 
 #include <string>
 
-#include "Binding.h"
+#include <Engine/UI/Binding.h>
+
 #include "Text.h"
 
 namespace CubeWorld
@@ -17,11 +18,15 @@ namespace Editor
 //
 //
 template <typename N>
-class NumDisplay : public Text, public Editor::Binding<N>
+class NumDisplay : public Text, public Engine::Binding<N>
 {
 public:
    struct Options : public Text::Options {
       uint8_t precision = 2;
+
+   public:
+      // Allow for, by default, ####.{precision}
+      virtual uint32_t DefaultSize() const override { return precision + 5; }
    };
 
 public:

@@ -18,7 +18,7 @@ class UIMainScreen : public UIRoot {
 public:
    UIMainScreen(const Bounded& bounds);
 };
-   
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

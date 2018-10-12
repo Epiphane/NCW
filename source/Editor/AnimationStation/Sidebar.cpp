@@ -52,6 +52,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       TextButton* discard = Add<TextButton>(buttonOptions);
       
       buttonOptions.text = "Quit";
+      buttonOptions.size = 13; // "> Save first!"
       buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
       mQuit = Add<TextButton>(buttonOptions);
 

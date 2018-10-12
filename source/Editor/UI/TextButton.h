@@ -38,6 +38,9 @@ public:
       {};
 
       std::function<void(void)> onClick;
+
+   public:
+      virtual uint32_t DefaultSize() const override { return uint32_t(text.size()) + 2; }
    };
 
 public:

@@ -6,14 +6,16 @@
 #include <string>
 #include <vector>
 
+#include <Engine/Aggregator/Image.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Command.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "Binding.h"
-#include "Element.h"
+#include <Engine/UI/Binding.h>
+#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIRoot.h>
 
 namespace CubeWorld
 {
@@ -24,10 +26,10 @@ namespace Editor
 //
 // This is just convenience, so I can hide some implementation in Scrubber.cpp. Always use the derived Scrubber<N> class
 //
-class ScrollBar : public Element, public Binding<double>
+class ScrollBar : public Engine::UIElement, public Engine::Binding<double>
 {
 public:
-   struct Options : public Element::Options {
+   struct Options {
       std::string filename;
       std::string image = "";
       double min = 0;
@@ -37,18 +39,15 @@ public:
    };
 
 public:
-   ScrollBar(
-      Bounded& parent,
-      const Options& options
-   );
+   ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
    //
    // Render the framebuffer to this subwindow's location.
    //
    void Update(TIMEDELTA dt) override;
 
-   void MouseDown(int button, double x, double y) override;
-   void MouseUp(int button, double x, double y) override;
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseUpEvent& evt);
 
    bool IsScrubbing() { return mScrubbing; }
 
@@ -58,10 +57,15 @@ public:
       mRange = max - min;
    }
 
+private:
+   void UpdateRegion();
+
+public:
+   void Receive(const Engine::UIRebalancedEvent& evt) override;
+
 protected:
    // State
    bool mScrubbing;
-   glm::vec3 mOffset;
 
 private:
    // Configuration
@@ -70,10 +74,10 @@ private:
 
 private:
    Engine::Graphics::Texture* mTexture;
-   Engine::Graphics::VBO mVBO;
+   glm::vec4 mCoords;
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
+   Engine::Aggregator::Image::Region mRegion;
 };
 
 }; // namespace Editor

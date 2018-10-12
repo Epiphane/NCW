@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
@@ -39,6 +40,9 @@ public:
       {};
 
       std::function<void(std::string)> onChange;
+
+   public:
+      virtual uint32_t DefaultSize() const override { return std::max(16U, uint32_t(text.size())); }
    };
 
 public:

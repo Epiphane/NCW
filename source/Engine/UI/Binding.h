@@ -10,7 +10,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace Engine
 {
 
 //

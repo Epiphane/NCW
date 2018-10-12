@@ -43,8 +43,6 @@ private:
 
 private:
    Engine::Aggregator::Rect::Region mRegion;
-
-   static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
    

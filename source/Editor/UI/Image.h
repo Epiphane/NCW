@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
+#include <Engine/Aggregator/Image.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-
-#include "Element.h"
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
@@ -19,49 +19,30 @@ namespace CubeWorld
 namespace Editor
 {
 
-//
-// Manages a subsection of the Editor. Notably, allows for hooking up different framebuffers,
-// binding and unbinding them in an understandable way, and re-rendering those pieces into
-// the space they belong.
-//
-class Image : public Element
+class Image : public Engine::UIElement
 {
 public:
-   struct Options : public Element::Options {
+   struct Options {
       std::string filename;
       std::string image = "";
-      std::string hoverImage = "";
-      std::string pressImage = "";
-      std::function<void(void)> onClick = nullptr;
    };
 
 public:
-   Image(
-      Bounded& parent,
-      const Options& options
-   );
+   Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
-   //
-   // Render the framebuffer to this subwindow's location.
-   //
-   void Update(TIMEDELTA dt) override;
+   void UpdateRegion();
 
-   void SetOffset(glm::vec3 offset) { mOffset = 2.0f * offset; }
+   void Receive(const Engine::UIRebalancedEvent&) override
+   {
+      UpdateRegion();
+   }
 
-   void MouseDown(int button, double x, double y) override;
-   void MouseUp(int button, double x, double y) override;
-
-private:
-   std::function<void(void)> mCallback;
-   bool mIsPressed;
-
-private:
-   glm::vec3 mOffset;
+protected:
    Engine::Graphics::Texture* mTexture;
-   Engine::Graphics::VBO mVBO;
+   glm::vec4 mCoords;
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
+   Engine::Aggregator::Image::Region mRegion;
 };
 
 }; // namespace Editor

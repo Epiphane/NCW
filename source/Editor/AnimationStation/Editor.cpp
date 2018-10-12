@@ -4,7 +4,6 @@
 #include <Engine/UI/UIRectFilled.h>
 #include <Shared/DebugHelper.h>
 
-#include "../UI/Controls.h"
 #include "Dock.h"
 #include "Editor.h"
 #include "Sidebar.h"

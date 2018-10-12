@@ -14,27 +14,11 @@ namespace CubeWorld
 namespace Engine
 {
 
-std::unique_ptr<Engine::Graphics::Program> UIRectFilled::program = nullptr;
-
 UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
    , mColor(1, 1, 1, 1)
    , mRegion(root->Reserve<Engine::Aggregator::Rect>(2))
 {
-   if (!program)
-   {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugRect.vert", "Shaders/DebugRect.geom", "Shaders/DebugRect.frag");
-      if (!maybeProgram)
-      {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugRect shader").GetMessage());
-         return;
-      }
-
-      program = std::move(*maybeProgram);
-      program->Attrib("aPosition");
-      program->Uniform("uColor");
-      program->Uniform("uWindowSize");
-   }
 }
 
 void UIRectFilled::Update()

@@ -67,8 +67,11 @@ void UIRoot::RenderRoot()
 {
    for (auto& aggregator : mAggregators)
    {
-      aggregator->Update();
-      aggregator->Render();
+      if (aggregator)
+      {
+         aggregator->Update();
+         aggregator->Render();
+      }
    }
 }
 

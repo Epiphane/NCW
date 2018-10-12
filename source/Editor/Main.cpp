@@ -20,8 +20,8 @@
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
-#include "UI/Controls.h"
 #include "UI/UISwapper.h"
+#include "UI/TextButton.h"
 
 #include "Main.h"
 
@@ -74,26 +74,40 @@ int main(int argc, char** argv)
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
 
-   // Create the overarching Editor controls.
-   /*Editor::Controls* controls = Editor::Controls>();
+   // Create editor-wide controls pane
+   UIRoot controls(*window);
+   {
+      using TextButton = Editor::TextButton;
 
-   // Always enable controls.
-   // TODO this relies on SubWindowSwapper "forgetting" about this element, so swapping to
-   // it later on would disable the element. There's probably a better way (e.g. creating
-   // another base SubWindow, but it seems overkill /shrug
-   controls->SetLayout({{
-      Editor::Controls::Layout::Element{"Model Maker", [&](){
-         // Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
-         // modelMaker->Start();
-      }},
-      Editor::Controls::Layout::Element{"Animation Station", [&](){
+      TextButton::Options buttonOptions;
+      buttonOptions.text = "Animation Station";
+      buttonOptions.onClick = [&]() {
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
          animationStation->Start();
-      }},
-      Editor::Controls::Layout::Element{"Quit", [&]() {
+      };
+      UIFrame& fAnimationStation = controls.Add<TextButton>(buttonOptions)->GetFrame();
+
+      buttonOptions.text = "Quit";
+      buttonOptions.onClick = [&]() {
          window->SetShouldClose(true);
-      }}
-   }});*/
+      };
+      UIFrame& fQuit = controls.Add<TextButton>(buttonOptions)->GetFrame();
+
+      UIFrame& fControls = controls.GetFrame();
+      controls.AddContraints({
+         fAnimationStation.left == fControls.left + 8,
+         fAnimationStation.right == fControls.right - 8,
+         fAnimationStation.bottom == fQuit.top + 8,
+         fAnimationStation.height == 32,
+
+         fQuit.left == fAnimationStation.left,
+         fQuit.right == fAnimationStation.right,
+         fQuit.bottom == fControls.bottom + 16,
+         fQuit.height == 32,
+      });
+
+      controls.UpdateRoot();
+   }
 
    // Configure Debug helper
    Game::DebugHelper* debug = Game::DebugHelper::Instance();
@@ -106,13 +120,22 @@ int main(int argc, char** argv)
 
    // Attach mouse events to state
    window->GetInput()->OnMouseDown([&](int button, double x, double y) {
+      x *= window->GetWidth();
+      y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseDownEvent>(button, x, y);
+      controls.Emit<MouseDownEvent>(button, x, y);
    });
    window->GetInput()->OnMouseUp([&](int button, double x, double y) {
+      x *= window->GetWidth();
+      y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseUpEvent>(button, x, y);
+      controls.Emit<MouseUpEvent>(button, x, y);
    });
    window->GetInput()->OnClick([&](int button, double x, double y) {
+      x *= window->GetWidth();
+      y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseClickEvent>(button, x, y);
+      controls.Emit<MouseClickEvent>(button, x, y);
    });
 
    // Save the pointers so that the callback doesn't get deregistered.
@@ -153,6 +176,9 @@ int main(int argc, char** argv)
             // TODO call UpdateRoot to resolve everything?
             windowContent.GetCurrent()->Update(dt);
             windowContent.GetCurrent()->RenderRoot();
+
+            controls.Update(dt);
+            controls.RenderRoot();
             windowContentRender.Elapsed();
          }
 

@@ -32,6 +32,9 @@ public:
       std::string text = "";
       std::string font = "debug";
       uint32_t size = 0;
+
+   public:
+      virtual uint32_t DefaultSize() const { return uint32_t(text.size()); }
    };
 
 public:
