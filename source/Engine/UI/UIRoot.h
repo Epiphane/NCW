@@ -34,7 +34,7 @@ public:
    //
    // Add arbitrary contraints.
    //
-   void AddContraints(const rhea::constraint_list& constraints);
+   void AddConstraints(const rhea::constraint_list& constraints);
 
    //
    // Reserve a section of data in the appropriate UIAggregator.

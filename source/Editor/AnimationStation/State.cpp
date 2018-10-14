@@ -25,9 +25,6 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#pragma warning(push, 0)
-#include <Shared/Helpers/json.hpp>
-#pragma warning(pop)
 #include "../Systems/AnimationSystem.h"
 #include "State.h"
 

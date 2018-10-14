@@ -43,10 +43,15 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
          
       frame.width  == (frame.right  - frame.left),
       frame.height == (frame.top - frame.bottom),
+      frame.width >= 0,
+      frame.height >= 0,
+
+      frame.z >= -1,
+      frame.z <= 1,
    });
 }
 
-void UIRoot::AddContraints(const rhea::constraint_list& constraints)
+void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
 {
    mSolver.add_constraints(constraints);
 }

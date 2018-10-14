@@ -7,12 +7,13 @@
 #include <cassert>
 #include <cmath>
 
-#include <Engine/Logger/Logger.h>
-#include <Engine/Logger/StdoutLogger.h>
-#include <Engine/Logger/DebugLogger.h>
 #include <Engine/Core/Input.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
+#include <Engine/Logger/Logger.h>
+#include <Engine/Logger/StdoutLogger.h>
+#include <Engine/Logger/DebugLogger.h>
+#include <Engine/UI/UIRectFilled.h>
 
 #include <Shared/Helpers/Asset.h>
 #include <Shared/DebugHelper.h>
@@ -54,7 +55,6 @@ int main(int argc, char** argv)
    windowOptions.fullscreen = false;
    windowOptions.width = 1280;
    windowOptions.height = 760;
-   windowOptions.b = 0.4f;
    windowOptions.lockCursor = false;
    Window* window = Window::Instance();
    if (auto result = window->Initialize(windowOptions); !result)
@@ -73,11 +73,15 @@ int main(int argc, char** argv)
 
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
+   animationStation->AddConstraints({animationStation->GetFrame().z >= -0.5});
 
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
       using TextButton = Editor::TextButton;
+
+      Engine::UIRectFilled* bg = controls.Add<Engine::UIRectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      Engine::UIRectFilled* fg = controls.Add<Engine::UIRectFilled>(glm::vec4(0, 0, 0, 1));
 
       TextButton::Options buttonOptions;
       buttonOptions.text = "Animation Station";
@@ -94,7 +98,23 @@ int main(int argc, char** argv)
       UIFrame& fQuit = controls.Add<TextButton>(buttonOptions)->GetFrame();
 
       UIFrame& fControls = controls.GetFrame();
-      controls.AddContraints({
+      Engine::UIFrame& fBackground = bg->GetFrame();
+      Engine::UIFrame& fForeground = fg->GetFrame();
+      controls.AddConstraints({
+         fControls > fForeground,
+         fForeground > fBackground,
+         fBackground.z <= -0.5,
+
+         fBackground.left == fControls.left,
+         fBackground.width == window->GetWidth() * 0.2,
+         fBackground.top == fAnimationStation.top + 8,
+         fBackground.bottom == fControls.bottom,
+
+         fForeground.left == fBackground.left + 2,
+         fForeground.right == fBackground.right - 2,
+         fForeground.top == fBackground.top - 2,
+         fForeground.bottom == fBackground.bottom + 2,
+
          fAnimationStation.left == fControls.left + 8,
          fAnimationStation.right == fControls.right - 8,
          fAnimationStation.bottom == fQuit.top + 8,

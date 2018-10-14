@@ -21,7 +21,7 @@ namespace Aggregator
 
 struct TextData
 {
-   glm::vec2 position;
+   glm::vec3 position;
    glm::vec2 uv;
 };
 

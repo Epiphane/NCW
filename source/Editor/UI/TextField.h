@@ -31,10 +31,8 @@ class TextField : public Text
 public:
    struct Options : public Text::Options {
       Options() = default;
-      Options(
-         const Text::Options& base,
-         std::function<void(std::string)> onChange
-      )
+      Options(std::function<void(std::string)> onChange) : Text::Options(), onChange(onChange) {};
+      Options(const Text::Options& base, std::function<void(std::string)> onChange)
          : Text::Options(base)
          , onChange(onChange)
       {};

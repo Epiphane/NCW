@@ -32,10 +32,7 @@ public:
 
    void UpdateRegion();
 
-   void Receive(const Engine::UIRebalancedEvent&) override
-   {
-      UpdateRegion();
-   }
+   void Receive(const Engine::UIRebalancedEvent& evt) override;
 
 protected:
    Engine::Graphics::Texture* mTexture;

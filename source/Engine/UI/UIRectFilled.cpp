@@ -14,9 +14,9 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent)
+UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent, glm::vec4 color)
    : UIElement(root, parent)
-   , mColor(1, 1, 1, 1)
+   , mColor(color)
    , mRegion(root->Reserve<Engine::Aggregator::Rect>(2))
 {
 }
@@ -24,14 +24,8 @@ UIRectFilled::UIRectFilled(UIRoot* root, UIElement* parent)
 void UIRectFilled::Update()
 {
    std::vector<Engine::Aggregator::RectData> data({
-      {
-         glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value()),
-         mColor
-      },
-      {
-         glm::vec2(mFrame.right.int_value(), mFrame.top.int_value()),
-         mColor
-      },
+      { mFrame.GetBottomLeft(), mColor },
+      { mFrame.GetTopRight(), mColor },
    });
 
    mRegion.Set(data);
@@ -43,8 +37,9 @@ void UIRectFilled::SetColor(glm::vec4 color)
    Update();
 }
 
-void UIRectFilled::Receive(const Engine::UIRebalancedEvent&)
+void UIRectFilled::Receive(const Engine::UIRebalancedEvent& evt)
 {
+   UIElement::Receive(evt);
    Update();
 }
 

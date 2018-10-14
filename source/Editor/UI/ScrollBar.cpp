@@ -59,7 +59,7 @@ void ScrollBar::Receive(const MouseUpEvent& evt)
    }
 }
 
-void ScrollBar::Update(TIMEDELTA dt)
+void ScrollBar::Update(TIMEDELTA)
 {
    if (mScrubbing)
    {
@@ -84,14 +84,8 @@ void ScrollBar::UpdateRegion()
 {
    double offset = (GetValue() - mMin) / mRange;
    std::vector<Engine::Aggregator::ImageData> vertices{
-      {
-         glm::vec2(offset + mFrame.left.int_value(), mFrame.bottom.int_value()),
-         glm::vec2(mCoords.x, mCoords.y),
-      },
-      {
-         glm::vec2(offset + mFrame.right.int_value(), mFrame.top.int_value()),
-         glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w),
-      },
+      { mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y) },
+      { mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w) },
    };
 
    mRegion.Set(vertices.data());

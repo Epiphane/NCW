@@ -49,14 +49,8 @@ void StateWindow::Update(TIMEDELTA dt)
 void StateWindow::Receive(const Engine::UIRebalancedEvent&)
 {
    std::vector<Engine::Aggregator::ImageData> vertices{
-      {
-         glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value()),
-         glm::vec2(0, 0),
-      },
-      {
-         glm::vec2(mFrame.right.int_value(), mFrame.top.int_value()),
-         glm::vec2(1, 1),
-      },
+      { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
+      { mFrame.GetTopRight(), glm::vec2(1, 1) },
    };
 
    mRegion.Set(vertices.data());

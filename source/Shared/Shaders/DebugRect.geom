@@ -27,12 +27,10 @@ void main()
    // Top left
    vertices[2].y = vertices[3].y;
    
-   float zVal = 0; // TODO: me :3
-   
    // Emit the vertices of the quad
    for(int i = 0; i < 4; i ++) {
 	  fColor = color[i];
-      gl_Position = vec4(vertices[i].xy, zVal, 1);
+      gl_Position = vertices[i];
       EmitVertex();
    }
    

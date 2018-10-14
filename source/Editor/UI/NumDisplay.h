@@ -22,6 +22,9 @@ class NumDisplay : public Text, public Engine::Binding<N>
 {
 public:
    struct Options : public Text::Options {
+      Options(uint8_t precision = 2) : Text::Options(), precision(precision) {};
+      Options(const Text::Options& base, uint8_t precision) : Text::Options(base), precision(precision) {};
+
       uint8_t precision = 2;
 
    public:
@@ -30,8 +33,8 @@ public:
    };
 
 public:
-   NumDisplay(Bounded& parent, const Options& options)
-      : Text(parent, options)
+   NumDisplay(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+      : Text(root, parent, options)
       , mFormat("%." + Format::FormatString("%1", options.precision) + "f")
    {};
 

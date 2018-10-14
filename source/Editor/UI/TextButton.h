@@ -29,10 +29,7 @@ class TextButton : public Text
 public:
    struct Options : public Text::Options {
       Options() = default;
-      Options(
-         const Text::Options& base,
-         std::function<void(void)> onClick
-      )
+      Options(const Text::Options& base, std::function<void(void)> onClick)
          : Text::Options(base)
          , onClick(onClick)
       {};

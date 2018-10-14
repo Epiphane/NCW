@@ -29,11 +29,14 @@ class Text : public Engine::UIElement
 {
 public:
    struct Options {
+      Options() = default;
+      Options(const std::string& text) : text(text) {};
+      Options(const Options& other) : text(other.text), font(other.font), size(other.size) {};
+
       std::string text = "";
       std::string font = "debug";
       uint32_t size = 0;
 
-   public:
       virtual uint32_t DefaultSize() const { return uint32_t(text.size()); }
    };
 

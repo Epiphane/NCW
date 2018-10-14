@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include <rhea/variable.hpp>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Command.h>
 #include <Engine/Core/Either.h>
@@ -13,7 +14,6 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Event/Event.h>
 #include <Engine/Event/InputEvent.h>
-#include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
@@ -38,7 +38,7 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Dock : public Engine::UIElement, public Engine::EventManager, public Engine::Receiver<Dock> {
+class Dock : public Engine::UIElement {
 public:
    using State = Game::AnimatedSkeleton::State;
    using Keyframe = Game::AnimatedSkeleton::Keyframe;
@@ -79,6 +79,9 @@ private:
    Engine::ComponentHandle<AnimationSystemController> mController;
 
 private:
+   // Layout and elements
+   rhea::variable c1, c2, c3, c4;
+
    template <typename N>
    struct LabelAndScrubber {
       NumDisplay<N>* text;

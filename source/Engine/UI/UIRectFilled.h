@@ -20,7 +20,7 @@ namespace Engine
    
 class UIRectFilled : public UIElement {
 public:
-   UIRectFilled(UIRoot* root, UIElement* parent);
+   UIRectFilled(UIRoot* root, UIElement* parent, glm::vec4 color = glm::vec4(0, 0, 0, 1));
 
    //
    // Set the fill color of this rectangle. r, g, b, and a are between 0 and 1.

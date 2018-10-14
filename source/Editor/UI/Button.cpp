@@ -4,6 +4,7 @@
 
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "Button.h"
 
@@ -31,6 +32,9 @@ Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& o
    {
       mPress = mTexture->GetImage(options.pressImage);
    }
+
+   root->Subscribe<MouseDownEvent>(*this);
+   root->Subscribe<MouseUpEvent>(*this);
 }
 
 void Button::Receive(const MouseDownEvent& evt)
@@ -76,6 +80,10 @@ void Button::Update(TIMEDELTA dt)
       if (mState == NORMAL && hovered)
       {
          SetState(HOVER);
+      }
+      else if (mState == HOVER && !hovered)
+      {
+         SetState(NORMAL);
       }
    }
 

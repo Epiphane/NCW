@@ -36,24 +36,25 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    root->GetAggregator<Engine::Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
 }
 
-void Text::Receive(const Engine::UIRebalancedEvent&)
+void Text::Receive(const Engine::UIRebalancedEvent& evt)
 {
+   UIElement::Receive(evt);
    RenderText(mRendered);
 }
 
 void Text::RenderText(const std::string& text)
 {
    mRendered = text;
-   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.int_value()), GLfloat(mFrame.bottom.int_value()), 1, mRendered);
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), 1, mRendered);
    std::vector<Engine::Aggregator::TextData> data;
 
-   std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [](const Engine::Graphics::Font::CharacterVertexUV& character) {
-      return Engine::Aggregator::TextData{character.position, character.uv};
+   std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [&](const Engine::Graphics::Font::CharacterVertexUV& character) {
+      return Engine::Aggregator::TextData{glm::vec3(character.position.x, character.position.y, mFrame.z.value()), character.uv};
    });
 
    while (data.size() < mRegion.size())
    {
-      data.push_back(Engine::Aggregator::TextData{glm::vec2(0),glm::vec2(0)});
+      data.push_back(Engine::Aggregator::TextData{glm::vec3(0),glm::vec2(0)});
    }
 
    mRegion.Set(data.data());

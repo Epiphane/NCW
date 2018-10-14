@@ -29,13 +29,10 @@ void main()
    vertices[2].y = vertices[3].y;
    uv[2].y       = uv[3].y;
    
-   float zVal = 0;
-   //if (zVal >= 1) zVal -= 0.0000001;
-   
    // Emit the vertices of the quad
    for(int i = 0; i < 4; i ++) {
       fUV = uv[i];
-      gl_Position = vec4(vertices[i].xy, zVal, 1);
+      gl_Position = vertices[i];
       EmitVertex();
    }
    

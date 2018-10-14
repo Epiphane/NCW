@@ -28,8 +28,24 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
 {
    {
       // Backdrop
-      Engine::UIRectFilled* bg = Add<Engine::UIRectFilled>();
-      bg->SetColor(glm::vec4(0, 0, 0, 1));
+      Engine::UIRectFilled* bg = Add<Engine::UIRectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      Engine::UIRectFilled* fg = Add<Engine::UIRectFilled>(glm::vec4(0, 0, 0, 1));
+
+      Engine::UIFrame& fBackground = bg->GetFrame();
+      Engine::UIFrame& fForeground = fg->GetFrame();
+      root->AddConstraints({
+         fBackground.left == mFrame.left,
+         fBackground.right == mFrame.right,
+         fBackground.top == mFrame.top,
+         fBackground.bottom == mFrame.bottom,
+         mFrame > fForeground,
+
+         fForeground.left == fBackground.left + 2,
+         fForeground.right == fBackground.right - 2,
+         fForeground.top == fBackground.top - 2,
+         fForeground.bottom == fBackground.bottom,
+         fForeground > fBackground,
+      });
    }
 
    {
@@ -61,7 +77,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       Engine::UIFrame& fSaveAs = saveAs->GetFrame();
       Engine::UIFrame& fDiscard = discard->GetFrame();
       Engine::UIFrame& fQuit = mQuit->GetFrame();
-      root->AddContraints({
+      root->AddConstraints({
          fLoad.left == mFrame.left + 8,
          fLoad.right == mFrame.right - 8,
          fLoad.top == mFrame.top - 8,

@@ -34,22 +34,28 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    {
       mCoords = mTexture->GetImage(options.image);
    }
+
+   root->AddConstraints({
+      rhea::constraint(mFrame.width * double(mTexture->GetHeight()) == mFrame.height * double(mTexture->GetWidth()), rhea::strength::medium())
+   });
+
+   root->GetAggregator<Engine::Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
 }
 
 void Image::UpdateRegion()
 {
    std::vector<Engine::Aggregator::ImageData> vertices{
-      {
-         glm::vec2(mFrame.left.int_value(), mFrame.bottom.int_value()),
-         glm::vec2(mCoords.x, mCoords.y),
-      },
-      {
-         glm::vec2(mFrame.right.int_value(), mFrame.top.int_value()),
-         glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w),
-      },
+      { mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y) },
+      { mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w) },
    };
 
    mRegion.Set(vertices.data());
+}
+
+void Image::Receive(const Engine::UIRebalancedEvent& evt)
+{
+   UIElement::Receive(evt);
+   UpdateRegion();
 }
 
 }; // namespace Editor

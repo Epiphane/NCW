@@ -28,6 +28,7 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
 
    mChildren.push_back(std::move(ptr));
    mpRoot->Emit<ElementAddedEvent>(element);
+   element->ConstrainAbove(this, rhea::strength::weak());
 
    return element;
 }
@@ -37,6 +38,13 @@ void UIElement::Update(TIMEDELTA dt)
    for (auto& child : mChildren) {
       child->Update(dt);
    }
+}
+
+void UIElement::ConstrainAbove(UIElement* other, rhea::strength strength)
+{
+   mpRoot->AddConstraints({
+      rhea::constraint(mFrame > *other, strength)
+   });
 }
 
 void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint)
@@ -55,6 +63,25 @@ bool UIElement::ContainsPoint(double x, double y)
       y >= mFrame.bottom.int_value();
 }
 
+rhea::linear_inequality operator>(UIElement& lhs, UIElement& rhs)
+{
+   return lhs.GetFrame() > rhs.GetFrame();
+}
+
+rhea::linear_inequality operator>(UIElement& lhs, UIFrame& rhs)
+{
+   return lhs.GetFrame() > rhs;
+}
+
+rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs)
+{
+   return lhs > rhs.GetFrame();
+}
+
+rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
+{
+   return rhs.z >= lhs.z + 0.01;
+}
    
 }; // namespace Engine
 
