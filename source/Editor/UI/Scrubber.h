@@ -17,8 +17,7 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/Binding.h>
 #include <Engine/UI/UIElement.h>
-
-#include "Image.h"
+#include <Shared/UI/Image.h>
 
 namespace CubeWorld
 {
@@ -29,7 +28,7 @@ namespace Editor
 //
 // This is just convenience, so I can hide some implementation in Scrubber.cpp. Always use the derived Scrubber<N> class
 //
-class BaseScrubber : public Image
+class BaseScrubber : public UI::Image
 {
 public:
    BaseScrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);

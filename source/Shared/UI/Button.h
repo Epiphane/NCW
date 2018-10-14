@@ -9,7 +9,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 class Button : public Image
@@ -47,6 +47,6 @@ private:
    State mState;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

@@ -10,9 +10,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 //
 // AABBTree represents a grouping of AABBs in 3-dimensional space.
 //
@@ -222,7 +219,5 @@ public:
 private:
    std::vector<DataType> mData;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

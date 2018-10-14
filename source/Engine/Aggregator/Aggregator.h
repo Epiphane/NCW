@@ -15,9 +15,6 @@ namespace CubeWorld
 namespace Engine
 {
 
-namespace Aggregator
-{
-
 const uint32_t MAX_AGGREGATORS = 64;
 
 //
@@ -158,8 +155,6 @@ protected:
    // Regions that have been freed, for reuse.
    std::vector<Region> mFree;
 };
-
-}; // namespace Aggregator
    
 }; // namespace Engine
 

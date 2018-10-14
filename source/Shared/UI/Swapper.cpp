@@ -2,19 +2,19 @@
 
 #include <cassert>
 
-#include "UISwapper.h"
+#include "Swapper.h"
 
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
-void UISwapper::Swap(Engine::UIRoot* window)
+void Swapper::Swap(Engine::UIRoot* window)
 {
    mCurrent = window;
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

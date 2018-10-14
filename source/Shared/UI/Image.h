@@ -6,17 +6,17 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Aggregator/Image.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/UIElement.h>
+#include "../Aggregator/Image.h"
 
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 class Image : public Engine::UIElement
@@ -39,9 +39,9 @@ protected:
    glm::vec4 mCoords;
 
 private:
-   Engine::Aggregator::Image::Region mRegion;
+   Aggregator::Image::Region mRegion;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

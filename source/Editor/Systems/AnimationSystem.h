@@ -25,7 +25,7 @@ struct AnimationSystemController : public Engine::Component<AnimationSystemContr
 // Editor::AnimationSystem extends Game::AnimationSystem and allows for control by
 // an entity containing the AnimationSystemController component.
 //
-class AnimationSystem : public Engine::System<AnimationSystem>, private Game::BaseAnimationSystem
+class AnimationSystem : public Engine::System<AnimationSystem>, private BaseAnimationSystem
 {
 public:
    AnimationSystem() {};

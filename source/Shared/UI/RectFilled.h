@@ -1,26 +1,25 @@
 //
-// UIRectFilled – render a solid rectangle with a given color in the UI.
+// RectFilled – render a solid rectangle with a given color in the UI.
 //
 // By Thomas Steinke
 //
 
 #pragma once
 
-#include <Engine/Aggregator/Rect.h>
-
-#include "../Graphics/Program.h"
 #include "../Aggregator/Rect.h"
-#include "UIElement.h"
+
+#include <Engine/Graphics/Program.h>
+#include <Engine/UI/UIElement.h>
 
 namespace CubeWorld
 {
 
-namespace Engine
+namespace UI
 {
    
-class UIRectFilled : public UIElement {
+class RectFilled : public Engine::UIElement {
 public:
-   UIRectFilled(UIRoot* root, UIElement* parent, glm::vec4 color = glm::vec4(0, 0, 0, 1));
+   RectFilled(Engine::UIRoot* root, UIElement* parent, glm::vec4 color = glm::vec4(0, 0, 0, 1));
 
    //
    // Set the fill color of this rectangle. r, g, b, and a are between 0 and 1.
@@ -33,7 +32,7 @@ public:
    glm::vec4 GetColor() { return mColor; }
 
 public:
-   void Receive(const UIRebalancedEvent& evt) override;
+   void Receive(const Engine::UIRebalancedEvent& evt) override;
 
 private:
    void Update();
@@ -42,10 +41,10 @@ private:
    glm::vec4 mColor;
 
 private:
-   Engine::Aggregator::Rect::Region mRegion;
+   Aggregator::Rect::Region mRegion;
 };
 
    
-}; // namespace Engine
+}; // namespace UI
 
 }; // namespace CubeWorld

@@ -17,15 +17,14 @@
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
-#include <Shared/Event/NamedEvent.h>
+#include <Shared/UI/Image.h>
+#include <Shared/UI/NumDisplay.h>
+#include <Shared/UI/ScrollBar.h>
+#include <Shared/UI/TextButton.h>
+#include <Shared/UI/TextField.h>
 
-#include "../UI/Image.h"
-#include "../UI/NumDisplay.h"
-#include "../UI/Scrubber.h"
-#include "../UI/ScrollBar.h"
-#include "../UI/TextButton.h"
-#include "../UI/TextField.h"
 #include "../Systems/AnimationSystem.h"
+#include "../UI/Scrubber.h"
 #include "Events.h"
 #include "State.h"
 
@@ -38,11 +37,17 @@ namespace Editor
 namespace AnimationStation
 {
 
+using UI::Image;
+using UI::NumDisplay;
+using UI::ScrollBar;
+using UI::Text;
+using UI::TextField;
+
 class Dock : public Engine::UIElement {
 public:
-   using State = Game::AnimatedSkeleton::State;
-   using Keyframe = Game::AnimatedSkeleton::Keyframe;
-   using Bone = Game::AnimatedSkeleton::Bone;
+   using State = AnimatedSkeleton::State;
+   using Keyframe = AnimatedSkeleton::Keyframe;
+   using Bone = AnimatedSkeleton::Bone;
 
    Dock(Engine::UIRoot* root, Engine::UIElement* parent);
 
@@ -68,14 +73,14 @@ private:
 public:
    // Event handlers
    void Receive(const SkeletonLoadedEvent& evt);
-   void Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
 private:
    // State
    size_t mBone;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<Game::AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
    Engine::ComponentHandle<AnimationSystemController> mController;
 
 private:
@@ -187,7 +192,7 @@ private:
 
    protected:
       size_t keyframeIndex;
-      Game::AnimatedSkeleton::Keyframe keyframe{};
+      AnimatedSkeleton::Keyframe keyframe{};
    };
 
    //

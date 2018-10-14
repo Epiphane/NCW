@@ -8,12 +8,7 @@ namespace CubeWorld
 namespace Engine
 {
 
-namespace Aggregator
-{
-
 BaseAggregator::Family BaseAggregator::sNumFamilies = 0;
-
-}; // namespace Aggregator
 
 }; // namespace Engine
 

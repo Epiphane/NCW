@@ -13,60 +13,55 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
-   class CubeModelInfo {
-   public:
-      // File format for the .cub file
-      struct FileHeader {
-         uint32_t width;
-         uint32_t length;
-         uint32_t height;
-      };
-
-   public:
-      CubeModelInfo();
-      ~CubeModelInfo();
-
-      static CubeModelInfo* Load(const std::string& path, bool tintable);
-
-   public:
-      std::vector<Voxel::Data> mVoxelData;
-      Engine::Graphics::VBO mVBO;
-      FileHeader mMetadata;
-      bool mIsTintable;
-
-   private:
-      friend class CubeModel;
-      static std::unordered_map<std::string, std::unique_ptr<CubeModelInfo>> sModels;
+class CubeModelInfo {
+public:
+   // File format for the .cub file
+   struct FileHeader {
+      uint32_t width;
+      uint32_t length;
+      uint32_t height;
    };
 
-   //
-   // CubModel represents a modeled Cube object, which contains any amount of voxels of varying colors.
-   //
-   class CubeModel : public Engine::Component<CubeModel> {
-   public:
-      CubeModel();
-      CubeModel(const std::string& path);
-      CubeModel(const std::string& path, glm::vec3 tint);
+public:
+   CubeModelInfo();
+   ~CubeModelInfo();
 
-      void Load(const std::string& path);
-      void Load(const std::string& path, glm::vec3 tint);
+   static CubeModelInfo* Load(const std::string& path, bool tintable);
 
-      CubeModelInfo* mModel;
-     
-      // Copy of the data from the model.
-      Engine::Graphics::VBO mVBO;
-      CubeModelInfo::FileHeader mMetadata;
+public:
+   std::vector<Voxel::Data> mVoxelData;
+   Engine::Graphics::VBO mVBO;
+   FileHeader mMetadata;
+   bool mIsTintable;
 
-      // To save space, mVoxelData isn't used if the model isn't modified. Instead, use mNumVoxels.
-      std::vector<Voxel::Data> mVoxelData;
-      size_t mNumVoxels;
+private:
+   friend class CubeModel;
+   static std::unordered_map<std::string, std::unique_ptr<CubeModelInfo>> sModels;
+};
 
-      glm::vec3 mTint;
-   };
+//
+// CubModel represents a modeled Cube object, which contains any amount of voxels of varying colors.
+//
+class CubeModel : public Engine::Component<CubeModel> {
+public:
+   CubeModel();
+   CubeModel(const std::string& path);
+   CubeModel(const std::string& path, glm::vec3 tint);
 
-}; // namespace Game
+   void Load(const std::string& path);
+   void Load(const std::string& path, glm::vec3 tint);
+
+   CubeModelInfo* mModel;
+   
+   // Copy of the data from the model.
+   Engine::Graphics::VBO mVBO;
+   CubeModelInfo::FileHeader mMetadata;
+
+   // To save space, mVoxelData isn't used if the model isn't modified. Instead, use mNumVoxels.
+   std::vector<Voxel::Data> mVoxelData;
+   size_t mNumVoxels;
+
+   glm::vec3 mTint;
+};
 
 }; // namespace CubeWorld

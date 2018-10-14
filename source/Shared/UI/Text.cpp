@@ -13,7 +13,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
@@ -30,10 +30,10 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    {
       size = options.DefaultSize();
    }
-   mRegion = root->Reserve<Engine::Aggregator::Text>(2 * size);
+   mRegion = root->Reserve<Aggregator::Text>(2 * size);
 
    SetText(options.text);
-   root->GetAggregator<Engine::Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
+   root->GetAggregator<Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
 }
 
 void Text::Receive(const Engine::UIRebalancedEvent& evt)
@@ -46,20 +46,20 @@ void Text::RenderText(const std::string& text)
 {
    mRendered = text;
    std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), 1, mRendered);
-   std::vector<Engine::Aggregator::TextData> data;
+   std::vector<Aggregator::TextData> data;
 
    std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [&](const Engine::Graphics::Font::CharacterVertexUV& character) {
-      return Engine::Aggregator::TextData{glm::vec3(character.position.x, character.position.y, mFrame.z.value()), character.uv};
+      return Aggregator::TextData{glm::vec3(character.position.x, character.position.y, mFrame.z.value()), character.uv};
    });
 
    while (data.size() < mRegion.size())
    {
-      data.push_back(Engine::Aggregator::TextData{glm::vec3(0),glm::vec2(0)});
+      data.push_back(Aggregator::TextData{glm::vec3(0),glm::vec2(0)});
    }
 
    mRegion.Set(data.data());
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

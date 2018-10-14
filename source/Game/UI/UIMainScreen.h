@@ -6,19 +6,19 @@
 
 #pragma once
 
-#include "UIRoot.h"
+#include <Engine/UI/UIRoot.h>
 
 namespace CubeWorld
 {
 
-namespace Engine
+namespace Game
 {
 
-class UIMainScreen : public UIRoot {
+class UIMainScreen : public Engine::UIRoot {
 public:
    UIMainScreen(const Bounded& bounds);
 };
 
-}; // namespace Engine
+}; // namespace Game
 
 }; // namespace CubeWorld

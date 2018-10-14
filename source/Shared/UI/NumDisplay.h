@@ -11,7 +11,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
@@ -55,6 +55,6 @@ private:
    std::string mFormat;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

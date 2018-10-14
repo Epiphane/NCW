@@ -20,42 +20,37 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
+struct VoxelRender : public Engine::Component<VoxelRender> {
+   VoxelRender();
+   VoxelRender(Voxel::Model&& voxels);
+   VoxelRender(const VoxelRender& other);
 
-   struct VoxelRender : public Engine::Component<VoxelRender> {
-      VoxelRender();
-      VoxelRender(Voxel::Model&& voxels);
-      VoxelRender(const VoxelRender& other);
+   void Set(const Voxel::Model& voxels);
+   void Set(Voxel::Model&& voxels);
 
-      void Set(const Voxel::Model& voxels);
-      void Set(Voxel::Model&& voxels);
+   Engine::Graphics::VBO mVoxelData;
+   GLsizei mSize;
+};
 
-      Engine::Graphics::VBO mVoxelData;
-      GLsizei mSize;
-   };
+class VoxelRenderSystem : public Engine::System<VoxelRenderSystem> {
+public:
+   VoxelRenderSystem(Engine::Graphics::Camera* camera = nullptr);
+   ~VoxelRenderSystem();
 
-   class VoxelRenderSystem : public Engine::System<VoxelRenderSystem> {
-   public:
-      VoxelRenderSystem(Engine::Graphics::Camera* camera = nullptr);
-      ~VoxelRenderSystem();
+   void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
 
-      void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
-      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
+   void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
+   
+private:
+   Engine::Graphics::Camera* mCamera;
 
-      void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
-      
-   private:
-      Engine::Graphics::Camera* mCamera;
+   static std::unique_ptr<Engine::Graphics::Program> program;
 
-      static std::unique_ptr<Engine::Graphics::Program> program;
-
-   private:
-      std::unique_ptr<DebugHelper::MetricLink> metric;
-      Engine::Timer<100> mClock;
-   };
-
-}; // namespace Game
+private:
+   std::unique_ptr<DebugHelper::MetricLink> metric;
+   Engine::Timer<100> mClock;
+};
 
 }; // namespace CubeWorld

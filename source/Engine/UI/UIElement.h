@@ -131,7 +131,7 @@ public:
    // Called whenever the UI is rebalanced. Use this for setting up VBO data,
    // responding to the current size, etc.
    //
-   virtual void Receive(const Engine::UIRebalancedEvent&) {}
+   virtual void Receive(const UIRebalancedEvent&) {}
 
    //
    // Set whether an element is active or inactive.

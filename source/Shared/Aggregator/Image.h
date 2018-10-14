@@ -7,13 +7,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include "../Graphics/FontManager.h"
-#include "Aggregator.h"
+#include <Engine/Graphics/FontManager.h>
+#include <Engine/Aggregator/Aggregator.h>
 
 namespace CubeWorld
-{
-
-namespace Engine
 {
 
 namespace Aggregator
@@ -28,7 +25,7 @@ struct ImageData
 //
 // Actual aggregator. There will be one per texture.
 //
-class Image : public Aggregator<ImageData>
+class Image : public Engine::Aggregator<ImageData>
 {
 public:
    Image();
@@ -39,7 +36,7 @@ public:
 
 private:
    // Map from Texture ID to a list of indices in mVBO.
-   using VBOWithData = std::pair<Graphics::VBO, std::vector<GLuint>>;
+   using VBOWithData = std::pair<Engine::Graphics::VBO, std::vector<GLuint>>;
    std::unordered_map<GLuint, VBOWithData> mTextureIndices;
 
 private:
@@ -48,6 +45,4 @@ private:
 
 }; // namespace Aggregator
    
-}; // namespace Engine
-
 }; // namespace CubeWorld

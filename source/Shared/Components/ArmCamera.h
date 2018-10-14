@@ -13,9 +13,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 //
 // RenderCamera implements the Camera class in a unique way.
 //
@@ -77,7 +74,5 @@ struct KeyControlledCameraArm : public Engine::Component<KeyControlledCameraArm>
    uint32_t zoomIn, zoomOut;
    double sensitivity;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

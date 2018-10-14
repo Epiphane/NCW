@@ -19,9 +19,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 struct MouseControlledCamera : public Engine::Component<MouseControlledCamera> {
    MouseControlledCamera(double pitchSensitivity = 0.007, double yawSensitivity = 0.007)
       : sensitivity{pitchSensitivity, yawSensitivity}
@@ -75,7 +72,5 @@ private:
    glm::tvec2<double> mLast;
    glm::tvec2<double> mDragged;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

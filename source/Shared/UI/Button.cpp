@@ -11,7 +11,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
@@ -115,6 +115,6 @@ void Button::SetState(State state)
    UpdateRegion();
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

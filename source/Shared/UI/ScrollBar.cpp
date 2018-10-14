@@ -13,7 +13,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
@@ -22,7 +22,7 @@ ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
    , mMin(options.min)
    , mRange(options.max - options.min)
    , mCallback(options.onChange)
-   , mRegion(root->Reserve<Engine::Aggregator::Image>(2))
+   , mRegion(root->Reserve<Aggregator::Image>(2))
 {
    LOG_DEBUG("Loading %1", Paths::Canonicalize(options.filename));
    Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance()->GetTexture(options.filename);
@@ -39,7 +39,7 @@ ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
       mCoords = mTexture->GetImage(options.image);
    }
 
-   root->GetAggregator<Engine::Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
+   root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
 }
 
 void ScrollBar::Receive(const MouseDownEvent& evt)
@@ -83,7 +83,7 @@ void ScrollBar::Update(TIMEDELTA)
 void ScrollBar::UpdateRegion()
 {
    double offset = (GetValue() - mMin) / mRange;
-   std::vector<Engine::Aggregator::ImageData> vertices{
+   std::vector<Aggregator::ImageData> vertices{
       { mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y) },
       { mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w) },
    };
@@ -96,6 +96,6 @@ void ScrollBar::Receive(const Engine::UIRebalancedEvent&)
    UpdateRegion();
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

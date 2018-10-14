@@ -9,7 +9,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
@@ -88,6 +88,6 @@ void TextField::Receive(const MouseClickEvent& evt)
    }
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

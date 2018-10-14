@@ -88,7 +88,7 @@ public:
 
 private:
    // Aggregators for batch rendering.
-   std::vector<std::unique_ptr<Aggregator::BaseAggregator>> mAggregators;
+   std::vector<std::unique_ptr<BaseAggregator>> mAggregators;
    
    // Holds all the vertices pushed by this element's children.
    std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;

@@ -1,26 +1,23 @@
 // By Thomas Steinke
 
-#include "../Core/Window.h"
-#include "../Logger/Logger.h"
+#include <Engine/Core/Window.h>
+#include <Engine/Logger/Logger.h>
 
-#include "Image.h"
+#include "Text.h"
 
 namespace CubeWorld
-{
-
-namespace Engine
 {
 
 namespace Aggregator
 {
 
-std::unique_ptr<Engine::Graphics::Program> Image::program = nullptr;
+std::unique_ptr<Engine::Graphics::Program> Text::program = nullptr;
 
-Image::Image()
+Text::Text()
 {
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/2DTexture.vert", "Shaders/2DTexture.geom", "Shaders/2DTexture.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
@@ -36,12 +33,12 @@ Image::Image()
    }
 }
 
-void Image::ConnectToTexture(const Region& region, GLuint texture)
+void Text::ConnectToTexture(const Region& region, GLuint texture)
 {
    auto entry = mTextureIndices.find(texture);
    if (entry == mTextureIndices.end())
    {
-      VBOWithData data = std::make_pair(Graphics::VBO(Graphics::VBO::Indices), std::vector<GLuint>());
+      VBOWithData data = std::make_pair(Engine::Graphics::VBO(Engine::Graphics::VBO::Indices), std::vector<GLuint>());
       mTextureIndices.emplace(texture, std::move(data));
    }
 
@@ -53,9 +50,9 @@ void Image::ConnectToTexture(const Region& region, GLuint texture)
    vboData.first.BufferData(sizeof(GLuint) * GLsizei(vboData.second.size()), vboData.second.data(), GL_STATIC_DRAW);
 }
 
-void Image::Render()
+void Text::Render()
 {
-   Window* pWindow = Window::Instance();
+   Engine::Window* pWindow = Engine::Window::Instance();
 
    BIND_PROGRAM_IN_SCOPE(program);
 
@@ -66,8 +63,8 @@ void Image::Render()
       program->Uniform1i("uTexture", 0);
       program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
 
-      mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(ImageData), (void*)0);
-      mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(ImageData), (void*)(sizeof(glm::vec3)));
+      mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(TextData), (void*)0);
+      mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TextData), (void*)(sizeof(glm::vec3)));
 
       VBOWithData indices = pair.second;
       indices.first.Bind();
@@ -76,7 +73,5 @@ void Image::Render()
 }
 
 }; // namespace Aggregator
-   
-}; // namespace Engine
 
 }; // namespace CubeWorld

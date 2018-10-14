@@ -1,7 +1,6 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
-#include <Engine/UI/UIRectFilled.h>
 #include <Shared/DebugHelper.h>
 
 #include "Dock.h"
@@ -16,6 +15,8 @@ namespace Editor
 
 namespace AnimationStation
 {
+
+using UI::StateWindow;
 
 Editor::Editor(Bounded& parent) : UIRoot(parent)
 {
@@ -53,7 +54,7 @@ Editor::Editor(Bounded& parent) : UIRoot(parent)
 
 void Editor::Start()
 {
-   Game::DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
+   DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
 }
 
 }; // namespace AnimationStation

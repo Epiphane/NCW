@@ -1,14 +1,11 @@
 // By Thomas Steinke
 
-#include "../Core/Window.h"
-#include "../Logger/Logger.h"
+#include <Engine/Core/Window.h>
+#include <Engine/Logger/Logger.h>
 
 #include "Rect.h"
 
 namespace CubeWorld
-{
-
-namespace Engine
 {
 
 namespace Aggregator
@@ -35,7 +32,7 @@ Rect::Rect()
 
 void Rect::Render()
 {
-   Window* pWindow = Window::Instance();
+   Engine::Window* pWindow = Engine::Window::Instance();
 
    BIND_PROGRAM_IN_SCOPE(program);
 
@@ -48,7 +45,5 @@ void Rect::Render()
 }
 
 }; // namespace Aggregator
-   
-}; // namespace Engine
 
 }; // namespace CubeWorld

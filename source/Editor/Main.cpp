@@ -13,21 +13,24 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Logger/StdoutLogger.h>
 #include <Engine/Logger/DebugLogger.h>
-#include <Engine/UI/UIRectFilled.h>
 
-#include <Shared/Helpers/Asset.h>
 #include <Shared/DebugHelper.h>
+#include <Shared/Helpers/Asset.h>
+#include <Shared/UI/RectFilled.h>
+#include <Shared/UI/Swapper.h>
+#include <Shared/UI/TextButton.h>
 
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
-#include "UI/UISwapper.h"
-#include "UI/TextButton.h"
 
 #include "Main.h"
 
 using namespace CubeWorld;
 using namespace Engine;
+
+using UI::RectFilled;
+using UI::TextButton;
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
@@ -69,7 +72,7 @@ int main(int argc, char** argv)
    });
 
    // Swaps between the different editors
-   Editor::UISwapper windowContent;
+   UI::Swapper windowContent;
 
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
@@ -78,10 +81,8 @@ int main(int argc, char** argv)
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
-      using TextButton = Editor::TextButton;
-
-      Engine::UIRectFilled* bg = controls.Add<Engine::UIRectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      Engine::UIRectFilled* fg = controls.Add<Engine::UIRectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = controls.Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = controls.Add<RectFilled>(glm::vec4(0, 0, 0, 1));
 
       TextButton::Options buttonOptions;
       buttonOptions.text = "Animation Station";
@@ -130,7 +131,7 @@ int main(int argc, char** argv)
    }
 
    // Configure Debug helper
-   Game::DebugHelper* debug = Game::DebugHelper::Instance();
+   DebugHelper* debug = DebugHelper::Instance();
 
    // FPS clock
    Timer<100> clock(SEC_PER_FRAME);

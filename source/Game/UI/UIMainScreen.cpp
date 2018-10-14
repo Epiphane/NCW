@@ -1,23 +1,24 @@
 // By Thomas Steinke
 
 #include "UIMainScreen.h"
-#include "UIRectFilled.h"
+#include <Shared/UI/RectFilled.h>
 
 namespace CubeWorld
 {
 
-namespace Engine
+namespace Game
 {
+
+using Engine::UIFrame;
+using UI::RectFilled;
  
 UIMainScreen::UIMainScreen(const Bounded& bounds)
    : UIRoot(bounds)
 {
-   UIRectFilled *testRect = Add<UIRectFilled>();
-   testRect->SetColor({1.0f, 0.0f, 0.0f, 0.5f});
+   RectFilled *testRect = Add<RectFilled>(glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
    UIFrame funFrame = testRect->GetFrame();
 
-   UIRectFilled *testRect2 = Add<UIRectFilled>();
-   testRect2->SetColor({0.0f, 1.0f, 1.0f, 0.5f});
+   RectFilled *testRect2 = Add<RectFilled>(glm::vec4(0.0f, 1.0f, 1.0f, 0.5f));
    UIFrame funnerFrame = testRect2->GetFrame();
 
    mSolver.add_constraints({
@@ -34,6 +35,6 @@ UIMainScreen::UIMainScreen(const Bounded& bounds)
    });
 }
    
-}; // namespace Engine
+}; // namespace Game
 
 }; // namespace CubeWorld

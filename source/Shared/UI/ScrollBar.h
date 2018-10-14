@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Aggregator/Image.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Command.h>
 #include <Engine/Event/InputEvent.h>
@@ -17,10 +16,12 @@
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
 
+#include "../Aggregator/Image.h"
+
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
@@ -77,9 +78,9 @@ private:
    glm::vec4 mCoords;
 
 private:
-   Engine::Aggregator::Image::Region mRegion;
+   Aggregator::Image::Region mRegion;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

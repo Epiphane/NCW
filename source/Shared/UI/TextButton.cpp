@@ -12,7 +12,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 TextButton::TextButton(
@@ -56,6 +56,6 @@ void TextButton::Update(TIMEDELTA dt)
    Text::Update(dt);
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

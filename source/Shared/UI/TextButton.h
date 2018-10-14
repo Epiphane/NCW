@@ -18,7 +18,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
@@ -52,6 +52,6 @@ private:
    bool mIsHovered;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

@@ -23,9 +23,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 class DebugHelper : public Engine::Singleton<DebugHelper> {
 public:
    // Metrics are stored as a doubly-linked list, to allow for easy insertion and removal.
@@ -106,7 +103,5 @@ private:
 private:
    static std::unique_ptr<Engine::Graphics::Program> program;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

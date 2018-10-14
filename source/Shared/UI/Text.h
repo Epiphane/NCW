@@ -6,24 +6,22 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Aggregator/Text.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/UIElement.h>
+#include "../Aggregator/Text.h"
 
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
-// Manages a subsection of the Editor. Notably, allows for hooking up different framebuffers,
-// binding and unbinding them in an understandable way, and re-rendering those pieces into
-// the space they belong.
+// Generic element that contains text. It can be mutable (see TextField), or immutable.
 //
 class Text : public Engine::UIElement
 {
@@ -71,9 +69,9 @@ private:
    Engine::Graphics::Font* mFont;
 
 private:
-   Engine::Aggregator::Text::Region mRegion;
+   Aggregator::Text::Region mRegion;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

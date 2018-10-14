@@ -1,11 +1,11 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#include <Engine/UI/UIRectFilled.h>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/UI/Button.h>
+#include <Shared/UI/RectFilled.h>
 
 #include "../Command/CommandStack.h"
-#include "../UI/Button.h"
 
 #include "Dock.h"
 
@@ -18,10 +18,11 @@ namespace Editor
 namespace AnimationStation
 {
 
-using Game::AnimatedSkeleton;
-using State = Game::AnimatedSkeleton::State;
-using Keyframe = Game::AnimatedSkeleton::Keyframe;
-using Bone = Game::AnimatedSkeleton::Bone;
+using State = AnimatedSkeleton::State;
+using Keyframe = AnimatedSkeleton::Keyframe;
+using Bone = AnimatedSkeleton::Bone;
+using UI::Button;
+using UI::RectFilled;
 
 namespace
 {
@@ -57,8 +58,8 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
 {
    // Background
    {
-      Engine::UIRectFilled* bg = Add<Engine::UIRectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      Engine::UIRectFilled* fg = Add<Engine::UIRectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
 
       Engine::UIFrame& fBackground = bg->GetFrame();
       Engine::UIFrame& fForeground = fg->GetFrame();
@@ -542,7 +543,7 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    */
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
 }
 
@@ -560,7 +561,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 ///
 ///
-void Dock::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
+void Dock::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
    //mScrubber->Bind(&mSkeleton->time);

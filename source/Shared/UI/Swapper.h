@@ -10,16 +10,16 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
 // Allows for easily swapping among multiple UIs.
 //
-class UISwapper
+class Swapper
 {
 public:
-   UISwapper()
+   Swapper()
       : mCurrent(nullptr)
       , mChildren{}
    {}
@@ -40,7 +40,7 @@ public:
    template <typename E, typename ...Args>
    E* Add(Args&& ...args)
    {
-      static_assert(std::is_base_of<Engine::UIRoot, E>::value, "Only subclasses of UIRoot may be added to a UISwapper");
+      static_assert(std::is_base_of<Engine::UIRoot, E>::value, "Only subclasses of UIRoot may be added to a Swapper");
       return static_cast<E*>(AddChild(std::make_unique<E>(std::forward<Args>(args) ...)));
    }
 
@@ -56,6 +56,6 @@ private:
    std::vector<std::unique_ptr<Engine::UIRoot>> mChildren;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

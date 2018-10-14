@@ -8,28 +8,28 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
-#include <Engine/Aggregator/Image.h>
 
+#include "../Aggregator/Image.h"
 #include "StateWindow.h"
 
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
    : UIElement(root, parent)
    , mState(nullptr)
    , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
-   , mRegion(root->Reserve<Engine::Aggregator::Image>(2))
+   , mRegion(root->Reserve<Aggregator::Image>(2))
 {
    if (state)
    {
       SetState(std::move(state));
    }
 
-   root->GetAggregator<Engine::Aggregator::Image>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
+   root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
 }
 
 void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
@@ -48,7 +48,7 @@ void StateWindow::Update(TIMEDELTA dt)
 
 void StateWindow::Receive(const Engine::UIRebalancedEvent&)
 {
-   std::vector<Engine::Aggregator::ImageData> vertices{
+   std::vector<Aggregator::ImageData> vertices{
       { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
       { mFrame.GetTopRight(), glm::vec2(1, 1) },
    };
@@ -56,6 +56,6 @@ void StateWindow::Receive(const Engine::UIRebalancedEvent&)
    mRegion.Set(vertices.data());
 }
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

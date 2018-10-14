@@ -12,12 +12,13 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/UIElement.h>
-#include <Engine/Aggregator/Image.h>
+
+#include "../Aggregator/Image.h"
 
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
@@ -47,9 +48,9 @@ private:
    Engine::Graphics::Framebuffer mFramebuffer;
 
 private:
-   Engine::Aggregator::Image::Region mRegion;
+   Aggregator::Image::Region mRegion;
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld

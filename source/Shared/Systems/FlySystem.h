@@ -8,25 +8,22 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-   struct FlySpeed : public Engine::Component<FlySpeed> {
-      FlySpeed(double speed) : speed(speed)
-      {};
-      
-      double speed;
-   };
+struct FlySpeed : public Engine::Component<FlySpeed> {
+   FlySpeed(double speed) : speed(speed)
+   {};
    
-   class FlySystem : public Engine::System<FlySystem> {
-   public:
-      FlySystem(Engine::Input* input) : mInput(input) {}
-      ~FlySystem() {}
-      
-      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-      
-   private:
-      Engine::Input* mInput;
-   };
-}; // namespace Game
+   double speed;
+};
+
+class FlySystem : public Engine::System<FlySystem> {
+public:
+   FlySystem(Engine::Input* input) : mInput(input) {}
+   ~FlySystem() {}
+   
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
+   
+private:
+   Engine::Input* mInput;
+};
 
 }; // namespace CubeWorld

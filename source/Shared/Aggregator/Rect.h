@@ -8,13 +8,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include "../Graphics/FontManager.h"
-#include "Aggregator.h"
+#include <Engine/Graphics/FontManager.h>
+#include <Engine/Aggregator/Aggregator.h>
 
 namespace CubeWorld
-{
-
-namespace Engine
 {
 
 namespace Aggregator
@@ -25,7 +22,7 @@ struct RectData {
    glm::vec4 color;
 };
 
-class Rect : public Aggregator<RectData>
+class Rect : public Engine::Aggregator<RectData>
 {
 public:
    Rect();
@@ -37,7 +34,5 @@ private:
 };
 
 }; // namespace Aggregator
-   
-}; // namespace Engine
 
 }; // namespace CubeWorld

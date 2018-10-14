@@ -10,24 +10,21 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-   struct Makeshift : public Engine::Component<Makeshift> {
-      using Callback = std::function<void(Engine::EntityManager&, Engine::EventManager&, TIMEDELTA)>;
+struct Makeshift : public Engine::Component<Makeshift> {
+   using Callback = std::function<void(Engine::EntityManager&, Engine::EventManager&, TIMEDELTA)>;
 
-      Makeshift(Callback cb) : callback(cb)
-      {};
-      
-      Callback callback;
-   };
+   Makeshift(Callback cb) : callback(cb)
+   {};
    
-   class MakeshiftSystem : public Engine::System<MakeshiftSystem> {
-   public:
-      MakeshiftSystem() {}
-      ~MakeshiftSystem() {}
-      
-      void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-   };
-}; // namespace Game
+   Callback callback;
+};
+
+class MakeshiftSystem : public Engine::System<MakeshiftSystem> {
+public:
+   MakeshiftSystem() {}
+   ~MakeshiftSystem() {}
+   
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
+};
 
 }; // namespace CubeWorld

@@ -20,7 +20,7 @@
 namespace CubeWorld
 {
 
-namespace Editor
+namespace UI
 {
 
 //
@@ -56,6 +56,6 @@ private:
    void OnAlphaKey(int key, int action, int mods);
 };
 
-}; // namespace Editor
+}; // namespace UI
 
 }; // namespace CubeWorld
