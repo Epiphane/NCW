@@ -39,7 +39,7 @@ Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& o
 
 void Button::Receive(const MouseDownEvent& evt)
 {
-   if (evt.button != GLFW_MOUSE_BUTTON_LEFT)
+   if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
       return;
    }
@@ -52,7 +52,7 @@ void Button::Receive(const MouseDownEvent& evt)
 
 void Button::Receive(const MouseUpEvent& evt)
 {
-   if (evt.button != GLFW_MOUSE_BUTTON_LEFT)
+   if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
       return;
    }
@@ -73,7 +73,7 @@ void Button::Receive(const MouseUpEvent& evt)
 
 void Button::Update(TIMEDELTA dt)
 {
-   if (mCallback)
+   if (mActive)
    {
       glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
       bool hovered = ContainsPoint(mouse.x, mouse.y);
@@ -111,8 +111,7 @@ void Button::SetState(State state)
       break;
    }
 
-   // Update the VBO region
-   UpdateRegion();
+   Redraw();
 }
 
 }; // namespace UI

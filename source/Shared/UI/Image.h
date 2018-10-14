@@ -30,9 +30,7 @@ public:
 public:
    Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
-   void UpdateRegion();
-
-   void Receive(const Engine::UIRebalancedEvent& evt) override;
+   void Redraw() override;
 
 protected:
    Engine::Graphics::Texture* mTexture;

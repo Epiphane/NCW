@@ -41,7 +41,7 @@ public:
    void Update(TIMEDELTA dt) override;
 
 public:
-   void Receive(const Engine::UIRebalancedEvent& evt) override;
+   void Redraw() override;
 
 private:
    std::unique_ptr<Engine::State> mState;

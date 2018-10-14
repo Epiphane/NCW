@@ -44,31 +44,20 @@ public:
    //
    // Render the text on this label
    //
-   void SetText(const std::string& text)
-   {
-      if (text == mText)
-      {
-         return;
-      }
+   void SetText(const std::string& text);
 
-      mText = text;
-      RenderText(text);
-   }
-
-   void Receive(const Engine::UIRebalancedEvent& evt) override;
+public:
+   void Redraw() override;
 
 protected:
    void RenderText(const std::string& text);
 
-   std::string mText;
+   Engine::Graphics::Font* mFont;
 
+   std::string mText;
    // Could be different from mText, see TextButton
    std::string mRendered;
 
-private:
-   Engine::Graphics::Font* mFont;
-
-private:
    Aggregator::Text::Region mRegion;
 };
 

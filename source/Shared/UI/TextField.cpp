@@ -30,7 +30,7 @@ TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
 
 void TextField::OnAlphaKey(int key, int action, int mods)
 {
-   if (!mIsFocused || action != GLFW_PRESS)
+   if (!mActive || !mIsFocused || action != GLFW_PRESS)
    {
       return;
    }
@@ -65,7 +65,7 @@ void TextField::OnAlphaKey(int key, int action, int mods)
 
 void TextField::Receive(const MouseClickEvent& evt)
 {
-   if (evt.button != GLFW_MOUSE_BUTTON_LEFT)
+   if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
       return;
    }

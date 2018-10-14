@@ -59,10 +59,7 @@ public:
    }
 
 private:
-   void UpdateRegion();
-
-public:
-   void Receive(const Engine::UIRebalancedEvent& evt) override;
+   void Redraw() override;
 
 protected:
    // State

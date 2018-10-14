@@ -21,6 +21,8 @@ namespace AnimationStation
 using State = AnimatedSkeleton::State;
 using Keyframe = AnimatedSkeleton::Keyframe;
 using Bone = AnimatedSkeleton::Bone;
+using Engine::UIElement;
+using Engine::UIFrame;
 using UI::Button;
 using UI::RectFilled;
 
@@ -42,9 +44,9 @@ size_t GetKeyframeIndex(State& state, double time)
    return keyframeIndex;
 }
 
-///
-///
-///
+//
+//
+//
 Keyframe& GetKeyframe(State& state, double time)
 {
    return state.keyframes[GetKeyframeIndex(state, time)];
@@ -52,7 +54,7 @@ Keyframe& GetKeyframe(State& state, double time)
 
 }; // anonymous namespace
 
-Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
+Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
    , mBone(9)
 {
@@ -61,8 +63,8 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
       RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
       RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
 
-      Engine::UIFrame& fBackground = bg->GetFrame();
-      Engine::UIFrame& fForeground = fg->GetFrame();
+      UIFrame& fBackground = bg->GetFrame();
+      UIFrame& fForeground = fg->GetFrame();
       root->AddConstraints({
          fBackground.left == mFrame.left,
          fBackground.right == mFrame.right,
@@ -87,16 +89,16 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    });
 
    // State name
-   Engine::UIElement* stateName = Add<Engine::UIElement>();
-   Engine::UIFrame& fStateName = stateName->GetFrame();
+   UIElement* stateName = Add<UIElement>();
+   UIFrame& fStateName = stateName->GetFrame();
    {
-      Engine::UIFrame& fRow = fStateName;
-      Engine::UIFrame& fLabel = stateName->Add<Text>(Text::Options{"Name"})->GetFrame();
+      UIFrame& fRow = fStateName;
+      UIFrame& fLabel = stateName->Add<Text>(Text::Options{"Name"})->GetFrame();
 
       mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
          CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
       }});
-      Engine::UIFrame& fValue = mStateName->GetFrame();
+      UIFrame& fValue = mStateName->GetFrame();
 
       root->AddConstraints({
          fStateName.left == c1,
@@ -120,25 +122,25 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
-      Engine::UIFrame& fPrevState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fPrevState = stateName->Add<Button>(buttonOptions)->GetFrame();
 
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
-      Engine::UIFrame& fNextState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fNextState = stateName->Add<Button>(buttonOptions)->GetFrame();
 
       buttonOptions.image = "button_add";
       buttonOptions.hoverImage = "hover_button_add";
       buttonOptions.pressImage = "press_button_add";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
-      Engine::UIFrame& fAddState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fAddState = stateName->Add<Button>(buttonOptions)->GetFrame();
 
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
-      Engine::UIFrame& fRemState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fRemState = stateName->Add<Button>(buttonOptions)->GetFrame();
 
       root->AddConstraints({
          fPrevState.left == c3,
@@ -157,14 +159,14 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    }
 
    // State length
-   Engine::UIElement* stateLength = Add<Engine::UIElement>();
-   Engine::UIFrame& fStateLength = stateLength->GetFrame();
+   UIElement* stateLength = Add<UIElement>();
+   UIFrame& fStateLength = stateLength->GetFrame();
    {
-      Engine::UIFrame& fRow = fStateLength;
-      Engine::UIFrame& fLabel = stateLength->Add<Text>(Text::Options{"Length"})->GetFrame();
+      UIFrame& fRow = fStateLength;
+      UIFrame& fLabel = stateLength->Add<Text>(Text::Options{"Length"})->GetFrame();
 
       mStateLength.text = stateLength->Add<NumDisplay<double>>(NumDisplay<double>::Options(1));
-      Engine::UIFrame& fValue = mStateLength.text->GetFrame();
+      UIFrame& fValue = mStateLength.text->GetFrame();
 
       root->AddConstraints({
          fStateLength.left == c1,
@@ -184,11 +186,11 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    }
 
    // Keyframe buttons
-   Engine::UIElement* keyframe = Add<Engine::UIElement>();
-   Engine::UIFrame& fKeyframe = keyframe->GetFrame();
+   UIElement* keyframe = Add<UIElement>();
+   UIFrame& fKeyframe = keyframe->GetFrame();
    {
-      Engine::UIFrame& fRow = fKeyframe;
-      Engine::UIFrame& fLabel = keyframe->Add<Text>(Text::Options{"Keyframe"})->GetFrame();
+      UIFrame& fRow = fKeyframe;
+      UIFrame& fLabel = keyframe->Add<Text>(Text::Options{"Keyframe"})->GetFrame();
 
       root->AddConstraints({
          fKeyframe.left == c1,
@@ -214,7 +216,7 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
             CommandStack::Instance()->Do<AddKeyframeCommand>(this);
          }
       };
-      Engine::UIFrame& fAddFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fAddFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
 
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
@@ -227,7 +229,7 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
             CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
          }
       };
-      Engine::UIFrame& fRemFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
+      UIFrame& fRemFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
 
       root->AddConstraints({
          fAddFrame.left == c3,
@@ -240,14 +242,14 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    }
 
    // State length
-   Engine::UIElement* time = Add<Engine::UIElement>();
-   Engine::UIFrame& fTime = time->GetFrame();
+   UIElement* time = Add<UIElement>();
+   UIFrame& fTime = time->GetFrame();
    {
-      Engine::UIFrame& fRow = fTime;
-      Engine::UIFrame& fLabel = time->Add<Text>(Text::Options{"Time"})->GetFrame();
+      UIFrame& fRow = fTime;
+      UIFrame& fLabel = time->Add<Text>(Text::Options{"Time"})->GetFrame();
 
       mTime = time->Add<NumDisplay<double>>(NumDisplay<double>::Options(2));
-      Engine::UIFrame& fValue = mTime->GetFrame();
+      UIFrame& fValue = mTime->GetFrame();
 
       root->AddConstraints({
          fTime.left == c1,
@@ -267,10 +269,10 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
    }
 
    // Playback controls
-   Engine::UIElement* playback = Add<Engine::UIElement>();
-   Engine::UIFrame& fPlayback = playback->GetFrame();
+   UIElement* playback = Add<UIElement>();
+   UIFrame& fPlayback = playback->GetFrame();
    {
-      Engine::UIFrame& fRow = fPlayback;
+      UIFrame& fRow = fPlayback;
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
 
@@ -279,20 +281,21 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
       buttonOptions.pressImage = "press_button_play";
       buttonOptions.onClick = [&]() { mController->paused = false; };
       mPlay = playback->Add<Button>(buttonOptions);
-      Engine::UIFrame& fPlay = mPlay->GetFrame();
+      UIFrame& fPlay = mPlay->GetFrame();
 
       buttonOptions.image = "button_pause";
       buttonOptions.hoverImage = "hover_button_pause";
       buttonOptions.pressImage = "press_button_pause";
       buttonOptions.onClick = [&]() { mController->paused = true; };
       mPause = playback->Add<Button>(buttonOptions);
-      Engine::UIFrame& fPause = mPause->GetFrame();
+      UIFrame& fPause = mPause->GetFrame();
 
       buttonOptions.image = "button_next_frame";
       buttonOptions.hoverImage = "hover_button_next_frame";
       buttonOptions.pressImage = "press_button_next_frame";
       buttonOptions.onClick = [&]() { mController->nextTick = 0.1; };
-      Engine::UIFrame& fNextFrame = playback->Add<Button>(buttonOptions)->GetFrame();
+      mTick = playback->Add<Button>(buttonOptions);
+      UIFrame& fNextFrame = mTick->GetFrame();
 
       root->AddConstraints({
          fPlayback.left == c4,

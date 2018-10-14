@@ -55,7 +55,7 @@ void ScrollBar::Receive(const MouseUpEvent& evt)
    if (evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = false;
-      UpdateRegion();
+      Redraw();
    }
 }
 
@@ -71,16 +71,16 @@ void ScrollBar::Update(TIMEDELTA)
          mCallback(GetValue());
       }
 
-      UpdateRegion();
+      Redraw();
    }
 
    if (Binding::Update())
    {
-      UpdateRegion();
+      Redraw();
    }
 }
 
-void ScrollBar::UpdateRegion()
+void ScrollBar::Redraw()
 {
    double offset = (GetValue() - mMin) / mRange;
    std::vector<Aggregator::ImageData> vertices{
@@ -89,11 +89,6 @@ void ScrollBar::UpdateRegion()
    };
 
    mRegion.Set(vertices.data());
-}
-
-void ScrollBar::Receive(const Engine::UIRebalancedEvent&)
-{
-   UpdateRegion();
 }
 
 }; // namespace UI

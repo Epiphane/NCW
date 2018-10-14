@@ -42,20 +42,21 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
 }
 
-void Image::UpdateRegion()
+void Image::Redraw()
 {
-   std::vector<Aggregator::ImageData> vertices{
-      { mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y) },
-      { mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w) },
-   };
+   std::vector<Aggregator::ImageData> vertices;
+   if (mActive)
+   {
+      vertices.push_back({mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y)});
+      vertices.push_back({mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w)});
+   }
+   else
+   {
+      vertices.push_back({glm::vec3(0),glm::vec2(0)});
+      vertices.push_back({glm::vec3(0),glm::vec2(0)});
+   }
 
    mRegion.Set(vertices.data());
-}
-
-void Image::Receive(const Engine::UIRebalancedEvent& evt)
-{
-   UIElement::Receive(evt);
-   UpdateRegion();
 }
 
 }; // namespace UI

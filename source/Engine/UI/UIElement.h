@@ -128,15 +128,25 @@ public:
    }
 
    //
-   // Called whenever the UI is rebalanced. Use this for setting up VBO data,
-   // responding to the current size, etc.
+   // Called whenever the UI is rebalanced or the active-ness of this element
+   // is changed. Use this for setting up VBO data, responding to the current size, etc.
    //
-   virtual void Receive(const UIRebalancedEvent&) {}
+   virtual void Redraw() {}
+
+   //
+   // Called whenever the UI is rebalanced. 
+   //
+   void Receive(const UIRebalancedEvent&);
 
    //
    // Set whether an element is active or inactive.
    //
-   void SetActive(bool) { /* TODO */ }
+   virtual void SetActive(bool active);
+
+   //
+   // Get whether this element is active.
+   //
+   bool IsActive() { return mActive; }
 
    //
    // Update the element, called once per frame with the time elapsed.

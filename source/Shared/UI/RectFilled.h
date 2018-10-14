@@ -32,10 +32,7 @@ public:
    glm::vec4 GetColor() { return mColor; }
 
 public:
-   void Receive(const Engine::UIRebalancedEvent& evt) override;
-
-private:
-   void Update();
+   void Redraw() override;
 
 private:
    glm::vec4 mColor;

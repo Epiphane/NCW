@@ -21,7 +21,7 @@ RectFilled::RectFilled(Engine::UIRoot* root, UIElement* parent, glm::vec4 color)
 {
 }
 
-void RectFilled::Update()
+void RectFilled::Redraw()
 {
    std::vector<Aggregator::RectData> data({
       { mFrame.GetBottomLeft(), mColor },
@@ -34,13 +34,7 @@ void RectFilled::Update()
 void RectFilled::SetColor(glm::vec4 color)
 {
    mColor = color;
-   Update();
-}
-
-void RectFilled::Receive(const Engine::UIRebalancedEvent& evt)
-{
-   UIElement::Receive(evt);
-   Update();
+   Redraw();
 }
 
 }; // namespace UI

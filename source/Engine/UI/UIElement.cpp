@@ -33,6 +33,21 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
    return element;
 }
 
+void UIElement::Receive(const UIRebalancedEvent&)
+{
+   Redraw();
+}
+
+void UIElement::SetActive(bool active)
+{
+   mActive = active;
+   for (auto& child : mChildren)
+   {
+      child->SetActive(active);
+   }
+   Redraw();
+}
+
 void UIElement::Update(TIMEDELTA dt)
 {
    for (auto& child : mChildren) {

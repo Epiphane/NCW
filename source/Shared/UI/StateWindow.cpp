@@ -46,7 +46,7 @@ void StateWindow::Update(TIMEDELTA dt)
    mFramebuffer.Unbind();
 }
 
-void StateWindow::Receive(const Engine::UIRebalancedEvent&)
+void StateWindow::Redraw()
 {
    std::vector<Aggregator::ImageData> vertices{
       { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
