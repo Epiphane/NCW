@@ -29,6 +29,7 @@ Rect::Rect()
 
       program = std::move(*maybeProgram);
       program->Attrib("aPosition");
+      program->Attrib("aColor");
       program->Uniform("uWindowSize");
    }
 }
@@ -42,7 +43,7 @@ void Rect::Render()
    program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
 
    mVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)0);
-   mVBO.AttribPointer(program->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)(sizeof(glm::vec2)));
+   mVBO.AttribPointer(program->Attrib("aColor"),    4, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)(sizeof(glm::vec2)));
 
    glDrawArrays(GL_LINES, 0, mData.size());
 }

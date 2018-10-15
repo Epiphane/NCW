@@ -241,7 +241,7 @@ void Program::UniformMatrix4f(const std::string& name, const glm::mat4& matrix)
    glUniformMatrix4fv(Uniform(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-GLuint Program::Attrib(const std::string& name)
+GLint Program::Attrib(const std::string& name)
 {
    size_t oldCursor = attributeCursor;
    while (attributeCursor < attributes.size())
@@ -264,7 +264,7 @@ GLuint Program::Attrib(const std::string& name)
    }
 
    attributeCursor = 0;
-   GLuint location = glGetAttribLocation(id, name.c_str());
+   GLint location = glGetAttribLocation(id, name.c_str());
    attributes.push_back(std::make_pair(name, location));
 
    CheckErrors();

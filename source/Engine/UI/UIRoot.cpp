@@ -65,11 +65,15 @@ void UIRoot::UpdateRoot()
 
 void UIRoot::RenderRoot()
 {
+   glDepthFunc(GL_ALWAYS);
+   
    for (auto& aggregator : mAggregators)
    {
       aggregator->Update();
       aggregator->Render();
    }
+   
+   glDepthFunc(GL_LESS);
 }
 
 }; // namespace Engine
