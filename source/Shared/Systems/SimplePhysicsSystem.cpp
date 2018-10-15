@@ -13,9 +13,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 namespace SimplePhysics
 {
 
@@ -152,11 +149,11 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
    events.Subscribe<Engine::ComponentAddedEvent<Collider>>(*this);
    events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
 
-   updateMetric = Game::DebugHelper::Instance()->RegisterMetric("Physics Update", [this]() -> std::string {
+   updateMetric = DebugHelper::Instance()->RegisterMetric("Physics Update", [this]() -> std::string {
       return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
 
-   collisionMetric = Game::DebugHelper::Instance()->RegisterMetric("Collision Checks", [this]() -> std::string {
+   collisionMetric = DebugHelper::Instance()->RegisterMetric("Collision Checks", [this]() -> std::string {
       return Format::FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
    });
 }
@@ -331,7 +328,5 @@ void Debug::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMED
 }
 
 }; // namespace SimplePhysics
-   
-}; // namespace Game
 
 }; // namespace CubeWorld

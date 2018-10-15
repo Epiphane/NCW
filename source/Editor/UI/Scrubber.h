@@ -10,13 +10,14 @@
 
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Command.h>
+#include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/Logger/Logger.h>
-
-#include "Binding.h"
-#include "Element.h"
+#include <Engine/UI/Binding.h>
+#include <Engine/UI/UIElement.h>
+#include <Shared/UI/Image.h>
 
 namespace CubeWorld
 {
@@ -27,27 +28,18 @@ namespace Editor
 //
 // This is just convenience, so I can hide some implementation in Scrubber.cpp. Always use the derived Scrubber<N> class
 //
-class BaseScrubber : public Element
+class BaseScrubber : public UI::Image
 {
 public:
-   struct Options : public Element::Options {
-      std::string filename;
-      std::string image = "";
-   };
-
-public:
-   BaseScrubber(
-      Bounded& parent,
-      const Options& options
-   );
+   BaseScrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
    //
    // Render the framebuffer to this subwindow's location.
    //
    void Update(TIMEDELTA dt) override;
 
-   void MouseDown(int button, double x, double y) override;
-   void MouseUp(int button, double x, double y) override;
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseUpEvent& evt);
 
    bool IsScrubbing() { return mScrubbing != nullptr; }
 
@@ -58,18 +50,10 @@ private:
 protected:
    std::unique_ptr<Command> mScrubbing;
    glm::tvec2<double> mLastPosition;
-   glm::vec3 mOffset;
-
-private:
-   Engine::Graphics::Texture* mTexture;
-   Engine::Graphics::VBO mVBO;
-
-private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
 template <typename N>
-class Scrubber : public BaseScrubber, public Editor::Binding<N>
+class Scrubber : public BaseScrubber, public Engine::Binding<N>
 {
 public:
    ///
@@ -81,8 +65,8 @@ public:
       std::function<void(N, N)> onChange = nullptr;
    };
 
-   Scrubber(Bounded& parent, const Options& options)
-      : BaseScrubber(parent, options)
+   Scrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+      : BaseScrubber(root, parent, options)
       , mMin(options.min)
       , mMax(options.max)
       , mCallback(options.onChange)
@@ -90,7 +74,7 @@ public:
 
    void Update(TIMEDELTA dt) override
    {
-      Editor::Binding<N>::Update();
+      Engine::Binding<N>::Update();
       BaseScrubber::Update(dt);
    }
 

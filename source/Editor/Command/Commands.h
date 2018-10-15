@@ -5,8 +5,7 @@
 #include <stdint.h>
 
 #include <Engine/Core/Command.h>
-
-#include "../UI/UISwapper.h"
+#include <Shared/UI/Swapper.h>
 
 namespace CubeWorld
 {
@@ -17,7 +16,7 @@ namespace Editor
 class NavigateCommand : public Command
 {
 public:
-   NavigateCommand(UISwapper* swapper, Engine::UIRoot* state)
+   NavigateCommand(UI::Swapper* swapper, Engine::UIRoot* state)
       : swapper(swapper)
       , state(state)
       , prev(nullptr)
@@ -34,7 +33,7 @@ public:
    }
 
 private:
-   UISwapper* swapper;
+   UI::Swapper* swapper;
    Engine::UIRoot* state;
    Engine::UIRoot* prev;
 };

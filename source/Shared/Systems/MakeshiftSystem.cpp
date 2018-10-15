@@ -7,16 +7,11 @@
 namespace CubeWorld
 {
 
-namespace Game
+void MakeshiftSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
 {
-   
-   void MakeshiftSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
-   {
-      entities.Each<Makeshift>([&](Engine::Entity /*entity*/, Makeshift& custom) {
-         custom.callback(entities, events, dt);
-      });
-   }
-   
-}; // namespace Game
+   entities.Each<Makeshift>([&](Engine::Entity /*entity*/, Makeshift& custom) {
+      custom.callback(entities, events, dt);
+   });
+}
 
 }; // namespace CubeWorld

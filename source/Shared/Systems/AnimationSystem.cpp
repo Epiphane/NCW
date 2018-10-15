@@ -15,9 +15,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 namespace
 {
 
@@ -545,7 +542,5 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       }
    });
 }
-
-}; // namespace Game
 
 }; // namespace CubeWorld

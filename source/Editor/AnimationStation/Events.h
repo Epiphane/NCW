@@ -17,23 +17,23 @@ namespace AnimationStation
 
 struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
 {
-   SkeletonLoadedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
+   SkeletonLoadedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
 struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
 {
-   SkeletonSavedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
+   SkeletonSavedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
 struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
 {
-   SkeletonModifiedEvent(Engine::ComponentHandle<Game::AnimatedSkeleton> component) : component(component) {};
+   SkeletonModifiedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<Game::AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
 }; // namespace AnimationStation

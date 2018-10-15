@@ -1,10 +1,8 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
-#include <Engine/UI/UIRectFilled.h>
 #include <Shared/DebugHelper.h>
 
-#include "../UI/Controls.h"
 #include "Dock.h"
 #include "Editor.h"
 #include "Sidebar.h"
@@ -18,13 +16,14 @@ namespace Editor
 namespace AnimationStation
 {
 
+using UI::StateWindow;
+
 Editor::Editor(Bounded& parent) : UIRoot(parent)
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);
    std::unique_ptr<MainState> state{new MainState(Engine::Window::Instance(), mStateWindow->GetFrame())};
    state->SetParent(this);
-   mStateWindow->SetState(std::move(state));
 
    Sidebar* sidebar = Add<Sidebar>();
    Dock* dock = Add<Dock>();
@@ -37,7 +36,7 @@ Editor::Editor(Bounded& parent) : UIRoot(parent)
       fSidebar.left == mFrame.left,
       fSidebar.top == mFrame.top,
       fSidebar.width == mFrame.width * 0.2,
-      fSidebar.height == mFrame.height * 0.8,
+      fSidebar.height == mFrame.height,
 
       fDock.left == mFrame.left + fSidebar.width,
       fDock.bottom == mFrame.bottom,
@@ -49,11 +48,13 @@ Editor::Editor(Bounded& parent) : UIRoot(parent)
       fPreview.right == mFrame.right,
       fPreview.bottom == fDock.top,
    });
+
+   mStateWindow->SetState(std::move(state));
 }
 
 void Editor::Start()
 {
-   Game::DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
+   DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
 }
 
 }; // namespace AnimationStation

@@ -33,7 +33,7 @@ public:
 
 private:
    Engine::Graphics::CameraHandle mCamera;
-   Engine::ComponentHandle<Game::ArmCamera> mPlayerCam;
+   Engine::ComponentHandle<ArmCamera> mPlayerCam;
 
    Engine::Window* mWindow;
    Bounded& mParent;

@@ -16,9 +16,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 CubeModel::CubeModel()
    : mModel(nullptr)
    , mNumVoxels(0)
@@ -203,7 +200,5 @@ CubeModelInfo* CubeModelInfo::Load(const std::string& path, bool tintable)
    auto emplaceResult = sModels.emplace(path, std::move(result));
    return emplaceResult.first->second.get();
 }
-   
-}; // namespace Game
 
 }; // namespace CubeWorld

@@ -6,8 +6,8 @@
 
 #include <Engine/Event/EventManager.h>
 #include <Engine/UI/UIRoot.h>
+#include <Shared/UI/StateWindow.h>
 
-#include "../UI/StateWindow.h"
 #include "Dock.h"
 #include "Sidebar.h"
 #include "State.h"
@@ -34,7 +34,7 @@ public:
 private:
    Engine::EventManager mEvents;
 
-   StateWindow* mStateWindow;
+   UI::StateWindow* mStateWindow;
 };
 
 }; // namespace AnimationStation

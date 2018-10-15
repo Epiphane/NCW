@@ -10,9 +10,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 ArmCamera::ArmCamera(const Engine::ComponentHandle<Engine::Transform>& transform, const Options& options)
    : transform(transform)
    , aspect(options.aspect)
@@ -35,7 +32,5 @@ glm::mat4 ArmCamera::GetView() const
    glm::vec3 pos = transform->GetAbsolutePosition();
    return glm::lookAt(pos - transform->GetAbsoluteDirection() * distance, pos, glm::vec3(0, 1, 0));
 }
-   
-}; // namespace Game
 
 }; // namespace CubeWorld

@@ -386,7 +386,7 @@ public:
 #ifdef NDEBUG
    inline void assert_valid(Entity::ID) {}
 #else
-   inline void assert_valid(Entity::ID id) const 
+   inline void assert_valid(Entity::ID id) const
    {
       uint32_t index = id.index();
       uint32_t version = id.version();

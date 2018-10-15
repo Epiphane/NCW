@@ -21,14 +21,14 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
-#include <Engine/UI/UIMainScreen.h>
-
 #include <Shared/DebugHelper.h>
 
 #include "States/StupidState.h"
+#include "UI/UIMainScreen.h"
 #include "Main.h"
 
 using namespace CubeWorld;
+using namespace Game;
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
@@ -58,15 +58,15 @@ int main(int /* argc */, char ** /* argv */) {
       return 1;
    }
 
-   std::unique_ptr<Engine::State> initialState = std::make_unique<Game::StupidState>(window);
+   std::unique_ptr<Engine::State> initialState = std::make_unique<StupidState>(window);
    Engine::StateManager* stateManager = Engine::StateManager::Instance();
 
    stateManager->SetState(std::move(initialState));
 
-   Game::DebugHelper* debug = Game::DebugHelper::Instance();
+   DebugHelper* debug = DebugHelper::Instance();
    debug->SetBounds(window);
    
-   std::unique_ptr<Engine::UIMainScreen> ui = std::make_unique<Engine::UIMainScreen>(*window);
+   std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>(*window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {

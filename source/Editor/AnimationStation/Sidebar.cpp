@@ -3,11 +3,9 @@
 #include <fstream>
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
-#include <Engine/UI/UIRectFilled.h>
 #include <Shared/Helpers/Asset.h>
-
-#include "../UI/Image.h"
-#include "../UI/TextButton.h"
+#include <Shared/UI/RectFilled.h>
+#include <Shared/UI/TextButton.h>
 
 #include "Sidebar.h"
 
@@ -20,16 +18,35 @@ namespace Editor
 namespace AnimationStation
 {
 
-using Game::AnimatedSkeleton;
+using Engine::UIFrame;
+using Engine::UIRoot;
+using UI::RectFilled;
+using UI::TextButton;
 
-Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
+Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
    {
       // Backdrop
-      Engine::UIRectFilled* bg = Add<Engine::UIRectFilled>();
-      bg->SetColor(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+
+      UIFrame& fBackground = bg->GetFrame();
+      UIFrame& fForeground = fg->GetFrame();
+      root->AddConstraints({
+         fBackground.left == mFrame.left,
+         fBackground.right == mFrame.right,
+         fBackground.top == mFrame.top,
+         fBackground.bottom == mFrame.bottom,
+         mFrame > fForeground,
+
+         fForeground.left == fBackground.left + 2,
+         fForeground.right == fBackground.right - 2,
+         fForeground.top == fBackground.top - 2,
+         fForeground.bottom == fBackground.bottom,
+         fForeground > fBackground,
+      });
    }
 
    {
@@ -52,15 +69,16 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       TextButton* discard = Add<TextButton>(buttonOptions);
       
       buttonOptions.text = "Quit";
+      buttonOptions.size = 13; // "> Save first!"
       buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
       mQuit = Add<TextButton>(buttonOptions);
 
-      Engine::UIFrame& fLoad = load->GetFrame();
-      Engine::UIFrame& fSave = mSave->GetFrame();
-      Engine::UIFrame& fSaveAs = saveAs->GetFrame();
-      Engine::UIFrame& fDiscard = discard->GetFrame();
-      Engine::UIFrame& fQuit = mQuit->GetFrame();
-      root->AddContraints({
+      UIFrame& fLoad = load->GetFrame();
+      UIFrame& fSave = mSave->GetFrame();
+      UIFrame& fSaveAs = saveAs->GetFrame();
+      UIFrame& fDiscard = discard->GetFrame();
+      UIFrame& fQuit = mQuit->GetFrame();
+      root->AddConstraints({
          fLoad.left == mFrame.left + 8,
          fLoad.right == mFrame.right - 8,
          fLoad.top == mFrame.top - 8,
@@ -88,11 +106,11 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       });
    }
 
-   root->Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
 

@@ -25,9 +25,6 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#pragma warning(push, 0)
-#include <Shared/Helpers/json.hpp>
-#pragma warning(pop)
 #include "../Systems/AnimationSystem.h"
 #include "State.h"
 
@@ -42,10 +39,6 @@ namespace AnimationStation
 
 using Entity = Engine::Entity;
 using Transform = Engine::Transform;
-
-using ArmCamera = Game::ArmCamera;
-using AnimatedSkeleton = Game::AnimatedSkeleton;
-using DebugHelper = Game::DebugHelper;
 
 MainState::MainState(Engine::Window* window, Bounded& parent)
    : mWindow(window)
@@ -62,10 +55,10 @@ void MainState::Initialize()
 {
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
-   mSystems.Add<Game::CameraSystem>(mWindow->GetInput());
+   mSystems.Add<CameraSystem>(mWindow->GetInput());
    mSystems.Add<Editor::AnimationSystem>();
-   mSystems.Add<Game::MakeshiftSystem>();
-   mSystems.Add<Game::VoxelRenderSystem>(&mCamera);
+   mSystems.Add<MakeshiftSystem>();
+   mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
 
    // Unlock the mouse
@@ -91,8 +84,8 @@ void MainState::Initialize()
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
-   playerCamera.Add<Game::KeyControlledCamera>();
-   playerCamera.Add<Game::KeyControlledCameraArm>();
+   playerCamera.Add<KeyControlledCamera>();
+   playerCamera.Add<KeyControlledCameraArm>();
 
    mCamera.Set(mPlayerCam.get());
 
@@ -129,7 +122,7 @@ void MainState::Initialize()
    assert(carpet.size() > 0);
 
    Entity voxels = mEntities.Create(0, 0, 0);
-   voxels.Add<Game::VoxelRender>(std::move(carpet));
+   voxels.Add<VoxelRender>(std::move(carpet));
 
    mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
 }

@@ -5,9 +5,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 //
 // Node Mechanics.
 //
@@ -278,7 +275,5 @@ BaseAABBTree::BaseNode BaseAABBTree::Get(uint32_t index)
    if (index == BaseNodeData::INVALID) { return BaseNode::INVALID; }
    return BaseNode(this, BaseNode::ID(index, mNodeVersion[index]));
 }
-
-}; // namespace Game
 
 }; // namespace CubeWorld

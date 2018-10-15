@@ -7,10 +7,11 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
-#include <map>
 
 #include <glm/glm.hpp>
 #include <rhea/variable.hpp>
@@ -40,6 +41,19 @@ struct UIFrame : public Bounded
 {
    rhea::variable left, right, top, bottom;
    rhea::variable centerX, centerY, width, height;
+
+   // Larger z is displayed on top
+   rhea::variable z;
+
+   glm::vec3 GetTopRight()
+   {
+      return glm::vec3(right.value(), top.value(), z.value());
+   }
+
+   glm::vec3 GetBottomLeft()
+   {
+      return glm::vec3(left.value(), bottom.value(), z.value());
+   }
 
    uint32_t GetX() const override { return left.int_value(); }
    uint32_t GetY() const override { return bottom.int_value(); }
@@ -114,16 +128,36 @@ public:
    }
 
    //
-   // Called whenever the UI is rebalanced. Use this for setting up VBO data,
-   // responding to the current size, etc.
+   // Called whenever the UI is rebalanced or the active-ness of this element
+   // is changed. Use this for setting up VBO data, responding to the current size, etc.
    //
-   virtual void Receive(const Engine::UIRebalancedEvent&) {}
+   virtual void Redraw() {}
+
+   //
+   // Called whenever the UI is rebalanced. 
+   //
+   void Receive(const UIRebalancedEvent&);
+
+   //
+   // Set whether an element is active or inactive.
+   //
+   virtual void SetActive(bool active);
+
+   //
+   // Get whether this element is active.
+   //
+   bool IsActive() { return mActive; }
 
    //
    // Update the element, called once per frame with the time elapsed.
    // Useful for animations, resizing, and responding to input.
    //
    virtual void Update(TIMEDELTA dt);
+
+   //
+   // Create a constraint specifying that the height of {this} > {other}
+   //
+   void ConstrainAbove(UIElement* other, rhea::strength strength = rhea::strength::required());
 
    //
    // Add a named constraint to this element. Element will report this to its mpRoot.
@@ -136,7 +170,20 @@ public:
    //
    bool ContainsPoint(double x, double y);
 
+   //
+   // Emit an event to the UIRoot.
+   //
+   template<typename T, typename ...Args>
+   void SendEvent(Args... args)
+   {
+      mpRoot->Emit<T>(std::forward<Args>(args)...);
+   }
+
 protected:
+   // Whether or not this element is considered active.
+   // Adhering to this is up to the element itself.
+   bool mActive;
+
    // Contains the coordinates and size of the element
    UIFrame mFrame;
 
@@ -149,6 +196,14 @@ protected:
    UIRoot* mpRoot;
    UIElement* mpParent;
 };
+
+//
+// Operator-style constraint to specify that one object is above another.
+//
+rhea::linear_inequality operator>(UIElement& lhs, UIElement& rhs);
+rhea::linear_inequality operator>(UIElement& lhs, UIFrame& rhs);
+rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs);
+rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs);
 
 }; // namespace Engine
 

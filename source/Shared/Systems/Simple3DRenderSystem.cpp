@@ -17,9 +17,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-   
 Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
    : mVertices(Engine::Graphics::VBO::Vertices)
    , mColors(Engine::Graphics::VBO::Colors)
@@ -63,7 +60,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
       program->Uniform("uModelMatrix");
    }
 
-   metric = Game::DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
+   metric = DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
       return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }
@@ -93,7 +90,5 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
    });
    mClock.Elapsed();
 }
-
-}; // namespace Game
 
 }; // namespace CubeWorld

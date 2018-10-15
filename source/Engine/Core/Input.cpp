@@ -263,7 +263,7 @@ std::unique_ptr<Input::KeyCallbackLink> Input::AddCallback(KeyCombination key, i
       link->next->prev = link.get();
    }
 
-   return std::move(link);
+   return link;
 }
 
 std::vector<std::unique_ptr<Input::KeyCallbackLink>> Input::AddCallback(const std::vector<KeyCombination>& keys, input_key_callback cb)
@@ -272,10 +272,10 @@ std::vector<std::unique_ptr<Input::KeyCallbackLink>> Input::AddCallback(const st
 
    for (auto key : keys)
    {
-      result.push_back(std::move(AddCallback(key, cb)));
+      result.push_back(AddCallback(key, cb));
    }
 
-   return std::move(result);
+   return result;
 }
 
 }; // namespace Engine

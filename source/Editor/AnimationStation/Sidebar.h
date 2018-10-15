@@ -2,22 +2,11 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
-#include <vector>
 
-#include <Engine/Core/Bounded.h>
-#include <Engine/Core/State.h>
-#include <Engine/Core/Window.h>
-#include <Engine/Event/Event.h>
-#include <Engine/Event/InputEvent.h>
-#include <Engine/Event/Receiver.h>
-#include <Engine/Graphics/Camera.h>
-#include <Engine/UI/UIRoot.h>
-#include <Shared/Event/NamedEvent.h>
-#include <Shared/Systems/AnimationSystem.h>
+#include <Engine/UI/UIElement.h>
+#include <Shared/UI/TextButton.h>
 
-#include "../UI/TextButton.h"
 #include "Events.h"
 #include "State.h"
 
@@ -49,18 +38,18 @@ private:
 
 private:
    // Elements
-   TextButton* mSave;
-   TextButton* mQuit;
+   UI::TextButton* mSave;
+   UI::TextButton* mQuit;
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
    void Receive(const SkeletonModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<Game::AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
    bool mModified;
 };
 

@@ -8,9 +8,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 //
 // Axis Aligned Bounding Box.
 //
@@ -87,7 +84,5 @@ public:
    glm::vec3 min;
    glm::vec3 max;
 };
-
-}; // namespace Game
 
 }; // namespace CubeWorld

@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/UI/Button.h>
+#include <Shared/UI/RectFilled.h>
 
 #include "../Command/CommandStack.h"
 
@@ -16,10 +18,13 @@ namespace Editor
 namespace AnimationStation
 {
 
-using Game::AnimatedSkeleton;
-using State = Game::AnimatedSkeleton::State;
-using Keyframe = Game::AnimatedSkeleton::Keyframe;
-using Bone = Game::AnimatedSkeleton::Bone;
+using State = AnimatedSkeleton::State;
+using Keyframe = AnimatedSkeleton::Keyframe;
+using Bone = AnimatedSkeleton::Bone;
+using Engine::UIElement;
+using Engine::UIFrame;
+using UI::Button;
+using UI::RectFilled;
 
 namespace
 {
@@ -39,9 +44,9 @@ size_t GetKeyframeIndex(State& state, double time)
    return keyframeIndex;
 }
 
-///
-///
-///
+//
+//
+//
 Keyframe& GetKeyframe(State& state, double time)
 {
    return state.keyframes[GetKeyframeIndex(state, time)];
@@ -49,89 +54,269 @@ Keyframe& GetKeyframe(State& state, double time)
 
 }; // anonymous namespace
 
-Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
+Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
    , mBone(9)
 {
-   const float EIGHT_X = 1.0f;// 8.0f / GetWidth();
-   const float EIGHT_Y = 8.0f;// 8.0f / GetHeight();
-
-   /*
    // Background
    {
-      Image::Options imageOptions;
-      imageOptions.x = 0.0f;
-      imageOptions.y = 0.0f;
-      imageOptions.z = 0.5f;
-      imageOptions.w = 1.0f;
-      imageOptions.h = 1.0f;
-      imageOptions.filename = Asset::Image("EditorDock.png");
-      Add<Image>(imageOptions);
+      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+
+      UIFrame& fBackground = bg->GetFrame();
+      UIFrame& fForeground = fg->GetFrame();
+      root->AddConstraints({
+         fBackground.left == mFrame.left,
+         fBackground.right == mFrame.right,
+         fBackground.top == mFrame.top,
+         fBackground.bottom == mFrame.bottom,
+         mFrame > fForeground,
+
+         fForeground.left == fBackground.left,
+         fForeground.right == fBackground.right - 2,
+         fForeground.top == fBackground.top - 2,
+         fForeground.bottom == fBackground.bottom + 2,
+         fForeground > fBackground,
+      });
    }
 
-   // Left-hand labels (name, length, keyframe info)
-   {
-      NumDisplay<double>::Options textOptions;
-      textOptions.x = 19 * EIGHT_X;
-      textOptions.y = 1.0f - 5 * EIGHT_Y;
-      textOptions.w = 20 * EIGHT_X;
-      textOptions.h = 2 * EIGHT_Y;
-      textOptions.text = "N/A";
+   // Columns, for making everything all organized.
+   root->AddConstraints({
+      c1 == mFrame.left + 32,
+      c2 >= c1 + 120,
+      c3 >= c2 + 100,
+      c4 >= c3 + 140,
+   });
 
-      mStateName = Add<TextField>(TextField::Options(
-         textOptions,
-         [&](std::string value) {
-            CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
+   // State name
+   UIElement* stateName = Add<UIElement>();
+   UIFrame& fStateName = stateName->GetFrame();
+   {
+      UIFrame& fRow = fStateName;
+      UIFrame& fLabel = stateName->Add<Text>(Text::Options{"Name"})->GetFrame();
+
+      mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
+         CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
+      }});
+      UIFrame& fValue = mStateName->GetFrame();
+
+      root->AddConstraints({
+         fStateName.left == c1,
+         fStateName.top == mFrame.top - 32,
+         fStateName.height == 19,
+
+         fLabel.left == fRow.left,
+         fLabel.right == c2,
+         fLabel.top == fRow.top,
+         fLabel.height == fRow.height,
+
+         fValue.left == c2,
+         fValue.right == c3,
+         fValue.top == fRow.top,
+         fValue.height == fRow.height,
+      });
+
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+      buttonOptions.image = "button_left";
+      buttonOptions.hoverImage = "hover_button_left";
+      buttonOptions.pressImage = "press_button_left";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
+      UIFrame& fPrevState = stateName->Add<Button>(buttonOptions)->GetFrame();
+
+      buttonOptions.image = "button_right";
+      buttonOptions.hoverImage = "hover_button_right";
+      buttonOptions.pressImage = "press_button_right";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
+      UIFrame& fNextState = stateName->Add<Button>(buttonOptions)->GetFrame();
+
+      buttonOptions.image = "button_add";
+      buttonOptions.hoverImage = "hover_button_add";
+      buttonOptions.pressImage = "press_button_add";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
+      UIFrame& fAddState = stateName->Add<Button>(buttonOptions)->GetFrame();
+
+      buttonOptions.image = "button_remove";
+      buttonOptions.hoverImage = "hover_button_remove";
+      buttonOptions.pressImage = "press_button_remove";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
+      UIFrame& fRemState = stateName->Add<Button>(buttonOptions)->GetFrame();
+
+      root->AddConstraints({
+         fPrevState.left == c3,
+         fPrevState.top == fRow.top,
+         fPrevState.bottom == fRow.bottom,
+         fNextState.left == fPrevState.right + 8,
+         fNextState.top == fRow.top,
+         fNextState.bottom == fRow.bottom,
+         fAddState.left == fNextState.right + 8,
+         fAddState.top == fRow.top,
+         fAddState.bottom == fRow.bottom,
+         fRemState.left == fAddState.right + 8,
+         fRemState.top == fRow.top,
+         fRemState.bottom == fRow.bottom,
+      });
+   }
+
+   // State length
+   UIElement* stateLength = Add<UIElement>();
+   UIFrame& fStateLength = stateLength->GetFrame();
+   {
+      UIFrame& fRow = fStateLength;
+      UIFrame& fLabel = stateLength->Add<Text>(Text::Options{"Length"})->GetFrame();
+
+      mStateLength.text = stateLength->Add<NumDisplay<double>>(NumDisplay<double>::Options(1));
+      UIFrame& fValue = mStateLength.text->GetFrame();
+
+      root->AddConstraints({
+         fStateLength.left == c1,
+         fStateLength.top == fStateName.bottom - 16,
+         fStateLength.height == fStateName.height,
+
+         fLabel.left == fRow.left,
+         fLabel.right == c2,
+         fLabel.top == fRow.top,
+         fLabel.height == fRow.height,
+
+         fValue.left == c2,
+         fValue.right == c3,
+         fValue.top == fRow.top,
+         fValue.height == fRow.height,
+      });
+   }
+
+   // Keyframe buttons
+   UIElement* keyframe = Add<UIElement>();
+   UIFrame& fKeyframe = keyframe->GetFrame();
+   {
+      UIFrame& fRow = fKeyframe;
+      UIFrame& fLabel = keyframe->Add<Text>(Text::Options{"Keyframe"})->GetFrame();
+
+      root->AddConstraints({
+         fKeyframe.left == c1,
+         fKeyframe.top == fStateLength.bottom - 100,
+         fKeyframe.height == fStateLength.height,
+
+         fLabel.left == fRow.left,
+         fLabel.right == c2,
+         fLabel.top == fRow.top,
+         fLabel.height == fRow.height,
+      });
+
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+
+      buttonOptions.image = "button_add";
+      buttonOptions.hoverImage = "hover_button_add";
+      buttonOptions.pressImage = "press_button_add";
+      buttonOptions.onClick = [&]() {
+         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
+         if (mSkeleton->time != keyframe.time)
+         {
+            CommandStack::Instance()->Do<AddKeyframeCommand>(this);
          }
-      ));
+      };
+      UIFrame& fAddFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
 
-      textOptions.y -= 5 * EIGHT_Y;
-      textOptions.text = "0.0";
-      textOptions.precision = 1;
-      mStateLength.text = Add<NumDisplay<double>>(textOptions);
+      buttonOptions.image = "button_remove";
+      buttonOptions.hoverImage = "hover_button_remove";
+      buttonOptions.pressImage = "press_button_remove";
+      buttonOptions.onClick = [&]() {
+         State& state = GetCurrentState();
+         size_t index = GetKeyframeIndex(state, mSkeleton->time);
+         if (mSkeleton->time == state.keyframes[index].time)
+         {
+            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
+         }
+      };
+      UIFrame& fRemFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
 
-      textOptions.y -= 20 * EIGHT_Y;
-      textOptions.text = "0.0";
-      textOptions.precision = 2;
-      mTime = Add<NumDisplay<double>>(textOptions);
+      root->AddConstraints({
+         fAddFrame.left == c3,
+         fAddFrame.top == fRow.top,
+         fAddFrame.bottom == fRow.bottom,
+         fRemFrame.left == fAddFrame.right + 8,
+         fRemFrame.top == fRow.top,
+         fRemFrame.bottom == fRow.bottom,
+      });
    }
 
-   // State buttons
+   // State length
+   UIElement* time = Add<UIElement>();
+   UIFrame& fTime = time->GetFrame();
    {
-      Image::Options imageOptions;
-      imageOptions.x = 40 * EIGHT_X;
-      imageOptions.y = 1.0f - 5 * EIGHT_Y;
-      imageOptions.w = 19.0f / GetWidth();
-      imageOptions.h = 19.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "button_left";
-      imageOptions.hoverImage = "hover_button_left";
-      imageOptions.pressImage = "press_button_left";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
-      Add<Image>(imageOptions);
+      UIFrame& fRow = fTime;
+      UIFrame& fLabel = time->Add<Text>(Text::Options{"Time"})->GetFrame();
 
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_right";
-      imageOptions.hoverImage = "hover_button_right";
-      imageOptions.pressImage = "press_button_right";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
-      Add<Image>(imageOptions);
+      mTime = time->Add<NumDisplay<double>>(NumDisplay<double>::Options(2));
+      UIFrame& fValue = mTime->GetFrame();
 
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_add";
-      imageOptions.hoverImage = "hover_button_add";
-      imageOptions.pressImage = "press_button_add";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
-      Add<Image>(imageOptions);
+      root->AddConstraints({
+         fTime.left == c1,
+         fTime.top == fKeyframe.bottom - 16,
+         fTime.height == fKeyframe.height,
 
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_remove";
-      imageOptions.hoverImage = "hover_button_remove";
-      imageOptions.pressImage = "press_button_remove";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
-      Add<Image>(imageOptions);
+         fLabel.left == fRow.left,
+         fLabel.right == c2,
+         fLabel.top == fRow.top,
+         fLabel.height == fRow.height,
+
+         fValue.left == c2,
+         fValue.right == c3,
+         fValue.top == fRow.top,
+         fValue.height == fRow.height,
+      });
    }
 
+   // Playback controls
+   UIElement* playback = Add<UIElement>();
+   UIFrame& fPlayback = playback->GetFrame();
+   {
+      UIFrame& fRow = fPlayback;
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+
+      buttonOptions.image = "button_play";
+      buttonOptions.hoverImage = "hover_button_play";
+      buttonOptions.pressImage = "press_button_play";
+      buttonOptions.onClick = [&]() { mController->paused = false; };
+      mPlay = playback->Add<Button>(buttonOptions);
+      UIFrame& fPlay = mPlay->GetFrame();
+
+      buttonOptions.image = "button_pause";
+      buttonOptions.hoverImage = "hover_button_pause";
+      buttonOptions.pressImage = "press_button_pause";
+      buttonOptions.onClick = [&]() { mController->paused = true; };
+      mPause = playback->Add<Button>(buttonOptions);
+      UIFrame& fPause = mPause->GetFrame();
+
+      buttonOptions.image = "button_next_frame";
+      buttonOptions.hoverImage = "hover_button_next_frame";
+      buttonOptions.pressImage = "press_button_next_frame";
+      buttonOptions.onClick = [&]() { mController->nextTick = 0.1; };
+      mTick = playback->Add<Button>(buttonOptions);
+      UIFrame& fNextFrame = mTick->GetFrame();
+
+      root->AddConstraints({
+         fPlayback.left == c4,
+         fPlayback.top == fStateName.top,
+         fPlayback.height == 38,
+
+         fPlay.left == c4,
+         fPlay.top == fRow.top,
+         fPlay.bottom == fRow.bottom,
+
+         fPause.left == fPlay.left,
+         fPause.top == fPlay.top,
+         fPause.bottom == fPlay.bottom,
+
+         fNextFrame.left == fPlay.right + 8,
+         fNextFrame.top == fRow.top,
+         fNextFrame.bottom == fRow.bottom,
+      });
+   }
+
+   /*
    // State length scrubber
    {
       Scrubber<double>::Options scrubberOptions;
@@ -144,42 +329,6 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
       scrubberOptions.min = 0.1;
       scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
       mStateLength.scrubber = Add<Scrubber<double>>(scrubberOptions);
-   }
-
-   // Keyframe buttons
-   {
-      Image::Options imageOptions;
-      imageOptions.x = 30 * EIGHT_X;
-      imageOptions.y = 1.0f - 25 * EIGHT_Y;
-      imageOptions.w = 19.0f / GetWidth();
-      imageOptions.h = 19.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-
-      imageOptions.image = "button_add";
-      imageOptions.hoverImage = "hover_button_add";
-      imageOptions.pressImage = "press_button_add";
-      imageOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
-         if (mSkeleton->time != keyframe.time)
-         {
-            CommandStack::Instance()->Do<AddKeyframeCommand>(this);
-         }
-      };
-      Add<Image>(imageOptions);
-
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_remove";
-      imageOptions.hoverImage = "hover_button_remove";
-      imageOptions.pressImage = "press_button_remove";
-      imageOptions.onClick = [&]() {
-         State& state = GetCurrentState();
-         size_t index = GetKeyframeIndex(state, mSkeleton->time);
-         if (mSkeleton->time == state.keyframes[index].time)
-         {
-            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
-         }
-      };
-      Add<Image>(imageOptions);
    }
 
    // Scrubber for setting a keyframe's time
@@ -216,34 +365,6 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
          mSkeleton->time = keyframe.time;
       };
       mKeyframeTime = Add<Scrubber<double>>(scrubberOptions);
-   }
-
-   // Playback controls
-   {
-      Image::Options imageOptions;
-      imageOptions.x = 60 * EIGHT_X;
-      imageOptions.y = 1.0f - 6 * EIGHT_Y;
-      imageOptions.w = 38.0f / GetWidth();
-      imageOptions.h = 38.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "button_pause";
-      imageOptions.hoverImage = "hover_button_pause";
-      imageOptions.pressImage = "press_button_pause";
-      imageOptions.onClick = [&]() { mController->paused = true; };
-      mPause = Add<Image>(imageOptions);
-
-      imageOptions.image = "button_play";
-      imageOptions.hoverImage = "hover_button_play";
-      imageOptions.pressImage = "press_button_play";
-      imageOptions.onClick = [&]() { mController->paused = false; };
-      mPlay = Add<Image>(imageOptions);
-
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_next_frame";
-      imageOptions.hoverImage = "hover_button_next_frame";
-      imageOptions.pressImage = "press_button_next_frame";
-      imageOptions.onClick = [&]() { mController->nextTick = 0.1; };
-      mTick = Add<Image>(imageOptions);
    }
 
    // Playback controls
@@ -422,11 +543,11 @@ Dock::Dock(Engine::UIRoot* root, Engine::UIElement* parent)
       keyframeContainerOptions.h = 32.0f / GetHeight();
       mKeyframes = Add<SubWindow>(keyframeContainerOptions);
    }
-
-   Subscribe<SkeletonLoadedEvent>(*this);
-   Subscribe<Engine::ComponentAddedEvent<Game::AnimatedSkeleton>>(*this);
-   Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
    */
+
+   root->Subscribe<SkeletonLoadedEvent>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
 }
 
 ///
@@ -436,17 +557,17 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mSkeleton = evt.component;
    SetState(0);
-   SetTime(0);
-   SetBone(0);
+   //SetTime(0);
+   //SetBone(0);
 }
 
 ///
 ///
 ///
-void Dock::Receive(const Engine::ComponentAddedEvent<Game::AnimatedSkeleton>& evt)
+void Dock::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
-   mScrubber->Bind(&mSkeleton->time);
+   //mScrubber->Bind(&mSkeleton->time);
    mTime->Bind(&mSkeleton->time);
 }
 
@@ -485,9 +606,9 @@ void Dock::Update(TIMEDELTA dt)
    // mScrubber->SetValue(mSkeleton->time / state.length);
 
    // Update the play/pause buttons
-   //mPlay->SetActive(mController->paused);
-   //mTick->SetActive(mController->paused);
-   //mPause->SetActive(!mController->paused);
+   mPlay->SetActive(mController->paused);
+   mTick->SetActive(mController->paused);
+   mPause->SetActive(!mController->paused);
 
    UIElement::Update(dt);
 }
@@ -536,10 +657,10 @@ void Dock::SetState(const size_t& index)
    State& state = GetCurrentState();
    mStateName->SetText(state.name);
    mStateLength.text->Bind(&state.length);
-   mStateLength.scrubber->Bind(&state.length);
-   mScrubber->SetBounds(0, state.length);
+   //mStateLength.scrubber->Bind(&state.length);
+   //mScrubber->SetBounds(0, state.length);
 
-   UpdateKeyframeIcons();
+   //UpdateKeyframeIcons();
 }
 
 ///
@@ -580,7 +701,7 @@ void Dock::AddStateCommand::Do()
    {
       dock->SetState(dock->mSkeleton->current + 1);
    }
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -597,7 +718,7 @@ void Dock::AddStateCommand::Undo()
    {
       dock->SetState(dock->mSkeleton->current - 1);
    }
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -616,7 +737,7 @@ void Dock::SetStateLength(double newValue, double oldValue)
 
    mScrubber->SetBounds(0, newValue);
    SetTime(mSkeleton->time * stretch);
-   Emit<SkeletonModifiedEvent>(mSkeleton);
+   SendEvent<SkeletonModifiedEvent>(mSkeleton);
 }
 
 ///
@@ -629,7 +750,7 @@ void Dock::SetStateNameCommand::Do()
    state.name = name;
    name = last;
    dock->mStateName->SetText(state.name);
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -653,7 +774,7 @@ void Dock::AddKeyframeCommand::Do()
    keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -667,7 +788,7 @@ void Dock::AddKeyframeCommand::Undo()
    keyframe = state.keyframes[keyframeIndex];
    state.keyframes.erase(state.keyframes.begin() + keyframeIndex);
    dock->UpdateKeyframeIcons();
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -748,7 +869,7 @@ void Dock::SetKeyframeTimeCommand::Do()
    dock->UpdateKeyframeIcons();
    value = last;
 
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -821,7 +942,7 @@ void Dock::ResetBoneCommand::Do()
    position = pos;
    rotation = rot;
 
-   dock->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 }; // namespace AnimationStation

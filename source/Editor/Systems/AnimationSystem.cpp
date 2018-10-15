@@ -25,7 +25,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       mTransitions = controller->transitions;
    }
 
-   Game::BaseAnimationSystem::Update(entities, events, dt);
+   BaseAnimationSystem::Update(entities, events, dt);
 }
 
 }; // namespace Game

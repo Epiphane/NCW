@@ -12,9 +12,6 @@
 namespace CubeWorld
 {
 
-namespace Game
-{
-
 std::unique_ptr<Engine::Graphics::Program> DebugHelper::program = nullptr;
 
 DebugHelper::DebugHelper()
@@ -164,7 +161,5 @@ void DebugHelper::Render()
 
    glDrawArrays(GL_LINES, 0, mSystemsCount);
 }
-
-}; // namespace Game
 
 }; // namespace CubeWorld

@@ -52,7 +52,7 @@ std::unique_ptr<EventManager::ManagerLink> EventManager::AddChild(EventManager* 
    link->prev->next = link.get();
    link->next->prev = link.get();
 
-   return std::move(link);
+   return link;
 }
 
 }; // namespace Engine
