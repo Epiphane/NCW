@@ -105,7 +105,7 @@ void DebugHelper::Update()
    if (mMetricsText != text)
    {
       mMetricsText = text;
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 1, text);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 0, 1, text, Engine::Graphics::Font::Left);
 
       mMetricsCount = static_cast<GLint>(metricsText.size());
       mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
@@ -123,8 +123,8 @@ void DebugHelper::Update()
          ms.insert(ms.begin(), 7 - ms.size(), ' ');
          rightText += "\n" + std::move(ms);
       }
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 1, leftText);
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 1, rightText);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 0, 1, rightText, Engine::Graphics::Font::Left);
       systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
       mSystemsCount = static_cast<GLint>(systemsText.size());

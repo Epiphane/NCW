@@ -70,6 +70,8 @@ void UIRoot::UpdateRoot()
 
 void UIRoot::RenderRoot()
 {
+   glDepthFunc(GL_ALWAYS);
+   
    for (auto& aggregator : mAggregators)
    {
       if (aggregator)
@@ -78,6 +80,8 @@ void UIRoot::RenderRoot()
          aggregator->Render();
       }
    }
+   
+   glDepthFunc(GL_LESS);
 }
 
 }; // namespace Engine

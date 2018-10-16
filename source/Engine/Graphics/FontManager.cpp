@@ -74,8 +74,9 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
    return Success;
 }
 
-std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat scale, const std::string& text)
+std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat availableWidth, GLfloat scale, const std::string& text, Alignment alignment)
 {
+   GLfloat initialCursor = x;
    GLfloat cursor = x;
    std::vector<CharacterVertexUV> result;
 
@@ -110,6 +111,22 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat s
       });
 
       cursor += (ch.advance >> 6) * scale;
+   }
+   
+   // Adjust for Right alignment or Center alignment
+   // TODO-EF: This will be more complicated for multi-line text (later)
+   if (alignment != Left) 
+   {
+      GLfloat totalWidth = cursor - initialCursor;
+      GLfloat nudgeRight = 0;
+      
+      if (alignment == Center) 
+         nudgeRight = (availableWidth - totalWidth) / 2.0f;
+      else if (alignment == Right)
+         nudgeRight = availableWidth - totalWidth;
+         
+      for (auto& v : result)
+         v.position.x += nudgeRight;
    }
 
    return result;

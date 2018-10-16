@@ -20,7 +20,7 @@ Image::Image()
       auto maybeProgram = Engine::Graphics::Program::Load("Shaders/2DTexture.vert", "Shaders/2DTexture.geom", "Shaders/2DTexture.frag");
       if (!maybeProgram)
       {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());
+         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading 2D Texture shader").GetMessage());
          return;
       }
 

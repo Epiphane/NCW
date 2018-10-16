@@ -38,6 +38,13 @@ public:
       glm::vec2 position;
       glm::vec2 uv;
    };
+   
+   // Text alignment.
+   enum Alignment {  
+      Left,
+      Center,
+      Right
+   };
 
 public:
    Font();
@@ -46,7 +53,7 @@ public:
 
    Maybe<void> Load(const FT_Library& library, const std::string& path);
 
-   std::vector<CharacterVertexUV> Write(GLfloat x, GLfloat y, GLfloat scale, const std::string& text);
+   std::vector<CharacterVertexUV> Write(GLfloat x, GLfloat y, GLfloat availableWidth, GLfloat scale, const std::string& text, Alignment alignment);
 
    GLuint GetTexture() { return mAtlas.GetTexture(); }
 
