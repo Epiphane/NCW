@@ -46,6 +46,17 @@ void Text::SetText(const std::string& text)
    mText = text;
    RenderText(text);
 }
+   
+void Text::SetAlignment(Engine::Graphics::Font::Alignment newAlignment)
+{
+   mAlignment = newAlignment;
+   Redraw();
+}
+   
+Engine::Graphics::Font::Alignment Text::GetAlignment()
+{
+   return mAlignment;
+}
 
 void Text::Redraw()
 {
@@ -53,7 +64,7 @@ void Text::Redraw()
 
    if (mActive)
    {
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), 1, mRendered);
+      std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), GLfloat(mFrame.GetWidth()), 1, mRendered, mAlignment);
       std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [&](const Engine::Graphics::Font::CharacterVertexUV& character) {
          return Aggregator::TextData{glm::vec3(character.position.x, character.position.y, mFrame.z.value()), character.uv};
       });
