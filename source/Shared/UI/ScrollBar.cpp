@@ -17,34 +17,19 @@ namespace UI
 {
 
 ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
-   : UIElement(root, parent)
+   : Image(root, parent, options)
    , mScrubbing(false)
    , mMin(options.min)
    , mRange(options.max - options.min)
    , mCallback(options.onChange)
-   , mRegion(root->Reserve<Aggregator::Image>(2))
 {
-   LOG_DEBUG("Loading %1", Paths::Canonicalize(options.filename));
-   Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance()->GetTexture(options.filename);
-   if (!maybeTexture)
-   {
-      LOG_ERROR(maybeTexture.Failure().WithContext("Failed loading %1", options.filename).GetMessage());
-      return;
-   }
-   mTexture = *maybeTexture;
-
-   mCoords = glm::vec4(0, 0, 1, 1);
-   if (!options.image.empty())
-   {
-      mCoords = mTexture->GetImage(options.image);
-   }
-
-   root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
+   root->Subscribe<MouseDownEvent>(*this);
+   root->Subscribe<MouseUpEvent>(*this);
 }
 
 void ScrollBar::Receive(const MouseDownEvent& evt)
 {
-   if (evt.button == GLFW_MOUSE_BUTTON_LEFT)
+   if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = ContainsPoint(evt.x, evt.y);
    }
@@ -52,7 +37,7 @@ void ScrollBar::Receive(const MouseDownEvent& evt)
 
 void ScrollBar::Receive(const MouseUpEvent& evt)
 {
-   if (evt.button == GLFW_MOUSE_BUTTON_LEFT)
+   if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = false;
       Redraw();
@@ -82,11 +67,27 @@ void ScrollBar::Update(TIMEDELTA)
 
 void ScrollBar::Redraw()
 {
-   double offset = (GetValue() - mMin) / mRange;
-   std::vector<Aggregator::ImageData> vertices{
-      { mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y) },
-      { mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w) },
-   };
+   std::vector<Aggregator::ImageData> vertices;
+   if (mActive)
+   {
+      double pixelW = mCoords.z * mTexture->GetWidth();
+      double pixelH = mCoords.w * mTexture->GetHeight();
+      double height = mFrame.height.value();
+      double width = height * pixelW / pixelH;
+      double offset = (GetValue() - mMin) / mRange; // [0, 1]
+
+      glm::vec3 bottomLeft = mFrame.GetBottomLeft();
+      bottomLeft.x += mFrame.width.value() * offset - pixelW / 2;
+      glm::vec3 topRight = bottomLeft + glm::vec3(width, height, 0);
+
+      vertices.push_back({bottomLeft, glm::vec2(mCoords.x, mCoords.y + mCoords.w)});
+      vertices.push_back({topRight, glm::vec2(mCoords.x + mCoords.z, mCoords.y)});
+   }
+   else
+   {
+      vertices.push_back({glm::vec3(0),glm::vec2(0)});
+      vertices.push_back({glm::vec3(0),glm::vec2(0)});
+   }
 
    mRegion.Set(vertices.data());
 }

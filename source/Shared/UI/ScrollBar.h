@@ -16,7 +16,7 @@
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
 
-#include "../Aggregator/Image.h"
+#include "Image.h"
 
 namespace CubeWorld
 {
@@ -27,12 +27,10 @@ namespace UI
 //
 // This is just convenience, so I can hide some implementation in Scrubber.cpp. Always use the derived Scrubber<N> class
 //
-class ScrollBar : public Engine::UIElement, public Engine::Binding<double>
+class ScrollBar : public Image, public Engine::Binding<double>
 {
 public:
-   struct Options {
-      std::string filename;
-      std::string image = "";
+   struct Options : public Image::Options {
       double min = 0;
       double max = 1;
       double* binding = nullptr;
@@ -69,13 +67,6 @@ private:
    // Configuration
    double mMin, mRange;
    std::function<void(double)> mCallback;
-
-private:
-   Engine::Graphics::Texture* mTexture;
-   glm::vec4 mCoords;
-
-private:
-   Aggregator::Image::Region mRegion;
 };
 
 }; // namespace UI

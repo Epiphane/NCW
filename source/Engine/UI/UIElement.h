@@ -139,6 +139,16 @@ public:
    void Receive(const UIRebalancedEvent&);
 
    //
+   // Set the name of an element
+   //
+   void SetName(const std::string& name) { mName = name; }
+
+   //
+   // Get the name of this element
+   //
+   std::string GetName() { return mName; }
+
+   //
    // Set whether an element is active or inactive.
    //
    virtual void SetActive(bool active);
@@ -180,6 +190,9 @@ public:
    }
 
 protected:
+   // For debugging, mostly.
+   std::string mName = "N/A";
+   
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
    bool mActive;

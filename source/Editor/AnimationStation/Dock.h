@@ -45,6 +45,9 @@ using UI::TextField;
 
 class Dock : public Engine::UIElement {
 public:
+   const double kTimelineWidth = 512.0;
+
+public:
    using State = AnimatedSkeleton::State;
    using Keyframe = AnimatedSkeleton::Keyframe;
    using Bone = AnimatedSkeleton::Bone;
@@ -104,7 +107,8 @@ private:
    NumDisplay<double>* mTime;
 
    // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   std::vector<Image*> mKeyframeIcons;
+   UIElement* mKeyframes;
+   std::vector<std::pair<Image*, rhea::variable>> mKeyframeIcons;
 
    // Bone inspector
    Text* mBoneName;

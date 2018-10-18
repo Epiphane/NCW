@@ -37,6 +37,21 @@ public:
    void AddConstraints(const rhea::constraint_list& constraints);
 
    //
+   // Alias for rhea::simplex_solver::add_edit_var. Add a rhea::variable for editing
+   //
+   void AddEditVar(const rhea::variable& variable);
+
+   //
+   // Suggest a value to the solver
+   //
+   void Suggest(const rhea::variable& variable, double value);
+
+   //
+   // For debugging.
+   //
+   rhea::simplex_solver& GetSolver() { return mSolver; }
+
+   //
    // Reserve a section of data in the appropriate UIAggregator.
    //
    template<typename Aggregator>
@@ -95,6 +110,9 @@ private:
 
    // VBO that ALL the UI elements will use.
    Engine::Graphics::VBO mRectanglesVBO;
+
+   // Tracks whether something has rebalanced in the last frame.
+   bool mDirty;
 };
    
 }; // namespace Engine

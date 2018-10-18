@@ -41,6 +41,11 @@ void UIElement::Receive(const UIRebalancedEvent&)
 
 void UIElement::SetActive(bool active)
 {
+   if (active == mActive)
+   {
+      return;
+   }
+
    mActive = active;
    for (auto& child : mChildren)
    {
@@ -67,7 +72,8 @@ void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& const
 {
    mConstraints[nameKey] = constraint;
    
-   // TODO send this to mpRoot. Using an event maybe?
+   mpRoot->AddConstraints({mConstraints[nameKey]});
+   
 }
 
 bool UIElement::ContainsPoint(double x, double y)

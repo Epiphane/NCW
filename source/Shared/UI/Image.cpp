@@ -35,8 +35,10 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
       mCoords = mTexture->GetImage(options.image);
    }
 
+   double pixelW = mCoords.z * mTexture->GetWidth();
+   double pixelH = mCoords.w * mTexture->GetHeight();
    root->AddConstraints({
-      rhea::constraint(mFrame.width * double(mTexture->GetHeight()) == mFrame.height * double(mTexture->GetWidth()), rhea::strength::medium())
+      rhea::constraint(mFrame.width * pixelH == mFrame.height * pixelW, rhea::strength::medium())
    });
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
@@ -47,8 +49,8 @@ void Image::Redraw()
    std::vector<Aggregator::ImageData> vertices;
    if (mActive)
    {
-      vertices.push_back({mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y)});
-      vertices.push_back({mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y + mCoords.w)});
+      vertices.push_back({mFrame.GetBottomLeft(), glm::vec2(mCoords.x, mCoords.y + mCoords.w)});
+      vertices.push_back({mFrame.GetTopRight(), glm::vec2(mCoords.x + mCoords.z, mCoords.y)});
    }
    else
    {

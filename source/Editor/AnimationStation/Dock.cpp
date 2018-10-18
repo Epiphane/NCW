@@ -155,7 +155,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fRemState.left == fAddState.right + 8,
          fRemState.top == fRow.top,
          fRemState.bottom == fRow.bottom,
-      });
+         });
    }
 
    // State length
@@ -182,6 +182,41 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fValue.right == c3,
          fValue.top == fRow.top,
          fValue.height == fRow.height,
+         });
+   }
+
+   // ScrollBar for setting the current time in the animation
+   RectFilled* timeline = Add<RectFilled>(glm::vec4(1, 1, 1, 0.1));
+   UIFrame& fTimeline = timeline->GetFrame();
+   root->AddConstraints({
+      fTimeline.left == c1,
+      fTimeline.top == fStateLength.bottom - 32,
+      fTimeline.width == kTimelineWidth,
+      fTimeline.height == 32,
+   });
+
+   ScrollBar::Options scrollbarOptions;
+   scrollbarOptions.filename = Asset::Image("EditorIcons.png");
+   scrollbarOptions.image = "frame_pointer";
+   scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
+   mScrubber = Add<ScrollBar>(scrollbarOptions);
+   UIFrame& fScrubber = mScrubber->GetFrame();
+   root->AddConstraints({
+      fScrubber.left == fTimeline.left,
+      fScrubber.top == fTimeline.bottom - 8,
+      fScrubber.width == fTimeline.width,
+      fScrubber.height == 10,
+   });
+
+   // Container for keyframe icons. Not very important but it can't hurt.
+   {
+      mKeyframes = Add<UIElement>();
+      UIFrame& fKeyframes = mKeyframes->GetFrame();
+      root->AddConstraints({
+         fKeyframes.left == fTimeline.left,
+         fKeyframes.right == fTimeline.right,
+         fKeyframes.top == fTimeline.top,
+         fKeyframes.bottom == fTimeline.bottom,
       });
    }
 
@@ -194,7 +229,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       root->AddConstraints({
          fKeyframe.left == c1,
-         fKeyframe.top == fStateLength.bottom - 100,
+         fKeyframe.top == fScrubber.bottom - 32,
          fKeyframe.height == fStateLength.height,
 
          fLabel.left == fRow.left,
@@ -393,19 +428,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Add<Image>(imageOptions);
    }
 
-   // ScrollBar for setting the current time in the animation
-   {
-      ScrollBar::Options scrollbarOptions;
-      scrollbarOptions.x = 3 * EIGHT_X;
-      scrollbarOptions.y = 1.0f - 20 * EIGHT_Y;
-      scrollbarOptions.w = 512.0f / GetWidth();
-      scrollbarOptions.h = 2 * EIGHT_Y;
-      scrollbarOptions.filename = Asset::Image("EditorIcons.png");
-      scrollbarOptions.image = "frame_pointer";
-      scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
-      mScrubber = Add<ScrollBar>(scrollbarOptions);
-   }
-
    // Bone information
    {
       Text::Options textOptions;
@@ -533,16 +555,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       };
       Add<Image>(imageOptions);
    }
-
-   // Container for keyframe icons
-   {
-      SubWindow::Options keyframeContainerOptions;
-      keyframeContainerOptions.x = 19.0f / GetWidth();
-      keyframeContainerOptions.y = 1.0f - 136.0f / GetHeight();
-      keyframeContainerOptions.w = 512.0f / GetWidth();
-      keyframeContainerOptions.h = 32.0f / GetHeight();
-      mKeyframes = Add<SubWindow>(keyframeContainerOptions);
-   }
    */
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
@@ -557,7 +569,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mSkeleton = evt.component;
    SetState(0);
-   //SetTime(0);
+   SetTime(0);
    //SetBone(0);
 }
 
@@ -567,7 +579,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 void Dock::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
-   //mScrubber->Bind(&mSkeleton->time);
+   mScrubber->Bind(&mSkeleton->time);
    mTime->Bind(&mSkeleton->time);
 }
 
@@ -600,11 +612,6 @@ Keyframe& Dock::GetCurrentKeyframe()
 ///
 void Dock::Update(TIMEDELTA dt)
 {
-   //State& state = GetCurrentState();
-
-   // Update the UI according to the current animation time
-   // mScrubber->SetValue(mSkeleton->time / state.length);
-
    // Update the play/pause buttons
    mPlay->SetActive(mController->paused);
    mTick->SetActive(mController->paused);
@@ -618,33 +625,45 @@ void Dock::Update(TIMEDELTA dt)
 ///
 void Dock::UpdateKeyframeIcons()
 {
-   /*State& state = GetCurrentState();
+   State& state = GetCurrentState();
 
-   while (mKeyframeIcons.size() < state.keyframes.size())
+   size_t nKeyframes = state.keyframes.size();
+   while (mKeyframeIcons.size() < nKeyframes)
    {
       Image::Options keyframeOptions;
-      keyframeOptions.w = 10.0f / mKeyframes->GetWidth();
       keyframeOptions.filename = Asset::Image("EditorIcons.png");
       keyframeOptions.image = "keyframe";
 
-      size_t keyframeIndex = mKeyframeIcons.size();
-      keyframeOptions.onClick = [&, keyframeIndex]() {
-         SetTime(GetCurrentState().keyframes[keyframeIndex].time);
-      };
+      Image* image = mKeyframes->Add<Image>(keyframeOptions);
+      image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
 
-      mKeyframeIcons.push_back(mKeyframes->Add<Image>(keyframeOptions));
-   }
-   while (mKeyframeIcons.size() > state.keyframes.size())
-   {
-      Image* toRemove = mKeyframeIcons.back();
-      mKeyframeIcons.pop_back();
-      mKeyframes->Remove(toRemove);
+      UIFrame& fImage = image->GetFrame();
+      UIFrame& fKeyframes = mKeyframes->GetFrame();
+      auto entry = std::make_pair(image, rhea::variable());
+      mpRoot->AddEditVar(entry.second);
+      mpRoot->AddConstraints({
+         fImage > fKeyframes,
+         fImage.top == fKeyframes.top,
+         fImage.bottom == fKeyframes.bottom,
+         fImage.left == fKeyframes.left + kTimelineWidth * entry.second - fImage.width / 2,
+      });
+
+      mKeyframeIcons.push_back(entry);
    }
    for (size_t i = 0; i < mKeyframeIcons.size(); i++)
    {
-      mKeyframeIcons[i]->SetOffset(glm::vec3(state.keyframes[i].time / state.length, 0, 0));
+      auto& entry = mKeyframeIcons[i];
+      if (i < nKeyframes)
+      {
+         entry.first->SetActive(true);
+         double val = state.keyframes[i].time / state.length;
+         mpRoot->Suggest(entry.second, val);
+      }
+      else
+      {
+         entry.first->SetActive(false);
+      }
    }
-   */
 }
 
 ///
@@ -658,9 +677,9 @@ void Dock::SetState(const size_t& index)
    mStateName->SetText(state.name);
    mStateLength.text->Bind(&state.length);
    //mStateLength.scrubber->Bind(&state.length);
-   //mScrubber->SetBounds(0, state.length);
+   mScrubber->SetBounds(0, state.length);
 
-   //UpdateKeyframeIcons();
+   UpdateKeyframeIcons();
 }
 
 ///

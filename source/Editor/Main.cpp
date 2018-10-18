@@ -179,6 +179,11 @@ int main(int argc, char** argv)
       return Format::FormatString("%.1f", windowContentRender.Average());
    });
 
+   Timer<100> uiUpdateTime;
+   auto _4 = debug->RegisterMetric("UI UpdateRoot", [&uiUpdateTime]() -> std::string {
+      return Format::FormatString("%.1f", uiUpdateTime.Average());
+   });
+
    windowContent.GetCurrent()->UpdateRoot();
 
    do {
@@ -194,7 +199,9 @@ int main(int argc, char** argv)
          // Render game state
          {
             windowContentRender.Reset();
-            // TODO call UpdateRoot to resolve everything?
+            uiUpdateTime.Reset();
+            windowContent.GetCurrent()->UpdateRoot();
+            uiUpdateTime.Elapsed();
             windowContent.GetCurrent()->Update(dt);
             windowContent.GetCurrent()->RenderRoot();
 

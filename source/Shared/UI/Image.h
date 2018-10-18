@@ -36,7 +36,6 @@ protected:
    Engine::Graphics::Texture* mTexture;
    glm::vec4 mCoords;
 
-private:
    Aggregator::Image::Region mRegion;
 };
 

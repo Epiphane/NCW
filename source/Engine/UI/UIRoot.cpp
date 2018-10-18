@@ -15,9 +15,17 @@ namespace Engine
 UIRoot::UIRoot(const Bounded& bounds)
    : UIElement(this, nullptr)
    , mRectanglesVBO(Engine::Graphics::VBO::Vertices)
+   , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
    mSolver.set_autosolve(false);
+   mSolver.on_resolve = [&](rhea::simplex_solver&) {
+      mDirty = true;
+   };
+   mSolver.on_variable_change = [&](const rhea::variable& variable, rhea::solver&) {
+      // TODO maybe drill down and find the element that cares one day.
+      mDirty = true;
+   };
 
    // UIRoot covers the entirety of its bounds.
    mSolver.add_constraints({
@@ -56,6 +64,16 @@ void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
    mSolver.add_constraints(constraints);
 }
 
+void UIRoot::AddEditVar(const rhea::variable& variable)
+{
+   mSolver.add_edit_var(variable);
+}
+
+void UIRoot::Suggest(const rhea::variable& variable, double value)
+{
+   mSolver.suggest_value(variable, value);
+   mDirty = true;
+}
 
 void UIRoot::Receive(const ElementAddedEvent& evt)
 {
@@ -65,7 +83,13 @@ void UIRoot::Receive(const ElementAddedEvent& evt)
 void UIRoot::UpdateRoot()
 {
    mSolver.solve();
-   Emit<UIRebalancedEvent>();
+
+   if (mDirty)
+   {
+      mSolver.resolve();
+      Emit<UIRebalancedEvent>();
+      mDirty = false;
+   }
 }
 
 void UIRoot::RenderRoot()
