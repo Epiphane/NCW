@@ -32,29 +32,28 @@ Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& o
    {
       mPress = mTexture->GetImage(options.pressImage);
    }
-
-   root->Subscribe<MouseDownEvent>(*this);
-   root->Subscribe<MouseUpEvent>(*this);
 }
 
-void Button::Receive(const MouseDownEvent& evt)
+Engine::UIElement::Action Button::MouseDown(const MouseDownEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
-      return;
+      return Unhandled;
    }
 
    if (ContainsPoint(evt.x, evt.y))
    {
       SetState(PRESS);
+      return Handled;
    }
+   return Unhandled;
 }
 
-void Button::Receive(const MouseUpEvent& evt)
+Engine::UIElement::Action Button::MouseUp(const MouseUpEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
-      return;
+      return Unhandled;
    }
 
    if (ContainsPoint(evt.x, evt.y))
@@ -69,25 +68,28 @@ void Button::Receive(const MouseUpEvent& evt)
    {
       SetState(NORMAL);
    }
+   return Unhandled;
 }
 
-void Button::Update(TIMEDELTA dt)
+Engine::UIElement::Action Button::MouseMove(const MouseMoveEvent& evt)
 {
-   if (mActive)
+   if (!mActive)
    {
-      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
-      bool hovered = ContainsPoint(mouse.x, mouse.y);
-      if (mState == NORMAL && hovered)
-      {
-         SetState(HOVER);
-      }
-      else if (mState == HOVER && !hovered)
-      {
-         SetState(NORMAL);
-      }
+      return Unhandled;
    }
 
-   Image::Update(dt);
+   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
+   bool hovered = ContainsPoint(mouse.x, mouse.y);
+   if (mState == NORMAL && hovered)
+   {
+      SetState(HOVER);
+   }
+   else if (mState == HOVER && !hovered)
+   {
+      SetState(NORMAL);
+   }
+
+   return hovered ? Handled : Unhandled;
 }
 
 void Button::SetState(State state)

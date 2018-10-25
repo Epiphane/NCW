@@ -22,26 +22,26 @@ ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
    , mMin(options.min)
    , mRange(options.max - options.min)
    , mCallback(options.onChange)
-{
-   root->Subscribe<MouseDownEvent>(*this);
-   root->Subscribe<MouseUpEvent>(*this);
-}
+{}
 
-void ScrollBar::Receive(const MouseDownEvent& evt)
+Engine::UIElement::Action ScrollBar::MouseDown(const MouseDownEvent& evt)
 {
    if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = ContainsPoint(evt.x, evt.y);
+      return mScrubbing ? Handled : Unhandled;
    }
+   return Unhandled;
 }
 
-void ScrollBar::Receive(const MouseUpEvent& evt)
+Engine::UIElement::Action ScrollBar::MouseUp(const MouseUpEvent& evt)
 {
    if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = false;
       Redraw();
    }
+   return Unhandled;
 }
 
 void ScrollBar::Update(TIMEDELTA)

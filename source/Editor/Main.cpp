@@ -107,7 +107,7 @@ int main(int argc, char** argv)
          fBackground.z <= -0.5,
 
          fBackground.left == fControls.left,
-         fBackground.width == window->GetWidth() * 0.2,
+         fBackground.right == window->GetWidth() * 0.2,
          fBackground.top == fAnimationStation.top + 8,
          fBackground.bottom == fControls.bottom,
 
@@ -116,8 +116,8 @@ int main(int argc, char** argv)
          fForeground.top == fBackground.top - 2,
          fForeground.bottom == fBackground.bottom + 2,
 
-         fAnimationStation.left == fControls.left + 8,
-         fAnimationStation.right == fControls.right - 8,
+         fAnimationStation.left == fBackground.left + 8,
+         fAnimationStation.right == fBackground.right - 8,
          fAnimationStation.bottom == fQuit.top + 8,
          fAnimationStation.height == 32,
 
@@ -195,6 +195,10 @@ int main(int argc, char** argv)
          // Basic prep
          window->Clear();
          window->GetInput()->Update();
+
+         glm::tvec2<double> pos = window->GetInput()->GetRawMousePosition();
+         windowContent.GetCurrent()->Emit<MouseMoveEvent>(pos.x, pos.y);
+         controls.Emit<MouseMoveEvent>(pos.x, pos.y);
 
          // Render game state
          {

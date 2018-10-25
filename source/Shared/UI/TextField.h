@@ -46,7 +46,7 @@ public:
 public:
    TextField(Engine::UIRoot* root, Engine::UIElement* element, const Options& options);
 
-   void Receive(const MouseClickEvent& evt);
+   Action MouseClick(const MouseClickEvent& evt) override;
 
 private:
    std::function<void(std::string)> mChangeCallback;

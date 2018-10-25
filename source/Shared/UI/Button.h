@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <Engine/Event/InputEvent.h>
-
 #include "Image.h"
 
 namespace CubeWorld
@@ -24,13 +22,9 @@ public:
 public:
    Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
-   //
-   // Render the framebuffer to this subwindow's location.
-   //
-   void Update(TIMEDELTA dt) override;
-
-   void Receive(const MouseDownEvent& evt);
-   void Receive(const MouseUpEvent& evt);
+   Action MouseDown(const MouseDownEvent& evt) override;
+   Action MouseMove(const MouseMoveEvent& evt) override;
+   Action MouseUp(const MouseUpEvent& evt) override;
 
 private:
    std::function<void(void)> mCallback;

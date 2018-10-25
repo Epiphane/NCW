@@ -21,6 +21,7 @@
 #include "../Core/Config.h"
 #include "../Event/Event.h"
 #include "../Event/Receiver.h"
+#include "../Event/InputEvent.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
 
@@ -91,6 +92,18 @@ public:
 };
 
 //
+// Emitted whenever an element is removed from the tree.
+// Attached is a pointer to the new element.
+//
+class ElementRemovedEvent : public Event<ElementRemovedEvent>
+{
+public:
+   ElementRemovedEvent(UIElement* element) : element(element) {};
+
+   UIElement* element;
+};
+
+//
 // Emitted whenever the UIRoot is rebalanced.
 //
 class UIRebalancedEvent : public Event<UIRebalancedEvent>
@@ -141,7 +154,7 @@ public:
    //
    // Set the name of an element
    //
-   void SetName(const std::string& name) { mName = name; }
+   UIElement* SetName(const std::string& name) { mName = name; return this; }
 
    //
    // Get the name of this element
@@ -180,6 +193,7 @@ public:
    //
    bool ContainsPoint(double x, double y);
 
+public:
    //
    // Emit an event to the UIRoot.
    //
@@ -188,6 +202,21 @@ public:
    {
       mpRoot->Emit<T>(std::forward<Args>(args)...);
    }
+
+   //
+   // Called by the UIRoot when mouse events happen.
+   // These functions are performed from the front-most element to the furthest back,
+   // allowing one element to "handle" the event and prevent it from propagating
+   // further.
+   //
+   // Return Handled in order to prevent this event from propagating down, and
+   // Unhandled if you don't care.
+   //
+   enum Action { Handled, Unhandled };
+   virtual Action MouseDown(const MouseDownEvent&) { return Unhandled; }
+   virtual Action MouseMove(const MouseMoveEvent&) { return Unhandled; }
+   virtual Action MouseUp(const MouseUpEvent&) { return Unhandled; }
+   virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
 
 protected:
    // For debugging, mostly.

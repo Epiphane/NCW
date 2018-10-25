@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
 //#include <rhea/rhea/iostream.hpp> // Uncomment if you want to do something like `cout << rhea::variable`
@@ -22,7 +23,7 @@ UIRoot::UIRoot(const Bounded& bounds)
    mSolver.on_resolve = [&](rhea::simplex_solver&) {
       mDirty = true;
    };
-   mSolver.on_variable_change = [&](const rhea::variable& variable, rhea::solver&) {
+   mSolver.on_variable_change = [&](const rhea::variable&, rhea::solver&) {
       // TODO maybe drill down and find the element that cares one day.
       mDirty = true;
    };
@@ -38,6 +39,11 @@ UIRoot::UIRoot(const Bounded& bounds)
 
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
+   Subscribe<ElementRemovedEvent>(*this);
+   Subscribe<MouseMoveEvent>(*this);
+   Subscribe<MouseDownEvent>(*this);
+   Subscribe<MouseUpEvent>(*this);
+   Subscribe<MouseClickEvent>(*this);
 }
 
 UIRoot::~UIRoot()
@@ -78,6 +84,56 @@ void UIRoot::Suggest(const rhea::variable& variable, double value)
 void UIRoot::Receive(const ElementAddedEvent& evt)
 {
    AddConstraintsForElement(evt.element->GetFrame());
+   mElements.push_back(evt.element);
+}
+
+void UIRoot::Receive(const ElementRemovedEvent& evt)
+{
+   // TODO how the heck we gonna do this?
+}
+
+void UIRoot::Receive(const MouseDownEvent& evt)
+{
+   for (UIElement* elem : mElements)
+   {
+      if (elem->MouseDown(evt) == Handled)
+      {
+         return;
+      }
+   }
+}
+
+void UIRoot::Receive(const MouseMoveEvent& evt)
+{
+   for (UIElement* elem : mElements)
+   {
+      if (elem->MouseMove(evt) == Handled)
+      {
+         return;
+      }
+   }
+}
+
+void UIRoot::Receive(const MouseUpEvent& evt)
+{
+   for (UIElement* elem : mElements)
+   {
+      if (elem->MouseUp(evt) == Handled)
+      {
+         return;
+      }
+   }
+}
+
+void UIRoot::Receive(const MouseClickEvent& evt)
+{
+   for (UIElement* elem : mElements)
+   {
+      if (elem->MouseClick (evt) == Handled)
+      {
+         return;
+      }
+   }
 }
 
 void UIRoot::UpdateRoot()
@@ -87,6 +143,13 @@ void UIRoot::UpdateRoot()
    if (mDirty)
    {
       mSolver.resolve();
+      // TODO couple things:
+      // 1. move this sort to another function,
+      // 2. implement timsort since it applies to this situation well
+      // 3. for aggregators that use indices, update them accordingly when we do swaps.
+      std::sort(mElements.begin(), mElements.end(), [](UIElement* lhs, UIElement* rhs) {
+         return lhs->GetFrame().z.value() < rhs->GetFrame().z.value();
+      });
       Emit<UIRebalancedEvent>();
       mDirty = false;
    }
@@ -94,8 +157,6 @@ void UIRoot::UpdateRoot()
 
 void UIRoot::RenderRoot()
 {
-   glDepthFunc(GL_ALWAYS);
-   
    for (auto& aggregator : mAggregators)
    {
       if (aggregator)
@@ -104,8 +165,6 @@ void UIRoot::RenderRoot()
          aggregator->Render();
       }
    }
-   
-   glDepthFunc(GL_LESS);
 }
 
 }; // namespace Engine

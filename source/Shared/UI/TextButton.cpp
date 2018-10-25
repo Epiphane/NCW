@@ -23,37 +23,39 @@ TextButton::TextButton(
    : Text(root, parent, options)
    , mClickCallback(options.onClick)
    , mIsHovered(false)
-{
-   root->Subscribe<MouseClickEvent>(*this);
-}
+{}
 
-void TextButton::Receive(const MouseClickEvent& evt)
+Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
 {
    if (mClickCallback && ContainsPoint(evt.x, evt.y))
    {
       mClickCallback();
+      return Handled;
    }
+   return Unhandled;
 }
 
-void TextButton::Update(TIMEDELTA dt)
+Engine::UIElement::Action TextButton::MouseMove(const MouseMoveEvent& evt)
 {
-   if (mClickCallback)
+   if (!mActive || !mClickCallback)
    {
-      glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
-      bool hovered = ContainsPoint(mouse.x, mouse.y);
-      if (hovered && !mIsHovered)
-      {
-         RenderText("> " + mText);
-         mIsHovered = true;
-      }
-      else if (!hovered && mIsHovered)
-      {
-         RenderText(mText);
-         mIsHovered = false;
-      }
+      return Unhandled;
    }
 
-   Text::Update(dt);
+   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
+   bool hovered = ContainsPoint(mouse.x, mouse.y);
+   if (hovered && !mIsHovered)
+   {
+      RenderText("> " + mText);
+      mIsHovered = true;
+   }
+   else if (!hovered && mIsHovered)
+   {
+      RenderText(mText);
+      mIsHovered = false;
+   }
+
+   return mIsHovered ? Handled : Unhandled;
 }
 
 }; // namespace UI

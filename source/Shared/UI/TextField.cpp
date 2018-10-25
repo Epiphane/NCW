@@ -63,11 +63,11 @@ void TextField::OnAlphaKey(int key, int action, int mods)
    }
 }
 
-void TextField::Receive(const MouseClickEvent& evt)
+Engine::UIElement::Action TextField::MouseClick(const MouseClickEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
-      return;
+      return Unhandled;
    }
 
    bool wasFocused = mIsFocused;
@@ -86,6 +86,7 @@ void TextField::Receive(const MouseClickEvent& evt)
          mChangeCallback(mText);
       }
    }
+   return mIsFocused ? Handled : Unhandled;
 }
 
 }; // namespace UI

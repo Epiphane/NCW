@@ -45,8 +45,8 @@ public:
    //
    void Update(TIMEDELTA dt) override;
 
-   void Receive(const MouseDownEvent& evt);
-   void Receive(const MouseUpEvent& evt);
+   Action MouseDown(const MouseDownEvent& evt) override;
+   Action MouseUp(const MouseUpEvent& evt) override;
 
    bool IsScrubbing() { return mScrubbing; }
 

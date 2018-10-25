@@ -76,6 +76,15 @@ public:
    // This is where we set up simple constraints for that element's UIFrame.
    //
    void Receive(const ElementAddedEvent& evt);
+   void Receive(const ElementRemovedEvent& evt);
+
+   //
+   // Mouse events are sent out from here.
+   //
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseMoveEvent& evt);
+   void Receive(const MouseUpEvent& evt);
+   void Receive(const MouseClickEvent& evt);
    
 protected:
    // Solves for the constraints we provide.
@@ -105,8 +114,8 @@ private:
    // Aggregators for batch rendering.
    std::vector<std::unique_ptr<BaseAggregator>> mAggregators;
    
-   // Holds all the vertices pushed by this element's children.
-   std::vector<Graphics::Font::CharacterVertexUV> mUIVertices;
+   // Holds all the elements in this tree, sorted by z-value.
+   std::vector<UIElement*> mElements;
 
    // VBO that ALL the UI elements will use.
    Engine::Graphics::VBO mRectanglesVBO;

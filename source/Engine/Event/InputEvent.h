@@ -33,6 +33,16 @@ struct MouseUpEvent : public Engine::Event<MouseUpEvent> {
    double x, y;
 };
 
+struct MouseMoveEvent : public Engine::Event<MouseMoveEvent> {
+   explicit MouseMoveEvent(double x, double y)
+      : x{x}
+      , y{y}
+   {};
+   virtual ~MouseMoveEvent() {}
+
+   double x, y;
+};
+
 struct MouseClickEvent : public Engine::Event<MouseClickEvent> {
    explicit MouseClickEvent(int button, double x, double y)
       : button{button}
