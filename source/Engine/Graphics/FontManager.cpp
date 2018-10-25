@@ -114,19 +114,17 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
    }
    
    // Adjust for Right alignment or Center alignment
-   // TODO-EF: This will be more complicated for multi-line text (later)
-   if (alignment != Left) 
-   {
-      GLfloat totalWidth = cursor - initialCursor;
-      GLfloat nudgeRight = 0;
+   GLfloat totalWidth = cursor - initialCursor;
+   GLfloat nudgeRight = 0;
+   
+   if (alignment == Center) 
+      nudgeRight = (availableWidth - totalWidth) / 2.0f;
+   else if (alignment == Right)
+      nudgeRight = availableWidth - totalWidth;
       
-      if (alignment == Center) 
-         nudgeRight = (availableWidth - totalWidth) / 2.0f;
-      else if (alignment == Right)
-         nudgeRight = availableWidth - totalWidth;
-         
-      for (auto& v : result)
-         v.position.x += nudgeRight;
+   for (auto& v : result)
+   {
+      v.position.x += nudgeRight;
    }
 
    return result;

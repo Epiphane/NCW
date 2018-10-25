@@ -43,7 +43,7 @@ public:
    //
    void Update(TIMEDELTA dt) override
    {
-      if (Binding<N>::Update())
+      if (Engine::Binding<N>::Update())
       {
          SetText(Format::FormatString(mFormat, this->GetValue()));
       }
