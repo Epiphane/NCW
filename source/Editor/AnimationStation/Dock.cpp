@@ -155,7 +155,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fRemState.left == fAddState.right + 8,
          fRemState.top == fRow.top,
          fRemState.bottom == fRow.bottom,
-         });
+      });
    }
 
    // State length
@@ -167,6 +167,15 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       mStateLength.text = stateLength->Add<NumDisplay<double>>(NumDisplay<double>::Options(1));
       UIFrame& fValue = mStateLength.text->GetFrame();
+
+      Scrubber<double>::Options scrubberOptions;
+      scrubberOptions.filename = Asset::Image("EditorIcons.png");
+      scrubberOptions.image = "drag_number";
+      scrubberOptions.min = 0.1;
+      scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
+      scrubberOptions.sensitivity = 0.05;
+      mStateLength.scrubber = stateLength->Add<Scrubber<double>>(scrubberOptions);
+      UIFrame& fScrubber = mStateLength.scrubber->GetFrame();
 
       root->AddConstraints({
          fStateLength.left == c1,
@@ -182,7 +191,11 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fValue.right == c3,
          fValue.top == fRow.top,
          fValue.height == fRow.height,
-         });
+
+         fScrubber.left == c3,
+         fScrubber.top == fRow.top,
+         fScrubber.bottom == fRow.bottom,
+      });
    }
 
    // ScrollBar for setting the current time in the animation
@@ -286,6 +299,38 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       mTime = time->Add<NumDisplay<double>>(NumDisplay<double>::Options(2));
       UIFrame& fValue = mTime->GetFrame();
 
+      Scrubber<double>::Options scrubberOptions;
+      scrubberOptions.filename = Asset::Image("EditorIcons.png");
+      scrubberOptions.image = "drag_number";
+      scrubberOptions.sensitivity = 0.05;
+      scrubberOptions.onChange = [&](double newValue, double oldValue) {
+         State& state = GetCurrentState();
+         size_t index = mSelectedKeyframe;
+         Keyframe& keyframe = state.keyframes[index];
+
+         if (index == 0)
+         {
+            keyframe.time = 0;
+         }
+         else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
+         {
+            keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
+         }
+         else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
+         {
+            keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
+         }
+         else if (keyframe.time >= state.length * 0.99f)
+         {
+            keyframe.time = state.length * 0.99f;
+         }
+
+         mSkeleton->time = keyframe.time;
+         mpRoot->Suggest(mKeyframeIcons[index].second, keyframe.time / state.length);
+      };
+      mKeyframeTime = time->Add<Scrubber<double>>(scrubberOptions);
+      UIFrame& fScrubber = mKeyframeTime->GetFrame();
+
       root->AddConstraints({
          fTime.left == c1,
          fTime.top == fKeyframe.bottom - 16,
@@ -300,6 +345,10 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fValue.right == c3,
          fValue.top == fRow.top,
          fValue.height == fRow.height,
+
+         fScrubber.left == c3,
+         fScrubber.top == fRow.top,
+         fScrubber.bottom == fRow.bottom,
       });
    }
 
@@ -352,56 +401,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    }
 
    /*
-   // State length scrubber
-   {
-      Scrubber<double>::Options scrubberOptions;
-      scrubberOptions.x = 30 * EIGHT_X;
-      scrubberOptions.y = 1.0f - 10 * EIGHT_Y;
-      scrubberOptions.w = 64.0f / GetWidth();
-      scrubberOptions.h = 14.0f / GetHeight();
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.min = 0.1;
-      scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
-      mStateLength.scrubber = Add<Scrubber<double>>(scrubberOptions);
-   }
-
-   // Scrubber for setting a keyframe's time
-   {
-      Scrubber<double>::Options scrubberOptions;
-      scrubberOptions.x = 30 * EIGHT_X;
-      scrubberOptions.y = 1.0f - 30 * EIGHT_Y;
-      scrubberOptions.w = 64.0f / GetWidth();
-      scrubberOptions.h = 14.0f / GetHeight();
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double /* newValue *, double /* oldValue *) {
-         State& state = GetCurrentState();
-         size_t index = GetKeyframeIndex(state, mSkeleton->time);
-         Keyframe& keyframe = state.keyframes[index];
-
-         if (index == 0)
-         {
-            keyframe.time = 0;
-         }
-         else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
-         {
-            keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
-         }
-         else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
-         {
-            keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
-         }
-         else if (keyframe.time >= state.length * 0.99f)
-         {
-            keyframe.time = state.length * 0.99f;
-         }
-
-         mSkeleton->time = keyframe.time;
-      };
-      mKeyframeTime = Add<Scrubber<double>>(scrubberOptions);
-   }
-
    // Playback controls
    {
       Image::Options imageOptions;
@@ -676,7 +675,7 @@ void Dock::SetState(const size_t& index)
    State& state = GetCurrentState();
    mStateName->SetText(state.name);
    mStateLength.text->Bind(&state.length);
-   //mStateLength.scrubber->Bind(&state.length);
+   mStateLength.scrubber->Bind(&state.length);
    mScrubber->SetBounds(0, state.length);
 
    UpdateKeyframeIcons();
@@ -819,10 +818,12 @@ void Dock::SetTime(double time)
 
    size_t keyframeIndex = GetKeyframeIndex(state, time);
    Keyframe& prev = state.keyframes[keyframeIndex];
+   mSelectedKeyframe = 0;
 
    if ((time - prev.time) / state.length < 0.02)
    {
       mSkeleton->time = prev.time;
+      mSelectedKeyframe = keyframeIndex;
    }
    else if (
       (keyframeIndex < state.keyframes.size() - 1) && 
@@ -830,6 +831,7 @@ void Dock::SetTime(double time)
    )
    {
       mSkeleton->time = state.keyframes[keyframeIndex + 1].time;
+      mSelectedKeyframe = keyframeIndex + 1;
    }
    else if ((state.length - time) / state.length < 0.02)
    {
@@ -839,6 +841,8 @@ void Dock::SetTime(double time)
    {
       mSkeleton->time = time;
    }
+
+   mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
 }
 
 ///

@@ -101,6 +101,7 @@ private:
    Image* mPause;
    Image* mTick;
    ScrollBar* mScrubber;
+   size_t mSelectedKeyframe;
    Scrubber<double>* mKeyframeTime;
    TextField* mStateName;
    LabelAndScrubber<double> mStateLength;

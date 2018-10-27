@@ -33,13 +33,9 @@ class BaseScrubber : public UI::Image
 public:
    BaseScrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
 
-   //
-   // Render the framebuffer to this subwindow's location.
-   //
-   void Update(TIMEDELTA dt) override;
-
-   void Receive(const MouseDownEvent& evt);
-   void Receive(const MouseUpEvent& evt);
+   Action MouseDown(const MouseDownEvent&) override;
+   Action MouseMove(const MouseMoveEvent&) override;
+   Action MouseUp(const MouseUpEvent&) override;
 
    bool IsScrubbing() { return mScrubbing != nullptr; }
 
@@ -63,6 +59,8 @@ public:
       N min = std::numeric_limits<N>::min();
       N max = std::numeric_limits<N>::max();
       std::function<void(N, N)> onChange = nullptr;
+      // 1 pixel == 1 unit
+      double sensitivity = 1;
    };
 
    Scrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
@@ -70,6 +68,7 @@ public:
       , mMin(options.min)
       , mMax(options.max)
       , mCallback(options.onChange)
+      , mSensitivity(options.sensitivity)
    {};
 
    void Update(TIMEDELTA dt) override
@@ -114,12 +113,18 @@ private:
 private:
    void Scrub(double amount) override
    {
-      SetValue(std::clamp(this->GetValue() + static_cast<N>(amount), mMin, mMax));
+      N oldValue = this->GetValue();
+      SetValue(std::clamp(this->GetValue() + static_cast<N>(amount * mSensitivity), mMin, mMax));
+      if (mCallback)
+      {
+         mCallback(this->GetValue(), oldValue);
+      }
    }
 
 protected:
    N mMin, mMax;
    std::function<void(N, N)> mCallback;
+   double mSensitivity;
 };
 
 }; // namespace Editor
