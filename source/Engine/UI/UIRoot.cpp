@@ -94,7 +94,10 @@ void UIRoot::Receive(const ElementRemovedEvent& evt)
 
 void UIRoot::Receive(const MouseDownEvent& evt)
 {
-   for (UIElement* elem : mElements)
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElement*> elements{mElements};
+   for (UIElement* elem : elements)
    {
       if (elem->MouseDown(evt) == Handled)
       {
@@ -105,7 +108,10 @@ void UIRoot::Receive(const MouseDownEvent& evt)
 
 void UIRoot::Receive(const MouseMoveEvent& evt)
 {
-   for (UIElement* elem : mElements)
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElement*> elements{mElements};
+   for (UIElement* elem : elements)
    {
       if (elem->MouseMove(evt) == Handled)
       {
@@ -116,7 +122,10 @@ void UIRoot::Receive(const MouseMoveEvent& evt)
 
 void UIRoot::Receive(const MouseUpEvent& evt)
 {
-   for (UIElement* elem : mElements)
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElement*> elements{mElements};
+   for (UIElement* elem : elements)
    {
       if (elem->MouseUp(evt) == Handled)
       {
@@ -127,9 +136,12 @@ void UIRoot::Receive(const MouseUpEvent& evt)
 
 void UIRoot::Receive(const MouseClickEvent& evt)
 {
-   for (UIElement* elem : mElements)
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElement*> elements{mElements};
+   for (UIElement* elem : elements)
    {
-      if (elem->MouseClick (evt) == Handled)
+      if (elem->MouseClick(evt) == Handled)
       {
          return;
       }
