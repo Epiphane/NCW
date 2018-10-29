@@ -34,7 +34,7 @@ public:
       std::string text = "";
       std::string font = "debug";
       uint32_t size = 0;
-      Engine::Graphics::Font::Alignment alignment = Engine::Graphics::Font::Left; 
+      Engine::Graphics::Font::Alignment alignment = Engine::Graphics::Font::Left;
 
       virtual uint32_t DefaultSize() const { return uint32_t(text.size()); }
    };

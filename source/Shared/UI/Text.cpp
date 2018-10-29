@@ -32,6 +32,11 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
    }
    mRegion = root->Reserve<Aggregator::Text>(2 * size);
 
+   // Suggest a size based on what we reserved.
+   root->AddConstraints({
+      rhea::constraint(mFrame.width >= size * 14.0, rhea::strength::weak())
+   });
+
    SetText(options.text);
    root->GetAggregator<Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
 }

@@ -4,6 +4,7 @@
 //
 // By Thomas Steinke
 
+#include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
 #include "UIElement.h"
@@ -29,7 +30,15 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
 
    mChildren.push_back(std::move(ptr));
    mpRoot->Emit<ElementAddedEvent>(element);
-   element->ConstrainAbove(this, rhea::strength::weak());
+
+   UIFrame& fChild = element->GetFrame();
+   mpRoot->AddConstraints({
+      rhea::constraint(fChild > mFrame, rhea::strength::weak()),
+      rhea::constraint(mFrame.top >= fChild.top, rhea::strength::weak()),
+      rhea::constraint(mFrame.left <= fChild.left, rhea::strength::weak()),
+      rhea::constraint(mFrame.right >= fChild.right, rhea::strength::weak()),
+      rhea::constraint(mFrame.bottom <= fChild.bottom, rhea::strength::weak()),
+   });
 
    return element;
 }

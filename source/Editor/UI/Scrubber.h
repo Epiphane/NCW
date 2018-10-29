@@ -56,7 +56,7 @@ public:
    ///
    ///
    struct Options : public BaseScrubber::Options {
-      N min = std::numeric_limits<N>::min();
+      N min = std::numeric_limits<N>::lowest();
       N max = std::numeric_limits<N>::max();
       std::function<void(N, N)> onChange = nullptr;
       // 1 pixel == 1 unit

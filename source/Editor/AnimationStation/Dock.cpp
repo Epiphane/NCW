@@ -213,12 +213,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    scrollbarOptions.image = "frame_pointer";
    scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
    mScrubber = Add<ScrollBar>(scrollbarOptions);
-   UIFrame& fScrubber = mScrubber->GetFrame();
+   UIFrame& fCursor = mScrubber->GetFrame();
    root->AddConstraints({
-      fScrubber.left == fTimeline.left,
-      fScrubber.top == fTimeline.bottom - 8,
-      fScrubber.width == fTimeline.width,
-      fScrubber.height == 10,
+      fCursor.left == fTimeline.left,
+      fCursor.top == fTimeline.bottom - 8,
+      fCursor.width == fTimeline.width,
+      fCursor.height == 10,
    });
 
    // Container for keyframe icons. Not very important but it can't hurt.
@@ -242,7 +242,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       root->AddConstraints({
          fKeyframe.left == c1,
-         fKeyframe.top == fScrubber.bottom - 32,
+         fKeyframe.top == fTimeline.bottom - 32,
          fKeyframe.height == fStateLength.height,
 
          fLabel.left == fRow.left,
@@ -374,13 +374,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       mPause = playback->Add<Button>(buttonOptions);
       UIFrame& fPause = mPause->GetFrame();
 
-      buttonOptions.image = "button_next_frame";
-      buttonOptions.hoverImage = "hover_button_next_frame";
-      buttonOptions.pressImage = "press_button_next_frame";
-      buttonOptions.onClick = [&]() { mController->nextTick = 0.1; };
-      mTick = playback->Add<Button>(buttonOptions);
-      UIFrame& fNextFrame = mTick->GetFrame();
-
       root->AddConstraints({
          fPlayback.left == c4,
          fPlayback.top == fStateName.top,
@@ -393,168 +386,218 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fPause.left == fPlay.left,
          fPause.top == fPlay.top,
          fPause.bottom == fPlay.bottom,
+      });
 
-         fNextFrame.left == fPlay.right + 8,
-         fNextFrame.top == fRow.top,
-         fNextFrame.bottom == fRow.bottom,
+      buttonOptions.image = "button_left";
+      buttonOptions.hoverImage = "hover_button_left";
+      buttonOptions.pressImage = "press_button_left";
+      buttonOptions.onClick = [&]() {
+         mController->speed /= 2.0;
+      };
+      UIFrame& fSlower = Add<Button>(buttonOptions)->GetFrame();
+
+      buttonOptions.image = "button_right";
+      buttonOptions.hoverImage = "hover_button_right";
+      buttonOptions.pressImage = "press_button_right";
+      buttonOptions.onClick = [&]() {
+         mController->speed *= 2.0;
+      };
+      UIFrame& fFaster = Add<Button>(buttonOptions)->GetFrame();
+
+      root->AddConstraints({
+         fSlower.left == fPlay.left,
+         fSlower.top == fPlay.bottom - 8,
+         fSlower.height == 19,
+         fFaster.left == fSlower.right + 8,
+         fFaster.top == fSlower.top,
+         fFaster.height == fSlower.height,
       });
    }
 
-   /*
-   // Playback controls
-   {
-      Image::Options imageOptions;
-      imageOptions.x = 60 * EIGHT_X;
-      imageOptions.y = 1.0f - 11 * EIGHT_Y;
-      imageOptions.w = 19.0f / GetWidth();
-      imageOptions.h = 19.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "button_left";
-      imageOptions.hoverImage = "hover_button_left";
-      imageOptions.pressImage = "press_button_left";
-      imageOptions.onClick = [&]() {
-         mController->speed /= 2.0;
-      };
-      Add<Image>(imageOptions);
-
-      imageOptions.x += imageOptions.w + EIGHT_X;
-      imageOptions.image = "button_right";
-      imageOptions.hoverImage = "hover_button_right";
-      imageOptions.pressImage = "press_button_right";
-      imageOptions.onClick = [&]() {
-         mController->speed *= 2.0;
-      };
-      Add<Image>(imageOptions);
-   }
-
    // Bone information
+   UIElement* boneHeader = Add<UIElement>();
+   UIFrame& fBoneHeader = boneHeader->GetFrame();
    {
-      Text::Options textOptions;
-      textOptions.x = 82 * EIGHT_X;
-      textOptions.y = 1.0f - 5 * EIGHT_Y;
-      textOptions.w = 20 * EIGHT_X;
-      textOptions.h = 2 * EIGHT_Y;
-      textOptions.text = "Bone Name";
-      mBoneName = Add<Text>(textOptions);
+      mBoneName = boneHeader->Add<Text>(Text::Options{"Bone name"});
+      UIFrame& fBoneName = mBoneName->GetFrame();
 
-      Image::Options imageOptions;
-      imageOptions.x = textOptions.x - 3 * EIGHT_X;
-      imageOptions.y = textOptions.y;
-      imageOptions.w = 19.0f / GetWidth();
-      imageOptions.h = 19.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "button_left";
-      imageOptions.hoverImage = "hover_button_left";
-      imageOptions.pressImage = "press_button_left";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
-      Add<Image>(imageOptions);
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+      buttonOptions.image = "button_left";
+      buttonOptions.hoverImage = "hover_button_left";
+      buttonOptions.pressImage = "press_button_left";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
+      UIFrame& fPrevBone = boneHeader->Add<Button>(buttonOptions)->GetFrame();
 
-      imageOptions.x = textOptions.x + textOptions.w;
-      imageOptions.image = "button_right";
-      imageOptions.hoverImage = "hover_button_right";
-      imageOptions.pressImage = "press_button_right";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
-      Add<Image>(imageOptions);
+      buttonOptions.image = "button_right";
+      buttonOptions.hoverImage = "hover_button_right";
+      buttonOptions.pressImage = "press_button_right";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
+      UIFrame& fNextBone = boneHeader->Add<Button>(buttonOptions)->GetFrame();
 
-      textOptions.x -= 7 * EIGHT_X;
-      textOptions.y -= 5 * EIGHT_Y;
-      textOptions.text = "Parent";
-      Add<Text>(textOptions);
+      UIFrame& fParentLabel = boneHeader->Add<Text>(Text::Options{"Parent"})->GetFrame();
+      Text::Options parentOptions{"N/A"};
+      parentOptions.size = 12;
+      parentOptions.alignment = Engine::Graphics::Font::Right;
+      mBoneParent = boneHeader->Add<Text>(parentOptions);
+      UIFrame& fParentValue = mBoneParent->GetFrame();
 
-      textOptions.x += textOptions.w;
-      textOptions.text = "Parent Bone";
-      mBoneParent = Add<Text>(textOptions);
+      buttonOptions.image = "button_up";
+      buttonOptions.hoverImage = "hover_button_up";
+      buttonOptions.pressImage = "press_button_up";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
+      UIFrame& fParentBone = Add<Button>(buttonOptions)->GetFrame();
 
-      imageOptions.x = textOptions.x - 3 * EIGHT_X;
-      imageOptions.y = textOptions.y;
-      imageOptions.image = "button_up";
-      imageOptions.hoverImage = "hover_button_up";
-      imageOptions.pressImage = "press_button_up";
-      imageOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
-      Add<Image>(imageOptions);
+      root->AddConstraints({
+         fBoneHeader.left == fTimeline.right + 48,
+         fBoneHeader.top == fStateName.top,
+         fBoneHeader.bottom == fParentBone.bottom,
+         fBoneHeader.width >= 200,
+
+         fPrevBone.top == fBoneHeader.top,
+         fPrevBone.left == fBoneHeader.left,
+         fPrevBone.height == 19,
+         fBoneName.top == fPrevBone.top,
+         fBoneName.bottom == fPrevBone.bottom,
+         fBoneName.left == fPrevBone.right + 8,
+         fBoneName.right == fNextBone.left - 8,
+         fNextBone.top == fPrevBone.top,
+         fNextBone.right == fBoneHeader.right,
+         fNextBone.height == fPrevBone.height,
+
+         fParentLabel.top == fPrevBone.bottom - 16,
+         fParentLabel.left == fBoneHeader.left,
+         fParentLabel.height == 19,
+         fParentValue.top == fParentLabel.top,
+         fParentValue.left >= fParentLabel.right + 8,
+         fParentValue.right == fParentBone.left - 8,
+         fParentValue.height == fParentLabel.height,
+         fParentBone.top == fParentValue.top,
+         fParentBone.right == fBoneHeader.right,
+         fParentBone.height == fParentValue.height,
+         fParentBone.width == 19,
+      });
    }
 
-   // Bone Numbers
+   // Bone positions, rotations and sliders
+   UIElement* bonePosition = Add<UIElement>();
+   UIFrame& fBonePosition = bonePosition->GetFrame();
+   UIElement* boneRotation = Add<UIElement>();
+   UIFrame& fBoneRotation = boneRotation->GetFrame();
+   root->AddConstraints({
+      fBonePosition.top == fBoneHeader.bottom - 8,
+      fBonePosition.left == fBoneHeader.left,
+      fBoneRotation.top == fBonePosition.top,
+      fBoneRotation.right == fBoneHeader.right,
+
+      // Split the bone section in half
+      fBonePosition.right == fBoneRotation.left,
+      fBonePosition.width == fBoneRotation.width,
+   });
+
    {
+      // Position/rotation icons that look good
+      Image::Options imageOptions;
+      imageOptions.filename = Asset::Image("EditorIcons.png");
+      imageOptions.image = "position";
+      UIFrame& fPosition = bonePosition->Add<Image>(imageOptions)->GetFrame();
+      imageOptions.image = "rotation";
+      UIFrame& fRotation = boneRotation->Add<Image>(imageOptions)->GetFrame();
+
+      root->AddConstraints({
+         fPosition.width == 37,
+         fPosition.left == fBonePosition.left,
+         fPosition.centerY == fBonePosition.centerY,
+
+         fRotation.width == 40,
+         fRotation.left == fBoneRotation.left,
+         fRotation.centerY == fBoneRotation.centerY,
+      });
+
+      // Bone position/rotation reset buttons
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+      buttonOptions.image = "reset";
+      buttonOptions.onClick = [&]() {
+         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
+         if (mSkeleton->time == keyframe.time)
+         {
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].originalPosition, keyframe.rotations[mBone]);
+         }
+      };
+      UIFrame& fResetPosition = bonePosition->Add<Button>(buttonOptions)->GetFrame();
+
+      buttonOptions.onClick = [&]() {
+         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
+         if (mSkeleton->time == keyframe.time)
+         {
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].originalRotation);
+         }
+      };
+      UIFrame& fResetRotation = boneRotation->Add<Button>(buttonOptions)->GetFrame();
+
+      root->AddConstraints({
+         fResetPosition.width == 35,
+         fResetPosition.left == fBonePosition.left,
+         fResetPosition.top == fPosition.bottom - 8,
+
+         fResetRotation.width == 35,
+         fResetRotation.left == fBoneRotation.left,
+         fResetRotation.top == fRotation.bottom - 8,
+      });
+
+      // Bone position/rotation controls
       NumDisplay<float>::Options textOptions;
-      textOptions.x = 81 * EIGHT_X;
-      textOptions.y = 1.0f - 15 * EIGHT_Y;
-      textOptions.w = 8 * EIGHT_X;
-      textOptions.h = 2 * EIGHT_Y;
       textOptions.text = "0.0";
       textOptions.precision = 1;
 
       Scrubber<float>::Options scrubberOptions;
-      scrubberOptions.x = textOptions.x - 3 * EIGHT_X;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      scrubberOptions.w = 64.0f / GetWidth();
-      scrubberOptions.h = 14.0f / GetHeight();
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) { Emit<SkeletonModifiedEvent>(mSkeleton); };
+      scrubberOptions.onChange = [&](double, double) { SendEvent<SkeletonModifiedEvent>(mSkeleton); };
+      scrubberOptions.sensitivity = 0.1;
 
-      mBonePosX.text = Add<NumDisplay<float>>(textOptions);
-      mBonePosX.scrubber = Add<Scrubber<float>>(scrubberOptions);
+      for (int i = 0; i < 3; i++)
+      {
+         mBonePos[i].text = bonePosition->Add<NumDisplay<float>>(textOptions);
+         mBonePos[i].scrubber = bonePosition->Add<Scrubber<float>>(scrubberOptions);
+         mBoneRot[i].text = boneRotation->Add<NumDisplay<float>>(textOptions);
+         mBoneRot[i].scrubber = boneRotation->Add<Scrubber<float>>(scrubberOptions);
+         UIFrame& bonePosText = mBonePos[i].text->GetFrame();
+         UIFrame& bonePosValue = mBonePos[i].scrubber->GetFrame();
+         UIFrame& boneRotText = mBoneRot[i].text->GetFrame();
+         UIFrame& boneRotValue = mBoneRot[i].scrubber->GetFrame();
 
-      textOptions.y -= 7 * EIGHT_Y;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      mBonePosY.text = Add<NumDisplay<float>>(textOptions);
-      mBonePosY.scrubber = Add<Scrubber<float>>(scrubberOptions);
+         root->AddConstraints({
+            bonePosText.left == fResetPosition.right + 8,
+            bonePosText.height == 32,
+            bonePosValue.top == bonePosText.bottom - 8,
+            bonePosValue.left == bonePosText.left,
+            bonePosValue.height == 7,
 
-      textOptions.y -= 7 * EIGHT_Y;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      mBonePosZ.text = Add<NumDisplay<float>>(textOptions);
-      mBonePosZ.scrubber = Add<Scrubber<float>>(scrubberOptions);
+            boneRotText.left == fResetRotation.right + 8,
+            boneRotText.height == 32,
+            boneRotValue.top == boneRotText.bottom - 8,
+            boneRotValue.left == boneRotText.left,
+            boneRotValue.height == 7,
+         });
 
-      // Rotation column
-      textOptions.x += 18 * EIGHT_X;
-      textOptions.y = 1.0f - 15 * EIGHT_Y;
-
-      scrubberOptions.x = textOptions.x - 3 * EIGHT_X;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      mBoneRotX.text = Add<NumDisplay<float>>(textOptions);
-      mBoneRotX.scrubber = Add<Scrubber<float>>(scrubberOptions);
-
-      textOptions.y -= 7 * EIGHT_Y;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      mBoneRotY.text = Add<NumDisplay<float>>(textOptions);
-      mBoneRotY.scrubber = Add<Scrubber<float>>(scrubberOptions);
-
-      textOptions.y -= 7 * EIGHT_Y;
-      scrubberOptions.y = textOptions.y - 3 * EIGHT_Y;
-      mBoneRotZ.text = Add<NumDisplay<float>>(textOptions);
-      mBoneRotZ.scrubber = Add<Scrubber<float>>(scrubberOptions);
-   }
-
-   // Reset buttons
-   {
-      Image::Options imageOptions;
-      imageOptions.x = 73 * EIGHT_X;
-      imageOptions.y = 1.0f - 28 * EIGHT_Y;
-      imageOptions.w = 35.0f / GetWidth();
-      imageOptions.h = 32.0f / GetHeight();
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "reset";
-      imageOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
-         if (mSkeleton->time == keyframe.time)
+         if (i == 0)
          {
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].position, keyframe.rotations[mBone]);
+            root->AddConstraints({
+               bonePosText.top == fBonePosition.top,
+               boneRotText.top == fBoneRotation.top,
+            });
          }
-      };
-      Add<Image>(imageOptions);
-
-      imageOptions.x += 18 * EIGHT_X;
-      imageOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
-         if (mSkeleton->time == keyframe.time)
+         else
          {
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].rotation);
+            root->AddConstraints({
+               bonePosText.top == mBonePos[i - 1].scrubber->GetFrame().bottom - 8,
+               boneRotText.top == mBoneRot[i - 1].scrubber->GetFrame().bottom - 8,
+            });
          }
-      };
-      Add<Image>(imageOptions);
+      }
    }
-   */
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
@@ -569,7 +612,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
    mSkeleton = evt.component;
    SetState(0);
    SetTime(0);
-   //SetBone(0);
+   SetBone(0);
 }
 
 ///
@@ -613,7 +656,6 @@ void Dock::Update(TIMEDELTA dt)
 {
    // Update the play/pause buttons
    mPlay->SetActive(mController->paused);
-   mTick->SetActive(mController->paused);
    mPause->SetActive(!mController->paused);
 
    UIElement::Update(dt);
@@ -694,8 +736,23 @@ void Dock::SetBone(const size_t& boneId)
    mBoneName->SetText(bone.name);
    mBoneParent->SetText(parent.name);
 
-   mBonePosX.text->Bind(&bone.position.x);
-   mBonePosX.text->Bind(&bone.position.y);
+   mBonePos[0].text->Bind(&bone.position.x);
+   mBonePos[1].text->Bind(&bone.position.y);
+   mBonePos[2].text->Bind(&bone.position.z);
+   mBoneRot[0].text->Bind(&bone.rotation.x);
+   mBoneRot[1].text->Bind(&bone.rotation.y);
+   mBoneRot[2].text->Bind(&bone.rotation.z);
+
+   State& state = GetCurrentState();
+   if (mSelectedKeyframe <= state.keyframes.size())
+   {
+      mBonePos[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].x);
+      mBonePos[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].y);
+      mBonePos[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].z);
+      mBoneRot[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].x);
+      mBoneRot[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].y);
+      mBoneRot[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].z);
+   }
 }
 
 ///
@@ -707,8 +764,8 @@ void Dock::AddStateCommand::Do()
    {
       Keyframe keyframe;
       std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
+      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
 
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
@@ -818,7 +875,7 @@ void Dock::SetTime(double time)
 
    size_t keyframeIndex = GetKeyframeIndex(state, time);
    Keyframe& prev = state.keyframes[keyframeIndex];
-   mSelectedKeyframe = 0;
+   mSelectedKeyframe = std::numeric_limits<size_t>::max();
 
    if ((time - prev.time) / state.length < 0.02)
    {
@@ -842,7 +899,26 @@ void Dock::SetTime(double time)
       mSkeleton->time = time;
    }
 
-   mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
+   if (mSelectedKeyframe >= state.keyframes.size())
+   {
+      mKeyframeTime->Bind(nullptr);
+      mBonePos[0].scrubber->Bind(nullptr);
+      mBonePos[1].scrubber->Bind(nullptr);
+      mBonePos[2].scrubber->Bind(nullptr);
+      mBoneRot[0].scrubber->Bind(nullptr);
+      mBoneRot[1].scrubber->Bind(nullptr);
+      mBoneRot[2].scrubber->Bind(nullptr);
+   }
+   else
+   {
+      mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
+      mBonePos[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].x);
+      mBonePos[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].y);
+      mBonePos[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].z);
+      mBoneRot[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].x);
+      mBoneRot[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].y);
+      mBoneRot[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].z);
+   }
 }
 
 ///

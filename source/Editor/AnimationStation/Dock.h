@@ -114,12 +114,8 @@ private:
    // Bone inspector
    Text* mBoneName;
    Text* mBoneParent;
-   LabelAndScrubber<float> mBonePosX;
-   LabelAndScrubber<float> mBonePosY;
-   LabelAndScrubber<float> mBonePosZ;
-   LabelAndScrubber<float> mBoneRotX;
-   LabelAndScrubber<float> mBoneRotY;
-   LabelAndScrubber<float> mBoneRotZ;
+   LabelAndScrubber<float> mBonePos[3];
+   LabelAndScrubber<float> mBoneRot[3];
 
 private:
    //
