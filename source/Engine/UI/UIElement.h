@@ -20,7 +20,7 @@
 #include "../Core/Bounded.h"
 #include "../Core/Config.h"
 #include "../Event/Event.h"
-#include "../Event/EventManager.h" // DO NOT COMMIT
+#include "../Event/EventManager.h"
 #include "../Event/Receiver.h"
 #include "../Event/InputEvent.h"
 #include "../Graphics/VBO.h"
@@ -114,7 +114,7 @@ class UIRebalancedEvent : public Event<UIRebalancedEvent>
 // UIElement extends EventManager, so that events can easily be passed down all the way to any leaf elements from
 // a central EventManager.
 //
-class UIElement : public Engine::Receiver<UIElement>, public EventManager
+class UIElement : public Engine::Receiver<UIElement>
 {
 public:
    UIElement(UIRoot* root, UIElement* parent);
@@ -201,7 +201,7 @@ public:
    template<typename T, typename ...Args>
    void SendEvent(Args... args)
    {
-      mpParent->Emit<T>(std::forward<Args>(args)...);
+      EventManager::EmitToTarget(mpRoot, std::forward<Args>(args)...);
    }
 
    //

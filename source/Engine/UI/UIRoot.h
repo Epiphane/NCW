@@ -20,7 +20,7 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIRoot : public UIElement//, public EventManager DO NOT COMMIT
+class UIRoot : public UIElement, public EventManager
 {
 public:
    UIRoot(const Bounded& bounds);
