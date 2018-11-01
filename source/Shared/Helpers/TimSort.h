@@ -15,7 +15,6 @@
 #include <vector>
 #include <functional>
 
-#include <Engine/UI/UIElement.h>
 namespace CubeWorld {
    
 namespace Shared {
