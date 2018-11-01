@@ -39,7 +39,6 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
       rhea::constraint(mFrame.right >= fChild.right, rhea::strength::weak()),
       rhea::constraint(mFrame.bottom <= fChild.bottom, rhea::strength::weak()),
    });
-   element->ConstrainAbove(this, rhea::strength::weak());
 
    return element;
 }
