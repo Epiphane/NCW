@@ -23,6 +23,7 @@
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
+#include "ModelMaker/Editor.h"
 
 #include "Main.h"
 
@@ -78,6 +79,9 @@ int main(int argc, char** argv)
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
    animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
+   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
+   modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
+
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
@@ -91,6 +95,13 @@ int main(int argc, char** argv)
          animationStation->Start();
       };
       UIFrame& fAnimationStation = controls.Add<TextButton>(buttonOptions)->GetFrame();
+
+      buttonOptions.text = "Model Maker";
+      buttonOptions.onClick = [&]() {
+         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
+         modelMaker->Start();
+      };
+      UIFrame& fModelMaker = controls.Add<TextButton>(buttonOptions)->GetFrame();
 
       buttonOptions.text = "Quit";
       buttonOptions.onClick = [&]() {
@@ -118,11 +129,16 @@ int main(int argc, char** argv)
 
          fAnimationStation.left == fBackground.left + 8,
          fAnimationStation.right == fBackground.right - 8,
-         fAnimationStation.bottom == fQuit.top + 8,
+         fAnimationStation.bottom == fModelMaker.top + 8,
          fAnimationStation.height == 32,
 
-         fQuit.left == fAnimationStation.left,
-         fQuit.right == fAnimationStation.right,
+         fModelMaker.left == fAnimationStation.left,
+         fModelMaker.right == fAnimationStation.right,
+         fModelMaker.bottom == fQuit.bottom + 8,
+         fModelMaker.height == 32,
+
+         fQuit.left == fModelMaker.left,
+         fQuit.right == fModelMaker.right,
          fQuit.bottom == fControls.bottom + 16,
          fQuit.height == 32,
       });
@@ -170,9 +186,9 @@ int main(int argc, char** argv)
       Editor::CommandStack::Instance()->Redo();
    });
 
-   // Start in Animation Station
-   animationStation->Start();
-   windowContent.Swap(animationStation);
+   // Start in Model Maker
+   modelMaker->Start();
+   windowContent.Swap(modelMaker);
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {
