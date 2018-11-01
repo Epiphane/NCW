@@ -99,7 +99,7 @@ int main(int argc, char** argv)
       UIFrame& fQuit = controls.Add<TextButton>(buttonOptions)->GetFrame();
 
       UIFrame& fControls = controls.GetFrame();
-      UIFrame& fBackground = bg->GetFrame();
+      Engine::UIFrame& fBackground = bg->GetFrame();
       Engine::UIFrame& fForeground = fg->GetFrame();
       controls.AddConstraints({
          fControls > fForeground,
