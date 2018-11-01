@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
          fModelMaker.left == fAnimationStation.left,
          fModelMaker.right == fAnimationStation.right,
-         fModelMaker.bottom == fQuit.bottom + 8,
+         fModelMaker.bottom == fQuit.top + 8,
          fModelMaker.height == 32,
 
          fQuit.left == fModelMaker.left,

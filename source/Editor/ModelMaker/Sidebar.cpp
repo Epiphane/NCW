@@ -4,8 +4,10 @@
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/RectFilled.h>
+
+#include <Shared/UI/Image.h>
 #include <Shared/UI/TextButton.h>
+#include <Shared/UI/RectFilled.h>
 
 #include "Sidebar.h"
 
@@ -18,17 +20,17 @@ namespace Editor
 namespace ModelMaker
 {
 
+using Engine::UIElement;
 using Engine::UIFrame;
-using Engine::UIRoot;
-using UI::RectFilled;
+using UI::Image;
 using UI::TextButton;
+using UI::RectFilled;
 
-Sidebar::Sidebar(UIRoot* root, UIElement* parent)
+Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
-   , mFilename(Paths::Normalize(Asset::Animation("player.json")))
+   , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
    {
-      // Backdrop
       RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
       RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
 
@@ -41,10 +43,10 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
          fBackground.bottom == mFrame.bottom,
          mFrame > fForeground,
 
-         fForeground.left == fBackground.left + 2,
+         fForeground.left == fBackground.left,
          fForeground.right == fBackground.right - 2,
          fForeground.top == fBackground.top - 2,
-         fForeground.bottom == fBackground.bottom,
+         fForeground.bottom == fBackground.bottom + 2,
          fForeground > fBackground,
       });
    }
@@ -106,13 +108,13 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
       });
    }
 
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
    root->Subscribe<ModelModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<CubeModel>& evt)
 {
-   mSkeleton = evt.component;
+   mModel = evt.component;
 
    LoadFile(mFilename);
 }
@@ -132,7 +134,7 @@ void Sidebar::SetModified(bool modified)
 
    mModified = modified;
 
-   std::string title = "NCW - Animation Station - ";
+   std::string title = "NCW - Model Maker - ";
    if (mModified)
    {
       title += "*";
@@ -156,22 +158,15 @@ void Sidebar::LoadNewFile()
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   if (!mSkeleton)
+   if (!mModel)
    {
       // Wait until the component exists!
       return;
    }
 
-   mSkeleton->Load(filename);
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+   // Load
 
-   mpRoot->Emit<ModelLoadedEvent>(mSkeleton);
+   mpRoot->Emit<ModelLoadedEvent>(mModel);
    SetModified(false);
 }
 
@@ -187,11 +182,13 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mSkeleton->Serialize();
-   std::ofstream out(mFilename);
-   out << serialized << std::endl;
+   // TODO
+   return;
+   //std::string serialized = mModel->Serialize();
+   //std::ofstream out(mFilename);
+   //out << serialized << std::endl;
 
-   mpRoot->Emit<ModelSavedEvent>(mSkeleton);
+   mpRoot->Emit<ModelSavedEvent>(mModel);
    SetModified(false);
 }
 
@@ -212,7 +209,7 @@ void Sidebar::Quit()
    }
 }
 
-}; // namespace ModelMaker
+}; // namespace AnimationStation
 
 }; // namespace Editor
 

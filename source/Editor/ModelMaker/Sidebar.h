@@ -2,9 +2,12 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/UI/TextButton.h>
 
 #include "Events.h"
@@ -18,6 +21,8 @@ namespace Editor
 
 namespace ModelMaker
 {
+
+using UI::TextButton;
 
 class Sidebar : public Engine::UIElement {
 public:
@@ -38,18 +43,18 @@ private:
 
 private:
    // Elements
-   UI::TextButton* mSave;
-   UI::TextButton* mQuit;
+   TextButton* mSave;
+   TextButton* mQuit;
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<CubeModel>& evt);
    void Receive(const ModelModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<CubeModel> mModel;
    bool mModified;
 };
 
