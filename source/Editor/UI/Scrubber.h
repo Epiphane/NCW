@@ -114,7 +114,7 @@ private:
    void Scrub(double amount) override
    {
       N oldValue = this->GetValue();
-      SetValue(std::clamp(this->GetValue() + static_cast<N>(amount * mSensitivity), mMin, mMax));
+      this->SetValue(std::clamp(this->GetValue() + static_cast<N>(amount * mSensitivity), mMin, mMax));
       if (mCallback)
       {
          mCallback(this->GetValue(), oldValue);

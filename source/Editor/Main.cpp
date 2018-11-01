@@ -104,7 +104,7 @@ int main(int argc, char** argv)
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-         fBackground.z <= -0.5,
+//         fBackground.z <= -0.5,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,
