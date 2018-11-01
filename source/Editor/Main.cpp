@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
-   animationStation->AddConstraints({animationStation->GetFrame().z >= -0.5});
+   animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
    // Create editor-wide controls pane
    UIRoot controls(*window);
@@ -99,12 +99,12 @@ int main(int argc, char** argv)
       UIFrame& fQuit = controls.Add<TextButton>(buttonOptions)->GetFrame();
 
       UIFrame& fControls = controls.GetFrame();
-      Engine::UIFrame& fBackground = bg->GetFrame();
+      UIFrame& fBackground = bg->GetFrame();
       Engine::UIFrame& fForeground = fg->GetFrame();
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-//         fBackground.z <= -0.5,
+         fBackground.z <= 10.0,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,
