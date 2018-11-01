@@ -162,7 +162,7 @@ void UIRoot::UpdateRoot()
       std::function<bool(UIElement*,UIElement*)> GreaterThan = [](UIElement* lhs, UIElement* rhs) {
          return lhs->GetFrame().z.value() > rhs->GetFrame().z.value();
       };
-      TimSortInPlace(mElements, GreaterThan);
+      Shared::TimSortInPlace(mElements, GreaterThan);
       
       Emit<UIRebalancedEvent>();
       mDirty = false;
