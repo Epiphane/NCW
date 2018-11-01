@@ -26,8 +26,6 @@
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
 
-//#include <rhea/rhea/variable.hpp>
-
 namespace CubeWorld
 {
 
@@ -195,15 +193,6 @@ public:
    bool ContainsPoint(double x, double y);
 
 public:
-   //
-   // Emit an event to the UIRoot.
-   //
-   template<typename T, typename ...Args>
-   void SendEvent(Args... args)
-   {
-      EventManager::EmitToTarget(mpRoot, std::forward<Args>(args)...);
-   }
-
    //
    // Called by the UIRoot when mouse events happen.
    // These functions are performed from the front-most element to the furthest back,
