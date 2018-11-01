@@ -75,7 +75,7 @@ private:
 
 public:
    // Event handlers
-   void Receive(const SkeletonLoadedEvent& evt);
+   void Receive(const ModelLoadedEvent& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 

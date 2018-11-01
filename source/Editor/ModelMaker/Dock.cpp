@@ -554,7 +554,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Scrubber<float>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton); };
+      scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<ModelModifiedEvent>(mSkeleton); };
       scrubberOptions.sensitivity = 0.1;
 
       for (int i = 0; i < 3; i++)
@@ -599,7 +599,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       }
    }
 
-   root->Subscribe<SkeletonLoadedEvent>(*this);
+   root->Subscribe<ModelLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
 }
@@ -607,7 +607,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 ///
 ///
 ///
-void Dock::Receive(const SkeletonLoadedEvent& evt)
+void Dock::Receive(const ModelLoadedEvent& evt)
 {
    mSkeleton = evt.component;
    SetState(0);
@@ -776,7 +776,7 @@ void Dock::AddStateCommand::Do()
    {
       dock->SetState(dock->mSkeleton->current + 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -793,7 +793,7 @@ void Dock::AddStateCommand::Undo()
    {
       dock->SetState(dock->mSkeleton->current - 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -812,7 +812,7 @@ void Dock::SetStateLength(double newValue, double oldValue)
 
    mScrubber->SetBounds(0, newValue);
    SetTime(mSkeleton->time * stretch);
-   mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
+   mpRoot->Emit<ModelModifiedEvent>(mSkeleton);
 }
 
 ///
@@ -825,7 +825,7 @@ void Dock::SetStateNameCommand::Do()
    state.name = name;
    name = last;
    dock->mStateName->SetText(state.name);
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -849,7 +849,7 @@ void Dock::AddKeyframeCommand::Do()
    keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -863,7 +863,7 @@ void Dock::AddKeyframeCommand::Undo()
    keyframe = state.keyframes[keyframeIndex];
    state.keyframes.erase(state.keyframes.begin() + keyframeIndex);
    dock->UpdateKeyframeIcons();
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -968,7 +968,7 @@ void Dock::SetKeyframeTimeCommand::Do()
    dock->UpdateKeyframeIcons();
    value = last;
 
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -1041,7 +1041,7 @@ void Dock::ResetBoneCommand::Do()
    position = pos;
    rotation = rot;
 
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<ModelModifiedEvent>(dock->mSkeleton);
 }
 
 }; // namespace ModelMaker

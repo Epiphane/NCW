@@ -12,31 +12,31 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace AnimationStation
+namespace ModelMaker
 {
 
-struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
+struct ModelLoadedEvent : public Engine::Event<ModelLoadedEvent>
 {
-   SkeletonLoadedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   ModelLoadedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
    Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
-struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
+struct ModelSavedEvent : public Engine::Event<ModelSavedEvent>
 {
-   SkeletonSavedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   ModelSavedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
    Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
-struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
+struct ModelModifiedEvent : public Engine::Event<ModelModifiedEvent>
 {
-   SkeletonModifiedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   ModelModifiedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
 
    Engine::ComponentHandle<AnimatedSkeleton> component;
 };
 
-}; // namespace AnimationStation
+}; // namespace ModelMaker
 
 }; // namespace Editor
 

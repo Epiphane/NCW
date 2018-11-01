@@ -107,7 +107,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    }
 
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
-   root->Subscribe<SkeletonModifiedEvent>(*this);
+   root->Subscribe<ModelModifiedEvent>(*this);
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
@@ -117,7 +117,7 @@ void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const SkeletonModifiedEvent&)
+void Sidebar::Receive(const ModelModifiedEvent&)
 {
    SetModified(true);
 }
@@ -171,7 +171,7 @@ void Sidebar::LoadFile(const std::string& filename)
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
    mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
-   mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
+   mpRoot->Emit<ModelLoadedEvent>(mSkeleton);
    SetModified(false);
 }
 
@@ -191,7 +191,7 @@ void Sidebar::SaveFile()
    std::ofstream out(mFilename);
    out << serialized << std::endl;
 
-   mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
+   mpRoot->Emit<ModelSavedEvent>(mSkeleton);
    SetModified(false);
 }
 

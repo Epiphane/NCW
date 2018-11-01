@@ -44,7 +44,7 @@ private:
 public:
    // Event handlers
    void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
-   void Receive(const SkeletonModifiedEvent& evt);
+   void Receive(const ModelModifiedEvent& evt);
 
 private:
    // State
