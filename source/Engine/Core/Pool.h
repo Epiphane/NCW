@@ -32,7 +32,7 @@ public:
       , mSize(0)
       , mCapacity(0)
    {};
-   ~BasePool() {};
+   virtual ~BasePool() {};
 
    size_t size() const { return mSize; }
    size_t capacity() const { return mCapacity; }
