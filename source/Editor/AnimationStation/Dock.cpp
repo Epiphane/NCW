@@ -554,7 +554,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Scrubber<float>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) { SendEvent<SkeletonModifiedEvent>(mSkeleton); };
+      scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton); };
       scrubberOptions.sensitivity = 0.1;
 
       for (int i = 0; i < 3; i++)
@@ -776,7 +776,7 @@ void Dock::AddStateCommand::Do()
    {
       dock->SetState(dock->mSkeleton->current + 1);
    }
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -793,7 +793,7 @@ void Dock::AddStateCommand::Undo()
    {
       dock->SetState(dock->mSkeleton->current - 1);
    }
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -812,7 +812,7 @@ void Dock::SetStateLength(double newValue, double oldValue)
 
    mScrubber->SetBounds(0, newValue);
    SetTime(mSkeleton->time * stretch);
-   SendEvent<SkeletonModifiedEvent>(mSkeleton);
+   mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
 }
 
 ///
@@ -825,7 +825,7 @@ void Dock::SetStateNameCommand::Do()
    state.name = name;
    name = last;
    dock->mStateName->SetText(state.name);
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -849,7 +849,7 @@ void Dock::AddKeyframeCommand::Do()
    keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -863,7 +863,7 @@ void Dock::AddKeyframeCommand::Undo()
    keyframe = state.keyframes[keyframeIndex];
    state.keyframes.erase(state.keyframes.begin() + keyframeIndex);
    dock->UpdateKeyframeIcons();
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -968,7 +968,7 @@ void Dock::SetKeyframeTimeCommand::Do()
    dock->UpdateKeyframeIcons();
    value = last;
 
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 ///
@@ -1041,7 +1041,7 @@ void Dock::ResetBoneCommand::Do()
    position = pos;
    rotation = rot;
 
-   dock->SendEvent<SkeletonModifiedEvent>(dock->mSkeleton);
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
 }
 
 }; // namespace AnimationStation

@@ -21,6 +21,9 @@ template <typename N>
 class NumDisplay : public Text, public Engine::Binding<N>
 {
 public:
+   using Binding = Engine::Binding<N>;
+
+public:
    struct Options : public Text::Options {
       Options(uint8_t precision = 2) : Text::Options(), precision(precision) {};
       Options(const Text::Options& base, uint8_t precision) : Text::Options(base), precision(precision) {};
@@ -43,9 +46,9 @@ public:
    //
    void Update(TIMEDELTA dt) override
    {
-      if (Engine::Binding<N>::Update())
+      if (Binding::Update())
       {
-         SetText(Format::FormatString(mFormat, this->GetValue()));
+         SetText(Format::FormatString(mFormat, Binding::GetValue()));
       }
 
       Text::Update(dt);
