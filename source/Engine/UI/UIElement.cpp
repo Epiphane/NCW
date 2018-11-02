@@ -111,7 +111,7 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs)
 
 rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 {
-   return rhs.z >= lhs.z + 0.0001;
+   return rhs.z >= lhs.z + 1.0;
 }
    
 }; // namespace Engine

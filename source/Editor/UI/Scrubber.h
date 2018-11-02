@@ -52,6 +52,9 @@ template <typename N>
 class Scrubber : public BaseScrubber, public Engine::Binding<N>
 {
 public:
+   using Binding = Engine::Binding<N>;
+
+public:
    ///
    ///
    ///
@@ -73,7 +76,7 @@ public:
 
    void Update(TIMEDELTA dt) override
    {
-      Engine::Binding<N>::Update();
+      Binding::Update();
       BaseScrubber::Update(dt);
    }
 
@@ -113,11 +116,11 @@ private:
 private:
    void Scrub(double amount) override
    {
-      N oldValue = this->GetValue();
-      SetValue(std::clamp(this->GetValue() + static_cast<N>(amount * mSensitivity), mMin, mMax));
+      N oldValue = Binding::GetValue();
+      Binding::SetValue(std::clamp(Binding::GetValue() + static_cast<N>(amount * mSensitivity), mMin, mMax));
       if (mCallback)
       {
-         mCallback(this->GetValue(), oldValue);
+         mCallback(Binding::GetValue(), oldValue);
       }
    }
 

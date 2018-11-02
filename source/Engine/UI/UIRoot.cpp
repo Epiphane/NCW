@@ -2,6 +2,7 @@
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
+#include <Shared/Helpers/TimSort.h>
 
 //#include <rhea/rhea/iostream.hpp> // Uncomment if you want to do something like `cout << rhea::variable`
 
@@ -60,8 +61,7 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
       frame.width >= 0,
       frame.height >= 0,
 
-      frame.z >= -1,
-      frame.z <= 1,
+      frame.z >= 0,
    });
 }
 
@@ -155,13 +155,15 @@ void UIRoot::UpdateRoot()
    if (mDirty)
    {
       mSolver.resolve();
+      
       // TODO couple things:
       // 1. move this sort to another function,
-      // 2. implement timsort since it applies to this situation well
-      // 3. for aggregators that use indices, update them accordingly when we do swaps.
-      std::sort(mElements.begin(), mElements.end(), [](UIElement* lhs, UIElement* rhs) {
-         return lhs->GetFrame().z.value() < rhs->GetFrame().z.value();
-      });
+      // 2. for aggregators that use indices, update them accordingly when we do swaps.
+      std::function<bool(UIElement*,UIElement*)> GreaterThan = [](UIElement* lhs, UIElement* rhs) {
+         return lhs->GetFrame().z.value() > rhs->GetFrame().z.value();
+      };
+      Shared::TimSortInPlace(mElements, GreaterThan);
+      
       Emit<UIRebalancedEvent>();
       mDirty = false;
    }

@@ -126,6 +126,12 @@ public:
          mParent->source->Emit<E>(evt);
       }
    }
+   
+   template <typename E>
+   static void EmitToTarget(EventManager* target, const E& evt)
+   {
+      target->Emit<E>(evt);
+   }
 
    template <typename E, typename ... Args>
    void Emit(Args && ... args)

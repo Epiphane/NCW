@@ -20,12 +20,11 @@
 #include "../Core/Bounded.h"
 #include "../Core/Config.h"
 #include "../Event/Event.h"
+#include "../Event/EventManager.h"
 #include "../Event/Receiver.h"
 #include "../Event/InputEvent.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
-
-//#include <rhea/rhea/variable.hpp>
 
 namespace CubeWorld
 {
@@ -194,15 +193,6 @@ public:
    bool ContainsPoint(double x, double y);
 
 public:
-   //
-   // Emit an event to the UIRoot.
-   //
-   template<typename T, typename ...Args>
-   void SendEvent(Args... args)
-   {
-      mpRoot->Emit<T>(std::forward<Args>(args)...);
-   }
-
    //
    // Called by the UIRoot when mouse events happen.
    // These functions are performed from the front-most element to the furthest back,

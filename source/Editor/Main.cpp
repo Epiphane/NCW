@@ -36,7 +36,7 @@ const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
 int main(int argc, char** argv)
-{
+{   
    // Parse arguments
    int argi = 0;
    while (argi < argc)
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
-   animationStation->AddConstraints({animationStation->GetFrame().z >= -0.5});
+   animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
    // Create editor-wide controls pane
    UIRoot controls(*window);
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-         fBackground.z <= -0.5,
+         fBackground.z <= 10.0,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,
