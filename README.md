@@ -15,6 +15,16 @@ I've kind of wanted to do the same. Considering I know it's fun, it's clearly po
 and all the data is stored in files called `data1.db` ([sqlite specifically](https://www.sqlite.org/index.html), in case you care),
 Cube World seemed like the perfect starting point for doing a game engine from start to finish.
 
+## Things
+
+Right now there are two "things": the Game and the Editor. Editor, as the name implies, is intended to be the place for making content for the Game, which is what people will play.
+
+### Editor Windows
+
+If you're going to change up things such as the UI, it's good to know what to expect. Since there are no tests, use this reference image as a handy-dandy "what should the Editor look like at all times?" guide:
+
+![Animation Station](./Assets/Mocks/AnimationStation.png)
+
 ## How to develop
 
 1. Make sure you can see [the Trello board](https://trello.com/b/X0QjsQet/not-cube-world).
