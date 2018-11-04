@@ -3,7 +3,7 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "options": {
-        "cwd": "${workspaceRoot}/build"
+        "cwd": "${workspaceRoot}/build/make"
     },
     "tasks": [
         {
@@ -12,7 +12,7 @@
                 "/Applications/CMake.app/Contents/bin/cmake",
                 "-G",
                 "Unix Makefiles",
-                ".."
+                "../.."
             ],
             "type": "shell",
             "group": "build",
@@ -29,9 +29,6 @@
             "type": "shell",
             "group": "build",
             "command": "make",
-            "options": {
-                "cwd": "${workspaceRoot}/build"
-            },
             "dependsOn": "cmake",
             "problemMatcher": []
         },
@@ -45,9 +42,6 @@
             "type": "shell",
             "group": "build",
             "command": "make",
-            "options": {
-                "cwd": "${workspaceRoot}/build"
-            },
             "dependsOn": "cmake",
             "problemMatcher": []
         },
@@ -60,9 +54,6 @@
             "type": "shell",
             "group": "build",
             "command": "make",
-            "options": {
-                "cwd": "${workspaceRoot}/build"
-            },
             "dependsOn": "cmake",
             "problemMatcher": []
         }
