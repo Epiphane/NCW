@@ -14,7 +14,6 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
-#include <Engine/UI/UIRoot.h>
 #include <Shared/Components/CubeModel.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>

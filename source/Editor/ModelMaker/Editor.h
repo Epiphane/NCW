@@ -10,7 +10,6 @@
 
 #include "Dock.h"
 #include "Sidebar.h"
-#include "State.h"
 
 namespace CubeWorld
 {

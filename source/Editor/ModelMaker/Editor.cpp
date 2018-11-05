@@ -6,6 +6,7 @@
 #include "Dock.h"
 #include "Editor.h"
 #include "Sidebar.h"
+#include "State.h"
 
 namespace CubeWorld
 {
@@ -26,11 +27,9 @@ Editor::Editor(Bounded& parent) : UIRoot(parent)
    state->SetParent(this);
 
    Sidebar* sidebar = Add<Sidebar>();
-   Dock* dock = Add<Dock>();
 
    // Organize everything
    Engine::UIFrame& fSidebar = sidebar->GetFrame();
-   Engine::UIFrame& fDock = dock->GetFrame();
    Engine::UIFrame& fPreview = mStateWindow->GetFrame();
    mSolver.add_constraints({
       fSidebar.left == mFrame.left,
@@ -38,15 +37,10 @@ Editor::Editor(Bounded& parent) : UIRoot(parent)
       fSidebar.width == mFrame.width * 0.2,
       fSidebar.height == mFrame.height,
 
-      fDock.left == mFrame.left + fSidebar.width,
-      fDock.bottom == mFrame.bottom,
-      fDock.right == mFrame.right,
-      fDock.height == mFrame.height * 0.4,
-
       fPreview.left == fSidebar.right,
       fPreview.top == mFrame.top,
       fPreview.right == mFrame.right,
-      fPreview.bottom == fDock.top,
+      fPreview.bottom == mFrame.bottom,
    });
 
    mStateWindow->SetState(std::move(state));

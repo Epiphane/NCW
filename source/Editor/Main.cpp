@@ -81,11 +81,11 @@ int main(int argc, char** argv)
    animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
    Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
-   modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
+   modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
    
    Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
-   constrainer->AddConstraints({constrainer->GetFrame().z >= 11.0});
-    
+   constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
+
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
