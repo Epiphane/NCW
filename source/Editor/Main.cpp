@@ -205,10 +205,9 @@ int main(int argc, char** argv)
    });
 
    // Start in Model Maker
-//   modelMaker->Start();
-   animationStation->Start();
-//   constrainer->Start();
-   windowContent.Swap(animationStation);
+   modelMaker->Start();
+   windowContent.Swap(modelMaker);
+   constrainer->Start();
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {
