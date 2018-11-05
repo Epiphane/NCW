@@ -2,6 +2,7 @@
 
 #include <Engine/Entity/Component.h>
 #include <Engine/Event/Event.h>
+#include <Engine/Logger/Logger.h>
 #include <Engine/Entity/ComponentHandle.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Components/CubeModel.h>
@@ -34,7 +35,12 @@ void Backdrop::Receive(const ModelLoadedEvent& evt)
       evt.component->mModel->mMetadata.height,
       evt.component->mModel->mMetadata.length
    );
-   glm::vec3 offset = size / -2.0f;
+   glm::vec3 offset = glm::vec3(
+      (evt.component->mModel->mMetadata.width - 1) / 2,
+      evt.component->mModel->mMetadata.height / 2,
+      evt.component->mModel->mMetadata.length / 2
+   );
+   offset *= -1;
 
    // Colors
    const glm::vec4 DARK(18, 18, 18, 1);

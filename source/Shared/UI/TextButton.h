@@ -44,7 +44,8 @@ public:
    TextButton(Engine::UIRoot* root, UIElement* parent, const Options& options);
 
    Action MouseClick(const MouseClickEvent& evt) override;
-   Action MouseMove(const MouseMoveEvent& evt) override;
+
+   void Update(TIMEDELTA dt) override;
 
 private:
    std::function<void(void)> mClickCallback;

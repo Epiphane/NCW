@@ -29,12 +29,12 @@ struct WalkSpeed : public Engine::Component<WalkSpeed> {
       , running(false)
    {};
    
-   bool walking;
-   bool running;
    float walkSpeed;
    float runSpeed;
    float accel;
    float currentSpeed;
+   bool walking;
+   bool running;
 };
 
 class WalkSystem : public Engine::System<WalkSystem> {

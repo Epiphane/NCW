@@ -18,9 +18,9 @@ namespace CubeWorld
 
 CubeModel::CubeModel()
    : mModel(nullptr)
-   , mNumVoxels(0)
-   , mMetadata{0, 0, 0}
    , mVBO(Engine::Graphics::VBO::Vertices)
+   , mMetadata{0, 0, 0}
+   , mNumVoxels(0)
    , mTint(glm::vec3(255))
 {
 }

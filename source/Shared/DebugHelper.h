@@ -33,7 +33,6 @@ public:
       Callback callback;
       MetricLink(DebugHelper* debug, const std::string& name, const Callback& callback)
          : debug(debug)
-         , refs(1)
          , name(name)
          , callback(callback)
          , next(nullptr)
@@ -46,7 +45,6 @@ public:
 
    private:
       DebugHelper* debug;
-      uint32_t refs;
 
       friend class DebugHelper;
       MetricLink* next;

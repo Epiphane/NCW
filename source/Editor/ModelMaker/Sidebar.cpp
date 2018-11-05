@@ -51,61 +51,82 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       });
    }
 
+   // Labels
+   TextButton::Options buttonOptions;
+   buttonOptions.text = "Load";
+   buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
+   TextButton* load = Add<TextButton>(buttonOptions);
+
+   buttonOptions.text = "Save";
+   buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
+   mSave = Add<TextButton>(buttonOptions);
+   
+   buttonOptions.text = "Save As...";
+   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
+   TextButton* saveAs = Add<TextButton>(buttonOptions);
+   
+   buttonOptions.text = "Discard Changes";
+   buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
+   TextButton* discard = Add<TextButton>(buttonOptions);
+
+   UIFrame& fLoad = load->GetFrame();
+   UIFrame& fSave = mSave->GetFrame();
+   UIFrame& fSaveAs = saveAs->GetFrame();
+   UIFrame& fDiscard = discard->GetFrame();
+   root->AddConstraints({
+      fLoad.left == mFrame.left + 8,
+      fLoad.right == mFrame.right - 8,
+      fLoad.top == mFrame.top - 8,
+      fLoad.height == 32,
+
+      fSave.left == fLoad.left,
+      fSave.right == fLoad.right,
+      fSave.top == fLoad.bottom - 8,
+      fSave.height == fLoad.height,
+
+      fSaveAs.left == fSave.left,
+      fSaveAs.right == fSave.right,
+      fSaveAs.top == fSave.bottom - 8,
+      fSaveAs.height == fSave.height,
+
+      fDiscard.left == fSaveAs.left,
+      fDiscard.right == fSaveAs.right,
+      fDiscard.top == fSaveAs.bottom - 8,
+      fDiscard.height == fSaveAs.height,
+   });
+
+   // Create a scrollable list of available models
+   UIFrame& fExplorer = Add<UIElement>()->GetFrame();
+   root->AddConstraints({
+      fExplorer.left == mFrame.left,
+      fExplorer.right == mFrame.right,
+      fExplorer.bottom == mFrame.bottom,
+      fExplorer.top == fDiscard.bottom - 8,
+   });
+
+   std::vector<std::string> testData = {"dummy.cub", "aim.cub", "barrel.cub", "bed.cub"};
+   TextButton* prevButton = nullptr;
+   for (const std::string& file : testData)
    {
-      // Labels
-      TextButton::Options buttonOptions;
-      buttonOptions.text = "Load";
-      buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-      TextButton* load = Add<TextButton>(buttonOptions);
-
-      buttonOptions.text = "Save";
-      buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-      mSave = Add<TextButton>(buttonOptions);
-      
-      buttonOptions.text = "Save As...";
-      buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-      TextButton* saveAs = Add<TextButton>(buttonOptions);
-      
-      buttonOptions.text = "Discard Changes";
-      buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-      TextButton* discard = Add<TextButton>(buttonOptions);
-      
-      buttonOptions.text = "Quit";
-      buttonOptions.size = 13; // "> Save first!"
-      buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
-      mQuit = Add<TextButton>(buttonOptions);
-
-      UIFrame& fLoad = load->GetFrame();
-      UIFrame& fSave = mSave->GetFrame();
-      UIFrame& fSaveAs = saveAs->GetFrame();
-      UIFrame& fDiscard = discard->GetFrame();
-      UIFrame& fQuit = mQuit->GetFrame();
+      buttonOptions.text = file;
+      buttonOptions.onClick = std::bind(&Sidebar::LoadFile, this, Asset::Model(file));
+      TextButton* button = Add<TextButton>(buttonOptions);
+      UIFrame& frame = button->GetFrame();
       root->AddConstraints({
-         fLoad.left == mFrame.left + 8,
-         fLoad.right == mFrame.right - 8,
-         fLoad.top == mFrame.top - 8,
-         fLoad.height == 32,
-
-         fSave.left == fLoad.left,
-         fSave.right == fLoad.right,
-         fSave.top == fLoad.bottom - 8,
-         fSave.height == fLoad.height,
-
-         fSaveAs.left == fSave.left,
-         fSaveAs.right == fSave.right,
-         fSaveAs.top == fSave.bottom - 8,
-         fSaveAs.height == fSave.height,
-
-         fDiscard.left == fSaveAs.left,
-         fDiscard.right == fSaveAs.right,
-         fDiscard.top == fSaveAs.bottom - 8,
-         fDiscard.height == fSaveAs.height,
-
-         fQuit.left == fDiscard.left,
-         fQuit.right == fDiscard.right,
-         fQuit.top == fDiscard.bottom - 8,
-         fQuit.height == fDiscard.height,
+         frame.left == fExplorer.left,
+         frame.right == fExplorer.right,
+         frame.height == 32,
       });
+
+      if (prevButton == nullptr)
+      {
+         root->AddConstraints({ frame.top == fExplorer.top });
+      }
+      else
+      {
+         root->AddConstraints({ frame.top == prevButton->GetFrame().bottom });
+      }
+      prevButton = button;
    }
 
    root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
@@ -143,7 +164,6 @@ void Sidebar::SetModified(bool modified)
    Engine::Window::Instance()->SetTitle(title);
 
    mSave->SetText(modified ? "*Save" : "Save");
-   mQuit->SetText("Quit");
 }
 
 void Sidebar::LoadNewFile()
@@ -165,7 +185,7 @@ void Sidebar::LoadFile(const std::string& filename)
    }
 
    // Load
-
+   mModel->Load(filename);
    mpRoot->Emit<ModelLoadedEvent>(mModel);
    SetModified(false);
 }
@@ -195,18 +215,6 @@ void Sidebar::SaveFile()
 void Sidebar::DiscardChanges()
 {
    LoadFile(mFilename);
-}
-
-void Sidebar::Quit()
-{
-   if (!mModified)
-   {
-      Engine::Window::Instance()->SetShouldClose(true);
-   }
-   else
-   {
-      mQuit->SetText("Save first!");
-   }
 }
 
 }; // namespace AnimationStation
