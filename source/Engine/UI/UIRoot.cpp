@@ -16,9 +16,9 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIRoot::UIRoot(const Bounded& bounds)
+UIRoot::UIRoot()
    : UIElement(this, nullptr)
-   , mRectanglesVBO(Engine::Graphics::VBO::Vertices)
+   , mBoundConstraints{}
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
@@ -31,15 +31,6 @@ UIRoot::UIRoot(const Bounded& bounds)
       mDirty = true;
    };
 
-   // UIRoot covers the entirety of its bounds.
-   mSolver.add_constraints({
-      mFrame.width == bounds.GetWidth(),
-      mFrame.height == bounds.GetHeight(),
-
-      mFrame.left == bounds.GetX(),
-      mFrame.bottom == bounds.GetY()
-   });
-
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
    Subscribe<ElementRemovedEvent>(*this);
@@ -51,6 +42,29 @@ UIRoot::UIRoot(const Bounded& bounds)
 
 UIRoot::~UIRoot()
 {}
+
+void UIRoot::SetBounds(const Bounded& bounds)
+{
+   // Remove any preexisting constraints
+   mSolver.remove_constraints(mBoundConstraints);
+
+   mBoundConstraints = {
+      mFrame.width == bounds.GetWidth(),
+      mFrame.height == bounds.GetHeight(),
+
+      mFrame.left == bounds.GetX(),
+      mFrame.bottom == bounds.GetY()
+   };
+
+   // Se the values immediately, so that they can be accessed 
+   mFrame.width.set_value(bounds.GetWidth());
+   mFrame.height.set_value(bounds.GetHeight());
+   mFrame.left.set_value(bounds.GetX());
+   mFrame.bottom.set_value(bounds.GetY());
+
+   // UIRoot covers the entirety of its bounds.
+   mSolver.add_constraints(mBoundConstraints);
+}
 
 void UIRoot::AddConstraintsForElement(UIFrame& frame)
 {

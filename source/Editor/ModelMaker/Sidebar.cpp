@@ -104,7 +104,12 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       fExplorer.top == fDiscard.bottom - 8,
    });
 
-   std::vector<std::string> testData = {"dummy.cub", "aim.cub", "barrel.cub", "bed.cub"};
+   std::vector<std::string> testData = {
+      "dummy.cub", "aim.cub", "barrel.cub", "bed.cub",
+      "angry.cub", "anvil.cub", "big-door.cub", "biscuit-role.cub",
+      "bomb1.cub", "boat.cub", "body1.cub", "body2.cub", "body3.cub",
+      "body4.cub", "bow.cub", "bowl1.cub", "boot.cub"
+   };
    TextButton* prevButton = nullptr;
    for (const std::string& file : testData)
    {
