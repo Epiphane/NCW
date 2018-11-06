@@ -37,7 +37,7 @@ namespace Engine
  *  such as `bottom - top == height`. Used as the backbone for
  *  laying out UI elements.
  */
-struct UIFrame : public Bounded
+struct UIFrame : public Bounded, public UIConstrainable
 {
    rhea::variable left, right, top, bottom;
    rhea::variable centerX, centerY, width, height;
