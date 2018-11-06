@@ -15,29 +15,35 @@ namespace CubeWorld
 namespace Engine
 {
    
+BaseConstraint::BaseConstraint(std::string name, double priority)
+   : mName(name)
+   , mPriority(priority)
+{
+}
+   
 rhea::constraint BaseConstraint::GetInternalConstraint() {
    return mInternalConstraint; 
 }
    
-/**
- * Set the internal constraint directly. Shouldn't be called on UIConstraints.
- */
+//
+// Set the internal constraint directly. Shouldn't be called on UIConstraints.
+//
 void BaseConstraint::SetInternalConstraint(rhea::constraint newConstraint) { 
    mInternalConstraint = newConstraint; 
    mbDirty = true;
 }
    
-/**
- * Set the new priority for the constraint.
- *
- * If there is a conflict between constraints, the solver will discard the LOWEST
- *  priority constraint until the system becomes solvable.
- *
- * Note that in OUR system, we simplify priorities down to a single double value.
- *
- * Below required(), you can use BaseConstraint::HighPriority/MediumPriority/LowPriority which are set to
- *    1000, 750 and 500 respectively.
- */
+//
+// Set the new priority for the constraint.
+//
+// If there is a conflict between constraints, the solver will discard the LOWEST
+//  priority constraint until the system becomes solvable.
+//
+// Note that in OUR system, we simplify priorities down to a single double value.
+//
+// Below required(), you can use BaseConstraint::HighPriority/MediumPriority/LowPriority which are set to
+//    1000, 750 and 500 respectively.
+//
 void BaseConstraint::SetPriority(double newPriority) {
    mInternalConstraint.change_strength(rhea::symbolic_weight(newPriority, 0, 0));
    mbDirty = true;
@@ -47,9 +53,18 @@ double BaseConstraint::GetPriority() {
    return mPriority;
 }
    
-void BaseConstraint::SetClean() {
-   mbDirty = false;
+void BaseConstraint::SetDirty(bool newDirty) {
+   mbDirty = newDirty;
 }   
+   
+std::string BaseConstraint::GetName() {
+   return mName;
+}
+   
+void BaseConstraint::SetName(std::string newName) {
+   mName = newName;
+   mbDirty = true;
+}
 
 }; // namespace Engine
 

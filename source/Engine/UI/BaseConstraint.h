@@ -28,7 +28,7 @@ public:
    static constexpr double MEDIUM_PRIORITY   = 750;
    static constexpr double LOW_PRIORITY      = 500;
    
-   BaseConstraint(std::string newId, double priority = 0);
+   BaseConstraint(std::string name, double priority = 0);
    
    rhea::constraint GetInternalConstraint();
    void SetInternalConstraint(rhea::constraint newConstraint);
@@ -36,7 +36,10 @@ public:
    double GetPriority();
    void SetPriority(double newPriority);
    
-   void SetClean();
+   void SetDirty(bool newDirty);
+   
+   std::string GetName();
+   void SetName(std::string newName);
    
 private:
    std::string mName;                     ///< Unique identifier for this constraint. Should be human readable + helpful for debugging.

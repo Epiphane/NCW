@@ -20,31 +20,30 @@ namespace Engine
 //
 UIConstraint::Options::Options() {
     mPriority = BaseConstraint::REQUIRED_PRIORITY;
-    mbIsConstantEditable = false;
+    mbIsConstantEditable   = false;
     mbIsMultiplierEditable = false;
-}
-   
-//
-// Copy constructor
-//
-UIConstraint::Options::Options(const UIConstraint::Options& otherOptions) {
-   mPriority = otherOptions.mPriority;
-   mbIsConstantEditable   = otherOptions.mbIsConstantEditable;
-   mbIsMultiplierEditable = otherOptions.mbIsMultiplierEditable;
 }
    
 UIConstraint::UIConstraint(UIElement* primaryElement, UIElement* secondaryElement,
                            Target primaryTarget, Target secondaryTarget, Options options) 
-   : BaseConstraint()
+   : BaseConstraint(primaryElement->GetName() + options.mCustomNameConnector + secondaryElement->GetName(), options.mPriority)
    , mOptions(options)
-   , mPrimaryElement(primaryElement)
+   , mPrimaryElement  (primaryElement)
    , mSecondaryElement(secondaryElement)
-   , mPrimaryTarget(primaryTarget)
+   , mPrimaryTarget  (primaryTarget)
    , mSecondaryTarget(secondaryTarget)
 {
 }
     
-
+void UIConstraint::SetOptions(Options newOptions) {
+   mOptions = newOptions;
+   
+   SetPriority(newOptions.mPriority);
+   
+   
+   SetDirty(true);
+}
+   
 }; // namespace Engine
 
 }; // namespace CubeWorld

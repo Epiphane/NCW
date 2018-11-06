@@ -25,15 +25,15 @@ namespace Engine
 class UIConstraint : public BaseConstraint {
 public:
    //
-   // Lets you specify the constraint priority and whether it is an editable constraint
+   // Lets you specify the constraint priority and whether it is an editable constraint. Also can give a custom name.
    //
    struct Options {
       Options();
-      Options(const Options& otherOptions);
       
+      std::string mCustomNameConnector;   ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>" 
       double mPriority;
-      bool mbIsConstantEditable;
-      bool mbIsMultiplierEditable;
+      bool mbIsConstantEditable;          ///< If true, the 'constant' aspect of the constraint will be an edit_variable.
+      bool mbIsMultiplierEditable;        ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable.
    };
    
    //
@@ -49,6 +49,8 @@ public:
    };
     
    UIConstraint(UIElement* primaryElement, UIElement* secondaryElement, Target primaryTarget, Target secondaryTarget, Options options = Options());
+   
+   void SetOptions(Options newOptions);
    
 private:
    Options mOptions;
