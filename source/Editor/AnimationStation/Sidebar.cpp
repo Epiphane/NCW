@@ -78,6 +78,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
       UIFrame& fSaveAs = saveAs->GetFrame();
       UIFrame& fDiscard = discard->GetFrame();
       UIFrame& fQuit = mQuit->GetFrame();
+      
       root->AddConstraints({
          fLoad.left == mFrame.left + 8,
          fLoad.right == mFrame.right - 8,

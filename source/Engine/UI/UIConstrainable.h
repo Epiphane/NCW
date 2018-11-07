@@ -1,7 +1,7 @@
 //
-// UIConstraint.cpp
+// UIConstrainable.h
 //
-// UIConstraint – a wrapper around rhea::constraint that formalizes
+// UIConstrainable – a wrapper around rhea::constraint that formalizes
 //                   everything you would want to do when creating a UI
 //
 // By Elliot Fiske
@@ -9,57 +9,88 @@
 
 #pragma once
 
-#include "BaseConstraint.h"
-#include "UIElement.h"
+#include <vector>
+#include <map>
+
+#include <glm/glm.hpp>
+
+#include "../Core/Bounded.h"
+#include "UIConstraint.h"
+
 
 namespace CubeWorld
 {
 
 namespace Engine
 {
-
-//
-// UI Constraint. Wraps a rhea::constraint with UI-specific fields
-//    and helpers.
-//
-class UIConstraint : public BaseConstraint {
+   
+class UIRoot; ///< Forward declare
+   
+typedef std::vector<UIConstraint*> ConstraintArray;
+   
+/**
+ * Constraint-based rectangle. Has several "innate" constraints,
+ *  such as `bottom - top == height`. Used as the backbone for
+ *  laying out UI elements.
+ */
+struct UIFrame : public Bounded
+{  
+   rhea::variable left, right, top, bottom;
+   rhea::variable centerX, centerY, width, height;
+   
+   // Larger z is displayed on top
+   rhea::variable z;
+   
+   glm::vec3 GetTopRight()
+   {
+      return glm::vec3(right.value(), top.value(), z.value());
+   }
+   
+   glm::vec3 GetBottomLeft()
+   {
+      return glm::vec3(left.value(), bottom.value(), z.value());
+   }
+   
+   rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target);
+   
+   uint32_t GetX() const override { return left.int_value(); }
+   uint32_t GetY() const override { return bottom.int_value(); }
+   uint32_t GetWidth() const override { return width.int_value(); }
+   uint32_t GetHeight() const override { return height.int_value(); }
+};
+   
+class UIConstrainable {
 public:
-   //
-   // Lets you specify the constraint priority and whether it is an editable constraint. Also can give a custom name.
-   //
-   struct Options {
-      Options();
-      
-      std::string mCustomNameConnector;   ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>" 
-      double mPriority;
-      bool mbIsConstantEditable;          ///< If true, the 'constant' aspect of the constraint will be an edit_variable.
-      bool mbIsMultiplierEditable;        ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable.
-   };
+   UIConstrainable(UIRoot* root);
+   
+   UIConstraint ConstrainToLeftOf  (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainToTopOf   (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainToRightOf (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainToBottomOf(UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
    
    //
-   // What aspect of the UI element are you constraining?
+   // Set the name of this element
    //
-   enum Target {
-      Top, Left, Bottom, Right,
-      Width, Height,
-      
-      CenterX, CenterY,
-      
-      ZHeight,
-   };
-    
-   UIConstraint(UIElement* primaryElement, UIElement* secondaryElement, Target primaryTarget, Target secondaryTarget, Options options = Options());
+   void SetName(const std::string& name) { mName = name; }
    
-   void SetOptions(Options newOptions);
+   //
+   // Get the name of this element
+   //
+   std::string GetName() const { return mName; }
    
-private:
-   Options mOptions;
+   //
+   // UIFrame manipulation.
+   //
+   UIFrame& GetFrame() { return mFrame; }
    
-   UIElement* mPrimaryElement;    ///< First element being constrained.
-   UIElement* mSecondaryElement;  ///< Second element being constrained. NOTE: CAN BE THE SAME AS THE PRIMARY ELEMENT.
+protected:
    
-   Target mPrimaryTarget;         ///< Describes which aspect of each element is being constrained.
-   Target mSecondaryTarget;
+   UIRoot *mpRoot;
+   
+   std::string mName;
+   
+   // Contains the coordinates and size of the element
+   UIFrame mFrame;
 };
 
 }; // namespace Engine

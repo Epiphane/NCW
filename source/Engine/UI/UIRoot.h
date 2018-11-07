@@ -12,6 +12,7 @@
 #include "../Aggregator/Aggregator.h"
 #include "../Event/EventManager.h"
 #include "../Graphics/VBO.h"
+#include "UIConstraint.h"
 #include "UIElement.h"
 
 namespace CubeWorld
@@ -31,6 +32,16 @@ public:
    //
    void AddConstraintsForElement(UIFrame& frame);
 
+   //
+   // Add a UIContraint to our map.
+   //
+   void AddConstraint(const UIConstraint& constraintToAdd);
+   
+   //
+   // Remove a UIConstraint from our map.
+   //
+   void RemoveConstraint(std::string constraintNameToRemove);
+   
    //
    // Add arbitrary contraints.
    //
@@ -119,6 +130,9 @@ private:
 
    // VBO that ALL the UI elements will use.
    Engine::Graphics::VBO mRectanglesVBO;
+   
+   // Keep an internal map of constraints that we'll use to allow constraint editing.
+   std::map<std::string, UIConstraint> mConstraintMap;
 
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;

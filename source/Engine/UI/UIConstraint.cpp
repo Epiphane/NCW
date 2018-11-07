@@ -9,6 +9,8 @@
 
 #include "UIConstraint.h"
 
+#include "UIConstrainable.h"
+
 namespace CubeWorld
 {
 
@@ -19,13 +21,18 @@ namespace Engine
 // Set the default values for the UIConstraint options
 //
 UIConstraint::Options::Options() {
-    mPriority = BaseConstraint::REQUIRED_PRIORITY;
-    mbIsConstantEditable   = false;
-    mbIsMultiplierEditable = false;
+   mCustomNameConnector = "";
+   mPriority = BaseConstraint::REQUIRED_PRIORITY;
+   
+   mConstant = 0.0;
+   mMultiplier = 1.0;
+   
+   mbIsConstantEditable   = false;
+   mbIsMultiplierEditable = false;
 }
    
-UIConstraint::UIConstraint(UIElement* primaryElement, UIElement* secondaryElement,
-                           Target primaryTarget, Target secondaryTarget, Options options) 
+UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
+                           Target primaryTarget, Target secondaryTarget, const Options& options) 
    : BaseConstraint(primaryElement->GetName() + options.mCustomNameConnector + secondaryElement->GetName(), options.mPriority)
    , mOptions(options)
    , mPrimaryElement  (primaryElement)
@@ -33,15 +40,18 @@ UIConstraint::UIConstraint(UIElement* primaryElement, UIElement* secondaryElemen
    , mPrimaryTarget  (primaryTarget)
    , mSecondaryTarget(secondaryTarget)
 {
-}
-    
-void UIConstraint::SetOptions(Options newOptions) {
-   mOptions = newOptions;
+   rhea::linear_expression leftSide = primaryElement->GetFrame().ConvertTargetToVariable(primaryTarget);
+   rhea::linear_expression rightSide;
    
-   SetPriority(newOptions.mPriority);
+   if (secondaryElement != NULL)
+      rightSide = secondaryElement->GetFrame().ConvertTargetToVariable(secondaryTarget);
+   else
+      rightSide = 0;
    
+   mInternalConstraint = (leftSide == rightSide * options.mMultiplier + options.mConstant);
    
-   SetDirty(true);
+   // TODO-EF: if mbIsConstantEditable is true, set up the constant as an edit variable instead.
+   // TODO-EF: if mbIsMultiplierEditable is true, set up the multiplier as an edit variable instead.
 }
    
 }; // namespace Engine

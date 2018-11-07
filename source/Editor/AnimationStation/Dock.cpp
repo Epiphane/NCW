@@ -134,13 +134,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_add";
       buttonOptions.pressImage = "press_button_add";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
-      UIFrame& fAddState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      Button* addStateButton = stateName->Add<Button>(buttonOptions);
+      UIFrame& fAddState = addStateButton->GetFrame();
 
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
-      UIFrame& fRemState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      Button* removeStateButton = stateName->Add<Button>(buttonOptions);
+      UIFrame& fRemState = removeStateButton->GetFrame();
+      
+      removeStateButton->ConstrainToRightOf(addStateButton, 8.0);
 
       root->AddConstraints({
          fPrevState.left == c3,
@@ -152,7 +156,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          fAddState.left == fNextState.right + 8,
          fAddState.top == fRow.top,
          fAddState.bottom == fRow.bottom,
-         fRemState.left == fAddState.right + 8,
          fRemState.top == fRow.top,
          fRemState.bottom == fRow.bottom,
       });

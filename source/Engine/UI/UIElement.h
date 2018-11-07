@@ -17,7 +17,6 @@
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
 
-#include "../Core/Bounded.h"
 #include "../Core/Config.h"
 #include "../Event/Event.h"
 #include "../Event/EventManager.h"
@@ -25,41 +24,13 @@
 #include "../Event/InputEvent.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
+#include "../UI/UIConstrainable.h"
 
 namespace CubeWorld
 {
 
 namespace Engine
 {
-
-/**
- * Constraint-based rectangle. Has several "innate" constraints,
- *  such as `bottom - top == height`. Used as the backbone for
- *  laying out UI elements.
- */
-struct UIFrame : public Bounded, public UIConstrainable
-{
-   rhea::variable left, right, top, bottom;
-   rhea::variable centerX, centerY, width, height;
-
-   // Larger z is displayed on top
-   rhea::variable z;
-
-   glm::vec3 GetTopRight()
-   {
-      return glm::vec3(right.value(), top.value(), z.value());
-   }
-
-   glm::vec3 GetBottomLeft()
-   {
-      return glm::vec3(left.value(), bottom.value(), z.value());
-   }
-
-   uint32_t GetX() const override { return left.int_value(); }
-   uint32_t GetY() const override { return bottom.int_value(); }
-   uint32_t GetWidth() const override { return width.int_value(); }
-   uint32_t GetHeight() const override { return height.int_value(); }
-};
 
 /**
  * Data for one vertex. We build up an array of vertices by
@@ -112,15 +83,10 @@ class UIRebalancedEvent : public Event<UIRebalancedEvent>
 // UIElement extends EventManager, so that events can easily be passed down all the way to any leaf elements from
 // a central EventManager.
 //
-class UIElement : public Engine::Receiver<UIElement>
+class UIElement : public Engine::Receiver<UIElement>, public UIConstrainable
 {
 public:
    UIElement(UIRoot* root, UIElement* parent);
-
-   //
-   // UIFrame manipulation.
-   //
-   UIFrame& GetFrame() { return mFrame; }
 
    //
    // Add a UIElement as a child of this one.
@@ -149,16 +115,6 @@ public:
    // Called whenever the UI is rebalanced. 
    //
    void Receive(const UIRebalancedEvent&);
-
-   //
-   // Set the name of an element
-   //
-   UIElement* SetName(const std::string& name) { mName = name; return this; }
-
-   //
-   // Get the name of this element
-   //
-   std::string GetName() { return mName; }
 
    //
    // Set whether an element is active or inactive.
@@ -209,15 +165,10 @@ public:
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
 
 protected:
-   // For debugging, mostly.
-   std::string mName = "N/A";
    
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
    bool mActive;
-
-   // Contains the coordinates and size of the element
-   UIFrame mFrame;
 
    // Map where from a constraint's name to its value
    std::map<std::string, rhea::constraint> mConstraints;
@@ -225,7 +176,6 @@ protected:
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
 
-   UIRoot* mpRoot;
    UIElement* mpParent;
 };
 

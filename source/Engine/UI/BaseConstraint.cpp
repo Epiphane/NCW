@@ -21,7 +21,7 @@ BaseConstraint::BaseConstraint(std::string name, double priority)
 {
 }
    
-rhea::constraint BaseConstraint::GetInternalConstraint() {
+rhea::constraint BaseConstraint::GetInternalConstraint() const {
    return mInternalConstraint; 
 }
    
@@ -49,7 +49,7 @@ void BaseConstraint::SetPriority(double newPriority) {
    mbDirty = true;
 }
    
-double BaseConstraint::GetPriority() {
+double BaseConstraint::GetPriority() const {
    return mPriority;
 }
    
@@ -57,7 +57,7 @@ void BaseConstraint::SetDirty(bool newDirty) {
    mbDirty = newDirty;
 }   
    
-std::string BaseConstraint::GetName() {
+std::string BaseConstraint::GetName() const {
    return mName;
 }
    

@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <utility>
+
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/TimSort.h>
@@ -65,8 +67,36 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
    });
 }
 
+void UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
+   auto it = mConstraintMap.find(constraintToAdd.GetName());
+   if (it != mConstraintMap.end()) {
+      printf("Trying to add constraint with duped name: %s", constraintToAdd.GetName().c_str());
+      assert(false && "Attempting to add 2 constraints with the same name");
+      return;
+   }
+   
+   mConstraintMap.insert(make_pair(constraintToAdd.GetName(), constraintToAdd));
+   mSolver.add_constraint(constraintToAdd.GetInternalConstraint());
+}
+   
+//
+// Remove a constraint from the system.
+//
+void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
+   auto it = mConstraintMap.find(constraintNameToRemove);
+   
+   if (it != mConstraintMap.end()) {
+      mSolver.remove_constraint(it->second.GetInternalConstraint());
+      mConstraintMap.erase(constraintNameToRemove);
+   }
+   else {
+      printf("Trying to remove unknown constraint %s", constraintNameToRemove.c_str());
+      assert(false && "Attempting to remove an unknown constraint");
+   }
+}
+   
 void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
-{
+{   
    mSolver.add_constraints(constraints);
 }
 

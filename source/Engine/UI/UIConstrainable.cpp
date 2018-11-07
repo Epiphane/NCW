@@ -1,47 +1,121 @@
 //
 // UIConstrainable.cpp
 //
-// UIConstrainable – Describes something you can constrain other stuff to.
-//                   Helps us separate all the stuff in 
+// UIConstrainable – Describes a UI object you can constrain other UI objects to.
+//                   Contains all the helper functions for making constraints.
 //
 // By Elliot Fiske
 //
 
-#include "UIConstraint.h"
+#include "UIConstrainable.h"
+
+#include "UIRoot.h"
 
 namespace CubeWorld
 {
 
 namespace Engine
 {
+
+//
+// Converts from our Target enum to a rhea::linear_expression.
+//
+rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target target)
+{
+   std::map<UIConstraint::Target, rhea::linear_expression> mapping = {
+      {UIConstraint::Left,   left},
+      {UIConstraint::Top,    top},
+      {UIConstraint::Bottom, bottom},
+      {UIConstraint::Right,  right},
+      
+      {UIConstraint::CenterX, (left + right) / 2 },
+      {UIConstraint::CenterY, (top + bottom) / 2 },
+      
+      {UIConstraint::Width,   (right - left) },
+      {UIConstraint::Height,  (top - bottom) },
+   };
    
-//
-// Set the default values for the UIConstraint options
-//
-UIConstraint::Options::Options() {
-    mPriority = BaseConstraint::REQUIRED_PRIORITY;
-    mbIsConstantEditable   = false;
-    mbIsMultiplierEditable = false;
+   return mapping[target];
 }
    
-UIConstraint::UIConstraint(UIElement* primaryElement, UIElement* secondaryElement,
-                           Target primaryTarget, Target secondaryTarget, Options options) 
-   : BaseConstraint(primaryElement->GetName() + options.mCustomNameConnector + secondaryElement->GetName(), options.mPriority)
-   , mOptions(options)
-   , mPrimaryElement  (primaryElement)
-   , mSecondaryElement(secondaryElement)
-   , mPrimaryTarget  (primaryTarget)
-   , mSecondaryTarget(secondaryTarget)
+
+UIConstrainable::UIConstrainable(UIRoot* root)
+   : mpRoot(root)
 {
 }
-    
-void UIConstraint::SetOptions(Options newOptions) {
-   mOptions = newOptions;
-   
-   SetPriority(newOptions.mPriority);
    
    
-   SetDirty(true);
+/* Constrain To Left Of:
+ *
+ *  ME -offset- <FIRST ARGUMENT>  
+ */
+UIConstraint UIConstrainable::ConstrainToLeftOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_leftOf_";
+   
+   options.mConstant = -offset;   // Flipped!
+   
+   UIConstraint newConstraint(this, other, UIConstraint::Right, UIConstraint::Left, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
+}
+   
+/* Constrain To Top Of:
+ *
+ *      ME
+ *       ^ 
+ *     offset
+ *       v
+ * <FIRST ARGUMENT>  
+ */
+UIConstraint UIConstrainable::ConstrainToTopOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_onTopOf_";
+   
+   options.mConstant = offset;
+   
+   UIConstraint newConstraint(this, other, UIConstraint::Bottom, UIConstraint::Top, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
+}
+   
+/* Constrain To Right Of:
+ *
+ *  <FIRST ARGUMENT>  -offset-  ME
+ */
+UIConstraint UIConstrainable::ConstrainToRightOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_onBottomOf_";
+   
+   options.mConstant = offset;
+   
+   UIConstraint newConstraint(this, other, UIConstraint::Left, UIConstraint::Right, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
+}
+   
+   
+/* Constrain To Bottom Of:
+ *
+ * <FIRST ARGUMENT>
+ *       ^ 
+ *     offset
+ *       v
+ *      ME
+ */
+UIConstraint UIConstrainable::ConstrainToBottomOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_onBottomOf_";
+   
+   options.mConstant = -offset;   // Flipped!
+   
+   UIConstraint newConstraint(this, other, UIConstraint::Top, UIConstraint::Bottom, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
 }
    
 }; // namespace Engine

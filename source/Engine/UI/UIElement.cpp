@@ -16,9 +16,9 @@ namespace Engine
 {
 
 UIElement::UIElement(UIRoot* root, UIElement* parent)
-   : mpRoot(root)
-   , mpParent(parent)
+   : UIConstrainable(root)
    , mActive(true)
+   , mpParent(parent)
 {
    if (parent != nullptr)
    mpRoot->Subscribe<UIRebalancedEvent>(*this);
