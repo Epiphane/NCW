@@ -77,17 +77,20 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    // Create subwindow for each editor
-   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
+   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>();
+   animationStation->SetBounds(*window);
    animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
-   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
+   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>();
+   modelMaker->SetBounds(*window);
    modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
    
    Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
    constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
 
    // Create editor-wide controls pane
-   UIRoot controls(*window);
+   UIRoot controls;
+   controls.SetBounds(*window);
    {
       RectFilled* bg = controls.Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
       RectFilled* fg = controls.Add<RectFilled>(glm::vec4(0, 0, 0, 1));
@@ -134,7 +137,7 @@ int main(int argc, char** argv)
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-         fBackground.z <= 10.0,
+         fBackground.z >= 100.0,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,

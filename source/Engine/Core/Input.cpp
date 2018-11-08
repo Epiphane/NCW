@@ -159,10 +159,13 @@ void Input::Clear()
 
 void Input::Update()
 {
+   glm::tvec2<double> mousePosition;
+
    // Don't lock up mouse
-   glfwGetCursorPos(mWindow->mGLFW, &mMousePosition.x, &mMousePosition.y);
+   glfwGetCursorPos(mWindow->mGLFW, &mousePosition.x, &mousePosition.y);
    // Fix y-axis
-   mMousePosition.y = mWindow->GetHeight() - mMousePosition.y;
+   mousePosition.y = mWindow->GetHeight() - mousePosition.y;
+   mMouseMovement = mousePosition - mMousePosition;
 
    mLastMouseScroll = mMouseScroll;
    mMouseScroll = {0, 0};
@@ -172,7 +175,7 @@ void Input::Update()
       {
          if (mMousePressed[button] && !mMouseDragging[button])
          {
-            glm::tvec2<double> diff = mMousePosition - mMousePressOrigin[button];
+            glm::tvec2<double> diff = mousePosition - mMousePressOrigin[button];
             double dist = diff.x * diff.x + diff.y * diff.y;
             if (dist > 2)
             {
@@ -183,15 +186,18 @@ void Input::Update()
    }
    else
    {
-      glm::tvec2<double> middle = glm::tvec2<double>(mWindow->GetWidth(), mWindow->GetHeight()) / 2.0;
-
-      mMouseMovement = middle - mMousePosition;
       // Edge case: window initialization makes things funky
       if (std::abs(mMouseMovement.x) > 200 ||
           std::abs(mMouseMovement.y) > 200 ||
-          mMousePosition == glm::tvec2<double>(0)) {
+          mousePosition == glm::tvec2<double>(0)) {
          mMouseMovement = {0, 0};
       }
+   }
+
+   mMousePosition = mousePosition;
+
+   if (mMouseLocked) {
+      glm::tvec2<double> middle = glm::tvec2<double>(mWindow->GetWidth(), mWindow->GetHeight()) / 2.0;
 
       glfwSetCursorPos(mWindow->mGLFW, middle.x, middle.y);
       mMousePosition = middle;

@@ -8,6 +8,7 @@
 #include <Shared/UI/Image.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
+#include <Shared/UI/SubFrame.h>
 
 #include "Sidebar.h"
 
@@ -32,7 +33,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
 {
    {
       RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* fg = Add<RectFilled>(glm::vec4(0.5, 0, 0, 1));
 
       UIFrame& fBackground = bg->GetFrame();
       UIFrame& fForeground = fg->GetFrame();
@@ -96,11 +97,13 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    });
 
    // Create a scrollable list of available models
-   UIFrame& fExplorer = Add<UIElement>()->GetFrame();
+   UI::SubFrame* explorer = Add<UI::SubFrame>();
+   UIFrame& fExplorer = explorer->GetFrame();
+   UIFrame& fExplorerInner = explorer->GetInnerFrame();
    root->AddConstraints({
       fExplorer.left == mFrame.left,
       fExplorer.right == mFrame.right,
-      fExplorer.bottom == mFrame.bottom,
+      fExplorer.bottom == mFrame.bottom + 300,
       fExplorer.top == fDiscard.bottom - 8,
    });
 
@@ -115,21 +118,21 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    {
       buttonOptions.text = file;
       buttonOptions.onClick = std::bind(&Sidebar::LoadFile, this, Asset::Model(file));
-      TextButton* button = Add<TextButton>(buttonOptions);
+      TextButton* button = explorer->Add<TextButton>(buttonOptions);
       UIFrame& frame = button->GetFrame();
-      root->AddConstraints({
-         frame.left == fExplorer.left,
-         frame.right == fExplorer.right,
+      explorer->AddConstraints({
+         frame.left == fExplorerInner.left,
+         frame.width == fExplorerInner.width,
          frame.height == 32,
       });
 
       if (prevButton == nullptr)
       {
-         root->AddConstraints({ frame.top == fExplorer.top });
+         explorer->AddConstraints({ frame.top == fExplorerInner.top });
       }
       else
       {
-         root->AddConstraints({ frame.top == prevButton->GetFrame().bottom });
+         explorer->AddConstraints({ frame.top == prevButton->GetFrame().bottom });
       }
       prevButton = button;
    }

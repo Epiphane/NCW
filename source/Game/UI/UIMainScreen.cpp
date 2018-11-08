@@ -14,8 +14,7 @@ using Engine::UIFrame;
 using UI::RectFilled;
 using UI::Text;
  
-UIMainScreen::UIMainScreen(const Bounded& bounds)
-   : UIRoot(bounds)
+UIMainScreen::UIMainScreen()
 {
    RectFilled *testRect = Add<RectFilled>(glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
    UIFrame funFrame = testRect->GetFrame();

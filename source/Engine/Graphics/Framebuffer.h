@@ -41,6 +41,9 @@ public:
 
    GLuint GetTexture() { return mTexture; }
 
+   GLsizei GetWidth() { return mWidth; }
+   GLsizei GetHeight() { return mHeight; }
+
 private:
    GLsizei mWidth, mHeight;
 

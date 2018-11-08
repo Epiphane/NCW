@@ -35,10 +35,6 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
 
    mpRoot->AddConstraints({
       rhea::constraint(fChild > mFrame, rhea::strength::weak()),
-      rhea::constraint(mFrame.top >= fChild.top, rhea::strength::weak()),
-      rhea::constraint(mFrame.left <= fChild.left, rhea::strength::weak()),
-      rhea::constraint(mFrame.right >= fChild.right, rhea::strength::weak()),
-      rhea::constraint(mFrame.bottom <= fChild.bottom, rhea::strength::weak()),
    });
 
    return element;
@@ -69,6 +65,24 @@ void UIElement::Update(TIMEDELTA dt)
    for (auto& child : mChildren) {
       child->Update(dt);
    }
+}
+
+void UIElement::ConstrainAbove(UIElement* other, rhea::strength strength)
+{
+   mpRoot->AddConstraints({
+      rhea::constraint(mFrame > *other, strength)
+   });
+}
+
+void UIElement::Contains(UIElement* other, rhea::strength strength)
+{
+   UIFrame& fOther = other->GetFrame();
+   mpRoot->AddConstraints({
+      rhea::constraint(mFrame.left <= fOther.left, strength),
+      rhea::constraint(mFrame.right >= fOther.right, strength),
+      rhea::constraint(mFrame.top >= fOther.top, strength),
+      rhea::constraint(mFrame.bottom <= fOther.bottom, strength),
+   });
 }
 
 void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint)
