@@ -63,10 +63,29 @@ class UIConstrainable {
 public:
    UIConstrainable(UIRoot* root);
    
-   UIConstraint ConstrainToLeftOf  (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainToTopOf   (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainToRightOf (UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainToBottomOf(UIConstrainable* other, double offset, UIConstraint::Options options = UIConstraint::Options());
+   // Constrain measurements to a CONSTANT
+   UIConstraint ConstrainWidth(double width, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainHeight(double height, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainAspectRatio(double aspectRatio, UIConstraint::Options options = UIConstraint::Options());
+   
+   // Constrain yourself to ANOTHER ELEMENT
+   UIConstraint ConstrainToLeftOf (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainAbove    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainToRightOf(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainBelow    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   
+   UIConstraint ConstrainWidthTo (UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainHeightTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   
+   UIConstraint ConstrainLeftAlignedTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainTopAlignedTo   (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainRightAlignedTo (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainBottomAlignedTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   
+   UIConstraint ConstrainHorizontalCenterTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   std::pair<UIConstraint, UIConstraint> ConstrainCenterTo          (UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   
    
    //
    // Set the name of this element

@@ -29,11 +29,15 @@ UIConstraint::Options::Options() {
    
    mbIsConstantEditable   = false;
    mbIsMultiplierEditable = false;
+   
+   
 }
    
 UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
                            Target primaryTarget, Target secondaryTarget, const Options& options) 
-   : BaseConstraint(primaryElement->GetName() + options.mCustomNameConnector + secondaryElement->GetName(), options.mPriority)
+   : BaseConstraint(primaryElement->GetName() + 
+                    options.mCustomNameConnector + 
+                    (secondaryElement ? secondaryElement->GetName() : ""), options.mPriority)
    , mOptions(options)
    , mPrimaryElement  (primaryElement)
    , mSecondaryElement(secondaryElement)
@@ -48,7 +52,20 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
    else
       rightSide = 0;
    
-   mInternalConstraint = (leftSide == rightSide * options.mMultiplier + options.mConstant);
+   switch (options.mRelationship) {
+      case BaseConstraint::Equal:
+         mInternalConstraint = (leftSide == rightSide * options.mMultiplier + options.mConstant);
+         break;
+      case BaseConstraint::GreaterOrEqual:
+         mInternalConstraint = (leftSide >= rightSide * options.mMultiplier + options.mConstant);
+         break;
+      case BaseConstraint::LessThanOrEqual:
+         mInternalConstraint = (leftSide <= rightSide * options.mMultiplier + options.mConstant);
+         break;
+      default:
+         assert(false && "Invalid mRelationship value");
+         break;
+   }
    
    // TODO-EF: if mbIsConstantEditable is true, set up the constant as an edit variable instead.
    // TODO-EF: if mbIsMultiplierEditable is true, set up the multiplier as an edit variable instead.

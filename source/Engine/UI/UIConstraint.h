@@ -42,6 +42,8 @@ public:
       double mPriority = REQUIRED_PRIORITY;
       bool mbIsConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
       bool mbIsMultiplierEditable = false;   ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable. TODO-EF: Actually implement this
+      
+      BaseConstraint::Relationship mRelationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
    };
    
    //
@@ -54,6 +56,8 @@ public:
       CenterX, CenterY,
       
       ZHeight,
+       
+      NoTarget,
    };
     
    UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options());
