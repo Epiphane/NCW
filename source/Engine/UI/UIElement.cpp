@@ -32,6 +32,8 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
    mpRoot->Emit<ElementAddedEvent>(element);
 
    UIFrame& fChild = element->GetFrame();
+   
+   
    mpRoot->AddConstraints({
       rhea::constraint(fChild > mFrame, rhea::strength::weak()),
       rhea::constraint(mFrame.top >= fChild.top, rhea::strength::weak()),

@@ -33,6 +33,8 @@ rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target ta
       
       {UIConstraint::Width,   (right - left) },
       {UIConstraint::Height,  (top - bottom) },
+      
+      {UIConstraint::ZHeight, z},
    };
    
    return mapping[target];
@@ -230,7 +232,7 @@ UIConstraint UIConstrainable::ConstrainTopAlignedTo(UIConstrainable* other, doub
    if (options.mCustomNameConnector == "")
       options.mCustomNameConnector = "_alignTopWith_";
    
-   options.mConstant = offset;
+   options.mConstant = -offset; // Flipped!
    
    UIConstraint newConstraint(this, other, UIConstraint::Top, UIConstraint::Top, options);
    mpRoot->AddConstraint(newConstraint);
@@ -245,7 +247,7 @@ UIConstraint UIConstrainable::ConstrainRightAlignedTo(UIConstrainable* other, do
    if (options.mCustomNameConnector == "")
       options.mCustomNameConnector = "_alignRightWith_";
    
-   options.mConstant = offset;
+   options.mConstant = -offset; // Flipped!
    
    UIConstraint newConstraint(this, other, UIConstraint::Right, UIConstraint::Right, options);
    mpRoot->AddConstraint(newConstraint);
@@ -302,12 +304,58 @@ UIConstraint UIConstrainable::ConstrainVerticalCenterTo(UIConstrainable* other, 
  * Constrain center points to one another
  */
 std::pair<UIConstraint, UIConstraint> UIConstrainable::ConstrainCenterTo(UIConstrainable* other, double xOffset, double yOffset, UIConstraint::Options options) {
+   
    UIConstraint verticalConstraint  = ConstrainVerticalCenterTo  (other, yOffset, options);
    UIConstraint horizontalContraint = ConstrainHorizontalCenterTo(other, xOffset, options);
    
    return std::make_pair(horizontalContraint, verticalConstraint);
 }
 
+/**
+ * Constrain bounds equal, with an optional margin on each side
+ */
+void UIConstrainable::ConstrainEqualBounds(UIConstrainable* other, double leftMargin, double topMargin, double rightMargin, double bottomMargin, UIConstraint::Options options) {
+   UIConstraint leftConstraint   = ConstrainLeftAlignedTo  (other, leftMargin,   options);
+   UIConstraint topConstraint    = ConstrainTopAlignedTo   (other, topMargin,    options);
+   UIConstraint rightConstraint  = ConstrainRightAlignedTo (other, rightMargin,  options);
+   UIConstraint bottomConstraint = ConstrainBottomAlignedTo(other, bottomMargin, options);
+   
+   // Should return something, eventually. Probably a tuple like above?
+}
+   
+/* Constrain In Front Of:
+ *
+ * Constraints ME to have a HIGHER Z value than 'other', thus putting me in front.
+ */
+UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_inFrontOf_";
+   
+   options.mRelationship = UIConstraint::LessThanOrEqual;
+   options.mConstant = 1.0f;
+   
+   UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
+}
+
+/* Constrain Behind:
+ *
+ * Constraints ME to have a LOWER Z value than 'other', thus putting me in back.
+ */
+UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_behind_";
+   
+   options.mRelationship = UIConstraint::GreaterOrEqual;
+   options.mConstant = -1.0f;
+   
+   UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
+   mpRoot->AddConstraint(newConstraint);
+   
+   return newConstraint;
+}
    
 
    

@@ -24,6 +24,7 @@
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "ModelMaker/Editor.h"
+#include "Constrainer/Editor.h"
 
 #include "Main.h"
 
@@ -81,7 +82,9 @@ int main(int argc, char** argv)
 
    Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
    modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
-
+    
+   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
+   
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
@@ -102,6 +105,13 @@ int main(int argc, char** argv)
          modelMaker->Start();
       };
       UIFrame& fModelMaker = controls.Add<TextButton>(buttonOptions)->GetFrame();
+      
+      buttonOptions.text = "Constrainer";
+      buttonOptions.onClick = [&]() {
+         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
+         constrainer->Start();
+      };
+      TextButton* constrainerButton = controls.Add<TextButton>(buttonOptions);
 
       buttonOptions.text = "Quit";
       buttonOptions.onClick = [&]() {
@@ -187,7 +197,9 @@ int main(int argc, char** argv)
    });
 
    // Start in Model Maker
+//   modelMaker->Start();
    animationStation->Start();
+//   constrainer->Start();
    windowContent.Swap(animationStation);
 
    Timer<100> windowContentRender;

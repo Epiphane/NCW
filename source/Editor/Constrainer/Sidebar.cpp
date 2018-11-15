@@ -1,0 +1,185 @@
+// By Thomas Steinke
+
+#include <fstream>
+#include <Engine/Core/File.h>
+#include <Engine/Core/Window.h>
+#include <Shared/Helpers/Asset.h>
+
+#include <Shared/UI/Image.h>
+#include <Shared/UI/TextButton.h>
+
+#include "Sidebar.h"
+
+namespace CubeWorld
+{
+
+namespace Editor
+{
+
+namespace Constrainer
+{
+
+using Engine::UIElement;
+using Engine::UIFrame;
+using UI::Image;
+using UI::TextButton;
+using UI::RectFilled;
+
+Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
+   : UIElement(root, parent)
+   , mFilename(Paths::Normalize(Asset::Model("untitled-ui.json")))
+{
+   RectFilled* bg = Add<RectFilled>(glm::vec4(0.2f, 0.2f, 0.2f, 0.2f));
+   bg->SetName("ConstraintSidebarBackground");
+   RectFilled* fg = Add<RectFilled>(glm::vec4(1.0f, 0.0f, 0.0f, 0.4f));
+   fg->SetName("ConstraintSidebarForeground");
+   
+   bg->ConstrainEqualBounds(this);
+   fg->ConstrainEqualBounds(this, 5.0, 5.0, 5.0, 5.0);
+   
+   fg->ConstrainInFrontOf(bg);
+
+   UIElement* buttonParent = Add<UIElement>();
+   {
+      // Labels
+      TextButton::Options buttonOptions;
+      buttonOptions.text = "Load";
+      buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
+      TextButton* load = buttonParent->Add<TextButton>(buttonOptions);
+
+      buttonOptions.text = "Save";
+      buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
+      mSave = buttonParent->Add<TextButton>(buttonOptions);
+      
+      buttonOptions.text = "Save As...";
+      buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
+      TextButton* saveAs = buttonParent->Add<TextButton>(buttonOptions);
+      
+      buttonOptions.text = "Discard Changes";
+      buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
+      TextButton* discard = buttonParent->Add<TextButton>(buttonOptions);
+      
+      buttonOptions.text = "Quit";
+      buttonOptions.size = 13; // "> Save first!"
+      buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
+      mQuit = buttonParent->Add<TextButton>(buttonOptions);
+      
+      load->SetName("ConstrainerLoadButton");
+      load->ConstrainTopAlignedTo(this);
+      load->ConstrainLeftAlignedTo(this);
+      load->ConstrainWidthTo(this);
+      load->ConstrainHeight(32.0);
+      
+      mSave->SetName("ConstrainerSaveButton");
+      mSave->ConstrainBelow(load);
+      mSave->ConstrainLeftAlignedTo(this);
+      mSave->ConstrainWidthTo(this);
+      mSave->ConstrainHeight(32.0);
+      
+      saveAs->SetName("ConstrainerSaveAsButton");
+      saveAs->ConstrainBelow(mSave);
+      saveAs->ConstrainLeftAlignedTo(this);
+      saveAs->ConstrainWidthTo(this);
+      saveAs->ConstrainHeight(32.0);
+      
+      discard->SetName("ConstrainerDiscardButton");
+      discard->ConstrainBelow(saveAs);
+      discard->ConstrainLeftAlignedTo(this);
+      discard->ConstrainWidthTo(this);
+      discard->ConstrainHeight(32.0);
+      
+      mQuit->SetName("ConstrainerQuitButton");
+      mQuit->ConstrainBelow(discard);
+      mQuit->ConstrainLeftAlignedTo(this);
+      mQuit->ConstrainWidthTo(this);
+      mQuit->ConstrainHeight(32.0);
+      
+      fg->ConstrainInFrontOf(discard);
+//      mpRoot->AddConstraints({
+//         discard->GetFrame().z >= fg->GetFrame().z + 0.1
+//      });
+   }
+}
+
+void Sidebar::SetModified(bool modified)
+{
+   if (mModified == modified)
+   {
+      // Unchanged.
+      return;
+   }
+
+   mModified = modified;
+
+   std::string title = "NCW - Constrainer - ";
+   if (mModified)
+   {
+      title += "*";
+   }
+   title += Paths::GetFilename(mFilename);
+   Engine::Window::Instance()->SetTitle(title);
+
+   mSave->SetText(modified ? "*Save" : "Save");
+   mQuit->SetText("Quit");
+}
+
+void Sidebar::LoadNewFile()
+{
+   std::string file = OpenFileDialog(mFilename, {});
+   if (!file.empty())
+   {
+      mFilename = file;
+      LoadFile(file);
+   }
+}
+
+void Sidebar::LoadFile(const std::string& filename)
+{
+   // ???
+   SetModified(false);
+}
+
+void Sidebar::SaveNewFile()
+{
+   std::string file = SaveFileDialog(mFilename);
+   if (!file.empty())
+   {
+      mFilename = file;
+      SaveFile();
+   }
+}
+
+void Sidebar::SaveFile()
+{
+   // TODO
+   return;
+   //std::string serialized = mModel->Serialize();
+   //std::ofstream out(mFilename);
+   //out << serialized << std::endl;
+
+//   mpRoot->Emit<ModelSavedEvent>(mModel);
+   SetModified(false);
+}
+
+void Sidebar::DiscardChanges()
+{
+   LoadFile(mFilename);
+}
+
+void Sidebar::Quit()
+{
+   if (!mModified)
+   {
+      Engine::Window::Instance()->SetShouldClose(true);
+   }
+   else
+   {
+      mQuit->SetText("Save first!");
+   }
+}
+
+}; // namespace Constrainer
+
+}; // namespace Editor
+
+}; // namespace CubeWorld

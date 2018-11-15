@@ -86,6 +86,11 @@ public:
    UIConstraint ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    std::pair<UIConstraint, UIConstraint> ConstrainCenterTo          (UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
+   void ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   
+   UIConstraint ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   
    
    //
    // Set the name of this element
