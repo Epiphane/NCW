@@ -23,8 +23,8 @@ Editor::Editor(Bounded& parent)
    
    sidebar->ConstrainLeftAlignedTo(this);
    sidebar->ConstrainTopAlignedTo(this);
-   sidebar->ConstrainHeightTo(this);
    sidebar->ConstrainWidthTo(this, 0.0, 0.2);
+   sidebar->ConstrainHeightTo(this);
 //   Dock* dock = Add<Dock>();
 
    // Organize everything

@@ -29,7 +29,8 @@ rhea::constraint BaseConstraint::GetInternalConstraint() const {
 // Set the internal constraint directly. Shouldn't be called on UIConstraints.
 //
 void BaseConstraint::SetInternalConstraint(rhea::constraint newConstraint) { 
-   mInternalConstraint = newConstraint; 
+   mInternalConstraint = newConstraint;
+   SetPriority(mPriority);
    mbDirty = true;
 }
    
@@ -45,7 +46,7 @@ void BaseConstraint::SetInternalConstraint(rhea::constraint newConstraint) {
 //    1000, 750 and 500 respectively.
 //
 void BaseConstraint::SetPriority(double newPriority) {
-   mInternalConstraint.change_strength(rhea::symbolic_weight(newPriority, 0, 0));
+   mInternalConstraint.change_strength(rhea::symbolic_weight(newPriority, newPriority, newPriority));
    mbDirty = true;
 }
    

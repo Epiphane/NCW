@@ -33,8 +33,6 @@ public:
 
 private:
    Engine::EventManager mEvents;
-
-   UI::StateWindow* mStateWindow;
 };
 
 }; // namespace Constrainer

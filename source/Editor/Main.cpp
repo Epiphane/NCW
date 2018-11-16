@@ -82,9 +82,10 @@ int main(int argc, char** argv)
 
    Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
    modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
-    
-   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
    
+   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
+   constrainer->AddConstraints({constrainer->GetFrame().z >= 11.0});
+    
    // Create editor-wide controls pane
    UIRoot controls(*window);
    {
@@ -104,7 +105,8 @@ int main(int argc, char** argv)
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
          modelMaker->Start();
       };
-      UIFrame& fModelMaker = controls.Add<TextButton>(buttonOptions)->GetFrame();
+      TextButton* modelMakerButton = controls.Add<TextButton>(buttonOptions);
+      UIFrame& fModelMaker = modelMakerButton->GetFrame();
       
       buttonOptions.text = "Constrainer";
       buttonOptions.onClick = [&]() {
@@ -117,7 +119,14 @@ int main(int argc, char** argv)
       buttonOptions.onClick = [&]() {
          window->SetShouldClose(true);
       };
-      UIFrame& fQuit = controls.Add<TextButton>(buttonOptions)->GetFrame();
+      TextButton* quitButton = controls.Add<TextButton>(buttonOptions);
+      UIFrame& fQuit = quitButton->GetFrame();
+      
+      constrainerButton->ConstrainBelow(modelMakerButton, 8.0);
+      constrainerButton->ConstrainAbove(quitButton, 8.0);
+      constrainerButton->ConstrainWidthTo(modelMakerButton);
+      constrainerButton->ConstrainHeight(32);
+      constrainerButton->ConstrainLeftAlignedTo(modelMakerButton);
 
       UIFrame& fControls = controls.GetFrame();
       Engine::UIFrame& fBackground = bg->GetFrame();
@@ -144,7 +153,6 @@ int main(int argc, char** argv)
 
          fModelMaker.left == fAnimationStation.left,
          fModelMaker.right == fAnimationStation.right,
-         fModelMaker.bottom == fQuit.top + 8,
          fModelMaker.height == 32,
 
          fQuit.left == fModelMaker.left,

@@ -54,13 +54,13 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
    
    switch (options.mRelationship) {
       case BaseConstraint::Equal:
-         mInternalConstraint = (leftSide == rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide == rightSide * options.mMultiplier + options.mConstant);
          break;
       case BaseConstraint::GreaterOrEqual:
-         mInternalConstraint = (leftSide >= rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide >= rightSide * options.mMultiplier + options.mConstant);
          break;
       case BaseConstraint::LessThanOrEqual:
-         mInternalConstraint = (leftSide <= rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide <= rightSide * options.mMultiplier + options.mConstant);
          break;
       default:
          assert(false && "Invalid mRelationship value");
