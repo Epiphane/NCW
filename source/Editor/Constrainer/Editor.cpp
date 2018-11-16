@@ -16,8 +16,7 @@ namespace Editor
 namespace Constrainer
 {
 
-Editor::Editor(Bounded& parent)
-    : UIRoot(parent)
+Editor::Editor()
 {
    Sidebar* sidebar = Add<Sidebar>();
    

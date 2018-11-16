@@ -85,7 +85,8 @@ int main(int argc, char** argv)
    modelMaker->SetBounds(*window);
    modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
    
-   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
+   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>();
+   constrainer->SetBounds(*window);
    constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
 
    // Create editor-wide controls pane
@@ -116,7 +117,7 @@ int main(int argc, char** argv)
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
          constrainer->Start();
       };
-      TextButton* constrainerButton = controls.Add<TextButton>(buttonOptions);
+      UIFrame& fConstrainer = controls.Add<TextButton>(buttonOptions)->GetFrame();
 
       buttonOptions.text = "Quit";
       buttonOptions.onClick = [&]() {
@@ -137,7 +138,7 @@ int main(int argc, char** argv)
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-         fBackground.z >= 100.0,
+         fBackground.z <= 10.0,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,
@@ -156,10 +157,19 @@ int main(int argc, char** argv)
 
          fModelMaker.left == fAnimationStation.left,
          fModelMaker.right == fAnimationStation.right,
+<<<<<<< HEAD
+=======
+         fModelMaker.bottom == fConstrainer.top + 8,
+>>>>>>> Model maker has a nonfunctioning scrolling list, please dont use it
          fModelMaker.height == 32,
 
-         fQuit.left == fModelMaker.left,
-         fQuit.right == fModelMaker.right,
+         fConstrainer.left == fModelMaker.left,
+         fConstrainer.right == fModelMaker.right,
+         fConstrainer.bottom == fQuit.top + 8,
+         fConstrainer.height == 32,
+
+         fQuit.left == fConstrainer.left,
+         fQuit.right == fConstrainer.right,
          fQuit.bottom == fControls.bottom + 16,
          fQuit.height == 32,
       });
