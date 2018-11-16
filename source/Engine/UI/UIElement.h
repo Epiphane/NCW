@@ -135,7 +135,7 @@ public:
    //
    // Create a constraint specifying that the height of {this} > {other}
    //
-   void ConstrainAbove(UIElement* other, rhea::strength strength = rhea::strength::required());
+   void ConstrainInFrontOf(UIElement* other, rhea::strength strength = rhea::strength::required());
 
    //
    // Create a set of constrains specifying that {other} is within {this}.

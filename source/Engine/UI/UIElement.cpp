@@ -67,7 +67,7 @@ void UIElement::Update(TIMEDELTA dt)
    }
 }
 
-void UIElement::ConstrainAbove(UIElement* other, rhea::strength strength)
+void UIElement::ConstrainInFrontOf(UIElement* other, rhea::strength strength)
 {
    mpRoot->AddConstraints({
       rhea::constraint(mFrame > *other, strength)

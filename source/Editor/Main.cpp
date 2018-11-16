@@ -117,7 +117,8 @@ int main(int argc, char** argv)
          Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
          constrainer->Start();
       };
-      UIFrame& fConstrainer = controls.Add<TextButton>(buttonOptions)->GetFrame();
+      TextButton* constrainerButton = controls.Add<TextButton>(buttonOptions);
+      UIFrame& fConstrainer = constrainerButton->GetFrame();
 
       buttonOptions.text = "Quit";
       buttonOptions.onClick = [&]() {
@@ -157,10 +158,7 @@ int main(int argc, char** argv)
 
          fModelMaker.left == fAnimationStation.left,
          fModelMaker.right == fAnimationStation.right,
-<<<<<<< HEAD
-=======
          fModelMaker.bottom == fConstrainer.top + 8,
->>>>>>> Model maker has a nonfunctioning scrolling list, please dont use it
          fModelMaker.height == 32,
 
          fConstrainer.left == fModelMaker.left,
