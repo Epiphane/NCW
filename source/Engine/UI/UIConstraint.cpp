@@ -29,8 +29,6 @@ UIConstraint::Options::Options() {
    
    mbIsConstantEditable   = false;
    mbIsMultiplierEditable = false;
-   
-   
 }
    
 UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
@@ -70,7 +68,17 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
    // TODO-EF: if mbIsConstantEditable is true, set up the constant as an edit variable instead.
    // TODO-EF: if mbIsMultiplierEditable is true, set up the multiplier as an edit variable instead.
 }
-   
+
+UIConstraint::UIConstraint()
+   : BaseConstraint("", REQUIRED_PRIORITY)
+{
+   mOptions = Options();
+   mPrimaryElement   = NULL;
+   mSecondaryElement = NULL;
+   mPrimaryTarget   = NoTarget;
+   mSecondaryTarget = NoTarget;
+}
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

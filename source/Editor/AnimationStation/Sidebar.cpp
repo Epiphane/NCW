@@ -24,7 +24,7 @@ using UI::RectFilled;
 using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+   : UIElement(root, parent, "AnimationStationSidebar")
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
    {

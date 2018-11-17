@@ -24,7 +24,7 @@ using UI::Button;
 using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+   : UIElement(root, parent, "ModelMakerDock")
 {
    // Background
    {

@@ -16,8 +16,8 @@ namespace CubeWorld
 namespace UI
 {
 
-Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
-   : Engine::UIElement(root, parent)
+Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options, const std::string& name)
+   : Engine::UIElement(root, parent, name)
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {   
    LOG_DEBUG("Loading %1", Paths::Canonicalize(options.filename));

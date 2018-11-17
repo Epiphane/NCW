@@ -15,8 +15,8 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIElement::UIElement(UIRoot* root, UIElement* parent)
-   : UIConstrainable(root)
+UIElement::UIElement(UIRoot *root, UIElement* parent, const std::string& name)
+   : UIConstrainable(root, name)
    , mActive(true)
    , mpParent(parent)
 {
@@ -69,14 +69,6 @@ void UIElement::Update(TIMEDELTA dt)
    for (auto& child : mChildren) {
       child->Update(dt);
    }
-}
-
-void UIElement::AddConstraint(std::string nameKey, const rhea::constraint& constraint)
-{
-   mConstraints[nameKey] = constraint;
-   
-   mpRoot->AddConstraints({mConstraints[nameKey]});
-   
 }
 
 bool UIElement::ContainsPoint(double x, double y)

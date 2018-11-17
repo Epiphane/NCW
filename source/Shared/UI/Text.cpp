@@ -16,8 +16,8 @@ namespace CubeWorld
 namespace UI
 {
 
-Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options)
-   : UIElement(root, parent)
+Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name)
+   : UIElement(root, parent, name)
    , mText("")
    , mRendered("")
 {

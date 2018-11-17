@@ -41,6 +41,11 @@ public:
    // Remove a UIConstraint from our map.
    //
    void RemoveConstraint(std::string constraintNameToRemove);
+
+   //
+   // Returns a pointer to a UIConstraint. Will return NULL if not found.
+   //
+   UIConstraint* GetConstraint(std::string constraintName);
    
    //
    // Add arbitrary contraints.

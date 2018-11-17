@@ -61,7 +61,7 @@ struct UIFrame : public Bounded
    
 class UIConstrainable {
 public:
-   UIConstrainable(UIRoot* root);
+   UIConstrainable(UIRoot* root, const std::string& name);
    
    // Constrain measurements to a CONSTANT
    UIConstraint ConstrainWidth(double width, UIConstraint::Options options = UIConstraint::Options());
@@ -108,11 +108,11 @@ public:
    UIFrame& GetFrame() { return mFrame; }
    
 protected:
-   
-   UIRoot *mpRoot;
-   
+
    std::string mName;
-   
+
+   UIRoot *mpRoot;
+
    // Contains the coordinates and size of the element
    UIFrame mFrame;
 };

@@ -28,7 +28,7 @@ public:
    };
 
 public:
-   Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
+   Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options, const std::string& name = "");
 
    void Redraw() override;
 

@@ -86,9 +86,9 @@ class UIRebalancedEvent : public Event<UIRebalancedEvent>
 class UIElement : public Engine::Receiver<UIElement>, public UIConstrainable
 {
 public:
-   UIElement(UIRoot* root, UIElement* parent);
+   UIElement(UIRoot *root, UIElement *parent, const std::string& name = "");
 
-   //
+    virtual //
    // Add a UIElement as a child of this one.
    //
    UIElement* AddChild(std::unique_ptr<UIElement>&& element);
@@ -164,9 +164,6 @@ protected:
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
    bool mActive;
-
-   // Map where from a constraint's name to its value
-   std::map<std::string, rhea::constraint> mConstraints;
 
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;

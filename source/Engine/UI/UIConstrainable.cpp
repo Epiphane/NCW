@@ -41,8 +41,9 @@ rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target ta
 }
    
 
-UIConstrainable::UIConstrainable(UIRoot* root)
-   : mpRoot(root)
+UIConstrainable::UIConstrainable(UIRoot* root, const std::string& name)
+   : mName(name)
+   , mpRoot(root)
 {
 }
 
@@ -191,8 +192,9 @@ UIConstraint UIConstrainable::ConstrainWidthTo(UIConstrainable* other, double co
 
 /* Constrain Heights:
  * ___________       ___
- * <FIRST ARG>
- *                    ME
+ *
+ * <FIRST ARG>        ME
+ *
  * ___________   
  *                 + offset
  *                   ___                     
@@ -332,7 +334,7 @@ UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConst
       options.mCustomNameConnector = "_inFrontOf_";
    
    options.mRelationship = UIConstraint::LessThanOrEqual;
-   options.mConstant = 1.0f;
+   options.mConstant = -1.0f;
    
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
    mpRoot->AddConstraint(newConstraint);
@@ -349,7 +351,7 @@ UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstrai
       options.mCustomNameConnector = "_behind_";
    
    options.mRelationship = UIConstraint::GreaterOrEqual;
-   options.mConstant = -1.0f;
+   options.mConstant = 1.0f;
    
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
    mpRoot->AddConstraint(newConstraint);

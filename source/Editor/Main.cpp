@@ -84,7 +84,7 @@ int main(int argc, char** argv)
    modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
    
    Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
-   constrainer->AddConstraints({constrainer->GetFrame().z >= 11.0});
+   constrainer->AddConstraints({constrainer->GetFrame().z >= 21.0});
     
    // Create editor-wide controls pane
    UIRoot controls(*window);

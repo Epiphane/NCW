@@ -27,7 +27,7 @@ using UI::TextButton;
 using UI::RectFilled;
 
 Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+   : UIElement(root, parent, "ModelMakerSidebar")
    , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
    {

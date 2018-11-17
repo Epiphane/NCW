@@ -55,7 +55,7 @@ Keyframe& GetKeyframe(State& state, double time)
 }; // anonymous namespace
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+   : UIElement(root, parent, "AnimationStationDock")
    , mBone(9)
 {
    // Background

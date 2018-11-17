@@ -18,9 +18,10 @@ namespace UI
 TextButton::TextButton(
    Engine::UIRoot* root,
    Engine::UIElement* parent,
-   const Options& options
+   const Options& options,
+   const std::string& name
 )
-   : Text(root, parent, options)
+   : Text(root, parent, options, name)
    , mClickCallback(options.onClick)
    , mIsHovered(false)
 {}

@@ -59,7 +59,8 @@ public:
        
       NoTarget,
    };
-    
+
+   UIConstraint();
    UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options());
    
 private:

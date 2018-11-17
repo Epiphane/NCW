@@ -3,6 +3,7 @@
 #include <fstream>
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
+#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 
 #include <Shared/UI/Image.h>
@@ -26,78 +27,71 @@ using UI::TextButton;
 using UI::RectFilled;
 
 Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+   : UIElement(root, parent, "ConstrainerSidebar")
    , mFilename(Paths::Normalize(Asset::Model("untitled-ui.json")))
 {
-   RectFilled* bg = Add<RectFilled>(glm::vec4(0.2f, 0.2f, 0.2f, 0.2f));
-   bg->SetName("ConstraintSidebarBackground");
-   RectFilled* fg = Add<RectFilled>(glm::vec4(1.0f, 0.0f, 0.0f, 0.4f));
+//   RectFilled* bg = Add<RectFilled>(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+//   bg->SetName("ConstraintSidebarBackground");
+   RectFilled* fg = Add<RectFilled>(glm::vec4(0.4f, 0.4f, 0.4f, 1.0f));
    fg->SetName("ConstraintSidebarForeground");
    
-   bg->ConstrainEqualBounds(this);
-   fg->ConstrainEqualBounds(this, 5.0, 5.0, 5.0, 5.0);
+//   bg->ConstrainEqualBounds(this);
+   fg->ConstrainEqualBounds(this, 2.0, 2.0, 2.0, 2.0);
    
-   fg->ConstrainInFrontOf(bg);
+//   fg->ConstrainInFrontOf(bg);
 
-   UIElement* buttonParent = Add<UIElement>();
+   Engine::UIStackView* buttonParent = Add<Engine::UIStackView>("ConstrainerSidebarStackView");
+   buttonParent->SetOffset(8.0);
    {
       // Labels
       TextButton::Options buttonOptions;
       buttonOptions.text = "Load";
       buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-      TextButton* load = buttonParent->Add<TextButton>(buttonOptions);
+      TextButton* load = buttonParent->Add<TextButton>(buttonOptions, "ConstrainerLoadButton");
 
       buttonOptions.text = "Save";
       buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-      mSave = buttonParent->Add<TextButton>(buttonOptions);
+      mSave = buttonParent->Add<TextButton>(buttonOptions, "ConstrainerSaveButton");
       
       buttonOptions.text = "Save As...";
       buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-      TextButton* saveAs = buttonParent->Add<TextButton>(buttonOptions);
+      TextButton* saveAs = buttonParent->Add<TextButton>(buttonOptions, "ConstrainerSaveAsButton");
       
       buttonOptions.text = "Discard Changes";
       buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-      TextButton* discard = buttonParent->Add<TextButton>(buttonOptions);
+      TextButton* discard = buttonParent->Add<TextButton>(buttonOptions, "ConstrainerDiscardButton");
       
       buttonOptions.text = "Quit";
       buttonOptions.size = 13; // "> Save first!"
       buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
-      mQuit = buttonParent->Add<TextButton>(buttonOptions);
+      mQuit = buttonParent->Add<TextButton>(buttonOptions, "ConstrainerQuitButton");
       
-      load->SetName("ConstrainerLoadButton");
-      load->ConstrainTopAlignedTo(this);
       load->ConstrainLeftAlignedTo(this);
       load->ConstrainWidthTo(this);
       load->ConstrainHeight(32.0);
       
-      mSave->SetName("ConstrainerSaveButton");
-      mSave->ConstrainBelow(load);
       mSave->ConstrainLeftAlignedTo(this);
       mSave->ConstrainWidthTo(this);
       mSave->ConstrainHeight(32.0);
       
-      saveAs->SetName("ConstrainerSaveAsButton");
-      saveAs->ConstrainBelow(mSave);
       saveAs->ConstrainLeftAlignedTo(this);
       saveAs->ConstrainWidthTo(this);
       saveAs->ConstrainHeight(32.0);
       
-      discard->SetName("ConstrainerDiscardButton");
-      discard->ConstrainBelow(saveAs);
       discard->ConstrainLeftAlignedTo(this);
       discard->ConstrainWidthTo(this);
       discard->ConstrainHeight(32.0);
       
-      mQuit->SetName("ConstrainerQuitButton");
-      mQuit->ConstrainBelow(discard);
       mQuit->ConstrainLeftAlignedTo(this);
       mQuit->ConstrainWidthTo(this);
       mQuit->ConstrainHeight(32.0);
       
-      fg->ConstrainInFrontOf(discard);
-//      mpRoot->AddConstraints({
-//         discard->GetFrame().z >= fg->GetFrame().z + 0.1
-//      });
+      buttonParent->ConstrainTopAlignedTo(this, 4.0);
+      buttonParent->ConstrainLeftAlignedTo(this, 8.0);
+      
+      buttonParent->ConstrainInFrontOf(fg);
+//      buttonParent->ConstrainInFrontOf(bg);
+      discard->ConstrainInFrontOf(fg);
    }
 }
 

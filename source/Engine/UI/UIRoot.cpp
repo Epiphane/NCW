@@ -17,7 +17,7 @@ namespace Engine
 {
 
 UIRoot::UIRoot(const Bounded& bounds)
-   : UIElement(this, nullptr)
+   : UIElement(this, nullptr, "Root")
    , mRectanglesVBO(Engine::Graphics::VBO::Vertices)
    , mDirty(false)
 {
@@ -94,7 +94,18 @@ void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
       assert(false && "Attempting to remove an unknown constraint");
    }
 }
-   
+
+UIConstraint *UIRoot::GetConstraint(std::string constraintName)
+{
+   auto it = mConstraintMap.find(constraintName);
+   if (it != mConstraintMap.end()) {
+      return &it->second;
+   }
+   else {
+      return NULL;
+   }
+}
+
 void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
 {   
    mSolver.add_constraints(constraints);

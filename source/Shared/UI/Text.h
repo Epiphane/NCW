@@ -40,7 +40,7 @@ public:
    };
 
 public:
-   Text(Engine::UIRoot* root, UIElement* parent, const Options& options);
+   Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name = "");
 
    //
    // Render the text on this label
