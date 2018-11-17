@@ -14,7 +14,6 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
-#include <Engine/UI/UIRoot.h>
 #include <Shared/Components/CubeModel.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
@@ -84,7 +83,7 @@ void MainState::Initialize()
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
-   playerCamera.Add<KeyControlledCamera>();
+   playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT);
    playerCamera.Add<KeyControlledCameraArm>();
 
    mCamera.Set(mPlayerCam.get());

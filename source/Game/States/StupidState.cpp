@@ -44,7 +44,7 @@ namespace Game
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
-      mSystems.Add<SimplePhysics::Debug>(mSystems.Get<SimplePhysics::System>(), false, &mCamera);
+      mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       
       mSystems.Configure();

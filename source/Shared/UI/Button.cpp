@@ -78,8 +78,7 @@ Engine::UIElement::Action Button::MouseMove(const MouseMoveEvent& evt)
       return Unhandled;
    }
 
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
-   bool hovered = ContainsPoint(mouse.x, mouse.y);
+   bool hovered = ContainsPoint(evt.x, evt.y);
    if (mState == NORMAL && hovered)
    {
       SetState(HOVER);

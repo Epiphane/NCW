@@ -58,7 +58,7 @@ std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::
    link->prev->next = link.get();
    link->next->prev = link.get();
 
-   return std::move(link);
+   return link;
 }
 
 void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> metric)

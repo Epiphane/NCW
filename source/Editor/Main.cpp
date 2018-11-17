@@ -77,17 +77,21 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    // Create subwindow for each editor
-   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>(*window);
+   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>();
+   animationStation->SetBounds(*window);
    animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
-   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(*window);
-   modelMaker->AddConstraints({modelMaker->GetFrame().z >= -0.5});
+   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>();
+   modelMaker->SetBounds(*window);
+   modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
    
-   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>(*window);
-   constrainer->AddConstraints({constrainer->GetFrame().z >= 21.0});
-    
+   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>();
+   constrainer->SetBounds(*window);
+   constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
+
    // Create editor-wide controls pane
-   UIRoot controls(*window);
+   UIRoot controls;
+   controls.SetBounds(*window);
    {
       RectFilled* bg = controls.Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
       RectFilled* fg = controls.Add<RectFilled>(glm::vec4(0, 0, 0, 1));
@@ -114,6 +118,7 @@ int main(int argc, char** argv)
          constrainer->Start();
       };
       TextButton* constrainerButton = controls.Add<TextButton>(buttonOptions);
+      UIFrame& fConstrainer = constrainerButton->GetFrame();
 
       buttonOptions.text = "Quit";
       buttonOptions.onClick = [&]() {
@@ -153,10 +158,16 @@ int main(int argc, char** argv)
 
          fModelMaker.left == fAnimationStation.left,
          fModelMaker.right == fAnimationStation.right,
+         fModelMaker.bottom == fConstrainer.top + 8,
          fModelMaker.height == 32,
 
-         fQuit.left == fModelMaker.left,
-         fQuit.right == fModelMaker.right,
+         fConstrainer.left == fModelMaker.left,
+         fConstrainer.right == fModelMaker.right,
+         fConstrainer.bottom == fQuit.top + 8,
+         fConstrainer.height == 32,
+
+         fQuit.left == fConstrainer.left,
+         fQuit.right == fConstrainer.right,
          fQuit.bottom == fControls.bottom + 16,
          fQuit.height == 32,
       });
@@ -205,10 +216,9 @@ int main(int argc, char** argv)
    });
 
    // Start in Model Maker
-//   modelMaker->Start();
-   animationStation->Start();
-//   constrainer->Start();
-   windowContent.Swap(animationStation);
+   modelMaker->Start();
+   windowContent.Swap(modelMaker);
+   constrainer->Start();
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {

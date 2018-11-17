@@ -36,11 +36,11 @@ Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
    return Unhandled;
 }
 
-Engine::UIElement::Action TextButton::MouseMove(const MouseMoveEvent& evt)
+void TextButton::Update(TIMEDELTA dt)
 {
    if (!mActive || !mClickCallback)
    {
-      return Unhandled;
+      return;
    }
 
    glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
@@ -55,8 +55,6 @@ Engine::UIElement::Action TextButton::MouseMove(const MouseMoveEvent& evt)
       RenderText(mText);
       mIsHovered = false;
    }
-
-   return mIsHovered ? Handled : Unhandled;
 }
 
 }; // namespace UI

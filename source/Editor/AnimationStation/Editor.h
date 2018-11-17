@@ -24,7 +24,7 @@ namespace AnimationStation
 class Editor : public Engine::UIRoot
 {
 public:
-   Editor(Bounded& parent);
+   Editor();
 
    //
    // Called every time this editor is reactivated.

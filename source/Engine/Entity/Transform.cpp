@@ -15,27 +15,21 @@ namespace Engine
    
 namespace
 {
-      
-   inline glm::vec3 PitchYawToVector(const Transform::val pitch, const Transform::val yaw)
-   {
-      float horiz = cos(pitch);
-      return glm::vec3(horiz * sin(yaw), sin(pitch), horiz * cos(yaw));
-   }
 
-   inline Transform::val VectorToPitch(glm::vec3 direction)
-   {
-      Transform::val horizontal = sqrt(direction.x*direction.x + direction.z*direction.z);
-      return atan2(direction.y, horizontal);
-   }
+inline Transform::val VectorToPitch(glm::vec3 direction)
+{
+  Transform::val horizontal = sqrt(direction.x*direction.x + direction.z*direction.z);
+  return atan2(direction.y, horizontal);
+}
 
-   inline Transform::val VectorToYaw(glm::vec3 direction)
-   {
-      if (direction.x == 0 && direction.z == 0)
-      {
-         return 0;
-      }
-      return atan2(direction.x, direction.z);
-   }
+inline Transform::val VectorToYaw(glm::vec3 direction)
+{
+  if (direction.x == 0 && direction.z == 0)
+  {
+     return 0;
+  }
+  return atan2(direction.x, direction.z);
+}
 
 };
 

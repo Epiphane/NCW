@@ -17,8 +17,8 @@ namespace Engine
 class InputEventSystem : public Engine::System<InputEventSystem> {
 public:
    InputEventSystem(Input* input)
-      : mEvents{}
-      , mInput(input)
+      : mInput(input)
+      , mEvents{}
    {}
    ~InputEventSystem() {}
    

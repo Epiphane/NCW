@@ -17,4 +17,24 @@ public:
    virtual uint32_t GetHeight() const = 0;
 };
 
+struct Bounds : public Bounded
+{
+public:
+   Bounds(const uint32_t x, const uint32_t y, const uint32_t w, const uint32_t h)
+      : x(x)
+      , y(y)
+      , w(w)
+      , h(h)
+   {};
+
+public:
+   uint32_t GetX() const override { return x; }
+   uint32_t GetY() const override { return y; }
+   uint32_t GetWidth() const override { return w; }
+   uint32_t GetHeight() const override { return h; }
+
+public:
+   const uint32_t x, y, w, h;
+};
+
 }; // namespace CubeWorld

@@ -133,6 +133,21 @@ public:
    virtual void Update(TIMEDELTA dt);
 
    //
+   // Create a constraint specifying that the height of {this} > {other}
+   //
+   void ConstrainInFrontOf(UIElement* other, rhea::strength strength = rhea::strength::required());
+
+   //
+   // Create a set of constrains specifying that {other} is within {this}.
+   // Specifically:
+   //   - {this}.left <= {other}.left
+   //   - {this}.right >= {other}.right
+   //   - {this}.top >= {other}.top
+   //   - {this}.bottom <= {other}.bottom
+   //
+   void Contains(UIElement* other, rhea::strength strength = rhea::strength::required());
+
+   //
    // Add a named constraint to this element. Element will report this to its mpRoot.
    //
    void AddConstraint(std::string nameKey, const rhea::constraint& constraint);

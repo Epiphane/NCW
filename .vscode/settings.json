@@ -44,7 +44,8 @@
         "chrono": "cpp",
         "limits": "cpp",
         "ratio": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "xstring": "cpp"
     },
     "editor.tabSize": 3
 }

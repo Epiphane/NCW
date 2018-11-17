@@ -66,7 +66,8 @@ int main(int /* argc */, char ** /* argv */) {
    DebugHelper* debug = DebugHelper::Instance();
    debug->SetBounds(window);
    
-   std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>(*window);
+   std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>();
+   ui->SetBounds(*window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {

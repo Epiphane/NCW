@@ -18,7 +18,7 @@ namespace AnimationStation
 
 using UI::StateWindow;
 
-Editor::Editor(Bounded& parent) : UIRoot(parent)
+Editor::Editor() : UIRoot()
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);

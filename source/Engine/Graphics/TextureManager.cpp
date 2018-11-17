@@ -130,6 +130,7 @@ Maybe<Texture*> TextureManager::GetTexture(const std::string& path)
    }
 
    // Attempt to load the font.
+   LOG_DEBUG("Loading %1", path);
    Maybe<std::unique_ptr<Texture>> newTexture = Texture::Load(path);
    if (!newTexture)
    {

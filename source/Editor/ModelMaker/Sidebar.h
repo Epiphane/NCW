@@ -39,12 +39,10 @@ private:
    void LoadFile(const std::string& filename);
 
    void DiscardChanges();
-   void Quit();
 
 private:
    // Elements
    TextButton* mSave;
-   TextButton* mQuit;
 
 public:
    // Event handlers

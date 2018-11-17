@@ -306,7 +306,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
       scrubberOptions.sensitivity = 0.05;
-      scrubberOptions.onChange = [&](double newValue, double oldValue) {
+      scrubberOptions.onChange = [&](double, double) {
          State& state = GetCurrentState();
          size_t index = mSelectedKeyframe;
          Keyframe& keyframe = state.keyframes[index];
@@ -571,14 +571,18 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          UIFrame& boneRotText = mBoneRot[i].text->GetFrame();
          UIFrame& boneRotValue = mBoneRot[i].scrubber->GetFrame();
 
+         bonePosition->Contains(mBonePos[i].text);
+         bonePosition->Contains(mBonePos[i].scrubber);
+         boneRotation->Contains(mBoneRot[i].text);
+         boneRotation->Contains(mBoneRot[i].scrubber);
          root->AddConstraints({
-            bonePosText.left == fResetPosition.right + 8,
+            bonePosText.left == fResetPosition.right + 32,
             bonePosText.height == 32,
             bonePosValue.top == bonePosText.bottom - 8,
             bonePosValue.left == bonePosText.left,
             bonePosValue.height == 7,
 
-            boneRotText.left == fResetRotation.right + 8,
+            boneRotText.left == fResetRotation.right + 32,
             boneRotText.height == 32,
             boneRotValue.top == boneRotText.bottom - 8,
             boneRotValue.left == boneRotText.left,

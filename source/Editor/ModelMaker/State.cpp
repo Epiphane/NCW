@@ -8,11 +8,10 @@
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/CubeModel.h>
 #include <Shared/Components/ArmCamera.h>
-#include <Shared/Systems/CameraSystem.h>
-#include <Shared/Systems/VoxelRenderSystem.h>
-
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/Systems/CameraSystem.h>
+#include <Shared/Systems/VoxelRenderSystem.h>
 
 #include "../Systems/AnimationSystem.h"
 #include "State.h"
@@ -54,10 +53,6 @@ void MainState::Initialize()
    // Unlock the mouse
    mWindow->GetInput()->SetMouseLock(false);
 
-   // Add a shell entity for controlling animation state
-   Entity controls = mEntities.Create();
-   controls.Add<AnimationSystemController>();
-
    Entity voxels = mEntities.Create(0, 0, 0);
    mBackdrop = std::make_unique<Backdrop>(voxels.Add<VoxelRender>());
    mEvents.Subscribe<ModelLoadedEvent>(*mBackdrop);
@@ -77,11 +72,18 @@ void MainState::Initialize()
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 2.25f;
    cameraOptions.minDistance = 0.5f;
-   Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
+   mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
    playerCamera.Add<KeyControlledCamera>();
    playerCamera.Add<MouseControlledCameraArm>();
 
-   mCamera.Set(handle.get());
+   mCamera.Set(mPlayerCam.get());
+
+   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
+}
+
+void MainState::Receive(const Engine::UIRebalancedEvent&)
+{
+   mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
 }
 
 }; // namespace ModelMaker

@@ -16,7 +16,7 @@ namespace Game
 
 class UIMainScreen : public Engine::UIRoot {
 public:
-   UIMainScreen(const Bounded& bounds);
+   UIMainScreen();
 };
 
 }; // namespace Game

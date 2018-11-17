@@ -132,6 +132,11 @@ public:
    bool IsKeyDown(int key) const;
 
    //
+   // Returns whether or not the mouse is being dragged with a specific button held down.
+   //
+   bool IsDragging(int button) const { return mMouseDragging[button]; }
+
+   //
    // Get the mouse's current position, in pixel space
    //
    glm::tvec2<double> GetRawMousePosition() const;

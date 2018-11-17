@@ -15,7 +15,7 @@ namespace CubeWorld {
 namespace Shared {
    
 struct Run {
-   int startIndex, endIndex; // Inclusive/Exclusive (start = 0, end = 2 means [x x o o o o o ...])
+   size_t startIndex, endIndex; // Inclusive/Exclusive (start = 0, end = 2 means [x x o o o o o ...])
 };
    
 template <typename T>
@@ -151,6 +151,6 @@ void TimSortInPlace(std::vector<T>& arr, std::function<bool(T,T)> GreaterThan) {
    // We're now all tasty and sorted!
 }
    
-} // Shared
+} // namespace Shared
    
-} // Cubeworld
+} // namespace Cubeworld

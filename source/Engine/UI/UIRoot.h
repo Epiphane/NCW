@@ -24,8 +24,13 @@ namespace Engine
 class UIRoot : public UIElement, public EventManager
 {
 public:
-   UIRoot(const Bounded& bounds);
+   UIRoot();
    ~UIRoot();
+
+   //
+   // Create a constant set of size constraints for the entire UI
+   //
+   void SetBounds(const Bounded& bounds);
    
    //
    // Populate the simple constraints for a UIFrame.
@@ -91,20 +96,23 @@ public:
    // Receives an event whenever a new element is added.
    // This is where we set up simple constraints for that element's UIFrame.
    //
-   void Receive(const ElementAddedEvent& evt);
-   void Receive(const ElementRemovedEvent& evt);
+   virtual void Receive(const ElementAddedEvent& evt);
+   virtual void Receive(const ElementRemovedEvent& evt);
 
    //
    // Mouse events are sent out from here.
    //
-   void Receive(const MouseDownEvent& evt);
-   void Receive(const MouseMoveEvent& evt);
-   void Receive(const MouseUpEvent& evt);
-   void Receive(const MouseClickEvent& evt);
+   virtual void Receive(const MouseDownEvent& evt);
+   virtual void Receive(const MouseMoveEvent& evt);
+   virtual void Receive(const MouseUpEvent& evt);
+   virtual void Receive(const MouseClickEvent& evt);
    
 protected:
    // Solves for the constraints we provide.
    rhea::simplex_solver mSolver;
+
+   // The four constraints that bound this UI.
+   rhea::constraint_list mBoundConstraints;
 
 public:
    // Get an aggregator, and ensure it exists.
@@ -133,9 +141,6 @@ private:
    // Holds all the elements in this tree, sorted by z-value.
    std::vector<UIElement*> mElements;
 
-   // VBO that ALL the UI elements will use.
-   Engine::Graphics::VBO mRectanglesVBO;
-   
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;
 

@@ -25,8 +25,8 @@ namespace Graphics
       , mDepth(depth)
       , mUsed(0)
       , mTexture(0)
-      , mData(nullptr)
       , mDirty(true)
+      , mData(nullptr)
    {
       assert(depth == 1 || depth == 3 || depth == 4);
 
@@ -40,8 +40,8 @@ namespace Graphics
       , mDepth(other.mDepth)
       , mUsed(other.mUsed)
       , mTexture(other.mTexture)
+      , mDirty(other.mDirty)
       , mData(other.mData)
-      , mDirty(other.mDirty) 
    {
       other.mData = nullptr;
       other.mDirty = true;

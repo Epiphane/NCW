@@ -78,7 +78,7 @@ private:
 //
 class Debug : public Engine::System<Debug> {
 public:
-   Debug(SimplePhysics::System* system, bool active = true, Engine::Graphics::Camera* camera = nullptr) : mSystem(system), mActive(active), mCamera(camera) {}
+   Debug(bool active = true, Engine::Graphics::Camera* camera = nullptr) : mActive(active), mCamera(camera) {}
    ~Debug() {}
 
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
@@ -90,7 +90,6 @@ public:
    void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
 
 private:
-   SimplePhysics::System* mSystem;
    bool mActive;
 
 private:
