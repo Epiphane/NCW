@@ -1,0 +1,22 @@
+{
+	"baseElement" : {
+		"class" : "UIElement",
+		"name" : "TestJSONStuff",
+		"children" : [
+			{
+				"class" : "UIRectFilled",
+				"name" : "TestRedRectangle",
+				"backgroundColor" : [255.0, 0, 0, 1.0]
+			},
+			{
+				"class" : "UIRectFilled",
+				"name" : "TestBlueRectangle",
+				"backgroundColor" : [0, 255.0, 0, 1.0]
+			},
+		]
+	},
+
+	"constraints" : [
+
+	]
+}
