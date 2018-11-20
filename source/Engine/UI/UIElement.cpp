@@ -94,6 +94,10 @@ bool UIElement::ContainsPoint(double x, double y)
       y >= mFrame.bottom.int_value();
 }
 
+void UIElement::InitFromJSON(nlohmann::json data)
+{
+}
+
 rhea::linear_inequality operator>(UIElement& lhs, UIElement& rhs)
 {
    return lhs.GetFrame() > rhs.GetFrame();
@@ -113,7 +117,7 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 {
    return rhs.z >= lhs.z + 1.0;
 }
-   
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

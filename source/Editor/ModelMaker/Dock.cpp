@@ -28,8 +28,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 {
    // Background
    {
-      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = Add<RectFilled>("ModelMakerDockBG", glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>("ModelMakerDockFG", glm::vec4(0, 0, 0, 1));
 
       UIFrame& fBackground = bg->GetFrame();
       UIFrame& fForeground = fg->GetFrame();

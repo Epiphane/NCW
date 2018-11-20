@@ -93,8 +93,8 @@ int main(int argc, char** argv)
    UIRoot controls;
    controls.SetBounds(*window);
    {
-      RectFilled* bg = controls.Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = controls.Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = controls.Add<RectFilled>("MainControlsBG", glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = controls.Add<RectFilled>("MainControlsFG", glm::vec4(0, 0, 0, 1));
 
       TextButton::Options buttonOptions;
       buttonOptions.text = "Animation Station";

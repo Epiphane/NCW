@@ -14,8 +14,8 @@ namespace CubeWorld
 namespace UI
 {
 
-RectFilled::RectFilled(Engine::UIRoot* root, UIElement* parent, glm::vec4 color)
-   : UIElement(root, parent)
+RectFilled::RectFilled(Engine::UIRoot* root, UIElement* parent, const std::string& name, glm::vec4 color)
+   : UIElement(root, parent, name)
    , mColor(color)
    , mRegion(root->Reserve<Aggregator::Rect>(2))
 {

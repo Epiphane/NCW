@@ -60,8 +60,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 {
    // Background
    {
-      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+      RectFilled* bg = Add<RectFilled>("AnimationStationDockBG", glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
 
       UIFrame& fBackground = bg->GetFrame();
       UIFrame& fForeground = fg->GetFrame();
@@ -202,7 +202,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    }
 
    // ScrollBar for setting the current time in the animation
-   RectFilled* timeline = Add<RectFilled>(glm::vec4(1, 1, 1, 0.1));
+   RectFilled* timeline = Add<RectFilled>("AnimationTimeline", glm::vec4(1, 1, 1, 0.1));
    UIFrame& fTimeline = timeline->GetFrame();
    root->AddConstraints({
       fTimeline.left == c1,

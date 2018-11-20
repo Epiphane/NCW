@@ -32,8 +32,8 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
    {
-      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0.5, 0, 0, 1));
+      RectFilled* bg = Add<RectFilled>("ModelMakerSidebarBG", glm::vec4(0.2, 0.2, 0.2, 1));
+      RectFilled* fg = Add<RectFilled>("ModelMakerSidebarFG", glm::vec4(0.5, 0, 0, 1));
 
       UIFrame& fBackground = bg->GetFrame();
       UIFrame& fForeground = fg->GetFrame();

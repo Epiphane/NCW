@@ -16,6 +16,7 @@
 #include <glm/glm.hpp>
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
+#include <Shared/Helpers/json.hpp>
 
 #include "../Core/Config.h"
 #include "../Event/Event.h"
@@ -175,7 +176,9 @@ public:
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
 
 protected:
-   
+
+   virtual void InitFromJSON(nlohmann::json data); // Override me :3
+
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
    bool mActive;

@@ -32,7 +32,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
 {
 //   RectFilled* bg = Add<RectFilled>(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 //   bg->SetName("ConstraintSidebarBackground");
-   RectFilled* fg = Add<RectFilled>(glm::vec4(0.4f, 0.4f, 0.4f, 1.0f));
+   RectFilled* fg = Add<RectFilled>("ConstrainerSidebarFG", glm::vec4(0.4f, 0.4f, 0.4f, 1.0f));
    fg->SetName("ConstraintSidebarForeground");
    
 //   bg->ConstrainEqualBounds(this);

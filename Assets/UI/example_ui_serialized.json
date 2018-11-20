@@ -6,17 +6,71 @@
 			{
 				"class" : "UIRectFilled",
 				"name" : "TestRedRectangle",
-				"backgroundColor" : [255.0, 0, 0, 1.0]
+				"backgroundColor" : [1.0, 0, 0, 1.0]
 			},
 			{
 				"class" : "UIRectFilled",
 				"name" : "TestBlueRectangle",
-				"backgroundColor" : [0, 255.0, 0, 1.0]
+				"backgroundColor" : [0, 0, 1.0, 1.0]
 			},
 		]
 	},
 
 	"constraints" : [
-
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestBlueRectangle",
+			"primaryTarget" : "Right",
+			"secondaryTarget" : "Left",
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Width",
+			"secondaryTarget" : "Width",
+			"multiplier" : 0.5
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Height",
+			"secondaryTarget" : "Height",
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestBlueRectangle",
+			"primaryTarget" : "Width",
+			"secondaryTarget" : "Width",
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestBlueRectangle",
+			"primaryTarget" : "Height",
+			"secondaryTarget" : "Height",
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Left",
+			"secondaryTarget" : "Left",
+		},
+		{
+			"primaryElement" : "TestRedRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Top",
+			"secondaryTarget" : "Top",
+		},
+		{
+			"primaryElement" : "TestBlueRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Right",
+			"secondaryTarget" : "Right",
+		},
+		{
+			"primaryElement" : "TestBlueRectangle",
+			"secondaryElement" : "TestJSONStuff",
+			"primaryTarget" : "Top",
+			"secondaryTarget" : "Top",
+		},
 	]
 }

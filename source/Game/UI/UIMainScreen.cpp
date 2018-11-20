@@ -16,10 +16,10 @@ using UI::Text;
  
 UIMainScreen::UIMainScreen()
 {
-   RectFilled *testRect = Add<RectFilled>(glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
+   RectFilled *testRect = Add<RectFilled>("DumbTestRect", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
    UIFrame funFrame = testRect->GetFrame();
 
-   RectFilled *testRect2 = Add<RectFilled>(glm::vec4(0.0f, 1.0f, 1.0f, 0.5f));
+   RectFilled *testRect2 = Add<RectFilled>("DumberTestRect", glm::vec4(0.0f, 1.0f, 1.0f, 0.5f));
    UIFrame funnerFrame = testRect2->GetFrame();
    
    Text *text1 = Add<Text>(Text::Options{"Test Center :P"});

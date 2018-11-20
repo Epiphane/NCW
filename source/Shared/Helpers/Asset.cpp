@@ -35,6 +35,11 @@ std::string Font(const std::string& fontName)
    return Paths::Join(gAssetRoot, "Fonts", fontName + ".ttf");
 }
 
+std::string UIElement(const std::string &elementName)
+{
+   return Paths::Join(gAssetRoot, "UI", elementName);
+}
+
 };
 
 }; // namespace CubeWorld
