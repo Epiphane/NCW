@@ -31,6 +31,8 @@ public:
    //
    glm::vec4 GetColor() { return mColor; }
 
+   void InitFromJSON(nlohmann::json data) override;
+
 public:
    void Redraw() override;
 

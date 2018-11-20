@@ -23,7 +23,7 @@ class UIStackView : public UIElement
 public:
    UIStackView(UIRoot *root, UIElement *parent, const std::string& name);
 
-   UIElement *AddChild(std::unique_ptr<UIElement> &&element) override;
+   virtual UIElement *AddChild(std::unique_ptr<UIElement> &&element) override;
 
    double GetOffset() const;
    void SetOffset(double offset);

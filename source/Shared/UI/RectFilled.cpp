@@ -6,6 +6,8 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
+#include <Shared/Helpers/JsonHelper.h>
+
 #include "RectFilled.h"
 
 namespace CubeWorld
@@ -35,6 +37,13 @@ void RectFilled::SetColor(glm::vec4 color)
 {
    mColor = color;
    Redraw();
+}
+
+void RectFilled::InitFromJSON(nlohmann::json data)
+{
+   UIElement::InitFromJSON(data);
+
+   mColor = Shared::JsonHelpers::JsonToVec4(data["backgroundColor"]);
 }
 
 }; // namespace UI

@@ -89,10 +89,12 @@ class UIElement : public Engine::Receiver<UIElement>, public UIConstrainable
 public:
    UIElement(UIRoot *root, UIElement *parent, const std::string& name = "");
 
-    virtual //
+   virtual void InitFromJSON(nlohmann::json data); // Override me :3
+
+   //
    // Add a UIElement as a child of this one.
    //
-   UIElement* AddChild(std::unique_ptr<UIElement>&& element);
+   virtual UIElement* AddChild(std::unique_ptr<UIElement>&& element);
 
    //
    // Add a new element of type E as a child of this one.
@@ -176,8 +178,6 @@ public:
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
 
 protected:
-
-   virtual void InitFromJSON(nlohmann::json data); // Override me :3
 
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
