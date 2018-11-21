@@ -36,7 +36,7 @@ Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
    return Unhandled;
 }
 
-void TextButton::Update(TIMEDELTA dt)
+void TextButton::Update(TIMEDELTA)
 {
    if (!mActive || !mClickCallback)
    {

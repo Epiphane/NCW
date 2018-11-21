@@ -1,10 +1,10 @@
 // By Thomas Steinke
 
-#include <fstream>
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
-#include <Shared/Helpers/Asset.h>
+#include <Engine/UI/UIStackView.h>
 
+#include <Shared/Helpers/Asset.h>
 #include <Shared/UI/Image.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
@@ -22,90 +22,59 @@ namespace ModelMaker
 {
 
 using Engine::UIElement;
-using Engine::UIFrame;
 using UI::Image;
 using UI::TextButton;
 using UI::RectFilled;
 
 Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent, "ModelMakerSidebar")
+   : RectFilled(root, parent, glm::vec4(0.2, 0.2, 0.2, 1))
    , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
-   {
-      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0.5, 0, 0, 1));
+   RectFilled* foreground = Add<RectFilled>(glm::vec4(0.5, 0, 0, 1));
 
-      UIFrame& fBackground = bg->GetFrame();
-      UIFrame& fForeground = fg->GetFrame();
-      root->AddConstraints({
-         fBackground.left == mFrame.left,
-         fBackground.right == mFrame.right,
-         fBackground.top == mFrame.top,
-         fBackground.bottom == mFrame.bottom,
-         mFrame > fForeground,
-
-         fForeground.left == fBackground.left,
-         fForeground.right == fBackground.right - 2,
-         fForeground.top == fBackground.top - 2,
-         fForeground.bottom == fBackground.bottom + 2,
-         fForeground > fBackground,
-      });
-   }
+   foreground->ConstrainCenterTo(this);
+   foreground->ConstrainDimensionsTo(this, -4);
 
    // Labels
+   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ModelMakerSidebarStackView");
+   buttons->SetOffset(8.0);
+
    TextButton::Options buttonOptions;
    buttonOptions.text = "Load";
    buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-   TextButton* load = Add<TextButton>(buttonOptions);
+   TextButton* load = buttons->Add<TextButton>(buttonOptions);
 
    buttonOptions.text = "Save";
    buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-   mSave = Add<TextButton>(buttonOptions);
+   mSave = buttons->Add<TextButton>(buttonOptions);
    
    buttonOptions.text = "Save As...";
    buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-   TextButton* saveAs = Add<TextButton>(buttonOptions);
+   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
    
    buttonOptions.text = "Discard Changes";
    buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-   TextButton* discard = Add<TextButton>(buttonOptions);
+   TextButton* discard = buttons->Add<TextButton>(buttonOptions);
 
-   UIFrame& fLoad = load->GetFrame();
-   UIFrame& fSave = mSave->GetFrame();
-   UIFrame& fSaveAs = saveAs->GetFrame();
-   UIFrame& fDiscard = discard->GetFrame();
-   root->AddConstraints({
-      fLoad.left == mFrame.left + 8,
-      fLoad.right == mFrame.right - 8,
-      fLoad.top == mFrame.top - 8,
-      fLoad.height == 32,
-
-      fSave.left == fLoad.left,
-      fSave.right == fLoad.right,
-      fSave.top == fLoad.bottom - 8,
-      fSave.height == fLoad.height,
-
-      fSaveAs.left == fSave.left,
-      fSaveAs.right == fSave.right,
-      fSaveAs.top == fSave.bottom - 8,
-      fSaveAs.height == fSave.height,
-
-      fDiscard.left == fSaveAs.left,
-      fDiscard.right == fSaveAs.right,
-      fDiscard.top == fSaveAs.bottom - 8,
-      fDiscard.height == fSaveAs.height,
-   });
+   buttons->ConstrainTopAlignedTo(foreground);
+   buttons->ConstrainHorizontalCenterTo(foreground);
+   buttons->ConstrainWidthTo(foreground, -12);
+   load->ConstrainLeftAlignedTo(buttons, 2);
+   load->ConstrainWidthTo(buttons, -4);
+   load->ConstrainHeight(32);
+   mSave->ConstrainDimensionsTo(load);
+   mSave->ConstrainLeftAlignedTo(load);
+   saveAs->ConstrainDimensionsTo(mSave);
+   saveAs->ConstrainLeftAlignedTo(mSave);
+   discard->ConstrainDimensionsTo(saveAs);
+   discard->ConstrainLeftAlignedTo(saveAs);
 
    // Create a scrollable list of available models
-   UI::SubFrame* explorer = Add<UI::SubFrame>();
-   UIFrame& fExplorer = explorer->GetFrame();
-   UIFrame& fExplorerInner = explorer->GetInnerFrame();
-   root->AddConstraints({
-      fExplorer.left == mFrame.left,
-      fExplorer.right == mFrame.right,
-      fExplorer.bottom == mFrame.bottom + 300,
-      fExplorer.top == fDiscard.bottom - 8,
-   });
+   UI::SubFrame* explorer = buttons->Add<UI::SubFrame>();
+
+   explorer->ConstrainWidthTo(foreground);
+   explorer->ConstrainLeftAlignedTo(foreground);
+   explorer->ConstrainBottomAlignedTo(this, 300);
 
    std::vector<std::string> testData = {
       "dummy.cub", "aim.cub", "barrel.cub", "bed.cub",
@@ -119,20 +88,19 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.text = file;
       buttonOptions.onClick = std::bind(&Sidebar::LoadFile, this, Asset::Model(file));
       TextButton* button = explorer->Add<TextButton>(buttonOptions);
-      UIFrame& frame = button->GetFrame();
-      explorer->AddConstraints({
-         frame.left == fExplorerInner.left,
-         frame.width == fExplorerInner.width,
-         frame.height == 32,
-      });
 
       if (prevButton == nullptr)
       {
-         explorer->AddConstraints({ frame.top == fExplorerInner.top });
+         button->ConstrainWidthTo(&explorer->GetUI());
+         button->ConstrainHeight(32);
+         button->ConstrainTopAlignedTo(&explorer->GetUI());
+         button->ConstrainLeftAlignedTo(&explorer->GetUI(), 2);
       }
       else
       {
-         explorer->AddConstraints({ frame.top == prevButton->GetFrame().bottom });
+         button->ConstrainDimensionsTo(prevButton);
+         button->ConstrainBelow(prevButton, 0);
+         button->ConstrainLeftAlignedTo(prevButton);
       }
       prevButton = button;
    }
@@ -212,12 +180,6 @@ void Sidebar::SaveFile()
 {
    // TODO
    return;
-   //std::string serialized = mModel->Serialize();
-   //std::ofstream out(mFilename);
-   //out << serialized << std::endl;
-
-   mpRoot->Emit<ModelSavedEvent>(mModel);
-   SetModified(false);
 }
 
 void Sidebar::DiscardChanges()
@@ -225,7 +187,7 @@ void Sidebar::DiscardChanges()
    LoadFile(mFilename);
 }
 
-}; // namespace AnimationStation
+}; // namespace ModelMaker
 
 }; // namespace Editor
 

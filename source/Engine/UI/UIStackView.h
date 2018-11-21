@@ -21,14 +21,20 @@ namespace Engine
 class UIStackView : public UIElement
 {
 public:
-   UIStackView(UIRoot *root, UIElement *parent, const std::string& name);
+   UIStackView(UIRoot *root, UIElement *parent, const std::string& name = "");
 
    UIElement *AddChild(std::unique_ptr<UIElement> &&element) override;
 
+   // Get the spacing between elements in the list.
    double GetOffset() const;
+   
+   // Set the spacing between elements in the list.
    void SetOffset(double offset);
 
+   // Returns whether this StackView is stacked vertically.
    bool IsVertical() const;
+
+   // Set the StackView's orientation.
    void SetVertical(bool vertical);
 
 private:

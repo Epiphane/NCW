@@ -30,6 +30,10 @@ StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_pt
    }
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
+   root->Subscribe<MouseDownEvent>(*this);
+   root->Subscribe<MouseUpEvent>(*this);
+   root->Subscribe<MouseMoveEvent>(*this);
+   root->Subscribe<MouseClickEvent>(*this);
 }
 
 void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
@@ -54,6 +58,39 @@ void StateWindow::Redraw()
    };
 
    mRegion.Set(vertices.data());
+   mState->Emit<Engine::UIRebalancedEvent>();
+}
+
+void StateWindow::Receive(const MouseDownEvent& evt)
+{
+   if (ContainsPoint(evt.x, evt.y))
+   {
+      mState->Emit<MouseDownEvent>(evt.button, (evt.x - mFrame.GetX()) / mFrame.GetWidth(), (evt.y - mFrame.GetY()) / mFrame.GetHeight());
+   }
+}
+
+void StateWindow::Receive(const MouseUpEvent& evt)
+{
+   if (ContainsPoint(evt.x, evt.y))
+   {
+      mState->Emit<MouseUpEvent>(evt.button, (evt.x - mFrame.GetX()) / mFrame.GetWidth(), (evt.y - mFrame.GetY()) / mFrame.GetHeight());
+   }
+}
+
+void StateWindow::Receive(const MouseMoveEvent& evt)
+{
+   if (ContainsPoint(evt.x, evt.y))
+   {
+      mState->Emit<MouseMoveEvent>((evt.x - mFrame.GetX()) / mFrame.GetWidth(), (evt.y - mFrame.GetY()) / mFrame.GetHeight());
+   }
+}
+
+void StateWindow::Receive(const MouseClickEvent& evt)
+{
+   if (ContainsPoint(evt.x, evt.y))
+   {
+      mState->Emit<MouseClickEvent>(evt.button, (evt.x - mFrame.GetX()) / mFrame.GetWidth(), (evt.y - mFrame.GetY()) / mFrame.GetHeight());
+   }
 }
 
 }; // namespace UI

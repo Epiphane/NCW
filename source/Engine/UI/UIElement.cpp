@@ -31,11 +31,9 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
    mChildren.push_back(std::move(ptr));
    mpRoot->Emit<ElementAddedEvent>(element);
 
-   UIFrame& fChild = element->GetFrame();
-
-   mpRoot->AddConstraints({
-      rhea::constraint(fChild > mFrame, rhea::strength::weak()),
-   });
+   UIConstraint::Options constraintOptions;
+   constraintOptions.priority = UIConstraint::LOW_PRIORITY;
+   element->ConstrainInFrontOf(this, constraintOptions);
 
    return element;
 }
@@ -65,13 +63,6 @@ void UIElement::Update(TIMEDELTA dt)
    for (auto& child : mChildren) {
       child->Update(dt);
    }
-}
-
-void UIElement::ConstrainInFrontOf(UIElement* other, rhea::strength strength)
-{
-   mpRoot->AddConstraints({
-      rhea::constraint(mFrame > *other, strength)
-   });
 }
 
 void UIElement::Contains(UIElement* other, rhea::strength strength)

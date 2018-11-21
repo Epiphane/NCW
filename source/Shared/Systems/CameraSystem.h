@@ -35,6 +35,7 @@ struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
 
    uint32_t button;
    double sensitivity[2];
+   bool engaged;
 };
 
 struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
@@ -59,18 +60,18 @@ public:
    CameraSystem(Engine::Input* input) : mInput(input) {}
    ~CameraSystem() {}
    
+   void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
    
 public:
+   void Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& evt);
    void Receive(const MouseDownEvent& evt);
    void Receive(const MouseUpEvent& evt);
 
 private:
    Engine::Input* mInput;
 
-   bool mDragging;
-   glm::tvec2<double> mLast;
-   glm::tvec2<double> mDragged;
+   std::vector<Engine::ComponentHandle<MouseDragCamera>> mDraggables;
 };
 
 }; // namespace CubeWorld

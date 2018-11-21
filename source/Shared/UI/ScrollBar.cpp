@@ -77,7 +77,7 @@ void ScrollBar::Redraw()
       double offset = (GetValue() - mMin) / mRange; // [0, 1]
 
       glm::vec3 bottomLeft = mFrame.GetBottomLeft();
-      bottomLeft.x += mFrame.width.value() * offset - pixelW / 2;
+      bottomLeft.x += float(mFrame.width.value() * offset - pixelW / 2);
       glm::vec3 topRight = bottomLeft + glm::vec3(width, height, 0);
 
       vertices.push_back({bottomLeft, glm::vec2(mCoords.x, mCoords.y + mCoords.w)});

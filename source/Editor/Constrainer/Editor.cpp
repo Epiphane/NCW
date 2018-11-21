@@ -16,28 +16,19 @@ namespace Editor
 namespace Constrainer
 {
 
-Editor::Editor()
+Editor::Editor(const Controls::Options& options)
 {
    Sidebar* sidebar = Add<Sidebar>();
+   Controls* controls = Add<Controls>(options);
    
    sidebar->ConstrainLeftAlignedTo(this);
    sidebar->ConstrainTopAlignedTo(this);
    sidebar->ConstrainWidthTo(this, 0.0, 0.2);
    sidebar->ConstrainHeightTo(this);
-//   Dock* dock = Add<Dock>();
 
-   // Organize everything
-//   Engine::UIFrame& fSidebar = sidebar->GetFrame();
-//   Engine::UIFrame& fDock = dock->GetFrame();
-//   mSolver.add_constraints({
-//
-//      fDock.left == mFrame.left + fSidebar.width,
-//      fDock.bottom == mFrame.bottom,
-//      fDock.right == mFrame.right,
-//      fDock.height == mFrame.height * 0.4,
-//   });
-//
-//   mStateWindow->SetState(std::move(state));
+   controls->ConstrainLeftAlignedTo(this);
+   controls->ConstrainBottomAlignedTo(this);
+   controls->ConstrainWidthTo(sidebar);
 }
 
 void Editor::Start()

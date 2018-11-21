@@ -26,7 +26,6 @@ public:
    ~MainState();
 
    void Initialize() override;
-   void SetParent(Engine::EventManager* other) { mEvents.SetParent(other); }
 
 public:
    void Receive(const Engine::UIRebalancedEvent& evt);

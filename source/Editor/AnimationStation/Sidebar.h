@@ -6,6 +6,7 @@
 
 #include <Engine/UI/UIElement.h>
 #include <Shared/UI/TextButton.h>
+#include <Shared/UI/RectFilled.h>
 
 #include "Events.h"
 #include "State.h"
@@ -19,9 +20,9 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Sidebar : public Engine::UIElement {
+class Sidebar : public UI::RectFilled {
 public:
-   Sidebar(Engine::UIRoot* root, UIElement* parent);
+   Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
 
 private:
    // Actions

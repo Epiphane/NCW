@@ -133,11 +133,6 @@ public:
    virtual void Update(TIMEDELTA dt);
 
    //
-   // Create a constraint specifying that the height of {this} > {other}
-   //
-   void ConstrainInFrontOf(UIElement* other, rhea::strength strength = rhea::strength::required());
-
-   //
    // Create a set of constrains specifying that {other} is within {this}.
    // Specifically:
    //   - {this}.left <= {other}.left

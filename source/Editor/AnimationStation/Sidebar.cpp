@@ -3,6 +3,7 @@
 #include <fstream>
 #include <Engine/Core/File.h>
 #include <Engine/Core/Window.h>
+#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/RectFilled.h>
 #include <Shared/UI/TextButton.h>
@@ -18,95 +19,60 @@ namespace Editor
 namespace AnimationStation
 {
 
-using Engine::UIFrame;
 using Engine::UIRoot;
 using UI::RectFilled;
 using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : UIElement(root, parent, "AnimationStationSidebar")
+   : RectFilled(root, parent, glm::vec4(0.2, 0.2, 0.2, 1))
    , mFilename(Paths::Normalize(Asset::Animation("player.json")))
 {
-   {
-      // Backdrop
-      RectFilled* bg = Add<RectFilled>(glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
+   RectFilled* foreground = Add<RectFilled>(glm::vec4(0, 0, 0, 1));
 
-      UIFrame& fBackground = bg->GetFrame();
-      UIFrame& fForeground = fg->GetFrame();
-      root->AddConstraints({
-         fBackground.left == mFrame.left,
-         fBackground.right == mFrame.right,
-         fBackground.top == mFrame.top,
-         fBackground.bottom == mFrame.bottom,
-         mFrame > fForeground,
+   foreground->ConstrainCenterTo(this);
+   foreground->ConstrainDimensionsTo(this, -4);
 
-         fForeground.left == fBackground.left + 2,
-         fForeground.right == fBackground.right - 2,
-         fForeground.top == fBackground.top - 2,
-         fForeground.bottom == fBackground.bottom,
-         fForeground > fBackground,
-      });
-   }
+   // Labels
+   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ModelMakerSidebarStackView");
+   buttons->SetOffset(8.0);
 
-   {
-      // Labels
-      TextButton::Options buttonOptions;
-      buttonOptions.text = "Load";
-      buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-      TextButton* load = Add<TextButton>(buttonOptions);
+   TextButton::Options buttonOptions;
+   buttonOptions.text = "Load";
+   buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
+   TextButton* load = buttons->Add<TextButton>(buttonOptions);
 
-      buttonOptions.text = "Save";
-      buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-      mSave = Add<TextButton>(buttonOptions);
+   buttonOptions.text = "Save";
+   buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
+   mSave = buttons->Add<TextButton>(buttonOptions);
+
+   buttonOptions.text = "Save As...";
+   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
+   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
+
+   buttonOptions.text = "Discard Changes";
+   buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
+   TextButton* discard = buttons->Add<TextButton>(buttonOptions);
       
-      buttonOptions.text = "Save As...";
-      buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-      TextButton* saveAs = Add<TextButton>(buttonOptions);
+   buttonOptions.text = "Quit";
+   buttonOptions.size = 13; // "> Save first!"
+   buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
+   mQuit = buttons->Add<TextButton>(buttonOptions);
+
+   buttons->ConstrainTopAlignedTo(foreground);
+   buttons->ConstrainHorizontalCenterTo(foreground);
+   buttons->ConstrainWidthTo(foreground, -12);
+   load->ConstrainLeftAlignedTo(buttons, 2);
+   load->ConstrainWidthTo(buttons, -4);
+   load->ConstrainHeight(32);
+   mSave->ConstrainDimensionsTo(load);
+   mSave->ConstrainLeftAlignedTo(load);
+   saveAs->ConstrainDimensionsTo(mSave);
+   saveAs->ConstrainLeftAlignedTo(mSave);
+   discard->ConstrainDimensionsTo(saveAs);
+   discard->ConstrainLeftAlignedTo(saveAs);
+   mQuit->ConstrainDimensionsTo(discard);
+   mQuit->ConstrainLeftAlignedTo(discard);
       
-      buttonOptions.text = "Discard Changes";
-      buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-      TextButton* discard = Add<TextButton>(buttonOptions);
-      
-      buttonOptions.text = "Quit";
-      buttonOptions.size = 13; // "> Save first!"
-      buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
-      mQuit = Add<TextButton>(buttonOptions);
-
-      UIFrame& fLoad = load->GetFrame();
-      UIFrame& fSave = mSave->GetFrame();
-      UIFrame& fSaveAs = saveAs->GetFrame();
-      UIFrame& fDiscard = discard->GetFrame();
-      UIFrame& fQuit = mQuit->GetFrame();
-      
-      root->AddConstraints({
-         fLoad.left == mFrame.left + 8,
-         fLoad.right == mFrame.right - 8,
-         fLoad.top == mFrame.top - 8,
-         fLoad.height == 32,
-
-         fSave.left == fLoad.left,
-         fSave.right == fLoad.right,
-         fSave.top == fLoad.bottom - 8,
-         fSave.height == fLoad.height,
-
-         fSaveAs.left == fSave.left,
-         fSaveAs.right == fSave.right,
-         fSaveAs.top == fSave.bottom - 8,
-         fSaveAs.height == fSave.height,
-
-         fDiscard.left == fSaveAs.left,
-         fDiscard.right == fSaveAs.right,
-         fDiscard.top == fSaveAs.bottom - 8,
-         fDiscard.height == fSaveAs.height,
-
-         fQuit.left == fDiscard.left,
-         fQuit.right == fDiscard.right,
-         fQuit.top == fDiscard.bottom - 8,
-         fQuit.height == fDiscard.height,
-      });
-   }
-
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 }

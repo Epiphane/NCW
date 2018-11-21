@@ -8,6 +8,7 @@
 
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
+#include <Shared/UI/RectFilled.h>
 #include <Shared/UI/TextButton.h>
 
 #include "Events.h"
@@ -24,9 +25,9 @@ namespace ModelMaker
 
 using UI::TextButton;
 
-class Sidebar : public Engine::UIElement {
+class Sidebar : public UI::RectFilled {
 public:
-   Sidebar(Engine::UIRoot* root, UIElement* parent);
+   Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
 
 private:
    // Actions

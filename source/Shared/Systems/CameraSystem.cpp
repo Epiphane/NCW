@@ -7,6 +7,40 @@
 namespace CubeWorld
 {
 
+void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& evt)
+{
+   mDraggables.push_back(evt.component);
+}
+
+void CameraSystem::Receive(const MouseDownEvent& evt)
+{
+   for (Engine::ComponentHandle<MouseDragCamera>& draggable : mDraggables)
+   {
+      if (evt.button == draggable->button)
+      {
+         draggable->engaged = true;
+      }
+   }
+}
+
+void CameraSystem::Receive(const MouseUpEvent& evt)
+{
+   for (Engine::ComponentHandle<MouseDragCamera>& draggable : mDraggables)
+   {
+      if (evt.button == draggable->button)
+      {
+         draggable->engaged = false;
+      }
+   }
+}
+
+void CameraSystem::Configure(Engine::EntityManager&, Engine::EventManager& events)
+{
+   events.Subscribe<Engine::ComponentAddedEvent<MouseDragCamera>>(*this);
+   events.Subscribe<MouseDownEvent>(*this);
+   events.Subscribe<MouseUpEvent>(*this);
+}
+
 void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
    glm::tvec2<double> scroll = mInput->GetMouseScroll();

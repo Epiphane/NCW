@@ -43,6 +43,13 @@ public:
 public:
    void Redraw() override;
 
+public:
+   void Receive(const MouseDownEvent& evt);
+   void Receive(const MouseUpEvent& evt);
+   void Receive(const MouseMoveEvent& evt);
+   void Receive(const MouseClickEvent& evt);
+   void Receive(const Engine::UIRebalancedEvent& evt);
+
 private:
    std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;

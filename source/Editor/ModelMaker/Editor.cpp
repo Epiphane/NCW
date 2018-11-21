@@ -19,7 +19,7 @@ namespace ModelMaker
 
 using UI::StateWindow;
 
-Editor::Editor() : UIRoot()
+Editor::Editor(const Controls::Options& options) : UIRoot()
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);
@@ -27,21 +27,22 @@ Editor::Editor() : UIRoot()
    state->SetParent(this);
 
    Sidebar* sidebar = Add<Sidebar>();
+   Controls* controls = Add<Controls>(options);
 
    // Organize everything
-   Engine::UIFrame& fSidebar = sidebar->GetFrame();
-   Engine::UIFrame& fPreview = mStateWindow->GetFrame();
-   mSolver.add_constraints({
-      fSidebar.left == mFrame.left,
-      fSidebar.top == mFrame.top,
-      fSidebar.width == mFrame.width * 0.2,
-      fSidebar.height == mFrame.height,
+   sidebar->ConstrainLeftAlignedTo(this);
+   sidebar->ConstrainTopAlignedTo(this);
+   sidebar->ConstrainWidthTo(this, 0, 0.2);
+   sidebar->ConstrainAbove(controls);
 
-      fPreview.left == fSidebar.right,
-      fPreview.top == mFrame.top,
-      fPreview.right == mFrame.right,
-      fPreview.bottom == mFrame.bottom,
-   });
+   controls->ConstrainLeftAlignedTo(this);
+   controls->ConstrainBottomAlignedTo(this);
+   controls->ConstrainWidthTo(sidebar);
+
+   mStateWindow->ConstrainToRightOf(sidebar);
+   mStateWindow->ConstrainHeightTo(this);
+   mStateWindow->ConstrainTopAlignedTo(this);
+   mStateWindow->ConstrainRightAlignedTo(this);
 
    mStateWindow->SetState(std::move(state));
 }

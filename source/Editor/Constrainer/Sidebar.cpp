@@ -21,7 +21,6 @@ namespace Constrainer
 {
 
 using Engine::UIElement;
-using Engine::UIFrame;
 using UI::Image;
 using UI::TextButton;
 using UI::RectFilled;
@@ -127,7 +126,7 @@ void Sidebar::LoadNewFile()
    }
 }
 
-void Sidebar::LoadFile(const std::string& filename)
+void Sidebar::LoadFile(const std::string& /*filename*/)
 {
    // ???
    SetModified(false);
@@ -147,12 +146,6 @@ void Sidebar::SaveFile()
 {
    // TODO
    return;
-   //std::string serialized = mModel->Serialize();
-   //std::ofstream out(mFilename);
-   //out << serialized << std::endl;
-
-//   mpRoot->Emit<ModelSavedEvent>(mModel);
-   SetModified(false);
 }
 
 void Sidebar::DiscardChanges()
