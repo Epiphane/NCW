@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include <Engine/Core/Window.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "TextField.h"
 
@@ -21,11 +22,11 @@ TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
    auto onAlpha = std::bind(&TextField::OnAlphaKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
    for (int key = GLFW_KEY_A; key <= GLFW_KEY_Z; key++)
    {
-      mKeyCallbacks.push_back(Engine::Window::Instance()->AddCallback(Engine::Window::Key(key), onAlpha));
-      mKeyCallbacks.push_back(Engine::Window::Instance()->AddCallback(Engine::Window::ShiftKey(key), onAlpha));
+      mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(key), onAlpha));
+      mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::ShiftKey(key), onAlpha));
    }
-   mKeyCallbacks.push_back(Engine::Window::Instance()->AddCallback(Engine::Window::Key(GLFW_KEY_BACKSPACE), onAlpha));
-   mKeyCallbacks.push_back(Engine::Window::Instance()->AddCallback(Engine::Window::Key(GLFW_KEY_ENTER), onAlpha));
+   mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(GLFW_KEY_BACKSPACE), onAlpha));
+   mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(GLFW_KEY_ENTER), onAlpha));
 }
 
 void TextField::OnAlphaKey(int key, int action, int mods)

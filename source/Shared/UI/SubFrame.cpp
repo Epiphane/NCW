@@ -47,8 +47,8 @@ SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
 
 void SubFrame::Update(TIMEDELTA dt)
 {
-   glm::tvec2<double> scrolled = 10.0 * Engine::Window::Instance()->GetMouseScroll();
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetRawMousePosition();
+   glm::tvec2<double> scrolled = 10.0 * mpRoot->GetInput()->GetMouseScroll();
+   glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
    if (ContainsPoint(mouse.x, mouse.y))
    {
       if (scrolled.x != 0 || scrolled.y != 0)

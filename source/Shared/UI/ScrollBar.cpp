@@ -48,7 +48,7 @@ void ScrollBar::Update(TIMEDELTA)
 {
    if (mScrubbing)
    {
-      glm::tvec2<double> mouse = Engine::Window::Instance()->GetRawMousePosition();
+      glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
       double relative = std::clamp((mouse.x - mFrame.left.int_value()) / mFrame.width.int_value(), 0.0, 1.0);
       SetValue(mMin + mRange * relative);
       if (mCallback)

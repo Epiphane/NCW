@@ -59,7 +59,7 @@ struct UIFrame : public Bounded
    uint32_t GetHeight() const override { return height.int_value(); }
 };
    
-class UIConstrainable {
+class UIConstrainable : public Bounded {
 public:
    UIConstrainable(UIRoot* root, const std::string& name);
    
@@ -107,9 +107,15 @@ public:
    // UIFrame manipulation.
    //
    UIFrame& GetFrame() { return mFrame; }
+
+   // Bounded implementation
+   uint32_t GetX() const override { return mFrame.GetX(); }
+   uint32_t GetY() const override { return mFrame.GetY(); }
+   uint32_t GetWidth() const override { return mFrame.GetWidth(); }
+   uint32_t GetHeight() const override { return mFrame.GetHeight(); }
    
 protected:
-   UIRoot * mpRoot;
+   UIRoot* mpRoot;
 
    std::string mName;
 

@@ -10,6 +10,7 @@
 #include <rhea/simplex_solver.hpp>
 
 #include "../Aggregator/Aggregator.h"
+#include "../Core/Input.h"
 #include "../Event/EventManager.h"
 #include "../Graphics/VBO.h"
 #include "UIConstraint.h"
@@ -26,6 +27,16 @@ class UIRoot : public UIElement, public EventManager
 public:
    UIRoot();
    ~UIRoot();
+
+   //
+   // Set the manager responsible for providing input to this UI.
+   //
+   void SetInput(const Input* input) { mInput = input; }
+
+   //
+   // Get the associated input manager.
+   //
+   const Input* GetInput() const { return mInput; }
 
    //
    // Create a constant set of size constraints for the entire UI
@@ -135,6 +146,9 @@ public:
    }
 
 private:
+   // Input manager.
+   const Input* mInput;
+
    // Aggregators for batch rendering.
    std::vector<std::unique_ptr<BaseAggregator>> mAggregators;
    
