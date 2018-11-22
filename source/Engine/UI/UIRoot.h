@@ -139,7 +139,7 @@ public:
       Aggregator* ring = static_cast<Aggregator*>(mAggregators[family].get());
       if (ring == nullptr)
       {
-         ring = new Aggregator();
+         ring = new Aggregator(this);
          mAggregators[family].reset(ring);
       }
       return ring;

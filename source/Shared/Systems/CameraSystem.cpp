@@ -17,7 +17,6 @@ void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& e
 void CameraSystem::Receive(const MouseDownEvent& evt)
 {
    glm::tvec2<double> mouse = mInput->GetMousePosition();
-   LOG_DEBUG("Mouse: %.2f %.2f", mouse.x, mouse.y);
    if (mouse.x < 0 || mouse.x > 1 || mouse.y < 0 || mouse.y > 1)
    {
       return;
@@ -53,6 +52,7 @@ void CameraSystem::Configure(Engine::EntityManager&, Engine::EventManager& event
 void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
    glm::tvec2<double> scroll = mInput->GetMouseScroll();
+   glm::tvec2<double> mouse = mInput->GetMousePosition();
 
    if (mInput->IsMouseLocked())
    {
@@ -113,18 +113,21 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
       }
    });
 
-   entities.Each<ArmCamera, MouseControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, MouseControlledCameraArm& opts) {
-      camera.distance -= float(opts.sensitivity * scroll.y);
+   if (mouse.x >= 0 && mouse.x <= 1 && mouse.y >= 0 && mouse.y <= 1)
+   {
+      entities.Each<ArmCamera, MouseControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, MouseControlledCameraArm& opts) {
+         camera.distance -= float(opts.sensitivity * scroll.y);
 
-      if (camera.distance < camera.minDistance)
-      {
-         camera.distance = camera.minDistance;
-      }
-      else if (camera.distance > camera.maxDistance)
-      {
-         camera.distance = camera.maxDistance;
-      }
-   });
+         if (camera.distance < camera.minDistance)
+         {
+            camera.distance = camera.minDistance;
+         }
+         else if (camera.distance > camera.maxDistance)
+         {
+            camera.distance = camera.maxDistance;
+         }
+      });
+   }
 
    entities.Each<ArmCamera, KeyControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, KeyControlledCameraArm& opts) {
       int move = mInput->IsKeyDown(opts.zoomOut) - mInput->IsKeyDown(opts.zoomIn);

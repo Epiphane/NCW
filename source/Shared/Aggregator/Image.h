@@ -28,7 +28,7 @@ struct ImageData
 class Image : public Engine::Aggregator<ImageData>
 {
 public:
-   Image();
+   Image(Engine::UIRoot* root);
 
    void ConnectToTexture(const Region& region, GLuint texture);
 

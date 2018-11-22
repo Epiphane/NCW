@@ -17,6 +17,9 @@ namespace Engine
 
 const uint32_t MAX_AGGREGATORS = 64;
 
+// Forward declaration
+class UIRoot;
+
 //
 // Base aggregatpr class, only used for insertion into collections.
 //
@@ -74,8 +77,9 @@ public:
    };
 
 public:
-   Aggregator()
-      : mVBO(Graphics::VBO::Vertices)
+   Aggregator(UIRoot* root)
+      : mRoot(root)
+      , mVBO(Graphics::VBO::Vertices)
       , mData{}
       , mDirty(false)
       , mFree{}
@@ -148,6 +152,8 @@ public:
    }
 
 protected:
+   UIRoot* mRoot;
+
    Graphics::VBO mVBO;
    std::vector<DataType> mData;
    bool mDirty;
