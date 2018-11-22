@@ -148,10 +148,10 @@ void UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot*
       UIConstraint::Target secondaryTarget = ConstraintTargetFromString(secondaryTargetName);
 
       UIConstraint::Options options;
-      options.mCustomNameConnector = constraintData.value("name", "");
-      options.mConstant = constraintData.value("constant", 0.0);
-      options.mMultiplier = constraintData.value("multiplier", 1.0);
-      options.mPriority = constraintData.value("mPriority", UIConstraint::REQUIRED_PRIORITY);
+      options.customNameConnector = constraintData.value("name", "");
+      options.constant = constraintData.value("constant", 0.0);
+      options.multiplier = constraintData.value("multiplier", 1.0);
+      options.priority = constraintData.value("mPriority", UIConstraint::REQUIRED_PRIORITY);
 
       UIConstraint newConstraint(primaryElement, secondaryElement, primaryTarget, secondaryTarget, options);
 

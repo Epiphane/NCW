@@ -26,6 +26,7 @@
 #include "ModelMaker/Editor.h"
 #include "Constrainer/Editor.h"
 
+#include "Controls.h"
 #include "Main.h"
 
 using namespace CubeWorld;
@@ -69,111 +70,52 @@ int main(int argc, char** argv)
    }
    
    // Setup input
-   auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
+   auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
       window->SetShouldClose(true);
    });
 
    // Swaps between the different editors
    UI::Swapper windowContent;
 
-   // Create subwindow for each editor
-   Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>();
+   Editor::AnimationStation::Editor* animationStation = nullptr;
+   Editor::ModelMaker::Editor* modelMaker = nullptr;
+   Editor::Constrainer::Editor* constrainer = nullptr;
+   Editor::Controls::Options controlsOptions{
+      {
+         "Animation Station", 
+         [&]() {
+            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            animationStation->Start();
+         }
+      },
+      {
+         "Model Maker",
+         [&]() {
+            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
+            modelMaker->Start();
+         }
+      },
+      {
+         "Constrainer",
+         [&]() {
+            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            constrainer->Start();
+         }
+      },
+      {
+         "Quit", [&]() { window->SetShouldClose(true); }
+      }
+   };
+
+   // Create editors
+   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window, controlsOptions);
    animationStation->SetBounds(*window);
-   animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
 
-   Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>();
+   modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(window, controlsOptions);
    modelMaker->SetBounds(*window);
-   modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
    
-   Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>();
+   constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
    constrainer->SetBounds(*window);
-   constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
-
-   // Create editor-wide controls pane
-   UIRoot controls;
-   controls.SetBounds(*window);
-   {
-      RectFilled* bg = controls.Add<RectFilled>("MainControlsBG", glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = controls.Add<RectFilled>("MainControlsFG", glm::vec4(0, 0, 0, 1));
-
-      TextButton::Options buttonOptions;
-      buttonOptions.text = "Animation Station";
-      buttonOptions.onClick = [&]() {
-         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
-         animationStation->Start();
-      };
-      UIFrame& fAnimationStation = controls.Add<TextButton>(buttonOptions)->GetFrame();
-
-      buttonOptions.text = "Model Maker";
-      buttonOptions.onClick = [&]() {
-         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
-         modelMaker->Start();
-      };
-      TextButton* modelMakerButton = controls.Add<TextButton>(buttonOptions);
-      UIFrame& fModelMaker = modelMakerButton->GetFrame();
-      
-      buttonOptions.text = "Constrainer";
-      buttonOptions.onClick = [&]() {
-         Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
-         constrainer->Start();
-      };
-      TextButton* constrainerButton = controls.Add<TextButton>(buttonOptions);
-      UIFrame& fConstrainer = constrainerButton->GetFrame();
-
-      buttonOptions.text = "Quit";
-      buttonOptions.onClick = [&]() {
-         window->SetShouldClose(true);
-      };
-      TextButton* quitButton = controls.Add<TextButton>(buttonOptions);
-      UIFrame& fQuit = quitButton->GetFrame();
-      
-      constrainerButton->ConstrainBelow(modelMakerButton, 8.0);
-      constrainerButton->ConstrainAbove(quitButton, 8.0);
-      constrainerButton->ConstrainWidthTo(modelMakerButton);
-      constrainerButton->ConstrainHeight(32);
-      constrainerButton->ConstrainLeftAlignedTo(modelMakerButton);
-
-      UIFrame& fControls = controls.GetFrame();
-      Engine::UIFrame& fBackground = bg->GetFrame();
-      Engine::UIFrame& fForeground = fg->GetFrame();
-      controls.AddConstraints({
-         fControls > fForeground,
-         fForeground > fBackground,
-         fBackground.z <= 10.0,
-
-         fBackground.left == fControls.left,
-         fBackground.right == window->GetWidth() * 0.2,
-         fBackground.top == fAnimationStation.top + 8,
-         fBackground.bottom == fControls.bottom,
-
-         fForeground.left == fBackground.left + 2,
-         fForeground.right == fBackground.right - 2,
-         fForeground.top == fBackground.top - 2,
-         fForeground.bottom == fBackground.bottom + 2,
-
-         fAnimationStation.left == fBackground.left + 8,
-         fAnimationStation.right == fBackground.right - 8,
-         fAnimationStation.bottom == fModelMaker.top + 8,
-         fAnimationStation.height == 32,
-
-         fModelMaker.left == fAnimationStation.left,
-         fModelMaker.right == fAnimationStation.right,
-         fModelMaker.bottom == fConstrainer.top + 8,
-         fModelMaker.height == 32,
-
-         fConstrainer.left == fModelMaker.left,
-         fConstrainer.right == fModelMaker.right,
-         fConstrainer.bottom == fQuit.top + 8,
-         fConstrainer.height == 32,
-
-         fQuit.left == fConstrainer.left,
-         fQuit.right == fConstrainer.right,
-         fQuit.bottom == fControls.bottom + 16,
-         fQuit.height == 32,
-      });
-
-      controls.UpdateRoot();
-   }
 
    // Configure Debug helper
    DebugHelper* debug = DebugHelper::Instance();
@@ -185,32 +127,29 @@ int main(int argc, char** argv)
    });
 
    // Attach mouse events to state
-   window->GetInput()->OnMouseDown([&](int button, double x, double y) {
+   window->OnMouseDown([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseDownEvent>(button, x, y);
-      controls.Emit<MouseDownEvent>(button, x, y);
    });
-   window->GetInput()->OnMouseUp([&](int button, double x, double y) {
+   window->OnMouseUp([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseUpEvent>(button, x, y);
-      controls.Emit<MouseUpEvent>(button, x, y);
    });
-   window->GetInput()->OnClick([&](int button, double x, double y) {
+   window->OnClick([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseClickEvent>(button, x, y);
-      controls.Emit<MouseClickEvent>(button, x, y);
    });
 
    // Save the pointers so that the callback doesn't get deregistered.
-   auto _1 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
+   auto _1 = window->AddCallback(Engine::Window::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
       Editor::CommandStack::Instance()->Undo();
    });
-   auto _2 = window->GetInput()->AddCallback({
-      Engine::Input::CtrlShiftKey(GLFW_KEY_Z),
-      Engine::Input::CtrlKey(GLFW_KEY_Y)
+   auto _2 = window->AddCallback({
+      Engine::Window::CtrlShiftKey(GLFW_KEY_Z),
+      Engine::Window::CtrlKey(GLFW_KEY_Y)
    }, [&](int, int, int) {
       Editor::CommandStack::Instance()->Redo();
    });
@@ -230,7 +169,9 @@ int main(int argc, char** argv)
       return Format::FormatString("%.1f", uiUpdateTime.Average());
    });
 
+   uiUpdateTime.Reset();
    windowContent.GetCurrent()->UpdateRoot();
+   LOG_ALWAYS("Time spent updating initial root: %1s", uiUpdateTime.Elapsed());
 
    do {
       double elapsed = clock.Elapsed();
@@ -240,11 +181,10 @@ int main(int argc, char** argv)
 
          // Basic prep
          window->Clear();
-         window->GetInput()->Update();
+         window->Update();
 
-         glm::tvec2<double> pos = window->GetInput()->GetRawMousePosition();
+         glm::tvec2<double> pos = window->GetRawMousePosition();
          windowContent.GetCurrent()->Emit<MouseMoveEvent>(pos.x, pos.y);
-         controls.Emit<MouseMoveEvent>(pos.x, pos.y);
 
          // Render game state
          {
@@ -254,9 +194,6 @@ int main(int argc, char** argv)
             uiUpdateTime.Elapsed();
             windowContent.GetCurrent()->Update(dt);
             windowContent.GetCurrent()->RenderRoot();
-
-            controls.Update(dt);
-            controls.RenderRoot();
             windowContentRender.Elapsed();
          }
 

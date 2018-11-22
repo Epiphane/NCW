@@ -29,21 +29,21 @@ public:
    // Lets you specify the constraint priority and whether it is an editable constraint. Also can give a custom name.
    //
    struct Options {
-      Options();
+      // https://stackoverflow.com/questions/43819314/default-member-initializer-needed-within-definition-of-enclosing-class-outside
+      Options() noexcept {} // = default;
       
-      std::string mCustomNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
-      
-      double mConstant = 0.0;                ///< Lets you set a scalar offset for the constraint.
+      BaseConstraint::Relationship relationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
+      std::string customNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
+
+      double constant = 0.0;                ///< Lets you set a scalar offset for the constraint.
                                              ///<  e.g. if mConstant = 10, the constraint might be (left == right + 10)
-      
-      double mMultiplier = 1.0;              ///< Lets you set a scalar multiplier for the constraint.
+
+      double multiplier = 1.0;              ///< Lets you set a scalar multiplier for the constraint.
                                              ///<  e.g. if mMultiplier = 0.5, the constraint might be (width == height * 0.5)
-      
-      double mPriority = REQUIRED_PRIORITY;
-      bool mbIsConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
-      bool mbIsMultiplierEditable = false;   ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable. TODO-EF: Actually implement this
-      
-      BaseConstraint::Relationship mRelationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
+
+      double priority = REQUIRED_PRIORITY;
+      bool isConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
+      bool isMultiplierEditable = false;   ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable. TODO-EF: Actually implement this
    };
    
    //
@@ -61,7 +61,7 @@ public:
    };
 
    UIConstraint();
-   UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options());
+   UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options{});
    
 private:
    Options mOptions;

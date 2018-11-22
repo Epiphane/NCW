@@ -16,7 +16,7 @@ namespace Game
 
 class UIMainScreen : public Engine::UIRoot {
 public:
-   UIMainScreen();
+   UIMainScreen(Engine::Input* input);
 };
 
 }; // namespace Game

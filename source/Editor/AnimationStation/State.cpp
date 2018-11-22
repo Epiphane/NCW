@@ -39,8 +39,8 @@ namespace AnimationStation
 using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
-MainState::MainState(Engine::Window* window, Bounded& parent)
-   : mWindow(window)
+MainState::MainState(Engine::Input* input, Bounded& parent)
+   : mInput(input)
    , mParent(parent)
 {
 }
@@ -54,14 +54,14 @@ void MainState::Initialize()
 {
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
-   mSystems.Add<CameraSystem>(mWindow->GetInput());
+   mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<Editor::AnimationSystem>();
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
 
    // Unlock the mouse
-   mWindow->GetInput()->SetMouseLock(false);
+   mInput->SetMouseLock(false);
 
    // Add a shell entity for controlling animation state
    Entity controls = mEntities.Create();

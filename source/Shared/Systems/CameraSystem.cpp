@@ -1,11 +1,54 @@
 // By Thomas Steinke
 
+#include <Engine/Logger/Logger.h>
+
 #include "../Main.h"
 
 #include "CameraSystem.h"
 
 namespace CubeWorld
 {
+
+void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& evt)
+{
+   mDraggables.push_back(evt.component);
+}
+
+void CameraSystem::Receive(const MouseDownEvent& evt)
+{
+   glm::tvec2<double> mouse = mInput->GetMousePosition();
+   LOG_DEBUG("Mouse: %.2f %.2f", mouse.x, mouse.y);
+   if (mouse.x < 0 || mouse.x > 1 || mouse.y < 0 || mouse.y > 1)
+   {
+      return;
+   }
+
+   for (Engine::ComponentHandle<MouseDragCamera>& draggable : mDraggables)
+   {
+      if (evt.button == draggable->button)
+      {
+         draggable->engaged = true;
+      }
+   }
+}
+
+void CameraSystem::Receive(const MouseUpEvent& evt)
+{
+   for (Engine::ComponentHandle<MouseDragCamera>& draggable : mDraggables)
+   {
+      if (evt.button == draggable->button)
+      {
+         draggable->engaged = false;
+      }
+   }
+}
+
+void CameraSystem::Configure(Engine::EntityManager&, Engine::EventManager& events)
+{
+   events.Subscribe<Engine::ComponentAddedEvent<MouseDragCamera>>(*this);
+   events.Subscribe<MouseDownEvent>(*this);
+   events.Subscribe<MouseUpEvent>(*this);
+}
 
 void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
@@ -52,7 +95,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
    }
 
    entities.Each<Engine::Transform, MouseDragCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseDragCamera& opts) {
-      if (mInput->IsDragging(opts.button))
+      if (opts.engaged)
       {
          glm::tvec2<double> movement = mInput->GetMouseMovement();
          transform.SetYaw(transform.GetYaw() - float(opts.sensitivity[0] * movement.x));

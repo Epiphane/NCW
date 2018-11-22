@@ -34,7 +34,8 @@ void SubFrameUIRoot::Receive(const Engine::ElementRemovedEvent& evt)
 
 SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
-   , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
+   , mUIRoot(root->GetInput())
+   , mFramebuffer(root->GetWidth(), root->GetHeight())
    , mScroll{0, 0}
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {
@@ -47,8 +48,8 @@ SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
 
 void SubFrame::Update(TIMEDELTA dt)
 {
-   glm::tvec2<double> scrolled = 10.0 * Engine::Window::Instance()->GetInput()->GetMouseScroll();
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
+   glm::tvec2<double> scrolled = 10.0 * mpRoot->GetInput()->GetMouseScroll();
+   glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
    if (ContainsPoint(mouse.x, mouse.y))
    {
       if (scrolled.x != 0 || scrolled.y != 0)
@@ -76,6 +77,7 @@ void SubFrame::Redraw()
    // Resize the UI root within.
    mUIRoot.SetBounds(Bounds{mScroll.x, mScroll.y, mFrame.GetWidth(), mFrame.GetHeight()});
 
+   mFramebuffer.Resize(GetWidth(), GetHeight());
    glm::vec2 textureSize{mFramebuffer.GetWidth(), mFramebuffer.GetHeight()};
    glm::vec2 uvSize = glm::vec2(mFrame.GetWidth(), mFrame.GetHeight()) / textureSize;
    glm::vec2 uvBottomLeft{

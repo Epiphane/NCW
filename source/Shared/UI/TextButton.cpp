@@ -36,14 +36,14 @@ Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
    return Unhandled;
 }
 
-void TextButton::Update(TIMEDELTA dt)
+void TextButton::Update(TIMEDELTA)
 {
    if (!mActive || !mClickCallback)
    {
       return;
    }
 
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
+   glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
    bool hovered = ContainsPoint(mouse.x, mouse.y);
    if (hovered && !mIsHovered)
    {

@@ -8,6 +8,7 @@
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/StateWindow.h>
 
+#include "../Controls.h"
 #include "Dock.h"
 #include "Sidebar.h"
 
@@ -23,7 +24,7 @@ namespace ModelMaker
 class Editor : public Engine::UIRoot
 {
 public:
-   Editor();
+   Editor(Engine::Input* input, const Controls::Options& options);
 
    //
    // Called every time this editor is reactivated.

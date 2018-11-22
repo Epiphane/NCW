@@ -33,8 +33,10 @@ namespace Graphics
 class Framebuffer
 {
 public:
-   Framebuffer(GLsizei width, GLsizei height);
+   Framebuffer(GLsizei width = 0, GLsizei height = 0);
    ~Framebuffer();
+
+   void Resize(GLsizei width, GLsizei height);
 
    void Bind(bool clear = true);
    void Unbind();

@@ -116,7 +116,7 @@ void TimSortInPlace(std::vector<T>& arr, std::function<bool(T,T)> GreaterThan) {
       
       std::vector<T> mergedRun;
       
-      int i = mergingRun1.startIndex, j = mergingRun2.startIndex;
+      size_t i = mergingRun1.startIndex, j = mergingRun2.startIndex;
       
       while (i <= mergingRun1.endIndex && j <= mergingRun2.endIndex) {
          // Take the smallest boy of the two and place it at the end of the mergedRun

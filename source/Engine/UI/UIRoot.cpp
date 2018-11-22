@@ -16,9 +16,10 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIRoot::UIRoot()
+UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
+   , mInput(input)
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
@@ -84,7 +85,7 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
 void UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
    auto it = mConstraintMap.find(constraintToAdd.GetName());
    if (it != mConstraintMap.end()) {
-      printf("Trying to add constraint with duped name: %s", constraintToAdd.GetName().c_str());
+      LOG_ERROR("Trying to add constraint with duped name: '%1'", constraintToAdd.GetName().c_str());
       assert(false && "Attempting to add 2 constraints with the same name");
       return;
    }
@@ -104,7 +105,7 @@ void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
       mConstraintMap.erase(constraintNameToRemove);
    }
    else {
-      printf("Trying to remove unknown constraint %s", constraintNameToRemove.c_str());
+      LOG_ERROR("Trying to remove unknown constraint %s", constraintNameToRemove.c_str());
       assert(false && "Attempting to remove an unknown constraint");
    }
 }
@@ -142,7 +143,7 @@ void UIRoot::Receive(const ElementAddedEvent& evt)
    mElements.push_back(evt.element);
 }
 
-void UIRoot::Receive(const ElementRemovedEvent& evt)
+void UIRoot::Receive(const ElementRemovedEvent& /*evt*/)
 {
    // TODO how the heck we gonna do this?
 }

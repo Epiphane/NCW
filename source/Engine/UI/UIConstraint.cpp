@@ -16,26 +16,13 @@ namespace CubeWorld
 
 namespace Engine
 {
-   
-//
-// Set the default values for the UIConstraint options
-//
-UIConstraint::Options::Options() {
-   mCustomNameConnector = "";
-   mPriority = BaseConstraint::REQUIRED_PRIORITY;
-   
-   mConstant = 0.0;
-   mMultiplier = 1.0;
-   
-   mbIsConstantEditable   = false;
-   mbIsMultiplierEditable = false;
-}
-   
+
 UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
                            Target primaryTarget, Target secondaryTarget, const Options& options) 
-   : BaseConstraint(primaryElement->GetName() + 
-                    options.mCustomNameConnector + 
-                    (secondaryElement ? secondaryElement->GetName() : ""), options.mPriority)
+   : BaseConstraint(
+      primaryElement->GetName() + options.customNameConnector + (secondaryElement ? secondaryElement->GetName() : ""),
+      options.priority
+   )
    , mOptions(options)
    , mPrimaryElement  (primaryElement)
    , mSecondaryElement(secondaryElement)
@@ -45,20 +32,20 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
    rhea::linear_expression leftSide = primaryElement->GetFrame().ConvertTargetToVariable(primaryTarget);
    rhea::linear_expression rightSide;
    
-   if (secondaryElement != NULL)
+   if (secondaryElement != nullptr)
       rightSide = secondaryElement->GetFrame().ConvertTargetToVariable(secondaryTarget);
    else
       rightSide = 0;
    
-   switch (options.mRelationship) {
+   switch (options.relationship) {
       case BaseConstraint::Equal:
-         SetInternalConstraint(leftSide == rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide == rightSide * options.multiplier + options.constant);
          break;
       case BaseConstraint::GreaterOrEqual:
-         SetInternalConstraint(leftSide >= rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide >= rightSide * options.multiplier + options.constant);
          break;
       case BaseConstraint::LessThanOrEqual:
-         SetInternalConstraint(leftSide <= rightSide * options.mMultiplier + options.mConstant);
+         SetInternalConstraint(leftSide <= rightSide * options.multiplier + options.constant);
          break;
       default:
          assert(false && "Invalid mRelationship value");

@@ -37,10 +37,10 @@ namespace Game
    StupidState::StupidState(Engine::Window* window) : mWindow(window)
    {
       DebugHelper::Instance()->SetSystemManager(&mSystems);
-      mSystems.Add<CameraSystem>(window->GetInput());
+      mSystems.Add<CameraSystem>(window);
       mSystems.Add<AnimationSystem>();
-      mSystems.Add<FlySystem>(window->GetInput());
-      mSystems.Add<WalkSystem>(window->GetInput());
+      mSystems.Add<FlySystem>(window);
+      mSystems.Add<WalkSystem>(window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
@@ -158,7 +158,7 @@ namespace Game
 
    void StupidState::Initialize()
    {
-      mWindow->GetInput()->SetMouseLock(true);
+      mWindow->SetMouseLock(true);
       
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
