@@ -86,7 +86,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
    }
 
    entities.Each<Engine::Transform, MouseDragCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseDragCamera& opts) {
-      if (mInput->IsDragging(opts.button))
+      if (opts.engaged)
       {
          glm::tvec2<double> movement = mInput->GetMouseMovement();
          transform.SetYaw(transform.GetYaw() - float(opts.sensitivity[0] * movement.x));

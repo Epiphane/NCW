@@ -18,7 +18,7 @@ namespace AnimationStation
 
 using UI::StateWindow;
 
-Editor::Editor(const Controls::Options& options) : UIRoot()
+Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(input)
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);

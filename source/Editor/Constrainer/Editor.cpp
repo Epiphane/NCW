@@ -16,7 +16,7 @@ namespace Editor
 namespace Constrainer
 {
 
-Editor::Editor(const Controls::Options& options)
+Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(input)
 {
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);

@@ -108,13 +108,13 @@ int main(int argc, char** argv)
    };
 
    // Create editors
-   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(controlsOptions);
+   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window, controlsOptions);
    animationStation->SetBounds(*window);
 
-   modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(controlsOptions);
+   modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(window, controlsOptions);
    modelMaker->SetBounds(*window);
    
-   constrainer = windowContent.Add<Editor::Constrainer::Editor>(controlsOptions);
+   constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
    constrainer->SetBounds(*window);
 
    // Configure Debug helper

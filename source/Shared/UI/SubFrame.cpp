@@ -34,7 +34,8 @@ void SubFrameUIRoot::Receive(const Engine::ElementRemovedEvent& evt)
 
 SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
-   , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
+   , mUIRoot(root->GetInput())
+   , mFramebuffer(root->GetWidth(), root->GetHeight())
    , mScroll{0, 0}
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {

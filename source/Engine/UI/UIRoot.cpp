@@ -16,9 +16,10 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIRoot::UIRoot()
+UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
+   , mInput(input)
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint

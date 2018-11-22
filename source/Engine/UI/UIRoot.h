@@ -25,18 +25,18 @@ namespace Engine
 class UIRoot : public UIElement, public EventManager
 {
 public:
-   UIRoot();
+   UIRoot(Input* input);
    ~UIRoot();
 
    //
    // Set the manager responsible for providing input to this UI.
    //
-   void SetInput(const Input* input) { mInput = input; }
+   void SetInput(Input* input) { mInput = input; }
 
    //
    // Get the associated input manager.
    //
-   const Input* GetInput() const { return mInput; }
+   Input* GetInput() const { return mInput; }
 
    //
    // Create a constant set of size constraints for the entire UI
@@ -147,7 +147,7 @@ public:
 
 private:
    // Input manager.
-   const Input* mInput;
+   Input* mInput;
 
    // Aggregators for batch rendering.
    std::vector<std::unique_ptr<BaseAggregator>> mAggregators;

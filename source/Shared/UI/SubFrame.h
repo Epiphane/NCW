@@ -20,6 +20,9 @@ namespace UI
 class SubFrameUIRoot : public Engine::UIRoot
 {
 public:
+   SubFrameUIRoot(Engine::Input* input) : UIRoot(input) {}
+
+public:
    void Receive(const Engine::ElementAddedEvent& evt) override;
    void Receive(const Engine::ElementRemovedEvent& evt) override;
 
