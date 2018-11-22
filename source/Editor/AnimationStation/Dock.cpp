@@ -326,7 +326,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
       buttonOptions.onClick = [&]() { mController->speed /= 2.0; };
-      Button* slower = Add<Button>(buttonOptions);
+      Button* slower = playback->Add<Button>(buttonOptions);
       slower->ConstrainHeightTo(playback);
       slower->ConstrainTopAlignedTo(playback);
 
@@ -334,7 +334,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
       buttonOptions.onClick = [&]() { mController->speed *= 2.0; };
-      Button* faster = Add<Button>(buttonOptions);
+      Button* faster = playback->Add<Button>(buttonOptions);
       faster->ConstrainHeightTo(playback);
       faster->ConstrainTopAlignedTo(playback);
    }
@@ -397,8 +397,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       parentBoneButton->ConstrainTopAlignedTo(row2);
       parentBoneButton->ConstrainHeightTo(row2);
 
-      parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
-      mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
+      //parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
+      //mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
    }
 
    // Bone positions, rotations and sliders

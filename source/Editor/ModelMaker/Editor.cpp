@@ -23,7 +23,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);
-   std::unique_ptr<MainState> state{new MainState(Engine::Window::Instance(), mStateWindow->GetFrame())};
+   std::unique_ptr<MainState> state{new MainState(mStateWindow, mStateWindow->GetFrame())};
    state->SetParent(this);
 
    Sidebar* sidebar = Add<Sidebar>();

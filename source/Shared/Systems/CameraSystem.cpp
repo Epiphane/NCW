@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <Engine/Logger/Logger.h>
+
 #include "../Main.h"
 
 #include "CameraSystem.h"
@@ -14,6 +16,13 @@ void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& e
 
 void CameraSystem::Receive(const MouseDownEvent& evt)
 {
+   glm::tvec2<double> mouse = mInput->GetMousePosition();
+   LOG_DEBUG("Mouse: %.2f %.2f", mouse.x, mouse.y);
+   if (mouse.x < 0 || mouse.x > 1 || mouse.y < 0 || mouse.y > 1)
+   {
+      return;
+   }
+
    for (Engine::ComponentHandle<MouseDragCamera>& draggable : mDraggables)
    {
       if (evt.button == draggable->button)
