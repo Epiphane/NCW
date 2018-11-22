@@ -70,7 +70,7 @@ int main(int argc, char** argv)
    }
    
    // Setup input
-   auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
+   auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
       window->SetShouldClose(true);
    });
 
@@ -127,29 +127,29 @@ int main(int argc, char** argv)
    });
 
    // Attach mouse events to state
-   window->GetInput()->OnMouseDown([&](int button, double x, double y) {
+   window->OnMouseDown([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseDownEvent>(button, x, y);
    });
-   window->GetInput()->OnMouseUp([&](int button, double x, double y) {
+   window->OnMouseUp([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseUpEvent>(button, x, y);
    });
-   window->GetInput()->OnClick([&](int button, double x, double y) {
+   window->OnClick([&](int button, double x, double y) {
       x *= window->GetWidth();
       y *= window->GetHeight();
       windowContent.GetCurrent()->Emit<MouseClickEvent>(button, x, y);
    });
 
    // Save the pointers so that the callback doesn't get deregistered.
-   auto _1 = window->GetInput()->AddCallback(Engine::Input::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
+   auto _1 = window->AddCallback(Engine::Window::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
       Editor::CommandStack::Instance()->Undo();
    });
-   auto _2 = window->GetInput()->AddCallback({
-      Engine::Input::CtrlShiftKey(GLFW_KEY_Z),
-      Engine::Input::CtrlKey(GLFW_KEY_Y)
+   auto _2 = window->AddCallback({
+      Engine::Window::CtrlShiftKey(GLFW_KEY_Z),
+      Engine::Window::CtrlKey(GLFW_KEY_Y)
    }, [&](int, int, int) {
       Editor::CommandStack::Instance()->Redo();
    });
@@ -181,9 +181,9 @@ int main(int argc, char** argv)
 
          // Basic prep
          window->Clear();
-         window->GetInput()->Update();
+         window->Update();
 
-         glm::tvec2<double> pos = window->GetInput()->GetRawMousePosition();
+         glm::tvec2<double> pos = window->GetRawMousePosition();
          windowContent.GetCurrent()->Emit<MouseMoveEvent>(pos.x, pos.y);
 
          // Render game state

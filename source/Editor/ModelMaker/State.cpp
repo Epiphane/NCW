@@ -46,12 +46,12 @@ void MainState::Initialize()
 {
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
-   mSystems.Add<CameraSystem>(mWindow->GetInput());
+   mSystems.Add<CameraSystem>(mWindow);
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
 
    // Unlock the mouse
-   mWindow->GetInput()->SetMouseLock(false);
+   mWindow->SetMouseLock(false);
 
    Entity voxels = mEntities.Create(0, 0, 0);
    mBackdrop = std::make_unique<Backdrop>(voxels.Add<VoxelRender>());

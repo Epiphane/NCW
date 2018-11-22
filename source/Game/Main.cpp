@@ -75,7 +75,7 @@ int main(int /* argc */, char ** /* argv */) {
    });
 
    // Setup input
-   auto _ = window->GetInput()->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+   auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
       window->SetShouldClose(true);
    });
 
@@ -84,7 +84,7 @@ int main(int /* argc */, char ** /* argv */) {
       if (elapsed > 0)
       {
          window->Clear();
-         window->GetInput()->Update();
+         window->Update();
 
          stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
 

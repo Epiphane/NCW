@@ -45,7 +45,8 @@
         "limits": "cpp",
         "ratio": "cpp",
         "list": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "cassert": "cpp"
     },
     "editor.tabSize": 3
 }

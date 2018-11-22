@@ -29,6 +29,9 @@ public:
    // Lets you specify the constraint priority and whether it is an editable constraint. Also can give a custom name.
    //
    struct Options {
+      // https://stackoverflow.com/questions/43819314/default-member-initializer-needed-within-definition-of-enclosing-class-outside
+      Options() noexcept {} // = default;
+      
       BaseConstraint::Relationship relationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
       std::string customNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
 
@@ -58,7 +61,7 @@ public:
    };
 
    UIConstraint();
-   UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options());
+   UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options{});
    
 private:
    Options mOptions;

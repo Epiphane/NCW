@@ -25,7 +25,7 @@ namespace Engine
 // not really worth pretending it's possible right now.
 
 // Wrapper for a glfwWindow, allowing for management of input, etc
-class Window : public Bounded, public Singleton<Window>
+class Window : public Input, public Bounded, public Singleton<Window>
 {
 public:
    struct Options
@@ -97,18 +97,56 @@ public:
    bool ShouldClose();
    void Focus();
 
-public:
-   Input* GetInput() { return &mInput; }
-
 private:
-   // They might as well be one class, but it would be a very large unwieldy class.
-   friend class Input;
-   Input mInput;
-
    GLFWwindow* mGLFW;
    Graphics::VAO mVAO;
 
    Options mOptions;
+
+private:
+   //
+   // Used for listening to inputs
+   //
+   friend void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+   friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+   friend void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
+public:
+   // Helpers for key combinations
+   static KeyCombination Key(int key) { return KeyCombination{key, 0}; }
+   static KeyCombination ShiftKey(int key) { return KeyCombination{key, GLFW_MOD_SHIFT}; }
+   static KeyCombination CtrlKey(int key) { return KeyCombination{key, GLFW_MOD_CONTROL}; }
+   static KeyCombination AltKey(int key) { return KeyCombination{key, GLFW_MOD_ALT}; }
+   static KeyCombination SuperKey(int key) { return KeyCombination{key, GLFW_MOD_SUPER}; }
+   static KeyCombination CtrlShiftKey(int key) { return KeyCombination{key, GLFW_MOD_SHIFT | GLFW_MOD_CONTROL}; }
+
+public:
+   //
+   // Overrides from Input base class.
+   //
+   void Reset() override;
+   void Update() override;
+   bool IsKeyDown(int key) const override;
+   bool IsDragging(int button) const override { return mMouseDragging[button]; }
+   glm::tvec2<double> GetRawMousePosition() const override;
+   glm::tvec2<double> GetMousePosition() const override;
+   glm::tvec2<double> GetMouseMovement() const override { return mMouseMovement; }
+   glm::tvec2<double> GetMouseScroll() const override { return mLastMouseScroll; }
+   void SetMouseLock(bool locked) override;
+   bool IsMouseLocked() const override { return mMouseLocked; }
+
+private:
+   bool mMouseLocked = false;
+
+   glm::tvec2<double> mMousePosition;
+   glm::tvec2<double> mMouseMovement;
+
+   glm::tvec2<double> mLastMouseScroll;
+   glm::tvec2<double> mMouseScroll; // Accumulated between updates.
+
+   bool mMousePressed[GLFW_MOUSE_BUTTON_LAST];
+   bool mMouseDragging[GLFW_MOUSE_BUTTON_LAST];
+   glm::tvec2<double> mMousePressOrigin[GLFW_MOUSE_BUTTON_LAST];
 };
 
 }; // namespace Engine

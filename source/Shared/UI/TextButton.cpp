@@ -43,7 +43,7 @@ void TextButton::Update(TIMEDELTA)
       return;
    }
 
-   glm::tvec2<double> mouse = Engine::Window::Instance()->GetInput()->GetRawMousePosition();
+   glm::tvec2<double> mouse = Engine::Window::Instance()->GetRawMousePosition();
    bool hovered = ContainsPoint(mouse.x, mouse.y);
    if (hovered && !mIsHovered)
    {
