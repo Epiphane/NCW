@@ -397,8 +397,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       parentBoneButton->ConstrainTopAlignedTo(row2);
       parentBoneButton->ConstrainHeightTo(row2);
 
-      //parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
-      //mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
+      // parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
+      // mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
    }
 
    // Bone positions, rotations and sliders
@@ -467,8 +467,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
       positionScrubbers->ConstrainToRightOf(resetPositionButton, 32);
       positionScrubbers->ConstrainHeightTo(bonePosition);
+      positionScrubbers->ConstrainTopAlignedTo(bonePosition);
+      positionScrubbers->ConstrainRightAlignedTo(bonePosition, 12);
       rotationScrubbers->ConstrainToRightOf(resetRotationButton, 32);
       rotationScrubbers->ConstrainHeightTo(boneRotation);
+      rotationScrubbers->ConstrainTopAlignedTo(boneRotation);
+      rotationScrubbers->ConstrainRightAlignedTo(boneRotation, 12);
 
       for (int i = 0; i < 3; i++)
       {

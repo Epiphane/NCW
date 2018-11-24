@@ -108,6 +108,24 @@ bool StateWindow::IsMouseLocked() const
    return mpRoot->GetInput()->IsMouseLocked();
 }
 
+//
+// Transformer overrides.
+//
+const MouseDownEvent StateWindow::TransformEventDown(const MouseDownEvent& evt) const
+{
+   return MouseDownEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
+}
+
+const MouseUpEvent StateWindow::TransformEventDown(const MouseUpEvent& evt) const
+{
+   return MouseUpEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
+}
+
+const MouseClickEvent StateWindow::TransformEventDown(const MouseClickEvent& evt) const
+{
+   return MouseClickEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
+}
+
 }; // namespace UI
 
 }; // namespace CubeWorld

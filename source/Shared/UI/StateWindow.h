@@ -7,6 +7,7 @@
 
 #include <Engine/Core/Input.h>
 #include <Engine/Core/State.h>
+#include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/UI/UIElement.h>
 
@@ -26,7 +27,7 @@ namespace UI
 // important, because all systems/components/logic in a state should act identically,
 // regardless of whether its the core of the window or we've got a StateWindow housing it.
 //
-class StateWindow : public Engine::UIElement, public Engine::Input
+class StateWindow : public Engine::UIElement, public Engine::Input, public MouseInputTransformer
 {
 public:
    StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state);
@@ -68,15 +69,17 @@ public:
    bool IsMouseLocked() const override;
 
 private:
-   glm::tvec2<double> mMousePosition;
-   glm::tvec2<double> mMouseMovement;
-
-   glm::tvec2<double> mLastMouseScroll;
-   glm::tvec2<double> mMouseScroll; // Accumulated between updates.
-
    bool mMousePressed[GLFW_MOUSE_BUTTON_LAST];
    bool mMouseDragging[GLFW_MOUSE_BUTTON_LAST];
    glm::tvec2<double> mMousePressOrigin[GLFW_MOUSE_BUTTON_LAST];
+
+public:
+   //
+   // Transformer overrides.
+   //
+   const MouseDownEvent TransformEventDown(const MouseDownEvent& evt) const override;
+   const MouseUpEvent TransformEventDown(const MouseUpEvent& evt) const override;
+   const MouseClickEvent TransformEventDown(const MouseClickEvent& evt) const override;
 };
 
 }; // namespace UI

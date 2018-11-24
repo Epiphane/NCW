@@ -28,7 +28,13 @@ public:
    ~MainState();
 
    void Initialize() override;
+   
    void SetParent(Engine::EventManager* other) { mEvents.SetParent(other); }
+   template<typename E>
+   void TransformParentEvents(Engine::Transformer<E>* transformer)
+   {
+      mEvents.TransformParentEvents<E>(transformer);
+   }
 
 public:
    void Receive(const Engine::UIRebalancedEvent& evt);

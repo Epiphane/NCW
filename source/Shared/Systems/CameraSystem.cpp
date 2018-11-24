@@ -16,8 +16,7 @@ void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& e
 
 void CameraSystem::Receive(const MouseDownEvent& evt)
 {
-   glm::tvec2<double> mouse = mInput->GetMousePosition();
-   if (mouse.x < 0 || mouse.x > 1 || mouse.y < 0 || mouse.y > 1)
+   if (evt.x < 0 || evt.x > 1 || evt.y < 0 || evt.y > 1)
    {
       return;
    }
@@ -79,9 +78,9 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
          int yMove = mInput->IsKeyDown(opts.keys[1]) - mInput->IsKeyDown(opts.keys[0]);
          int xMove = mInput->IsKeyDown(opts.keys[3]) - mInput->IsKeyDown(opts.keys[2]);
 
-         transform.SetYaw(transform.GetYaw() - float(dt * opts.sensitivity[0] * xMove));
+         transform.SetYaw(transform.GetYaw() + float(dt * opts.sensitivity[0] * xMove));
 
-         float newPitch = transform.GetPitch() + float(dt * opts.sensitivity[1] * yMove);
+         float newPitch = transform.GetPitch() - float(dt * opts.sensitivity[1] * yMove);
          if (newPitch < -M_PI / 2.0f + 0.01f)
          {
             newPitch = -M_PI / 2.0f + 0.01f;

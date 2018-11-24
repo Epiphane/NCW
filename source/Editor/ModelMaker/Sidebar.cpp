@@ -30,10 +30,11 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
    , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
-   RectFilled* foreground = Add<RectFilled>("ModelMakerSidebarFG", glm::vec4(0.5, 0, 0, 1));
+   RectFilled* foreground = Add<RectFilled>("ModelMakerSidebarFG", glm::vec4(0, 0, 0, 1));
 
-   foreground->ConstrainCenterTo(this);
-   foreground->ConstrainDimensionsTo(this, -4);
+   foreground->ConstrainHorizontalCenterTo(this);
+   foreground->ConstrainWidthTo(this, -4);
+   foreground->ConstrainTopAlignedTo(this, 2);
 
    // Labels
    Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ModelMakerSidebarStackView");
@@ -59,6 +60,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    buttons->ConstrainTopAlignedTo(foreground);
    buttons->ConstrainHorizontalCenterTo(foreground);
    buttons->ConstrainWidthTo(foreground, -12);
+   buttons->ConstrainBottomAlignedTo(foreground, 8);
    load->ConstrainLeftAlignedTo(buttons, 2);
    load->ConstrainWidthTo(buttons, -4);
    load->ConstrainHeight(32);
@@ -70,11 +72,12 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    discard->ConstrainLeftAlignedTo(saveAs);
 
    // Create a scrollable list of available models
-   UI::SubFrame* explorer = buttons->Add<UI::SubFrame>();
+   UI::SubFrame* explorer = Add<UI::SubFrame>();
 
+   explorer->ConstrainBelow(foreground, 2);
    explorer->ConstrainWidthTo(foreground);
    explorer->ConstrainLeftAlignedTo(foreground);
-   explorer->ConstrainBottomAlignedTo(this, 300);
+   explorer->ConstrainBottomAlignedTo(this);
 
    std::vector<std::string> testData = {
       "dummy.cub", "aim.cub", "barrel.cub", "bed.cub",
@@ -94,7 +97,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
          button->ConstrainWidthTo(&explorer->GetUI());
          button->ConstrainHeight(32);
          button->ConstrainTopAlignedTo(&explorer->GetUI());
-         button->ConstrainLeftAlignedTo(&explorer->GetUI(), 2);
+         button->ConstrainLeftAlignedTo(&explorer->GetUI(), 8);
       }
       else
       {

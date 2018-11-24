@@ -24,6 +24,9 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    mStateWindow = Add<StateWindow>(nullptr);
    std::unique_ptr<MainState> state{new MainState(mStateWindow, mStateWindow->GetFrame())};
    state->SetParent(this);
+   state->TransformParentEvents<MouseDownEvent>(mStateWindow);
+   state->TransformParentEvents<MouseUpEvent>(mStateWindow);
+   state->TransformParentEvents<MouseClickEvent>(mStateWindow);
 
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
