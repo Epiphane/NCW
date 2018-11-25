@@ -14,7 +14,7 @@ using Engine::UIFrame;
 using UI::RectFilled;
 using UI::Text;
  
-UIMainScreen::UIMainScreen()
+UIMainScreen::UIMainScreen(Engine::Input* input) : UIRoot(input)
 {
    RectFilled *testRect = Add<RectFilled>("DumbTestRect", glm::vec4(1.0f, 0.0f, 0.0f, 0.5f));
    UIFrame funFrame = testRect->GetFrame();

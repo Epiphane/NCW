@@ -27,7 +27,9 @@ public:
    // Specifies the operator between the elements of the constraint
    //
    enum Relationship {
-      Equal, GreaterOrEqual, LessThanOrEqual
+      Equal = 0,
+      GreaterOrEqual,
+      LessThanOrEqual
    };
    
    static constexpr double REQUIRED_PRIORITY = std::numeric_limits<double>::max();  ///< Default priority for constraints.

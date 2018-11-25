@@ -3,9 +3,6 @@
 #include <cassert>
 
 #include <Engine/Core/Scope.h>
-#include <Engine/Core/Window.h>
-#include <Engine/Event/InputEvent.h>
-#include <Engine/Graphics/Program.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
@@ -21,7 +18,7 @@ namespace UI
 StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
    : UIElement(root, parent)
    , mState(nullptr)
-   , mFramebuffer(Engine::Window::Instance()->GetWidth(), Engine::Window::Instance()->GetHeight())
+   , mFramebuffer(root->GetWidth(), root->GetHeight())
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {
    if (state)
@@ -48,12 +45,85 @@ void StateWindow::Update(TIMEDELTA dt)
 
 void StateWindow::Redraw()
 {
+   mFramebuffer.Resize(GetWidth(), GetHeight());
    std::vector<Aggregator::ImageData> vertices{
       { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
       { mFrame.GetTopRight(), glm::vec2(1, 1) },
    };
 
    mRegion.Set(vertices.data());
+}
+
+//
+// Input functions
+//
+void StateWindow::Reset()
+{
+   mpRoot->GetInput()->Reset();
+}
+
+void StateWindow::Update()
+{
+   // State is updated in StateWindow::Update(dt) anyway
+   assert(false && "My root's input should be updating, not mine!");
+}
+
+bool StateWindow::IsKeyDown(int key) const
+{
+   return mpRoot->GetInput()->IsKeyDown(key);
+}
+
+bool StateWindow::IsDragging(int button) const
+{
+   return mMouseDragging[button];
+}
+
+glm::tvec2<double> StateWindow::GetRawMousePosition() const
+{
+   return mpRoot->GetInput()->GetRawMousePosition() - glm::tvec2<double>{GetX(), GetY()};
+}
+
+glm::tvec2<double> StateWindow::GetMousePosition() const
+{
+   return GetRawMousePosition() / glm::tvec2<double>{GetWidth(), GetHeight()};
+}
+
+glm::tvec2<double> StateWindow::GetMouseMovement() const
+{
+   return mpRoot->GetInput()->GetMouseMovement();
+}
+
+glm::tvec2<double> StateWindow::GetMouseScroll() const
+{
+   return mpRoot->GetInput()->GetMouseScroll();
+}
+
+void StateWindow::SetMouseLock(bool locked)
+{
+   mpRoot->GetInput()->SetMouseLock(locked);
+}
+
+bool StateWindow::IsMouseLocked() const
+{
+   return mpRoot->GetInput()->IsMouseLocked();
+}
+
+//
+// Transformer overrides.
+//
+const MouseDownEvent StateWindow::TransformEventDown(const MouseDownEvent& evt) const
+{
+   return MouseDownEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
+}
+
+const MouseUpEvent StateWindow::TransformEventDown(const MouseUpEvent& evt) const
+{
+   return MouseUpEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
+}
+
+const MouseClickEvent StateWindow::TransformEventDown(const MouseClickEvent& evt) const
+{
+   return MouseClickEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
 }
 
 }; // namespace UI

@@ -19,6 +19,7 @@
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/Image.h>
 #include <Shared/UI/NumDisplay.h>
+#include <Shared/UI/RectFilled.h>
 #include <Shared/UI/ScrollBar.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/TextField.h>
@@ -39,11 +40,12 @@ namespace AnimationStation
 
 using UI::Image;
 using UI::NumDisplay;
+using UI::RectFilled;
 using UI::ScrollBar;
 using UI::Text;
 using UI::TextField;
 
-class Dock : public Engine::UIElement {
+class Dock : public RectFilled {
 public:
    const double kTimelineWidth = 512.0;
 

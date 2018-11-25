@@ -28,7 +28,7 @@ struct TextData
 class Text : public Engine::Aggregator<TextData>
 {
 public:
-   Text();
+   Text(Engine::UIRoot* root);
 
    void ConnectToTexture(const Region& region, GLuint texture);
 

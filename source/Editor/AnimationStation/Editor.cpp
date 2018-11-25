@@ -18,36 +18,39 @@ namespace AnimationStation
 
 using UI::StateWindow;
 
-Editor::Editor() : UIRoot()
+Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(input)
 {
    // I wanna do this better
    mStateWindow = Add<StateWindow>(nullptr);
-   std::unique_ptr<MainState> state{new MainState(Engine::Window::Instance(), mStateWindow->GetFrame())};
+   std::unique_ptr<MainState> state{new MainState(mStateWindow, mStateWindow->GetFrame())};
    state->SetParent(this);
+   state->TransformParentEvents<MouseDownEvent>(mStateWindow);
+   state->TransformParentEvents<MouseUpEvent>(mStateWindow);
+   state->TransformParentEvents<MouseClickEvent>(mStateWindow);
 
    Sidebar* sidebar = Add<Sidebar>();
+   Controls* controls = Add<Controls>(options);
    Dock* dock = Add<Dock>();
 
    // Organize everything
-   Engine::UIFrame& fSidebar = sidebar->GetFrame();
-   Engine::UIFrame& fDock = dock->GetFrame();
-   Engine::UIFrame& fPreview = mStateWindow->GetFrame();
-   mSolver.add_constraints({
-      fSidebar.left == mFrame.left,
-      fSidebar.top == mFrame.top,
-      fSidebar.width == mFrame.width * 0.2,
-      fSidebar.height == mFrame.height,
+   sidebar->ConstrainLeftAlignedTo(this);
+   sidebar->ConstrainTopAlignedTo(this);
+   sidebar->ConstrainWidthTo(this, 0, 0.2);
+   sidebar->ConstrainAbove(controls);
 
-      fDock.left == mFrame.left + fSidebar.width,
-      fDock.bottom == mFrame.bottom,
-      fDock.right == mFrame.right,
-      fDock.height == mFrame.height * 0.4,
+   controls->ConstrainLeftAlignedTo(this);
+   controls->ConstrainBottomAlignedTo(this);
+   controls->ConstrainWidthTo(sidebar);
 
-      fPreview.left == fSidebar.right,
-      fPreview.top == mFrame.top,
-      fPreview.right == mFrame.right,
-      fPreview.bottom == fDock.top,
-   });
+   dock->ConstrainToRightOf(sidebar);
+   dock->ConstrainRightAlignedTo(this);
+   dock->ConstrainBottomAlignedTo(this);
+   dock->ConstrainHeightTo(this, 0, 0.4);
+
+   mStateWindow->ConstrainLeftAlignedTo(dock);
+   mStateWindow->ConstrainTopAlignedTo(this);
+   mStateWindow->ConstrainAbove(dock);
+   mStateWindow->ConstrainRightAlignedTo(dock);
 
    mStateWindow->SetState(std::move(state));
 }

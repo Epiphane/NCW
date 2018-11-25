@@ -2,6 +2,7 @@
 
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "Rect.h"
 
@@ -13,7 +14,7 @@ namespace Aggregator
 
 std::unique_ptr<Engine::Graphics::Program> Rect::program = nullptr;
 
-Rect::Rect()
+Rect::Rect(Engine::UIRoot* root) : Engine::Aggregator<RectData>(root)
 {
    if (!program)
    {
@@ -32,11 +33,9 @@ Rect::Rect()
 
 void Rect::Render()
 {
-   Engine::Window* pWindow = Engine::Window::Instance();
-
    BIND_PROGRAM_IN_SCOPE(program);
 
-   program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
+   program->Uniform2f("uWindowSize", static_cast<GLfloat>(mRoot->GetWidth()), static_cast<GLfloat>(mRoot->GetHeight()));
 
    mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)0);
    mVBO.AttribPointer(program->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)(sizeof(glm::vec3)));

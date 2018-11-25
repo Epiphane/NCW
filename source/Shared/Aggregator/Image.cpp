@@ -2,6 +2,7 @@
 
 #include <Engine/Core/Window.h>
 #include <Engine/Logger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "Image.h"
 
@@ -13,7 +14,7 @@ namespace Aggregator
 
 std::unique_ptr<Engine::Graphics::Program> Image::program = nullptr;
 
-Image::Image()
+Image::Image(Engine::UIRoot* root) : Engine::Aggregator<ImageData>(root)
 {
    if (!program)
    {
@@ -52,8 +53,6 @@ void Image::ConnectToTexture(const Region& region, GLuint texture)
 
 void Image::Render()
 {
-   Engine::Window* pWindow = Engine::Window::Instance();
-
    BIND_PROGRAM_IN_SCOPE(program);
 
    for (auto& pair : mTextureIndices)
@@ -61,7 +60,7 @@ void Image::Render()
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, pair.first);
       program->Uniform1i("uTexture", 0);
-      program->Uniform2f("uWindowSize", static_cast<GLfloat>(pWindow->GetWidth()), static_cast<GLfloat>(pWindow->GetHeight()));
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(mRoot->GetWidth()), static_cast<GLfloat>(mRoot->GetHeight()));
 
       mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(ImageData), (void*)0);
       mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(ImageData), (void*)(sizeof(glm::vec3)));

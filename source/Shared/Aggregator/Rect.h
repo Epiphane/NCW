@@ -25,7 +25,7 @@ struct RectData {
 class Rect : public Engine::Aggregator<RectData>
 {
 public:
-   Rect();
+   Rect(Engine::UIRoot* root);
 
    void Render() override;
 

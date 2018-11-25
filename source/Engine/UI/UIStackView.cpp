@@ -95,16 +95,16 @@ void UIStackView::RemakeConstraints()
 
    if (mbVertical) {
       UIConstraint::Options topOptions;
-      topOptions.mCustomNameConnector = "_topAlignedWithStackView_";
+      topOptions.customNameConnector = "_topAlignedWithStackView_";
       mTopConstraint    = mChildren.front()->ConstrainTopAlignedTo(this, 0.0, topOptions);
 
       UIConstraint::Options bottomOptions;
-      bottomOptions.mCustomNameConnector = "_bottomAlignedWithStackView_";
+      bottomOptions.customNameConnector = "_bottomAlignedWithStackView_";
       mBottomConstraint = mChildren.back()->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
 
       for (int ndx = 1; ndx < mChildren.size(); ndx++) {
          UIConstraint::Options options;
-         options.mCustomNameConnector = "_belowInStackView_";
+         options.customNameConnector = "_belowInStackView_";
          UIConstraint newConstraint = mChildren[ndx]->ConstrainBelow(mChildren[ndx-1].get(), mOffset, options);
          mConstraintsBetweenChildren.push_back(newConstraint);
       }
@@ -115,8 +115,9 @@ void UIStackView::RemakeConstraints()
 
       for (int ndx = 1; ndx < mChildren.size(); ndx++) {
          UIConstraint::Options options;
-         options.mCustomNameConnector = "_rightOfInStackView_";
-         UIConstraint newConstraint = mChildren[ndx]->ConstrainToRightOf(mChildren[ndx-1].get(), mOffset);
+         options.customNameConnector = "_rightOfInStackView_";
+         UIConstraint newConstraint = mChildren[ndx]->ConstrainToRightOf(mChildren[ndx-1].get(), mOffset, options);
+         mConstraintsBetweenChildren.push_back(newConstraint);
       }
    }
 }

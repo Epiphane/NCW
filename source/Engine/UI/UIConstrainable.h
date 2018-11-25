@@ -63,7 +63,7 @@ struct UIFrame : public Bounded
    uint32_t GetHeight() const override { return height.int_value(); }
 };
    
-class UIConstrainable {
+class UIConstrainable : public Bounded {
 public:
    UIConstrainable(UIRoot* root, const std::string& name);
    
@@ -80,6 +80,7 @@ public:
    
    UIConstraint ConstrainWidthTo (UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
    UIConstraint ConstrainHeightTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   std::pair<UIConstraint, UIConstraint> ConstrainDimensionsTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
    
    UIConstraint ConstrainLeftAlignedTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    UIConstraint ConstrainTopAlignedTo   (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
@@ -100,7 +101,7 @@ public:
    //
    // Set the name of this element
    //
-   void SetName(const std::string& name) { mName = name; }
+   UIConstrainable* SetName(const std::string& name) { mName = name; return this; }
    
    //
    // Get the name of this element
@@ -111,15 +112,23 @@ public:
    // UIFrame manipulation.
    //
    UIFrame& GetFrame() { return mFrame; }
+
+   // Bounded implementation
+   uint32_t GetX() const override { return mFrame.GetX(); }
+   uint32_t GetY() const override { return mFrame.GetY(); }
+   uint32_t GetWidth() const override { return mFrame.GetWidth(); }
+   uint32_t GetHeight() const override { return mFrame.GetHeight(); }
    
 protected:
+   UIRoot* mpRoot;
 
    std::string mName;
 
-   UIRoot *mpRoot;
-
    // Contains the coordinates and size of the element
    UIFrame mFrame;
+
+   // An ever-incrementing ID for this element. Used for anonymous elements
+   static uint64_t sID;
 };
 
 }; // namespace Engine

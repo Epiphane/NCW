@@ -14,9 +14,6 @@ namespace CubeWorld
 namespace Engine
 {
 
-// Forward declaration so the Input class can refer to it.
-class Window;
-
 //
 // Callbacks for tying into input events:
 //
@@ -40,20 +37,13 @@ using input_key_callback = std::function<void(int, int, int)>;
 using mouse_button_callback = std::function<void(int, double, double)>;
 
 //
-// Input is responsible for managing all the input attached to a specific GLFWwindow.
-// Often, that means there is one instance of this class for each Engine::Window.
-//
-// The only reason it's not implemented in Window.cpp is because 1) that would make it super
-// lengthy, and 2) it's helpful to understand whether you're interacting with the window itself
-// or input in it.
+// Input is a generic base class responsible for "Input"-y things: mouse movement, clicking,
+// keyboard interaction, etc. It's implemented primarily by Engine::Window, but defined as
+// extensible so that the Editor can override this and create a shim input to send to its sub-
+// states.
 //
 class Input
 {
-private:
-   friend void keyCallback(GLFWwindow* window, int key, int /*scancode*/, int action, int mods);
-   friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-   friend void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-
 public:
    //
    // KeyCombination describes a specific set of keypresses, for example Ctrl+S or just Q.
@@ -61,22 +51,15 @@ public:
    struct KeyCombination {
       KeyCombination(int key, int mods) : key(key), mods(mods) {};
 
-      int key; // GLFW key code
-      int mods; // GLFW modifiers
+      int key; // key code
+      int mods; // modifiers
    };
-
-   static KeyCombination Key(int key) { return KeyCombination{key, 0}; }
-   static KeyCombination ShiftKey(int key) { return KeyCombination{key, GLFW_MOD_SHIFT}; }
-   static KeyCombination CtrlKey(int key) { return KeyCombination{key, GLFW_MOD_CONTROL}; }
-   static KeyCombination AltKey(int key) { return KeyCombination{key, GLFW_MOD_ALT}; }
-   static KeyCombination SuperKey(int key) { return KeyCombination{key, GLFW_MOD_SUPER}; }
-   static KeyCombination CtrlShiftKey(int key) { return KeyCombination{key, GLFW_MOD_SHIFT | GLFW_MOD_CONTROL}; }
 
 public:
    // Key callbacks are stored as a doubly-linked list, to allow for easy insertion and removal.
    struct KeyCallbackLink {
-      int key; // GLFW key code
-      int mods; // GLFW modifiers
+      int key; // key code
+      int mods; // modifiers
       input_key_callback callback;
 
       KeyCallbackLink(Input* manager, const KeyCombination& keyCombination, const input_key_callback& callback)
@@ -106,55 +89,55 @@ public:
    ~Input();
 
 public:
-   void Initialize(Window* window);
-
-public:
    //
-   // Set whether the mouse should be locked to the center of the screen.
+   // Reset the state of all input.
    //
-   void SetMouseLock(bool locked);
-   bool IsMouseLocked() { return mMouseLocked; }
-
-public:
-   //
-   // Clear the state of all input.
-   //
-   void Clear();
+   virtual void Reset();
 
    //
    // Update the state of input for the last frame.
    //
-   void Update();
+   virtual void Update() {}
 
    //
    // Returns whether or not a specific key is being pressed
    //
-   bool IsKeyDown(int key) const;
+   virtual bool IsKeyDown(int key) const = 0;
 
    //
    // Returns whether or not the mouse is being dragged with a specific button held down.
    //
-   bool IsDragging(int button) const { return mMouseDragging[button]; }
+   virtual bool IsDragging(int button) const = 0;
 
    //
    // Get the mouse's current position, in pixel space
    //
-   glm::tvec2<double> GetRawMousePosition() const;
+   virtual glm::tvec2<double> GetRawMousePosition() const = 0;
 
    //
    // Get the mouse's current position, in [-1,1] space.
    //
-   glm::tvec2<double> GetMousePosition() const;
+   virtual glm::tvec2<double> GetMousePosition() const = 0;
 
    //
    // Get the mouse's most recent movement.
    //
-   glm::tvec2<double> GetMouseMovement() const { return mMouseMovement; }
+   virtual glm::tvec2<double> GetMouseMovement() const = 0;
 
    //
    // Get the mouse scroll since last frame.
    //
-   glm::tvec2<double> GetMouseScroll() const { return mLastMouseScroll; }
+   virtual glm::tvec2<double> GetMouseScroll() const = 0;
+
+   //
+   // Set whether the mouse should be locked to the center of the screen.
+   //
+   virtual void SetMouseLock(bool locked) = 0;
+
+   //
+   // Returns whether the mouse is currently locked to the center of the screen.
+   //
+   virtual bool IsMouseLocked() const = 0;
 
    //
    // Deregister a key's callback.
@@ -183,29 +166,20 @@ public:
    void OnMouseUp(mouse_button_callback cb) { mMouseUpCallback = cb; }
    void OnClick(mouse_button_callback cb) { mMouseClickCallback = cb; }
 
-private:
-   // They might as well be one class, but it would be a very large unwieldy class.
-   friend class Window;
-   Window* mWindow;
+protected:
+   //
+   // Trigger an event through the entire KeyCallback ring (to be called by subclasses)
+   //
+   void TriggerKeyCallbacks(int key, int action, int mods);
 
+private:
    // The "key-ring" for callbacks, indexed by key.
    KeyCallbackLink* mKeyCallbacks[GLFW_KEY_LAST] = {nullptr};
    
-   bool mMouseLocked = false;
-
+protected:
    mouse_button_callback mMouseDownCallback = nullptr;
    mouse_button_callback mMouseUpCallback = nullptr;
    mouse_button_callback mMouseClickCallback = nullptr;
-
-   glm::tvec2<double> mMousePosition;
-   glm::tvec2<double> mMouseMovement;
-
-   glm::tvec2<double> mLastMouseScroll;
-   glm::tvec2<double> mMouseScroll; // Accumulated between updates.
-
-   bool mMousePressed[GLFW_MOUSE_BUTTON_LAST];
-   bool mMouseDragging[GLFW_MOUSE_BUTTON_LAST];
-   glm::tvec2<double> mMousePressOrigin[GLFW_MOUSE_BUTTON_LAST];
 };
 
 }; // namespace Engine

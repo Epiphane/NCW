@@ -8,6 +8,7 @@
 #include "Event.h"
 #include "EventLink.h"
 #include "Receiver.h"
+#include "Transformer.h"
 
 namespace CubeWorld
 {
@@ -80,6 +81,7 @@ public:
    template <typename E>
    void EmitInternal(const E& evt)
    {
+      const BaseEvent::Family family = Event<E>::GetFamily();
       {
          // Send the event to any direct subscribers
          EventLink<E>* ring = GetEventRing<E>();
@@ -107,7 +109,18 @@ public:
          {
             if (link->target != nullptr)
             {
-               link->target->EmitInternal<E>(evt);
+               if (family >= link->transformers.size() || link->transformers[family] == nullptr)
+               {
+                  link->target->EmitInternal<E>(evt);
+               }
+               else
+               {
+                  Transformer<E>* transformer = static_cast<Transformer<E>*>(link->transformers[family]);
+                  if (transformer->ShouldPropagateDown(evt))
+                  {
+                     link->target->EmitInternal<E>(transformer->TransformEventDown(evt));
+                  }
+               }
             }
             link = link->next;
          } while (link != ring);
@@ -123,7 +136,24 @@ public:
       }
       else
       {
-         mParent->source->Emit<E>(evt);
+         const BaseEvent::Family family = Event<E>::GetFamily();
+         if (family >= mParent->transformers.size() || mParent->transformers[family] == nullptr)
+         {
+            mParent->source->Emit<E>(evt);
+         }
+         else
+         {
+            Transformer<E>* transformer = static_cast<Transformer<E>*>(mParent->transformers[family]);
+            if (transformer->ShouldPropagateUp(evt))
+            {
+               mParent->source->Emit<E>(transformer->TransformEventUp(evt));
+            }
+            else
+            {
+               // Actually, just send it to myself.
+               EmitInternal<E>(evt);
+            }
+         }
       }
    }
    
@@ -172,6 +202,7 @@ private:
 
    // Downstream managers are stored as a doubly-linked list, to allow for easy insertion and removal.
    struct ManagerLink {
+   public:
       ManagerLink(EventManager* source, EventManager* target)
          : source(source)
          , target(target)
@@ -183,10 +214,23 @@ private:
          source->RemoveLink(this);
       }
 
+      template<typename E>
+      void Transform(Transformer<E>* transformer)
+      {
+         const BaseEvent::Family family = Event<E>::GetFamily();
+         if (family >= transformers.size())
+         {
+            transformers.resize(family + 1, nullptr);
+         }
+
+         transformers[family] = transformer;
+      }
+
    private:
       friend class EventManager;
       EventManager* source;
       EventManager* target;
+      std::vector<BaseTransformer*> transformers;
 
       ManagerLink* next;
       ManagerLink* prev;
@@ -198,6 +242,12 @@ public:
    void SetParent(EventManager* parent)
    {
       mParent = parent->AddChild(this);
+   }
+
+   template<typename E>
+   void TransformParentEvents(Transformer<E>* transformer)
+   {
+      mParent->Transform(transformer);
    }
 
 private:

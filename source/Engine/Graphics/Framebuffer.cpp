@@ -24,8 +24,8 @@ void BindFramebuffer(GLuint buffer)
 }
 
 Framebuffer::Framebuffer(GLsizei width, GLsizei height)
-   : mWidth(width)
-   , mHeight(height)
+   : mWidth(0)
+   , mHeight(0)
 {
    glGenFramebuffers(1, &mFBO);
 
@@ -41,19 +41,6 @@ Framebuffer::Framebuffer(GLsizei width, GLsizei height)
 
       // Bind the newly created texture for modification.
       glBindTexture(GL_TEXTURE_2D, mTexture);
-
-      // Give an empty image to OpenGL ( the last "0" )
-      glTexImage2D(
-         GL_TEXTURE_2D,    // target
-         0,                // level of detail
-         GL_RGB,           // internal format
-         width,            // width
-         height,           // height
-         0,                // border - "This value must be 0." LOL
-         GL_RGB,           // format
-         GL_UNSIGNED_BYTE, // type
-         0                 // data
-      );
 
       // Very simple filtering
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -73,9 +60,10 @@ Framebuffer::Framebuffer(GLsizei width, GLsizei height)
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBuffer);
    }
 
-   // Final check
-   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-   assert(status == GL_FRAMEBUFFER_COMPLETE);
+   if (width != 0 && height != 0)
+   {
+      Resize(width, height);
+   }
 }
 
 Framebuffer::~Framebuffer()
@@ -83,6 +71,35 @@ Framebuffer::~Framebuffer()
    glDeleteFramebuffers(1, &mFBO);
    glDeleteTextures(1, &mTexture);
    glDeleteRenderbuffers(1, &mDepthBuffer);
+}
+
+void Framebuffer::Resize(GLsizei width, GLsizei height)
+{
+   if (mWidth != width || mHeight != height)
+   {
+      mWidth = width;
+      mHeight = height;
+
+      // Bind the newly created texture for modification.
+      glBindTexture(GL_TEXTURE_2D, mTexture);
+
+      // Give an empty image to OpenGL ( the last "0" )
+      glTexImage2D(
+         GL_TEXTURE_2D,    // target
+         0,                // level of detail
+         GL_RGB,           // internal format
+         width,            // width
+         height,           // height
+         0,                // border - "This value must be 0." LOL
+         GL_RGB,           // format
+         GL_UNSIGNED_BYTE, // type
+         0                 // data
+      );
+
+      // Validity check
+      GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+      assert(status == GL_FRAMEBUFFER_COMPLETE);
+   }
 }
 
 void Framebuffer::Bind(bool clear)

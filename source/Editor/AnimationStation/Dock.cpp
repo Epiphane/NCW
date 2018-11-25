@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <algorithm>
+#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/Button.h>
 #include <Shared/UI/RectFilled.h>
@@ -23,6 +24,7 @@ using Keyframe = AnimatedSkeleton::Keyframe;
 using Bone = AnimatedSkeleton::Bone;
 using Engine::UIElement;
 using Engine::UIFrame;
+using Engine::UIStackView;
 using UI::Button;
 using UI::RectFilled;
 
@@ -55,30 +57,13 @@ Keyframe& GetKeyframe(State& state, double time)
 }; // anonymous namespace
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent, "AnimationStationDock")
+   : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
    , mBone(9)
 {
-   // Background
-   {
-      RectFilled* bg = Add<RectFilled>("AnimationStationDockBG", glm::vec4(0.2, 0.2, 0.2, 1));
-      RectFilled* fg = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
+   RectFilled* foreground = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
 
-      UIFrame& fBackground = bg->GetFrame();
-      UIFrame& fForeground = fg->GetFrame();
-      root->AddConstraints({
-         fBackground.left == mFrame.left,
-         fBackground.right == mFrame.right,
-         fBackground.top == mFrame.top,
-         fBackground.bottom == mFrame.bottom,
-         mFrame > fForeground,
-
-         fForeground.left == fBackground.left,
-         fForeground.right == fBackground.right - 2,
-         fForeground.top == fBackground.top - 2,
-         fForeground.bottom == fBackground.bottom + 2,
-         fForeground > fBackground,
-      });
-   }
+   foreground->ConstrainCenterTo(this);
+   foreground->ConstrainDimensionsTo(this, -4);
 
    // Columns, for making everything all organized.
    root->AddConstraints({
@@ -87,34 +72,33 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       c3 >= c2 + 100,
       c4 >= c3 + 140,
    });
+   
+   UIStackView* dockStateInfo = foreground->Add<UIStackView>("DockStateInfo");
+   dockStateInfo->ConstrainLeftAlignedTo(foreground, 30);
+   dockStateInfo->ConstrainTopAlignedTo(foreground, 30);
+   dockStateInfo->ConstrainWidth(kTimelineWidth);
+   dockStateInfo->SetOffset(16.0);
+
+   // These elements are used for lining up columns nicely
+   Text* stateNameLabel = nullptr;
+   Button* prevStateButton = nullptr;
 
    // State name
-   UIElement* stateName = Add<UIElement>();
-   UIFrame& fStateName = stateName->GetFrame();
+   UIStackView* stateName = dockStateInfo->Add<UIStackView>();
+   stateName->SetVertical(false);
+   stateName->SetOffset(8.0);
+   stateName->ConstrainHeight(19);
+   stateName->ConstrainLeftAlignedTo(dockStateInfo);
    {
-      UIFrame& fRow = fStateName;
-      UIFrame& fLabel = stateName->Add<Text>(Text::Options{"Name"})->GetFrame();
+      stateNameLabel = stateName->Add<Text>(Text::Options{"Name"});
+      stateNameLabel->ConstrainTopAlignedTo(stateName);
+      stateNameLabel->ConstrainHeightTo(stateName);
 
       mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
          CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
       }});
-      UIFrame& fValue = mStateName->GetFrame();
-
-      root->AddConstraints({
-         fStateName.left == c1,
-         fStateName.top == mFrame.top - 32,
-         fStateName.height == 19,
-
-         fLabel.left == fRow.left,
-         fLabel.right == c2,
-         fLabel.top == fRow.top,
-         fLabel.height == fRow.height,
-
-         fValue.left == c2,
-         fValue.right == c3,
-         fValue.top == fRow.top,
-         fValue.height == fRow.height,
-      });
+      mStateName->ConstrainTopAlignedTo(stateName);
+      mStateName->ConstrainHeightTo(stateName);
 
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
@@ -122,54 +106,49 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
-      UIFrame& fPrevState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      prevStateButton = stateName->Add<Button>(buttonOptions);
+      prevStateButton->ConstrainTopAlignedTo(stateName);
+      prevStateButton->ConstrainHeightTo(stateName);
 
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
-      UIFrame& fNextState = stateName->Add<Button>(buttonOptions)->GetFrame();
+      Button* nextStateButton = stateName->Add<Button>(buttonOptions);
+      nextStateButton->ConstrainTopAlignedTo(stateName);
+      nextStateButton->ConstrainHeightTo(stateName);
 
       buttonOptions.image = "button_add";
       buttonOptions.hoverImage = "hover_button_add";
       buttonOptions.pressImage = "press_button_add";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
       Button* addStateButton = stateName->Add<Button>(buttonOptions);
-      UIFrame& fAddState = addStateButton->GetFrame();
+      addStateButton->ConstrainTopAlignedTo(stateName);
+      addStateButton->ConstrainHeightTo(stateName);
 
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
       Button* removeStateButton = stateName->Add<Button>(buttonOptions);
-      UIFrame& fRemState = removeStateButton->GetFrame();
-      
-      removeStateButton->ConstrainToRightOf(addStateButton, 8.0);
-
-      root->AddConstraints({
-         fPrevState.left == c3,
-         fPrevState.top == fRow.top,
-         fPrevState.bottom == fRow.bottom,
-         fNextState.left == fPrevState.right + 8,
-         fNextState.top == fRow.top,
-         fNextState.bottom == fRow.bottom,
-         fAddState.left == fNextState.right + 8,
-         fAddState.top == fRow.top,
-         fAddState.bottom == fRow.bottom,
-         fRemState.top == fRow.top,
-         fRemState.bottom == fRow.bottom,
-      });
+      removeStateButton->ConstrainTopAlignedTo(stateName);
+      removeStateButton->ConstrainHeightTo(stateName);
    }
 
-   // State length
-   UIElement* stateLength = Add<UIElement>();
-   UIFrame& fStateLength = stateLength->GetFrame();
+   // State Length
+   UIStackView* stateLength = dockStateInfo->Add<UIStackView>();
+   stateLength->SetVertical(false);
+   stateLength->SetOffset(8.0);
+   stateLength->ConstrainHeightTo(stateName);
+   stateLength->ConstrainLeftAlignedTo(stateName);
    {
-      UIFrame& fRow = fStateLength;
-      UIFrame& fLabel = stateLength->Add<Text>(Text::Options{"Length"})->GetFrame();
+      Text* stateLengthLabel = stateLength->Add<Text>(Text::Options{"Length"});
+      stateLengthLabel->ConstrainTopAlignedTo(stateLength);
+      stateLengthLabel->ConstrainHeightTo(stateLength);
 
       mStateLength.text = stateLength->Add<NumDisplay<double>>(NumDisplay<double>::Options(1));
-      UIFrame& fValue = mStateLength.text->GetFrame();
+      mStateLength.text->ConstrainTopAlignedTo(stateLength);
+      mStateLength.text->ConstrainHeightTo(stateLength);
 
       Scrubber<double>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
@@ -178,81 +157,49 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
       scrubberOptions.sensitivity = 0.05;
       mStateLength.scrubber = stateLength->Add<Scrubber<double>>(scrubberOptions);
-      UIFrame& fScrubber = mStateLength.scrubber->GetFrame();
+      mStateLength.scrubber->ConstrainTopAlignedTo(stateLength);
+      mStateLength.scrubber->ConstrainHeightTo(stateLength);
 
-      root->AddConstraints({
-         fStateLength.left == c1,
-         fStateLength.top == fStateName.bottom - 16,
-         fStateLength.height == fStateName.height,
-
-         fLabel.left == fRow.left,
-         fLabel.right == c2,
-         fLabel.top == fRow.top,
-         fLabel.height == fRow.height,
-
-         fValue.left == c2,
-         fValue.right == c3,
-         fValue.top == fRow.top,
-         fValue.height == fRow.height,
-
-         fScrubber.left == c3,
-         fScrubber.top == fRow.top,
-         fScrubber.bottom == fRow.bottom,
-      });
+      // Column alignment
+      stateLengthLabel->ConstrainLeftAlignedTo(stateNameLabel);
+      mStateLength.text->ConstrainLeftAlignedTo(mStateName);
+      mStateLength.scrubber->ConstrainLeftAlignedTo(prevStateButton);
    }
 
    // ScrollBar for setting the current time in the animation
-   RectFilled* timeline = Add<RectFilled>("AnimationTimeline", glm::vec4(1, 1, 1, 0.1));
-   UIFrame& fTimeline = timeline->GetFrame();
-   root->AddConstraints({
-      fTimeline.left == c1,
-      fTimeline.top == fStateLength.bottom - 32,
-      fTimeline.width == kTimelineWidth,
-      fTimeline.height == 32,
-   });
-
-   ScrollBar::Options scrollbarOptions;
-   scrollbarOptions.filename = Asset::Image("EditorIcons.png");
-   scrollbarOptions.image = "frame_pointer";
-   scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
-   mScrubber = Add<ScrollBar>(scrollbarOptions);
-   UIFrame& fCursor = mScrubber->GetFrame();
-   root->AddConstraints({
-      fCursor.left == fTimeline.left,
-      fCursor.top == fTimeline.bottom - 8,
-      fCursor.width == fTimeline.width,
-      fCursor.height == 10,
-   });
-
-   // Container for keyframe icons. Not very important but it can't hurt.
    {
+      RectFilled* timeline = dockStateInfo->Add<RectFilled>("AnimationTimeline", glm::vec4(1, 1, 1, 0.1));
+      timeline->ConstrainLeftAlignedTo(stateName);
+      timeline->ConstrainHeight(32);
+      //timeline->ConstrainBelow(stateLength, 32);
+      timeline->ConstrainWidth(kTimelineWidth);
+
+      // Container for keyframe icons. Not very important but it can't hurt.
       mKeyframes = Add<UIElement>();
-      UIFrame& fKeyframes = mKeyframes->GetFrame();
-      root->AddConstraints({
-         fKeyframes.left == fTimeline.left,
-         fKeyframes.right == fTimeline.right,
-         fKeyframes.top == fTimeline.top,
-         fKeyframes.bottom == fTimeline.bottom,
-      });
+      mKeyframes->ConstrainLeftAlignedTo(timeline);
+      mKeyframes->ConstrainTopAlignedTo(timeline);
+      mKeyframes->ConstrainDimensionsTo(timeline);
+
+      ScrollBar::Options scrollbarOptions;
+      scrollbarOptions.filename = Asset::Image("EditorIcons.png");
+      scrollbarOptions.image = "frame_pointer";
+      scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
+      mScrubber = dockStateInfo->Add<ScrollBar>(scrollbarOptions);
+      mScrubber->ConstrainLeftAlignedTo(timeline);
+      mScrubber->ConstrainWidthTo(timeline);
+      mScrubber->ConstrainHeight(10);
    }
 
    // Keyframe buttons
-   UIElement* keyframe = Add<UIElement>();
-   UIFrame& fKeyframe = keyframe->GetFrame();
+   UIStackView* keyframe = dockStateInfo->Add<UIStackView>();
+   keyframe->SetVertical(false);
+   keyframe->SetOffset(8.0);
+   keyframe->ConstrainHeightTo(stateName);
+   keyframe->ConstrainLeftAlignedTo(stateName);
    {
-      UIFrame& fRow = fKeyframe;
-      UIFrame& fLabel = keyframe->Add<Text>(Text::Options{"Keyframe"})->GetFrame();
-
-      root->AddConstraints({
-         fKeyframe.left == c1,
-         fKeyframe.top == fTimeline.bottom - 32,
-         fKeyframe.height == fStateLength.height,
-
-         fLabel.left == fRow.left,
-         fLabel.right == c2,
-         fLabel.top == fRow.top,
-         fLabel.height == fRow.height,
-      });
+      Text* label = keyframe->Add<Text>(Text::Options{"Keyframe"});
+      label->ConstrainTopAlignedTo(keyframe);
+      label->ConstrainHeightTo(keyframe);
 
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
@@ -267,7 +214,9 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
             CommandStack::Instance()->Do<AddKeyframeCommand>(this);
          }
       };
-      UIFrame& fAddFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
+      Button* addFrameButton = keyframe->Add<Button>(buttonOptions);
+      addFrameButton->ConstrainTopAlignedTo(keyframe);
+      addFrameButton->ConstrainHeightTo(keyframe);
 
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
@@ -280,27 +229,29 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
             CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
          }
       };
-      UIFrame& fRemFrame = keyframe->Add<Button>(buttonOptions)->GetFrame();
+      Button* removeFrameButton = keyframe->Add<Button>(buttonOptions);
+      removeFrameButton->ConstrainTopAlignedTo(keyframe);
+      removeFrameButton->ConstrainHeightTo(keyframe);
 
-      root->AddConstraints({
-         fAddFrame.left == c3,
-         fAddFrame.top == fRow.top,
-         fAddFrame.bottom == fRow.bottom,
-         fRemFrame.left == fAddFrame.right + 8,
-         fRemFrame.top == fRow.top,
-         fRemFrame.bottom == fRow.bottom,
-      });
+      // Column alignment
+      label->ConstrainLeftAlignedTo(stateNameLabel);
+      addFrameButton->ConstrainLeftAlignedTo(prevStateButton);
    }
 
    // State length
-   UIElement* time = Add<UIElement>();
-   UIFrame& fTime = time->GetFrame();
+   UIStackView* time = dockStateInfo->Add<UIStackView>();
+   time->SetVertical(false);
+   time->SetOffset(8.0);
+   time->ConstrainHeightTo(stateName);
+   time->ConstrainLeftAlignedTo(stateName);
    {
-      UIFrame& fRow = fTime;
-      UIFrame& fLabel = time->Add<Text>(Text::Options{"Time"})->GetFrame();
+      Text* label = time->Add<Text>(Text::Options{"Time"});
+      label->ConstrainTopAlignedTo(time);
+      label->ConstrainHeightTo(time);
 
       mTime = time->Add<NumDisplay<double>>(NumDisplay<double>::Options(2));
-      UIFrame& fValue = mTime->GetFrame();
+      mTime->ConstrainTopAlignedTo(time);
+      mTime->ConstrainHeightTo(time);
 
       Scrubber<double>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
@@ -332,34 +283,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          mpRoot->Suggest(mKeyframeIcons[index].second, keyframe.time / state.length);
       };
       mKeyframeTime = time->Add<Scrubber<double>>(scrubberOptions);
-      UIFrame& fScrubber = mKeyframeTime->GetFrame();
+      mKeyframeTime->ConstrainTopAlignedTo(time);
+      mKeyframeTime->ConstrainHeightTo(time);
 
-      root->AddConstraints({
-         fTime.left == c1,
-         fTime.top == fKeyframe.bottom - 16,
-         fTime.height == fKeyframe.height,
-
-         fLabel.left == fRow.left,
-         fLabel.right == c2,
-         fLabel.top == fRow.top,
-         fLabel.height == fRow.height,
-
-         fValue.left == c2,
-         fValue.right == c3,
-         fValue.top == fRow.top,
-         fValue.height == fRow.height,
-
-         fScrubber.left == c3,
-         fScrubber.top == fRow.top,
-         fScrubber.bottom == fRow.bottom,
-      });
+      // Column alignment
+      label->ConstrainLeftAlignedTo(stateNameLabel);
+      mTime->ConstrainLeftAlignedTo(mStateName);
+      mKeyframeTime->ConstrainLeftAlignedTo(prevStateButton);
    }
 
    // Playback controls
-   UIElement* playback = Add<UIElement>();
-   UIFrame& fPlayback = playback->GetFrame();
    {
-      UIFrame& fRow = fPlayback;
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
 
@@ -367,62 +301,54 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_play";
       buttonOptions.pressImage = "press_button_play";
       buttonOptions.onClick = [&]() { mController->paused = false; };
-      mPlay = playback->Add<Button>(buttonOptions);
-      UIFrame& fPlay = mPlay->GetFrame();
+      mPlay = Add<Button>(buttonOptions);
+      mPlay->ConstrainHeight(38);
+      mPlay->ConstrainTopAlignedTo(dockStateInfo);
+      mPlay->ConstrainToRightOf(dockStateInfo);
 
       buttonOptions.image = "button_pause";
       buttonOptions.hoverImage = "hover_button_pause";
       buttonOptions.pressImage = "press_button_pause";
       buttonOptions.onClick = [&]() { mController->paused = true; };
-      mPause = playback->Add<Button>(buttonOptions);
-      UIFrame& fPause = mPause->GetFrame();
+      mPause = Add<Button>(buttonOptions);
+      mPause->ConstrainDimensionsTo(mPlay);
+      mPause->ConstrainTopAlignedTo(mPlay);
+      mPause->ConstrainLeftAlignedTo(mPlay);
 
-      root->AddConstraints({
-         fPlayback.left == c4,
-         fPlayback.top == fStateName.top,
-         fPlayback.height == 38,
-
-         fPlay.left == c4,
-         fPlay.top == fRow.top,
-         fPlay.bottom == fRow.bottom,
-
-         fPause.left == fPlay.left,
-         fPause.top == fPlay.top,
-         fPause.bottom == fPlay.bottom,
-      });
+      UIStackView* playback = Add<UIStackView>();
+      playback->SetVertical(false);
+      playback->SetOffset(8.0);
+      playback->ConstrainHeight(19);
+      playback->ConstrainBelow(mPlay, 8);
+      playback->ConstrainLeftAlignedTo(mPlay);
 
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() {
-         mController->speed /= 2.0;
-      };
-      UIFrame& fSlower = Add<Button>(buttonOptions)->GetFrame();
+      buttonOptions.onClick = [&]() { mController->speed /= 2.0; };
+      Button* slower = playback->Add<Button>(buttonOptions);
+      slower->ConstrainHeightTo(playback);
+      slower->ConstrainTopAlignedTo(playback);
 
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() {
-         mController->speed *= 2.0;
-      };
-      UIFrame& fFaster = Add<Button>(buttonOptions)->GetFrame();
-
-      root->AddConstraints({
-         fSlower.left == fPlay.left,
-         fSlower.top == fPlay.bottom - 8,
-         fSlower.height == 19,
-         fFaster.left == fSlower.right + 8,
-         fFaster.top == fSlower.top,
-         fFaster.height == fSlower.height,
-      });
+      buttonOptions.onClick = [&]() { mController->speed *= 2.0; };
+      Button* faster = playback->Add<Button>(buttonOptions);
+      faster->ConstrainHeightTo(playback);
+      faster->ConstrainTopAlignedTo(playback);
    }
 
    // Bone information
-   UIElement* boneHeader = Add<UIElement>();
-   UIFrame& fBoneHeader = boneHeader->GetFrame();
+   UIElement* boneHeader = Add<UIStackView>();
+   boneHeader->ConstrainToRightOf(dockStateInfo, 48);
+   boneHeader->ConstrainTopAlignedTo(dockStateInfo);
    {
-      mBoneName = boneHeader->Add<Text>(Text::Options{"Bone name"});
-      UIFrame& fBoneName = mBoneName->GetFrame();
+      UIStackView* row1 = boneHeader->Add<UIStackView>();
+      row1->SetVertical(false);
+      row1->SetOffset(8.0);
+      row1->ConstrainHeight(19);
+      row1->ConstrainLeftAlignedTo(boneHeader);
 
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
@@ -430,92 +356,73 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
-      UIFrame& fPrevBone = boneHeader->Add<Button>(buttonOptions)->GetFrame();
+      Button* prevBoneButton = row1->Add<Button>(buttonOptions);
+      prevBoneButton->ConstrainTopAlignedTo(row1);
+      prevBoneButton->ConstrainHeightTo(row1);
+
+      mBoneName = row1->Add<Text>(Text::Options{"Bone name"});
+      mBoneName->ConstrainTopAlignedTo(row1);
+      mBoneName->ConstrainHeightTo(row1);
 
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
-      UIFrame& fNextBone = boneHeader->Add<Button>(buttonOptions)->GetFrame();
+      Button* nextBoneButton = row1->Add<Button>(buttonOptions);
+      nextBoneButton->ConstrainTopAlignedTo(row1);
+      nextBoneButton->ConstrainHeightTo(row1);
 
-      UIFrame& fParentLabel = boneHeader->Add<Text>(Text::Options{"Parent"})->GetFrame();
+      UIStackView* row2 = boneHeader->Add<UIStackView>();
+      row2->SetVertical(false);
+      row2->SetOffset(8.0);
+      row2->ConstrainHeightTo(row1);
+      row2->ConstrainLeftAlignedTo(row1);
+
+      Text* parentLabel = row2->Add<Text>(Text::Options{"Parent"});
+      parentLabel->ConstrainTopAlignedTo(row2);
+      parentLabel->ConstrainHeightTo(row2);
+
       Text::Options parentOptions{"N/A"};
       parentOptions.size = 12;
       parentOptions.alignment = Engine::Graphics::Font::Right;
-      mBoneParent = boneHeader->Add<Text>(parentOptions);
-      UIFrame& fParentValue = mBoneParent->GetFrame();
+      mBoneParent = row2->Add<Text>(parentOptions);
+      mBoneParent->ConstrainTopAlignedTo(row2);
+      mBoneParent->ConstrainHeightTo(row2);
 
       buttonOptions.image = "button_up";
       buttonOptions.hoverImage = "hover_button_up";
       buttonOptions.pressImage = "press_button_up";
       buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
-      UIFrame& fParentBone = Add<Button>(buttonOptions)->GetFrame();
+      Button* parentBoneButton = row2->Add<Button>(buttonOptions);
+      parentBoneButton->ConstrainTopAlignedTo(row2);
+      parentBoneButton->ConstrainHeightTo(row2);
 
-      root->AddConstraints({
-         fBoneHeader.left == fTimeline.right + 48,
-         fBoneHeader.top == fStateName.top,
-         fBoneHeader.bottom == fParentBone.bottom,
-         fBoneHeader.width >= 200,
-
-         fPrevBone.top == fBoneHeader.top,
-         fPrevBone.left == fBoneHeader.left,
-         fPrevBone.height == 19,
-         fBoneName.top == fPrevBone.top,
-         fBoneName.bottom == fPrevBone.bottom,
-         fBoneName.left == fPrevBone.right + 8,
-         fBoneName.right == fNextBone.left - 8,
-         fNextBone.top == fPrevBone.top,
-         fNextBone.right == fBoneHeader.right,
-         fNextBone.height == fPrevBone.height,
-
-         fParentLabel.top == fPrevBone.bottom - 16,
-         fParentLabel.left == fBoneHeader.left,
-         fParentLabel.height == 19,
-         fParentValue.top == fParentLabel.top,
-         fParentValue.left >= fParentLabel.right + 8,
-         fParentValue.right == fParentBone.left - 8,
-         fParentValue.height == fParentLabel.height,
-         fParentBone.top == fParentValue.top,
-         fParentBone.right == fBoneHeader.right,
-         fParentBone.height == fParentValue.height,
-         fParentBone.width == 19,
-      });
+      // parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
+      // mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
    }
 
    // Bone positions, rotations and sliders
    UIElement* bonePosition = Add<UIElement>();
-   UIFrame& fBonePosition = bonePosition->GetFrame();
    UIElement* boneRotation = Add<UIElement>();
-   UIFrame& fBoneRotation = boneRotation->GetFrame();
-   root->AddConstraints({
-      fBonePosition.top == fBoneHeader.bottom - 8,
-      fBonePosition.left == fBoneHeader.left,
-      fBoneRotation.top == fBonePosition.top,
-      fBoneRotation.right == fBoneHeader.right,
+   bonePosition->ConstrainBelow(boneHeader, 8);
+   bonePosition->ConstrainLeftAlignedTo(boneHeader);
 
-      // Split the bone section in half
-      fBonePosition.right == fBoneRotation.left,
-      fBonePosition.width == fBoneRotation.width,
-   });
+   boneRotation->ConstrainTopAlignedTo(bonePosition);
+   boneRotation->ConstrainRightAlignedTo(boneHeader);
+   boneRotation->ConstrainToRightOf(bonePosition);
+   boneRotation->ConstrainWidthTo(bonePosition);
 
    {
       // Position/rotation icons that look good
-      Image::Options imageOptions;
-      imageOptions.filename = Asset::Image("EditorIcons.png");
-      imageOptions.image = "position";
-      UIFrame& fPosition = bonePosition->Add<Image>(imageOptions)->GetFrame();
-      imageOptions.image = "rotation";
-      UIFrame& fRotation = boneRotation->Add<Image>(imageOptions)->GetFrame();
+      Image* position = bonePosition->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "position"});
+      Image* rotation = boneRotation->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "rotation"});
 
-      root->AddConstraints({
-         fPosition.width == 37,
-         fPosition.left == fBonePosition.left,
-         fPosition.centerY == fBonePosition.centerY,
-
-         fRotation.width == 40,
-         fRotation.left == fBoneRotation.left,
-         fRotation.centerY == fBoneRotation.centerY,
-      });
+      position->ConstrainWidth(37);
+      position->ConstrainLeftAlignedTo(bonePosition);
+      position->ConstrainVerticalCenterTo(bonePosition);
+      rotation->ConstrainWidth(40);
+      rotation->ConstrainLeftAlignedTo(boneRotation);
+      rotation->ConstrainVerticalCenterTo(boneRotation);
 
       // Bone position/rotation reset buttons
       Button::Options buttonOptions;
@@ -528,7 +435,10 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
             CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].originalPosition, keyframe.rotations[mBone]);
          }
       };
-      UIFrame& fResetPosition = bonePosition->Add<Button>(buttonOptions)->GetFrame();
+      Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
+      resetPositionButton->ConstrainWidth(35);
+      resetPositionButton->ConstrainLeftAlignedTo(position);
+      resetPositionButton->ConstrainBelow(position, 8);
 
       buttonOptions.onClick = [&]() {
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mSkeleton->time);
@@ -537,17 +447,10 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
             CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].originalRotation);
          }
       };
-      UIFrame& fResetRotation = boneRotation->Add<Button>(buttonOptions)->GetFrame();
-
-      root->AddConstraints({
-         fResetPosition.width == 35,
-         fResetPosition.left == fBonePosition.left,
-         fResetPosition.top == fPosition.bottom - 8,
-
-         fResetRotation.width == 35,
-         fResetRotation.left == fBoneRotation.left,
-         fResetRotation.top == fRotation.bottom - 8,
-      });
+      Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
+      resetRotationButton->ConstrainWidth(35);
+      resetRotationButton->ConstrainLeftAlignedTo(rotation);
+      resetRotationButton->ConstrainBelow(rotation, 8);
 
       // Bone position/rotation controls
       NumDisplay<float>::Options textOptions;
@@ -560,50 +463,36 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton); };
       scrubberOptions.sensitivity = 0.1;
 
+      UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
+      UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
+      positionScrubbers->ConstrainToRightOf(resetPositionButton, 32);
+      positionScrubbers->ConstrainHeightTo(bonePosition);
+      positionScrubbers->ConstrainTopAlignedTo(bonePosition);
+      positionScrubbers->ConstrainRightAlignedTo(bonePosition, 12);
+      rotationScrubbers->ConstrainToRightOf(resetRotationButton, 32);
+      rotationScrubbers->ConstrainHeightTo(boneRotation);
+      rotationScrubbers->ConstrainTopAlignedTo(boneRotation);
+      rotationScrubbers->ConstrainRightAlignedTo(boneRotation, 12);
+
       for (int i = 0; i < 3; i++)
       {
-         mBonePos[i].text = bonePosition->Add<NumDisplay<float>>(textOptions);
-         mBonePos[i].scrubber = bonePosition->Add<Scrubber<float>>(scrubberOptions);
-         mBoneRot[i].text = boneRotation->Add<NumDisplay<float>>(textOptions);
-         mBoneRot[i].scrubber = boneRotation->Add<Scrubber<float>>(scrubberOptions);
-         UIFrame& bonePosText = mBonePos[i].text->GetFrame();
-         UIFrame& bonePosValue = mBonePos[i].scrubber->GetFrame();
-         UIFrame& boneRotText = mBoneRot[i].text->GetFrame();
-         UIFrame& boneRotValue = mBoneRot[i].scrubber->GetFrame();
+         mBonePos[i].text = positionScrubbers->Add<NumDisplay<float>>(textOptions);
+         mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
+         mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(scrubberOptions);
 
-         bonePosition->Contains(mBonePos[i].text);
-         bonePosition->Contains(mBonePos[i].scrubber);
-         boneRotation->Contains(mBoneRot[i].text);
-         boneRotation->Contains(mBoneRot[i].scrubber);
-         root->AddConstraints({
-            bonePosText.left == fResetPosition.right + 32,
-            bonePosText.height == 32,
-            bonePosValue.top == bonePosText.bottom - 8,
-            bonePosValue.left == bonePosText.left,
-            bonePosValue.height == 7,
-
-            boneRotText.left == fResetRotation.right + 32,
-            boneRotText.height == 32,
-            boneRotValue.top == boneRotText.bottom - 8,
-            boneRotValue.left == boneRotText.left,
-            boneRotValue.height == 7,
-         });
-
-         if (i == 0)
-         {
-            root->AddConstraints({
-               bonePosText.top == fBonePosition.top,
-               boneRotText.top == fBoneRotation.top,
-            });
-         }
-         else
-         {
-            root->AddConstraints({
-               bonePosText.top == mBonePos[i - 1].scrubber->GetFrame().bottom - 8,
-               boneRotText.top == mBoneRot[i - 1].scrubber->GetFrame().bottom - 8,
-            });
-         }
+         mBonePos[i].text->ConstrainHeight(32);
+         mBonePos[i].text->ConstrainLeftAlignedTo(positionScrubbers);
+         mBonePos[i].scrubber->ConstrainHeight(7);
+         mBonePos[i].scrubber->ConstrainLeftAlignedTo(positionScrubbers);
+         mBoneRot[i].text->ConstrainHeight(32);
+         mBoneRot[i].text->ConstrainLeftAlignedTo(rotationScrubbers);
+         mBoneRot[i].scrubber->ConstrainHeight(7);
+         mBoneRot[i].scrubber->ConstrainLeftAlignedTo(rotationScrubbers);
       }
+
+      mBonePos[0].scrubber->ConstrainRightAlignedTo(bonePosition);
+      mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
    }
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
