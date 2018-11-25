@@ -79,15 +79,15 @@ int main(int argc, char** argv)
    // Create subwindow for each editor
    Editor::AnimationStation::Editor* animationStation = windowContent.Add<Editor::AnimationStation::Editor>();
    animationStation->SetBounds(*window);
-   animationStation->AddConstraints({animationStation->GetFrame().z >= 10.0});
+   animationStation->AddConstraints({animationStation->GetFrame().z <= 10.0});
 
    Editor::ModelMaker::Editor* modelMaker = windowContent.Add<Editor::ModelMaker::Editor>();
    modelMaker->SetBounds(*window);
-   modelMaker->AddConstraints({modelMaker->GetFrame().z >= 10.0});
+   modelMaker->AddConstraints({modelMaker->GetFrame().z <= 10.0});
    
    Editor::Constrainer::Editor* constrainer = windowContent.Add<Editor::Constrainer::Editor>();
    constrainer->SetBounds(*window);
-   constrainer->AddConstraints({constrainer->GetFrame().z >= 10.0});
+   constrainer->AddConstraints({constrainer->GetFrame().z <= 10.0});
 
    // Create editor-wide controls pane
    UIRoot controls;
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
       controls.AddConstraints({
          fControls > fForeground,
          fForeground > fBackground,
-         fBackground.z <= 10.0,
+         fBackground.z >= 10.0,
 
          fBackground.left == fControls.left,
          fBackground.right == window->GetWidth() * 0.2,

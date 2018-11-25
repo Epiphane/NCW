@@ -40,6 +40,10 @@ struct UIFrame : public Bounded
    
    // Larger z is displayed on top
    rhea::variable z;
+
+   // What is the largest Z value amongst my children?
+   //  Used to make a constraint like "In front of me AND all my children."
+   rhea::variable biggestDescendantZ;
    
    glm::vec3 GetTopRight()
    {
@@ -90,8 +94,9 @@ public:
    
    UIConstraint ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
    UIConstraint ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
-   
-   
+
+   UIConstraint ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+
    //
    // Set the name of this element
    //

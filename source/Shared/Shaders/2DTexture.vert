@@ -13,6 +13,6 @@ void main()
 {
    vec2 pos = 2 * (aPosition.xy + uOffset) / uWindowSize - 1;
 
-   gl_Position = vec4(pos, aPosition.z / uMaxZValue, 1);
+   gl_Position = vec4(pos, (uMaxZValue - aPosition.z) / uMaxZValue, 1);
    gUV = aUV;
 }

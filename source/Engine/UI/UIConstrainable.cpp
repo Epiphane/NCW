@@ -35,6 +35,7 @@ rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target ta
       {UIConstraint::Height,  (top - bottom) },
       
       {UIConstraint::ZHeight, z},
+      {UIConstraint::ZHeightDescendants, biggestDescendantZ},
    };
    
    return mapping[target];
@@ -333,9 +334,9 @@ UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConst
    if (options.mCustomNameConnector == "")
       options.mCustomNameConnector = "_inFrontOf_";
    
-   options.mRelationship = UIConstraint::LessThanOrEqual;
-   options.mConstant = -1.0f;
-   
+   options.mRelationship = UIConstraint::GreaterOrEqual;
+   options.mConstant = 1.0f;
+
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
    mpRoot->AddConstraint(newConstraint);
    
@@ -350,16 +351,31 @@ UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstrai
    if (options.mCustomNameConnector == "")
       options.mCustomNameConnector = "_behind_";
    
-   options.mRelationship = UIConstraint::GreaterOrEqual;
-   options.mConstant = 1.0f;
-   
+   options.mRelationship = UIConstraint::LessThanOrEqual;
+   options.mConstant = -1.0f;
+
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
    mpRoot->AddConstraint(newConstraint);
    
    return newConstraint;
 }
-   
 
+/* Constrain In Front Of All Descendants
+ *
+ * Constraints ME to have a HIGHER Z value than 'other', AND all of its children.
+ */
+UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options) {
+   if (options.mCustomNameConnector == "")
+      options.mCustomNameConnector = "_inFrontOfAllDescendants_";
+
+   options.mRelationship = UIConstraint::GreaterOrEqual;
+   options.mConstant = 1.0f;
+
+   UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeightDescendants, options);
+   mpRoot->AddConstraint(newConstraint);
+
+   return newConstraint;
+}
    
 }; // namespace Engine
 

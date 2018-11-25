@@ -31,6 +31,8 @@ public:
    //
    void Start();
 
+   void TestButton();
+
 private:
    Engine::EventManager mEvents;
 };

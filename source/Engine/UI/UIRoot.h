@@ -106,7 +106,7 @@ public:
    virtual void Receive(const MouseMoveEvent& evt);
    virtual void Receive(const MouseUpEvent& evt);
    virtual void Receive(const MouseClickEvent& evt);
-   
+
 protected:
    // Solves for the constraints we provide.
    rhea::simplex_solver mSolver;
@@ -137,7 +137,7 @@ public:
 private:
    // Aggregators for batch rendering.
    std::vector<std::unique_ptr<BaseAggregator>> mAggregators;
-   
+
    // Holds all the elements in this tree, sorted by z-value.
    std::vector<UIElement*> mElements;
 

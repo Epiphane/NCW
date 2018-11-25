@@ -78,6 +78,7 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
       frame.height >= 0,
 
       frame.z >= 0,
+      frame.biggestDescendantZ >= frame.z,
    });
 }
 

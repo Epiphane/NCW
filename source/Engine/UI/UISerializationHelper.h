@@ -27,7 +27,7 @@ typedef std::map<std::string, UIElement*> ElementsByName;
    
 class UISerializationHelper {
 public:
-   UIElement* CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent);
+   ElementsByName CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent);
 
 private:
    UIConstraint::Target ConstraintTargetFromString(std::string name);

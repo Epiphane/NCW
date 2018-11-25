@@ -35,6 +35,7 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
 
    mpRoot->AddConstraints({
       rhea::constraint(fChild > mFrame, rhea::strength::weak()),
+      rhea::constraint(mFrame.biggestDescendantZ >= fChild.biggestDescendantZ, rhea::strength::required()),
    });
 
    return element;
@@ -115,7 +116,7 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs)
 
 rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 {
-   return rhs.z >= lhs.z + 1.0;
+   return lhs.z >= rhs.z + 1.0;
 }
 
 }; // namespace Engine

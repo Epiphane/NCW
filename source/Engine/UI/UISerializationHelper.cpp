@@ -11,6 +11,7 @@
 
 #include "UIElement.h"
 #include "UIRoot.h"
+#include "UIStackView.h"
 
 #include "UISerializationHelper.h"
 
@@ -49,12 +50,16 @@ namespace Engine
 void UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName& elementMapOut)
 {
    UIElement* newElement;
+   std::string newElementClass = element["class"].get<std::string>();
 
-   if (element["class"].get<std::string>().compare("UIElement") == 0) {
+   if (newElementClass.compare("UIElement") == 0) {
       newElement = new UIElement(pRoot, pParent, element["name"]);
    }
-   else if (element["class"].get<std::string>().compare("UIRectFilled") == 0) {
+   else if (newElementClass.compare("UIRectFilled") == 0) {
       newElement = new UI::RectFilled(pRoot, pParent, element["name"]);
+   }
+   else if (newElementClass.compare("UIStackView") == 0) {
+      newElement = new UIStackView(pRoot, pParent, element["name"]);
    }
    else {
       assert(false && "Unsupported class name! I should probably add it >_>");
@@ -164,8 +169,10 @@ void UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot*
  *  and adds it as a child to the specified parent.
  *
  * Also adds constraints from the JSON file to the specified UIRoot.
+ *
+ * Returns a map of newly created elements by their name.
  */
-UIElement* UISerializationHelper::CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent)
+ElementsByName UISerializationHelper::CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent)
 {
    std::ifstream file(filename);
 
@@ -182,7 +189,7 @@ UIElement* UISerializationHelper::CreateUIFromJSONFile(const std::string &filena
 
    ParseConstraints(data["constraints"], pRoot, elementsByName);
 
-   return elementsByName[data["baseElement"]["name"]];
+   return elementsByName;
 }
 
 

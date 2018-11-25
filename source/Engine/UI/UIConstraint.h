@@ -56,6 +56,7 @@ public:
       CenterX, CenterY,
       
       ZHeight,
+      ZHeightDescendants,
        
       NoTarget,
    };
