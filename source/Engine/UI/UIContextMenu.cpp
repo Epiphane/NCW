@@ -10,9 +10,9 @@
 
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/TextButton.h>
+#include <Shared/UI/RectFilled.h>
 
 #include "UISerializationHelper.h"
-
 
 
 namespace CubeWorld
@@ -22,6 +22,7 @@ namespace Engine
 {
 
 using UI::TextButton;
+using UI::RectFilled;
 
 /**
  * Instantiate a new UIContextMenu.
@@ -48,6 +49,81 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
       load->ConstrainRightAlignedTo(mOptionList);
       load->ConstrainHeight(32);
    }
+}
+
+/**
+ * Creates a new UIContextMenu within this element's bounds.
+ *
+ * @param x, y      Absolute position within the UIRoot where the context menu will appear
+ * @param choices   List of choices for the menu
+ */
+void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMenu::Choices choices)
+{
+   UIContextMenu* mCurrentMenu = Add<UIContextMenu>("MainContextMenu", choices);
+   RectFilled* menuCorner = Add<RectFilled>("Funnyfart", glm::vec4(1, 0, 0, 1));
+
+   // The menu MUST remain within my bounds
+   UIConstraint::Options leftOptions;
+   leftOptions.relationship = UIConstraint::GreaterOrEqual;
+   mCurrentMenu->ConstrainLeftAlignedTo(this, 0.0, leftOptions);
+
+   UIConstraint::Options topOption;
+   topOption.relationship = UIConstraint::LessThanOrEqual;
+   mCurrentMenu->ConstrainTopAlignedTo(this, 0.0, topOption);
+
+   UIConstraint::Options rightOptions;
+   rightOptions.relationship = UIConstraint::LessThanOrEqual;
+   mCurrentMenu->ConstrainRightAlignedTo(this, 0.0, rightOptions);
+
+   UIConstraint::Options bottomOptions;
+   bottomOptions.relationship = UIConstraint::GreaterOrEqual;
+   mCurrentMenu->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
+
+   // "Menu Corner" is a 0-size point where the mouse cursor is.
+   menuCorner->ConstrainWidth(10);
+   menuCorner->ConstrainHeight(10);
+
+   menuCorner->ConstrainLeftAlignedTo(this, x);
+   menuCorner->ConstrainBottomAlignedTo(this, y);
+
+   menuCorner->ConstrainInFrontOfAllDescendants(mCurrentMenu);
+
+   // Prefer the menu be placed with its top-left corner at "menuCorner", but if that's not possible,
+   //    allow it to be placed with its bottom or right at "menuCorner".
+   UIConstraint::Options mediumPriority;
+   mediumPriority.priority = UIConstraint::MEDIUM_PRIORITY;
+
+   UIConstraint::Options lowPriority;
+   lowPriority.priority = UIConstraint::LOW_PRIORITY;
+
+   menuCorner->ConstrainLeftAlignedTo(mCurrentMenu, 0.0, mediumPriority);
+   menuCorner->ConstrainTopAlignedTo(mCurrentMenu, 0.0, mediumPriority);
+
+   menuCorner->ConstrainRightAlignedTo(mCurrentMenu, 0.0, lowPriority);
+   menuCorner->ConstrainBottomAlignedTo(mCurrentMenu, 0.0, lowPriority);
+
+   mbIsShowingContextMenu = true;
+}
+
+//
+// On mouse click, close context menu if it's open and consume the event.
+//
+UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent &event)
+{
+   if (!mbIsShowingContextMenu) {
+      return Unhandled;
+   }
+   else {
+      mbIsShowingContextMenu = false;
+      mCurrentMenu->SetActive(false);
+      return Handled;
+   }
+}
+
+UIContextMenuParent::UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string &name)
+      : UIElement(root, parent, name)
+      , mCurrentMenu(nullptr)
+{
 }
 
 

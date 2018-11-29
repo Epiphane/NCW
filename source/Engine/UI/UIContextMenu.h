@@ -5,6 +5,8 @@
 //
 // Attaches to an element and reveals a list of options when you click on it.
 //
+// Also defines the class that manages UIContextMenus.
+//
 
 #pragma once
 
@@ -21,21 +23,40 @@ class UIContextMenu : public UIElement
 public:
    /**
     * Represents an option the user can choose from the UIContextMenu. A TextButton
-    *   will be created with the speicifed name and callback.
+    *   will be created with the specified name and callback.
     */
    struct Choice {
       std::string name;                   ///< Text displayed for this choice
       std::function<void(void)> callback; ///< Called when this choice is selected from the menu
    };
 
-   UIContextMenu(UIRoot* root, UIElement* parent, const std::string &name, const std::list<Choice> &choices);
+   typedef std::list<Choice> Choices;
+
+   UIContextMenu(UIRoot* root, UIElement* parent, const std::string &name, const Choices &choices);
 
 private:
    UIStackView* mOptionList;       ///< Organizes the options in a vertical list
    UIElement*   mBoundingElement;  ///< The context menu must appear within the bounds of this element.
 
    std::vector<Choice> mChoices;
+};
 
+//
+// This class lives in the UIRoot, positions the UIContextMenu and manages
+//   its lifecycle.
+//
+class UIContextMenuParent : public UIElement
+{
+public:
+   UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string &name = "");
+
+   void CreateNewUIContextMenu(double x, double y, UIContextMenu::Choices choices);
+
+   Action MouseClick(const MouseClickEvent &event) override;
+
+private:
+   UIContextMenu* mCurrentMenu;
+   bool mbIsShowingContextMenu = false;
 };
 
 }  // Engine

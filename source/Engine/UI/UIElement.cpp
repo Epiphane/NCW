@@ -91,6 +91,11 @@ void UIElement::InitFromJSON(nlohmann::json data)
 {
 }
 
+bool UIElement::IsMarkedForDeletion() const
+{
+   return mbDeleteAfterThisFrame;
+}
+
 rhea::linear_inequality operator>(UIElement& lhs, UIElement& rhs)
 {
    return lhs.GetFrame() > rhs.GetFrame();

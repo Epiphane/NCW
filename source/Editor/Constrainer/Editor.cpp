@@ -35,27 +35,42 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
 
-   Engine::UISerializationHelper serializer;
+//   Engine::UISerializationHelper serializer;
+//
+//   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
+//
+//   UIElement* mainContent = elementMap["TestJSONStuff"];
+//   mainContent->ConstrainHeightTo(this);
+//   mainContent->ConstrainToRightOf(sidebar);
+//   mainContent->ConstrainTopAlignedTo(this);
+//   mainContent->ConstrainRightAlignedTo(this);
 
-   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
+//   std::list<UIContextMenu::Choice> bleh = {
+//         {"Test this out", std::bind(&Editor::TestButton, this)}
+//   };
 
-   UIElement* mainContent = elementMap["TestJSONStuff"];
-   mainContent->ConstrainHeightTo(this);
-   mainContent->ConstrainToRightOf(sidebar);
-   mainContent->ConstrainTopAlignedTo(this);
-   mainContent->ConstrainRightAlignedTo(this);
-
-   std::list<UIContextMenu::Choice> bleh = {
-         {"Test this out", std::bind(&Editor::TestButton, this)}
-   };
-
-   UIContextMenu *testMenu = mpRoot->Add<UIContextMenu>("TestThingy", bleh);
-   testMenu->ConstrainCenterTo(mainContent);
+//   UIContextMenu *testMenu = mpRoot->Add<UIContextMenu>("TestThingy", bleh);
+//   testMenu->ConstrainCenterTo(this);
 //   testMenu->ConstrainInFrontOfAllDescendants(mainContent);
 }
 
-void Editor::TestButton() {
+void Editor::Receive(const MouseUpEvent &evt)
+{
+   std::list<UIContextMenu::Choice> bleh = {
+         {"Test this out", std::bind(&Editor::TestButton, this)},
+         {"Test THIS out", std::bind(&Editor::TestButton, this)},
+         {"Test THIS out", std::bind(&Editor::TestButton, this)}
+   };
 
+   mpRoot->CreateUIContextMenu(evt.x, evt.y, bleh);
+}
+
+Engine::UIElement::Action Editor::MouseClick(const MouseClickEvent &event)
+{
+
+}
+
+void Editor::TestButton() {
 }
 
 void Editor::Start()

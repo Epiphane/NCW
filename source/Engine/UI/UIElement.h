@@ -42,7 +42,7 @@ struct VertexData
    VertexData() {
       std::memset(this, 0, sizeof(VertexData));
    };
-   
+
    glm::vec2 position, uv;
 //   glm::vec4 color; // Maybe someday
 };
@@ -115,7 +115,7 @@ public:
    virtual void Redraw() {}
 
    //
-   // Called whenever the UI is rebalanced. 
+   // Called whenever the UI is rebalanced.
    //
    void Receive(const UIRebalancedEvent&);
 
@@ -128,6 +128,13 @@ public:
    // Get whether this element is active.
    //
    bool IsActive() { return mActive; }
+
+   //
+   // Remove the element. Will be marked and removed at the end of the frame.
+   //
+   void RemoveElement() { mbDeleteAfterThisFrame = true; }
+
+   bool IsMarkedForDeletion() const;
 
    //
    // Update the element, called once per frame with the time elapsed.
@@ -178,10 +185,14 @@ protected:
    // Adhering to this is up to the element itself.
    bool mActive;
 
+   // If true, this element is MARKED FOR DEATH
+   bool mbDeleteAfterThisFrame = false;
+
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
 
    UIElement* mpParent;
+
 };
 
 //

@@ -20,31 +20,38 @@
 	"constraints" : [
 		{
 			"primaryElement" : "ContextMenuBackgroundBorder",
-			"secondaryElement" : "ContextMenuBackground",
+			"primaryTarget" : "Width",
+			"name" : " _constantWidth",
+			"constant" : 100.0
+		},
+
+		{
+			"primaryElement" : "ContextMenuBackground",
+			"secondaryElement" : "ContextMenuBackgroundBorder",
 			"primaryTarget" : "Left",
 			"secondaryTarget" : "Left",
 			"name" : "_leftAlignTo_",
 			"constant" : 2.0
 		},
 		{
-			"primaryElement" : "ContextMenuBackgroundBorder",
-			"secondaryElement" : "ContextMenuBackground",
+			"primaryElement" : "ContextMenuBackground",
+			"secondaryElement" : "ContextMenuBackgroundBorder",
 			"primaryTarget" : "Top",
 			"secondaryTarget" : "Top",
 			"name" : "_topAlignTo_",
-			"constant" : 2.0
+			"constant" : -2.0
 		},
 		{
-			"primaryElement" : "ContextMenuBackgroundBorder",
-			"secondaryElement" : "ContextMenuBackground",
+			"primaryElement" : "ContextMenuBackground",
+			"secondaryElement" : "ContextMenuBackgroundBorder",
 			"primaryTarget" : "Right",
 			"secondaryTarget" : "Right",
 			"name" : "_rightAlignTo_",
-			"constant" : 2.0
+			"constant" : -2.0
 		},
 		{
-			"primaryElement" : "ContextMenuBackgroundBorder",
-			"secondaryElement" : "ContextMenuBackground",
+			"primaryElement" : "ContextMenuBackground",
+			"secondaryElement" : "ContextMenuBackgroundBorder",
 			"primaryTarget" : "Bottom",
 			"secondaryTarget" : "Bottom",
 			"name" : "_bottomAlignTo_",

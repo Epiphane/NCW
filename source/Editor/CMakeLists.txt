@@ -31,3 +31,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy_directory
    ${SHARED_SHADERS_DIR} ${PROJECT_BINARY_DIR}/Shaders)
+
+# Elliot's tired of copying Assets and Shaders to the real executable folder
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_SOURCE_DIR}/Assets ${PROJECT_BINARY_DIR}/Debug/Assets)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${SHARED_SHADERS_DIR} ${PROJECT_BINARY_DIR}/Debug/Shaders)

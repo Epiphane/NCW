@@ -379,8 +379,8 @@ UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstrai
  * Constraints ME to have a HIGHER Z value than 'other', AND all of its children.
  */
 UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options) {
-   if (options.mCustomNameConnector == "")
-      options.mCustomNameConnector = "_inFrontOfAllDescendants_";
+   if (options.customNameConnector == "")
+      options.customNameConnector = "_inFrontOfAllDescendants_";
 
    options.relationship = UIConstraint::GreaterOrEqual;
    options.constant = 1.0f;

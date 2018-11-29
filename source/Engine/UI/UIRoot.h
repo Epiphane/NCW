@@ -14,6 +14,7 @@
 #include "../Event/EventManager.h"
 #include "../Graphics/VBO.h"
 #include "UIConstraint.h"
+#include "UIContextMenu.h"
 #include "UIElement.h"
 
 namespace CubeWorld
@@ -21,6 +22,8 @@ namespace CubeWorld
 
 namespace Engine
 {
+
+class UIContextMenuParent; ///< Forward declare
 
 class UIRoot : public UIElement, public EventManager
 {
@@ -77,6 +80,11 @@ public:
    // Suggest a value to the solver
    //
    void Suggest(const rhea::variable& variable, double value);
+
+   //
+   // Spawn a new UIContextMenu at the given point
+   //
+   void CreateUIContextMenu(double x, double y, UIContextMenu::Choices choices);
 
    //
    // For debugging.
@@ -145,6 +153,8 @@ public:
       return ring;
    }
 
+   UIElement* AddChild(std::unique_ptr<UIElement> &&element) override;
+
 private:
    // Input manager.
    Input* mInput;
@@ -157,6 +167,12 @@ private:
 
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;
+
+   // Parents any UIContextMenu we want to show. Lets us place it in front of all other content.
+   UIContextMenuParent* mContextMenuLayer;
+
+   // All normal content. Calling Add() will add elements with this as the parent.
+   UIElement* mContentLayer;
 
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;

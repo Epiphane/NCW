@@ -6,8 +6,6 @@
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/TimSort.h>
 
-//#include <rhea/rhea/iostream.hpp> // Uncomment if you want to do something like `cout << rhea::variable`
-
 #include "UIRoot.h"
 
 namespace CubeWorld
@@ -20,6 +18,8 @@ UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
    , mInput(input)
+   , mContextMenuLayer(nullptr)
+   , mContentLayer(nullptr)
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
@@ -32,6 +32,15 @@ UIRoot::UIRoot(Input* input)
       mDirty = true;
    };
 
+   mContextMenuLayer = Add<UIContextMenuParent>();
+   mContextMenuLayer->ConstrainEqualBounds(this);
+
+   // IMPORTANT: These 2 lines must be AFTER mContextMenuLayer otherwise mContentLayer will be a child of itself (and crash).
+   mContentLayer = Add<UIElement>();
+   mContentLayer->ConstrainEqualBounds(this);
+
+   mContextMenuLayer->ConstrainInFrontOfAllDescendants(mContentLayer);
+
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
    Subscribe<ElementRemovedEvent>(*this);
@@ -43,6 +52,15 @@ UIRoot::UIRoot(Input* input)
 
 UIRoot::~UIRoot()
 {}
+
+UIElement* UIRoot::AddChild(std::unique_ptr<UIElement> &&element)
+{
+   if (mContentLayer != nullptr) {
+      return mContentLayer->AddChild(std::move(element));
+   }
+
+   return UIElement::AddChild(std::move(element));
+}
 
 void UIRoot::SetBounds(const Bounded& bounds)
 {
@@ -72,7 +90,7 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
    mSolver.add_constraints({
       frame.centerX == (frame.left + frame.right)  / 2,
       frame.centerY == (frame.top  + frame.bottom) / 2,
-         
+
       frame.width  == (frame.right  - frame.left),
       frame.height == (frame.top - frame.bottom),
       frame.width >= 0,
@@ -90,17 +108,17 @@ void UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
       assert(false && "Attempting to add 2 constraints with the same name");
       return;
    }
-   
+
    mConstraintMap.insert(make_pair(constraintToAdd.GetName(), constraintToAdd));
    mSolver.add_constraint(constraintToAdd.GetInternalConstraint());
 }
-   
+
 //
 // Remove a constraint from the system.
 //
 void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
    auto it = mConstraintMap.find(constraintNameToRemove);
-   
+
    if (it != mConstraintMap.end()) {
       mSolver.remove_constraint(it->second.GetInternalConstraint());
       mConstraintMap.erase(constraintNameToRemove);
@@ -123,7 +141,7 @@ UIConstraint *UIRoot::GetConstraint(std::string constraintName)
 }
 
 void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
-{   
+{
    mSolver.add_constraints(constraints);
 }
 
@@ -136,6 +154,11 @@ void UIRoot::Suggest(const rhea::variable& variable, double value)
 {
    mSolver.suggest_value(variable, value);
    mDirty = true;
+}
+
+void UIRoot::CreateUIContextMenu(double x, double y, UIContextMenu::Choices choices)
+{
+   mContextMenuLayer->CreateNewUIContextMenu(x, y, choices);
 }
 
 void UIRoot::Receive(const ElementAddedEvent& evt)
@@ -212,7 +235,7 @@ void UIRoot::UpdateRoot()
    if (mDirty)
    {
       mSolver.resolve();
-      
+
       // TODO couple things:
       // 1. move this sort to another function,
       // 2. for aggregators that use indices, update them accordingly when we do swaps.
@@ -220,10 +243,19 @@ void UIRoot::UpdateRoot()
          return lhs->GetFrame().z.value() > rhs->GetFrame().z.value();
       };
       Shared::TimSortInPlace(mElements, GreaterThan);
-      
+
       Emit<UIRebalancedEvent>();
       mDirty = false;
    }
+
+//   for (int ndx = mElements.size() - 1; ndx >= 0; ndx--)
+//   {
+//      if (mElements[ndx]->IsMarkedForDeletion) {
+//         UIElement* toErase = mElements[ndx];
+//
+//         mElements.erase(mElements.begin() + ndx);
+//      }
+//   }
 }
 
 void UIRoot::RenderRoot()
