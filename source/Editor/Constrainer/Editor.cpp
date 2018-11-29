@@ -35,6 +35,15 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
 
+   TextButton::Options buttonOptions;
+   buttonOptions.text = "I'm a big boy";
+   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
+   TextButton* bigBoyButton = Add<TextButton>(buttonOptions);
+
+   bigBoyButton->ConstrainWidth(100);
+   bigBoyButton->ConstrainHeight(30);
+   bigBoyButton->ConstrainCenterTo(this);
+
 //   Engine::UISerializationHelper serializer;
 //
 //   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
@@ -54,7 +63,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 //   testMenu->ConstrainInFrontOfAllDescendants(mainContent);
 }
 
-void Editor::Receive(const MouseUpEvent &evt)
+void Editor::BigDumbTest()
 {
    std::list<UIContextMenu::Choice> bleh = {
          {"Test this out", std::bind(&Editor::TestButton, this)},
@@ -62,12 +71,7 @@ void Editor::Receive(const MouseUpEvent &evt)
          {"Test THIS out", std::bind(&Editor::TestButton, this)}
    };
 
-   mpRoot->CreateUIContextMenu(evt.x, evt.y, bleh);
-}
-
-Engine::UIElement::Action Editor::MouseClick(const MouseClickEvent &event)
-{
-
+   mpRoot->CreateUIContextMenu(100, 200, bleh);
 }
 
 void Editor::TestButton() {

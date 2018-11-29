@@ -59,8 +59,8 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
  */
 void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMenu::Choices choices)
 {
-   UIContextMenu* mCurrentMenu = Add<UIContextMenu>("MainContextMenu", choices);
-   RectFilled* menuCorner = Add<RectFilled>("Funnyfart", glm::vec4(1, 0, 0, 1));
+   mCurrentMenu = Add<UIContextMenu>("MainContextMenu", choices);
+   RectFilled* menuCorner = mCurrentMenu->Add<RectFilled>("Funnyfart", glm::vec4(1, 0, 0, 1));
 
    // The menu MUST remain within my bounds
    UIConstraint::Options leftOptions;
@@ -85,8 +85,6 @@ void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMe
 
    menuCorner->ConstrainLeftAlignedTo(this, x);
    menuCorner->ConstrainBottomAlignedTo(this, y);
-
-   menuCorner->ConstrainInFrontOfAllDescendants(mCurrentMenu);
 
    // Prefer the menu be placed with its top-left corner at "menuCorner", but if that's not possible,
    //    allow it to be placed with its bottom or right at "menuCorner".
@@ -115,7 +113,7 @@ UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent &event)
    }
    else {
       mbIsShowingContextMenu = false;
-      mCurrentMenu->SetActive(false);
+      mCurrentMenu->MarkForDeletion();
       return Handled;
    }
 }

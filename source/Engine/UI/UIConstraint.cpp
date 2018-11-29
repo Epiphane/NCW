@@ -18,7 +18,7 @@ namespace Engine
 {
 
 UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
-                           Target primaryTarget, Target secondaryTarget, const Options& options) 
+                           Target primaryTarget, Target secondaryTarget, const Options& options)
    : BaseConstraint(
       primaryElement->GetName() + options.customNameConnector + (secondaryElement ? secondaryElement->GetName() : ""),
       options.priority
@@ -31,12 +31,12 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
 {
    rhea::linear_expression leftSide = primaryElement->GetFrame().ConvertTargetToVariable(primaryTarget);
    rhea::linear_expression rightSide;
-   
+
    if (secondaryElement != nullptr)
       rightSide = secondaryElement->GetFrame().ConvertTargetToVariable(secondaryTarget);
    else
       rightSide = 0;
-   
+
    switch (options.relationship) {
       case BaseConstraint::Equal:
          SetInternalConstraint(leftSide == rightSide * options.multiplier + options.constant);
@@ -51,7 +51,7 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
          assert(false && "Invalid mRelationship value");
          break;
    }
-   
+
    // TODO-EF: if mbIsConstantEditable is true, set up the constant as an edit variable instead.
    // TODO-EF: if mbIsMultiplierEditable is true, set up the multiplier as an edit variable instead.
 }
@@ -64,6 +64,16 @@ UIConstraint::UIConstraint()
    mSecondaryElement = NULL;
    mPrimaryTarget   = NoTarget;
    mSecondaryTarget = NoTarget;
+}
+
+UIConstrainable* UIConstraint::GetPrimaryElement() const
+{
+   return mPrimaryElement;
+}
+
+UIConstrainable* UIConstraint::GetSecondaryElement() const
+{
+   return mSecondaryElement;
 }
 
 }; // namespace Engine

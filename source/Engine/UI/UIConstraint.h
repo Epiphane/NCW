@@ -16,7 +16,7 @@ namespace CubeWorld
 
 namespace Engine
 {
-   
+
 class UIConstrainable;  ///< Forward declare
 
 //
@@ -31,7 +31,7 @@ public:
    struct Options {
       // https://stackoverflow.com/questions/43819314/default-member-initializer-needed-within-definition-of-enclosing-class-outside
       Options() noexcept {} // = default;
-      
+
       BaseConstraint::Relationship relationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
       std::string customNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
 
@@ -45,31 +45,34 @@ public:
       bool isConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
       bool isMultiplierEditable = false;   ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable. TODO-EF: Actually implement this
    };
-   
+
    //
    // What aspect of the UI element are you constraining?
    //
    enum Target {
       Top, Left, Bottom, Right,
       Width, Height,
-      
+
       CenterX, CenterY,
-      
+
       ZHeight,
       ZHeightDescendants,
-       
+
       NoTarget,
    };
 
    UIConstraint();
    UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options{});
-   
+
+   UIConstrainable* GetPrimaryElement() const;
+   UIConstrainable* GetSecondaryElement() const;
+
 private:
    Options mOptions;
-   
+
    UIConstrainable* mPrimaryElement;    ///< First element being constrained.
    UIConstrainable* mSecondaryElement;  ///< Second element being constrained. NOTE: CAN BE THE SAME AS THE PRIMARY ELEMENT.
-   
+
    Target mPrimaryTarget;         ///< Describes which aspect of each element is being constrained.
    Target mSecondaryTarget;
 };

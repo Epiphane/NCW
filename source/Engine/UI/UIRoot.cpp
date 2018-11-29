@@ -34,6 +34,7 @@ UIRoot::UIRoot(Input* input)
 
    mContextMenuLayer = Add<UIContextMenuParent>();
    mContextMenuLayer->ConstrainEqualBounds(this);
+   mElements.push_back(mContextMenuLayer);
 
    // IMPORTANT: These 2 lines must be AFTER mContextMenuLayer otherwise mContentLayer will be a child of itself (and crash).
    mContentLayer = Add<UIElement>();
@@ -167,9 +168,23 @@ void UIRoot::Receive(const ElementAddedEvent& evt)
    mElements.push_back(evt.element);
 }
 
-void UIRoot::Receive(const ElementRemovedEvent& /*evt*/)
+void UIRoot::Receive(const ElementRemovedEvent& evt)
 {
-   // TODO how the heck we gonna do this?
+   // Remove constraints that were attached to this element
+   std::vector<std::string> constraintKeysToMurder;
+
+   for (const auto& constraint_pair : mConstraintMap) {
+      UIConstraint constraint = constraint_pair.second;
+      if (constraint.GetPrimaryElement() == evt.element || constraint.GetSecondaryElement() == evt.element) {
+         constraintKeysToMurder.push_back(constraint.GetName());
+      }
+   }
+
+   for (std::string keyToMurder : constraintKeysToMurder) {
+      RemoveConstraint(keyToMurder);
+   }
+
+   mElements.erase(std::remove(mElements.begin(), mElements.end(), evt.element), mElements.end());
 }
 
 void UIRoot::Receive(const MouseDownEvent& evt)
@@ -248,14 +263,13 @@ void UIRoot::UpdateRoot()
       mDirty = false;
    }
 
-//   for (int ndx = mElements.size() - 1; ndx >= 0; ndx--)
-//   {
-//      if (mElements[ndx]->IsMarkedForDeletion) {
-//         UIElement* toErase = mElements[ndx];
-//
-//         mElements.erase(mElements.begin() + ndx);
-//      }
-//   }
+   for (int ndx = mElements.size() - 1; ndx >= 0; ndx--)
+   {
+      if (mElements[ndx]->IsMarkedForDeletion()) {
+         UIElement* toErase = mElements[ndx];
+         toErase->GetParent()->DestroyChild(toErase);
+      }
+   }
 }
 
 void UIRoot::RenderRoot()

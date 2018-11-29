@@ -34,11 +34,9 @@ public:
 
    void TestButton();
 
-   Action MouseClick(const MouseClickEvent &event) override;
-
-   void Receive(const MouseUpEvent &evt) override;
-
 private:
+   void BigDumbTest();
+
    Engine::EventManager mEvents;
 };
 

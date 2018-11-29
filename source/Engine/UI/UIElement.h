@@ -88,6 +88,7 @@ class UIElement : public Engine::Receiver<UIElement>, public UIConstrainable
 {
 public:
    UIElement(UIRoot *root, UIElement *parent, const std::string& name = "");
+   virtual ~UIElement();
 
    virtual void InitFromJSON(nlohmann::json data); // Override me :3
 
@@ -130,11 +131,18 @@ public:
    bool IsActive() { return mActive; }
 
    //
-   // Remove the element. Will be marked and removed at the end of the frame.
+   // Element will be marked and removed at the end of the frame.
    //
-   void RemoveElement() { mbDeleteAfterThisFrame = true; }
+   void MarkForDeletion() { mbDeleteAfterThisFrame = true; }
+
+   void DestroyChild(UIElement* childToDestroy);
 
    bool IsMarkedForDeletion() const;
+
+   //
+   // Get pointer to parent of this element.
+   //
+   UIElement* GetParent() const;
 
    //
    // Update the element, called once per frame with the time elapsed.
@@ -151,11 +159,6 @@ public:
    //   - {this}.bottom <= {other}.bottom
    //
    void Contains(UIElement* other, rhea::strength strength = rhea::strength::required());
-
-   //
-   // Add a named constraint to this element. Element will report this to its mpRoot.
-   //
-   void AddConstraint(std::string nameKey, const rhea::constraint& constraint);
 
    //
    // Returns whether the point [x, y] in pixel space
@@ -192,7 +195,6 @@ protected:
    std::vector<std::unique_ptr<UIElement>> mChildren;
 
    UIElement* mpParent;
-
 };
 
 //
