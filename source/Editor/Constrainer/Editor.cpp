@@ -38,11 +38,11 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    TextButton::Options buttonOptions;
    buttonOptions.text = "I'm a big boy";
    buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
-   TextButton* bigBoyButton = Add<TextButton>(buttonOptions);
+   mTestContextMenuButton = Add<TextButton>(buttonOptions);
 
-   bigBoyButton->ConstrainWidth(100);
-   bigBoyButton->ConstrainHeight(30);
-   bigBoyButton->ConstrainCenterTo(this);
+   mTestContextMenuButton->ConstrainWidth(100);
+   mTestContextMenuButton->ConstrainHeight(30);
+   mTestContextMenuButton->ConstrainCenterTo(this);
 
 //   Engine::UISerializationHelper serializer;
 //
@@ -71,7 +71,7 @@ void Editor::BigDumbTest()
          {"Test THIS out", std::bind(&Editor::TestButton, this)}
    };
 
-   mpRoot->CreateUIContextMenu(100, 200, bleh);
+   mpRoot->CreateUIContextMenu(mTestContextMenuButton->GetX(), mTestContextMenuButton->GetY(), bleh);
 }
 
 void Editor::TestButton() {

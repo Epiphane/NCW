@@ -23,6 +23,11 @@ RectFilled::RectFilled(Engine::UIRoot* root, UIElement* parent, const std::strin
 {
 }
 
+RectFilled::~RectFilled()
+{
+   mRegion.Free();
+}
+
 void RectFilled::Redraw()
 {
    std::vector<Aggregator::RectData> data({

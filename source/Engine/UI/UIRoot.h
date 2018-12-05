@@ -45,7 +45,7 @@ public:
    // Create a constant set of size constraints for the entire UI
    //
    void SetBounds(const Bounded& bounds);
-   
+
    //
    // Populate the simple constraints for a UIFrame.
    //
@@ -55,7 +55,7 @@ public:
    // Add a UIContraint to our map.
    //
    void AddConstraint(const UIConstraint& constraintToAdd);
-   
+
    //
    // Remove a UIConstraint from our map.
    //
@@ -65,7 +65,7 @@ public:
    // Returns a pointer to a UIConstraint. Will return NULL if not found.
    //
    UIConstraint* GetConstraint(std::string constraintName);
-   
+
    //
    // Add arbitrary contraints.
    //
@@ -99,6 +99,16 @@ public:
    {
       Aggregator* aggregator = GetAggregator<Aggregator>();
       return aggregator->Reserve(numElements);
+   }
+
+   //
+   // Free a section of data in the appropriate UIAggregator.
+   //
+   template<typename Aggregator>
+   void FreeRegion(typename Aggregator::Region regionToFree)
+   {
+      Aggregator* aggregator = GetAggregator<Aggregator>();
+      aggregator->Free(regionToFree);
    }
 
    //
@@ -177,7 +187,7 @@ private:
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;
 };
-   
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

@@ -46,7 +46,7 @@ public:
    // Render the text on this label
    //
    void SetText(const std::string& text);
-   
+
    void SetAlignment(Engine::Graphics::Font::Alignment newAlignment);
    Engine::Graphics::Font::Alignment GetAlignment();
 
@@ -63,7 +63,7 @@ protected:
    std::string mRendered;
 
    Aggregator::Text::Region mRegion;
-   
+
    Engine::Graphics::Font::Alignment mAlignment;
 };
 

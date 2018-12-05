@@ -51,13 +51,13 @@ void Text::SetText(const std::string& text)
    mText = text;
    RenderText(text);
 }
-   
+
 void Text::SetAlignment(Engine::Graphics::Font::Alignment newAlignment)
 {
    mAlignment = newAlignment;
    Redraw();
 }
-   
+
 Engine::Graphics::Font::Alignment Text::GetAlignment()
 {
    return mAlignment;
