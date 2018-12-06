@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include <glm/glm.hpp>
 #include <rhea/variable.hpp>
@@ -32,20 +33,6 @@ namespace CubeWorld
 
 namespace Engine
 {
-
-/**
- * Data for one vertex. We build up an array of vertices by
- *  walking through the UI heirarchy.
- */
-struct VertexData
-{
-   VertexData() {
-      std::memset(this, 0, sizeof(VertexData));
-   };
-
-   glm::vec2 position, uv;
-//   glm::vec4 color; // Maybe someday
-};
 
 class UIRoot; // Forward declare
 class UIElement; // Forward declare
@@ -166,6 +153,11 @@ public:
    //
    bool ContainsPoint(double x, double y);
 
+   //
+   // Returns a human-readable string with this element's relevant properties
+   //
+   std::string GetDebugString(int indentLevel = 0, bool bRecursive = false);
+
 public:
    //
    // Called by the UIRoot when mouse events happen.
@@ -180,7 +172,10 @@ public:
    virtual Action MouseDown(const MouseDownEvent&) { return Unhandled; }
    virtual Action MouseMove(const MouseMoveEvent&) { return Unhandled; }
    virtual Action MouseUp(const MouseUpEvent&) { return Unhandled; }
-   virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
+   virtual Action MouseClick(const MouseClickEvent&) {
+      std::cout << GetDebugString(0, true);
+      return Unhandled;
+   }
 
 protected:
 

@@ -6,6 +6,7 @@
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
+#include <sstream>
 
 #include "UIElement.h"
 
@@ -103,6 +104,31 @@ bool UIElement::ContainsPoint(double x, double y)
       x <= mFrame.right.int_value() &&
       y <= mFrame.top.int_value() &&
       y >= mFrame.bottom.int_value();
+}
+
+std::string UIElement::GetDebugString(int indentLevel, bool bRecursive)
+{
+   std::ostringstream result;
+
+   std::string indentation;
+   indentation.insert(0, indentLevel * 2, ' ');
+
+   result << indentation << GetName() << " [UIElement]" << std::endl;
+   result << indentation << "Origin: (" << GetX() << ", " << GetY() << ")";
+   result << "Size: (" << GetWidth() << ", " << GetHeight() << ")" << std::endl;
+   result << indentation << "Z: " << GetFrame().z.value();
+   result << " Biggest Child Z: " << GetFrame().biggestDescendantZ.value() << std::endl;
+
+   if (bRecursive) {
+      result << indentation << "Children: [" << std::endl;
+      for (int ndx = 0; ndx < mChildren.size(); ndx++) {
+         result << mChildren[ndx]->GetDebugString(indentLevel + 1, true);
+         result << std::endl;
+      }
+      result << indentation << "]" << std::endl;
+   }
+
+   return result.str();
 }
 
 void UIElement::InitFromJSON(nlohmann::json data)
