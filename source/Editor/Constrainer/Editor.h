@@ -22,8 +22,6 @@ namespace Editor
 namespace Constrainer
 {
 
-class TextButton;
-
 class Editor : public Engine::UIRoot
 {
 public:
@@ -41,7 +39,7 @@ private:
 
    Engine::EventManager mEvents;
 
-   TextButton* mTestContextMenuButton;
+//   TextButton* mTestContextMenuButton;
 };
 
 }; // namespace Constrainer

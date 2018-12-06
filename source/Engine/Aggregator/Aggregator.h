@@ -69,8 +69,6 @@ public:
       void Set(DataType* data) { aggregator->Set(*this, data); }
       void Set(std::vector<DataType>& data) { aggregator->Set(*this, data.data()); }
 
-      void Free() { aggregator->Free(*this); }
-
       DataType* data() { return &aggregator->mData[begin]; }
       size_t index() const { return begin; }
       size_t size() const { return elements; }
@@ -133,8 +131,6 @@ public:
    void Free(const Region& region)
    {
       // TODO: This is super hacky. We're doing a bunch of extra rendering on all-zero elements.
-      mFree.push_back(region);
-
       memset(&mData[region.begin], 0, sizeof(DataType) * region.elements);
 
       mDirty = true;
