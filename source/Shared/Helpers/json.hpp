@@ -1,4 +1,16 @@
 /*
+******************************************************************************
+**********************          IMPORTANT       ******************************
+******************************************************************************
+
+I added a line to disable warnings shortly below. This whole thing is full of
+warnings and I just don't wanna deal with them right now.
+
+******************************************************************************
+*/
+#pragma warning(push, 0)
+
+/*
     __ _____ _____ _____
  __|  |   __|     |   | |  JSON for Modern C++
 |  |  |__   |  |  | | | |  version 3.2.0
@@ -18911,3 +18923,4 @@ inline nlohmann::json::json_pointer operator "" _json_pointer(const char* s, std
 
 
 #endif
+#pragma warning(pop)

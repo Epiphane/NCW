@@ -27,7 +27,10 @@ UIElement::UIElement(UIRoot *root, UIElement* parent, const std::string& name)
 
 UIElement::~UIElement()
 {
-   mpRoot->Emit<ElementRemovedEvent>(this);
+   if (mpRoot && mpRoot != this)
+   {
+      mpRoot->Emit<ElementRemovedEvent>(this);
+   }
 }
 
 UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)

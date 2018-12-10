@@ -49,17 +49,17 @@ namespace Engine
  */
 void UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName& elementMapOut)
 {
-   UIElement* newElement;
+   std::unique_ptr<UIElement> newElement;
    std::string newElementClass = element["class"].get<std::string>();
 
    if (newElementClass.compare("UIElement") == 0) {
-      newElement = new UIElement(pRoot, pParent, element["name"]);
+      newElement = std::make_unique<UIElement>(pRoot, pParent, element["name"]);
    }
    else if (newElementClass.compare("UIRectFilled") == 0) {
-      newElement = new UI::RectFilled(pRoot, pParent, element["name"]);
+      newElement = std::make_unique<UI::RectFilled>(pRoot, pParent, element["name"]);
    }
    else if (newElementClass.compare("UIStackView") == 0) {
-      newElement = new UIStackView(pRoot, pParent, element["name"]);
+      newElement = std::make_unique<UIStackView>(pRoot, pParent, element["name"]);
    }
    else {
       assert(false && "Unsupported class name! I should probably add it >_>");
@@ -72,13 +72,11 @@ void UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot
       assert(false && "You duplicated a UIElement name! Don't do that!");
    }
 
-   elementMapOut[element["name"]] = newElement;
-
-   std::unique_ptr<UIElement> uniqueElement(newElement);
-   pParent->AddChild(std::move(uniqueElement));
+   UIElement* reference = pParent->AddChild(std::move(newElement));
+   elementMapOut[element["name"]] = reference;
 
    for (auto child : element["children"]) {
-      ParseUIElement(child, pRoot, newElement, elementMapOut);
+      ParseUIElement(child, pRoot, reference, elementMapOut);
    }
 }
 

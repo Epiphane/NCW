@@ -25,13 +25,6 @@ void SubFrameUIRoot::Receive(const Engine::ElementAddedEvent& evt)
    });
 }
 
-void SubFrameUIRoot::Receive(const Engine::ElementRemovedEvent& evt)
-{
-   UIRoot::Receive(evt);
-   
-   // TODO eh?
-}
-
 SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
    , mUIRoot(this)
@@ -65,7 +58,6 @@ void SubFrame::Update(TIMEDELTA dt)
          mScroll.y = static_cast<uint32_t>(std::max(newScroll.y, 0.0));
 
          mUIRoot.SetBounds(Bounds{mScroll.x, mScroll.y, mFrame.GetWidth(), mFrame.GetHeight()});
-         LOG_DEBUG("Bottom: %1", mUIRoot.GetFrame().bottom.value());
       }
    }
 
@@ -77,7 +69,6 @@ void SubFrame::Update(TIMEDELTA dt)
    mUIRoot.Update(dt);
    mUIRoot.RenderRoot();
    mFramebuffer.Unbind();
-   LOG_DEBUG("Bottom: %1", mUIRoot.GetFrame().bottom.value());
 }
 
 void SubFrame::Redraw()

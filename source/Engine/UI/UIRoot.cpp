@@ -44,7 +44,6 @@ UIRoot::UIRoot(Input* input)
 
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
-   Subscribe<ElementRemovedEvent>(*this);
    Subscribe<MouseMoveEvent>(*this);
    Subscribe<MouseDownEvent>(*this);
    Subscribe<MouseUpEvent>(*this);
@@ -52,7 +51,11 @@ UIRoot::UIRoot(Input* input)
 }
 
 UIRoot::~UIRoot()
-{}
+{
+   // Remove all my constraints and all my children, so that they don't try and reference me later.
+   mConstraintMap.clear();
+   mChildren.clear();
+}
 
 UIElement* UIRoot::AddChild(std::unique_ptr<UIElement> &&element)
 {
@@ -247,6 +250,14 @@ void UIRoot::UpdateRoot()
 {
    mSolver.solve();
 
+   for (int64_t ndx = mElements.size() - 1; ndx >= 0; ndx--)
+   {
+      if (mElements[ndx]->IsMarkedForDeletion()) {
+         UIElement* toErase = mElements[ndx];
+         toErase->GetParent()->DestroyChild(toErase);
+      }
+   }
+
    if (mDirty)
    {
       mSolver.resolve();
@@ -261,14 +272,6 @@ void UIRoot::UpdateRoot()
 
       Emit<UIRebalancedEvent>();
       mDirty = false;
-   }
-
-   for (int ndx = mElements.size() - 1; ndx >= 0; ndx--)
-   {
-      if (mElements[ndx]->IsMarkedForDeletion()) {
-         UIElement* toErase = mElements[ndx];
-         toErase->GetParent()->DestroyChild(toErase);
-      }
    }
 }
 

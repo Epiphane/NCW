@@ -7,9 +7,7 @@
 #include <Engine/Core/Config.h>
 #include <Shared/Helpers/JsonHelper.h>
 
-#pragma warning(push, 0)
 #include "../Helpers/json.hpp"
-#pragma warning(pop)
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
 
