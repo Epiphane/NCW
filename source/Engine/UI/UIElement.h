@@ -172,10 +172,7 @@ public:
    virtual Action MouseDown(const MouseDownEvent&) { return Unhandled; }
    virtual Action MouseMove(const MouseMoveEvent&) { return Unhandled; }
    virtual Action MouseUp(const MouseUpEvent&) { return Unhandled; }
-   virtual Action MouseClick(const MouseClickEvent&) {
-      std::cout << GetDebugString(0, true);
-      return Unhandled;
-   }
+   virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
 
 protected:
 
