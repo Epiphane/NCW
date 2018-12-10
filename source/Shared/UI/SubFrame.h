@@ -27,7 +27,6 @@ public:
 
 public:
    void Receive(const Engine::ElementAddedEvent& evt) override;
-   void Receive(const Engine::ElementRemovedEvent& evt) override;
 
 private:
    // Keep track of the dimensions this UIRoot actually occupies
@@ -105,7 +104,7 @@ public:
    glm::tvec2<double> GetMousePosition() const override;
    glm::tvec2<double> GetMouseMovement() const override;
    glm::tvec2<double> GetMouseScroll() const override;
-   void SetMouseLock(bool locked) override { assert(false); }
+   void SetMouseLock(bool) override { assert(false); }
    bool IsMouseLocked() const override;
 
 private:
@@ -120,8 +119,8 @@ public:
    const MouseDownEvent TransformEventDown(const MouseDownEvent& evt) const override;
    const MouseUpEvent TransformEventDown(const MouseUpEvent& evt) const override;
    const MouseClickEvent TransformEventDown(const MouseClickEvent& evt) const override;
-   bool ShouldPropagateDown(const Engine::ElementAddedEvent& evt) const override { return false; }
-   bool ShouldPropagateUp(const Engine::ElementAddedEvent& evt) const override { return false; }
+   bool ShouldPropagateDown(const Engine::ElementAddedEvent&) const override { return false; }
+   bool ShouldPropagateUp(const Engine::ElementAddedEvent&) const override { return false; }
 };
 
 }; // namespace UI

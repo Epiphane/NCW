@@ -9,9 +9,7 @@
 #include <Engine/Core/Format.h>
 #include <Engine/Core/Paths.h>
 #include <Engine/Logger/Logger.h>
-#pragma warning(push, 0)
 #include <Shared/Helpers/json.hpp>
-#pragma warning(pop)
 
 #include "TextureManager.h"
 

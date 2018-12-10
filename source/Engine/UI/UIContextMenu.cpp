@@ -106,7 +106,7 @@ void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMe
 //
 // On mouse click, close context menu if it's open and consume the event.
 //
-UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent &event)
+UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent&)
 {
    if (!mbIsShowingContextMenu) {
       return Unhandled;
@@ -118,7 +118,7 @@ UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent &event)
    }
 }
 
-UIContextMenuParent::UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string &name)
+UIContextMenuParent::UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string& name)
       : UIElement(root, parent, name)
       , mCurrentMenu(nullptr)
 {

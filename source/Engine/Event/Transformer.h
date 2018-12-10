@@ -29,7 +29,7 @@ template<typename Event>
 class Transformer : public BaseTransformer {
 public:
    // Only override for swallowing events.
-   virtual bool ShouldPropagateDown(const Event& evt) const { return true; }
+   virtual bool ShouldPropagateDown(const Event&) const { return true; }
 
    virtual const Event TransformEventDown(const Event& original) const
    {
@@ -37,7 +37,7 @@ public:
    }
 
    // Only override for swallowing events.
-   virtual bool ShouldPropagateUp(const Event& evt) const { return true; }
+   virtual bool ShouldPropagateUp(const Event&) const { return true; }
 
    virtual const Event TransformEventUp(const Event& original) const
    {
