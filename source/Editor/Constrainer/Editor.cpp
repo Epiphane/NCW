@@ -44,15 +44,15 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 //   mTestContextMenuButton->ConstrainHeight(30);
 //   mTestContextMenuButton->ConstrainCenterTo(this);
 
-//   Engine::UISerializationHelper serializer;
-//
-//   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
-//
-//   UIElement* mainContent = elementMap["TestJSONStuff"];
-//   mainContent->ConstrainHeightTo(this);
-//   mainContent->ConstrainToRightOf(sidebar);
-//   mainContent->ConstrainTopAlignedTo(this);
-//   mainContent->ConstrainRightAlignedTo(this);
+   Engine::UISerializationHelper serializer;
+
+   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
+
+   UIElement* mainContent = elementMap["TestJSONStuff"];
+   mainContent->ConstrainHeightTo(this);
+   mainContent->ConstrainToRightOf(sidebar);
+   mainContent->ConstrainTopAlignedTo(this);
+   mainContent->ConstrainRightAlignedTo(this);
 
 //   std::list<UIContextMenu::Choice> bleh = {
 //         {"Test this out", std::bind(&Editor::TestButton, this)}

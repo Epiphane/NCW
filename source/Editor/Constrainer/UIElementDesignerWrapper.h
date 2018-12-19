@@ -1,5 +1,5 @@
 //
-//  UIElementDesignerWrapper.hpp
+//  UIElementDesignerWrapper.h
 //  Editor
 //
 //  Wraps around a UIElement and allows us to edit it in the
@@ -27,7 +27,11 @@ class UIElementDesignerWrapper : public UIElement
 public:
    UIElementDesignerWrapper(Engine::UIRoot* root, UIElement* parent, const std::string &name, UIElement* mWrappedElement);
 
+   Action MouseClick(const MouseClickEvent &event) override;
+
 private:
+   void TestButton();
+
    UIElement*  mWrappedElement;
    RectFilled* mElementOverlay;
 };
