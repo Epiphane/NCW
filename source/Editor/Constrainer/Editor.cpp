@@ -88,8 +88,7 @@ void Editor::BigDumbTest()
          {"Test THIS out", std::bind(&Editor::TestButton, this)}
    };
 
-   printf("%s", mpRoot->GetDebugString(true).c_str());
-//   mpRoot->CreateUIContextMenu(mTestContextMenuButton->GetX(), mTestContextMenuButton->GetY(), bleh);
+   mpRoot->CreateUIContextMenu(200, 200, bleh);
 }
 
 void Editor::TestButton() {

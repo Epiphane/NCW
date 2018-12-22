@@ -41,12 +41,13 @@ SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    mUIRoot.TransformParentEvents<Engine::ElementAddedEvent>(this);
 
    metric = DebugHelper::Instance()->RegisterMetric("Update Sub UI", [&]() -> std::string {
-      return Format::FormatString("%.1f", mUpdateTimer.Average());
+      return Format::FormatString("%.3f", mUpdateTimer.Average());
    });
 }
 
 void SubFrame::Update(TIMEDELTA dt)
 {
+   mUpdateTimer.Reset();
    glm::tvec2<double> scrolled = 10.0 * mpRoot->GetInput()->GetMouseScroll();
    glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
    if (ContainsPoint(mouse.x, mouse.y))
@@ -63,12 +64,11 @@ void SubFrame::Update(TIMEDELTA dt)
 
    // Draw elements
    mFramebuffer.Bind();
-   mUpdateTimer.Reset();
    mUIRoot.UpdateRoot();
-   mUpdateTimer.Elapsed();
    mUIRoot.Update(dt);
-   mUIRoot.RenderRoot();
+   //mUIRoot.RenderRoot();
    mFramebuffer.Unbind();
+   mUpdateTimer.Elapsed();
 }
 
 void SubFrame::Redraw()

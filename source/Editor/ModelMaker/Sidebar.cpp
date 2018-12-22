@@ -30,6 +30,9 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
    , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
 {
+   root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
+   root->Subscribe<ModelModifiedEvent>(*this);
+
    RectFilled* foreground = Add<RectFilled>("ModelMakerSidebarFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainHorizontalCenterTo(this);
@@ -78,7 +81,6 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    explorer->ConstrainWidthTo(foreground);
    explorer->ConstrainLeftAlignedTo(foreground);
    explorer->ConstrainBottomAlignedTo(this);
-
    std::vector<std::string> testData = {
       "dummy.cub", "aim.cub", "barrel.cub", "bed.cub",
       "angry.cub", "anvil.cub", "big-door.cub", "biscuit-role.cub",
@@ -107,9 +109,6 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       }
       prevButton = button;
    }
-
-   root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
-   root->Subscribe<ModelModifiedEvent>(*this);
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<CubeModel>& evt)
