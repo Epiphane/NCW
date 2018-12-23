@@ -22,14 +22,14 @@ UIElement::UIElement(UIRoot *root, UIElement* parent, const std::string& name)
    , mpParent(parent)
 {
    if (parent != nullptr)
-   mpRoot->Subscribe<UIRebalancedEvent>(*this);
+      mpRoot->Subscribe<UIRebalancedEvent>(*this);
 }
 
 UIElement::~UIElement()
 {
    if (mpRoot && mpRoot != this)
    {
-      mpRoot->Emit<ElementRemovedEvent>(this);
+      mpRoot->ElementDestructing(this);
    }
 }
 
@@ -109,26 +109,32 @@ bool UIElement::ContainsPoint(double x, double y)
       y >= mFrame.bottom.int_value();
 }
 
-std::string UIElement::GetDebugString(int indentLevel, bool bRecursive)
+std::string UIElement::GetDebugString(bool bRecursive, int indentLevel)
 {
    std::ostringstream result;
 
    std::string indentation;
    indentation.insert(0, indentLevel * 2, ' ');
 
-   result << indentation << GetName() << " [UIElement]" << std::endl;
-   result << indentation << "Origin: (" << GetX() << ", " << GetY() << ")";
+   result << indentation << "\e[1;31m" << GetName() << "\e[m [UIElement]" << std::endl;
+   result << indentation << "Origin: (" << GetX() << ", " << GetY() << ") ";
    result << "Size: (" << GetWidth() << ", " << GetHeight() << ")" << std::endl;
    result << indentation << "Z: " << GetFrame().z.value();
    result << " Biggest Child Z: " << GetFrame().biggestDescendantZ.value() << std::endl;
 
    if (bRecursive) {
-      result << indentation << "Children: [" << std::endl;
-      for (int ndx = 0; ndx < mChildren.size(); ndx++) {
-         result << mChildren[ndx]->GetDebugString(indentLevel + 1, true);
-         result << std::endl;
+      result << indentation << "Children:";
+
+      if (mChildren.size() == 0) {
+         result << " None" << std::endl;
       }
-      result << indentation << "]" << std::endl;
+      else {
+         result << "[" << std::endl;
+         for (int ndx = 0; ndx < mChildren.size(); ndx++) {
+            result << mChildren[ndx]->GetDebugString(true, indentLevel + 1);
+         }
+         result << indentation << "]" << std::endl;
+      }
    }
 
    return result.str();

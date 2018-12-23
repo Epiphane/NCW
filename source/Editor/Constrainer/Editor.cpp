@@ -6,8 +6,11 @@
 #include <Engine/UI/UIContextMenu.h>
 #include <Engine/UI/UISerializationHelper.h>
 
+#include <libfswatch/c++/monitor_factory.hpp>
+
 #include "Editor.h"
 #include "Sidebar.h"
+#include "UIElementDesignerWrapper.h"
 
 namespace CubeWorld
 {
@@ -34,7 +37,11 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    controls->ConstrainLeftAlignedTo(this);
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
-
+   
+   
+   std::vector<std::string> farts = {"lol.txt"};
+   fsw::monitor* boyo = fsw::monitor_factory::create_monitor(system_default_monitor_type, farts, nullptr);
+   
 //   TextButton::Options buttonOptions;
 //   buttonOptions.text = "I'm a big boy";
 //   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
@@ -46,7 +53,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 
    Engine::UISerializationHelper serializer;
 
-   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, this);
+   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, mContentLayer);
 
    UIElement* mainContent = elementMap["TestJSONStuff"];
    mainContent->ConstrainHeightTo(this);
@@ -54,6 +61,16 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    mainContent->ConstrainTopAlignedTo(this);
    mainContent->ConstrainRightAlignedTo(this);
 
+   UIElement* wrapperLayer = Add<UIElement>();
+   wrapperLayer->ConstrainInFrontOfAllDescendants(mainContent);
+
+   for (auto elementPair : elementMap) {
+      UIElement* elementToWrap = elementPair.second;
+      std::string wrapperName = elementToWrap->GetName();
+      wrapperName.append("_DesignWrapper");
+
+      wrapperLayer->Add<UIElementDesignerWrapper>(wrapperName, elementToWrap);
+   }
 //   std::list<UIContextMenu::Choice> bleh = {
 //         {"Test this out", std::bind(&Editor::TestButton, this)}
 //   };
@@ -71,10 +88,12 @@ void Editor::BigDumbTest()
          {"Test THIS out", std::bind(&Editor::TestButton, this)}
    };
 
+   printf("%s", mpRoot->GetDebugString(true).c_str());
 //   mpRoot->CreateUIContextMenu(mTestContextMenuButton->GetX(), mTestContextMenuButton->GetY(), bleh);
 }
 
 void Editor::TestButton() {
+   printf("%s", mpRoot->GetDebugString(true).c_str());
 }
 
 void Editor::Start()

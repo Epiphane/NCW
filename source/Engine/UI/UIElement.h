@@ -156,7 +156,7 @@ public:
    //
    // Returns a human-readable string with this element's relevant properties
    //
-   std::string GetDebugString(int indentLevel = 0, bool bRecursive = false);
+   std::string GetDebugString(bool bRecursive = false, int indentLevel = 0);
 
 public:
    //

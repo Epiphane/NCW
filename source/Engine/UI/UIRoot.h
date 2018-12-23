@@ -126,7 +126,8 @@ public:
    // This is where we set up simple constraints for that element's UIFrame.
    //
    virtual void Receive(const ElementAddedEvent& evt);
-   virtual void Receive(const ElementRemovedEvent& evt);
+
+   virtual void ElementDestructing(UIElement* element);
 
    //
    // Mouse events are sent out from here.
@@ -142,6 +143,9 @@ protected:
 
    // The four constraints that bound this UI.
    rhea::constraint_list mBoundConstraints;
+
+   // All normal content. Calling Add() will add elements with this as the parent.
+   UIElement* mContentLayer;
 
 public:
    // Get an aggregator, and ensure it exists.
@@ -180,9 +184,6 @@ private:
 
    // Parents any UIContextMenu we want to show. Lets us place it in front of all other content.
    UIContextMenuParent* mContextMenuLayer;
-
-   // All normal content. Calling Add() will add elements with this as the parent.
-   UIElement* mContentLayer;
 
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;

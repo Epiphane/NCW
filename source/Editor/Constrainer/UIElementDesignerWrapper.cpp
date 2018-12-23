@@ -22,22 +22,31 @@ UIElementDesignerWrapper::UIElementDesignerWrapper(Engine::UIRoot* root, UIEleme
    std::string overlayName = mWrappedElement->GetName();
    overlayName.append("_EditorOverlay");
 
-   mElementOverlay = Add<RectFilled>(overlayName, glm::vec4(1, 0, 0, 1));
+//   mElementOverlay = Add<RectFilled>(overlayName, glm::vec4(1, 1, 0, 1));
+//
+//   ConstrainEqualBounds(mElementOverlay);
+//   mElementOverlay->ConstrainEqualBounds(mWrappedElement);
 
-   mElementOverlay->ConstrainInFrontOfAllDescendants(mWrappedElement);
+   mWrappedElement->ConstrainEqualBounds(this);
 
 //   mElementOverlay->SetActive(false);
 }
 
 UIElement::Action UIElementDesignerWrapper::MouseClick(const MouseClickEvent &event)
 {
+   if (!ContainsPoint(event.x, event.y)) {
+      return Unhandled;
+   }
+
    std::list<Engine::UIContextMenu::Choice> choices = {
-         {"Test this out", std::bind(&UIElementDesignerWrapper::TestButton, this)},
+         {mWrappedElement->GetName(), std::bind(&UIElementDesignerWrapper::TestButton, this)},
          {"Test THIS out", std::bind(&UIElementDesignerWrapper::TestButton, this)},
          {"Test THIS out", std::bind(&UIElementDesignerWrapper::TestButton, this)}
    };
 
    mpRoot->CreateUIContextMenu(event.x, event.y, choices);
+
+   printf("%s", mpRoot->GetDebugString(true).c_str());
 
    return Handled;
 }

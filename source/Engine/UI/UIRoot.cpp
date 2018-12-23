@@ -18,8 +18,8 @@ UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
    , mInput(input)
-   , mContextMenuLayer(nullptr)
    , mContentLayer(nullptr)
+   , mContextMenuLayer(nullptr)
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
@@ -32,7 +32,7 @@ UIRoot::UIRoot(Input* input)
       mDirty = true;
    };
 
-   mContextMenuLayer = Add<UIContextMenuParent>();
+   mContextMenuLayer = Add<UIContextMenuParent>("ContextMenuLayer");
    mContextMenuLayer->ConstrainEqualBounds(this);
    mElements.push_back(mContextMenuLayer);
 
@@ -92,9 +92,6 @@ void UIRoot::SetBounds(const Bounded& bounds)
 void UIRoot::AddConstraintsForElement(UIFrame& frame)
 {
    mSolver.add_constraints({
-      frame.centerX == (frame.left + frame.right)  / 2,
-      frame.centerY == (frame.top  + frame.bottom) / 2,
-
       frame.width  == (frame.right  - frame.left),
       frame.height == (frame.top - frame.bottom),
       frame.width >= 0,
@@ -171,14 +168,14 @@ void UIRoot::Receive(const ElementAddedEvent& evt)
    mElements.push_back(evt.element);
 }
 
-void UIRoot::Receive(const ElementRemovedEvent& evt)
+void UIRoot::ElementDestructing(UIElement* element)
 {
    // Remove constraints that were attached to this element
    std::vector<std::string> constraintKeysToMurder;
 
    for (const auto& constraint_pair : mConstraintMap) {
       UIConstraint constraint = constraint_pair.second;
-      if (constraint.GetPrimaryElement() == evt.element || constraint.GetSecondaryElement() == evt.element) {
+      if (constraint.GetPrimaryElement() == element || constraint.GetSecondaryElement() == element) {
          constraintKeysToMurder.push_back(constraint.GetName());
       }
    }
@@ -187,7 +184,7 @@ void UIRoot::Receive(const ElementRemovedEvent& evt)
       RemoveConstraint(keyToMurder);
    }
 
-   mElements.erase(std::remove(mElements.begin(), mElements.end(), evt.element), mElements.end());
+   mElements.erase(std::remove(mElements.begin(), mElements.end(), element), mElements.end());
 }
 
 void UIRoot::Receive(const MouseDownEvent& evt)
@@ -265,13 +262,15 @@ void UIRoot::UpdateRoot()
       // TODO couple things:
       // 1. move this sort to another function,
       // 2. for aggregators that use indices, update them accordingly when we do swaps.
-      std::function<bool(UIElement*,UIElement*)> GreaterThan = [](UIElement* lhs, UIElement* rhs) {
-         return lhs->GetFrame().z.value() > rhs->GetFrame().z.value();
+      std::function<bool(UIElement*,UIElement*)> LessThan = [](UIElement* lhs, UIElement* rhs) {
+         return lhs->GetFrame().z.value() < rhs->GetFrame().z.value();
       };
-      Shared::TimSortInPlace(mElements, GreaterThan);
+      Shared::TimSortInPlace(mElements, LessThan);
 
       Emit<UIRebalancedEvent>();
       mDirty = false;
+
+      printf("%s", GetDebugString(true).c_str());
    }
 }
 
