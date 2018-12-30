@@ -24,7 +24,7 @@ VoxelRender::VoxelRender()
    , mSize(0)
 {}
 
-VoxelRender::VoxelRender(Voxel::Model&& voxels)
+VoxelRender::VoxelRender(std::vector<Voxel::Data>&& voxels)
    : mVoxelData(Engine::Graphics::VBO::Vertices)
    , mSize(GLsizei(voxels.size()))
 {
@@ -36,13 +36,13 @@ VoxelRender::VoxelRender(const VoxelRender& other)
    , mSize(other.mSize)
 {}
 
-void VoxelRender::Set(Voxel::Model&& voxels)
+void VoxelRender::Set(std::vector<Voxel::Data>&& voxels)
 {
    mSize = GLsizei(voxels.size());
    mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), voxels.data(), GL_STATIC_DRAW);
 }
 
-void VoxelRender::Set(const Voxel::Model& voxels)
+void VoxelRender::Set(const std::vector<Voxel::Data>& voxels)
 {
    mSize = GLsizei(voxels.size());
    mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), (void*)voxels.data(), GL_STATIC_DRAW);

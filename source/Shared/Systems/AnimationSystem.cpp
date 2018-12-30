@@ -7,6 +7,7 @@
 #include <Engine/Core/Config.h>
 #include <Shared/Helpers/JsonHelper.h>
 
+#include "../Helpers/CubeFormat.h"
 #include "../Helpers/json.hpp"
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
@@ -335,7 +336,7 @@ void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& m
    assert(bonesByName.find(weights[0].first) != bonesByName.end());
    attachment.bone = bonesByName.find(weights[0].first)->second;
    attachment.weight = 1;
-   attachment.model = CubeModelInfo::Load(model, false);
+   attachment.model = Voxel::CubeFormat::Load(model, false);
    assert(attachment.model != nullptr);
    attachment.tint = glm::vec3(255);
 
@@ -349,7 +350,7 @@ void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& m
    assert(bonesByName.find(weights[0].first) != bonesByName.end());
    attachment.bone = bonesByName.find(weights[0].first)->second;
    attachment.weight = 1;
-   attachment.model = CubeModelInfo::Load(model, true);
+   attachment.model = Voxel::CubeFormat::Load(model, true);
    assert(attachment.model != nullptr);
    attachment.tint = tint;
 

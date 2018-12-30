@@ -28,7 +28,8 @@ using UI::RectFilled;
 
 Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("dummy.cub")))
+   , mFilename(Paths::Normalize(Asset::Model("test.cub")))
+   // , mFilename(Paths::Normalize(Asset::Model("elf-head-m02.cub")))
 {
    root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
    root->Subscribe<ModelModifiedEvent>(*this);

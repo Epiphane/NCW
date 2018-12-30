@@ -46,7 +46,8 @@
         "ratio": "cpp",
         "list": "cpp",
         "xstring": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "iosfwd": "cpp"
     },
     "editor.tabSize": 3
 }

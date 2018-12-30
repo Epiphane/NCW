@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <Engine/System/System.h>
-#include "../Components/CubeModel.h"
+#include "../Voxel.h"
 
 namespace CubeWorld
 {
@@ -111,7 +111,7 @@ public:
    struct ModelAttachment {
       size_t bone;
       float weight;
-      CubeModelInfo* model;
+      Voxel::Model* model;
       glm::vec3 tint;
    };
    std::vector<ModelAttachment> models;

@@ -22,11 +22,11 @@ namespace CubeWorld
 
 struct VoxelRender : public Engine::Component<VoxelRender> {
    VoxelRender();
-   VoxelRender(Voxel::Model&& voxels);
+   VoxelRender(std::vector<Voxel::Data>&& voxels);
    VoxelRender(const VoxelRender& other);
 
-   void Set(const Voxel::Model& voxels);
-   void Set(Voxel::Model&& voxels);
+   void Set(const std::vector<Voxel::Data>& voxels);
+   void Set(std::vector<Voxel::Data>&& voxels);
 
    Engine::Graphics::VBO mVoxelData;
    GLsizei mSize;

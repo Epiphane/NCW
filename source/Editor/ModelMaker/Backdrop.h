@@ -28,7 +28,7 @@ public:
    Backdrop(Engine::ComponentHandle<VoxelRender> component);
 
 private:
-   Voxel::Model mVoxels;
+   std::vector<Voxel::Data> mVoxels;
    Engine::ComponentHandle<VoxelRender> mComponent;
 
 public:

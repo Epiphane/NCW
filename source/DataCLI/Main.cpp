@@ -14,6 +14,7 @@
 #include <Engine/Logger/StdoutLogger.h>
 
 #include "Console.h"
+#include "ConvertCommand.h"
 #include "Database.h"
 #include "DumpCommand.h"
 
@@ -32,7 +33,12 @@ int main(int argc, char **argv)
 
    Maybe<std::string> result;
    std::string command = argv[1];
-   if (command == "dump")
+   if (command == "convert")
+   {
+      ConvertCommand cmd{};
+      result = cmd.Run(argc - 2, argv + 2);
+   }
+   else if (command == "dump")
    {
       DumpCommand cmd{};
       result = cmd.Run(argc - 2, argv + 2);

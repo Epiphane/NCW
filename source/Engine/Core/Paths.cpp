@@ -12,6 +12,7 @@
 #endif
 
 #include "Paths.h"
+#include "../Helpers/StringHelper.h"
 
 namespace CubeWorld
 {
@@ -42,45 +43,6 @@ bool DirectoryExists(const char* path)
 #else
 #error "Unhandled platform"
 #endif
-}
-
-std::vector<std::string> Split(const std::string& path)
-{
-   std::vector<std::string> result;
-   if (path.empty())
-   {
-      return result;
-   }
-
-   size_t begin = 0, end = 0;
-   while (end != std::string::npos)
-   {
-      end = path.find('/', begin + 1);
-      result.push_back(path.substr(begin, end - begin));
-      begin = end + 1;
-   }
-
-   return result;
-}
-
-std::string Join(const std::vector<std::string>& parts)
-{
-   std::string result;
-   if (parts.empty())
-   {
-      return result;
-   }
-
-   for (int i = 0; i < parts.size(); ++i)
-   {
-      if (i > 0)
-      {
-         result += "/";
-      }
-      result += parts[i];
-   }
-
-   return result;
 }
 
 }; // private namespace
@@ -131,7 +93,7 @@ std::string Canonicalize(const std::string& path)
       ? Normalize(path)
       : Join(GetWorkingDirectory(), path);
 
-   std::vector<std::string> parts = Split(absolute);
+   std::vector<std::string> parts = StringHelper::Split(absolute);
    std::vector<std::string> resolved;
    for (const std::string& part : parts)
    {
@@ -148,7 +110,7 @@ std::string Canonicalize(const std::string& path)
       }
    }
 
-   std::string result = Join(resolved);
+   std::string result = StringHelper::Join(resolved);
    if (resolved.size() == 1)
    {
       return result + "/";

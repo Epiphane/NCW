@@ -50,8 +50,32 @@ public:
    RightType& Right() { return rightVal; }
    //const R& Right() const { return rightVal; }
 
+   constexpr Either& operator=(LeftType&& left) { leftVal = std::move(left); isLeft = true; return *this; }
+   constexpr Either& operator=(RightType&& right) { rightVal = std::move(right); isLeft = false; return *this; }
    constexpr Either& operator=(const LeftType& left) { leftVal = left; isLeft = true; return *this; }
    constexpr Either& operator=(const RightType& right) { rightVal = right; isLeft = false; return *this; }
+   constexpr Either& operator=(Either&& other)
+   {
+      if (isLeft)
+      {
+         leftVal.~LeftType();
+      }
+      else
+      {
+         rightVal.~RightType();
+      }
+
+      isLeft = other.isLeft;
+      if (isLeft)
+      {
+         leftVal = std::move(other.leftVal);
+      }
+      else
+      {
+         rightVal = std::move(other.rightVal);
+      }
+      return *this;
+   }
    constexpr Either& operator=(const Either& other)
    {
       if (isLeft)

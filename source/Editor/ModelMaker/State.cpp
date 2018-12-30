@@ -60,7 +60,7 @@ void MainState::Initialize()
    // Create a player component
    Entity player = mEntities.Create();
    player.Add<Transform>(glm::vec3(0));
-   player.Add<CubeModel>(Asset::Model("dummy.cub"));
+   player.Add<CubeModel>(Asset::Model("elf-head-m02.cub"));
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 0, 0);
