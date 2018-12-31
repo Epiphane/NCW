@@ -2,10 +2,7 @@ build/*
 Build2/*
 xcode_build/*
 .DS_Store
+
+Assets/cache
+
 source/.config
-source/RGBzero.exe
-source/RGBzero.lik
-source/RGBzero
-source/scores/scores.txt
-source/scores.txt
-source/textures/*.xcf

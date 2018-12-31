@@ -1,0 +1,92 @@
+vbox( margin = '6 6 0 0') ::
+{
+	hbox(size = '17') ::
+	{
+		button(def = 'bn-grey' onClick = 'ipal pal0.png' text = '0')(flex = '1' prev = '1' next = '1')(corner = '4')(hint = 'Default Palette 0')
+		button(def = 'bn-grey' onClick = 'ipal pal1.png' text = '1')(flex = '1' next = '1')(hint = 'Default Palette 1')
+		button(def = 'bn-grey' onClick = 'ipal pal2.png' text = '2')(flex = '1' next = '1')(hint = 'Default Palette 2')
+		button(def = 'bn-grey' onClick = 'ipal pal3.png' text = '3')(flex = '1' next = '1')(corner = '8')(hint = 'Default Palette 3')
+	}
+
+	vbox(id = 'l_pal' flex = '1') ::
+	{
+		palette(id = 'pal' onSelect = 'index' onSwap = 'pal swap' onCopy = 'rgb set' onGroup = 'pal grad')
+		(flex = '1' size = '260')
+		(hint = 'Swap [CTRL] : Copy [CTRL+SHIFT] : Pick [ALT]')
+	}
+
+	hbox(size = '22' next = '1') ::
+	{
+		button(def = 'bn-grey' onClick = 'opal' text = '#34' textFont = '2' delayed = '1' textSize = '18 15')(flex = '1' prev = '1' next = '1')(corner = '1' radius = '2')(hint = 'Save Palette')
+		button(def = 'bn-grey' onClick = 'ipal' text = '#47' textFont = '2' delayed = '1' textSize = '18 17')(flex = '1' next = '1')(corner = '2' radius = '2')(hint = 'Open Palette')
+	}
+
+	//----------------
+	// Color
+	//----------------
+	switch(class = 'panel')(selected = '0' text = 'Color' size = '26')
+	vbox ::
+	{
+		hbox(bgColor = '0 0 0')(corner = '5' radius = '4') ::
+		{
+			group(size = '25' next = '1')::
+			{
+				switch
+				(def = 'sw-rgb')
+				(onClick = [[ui_view 'v_hsv' 'v_rgb' 'm_hsv' 'm_rgb']])
+				(selected = '1')
+				(corner = '5' radius = '4')
+
+				(hint = 'Switch between HSV/RGB Color Picker')
+
+				vbox(id = 'm_hsv') ::
+				{
+					label(text = 'H:' collid = '0'  size = '18' next = '1' prev = '1')
+					label(text = 'S:' collid = '0'  size = '18' next = '1')
+					label(text = 'V:' collid = '0'  size = '18' next = '1')
+				}
+
+				vbox(id = 'm_rgb' hidden = '1') ::
+				{
+					label(text = 'R:' collid = '0' size = '18' next = '1' prev = '1')
+					label(text = 'G:' collid = '0' size = '18' next = '1')
+					label(text = 'B:' collid = '0' size = '18' next = '1')
+				}
+			}
+
+			vbox(corner = '5' radius = '4' flex = '1' next = '1') ::
+			{
+				hsvBox(id = 'v_hsv' onChange = 'rgb' prev = '1') ::
+				{
+					vbox ::
+					{
+						slider(class = 'nil')(id = 'h' size = '18' next = '1')(hint = 'Hue')
+						slider(class = 'nil')(id = 's' size = '18' next = '1')(hint = 'Saturation')
+						slider(class = 'nil')(id = 'v' size = '18' next = '1')(hint = 'Value')
+					}
+				}
+				rgbBox(id = 'v_rgb' onChange = 'rgb' hidden = '1' prev = '1') ::
+				{
+					vbox ::
+					{
+						slider(class = 'nil')(id = 'r' size = '18' next = '1')(hint = 'Red')
+						slider(class = 'nil')(id = 'g' size = '18' next = '1')(hint = 'Green')
+						slider(class = 'nil')(id = 'b' size = '18' next = '1')(hint = 'Blue')
+					}
+				}
+			}
+		}
+
+		hbox(size = '24' flex = '1' prev = '3' next = '3')(bgColor = '10 10 10' corner = '15' radius = '3') ::
+		{
+			hbox(margin = '3 0 3 3' size = '22') ::
+			{
+				colpick(id = 'pal_col' onChange = 'rgb' border = '0')(flex='1' corner = '15' radius = '2')
+				(hint = 'Pick Color from Screen [ALT+Drag]')
+			}
+		
+			textField(id = 'rgb' onEnter = 'rgb' default = 'rgb' enter = '1' align = '2' bgColor = '0 0 0 0' maxLength = '15' textSize = '7 7')
+			(flex = '1')(hint = '[R G B] : [Gray] : [#Hex]')
+		}
+	}
+}

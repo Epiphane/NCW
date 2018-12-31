@@ -1,0 +1,42 @@
+vbox(id = 'menu_sample' hidden = '1' clip = '0')(margin = '9 9 0 0') ::
+{
+	switch(class = 'panel')(def='h1' selected = '1' text = 'Sample' size = '36')
+	hbox(size = '28' next = '8') ::
+	{
+		switch(def = 'sw-render' id = 'pt_jit' onClick = 'set pt_jit' text = 'GI')
+		(size = '28' next = '4' margin = '0 0 2 2')(hint = 'GI : Stochastic Sampling Global Illumination')
+	
+		switch(def = 'sw-render' id = 'pt_px' onClick = 'set pt_px' text = 'PX')
+		(size = '28' next = '4' margin = '0 0 2 2')(hint = 'PX : Pixelated Illumination')
+	}
+	
+	sp(def = 'bar-h' size = '3')
+
+	switch(class = 'panel')(def='h1' selected = '1' text = 'Bounce' size = '36')
+	vbox(next = '8') ::
+	{
+		opBox(id = 'pt_bounce' onClick = 'set pt_bounce' value = '1' size = '28') ::
+		{		
+			hbox::
+			{
+				option(def = 'op-sel' style = '0' id = '0' text = '0')(flex = '1')(hint = 'Light Bounces 0')
+				option(def = 'op-sel' style = '0' id = '1' text = '1')(flex = '1')(hint = 'Light Bounces 1')
+				option(def = 'op-sel' style = '0' id = '2' text = '2')(flex = '1')(hint = 'Light Bounces 2')
+				option(def = 'op-sel' style = '0' id = '4' text = '4')(flex = '1')(hint = 'Light Bounces 4')
+				option(def = 'op-sel' style = '0' id = '6' text = '6')(flex = '1')(hint = 'Light Bounces 6')
+				option(def = 'op-sel' style = '0' id = '8' text = '8')(flex = '1')(hint = 'Light Bounces 8')
+			}
+		}
+	}
+
+	sp(def = 'bar-h' size = '3')
+
+	switch(class = 'panel')(def='h1' selected = '1' text = 'Geometry' size = '36')
+	hbox(size = '28' next = '8') ::
+	{
+		switch(def = 'sw-render' id = 'pt_sv' onClick = 'set pt_sv' text = 'SV')
+		(size = '28' next = '4' margin = '0 0 2 2')(hint = 'SV : Sparse Volume')
+	}
+
+	sp(id = 'rl_sep1' def = 'bar-h' size = '3' hidden = '1')
+}

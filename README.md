@@ -29,7 +29,7 @@ If you're going to change up things such as the UI, it's good to know what to ex
 
 1. Make sure you can see [the Trello board](https://trello.com/b/X0QjsQet/not-cube-world).
 2. You need [CMake](https://cmake.org/).
-3. Use either Mac or Windows
+3. Use either Mac or Windows x64.
 
 ### Windows-Specific
 
@@ -76,6 +76,10 @@ Assertion failed: (maybeFont), function Controls, file /Users/tsteinke/CubeWorld
 ```
 
 In this case, just navigate to the directory where the executable lives.
+
+### Editing Models
+
+To exit the models, instead of using a handrolled editor I've moved to using [MagicaVoxel](https://ephtracy.github.io/). It's very clean and useful - check it out. One caveat is that the editor must live alongsize `Assets/vox`, and all models you edit need to be in `Assets/vox` or subdirectories of that. On the bright side, editing is as easy as running `Assets/MagicaVoxel.exe`, or `Assets/MagicaVoxel.app` on Mac.
 
 ## Repo Layout
 

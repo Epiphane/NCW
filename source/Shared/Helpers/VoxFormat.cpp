@@ -1055,12 +1055,12 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
    {
       Voxel::Data voxel;
       uint8_t i = (info >> 24) & 0xff;
-      uint8_t z = (info >> 16) & 0xff;
-      uint8_t y = (info >> 8) & 0xff;
+      uint8_t y = (info >> 16) & 0xff;
+      uint8_t z = (info >> 8) & 0xff;
       uint8_t x = info & 0xff;
-      voxel.position.x = float(x) - result->mMetadata.width / 2 + 1;
-      voxel.position.y = float(z) - result->mMetadata.height / 2;
-      voxel.position.z = result->mMetadata.length / 2 - float(y) - 1;
+      voxel.position.x = float(x) - (result->mMetadata.width - 1) / 2;
+      voxel.position.y = float(y) - result->mMetadata.height / 2;
+      voxel.position.z = (result->mMetadata.length - 1) / 2 - float(z);
       uint32_t rgba = model->palette[i - 1];
       voxel.color.r = (rgba) & 0xff;
       voxel.color.g = (rgba >> 8) & 0xff;
@@ -1724,17 +1724,14 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
 
       // Inverse of how we do centering.
-      int x = voxel.position.x + modelData.mMetadata.width / 2 - 1;
+      int x = (modelData.mMetadata.width - 1) / 2 + voxel.position.x;
       int z = voxel.position.y + modelData.mMetadata.height / 2;
-      int y = modelData.mMetadata.length / 2 - voxel.position.z - 1;
+      int y = (modelData.mMetadata.length - 1) / 2 - voxel.position.z;
 
-      // LOG_INFO("Voxel position: %1 %2 %3", uint8_t(x), uint8_t(y), uint8_t(z));
       uint32_t packed = uint8_t(x) | 
          (uint8_t(y) << 8) | 
          (uint8_t(z) << 16) | 
          (colorIndex << 24);
-      // printf("Result: %08X\n", packed);
-      // return Failure("Idk man");
       model.voxels.push_back(packed);
    };
 

@@ -33,12 +33,10 @@ Maybe<std::string> ConvertCommand::Run(int argc, char** argv)
    Maybe<std::unique_ptr<Voxel::ModelData>> maybeModel;
    if (StringHelper::EndsWith(mSource, ".cub"))
    {
-      LOG_INFO("Determined source file %1 to be a CUB file, opening.", mSource);
       maybeModel = Voxel::CubeFormat::Read(mSource, false);
    }
    else if (StringHelper::EndsWith(mSource, ".vox"))
    {
-      LOG_INFO("Determined source file %1 to be a VOX file, opening.", mSource);
       maybeModel = Voxel::VoxFormat::Read(mSource, false);
    }
 
@@ -50,12 +48,10 @@ Maybe<std::string> ConvertCommand::Run(int argc, char** argv)
    Maybe<void> result;
    if (StringHelper::EndsWith(mDestination, ".cub"))
    {
-      LOG_INFO("Writing destination file %1 in CUB format.", mDestination);
       result = Voxel::CubeFormat::Write(mDestination, *(maybeModel->get()));
    }
    else if (StringHelper::EndsWith(mDestination, ".vox"))
    {
-      LOG_INFO("Writing destination file %1 in VOX format.", mDestination);
       result = Voxel::VoxFormat::Write(mDestination, *(maybeModel->get()));
    }
 

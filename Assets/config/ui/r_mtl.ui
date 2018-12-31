@@ -1,0 +1,161 @@
+vbox(id = 'menu_mtl' clip = '0')(margin = '9 9 0 0') ::
+{
+	hbox(size = '36' clip = '0') ::
+	{
+		switch(class = 'panel')(def='h1' path = '1 1' selected = '1' text = 'Material')(flex = '1')
+		
+		switch(def = 'sw-render-t' onClick = 'set pt_mod' text = 'All')
+		(size = '30' margin = '0 0 8 8')(hint = 'Modify All Materials : Select Material [ALT+LButton]')
+	}
+
+	hbox(size = '26' next = '5') ::
+	{
+		button(def = 'bn-ic' text = '#38' textFont = 'custom' onClick = 'set pt_mtl_reset' delayed = '1' textSize = '18 18' margin = '0 0 -2 -2')(flex = '1')(hint = 'Reset to Diffuse Material [CTRL+R]')
+		button(def = 'bn-ic' text = '#51' textFont = 'custom' onClick = 'set pt_mtl_copy'  delayed = '1' textSize = '18 18' margin = '0 0 -2 -2')(flex = '1')(hint = 'Copy Material [CTRL+C]')
+		button(def = 'bn-ic' text = '#52' textFont = 'custom' onClick = 'set pt_mtl_paste' delayed = '1' textSize = '18 18' margin = '0 0 -2 -2')(flex = '1')(hint = 'Paste Material [CTRL+V]')	
+	}
+
+	opBox(class = 'tab')(def = 'outline' id = "mtl_menu" index = '0' next = '10' margin = '4 4 0 0') ::
+	{
+		vbox(def = 'outline-i') ::
+		{
+			option(def = 'op-bw' id = [['menu_diffuse']]	text = 'Diffuse'	textSize = '8.5 8.5')(corner = '12' radius = '2')(size = '28')(hint = 'Diffuse Material')
+			option(def = 'op-bw' id = [['menu_metal']]		text = 'Metal'		textSize = '8.5 8.5')(size = '28')(hint = 'Metallic Material')
+			option(def = 'op-bw' id = [['menu_glass']]		text = 'Glass'		textSize = '8.5 8.5')(size = '28')(hint = 'Glass Material')
+			option(def = 'op-bw' id = [['menu_emit']]		text = 'Emission'	textSize = '8.5 8.5')(corner = '3' radius = '2')(size = '28')(hint = 'Emissive Material')
+		}
+	}
+
+	//----------------
+	// Diffuse
+	//----------------
+	vbox(id = 'menu_diffuse')(next = '8') ::
+	{
+		hbox(size = '15') ::
+		{
+			label(def = 'h3' text = 'Diffuse')(flex = '1')(hint = 'Lambertian')
+		}
+	}
+	
+	//----------------
+	// Metal
+	//----------------
+	vbox(id = 'menu_metal' hidden = '1')(next = '8') ::
+	{					
+		vbox(hint = 'Metalness') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Metal')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_metal' onEnter = 'set pt_mtl_t metal')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_metal_sl' onChange = 'set pt_mtl_t metal')(size = '32')
+		}
+
+		vbox(hint = 'Surface Roughness') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Rough')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_rough_m' onEnter = 'set pt_mtl _rough')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_rough_m_sl' onChange = 'set pt_mtl _rough')(size = '32')
+		}
+	
+		vbox(hint = 'Specular Reflectivity') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Specular')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_spec_m' onEnter = 'set pt_mtl _spec')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_spec_m_sl' onChange = 'set pt_mtl _spec')(size = '32' next = '4')
+		}
+		
+		switch(def = 'sw-render' id = 'pt_plastic' selected = '0' onClick = 'set pt_mtl _plastic' text = 'Plastic')
+		(size = '28' margin = '0 0 2 2')
+		(hint = 'Plastic Material')
+	}
+
+	//----------------
+	// Glass
+	//----------------
+	vbox(id = 'menu_glass' hidden = '1')(next = '8') ::
+	{
+		vbox(hint = 'Transparency') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Glass')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_glass' onEnter = 'set pt_mtl_t glass')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_glass_sl' onChange = 'set pt_mtl_t glass')(size = '32')
+		}
+
+		vbox(hint = 'Surface Roughness') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Rough')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_rough_g' onEnter = 'set pt_mtl _rough')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_rough_g_sl' onChange = 'set pt_mtl _rough')(size = '32')
+		}
+
+		vbox(hint = 'Refractive Index') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Refract')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_ior' onEnter = 'set pt_mtl _ior')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_ior_sl' onChange = 'set pt_mtl _ior' range = '1 2' snap = '0.01')(size = '32')
+		}
+	
+		vbox(hint = 'Attenuation') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Attenuate')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_att' onEnter = 'set pt_mtl _att')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_att_sl' onChange = 'set pt_mtl _att')(size = '32')
+		}
+	}
+
+	//----------------
+	// Emission
+	//----------------
+	vbox(id = 'menu_emit' hidden = '1')(next = '8') ::
+	{
+		vbox(hint = 'Light Emission') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Emit')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_emit' onEnter = 'set pt_mtl_t emit')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_emit_sl' onChange = 'set pt_mtl_t emit')(size = '32')
+		}
+	
+		vbox(hint = 'Radiant Flux') ::
+		{
+			label(def = 'h3' text = 'Power' align = '1')(size = '15' flex = '1')
+			slider(class = 'blk')(def = 'sl-mtl' range = '0 5' snap = '1' exclusive = '1' barWidth = '8' border = '2')
+			(id = 'pt_flux_sl' onChange = 'set pt_mtl _flux')(size = '32')
+		}
+
+		vbox(hint = 'Low Dynamic Range') ::
+		{
+			hbox(size = '15') ::
+			{
+				label(def = 'h3' text = 'Ldr')(flex = '1')
+				textField(def = 'tf-sl' id = 'pt_ldr' onEnter = 'set pt_mtl _ldr')(size = '24')
+			}
+			slider(def = 'sl-mtl' id = 'pt_ldr_sl' onChange = 'set pt_mtl _ldr')(size = '32')
+		}
+	}
+
+	sp(id = 'rr_sep0' def = 'bar-h' size = '3' hidden = '1')
+}
+
