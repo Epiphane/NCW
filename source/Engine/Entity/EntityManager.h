@@ -55,8 +55,8 @@ namespace Engine
 //   player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8)); // Subject the player to collision
 //   Engine::ComponentHandle<AnimatedSkeleton> skeleton = 
 //      player.Add<AnimatedSkeleton>("player.json");                // Add an animated skeleton
-//   skeleton->AddModel("torso", "body4.cub");                      // Add two models to the new skeleton
-//   skeleton->AddModel("head", "elf-head-m02.cub");
+//   skeleton->AddModel("torso", "body4.vox");                      // Add two models to the new skeleton
+//   skeleton->AddModel("head", "elf-head-m02.vox");
 //
 //   Entity playerCamera = mEntities.Create(0, 0, 0);               // Create a camera to attach to the player.
 //   playerCamera.Get<Transform>()->SetParent(player);

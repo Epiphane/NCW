@@ -28,8 +28,7 @@ using UI::RectFilled;
 
 Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("alga.cub")))
-   // , mFilename(Paths::Normalize(Asset::Model("elf-head-m02.cub")))
+   , mFilename(Paths::Normalize(Asset::Model("foot.vox")))
 {
    root->Subscribe<Engine::ComponentAddedEvent<CubeModel>>(*this);
    root->Subscribe<ModelModifiedEvent>(*this);
@@ -83,10 +82,11 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    explorer->ConstrainLeftAlignedTo(foreground);
    explorer->ConstrainBottomAlignedTo(this);
    std::vector<std::string> testData = {
-      "dummy.cub", "aim.cub", "barrel.cub", "bed.cub",
-      "angry.cub", "anvil.cub", "big-door.cub", "biscuit-role.cub",
-      "bomb1.cub", "boat.cub", "body1.cub", "body2.cub", "body3.cub",
-      "body4.cub", "bow.cub", "bowl1.cub", "boot.cub"
+      "dummy.vox", "aim.vox", "barrel.vox", "bed.vox",
+      "angry.vox", "anvil.vox", "big-door.vox", "biscuit-role.vox",
+      "bomb1.vox", "boat.vox", "body1.vox", "body2.vox", "body3.vox",
+      "body4.vox", "bow.vox", "bowl1.vox", "boot.vox",
+      "elf-head-m02.vox",
    };
    TextButton* prevButton = nullptr;
    for (const std::string& file : testData)

@@ -922,10 +922,10 @@ int Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    uint8_t faces = All;
-   int right = Index(metadata, x - 1, y, z);
-   int left = Index(metadata, x + 1, y, z);
-   int front = Index(metadata, x, y, z + 1);
-   int behind = Index(metadata, x, y, z - 1);
+   int right = Index(metadata, x + 1, y, z);
+   int left = Index(metadata, x - 1, y, z);
+   int front = Index(metadata, x, y, z - 1);
+   int behind = Index(metadata, x, y, z + 1);
    int above = Index(metadata, x, y + 1, z);
    int below = Index(metadata, x, y - 1, z);
 
@@ -1053,6 +1053,16 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
    std::vector<bool> filled(shape.width * shape.height * shape.length, false);
    for (const auto& info : shape.voxels)
    {
+      uint8_t y = (info >> 16) & 0xff;
+      uint8_t z = (info >> 8) & 0xff;
+      uint8_t x = info & 0xff;
+
+      size_t ndx = Index(result->mMetadata, x, y, z);
+      filled[ndx] = true;
+   }
+
+   for (const auto& info : shape.voxels)
+   {
       Voxel::Data voxel;
       uint8_t i = (info >> 24) & 0xff;
       uint8_t y = (info >> 16) & 0xff;
@@ -1065,16 +1075,8 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
       voxel.color.r = (rgba) & 0xff;
       voxel.color.g = (rgba >> 8) & 0xff;
       voxel.color.b = (rgba >> 16) & 0xff;
+      voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, x, y, z);
       result->mVoxelData.push_back(voxel);
-
-      size_t ndx = Index(result->mMetadata, x, y, z);
-      filled[ndx] = true;
-   }
-
-   for (auto& voxel : result->mVoxelData)
-   {
-      size_t ndx = Index(result->mMetadata, voxel.position.x, voxel.position.y, voxel.position.z);
-      voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, voxel.position.x, voxel.position.y, voxel.position.z);
    }
 
    return std::move(result);
@@ -1699,22 +1701,36 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
 
    int32_t available = 255;
    memcpy(voxModel.palette, default_palette, sizeof(voxModel.palette));
-   memset(voxModel.palette, 0, sizeof(voxModel.palette));
+   for (size_t i = 0; i < 255; i ++)
+   {
+      voxModel.palette[i] = default_palette[i];
+   }
+   // memset(voxModel.palette, 0, sizeof(voxModel.palette));
    for (const Voxel::Data& voxel : modelData.mVoxelData)
    {
       uint32_t rgba = (uint8_t(voxel.color.r)) | (uint8_t(voxel.color.g) << 8) | (uint8_t(voxel.color.b) << 16) | 0xff << 24;
 
       uint8_t colorIndex = 255;
-      for (; colorIndex > available; colorIndex --)
+      for (; colorIndex > 1; colorIndex --)
       {
          if (voxModel.palette[colorIndex - 1] == rgba)
          {
             break;
          }
       }
-      if (colorIndex == available)
+      if (colorIndex == 1)
       {
-         available --;
+         colorIndex = available--;
+         if (available < 0)
+         {
+            return Failure("Too many colors");
+         }
+
+         voxModel.palette[colorIndex - 1] = rgba;
+      }
+      else if (colorIndex <= available)
+      {
+         available = colorIndex - 1;
          if (available < 0)
          {
             return Failure("Too many colors");
@@ -1734,6 +1750,10 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
          (colorIndex << 24);
       model.voxels.push_back(packed);
    };
+   for (int i = 1; i < 256; i ++)
+   {
+      // voxModel.palette[i] = 0xff00f285;
+   }
 
    voxModel.models.push_back(model);
 

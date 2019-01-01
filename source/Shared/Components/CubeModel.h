@@ -9,7 +9,7 @@
 #include <Engine/Entity/Component.h>
 #include <Engine/Graphics/VBO.h>
 #include "../Voxel.h"
-#include "../Helpers/CubeFormat.h"
+#include "../Helpers/VoxFormat.h"
 
 namespace CubeWorld
 {

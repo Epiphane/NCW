@@ -66,7 +66,7 @@ void SubFrame::Update(TIMEDELTA dt)
    mFramebuffer.Bind();
    mUIRoot.UpdateRoot();
    mUIRoot.Update(dt);
-   //mUIRoot.RenderRoot();
+   mUIRoot.RenderRoot();
    mFramebuffer.Unbind();
    mUpdateTimer.Elapsed();
 }

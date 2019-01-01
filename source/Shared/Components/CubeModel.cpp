@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 
 #include <Engine/Core/Scope.h>
+#include <Engine/Helpers/StringHelper.h>
 #include <Engine/Logger/Logger.h>
 #include "../Voxel.h"
 
@@ -37,7 +38,7 @@ CubeModel::CubeModel(const std::string& path, glm::vec3 tint)
 
 void CubeModel::Load(const std::string& path)
 {
-   mModel = Voxel::CubeFormat::Load(path, false);
+   mModel = Voxel::VoxFormat::Load(path, false);
    assert(mModel != nullptr);
    mNumVoxels = mModel->mVoxelData.size();
    mMetadata = mModel->mMetadata;
@@ -47,7 +48,7 @@ void CubeModel::Load(const std::string& path)
 
 void CubeModel::Load(const std::string& path, glm::vec3 tint)
 {
-   mModel = Voxel::CubeFormat::Load(path, true);
+   mModel = Voxel::VoxFormat::Load(path, true);
    assert(mModel != nullptr);
    mNumVoxels = mModel->mVoxelData.size();
    mMetadata = mModel->mMetadata;
