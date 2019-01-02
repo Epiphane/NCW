@@ -44,7 +44,6 @@ UIRoot::UIRoot(Input* input)
 
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
-   Subscribe<ElementRemovedEvent>(*this);
    Subscribe<MouseMoveEvent>(*this);
    Subscribe<MouseDownEvent>(*this);
    Subscribe<MouseUpEvent>(*this);
