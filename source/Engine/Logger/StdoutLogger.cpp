@@ -32,9 +32,16 @@ StdoutLogger* StdoutLogger::Instance()
    return sInstance.get();
 }
 
-void StdoutLogger::Log(const char* message)
+void StdoutLogger::Log(const char* message, Color color)
 {
-   fprintf(stdout, "%s", message);
+   if (color == Default)
+   {
+      fprintf(stdout, "%s", message);
+   }
+   else // TODO
+   {
+      fprintf(stdout, "\e[1;31m%s\e[m", message);
+   }
 }
 
 }; // namespace Input

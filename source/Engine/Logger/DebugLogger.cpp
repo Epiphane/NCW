@@ -1,6 +1,5 @@
 // By Thomas Steinke
 
-#include <stdio.h>
 #if CUBEWORLD_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
@@ -45,7 +44,7 @@ DebugLogger* DebugLogger::Instance()
    return sInstance.get();
 }
 
-void DebugLogger::Log(const char* message)
+void DebugLogger::Log(const char* message, Color)
 {
 #if CUBEWORLD_PLATFORM_WINDOWS
    OutputDebugString(message);

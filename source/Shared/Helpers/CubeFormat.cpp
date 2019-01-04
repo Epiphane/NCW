@@ -4,8 +4,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <cstdio>
-#include <fstream>
-#include <glad/glad.h>
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Logger/Logger.h>
@@ -23,7 +21,7 @@ std::unordered_map<std::string, std::unique_ptr<Model>> CubeFormat::sModels;
 namespace
 {
 
-bool IsFilled(const std::vector<bool>& filled, int index)
+bool IsFilled(const std::vector<bool>& filled, int32_t index)
 {
    if (index < 0 || index >= filled.size())
    {
@@ -33,7 +31,7 @@ bool IsFilled(const std::vector<bool>& filled, int index)
    return filled[index];
 }
 
-int Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
+int32_t Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    if (x >= metadata.width || y >= metadata.height || z >= metadata.length) { return -1; }
    return x + z * metadata.width + y * metadata.width * metadata.length;
@@ -42,12 +40,12 @@ int Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    uint8_t faces = All;
-   int right = Index(metadata, x - 1, y, z);
-   int left = Index(metadata, x + 1, y, z);
-   int front = Index(metadata, x, y, z + 1);
-   int behind = Index(metadata, x, y, z - 1);
-   int above = Index(metadata, x, y + 1, z);
-   int below = Index(metadata, x, y - 1, z);
+   int32_t right = Index(metadata, x - 1, y, z);
+   int32_t left = Index(metadata, x + 1, y, z);
+   int32_t front = Index(metadata, x, y, z + 1);
+   int32_t behind = Index(metadata, x, y, z - 1);
+   int32_t above = Index(metadata, x, y + 1, z);
+   int32_t below = Index(metadata, x, y - 1, z);
 
    // Check overflows
    if (right % metadata.width == 0) { right = -1; }
@@ -202,14 +200,22 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
    for (const Data& voxel : model.mVoxelData)
    {
       // Inverse of how we do centering.
-      int x = model.mMetadata.width / 2 - voxel.position.x;
-      int y = voxel.position.y + model.mMetadata.height / 2;
-      int z = voxel.position.z + model.mMetadata.length / 2;
-      int ndx = Index(model.mMetadata, x, y, z);
+      uint32_t x = model.mMetadata.width / 2 - uint32_t(voxel.position.x);
+      uint32_t y = uint32_t(voxel.position.y) + model.mMetadata.height / 2;
+      uint32_t z = uint32_t(voxel.position.z) + model.mMetadata.length / 2;
+      int32_t ndx = Index(model.mMetadata, x, y, z);
+      if (ndx < 0)
+      {
+         return Failure("Attempting to save voxel at position {%1, %2, %3} even though the size is only %4x%5x%6",
+            x, y, z,
+            model.mMetadata.width,
+            model.mMetadata.height,
+            model.mMetadata.length);
+      }
 
-      data[3 * ndx] = voxel.color.r;
-      data[3 * ndx + 1] = voxel.color.g;
-      data[3 * ndx + 2] = voxel.color.b;
+      data[3 * ndx] = uint8_t(voxel.color.r);
+      data[3 * ndx + 1] = uint8_t(voxel.color.g);
+      data[3 * ndx + 2] = uint8_t(voxel.color.b);
    }
 
    size_t written = fwrite(&data[0], sizeof(std::vector<uint8_t>::value_type), data.size(), f);

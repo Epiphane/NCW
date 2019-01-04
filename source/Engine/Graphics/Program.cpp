@@ -4,7 +4,6 @@
 #include <fstream>
 #include <glad/glad.h>
 #include <glm/ext.hpp>
-#include <stdio.h>
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Core/Scope.h>

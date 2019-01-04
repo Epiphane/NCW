@@ -68,25 +68,25 @@ struct VoxModel {
    struct Render {
       // _type: _inf
       struct Sun {
-         float intensity = 0.6;             // _i
+         float intensity = 0.6f;             // _i
          uint8_t color[3] = {255, 255, 255}; // _k
          int8_t angle[2] = {50, 50};         // _angle
-         float area = 0.07;                  // _area
+         float area = 0.07f;                 // _area
          bool disk = false;                  // _disk
       };
 
       // _type: _uni
       struct UniformSky {
-         float intensity = 0.7;              // _i
+         float intensity = 0.7f;             // _i
          uint8_t color[3] = {255, 255, 255}; // _k
       };
 
       // _type: _atm
       struct AtmosphericSky {
-         float rayleighDensity = 0.4;                 // _ray_d
+         float rayleighDensity = 0.4f;                // _ray_d
          uint8_t rayleighColor[3] = {45, 104, 255};   // _ray_k
-         float mieDensity = 0.4;                      // _mie_d
-         float miePhase = 0.85;                       // _mie_g
+         float mieDensity = 0.4f;                     // _mie_d
+         float miePhase = 0.85f;                      // _mie_g
          uint8_t mieColor[3] = {255, 255, 255};       // _mie_k
          float ozoneDensity = 0;                      // _o3_d
          uint8_t ozoneColor[3] = {105, 255, 110};     // _o3_k
@@ -101,7 +101,7 @@ struct VoxModel {
       // _type: _lens
       struct Lens {
          int32_t fov = 45;              // _fov
-         float depthOfField = 0.25;     // _dof
+         float depthOfField = 0.25f;    // _dof
          float exposure = 1;            // _expo
          bool vignette = false;         // _vig
          bool stereographics = false;   // _sg
@@ -120,13 +120,13 @@ struct VoxModel {
       // _type: _tone
       struct Tone {
          bool aces = false;   // _aces
-         float gamma = 2.2;   // _gam
+         float gamma = 2.2f;  // _gam
       };
 
       // _type: _ground
       struct Ground {
          uint8_t color[3] = {80, 80, 80}; // _color
-         float horizon = 0.1;             // _hor
+         float horizon = 0.1f;            // _hor
       };
 
       // _type: _bg
@@ -137,14 +137,14 @@ struct VoxModel {
       // _type: _edge
       struct Edge {
          uint8_t color[3] = {0, 0, 0}; // _color
-         float width = 0.2;            // _width
+         float width = 0.2f;           // _width
       };
 
       // _type: _grid
       struct Grid {
          uint8_t color[3] = {0, 0, 0}; // _color
          uint32_t spacing = 1;         // _spacing
-         float width = 0.05;           // _width
+         float width = 0.05f;          // _width
          bool onGround = false;        // _display
       };
 

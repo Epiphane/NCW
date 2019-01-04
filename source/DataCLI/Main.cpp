@@ -2,7 +2,6 @@
 // DataCLI - CLI for interacting with Not CubeWorld data
 //
 
-#include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
 #include <string>

@@ -270,7 +270,7 @@ void UIRoot::UpdateRoot()
       Emit<UIRebalancedEvent>();
       mDirty = false;
 
-      printf("%s", GetDebugString(true).c_str());
+      LogDebugInfo();
    }
 }
 

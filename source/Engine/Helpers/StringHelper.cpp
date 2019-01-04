@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <sstream>
 #include "../Logger/Logger.h"
 
 #include "StringHelper.h"
@@ -49,22 +50,22 @@ std::vector<std::string> Split(const std::string& path, char delim)
 
 std::string Join(const std::vector<std::string>& parts, std::string delim)
 {
-   std::string result;
    if (parts.empty())
    {
-      return result;
+      return "";
    }
+   std::ostringstream result;
 
    for (int i = 0; i < parts.size(); ++i)
    {
       if (i > 0)
       {
-         result += delim;
+         result << delim;
       }
-      result += parts[i];
+      result << parts[i];
    }
 
-   return result;
+   return result.str();
 }
 
 }; // namespace StringHelper

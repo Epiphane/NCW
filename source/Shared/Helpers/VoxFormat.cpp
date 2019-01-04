@@ -4,10 +4,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <cstdio>
-#include <fstream>
-#include <glad/glad.h>
 #include <vector>
-#include <unordered_set>
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Helpers/StringHelper.h>
@@ -27,9 +24,9 @@ const VoxModel::Material VoxModel::Material::Default = {
    0, // id
    VoxModel::Material::Diffuse, // type
    1, // weight
-   0.1, // rough
-   0.5, // spec
-   0.3, // ior
+   0.1f, // rough
+   0.5f, // spec
+   0.3f, // ior
    0, // att
    0, // flux
    false, // plastic
@@ -226,10 +223,13 @@ Maybe<Chunk> ReadChunk(FILE* f)
 
    chunk.data.resize(chunk.header.length);
 
-   bytes = fread(&chunk.data[0], 1, chunk.header.length, f);
-   if (bytes != chunk.header.length)
+   if (chunk.header.length > 0)
    {
-      return Failure("Failed to read chunk data: only received %1 bytes out of %2.", bytes, chunk.header.length);
+      bytes = fread(&chunk.data[0], 1, chunk.header.length, f);
+      if (bytes != chunk.header.length)
+      {
+         return Failure("Failed to read chunk data: only received %1 bytes out of %2.", bytes, chunk.header.length);
+      }
    }
 
    uint32_t read = 0;
@@ -259,7 +259,7 @@ std::string ParseString(int32_t*& data)
 
 int32_t* WriteString(int32_t* data, const std::string& string)
 {
-   *data++ = string.size();
+   *data++ = int32_t(string.size());
    char* start = (char*)data;
    char* end = start + string.size();
    strncpy(start, string.c_str(), string.size());
@@ -281,7 +281,7 @@ std::vector<std::pair<std::string, std::string>> ParseDict(int32_t*& data)
 
 int32_t* WriteDict(int32_t* data, const std::vector<std::pair<std::string, std::string>>& pairs)
 {
-   *data++ = pairs.size();
+   *data++ = int32_t(pairs.size());
    for (const auto& pair : pairs)
    {
       data = WriteString(data, pair.first);
@@ -320,8 +320,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
       m.length = size->length;
 
       model->models.push_back(m);
-
-      data = (int32_t*)(&chunk.data[chunk.header.length]);
+      data = (int32_t*)(&chunk.data[0] + chunk.header.length);
    }
    else if (chunk.header.id == Chunk::XYZI)
    {
@@ -335,7 +334,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
       model->models[model->models.size() - 1].voxels.assign(
          (uint32_t*)(xyzi + 1),
          (uint32_t*)data + chunk.header.length / sizeof(uint32_t));
-      data = (int32_t*)(&chunk.data[chunk.header.length]);
+      data = (int32_t*)(&chunk.data[0] + chunk.header.length);
    }
    else if (chunk.header.id == Chunk::nTRN)
    {
@@ -380,7 +379,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
       {
          if (keyval.first == "_r")
          {
-            node.rotate = std::stoi(keyval.second);
+            node.rotate = int8_t(std::stoi(keyval.second));
          }
          else if (keyval.first == "_t")
          {
@@ -408,9 +407,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
 
       // Read node attributes
       auto attributes = ParseDict(data);
-      for (const auto& keyval : attributes)
+      if (attributes.size() > 0)
       {
-         return Failure("Unrecognized attribute: %1=%2", keyval.first, keyval.second);
+         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
       }
 
       nGRP::Body* body = (nGRP::Body*)data;
@@ -429,9 +428,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
 
       // Read node attributes
       auto attributes = ParseDict(data);
-      for (const auto& keyval : attributes)
+      if (attributes.size() > 0)
       {
-         return Failure("Unrecognized attribute: %1=%2", keyval.first, keyval.second);
+         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
       }
 
       nSHP::Body* body = (nSHP::Body*)data;
@@ -447,9 +446,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
 
       // Read model attributes
       attributes = ParseDict(data);
-      for (const auto& keyval : attributes)
+      if (attributes.size() > 0)
       {
-         return Failure("Unrecognized model attribute: %1=%2", keyval.first, keyval.second);
+         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
       }
 
       model->shapes.emplace(node.id, node);
@@ -587,16 +586,16 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->sun.color[0] = std::stoi(components[0]);
-         model->sun.color[1] = std::stoi(components[1]);
-         model->sun.color[2] = std::stoi(components[2]);
+         model->sun.color[0] = int8_t(std::stoi(components[0]));
+         model->sun.color[1] = int8_t(std::stoi(components[1]));
+         model->sun.color[2] = int8_t(std::stoi(components[2]));
          components = StringHelper::Split(properties[3].second, ' ');
          if (components.size() != 2)
          {
             return Failure("Unexpected number of components: %1 must have 2 parts, not %2", properties[2].second, components.size());
          }
-         model->sun.angle[0] = std::stoi(components[0]);
-         model->sun.angle[1] = std::stoi(components[1]);
+         model->sun.angle[0] = int8_t(std::stoi(components[0]));
+         model->sun.angle[1] = int8_t(std::stoi(components[1]));
          model->sun.area = std::stof(properties[4].second);
          model->sun.disk = properties[5].second == "1";
       }
@@ -616,9 +615,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->sky.color[0] = std::stoi(components[0]);
-         model->sky.color[1] = std::stoi(components[1]);
-         model->sky.color[2] = std::stoi(components[2]);
+         model->sky.color[0] = int8_t(std::stoi(components[0]));
+         model->sky.color[1] = int8_t(std::stoi(components[1]));
+         model->sky.color[2] = int8_t(std::stoi(components[2]));
       }
       else if (type == "_atm")
       {
@@ -641,9 +640,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->atm.rayleighColor[0] = std::stoi(components[0]);
-         model->atm.rayleighColor[1] = std::stoi(components[1]);
-         model->atm.rayleighColor[2] = std::stoi(components[2]);
+         model->atm.rayleighColor[0] = int8_t(std::stoi(components[0]));
+         model->atm.rayleighColor[1] = int8_t(std::stoi(components[1]));
+         model->atm.rayleighColor[2] = int8_t(std::stoi(components[2]));
 
          model->atm.mieDensity = std::stof(properties[3].second);
          components = StringHelper::Split(properties[4].second, ' ');
@@ -651,9 +650,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[4].second, components.size());
          }
-         model->atm.mieColor[0] = std::stoi(components[0]);
-         model->atm.mieColor[1] = std::stoi(components[1]);
-         model->atm.mieColor[2] = std::stoi(components[2]);
+         model->atm.mieColor[0] = int8_t(std::stoi(components[0]));
+         model->atm.mieColor[1] = int8_t(std::stoi(components[1]));
+         model->atm.mieColor[2] = int8_t(std::stoi(components[2]));
          model->atm.miePhase = std::stof(properties[5].second);
 
          model->atm.ozoneDensity = std::stof(properties[6].second);
@@ -662,9 +661,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[7].second, components.size());
          }
-         model->atm.ozoneColor[0] = std::stoi(components[0]);
-         model->atm.ozoneColor[1] = std::stoi(components[1]);
-         model->atm.ozoneColor[2] = std::stoi(components[2]);
+         model->atm.ozoneColor[0] = int8_t(std::stoi(components[0]));
+         model->atm.ozoneColor[1] = int8_t(std::stoi(components[1]));
+         model->atm.ozoneColor[2] = int8_t(std::stoi(components[2]));
       }
       else if (type == "_fog_uni")
       {
@@ -682,9 +681,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->fog.color[0] = std::stoi(components[0]);
-         model->fog.color[1] = std::stoi(components[1]);
-         model->fog.color[2] = std::stoi(components[2]);
+         model->fog.color[0] = int8_t(std::stoi(components[0]));
+         model->fog.color[1] = int8_t(std::stoi(components[1]));
+         model->fog.color[2] = int8_t(std::stoi(components[2]));
       }
       else if (type == "_lens")
       {
@@ -706,8 +705,8 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          model->lens.exposure = std::stof(properties[3].second);
          model->lens.vignette = properties[4].second == "1";
          model->lens.stereographics = properties[5].second == "1";
-         model->lens.bladeNumber = std::stoi(properties[6].second);
-         model->lens.bladeRotation = std::stoi(properties[7].second);
+         model->lens.bladeNumber = int8_t(std::stoi(properties[6].second));
+         model->lens.bladeRotation = int8_t(std::stoi(properties[7].second));
       }
       else if (type == "_bloom")
       {
@@ -754,9 +753,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->ground.color[0] = std::stoi(components[0]);
-         model->ground.color[1] = std::stoi(components[1]);
-         model->ground.color[2] = std::stoi(components[2]);
+         model->ground.color[0] = int8_t(std::stoi(components[0]));
+         model->ground.color[1] = int8_t(std::stoi(components[1]));
+         model->ground.color[2] = int8_t(std::stoi(components[2]));
          model->ground.horizon = std::stof(properties[2].second);
       }
       else if (type == "_bg")
@@ -773,9 +772,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->bg.color[0] = std::stoi(components[0]);
-         model->bg.color[1] = std::stoi(components[1]);
-         model->bg.color[2] = std::stoi(components[2]);
+         model->bg.color[0] = int8_t(std::stoi(components[0]));
+         model->bg.color[1] = int8_t(std::stoi(components[1]));
+         model->bg.color[2] = int8_t(std::stoi(components[2]));
       }
       else if (type == "_edge")
       {
@@ -792,9 +791,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->edge.color[0] = std::stoi(components[0]);
-         model->edge.color[1] = std::stoi(components[1]);
-         model->edge.color[2] = std::stoi(components[2]);
+         model->edge.color[0] = int8_t(std::stoi(components[0]));
+         model->edge.color[1] = int8_t(std::stoi(components[1]));
+         model->edge.color[2] = int8_t(std::stoi(components[2]));
          model->edge.width = std::stof(properties[2].second);
       }
       else if (type == "_grid")
@@ -814,9 +813,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->grid.color[0] = std::stoi(components[0]);
-         model->grid.color[1] = std::stoi(components[1]);
-         model->grid.color[2] = std::stoi(components[2]);
+         model->grid.color[0] = int8_t(std::stoi(components[0]));
+         model->grid.color[1] = int8_t(std::stoi(components[1]));
+         model->grid.color[2] = int8_t(std::stoi(components[2]));
          model->grid.spacing = std::stoi(properties[2].second);
          model->grid.width = std::stof(properties[3].second);
          model->grid.onGround = properties[4].second == "1";
@@ -849,9 +848,9 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->settings.scale[0] = std::stoi(components[0]);
-         model->settings.scale[1] = std::stoi(components[1]);
-         model->settings.scale[2] = std::stoi(components[2]);
+         model->settings.scale[0] = int8_t(std::stoi(components[0]));
+         model->settings.scale[1] = int8_t(std::stoi(components[1]));
+         model->settings.scale[2] = int8_t(std::stoi(components[2]));
       }
    }
    else
@@ -859,21 +858,21 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
       return Failure("Unrecognized chunk type");
    }
 
-   if ((uint8_t*)data != &chunk.data[chunk.header.length])
+   if ((uint8_t*)data != &chunk.data[0] + chunk.header.length)
    {
       return Failure("Failed to parse all of body");
    }
    return Success;
 }
 
-Maybe<uint32_t> WriteRenderObj(FILE* f, const std::vector<std::pair<std::string, std::string>>& properties)
+Maybe<size_t> WriteRenderObj(FILE* f, const std::vector<std::pair<std::string, std::string>>& properties)
 {
    size_t chunkSize = sizeof(int32_t) /* DICT header */;
    for (const auto& keyval : properties)
    {
       chunkSize += 2 * sizeof(int32_t) /* STRING headers */
-                  + keyval.first.size()
-                  + keyval.second.size();
+                 + keyval.first.size()
+                 + keyval.second.size();
    }
 
    // Start writing data.
@@ -882,7 +881,7 @@ Maybe<uint32_t> WriteRenderObj(FILE* f, const std::vector<std::pair<std::string,
 
    Chunk::Header* header = (Chunk::Header*)&data[0];
    header->id = Chunk::rOBJ;
-   header->length = chunkSize;
+   header->length = uint32_t(chunkSize);
    header->childLength = 0;
 
    // Write properties
@@ -1039,8 +1038,6 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
       return Failure("Multi-shape models not yet supported");
    }
 
-   LOG_INFO("Ignoring node tree, simply returning voxel model");
-
    const VoxModel::Model& shape = model->models[0];
 
    std::unique_ptr<ModelData> result = std::make_unique<ModelData>();
@@ -1072,9 +1069,9 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
       voxel.position.y = float(y) - result->mMetadata.height / 2;
       voxel.position.z = (result->mMetadata.length - 1) / 2 - float(z);
       uint32_t rgba = model->palette[i - 1];
-      voxel.color.r = (rgba) & 0xff;
-      voxel.color.g = (rgba >> 8) & 0xff;
-      voxel.color.b = (rgba >> 16) & 0xff;
+      voxel.color.r = float((rgba) & 0xff);
+      voxel.color.g = float((rgba >> 8) & 0xff);
+      voxel.color.b = float((rgba >> 16) & 0xff);
       voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, x, y, z);
       result->mVoxelData.push_back(voxel);
    }
@@ -1106,7 +1103,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       return Failure("Failed to write %1-byte header: wrote %2 instead", data.size(), written);
    }
 
-   uint32_t chunkBytes = 0; // Saved to offset 0x10 after computing it.
+   size_t chunkBytes = 0; // Saved to offset 0x10 after computing it.
 
    // Then write model data
    data.resize(sizeof(Chunk::Header) + sizeof(SIZE));
@@ -1129,12 +1126,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       }
 
       header->id = Chunk::XYZI;
-      header->length = sizeof(uint32_t) + sizeof(uint32_t) * model.voxels.size();
+      header->length = uint32_t(sizeof(uint32_t) + sizeof(uint32_t) * model.voxels.size());
       header->childLength = 0;
 
       // Write num voxels along with the header, but not data.
       uint32_t* cursor = (uint32_t*)(header + 1);
-      *cursor = model.voxels.size();
+      *cursor = uint32_t(model.voxels.size());
 
       chunkBytes += written = fwrite(&data[0], 1, sizeof(Chunk::Header) + sizeof(uint32_t), f);
       if (written != sizeof(Chunk::Header) + sizeof(uint32_t))
@@ -1152,11 +1149,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
    // Write render transforms (pretty much unused)
    size_t nNodes = voxModel.transforms.size() + voxModel.groups.size() + voxModel.shapes.size();
-   for (size_t id = 0; id < nNodes; id ++)
+   for (uint32_t id = 0; id < nNodes; id ++)
    {
-      if (auto node = voxModel.transforms.find(id); node != voxModel.transforms.end())
+      if (voxModel.transforms.find(id) != voxModel.transforms.end())
       {
-         const VoxModel::TransformNode& transform = node->second;
+         const VoxModel::TransformNode& transform = voxModel.transforms.at(id);
 
          // Predetermine what the property dicts look like.
          std::vector<std::pair<std::string, std::string>> attributes;
@@ -1205,7 +1202,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
          Chunk::Header* header = (Chunk::Header*)&data[0];
          header->id = Chunk::nTRN;
-         header->length = chunkSize;
+         header->length = uint32_t(chunkSize);
          header->childLength = 0;
 
          // Write header
@@ -1223,11 +1220,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          body->nFrames = 1;
 
          // Write frame attributes
-         int32_t* postFrame = WriteDict((int32_t*)(body + 1), frame);
+         WriteDict((int32_t*)(body + 1), frame);
       }
-      else if (auto node = voxModel.groups.find(id); node != voxModel.groups.end())
+      else if (voxModel.groups.find(id) != voxModel.groups.end())
       {
-         const VoxModel::GroupNode& group = node->second;
+         const VoxModel::GroupNode& group = voxModel.groups.at(id);
 
          // Compute how big to make the chunk
          size_t chunkSize = sizeof(nGRP::Header)
@@ -1240,7 +1237,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
          Chunk::Header* header = (Chunk::Header*)&data[0];
          header->id = Chunk::nGRP;
-         header->length = chunkSize;
+         header->length = uint32_t(chunkSize);
          header->childLength = 0;
 
          // Write header
@@ -1253,7 +1250,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
          // Write body
          nGRP::Body* body = (nGRP::Body*)(attributes + 1);
-         body->children = group.children.size();
+         body->children = int32_t(group.children.size());
 
          int32_t* cursor = (int32_t*)(body + 1);
          for (const int32_t& child : group.children)
@@ -1261,9 +1258,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
             *cursor++ = child;
          }
       }
-      else if (auto node = voxModel.shapes.find(id); node != voxModel.shapes.end())
+      else if (voxModel.shapes.find(id) != voxModel.shapes.end())
       {
-         const VoxModel::ShapeNode& shape = node->second;
+         const VoxModel::ShapeNode& shape = voxModel.shapes.at(id);
 
          // Compute how big to make the chunk
          size_t chunkSize = sizeof(nSHP::Header)
@@ -1276,7 +1273,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
          Chunk::Header* header = (Chunk::Header*)&data[0];
          header->id = Chunk::nSHP;
-         header->length = chunkSize;
+         header->length = uint32_t(chunkSize);
          header->childLength = 0;
 
          // Write header
@@ -1344,7 +1341,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
       Chunk::Header* header = (Chunk::Header*)&data[0];
       header->id = Chunk::LAYR;
-      header->length = chunkSize;
+      header->length = uint32_t(chunkSize);
       header->childLength = 0;
 
       // Write header
@@ -1385,9 +1382,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
    std::vector<VoxModel::Material> materials(voxModel.materials.begin(), voxModel.materials.end());
    while (materials.size() < 256)
    {
-      size_t id = materials.size();
-      materials.push_back(VoxModel::Material::Default);
-      materials[id].id = id;
+      VoxModel::Material material = VoxModel::Material::Default;
+      material.id = int32_t(materials.size());
+      materials.push_back(material);
    }
 
    for (const VoxModel::Material& material : materials)
@@ -1433,7 +1430,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
       Chunk::Header* header = (Chunk::Header*)&data[0];
       header->id = Chunk::MATL;
-      header->length = chunkSize;
+      header->length = uint32_t(chunkSize);
       header->childLength = 0;
 
       // Write header
@@ -1454,7 +1451,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
    // Write render objects
    {
       // Sun
-      Maybe<uint32_t> result = WriteRenderObj(f, {
+      Maybe<size_t> result = WriteRenderObj(f, {
          { "_type", "_inf" },
          { "_i", ToShortString(voxModel.sun.intensity) },
          { "_k", 
@@ -1631,8 +1628,8 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
               voxModel.grid.color[0],
               voxModel.grid.color[1],
               voxModel.grid.color[2]) },
-         { "_spacing", ToShortString(voxModel.grid.spacing) },
-         { "_width", ToShortString(voxModel.grid.width) },
+         { "_spacing", std::to_string(voxModel.grid.spacing) },
+         { "_width", std::to_string(voxModel.grid.width) },
          { "_display", voxModel.grid.onGround ? "1" : "0" },
       });
       if (!result)
@@ -1699,7 +1696,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
    model.height = modelData.mMetadata.height;
    model.length = modelData.mMetadata.length;
 
-   int32_t available = 255;
+   uint8_t available = 255;
    memcpy(voxModel.palette, default_palette, sizeof(voxModel.palette));
    for (size_t i = 0; i < 255; i ++)
    {
@@ -1720,11 +1717,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
       if (colorIndex == 1)
       {
-         colorIndex = available--;
-         if (available < 0)
+         if (available == 0)
          {
             return Failure("Too many colors");
          }
+         colorIndex = available--;
 
          voxModel.palette[colorIndex - 1] = rgba;
       }
@@ -1740,9 +1737,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
 
       // Inverse of how we do centering.
-      int x = (modelData.mMetadata.width - 1) / 2 + voxel.position.x;
-      int z = voxel.position.y + modelData.mMetadata.height / 2;
-      int y = (modelData.mMetadata.length - 1) / 2 - voxel.position.z;
+      int32_t x = (modelData.mMetadata.width - 1) / 2 + int32_t(voxel.position.x);
+      int32_t z = modelData.mMetadata.height / 2 + int32_t(voxel.position.y);
+      int32_t y = (modelData.mMetadata.length - 1) / 2 - int32_t(voxel.position.z);
 
       uint32_t packed = uint8_t(x) | 
          (uint8_t(y) << 8) | 

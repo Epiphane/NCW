@@ -2,17 +2,6 @@
 // NotCubeWorld - An attempt to make something that looks like CubeWorld
 //
 
-#include <algorithm>
-#include <stdio.h>
-#include <stdlib.h>
-#include <GL/includes.h>
-#include <glm/ext.hpp>
-#include <iostream>
-#include <fstream>
-#include <cassert>
-#include <cmath>
-#include <stdio.h>
-
 #include <Engine/Logger/Logger.h>
 #include <Engine/Logger/StdoutLogger.h>
 #include <Engine/Logger/DebugLogger.h>
@@ -32,11 +21,6 @@ using namespace Game;
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
-
-void setWindowSizeDefault() {
-   //const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-   //setWindowSize(mode->width, mode->height);
-}
 
 int main(int /* argc */, char ** /* argv */) {
    using namespace Engine;

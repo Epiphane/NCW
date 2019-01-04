@@ -427,8 +427,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
          const Keyframe& src = state.keyframes[keyframeIndex];
          const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
-         const float dstTime = isLastFrame ? state.length : dst.time;
-         const float progress = float(skeleton.time - src.time) / (dstTime - src.time);
+         const double dstTime = isLastFrame ? state.length : dst.time;
+         const float progress = float(skeleton.time - src.time) / float(dstTime - src.time);
 
          skeleton.bones[0].matrix = glm::mat4(1);
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
@@ -473,8 +473,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
             const Keyframe& src = state.keyframes[keyframeIndex];
             const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
-            const float dstTime = isLastFrame ? state.length : dst.time;
-            const float progress = float(time - src.time) / (dstTime - src.time);
+            const double dstTime = isLastFrame ? state.length : dst.time;
+            const float progress = float(time - src.time) / float(dstTime - src.time);
 
             for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
             {

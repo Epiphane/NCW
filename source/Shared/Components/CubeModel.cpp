@@ -1,17 +1,5 @@
 // By Thomas Steinke
 
-#if CUBEWORLD_PLATFORM_WINDOWS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-#include <cstdio>
-#include <fstream>
-#include <glad/glad.h>
-
-#include <Engine/Core/Scope.h>
-#include <Engine/Helpers/StringHelper.h>
-#include <Engine/Logger/Logger.h>
-#include "../Voxel.h"
-
 #include "CubeModel.h"
 
 namespace CubeWorld

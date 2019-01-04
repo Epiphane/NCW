@@ -33,7 +33,7 @@ struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
       , sensitivity{pitchSensitivity, yawSensitivity}
    {};
 
-   uint32_t button;
+   int button;
    double sensitivity[2];
    bool engaged;
 };

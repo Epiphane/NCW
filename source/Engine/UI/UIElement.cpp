@@ -4,6 +4,8 @@
 //
 // By Thomas Steinke
 
+#include <Engine/Core/Format.h>
+#include <Engine/Helpers/StringHelper.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 #include <sstream>
@@ -109,35 +111,65 @@ bool UIElement::ContainsPoint(double x, double y)
       y >= mFrame.bottom.int_value();
 }
 
-std::string UIElement::GetDebugString(bool bRecursive, int indentLevel)
+UIElement::DebugInfo UIElement::GetDebugInfo(bool bRecursive)
 {
-   std::ostringstream result;
+   DebugInfo result;
+
+   result.name = GetName();
+   result.origin.x = GetX();
+   result.origin.y = GetY();
+   result.size.x = GetWidth();
+   result.size.y = GetHeight();
+   result.z = GetFrame().z.value();
+   result.maxZ = GetFrame().biggestDescendantZ.value();
+
+   if (bRecursive) {
+      for (const auto& child : mChildren)
+      {
+         result.children.push_back(child->GetDebugInfo(true));
+      }
+   }
+
+   return result;
+}
+
+void UIElement::LogDebugInfo(bool bRecursive, Logger::LogManager* output, uint32_t indentLevel)
+{
+   if (output == nullptr)
+   {
+      output = Logger::LogManager::Instance();
+   }
 
    std::string indentation;
    indentation.insert(0, indentLevel * 2, ' ');
 
-   result << indentation << "\e[1;31m" << GetName() << "\e[m [UIElement]" << std::endl;
-   result << indentation << "Origin: (" << GetX() << ", " << GetY() << ") ";
-   result << "Size: (" << GetWidth() << ", " << GetHeight() << ")" << std::endl;
-   result << indentation << "Z: " << GetFrame().z.value();
-   result << " Biggest Child Z: " << GetFrame().biggestDescendantZ.value() << std::endl;
+   DebugInfo my = GetDebugInfo(false);
+
+   // First line has multiple colors
+   output->Log("DEBUG | ");
+   output->Log(indentation.c_str());
+   output->Log(my.name.c_str(), Logger::Logger::Red);
+   output->Log(Format::FormatString(" [%1]\n", my.type).c_str());
+
+   // The rest is pretty simple.
+   output->Log(Logger::LogLevel::kDebug, "%1Origin: (%2, %3) Size: (%4, %5)", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
+   output->Log(Logger::LogLevel::kDebug, "%1Z: %2 Biggest Child Z: %3", indentation, my.z, my.maxZ);
 
    if (bRecursive) {
-      result << indentation << "Children:";
-
-      if (mChildren.size() == 0) {
-         result << " None" << std::endl;
+      if (mChildren.size() == 0)
+      {
+         output->Log(Logger::LogLevel::kDebug, "%1Children: None", indentation);
       }
-      else {
-         result << "[" << std::endl;
-         for (int ndx = 0; ndx < mChildren.size(); ndx++) {
-            result << mChildren[ndx]->GetDebugString(true, indentLevel + 1);
+      else
+      {
+         output->Log(Logger::LogLevel::kDebug, "%1Children: [", indentation);
+         for (const auto& child : mChildren)
+         {
+            child->LogDebugInfo(true, output, indentLevel + 1);
          }
-         result << indentation << "]" << std::endl;
+         output->Log(Logger::LogLevel::kDebug, "%1]", indentation);
       }
    }
-
-   return result.str();
 }
 
 void UIElement::InitFromJSON(nlohmann::json data)

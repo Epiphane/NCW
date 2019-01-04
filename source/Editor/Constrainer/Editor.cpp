@@ -1,12 +1,15 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
+#include <Engine/Logger/Logger.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Engine/UI/UIContextMenu.h>
 #include <Engine/UI/UISerializationHelper.h>
 
+#if !CUBEWORLD_PLATFORM_WINDOWS
 #include <libfswatch/c++/monitor_factory.hpp>
+#endif
 
 #include "Editor.h"
 #include "Sidebar.h"
@@ -40,8 +43,10 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    
    
    std::vector<std::string> farts = {"lol.txt"};
+#if !CUBEWORLD_PLATFORM_WINDOWS
    fsw::monitor* boyo = fsw::monitor_factory::create_monitor(system_default_monitor_type, farts, nullptr);
-   
+#endif
+
 //   TextButton::Options buttonOptions;
 //   buttonOptions.text = "I'm a big boy";
 //   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
@@ -92,7 +97,7 @@ void Editor::BigDumbTest()
 }
 
 void Editor::TestButton() {
-   printf("%s", mpRoot->GetDebugString(true).c_str());
+   LogDebugInfo();
 }
 
 void Editor::Start()
