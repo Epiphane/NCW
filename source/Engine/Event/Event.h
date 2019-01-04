@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace CubeWorld
 {
 
@@ -10,7 +12,7 @@ namespace Engine
 
 class BaseEvent {
 public:
-   typedef size_t Family;
+   typedef uint32_t Family;
 
 protected:
    // This gets incremented with each different Event class

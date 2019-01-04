@@ -4,6 +4,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <cstdio>
+#include <errno.h>
 
 #include <Engine/Core/Scope.h>
 #include <Engine/Logger/Logger.h>

@@ -44,7 +44,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    
    std::vector<std::string> farts = {"lol.txt"};
 #if !CUBEWORLD_PLATFORM_WINDOWS
-   fsw::monitor* boyo = fsw::monitor_factory::create_monitor(system_default_monitor_type, farts, nullptr);
+   //  fsw::monitor* boyo = fsw::monitor_factory::create_monitor(system_default_monitor_type, farts, nullptr);
 #endif
 
 //   TextButton::Options buttonOptions;
