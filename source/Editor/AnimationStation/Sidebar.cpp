@@ -25,7 +25,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Animation("player.json")))
+   , mFilename(Paths::Normalize(Asset::Model("character.json")))
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
 
@@ -37,7 +37,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    buttons->SetOffset(8.0);
 
    TextButton::Options buttonOptions;
-   buttonOptions.text = "Load";
+   buttonOptions.text = "Open";
    buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
    TextButton* load = buttons->Add<TextButton>(buttonOptions);
 

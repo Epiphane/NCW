@@ -23,7 +23,6 @@
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
-#include "ModelMaker/Editor.h"
 #include "Constrainer/Editor.h"
 
 #include "Controls.h"
@@ -78,7 +77,6 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
-   Editor::ModelMaker::Editor* modelMaker = nullptr;
    Editor::Constrainer::Editor* constrainer = nullptr;
    Editor::Controls::Options controlsOptions{
       {
@@ -86,13 +84,6 @@ int main(int argc, char** argv)
          [&]() {
             Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
             animationStation->Start();
-         }
-      },
-      {
-         "Model Maker",
-         [&]() {
-            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
-            modelMaker->Start();
          }
       },
       {
@@ -111,10 +102,6 @@ int main(int argc, char** argv)
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window, controlsOptions);
    animationStation->SetBounds(*window);
    animationStation->SetName("Animation Station");
-
-   modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(window, controlsOptions);
-   modelMaker->SetBounds(*window);
-   modelMaker->SetName("Model Maker");
 
    constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
    constrainer->SetBounds(*window);
@@ -157,9 +144,9 @@ int main(int argc, char** argv)
       Editor::CommandStack::Instance()->Redo();
    });
 
-   // Start in Model Maker
-   modelMaker->Start();
-   windowContent.Swap(modelMaker);
+   // Start in Animation Station
+   animationStation->Start();
+   windowContent.Swap(animationStation);
    constrainer->Start();
 
    Timer<100> windowContentRender;

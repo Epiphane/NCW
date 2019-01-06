@@ -5,6 +5,10 @@
 #endif
 #include <cstdio>
 #include <errno.h>
+#include <glm/ext.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+#include <queue>
 #include <vector>
 
 #include <Engine/Core/Scope.h>
@@ -19,11 +23,12 @@ namespace CubeWorld
 namespace Voxel
 {
 
-std::unordered_map<std::string, std::unique_ptr<Model>> VoxFormat::sModels;
+std::unordered_map<std::string, std::unique_ptr<Model>> VoxFormat::sDepModels;
+std::unordered_map<std::string, std::unique_ptr<VoxModel>> VoxFormat::sModels;
 
-const VoxModel::Material VoxModel::Material::Default = {
+const VoxModelData::Material VoxModelData::Material::Default = {
    0, // id
-   VoxModel::Material::Diffuse, // type
+   VoxModelData::Material::Diffuse, // type
    1, // weight
    0.1f, // rough
    0.5f, // spec
@@ -299,17 +304,12 @@ std::string ToShortString(float val)
    return result;
 }
 
-Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
+Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
 {
    int32_t* data = (int32_t*)&chunk.data[0];
    if (chunk.header.id == Chunk::SIZE)
    {
-      if (model->models.size() > 0)
-      {
-         return Failure("Multi-model objects are not supported");
-      }
-
-      VoxModel::Model m;
+      VoxModelData::Model m;
 
       if (chunk.header.length != sizeof(SIZE))
       {
@@ -339,7 +339,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
    }
    else if (chunk.header.id == Chunk::nTRN)
    {
-      VoxModel::TransformNode node;
+      VoxModelData::TransformNode node;
       node.id = *data++;
 
       // Read node attributes
@@ -403,7 +403,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
    }
    else if (chunk.header.id == Chunk::nGRP)
    {
-      VoxModel::GroupNode node;
+      VoxModelData::GroupNode node;
       node.id = *data++;
 
       // Read node attributes
@@ -424,7 +424,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
    }
    else if (chunk.header.id == Chunk::nSHP)
    {
-      VoxModel::ShapeNode node;
+      VoxModelData::ShapeNode node;
       node.id = *data++;
 
       // Read node attributes
@@ -456,7 +456,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
    }
    else if (chunk.header.id == Chunk::LAYR)
    {
-      VoxModel::Layer layer;
+      VoxModelData::Layer layer;
       layer.id = *data++;
 
       // Read layer attributes
@@ -497,7 +497,7 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
    }
    else if (chunk.header.id == Chunk::MATL)
    {
-      VoxModel::Material material;
+      VoxModelData::Material material;
       material.id = *data++;
 
       auto attributes = ParseDict(data);
@@ -505,10 +505,10 @@ Maybe<void> ParseChunk(VoxModel* model, const Chunk& chunk)
       {
          if (keyval.first == "_type")
          {
-            if (keyval.second == "_diffuse") { material.type = VoxModel::Material::Diffuse; }
-            else if (keyval.second == "_metal") { material.type = VoxModel::Material::Metal; }
-            else if (keyval.second == "_glass") { material.type = VoxModel::Material::Glass; }
-            else if (keyval.second == "_emit") { material.type = VoxModel::Material::Emit; }
+            if (keyval.second == "_diffuse") { material.type = VoxModelData::Material::Diffuse; }
+            else if (keyval.second == "_metal") { material.type = VoxModelData::Material::Metal; }
+            else if (keyval.second == "_glass") { material.type = VoxModelData::Material::Glass; }
+            else if (keyval.second == "_emit") { material.type = VoxModelData::Material::Emit; }
             else
             {
                return Failure("Unrecognized material type: %1", keyval.second);
@@ -947,8 +947,8 @@ uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& 
 
 Model* VoxFormat::Load(const std::string& path, bool tintable)
 {
-   auto maybeModel = sModels.find(path);
-   if (maybeModel != sModels.end())
+   auto maybeModel = sDepModels.find(path);
+   if (maybeModel != sDepModels.end())
    {
       assert(tintable == maybeModel->second->mIsTintable);
 
@@ -966,13 +966,222 @@ Model* VoxFormat::Load(const std::string& path, bool tintable)
    model->mVBO.BufferData(sizeof(Data) * int(model->mVoxelData.size()), &model->mVoxelData[0], GL_STATIC_DRAW);
    model->mIsTintable = tintable;
 
+   auto emplaceResult = sDepModels.emplace(path, std::move(model));
+   return emplaceResult.first->second.get();
+}
+
+Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
+{
+   auto maybeModel = sModels.find(path);
+   if (maybeModel != sModels.end())
+   {
+      return maybeModel->second.get();
+   }
+
+   Maybe<std::unique_ptr<VoxModelData>> maybeData = ReadScene(path);
+   if (!maybeData)
+   {
+      return maybeData.Failure().WithContext("Failed loading scene");
+   }
+
+   // Construct a VoxModel based on the data we read.
+   std::unique_ptr<VoxModel> model = std::make_unique<VoxModel>();
+
+   std::vector<Voxel::Data> voxels{};
+   std::vector<VoxModel::Part> models{};
+   std::unique_ptr<VoxModelData> data = std::move(maybeData.Result());
+   for (const Voxel::VoxModelData::Model& model : data->models)
+   {
+      VoxModel::Part part;
+      part.tintable = false; // May be changed later
+      part.start = voxels.size();
+      part.size = 0;
+
+      ModelData::Metadata metadata;
+      metadata.width = model.width;
+      metadata.length = model.length;
+      metadata.height = model.height;
+
+      // TODO allocation might be slow
+      std::vector<bool> filled(model.width * model.height * model.length, false);
+      for (const auto& info : model.voxels)
+      {
+         uint8_t y = (info >> 16) & 0xff;
+         uint8_t z = (info >> 8) & 0xff;
+         uint8_t x = info & 0xff;
+
+         size_t ndx = Index(metadata, x, y, z);
+         filled[ndx] = true;
+      }
+
+      for (const auto& info : model.voxels)
+      {
+         Voxel::Data voxel;
+         uint8_t i = (info >> 24) & 0xff;
+         uint8_t y = (info >> 16) & 0xff;
+         uint8_t z = (info >> 8) & 0xff;
+         uint8_t x = info & 0xff;
+         voxel.position.x = float(x) - metadata.width / 2;
+         voxel.position.y = float(y) - metadata.height / 2;
+         voxel.position.z = metadata.length / 2 - float(z);
+         uint32_t rgba = data->palette[i - 1];
+         voxel.color.r = float((rgba) & 0xff);
+         voxel.color.g = float((rgba >> 8) & 0xff);
+         voxel.color.b = float((rgba >> 16) & 0xff);
+         voxel.enabledFaces = GetExposedFaces(filled, metadata, x, y, z);
+         if (voxel.enabledFaces != 0)
+         {
+            voxels.push_back(voxel);
+            part.size ++;
+         }
+      }
+
+      models.push_back(part);
+   }
+
+   // Buffer to GPU
+   model->vbo.BufferData(sizeof(Data) * voxels.size(), &voxels[0], GL_STATIC_DRAW);
+
+   // Dive down the tree, building all shapes
+   std::queue<std::pair<int32_t, glm::mat4>> remaining({ {0, glm::mat4(1)} });
+   while (!remaining.empty())
+   {
+      auto [id, parent] = remaining.front();
+      remaining.pop();
+
+      if (data->transforms.find(id) == data->transforms.end())
+      {
+         return Failure("Unexpected non-nTRN node: %1", id);
+      }
+
+      const VoxModelData::TransformNode& node = data->transforms[id];
+
+      // Rotation
+      int8_t col0 = ((node.rotate >> 0) & 0b11);
+      int8_t col1 = ((node.rotate >> 2) & 0b11);
+      int8_t col2 = 3 - col0 - col1;
+      int8_t val0 = (node.rotate & 0b10000) ? -1 : 1;
+      int8_t val1 = (node.rotate & 0b100000) ? -1 : 1;
+      int8_t val2 = (node.rotate & 0b1000000) ? -1 : 1;
+
+      glm::mat4 rotate = glm::mat4(1);
+      rotate[0][0] = rotate[1][1] = rotate[2][2] = 0;
+
+      // Another weird fallout of y/z inversion: the rotation matrix looks like
+      // 1  0  0
+      // 0  0 -1
+      // 0  1  0
+      // The value ON the identity axis (in this case, [0][0], or x) is the axis
+      // we're rotating around. So in order to swap y and z correctly, we need
+      // to (a) figure out what axis is being rotated around, and then shimmy the
+      // values so that the REAL axis is being rotated. For example:
+      // 0  0 -1       0 -1  0
+      // 0  1  0   ->  1  0  0
+      // 1  0  0       0  0  1
+      // or:
+      //  0  1  0      0  0 -1
+      // -1  0  0  ->  0  1  0
+      //  0  0  1      1  0  0
+      // it should not change x-rotations however:
+      //  1  0  0      1  0  0
+      //  0  0 -1  ->  0  0 -1
+      //  0  1  0      0  1  0
+      // Notice that it's not a reversible transformation. If T(A) = B in the
+      // first example, then T(inv(B)) = A in the second.
+
+      if (col0 != 0)
+      {
+         if (col1 == 1) // Y -> Z rotation
+         {
+            col0 = 1;
+            col1 = 0;
+            col2 = 2;
+            val1 = val2;
+            val2 = 1; // previous val1
+         }
+         else // if col2 == 2, Z -> Y rotation
+         {
+            col0 = 2;
+            col1 = 1;
+            col2 = 0;
+            val0 = -val0;
+            val2 = -val1;
+            val1 = 1; // previous val2
+         }
+      }
+
+      rotate[col0][0] = val0;
+      rotate[col1][1] = val1;
+      rotate[col2][2] = val2;
+
+      // Combine rotation and translation
+      VoxModel::Part part;
+      part.name = node.name;
+      part.transform = glm::translate(parent, glm::vec3{
+         node.translate[0],
+         node.translate[2],
+         -node.translate[1],
+      }) * rotate;
+      part.tintable = false;
+      part.size = part.start = 0;
+
+      if (node.layer >= 0)
+      {
+         const VoxModelData::Layer& layer = data->layers[node.layer];
+         if (layer.name == "Tintable")
+         {
+            part.tintable = true;
+         }
+         else if (layer.name == "Exclude")
+         {
+            LOG_DEBUG("Ignoring node %1, which is in the Exclude layer", node.id);
+            continue;
+         }
+      }
+
+      if (data->groups.find(node.child) != data->groups.end())
+      {
+         const VoxModelData::GroupNode& group = data->groups[node.child];
+
+         for (const int32_t& child : group.children)
+         {
+            remaining.push({ child, part.transform });
+         }
+
+         // Add to the final model
+         model->parts.push_back(part);
+         if (part.name != "")
+         {
+            model->partLookup.emplace(part.name, model->parts.size() - 1);
+         }
+      }
+      else if (data->shapes.find(node.child) != data->shapes.end())
+      {
+         const VoxModelData::ShapeNode& shape = data->shapes[node.child];
+
+         part.start = models[shape.model].start;
+         part.size = models[shape.model].size;
+
+         // Add to the final model
+         model->parts.push_back(part);
+         if (part.name != "")
+         {
+            model->partLookup.emplace(part.name, model->parts.size() - 1);
+         }
+      }
+      else
+      {
+         return Failure("Expected a shape or group, but got transform for node %1", node.child);
+      }
+   }
+
    auto emplaceResult = sModels.emplace(path, std::move(model));
    return emplaceResult.first->second.get();
 }
 
-Maybe<std::unique_ptr<VoxModel>> VoxFormat::ReadScene(const std::string& path)
+Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& path)
 {
-   std::unique_ptr<VoxModel> model = std::make_unique<VoxModel>();
+   std::unique_ptr<VoxModelData> model = std::make_unique<VoxModelData>();
 
    FILE* f = fopen(path.c_str(), "rb");
    if (f == nullptr)
@@ -1025,21 +1234,21 @@ Maybe<std::unique_ptr<VoxModel>> VoxFormat::ReadScene(const std::string& path)
 
 Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool tintable)
 {
-   Maybe<std::unique_ptr<VoxModel>> maybeModel = ReadScene(path);
+   Maybe<std::unique_ptr<VoxModelData>> maybeModel = ReadScene(path);
 
    if (!maybeModel)
    {
       return maybeModel.Failure();
    }
 
-   std::unique_ptr<VoxModel> model = std::move(maybeModel.Result());
+   std::unique_ptr<VoxModelData> model = std::move(maybeModel.Result());
 
    if (model->shapes.size() > 1)
    {
       return Failure("Multi-shape models not yet supported");
    }
 
-   const VoxModel::Model& shape = model->models[0];
+   const VoxModelData::Model& shape = model->models[0];
 
    std::unique_ptr<ModelData> result = std::make_unique<ModelData>();
 
@@ -1080,7 +1289,7 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
    return std::move(result);
 }
 
-Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
+Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxModelData)
 {
    FILE* f = fopen(path.c_str(), "wb+");
    if (f == nullptr)
@@ -1108,7 +1317,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
    // Then write model data
    data.resize(sizeof(Chunk::Header) + sizeof(SIZE));
-   for (const VoxModel::Model& model : voxModel.models)
+   for (const VoxModelData::Model& model : voxModelData.models)
    {
       Chunk::Header* header = (Chunk::Header*)&data[0];
       header->id = Chunk::SIZE;
@@ -1149,12 +1358,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
    }
 
    // Write render transforms (pretty much unused)
-   size_t nNodes = voxModel.transforms.size() + voxModel.groups.size() + voxModel.shapes.size();
+   size_t nNodes = voxModelData.transforms.size() + voxModelData.groups.size() + voxModelData.shapes.size();
    for (uint32_t id = 0; id < nNodes; id ++)
    {
-      if (voxModel.transforms.find(id) != voxModel.transforms.end())
+      if (voxModelData.transforms.find(id) != voxModelData.transforms.end())
       {
-         const VoxModel::TransformNode& transform = voxModel.transforms.at(id);
+         const VoxModelData::TransformNode& transform = voxModelData.transforms.at(id);
 
          // Predetermine what the property dicts look like.
          std::vector<std::pair<std::string, std::string>> attributes;
@@ -1223,9 +1432,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          // Write frame attributes
          WriteDict((int32_t*)(body + 1), frame);
       }
-      else if (voxModel.groups.find(id) != voxModel.groups.end())
+      else if (voxModelData.groups.find(id) != voxModelData.groups.end())
       {
-         const VoxModel::GroupNode& group = voxModel.groups.at(id);
+         const VoxModelData::GroupNode& group = voxModelData.groups.at(id);
 
          // Compute how big to make the chunk
          size_t chunkSize = sizeof(nGRP::Header)
@@ -1259,9 +1468,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
             *cursor++ = child;
          }
       }
-      else if (voxModel.shapes.find(id) != voxModel.shapes.end())
+      else if (voxModelData.shapes.find(id) != voxModelData.shapes.end())
       {
-         const VoxModel::ShapeNode& shape = voxModel.shapes.at(id);
+         const VoxModelData::ShapeNode& shape = voxModelData.shapes.at(id);
 
          // Compute how big to make the chunk
          size_t chunkSize = sizeof(nSHP::Header)
@@ -1308,7 +1517,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
    }
 
    // Write layer info
-   for (const VoxModel::Layer& layer : voxModel.layers)
+   for (const VoxModelData::Layer& layer : voxModelData.layers)
    {
       // Predetermine what the attribute dict looks like.
       std::vector<std::pair<std::string, std::string>> attributes;
@@ -1363,14 +1572,14 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
 
    // Write the palette
    {
-      data.resize(sizeof(Chunk::Header) + sizeof(voxModel.palette));
+      data.resize(sizeof(Chunk::Header) + sizeof(voxModelData.palette));
 
       Chunk::Header* header = (Chunk::Header*)&data[0];
       header->id = Chunk::RGBA;
-      header->length = sizeof(voxModel.palette);
+      header->length = sizeof(voxModelData.palette);
       header->childLength = 0;
 
-      memcpy(header + 1, voxModel.palette, sizeof(voxModel.palette));
+      memcpy(header + 1, voxModelData.palette, sizeof(voxModelData.palette));
 
       chunkBytes += written = fwrite(&data[0], 1, data.size(), f);
       if (written != data.size())
@@ -1380,29 +1589,29 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
    }
 
    // Write materials
-   std::vector<VoxModel::Material> materials(voxModel.materials.begin(), voxModel.materials.end());
+   std::vector<VoxModelData::Material> materials(voxModelData.materials.begin(), voxModelData.materials.end());
    while (materials.size() < 256)
    {
-      VoxModel::Material material = VoxModel::Material::Default;
+      VoxModelData::Material material = VoxModelData::Material::Default;
       material.id = int32_t(materials.size());
       materials.push_back(material);
    }
 
-   for (const VoxModel::Material& material : materials)
+   for (const VoxModelData::Material& material : materials)
    {
       std::vector<std::pair<std::string, std::string>> properties;
       switch (material.type)
       {
-         case VoxModel::Material::Diffuse:
+         case VoxModelData::Material::Diffuse:
             properties.push_back(std::make_pair("_type", "_diffuse"));
             break;
-         case VoxModel::Material::Emit:
+         case VoxModelData::Material::Emit:
             properties.push_back(std::make_pair("_type", "_emit"));
             break;
-         case VoxModel::Material::Glass:
+         case VoxModelData::Material::Glass:
             properties.push_back(std::make_pair("_type", "_glass"));
             break;
-         case VoxModel::Material::Metal:
+         case VoxModelData::Material::Metal:
             properties.push_back(std::make_pair("_type", "_metal"));
             break;
          default:
@@ -1454,15 +1663,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Sun
       Maybe<size_t> result = WriteRenderObj(f, {
          { "_type", "_inf" },
-         { "_i", ToShortString(voxModel.sun.intensity) },
+         { "_i", ToShortString(voxModelData.sun.intensity) },
          { "_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.sun.color[0],
-              voxModel.sun.color[1],
-              voxModel.sun.color[2]) },
-         { "_angle", Format::FormatString("%1 %2", voxModel.sun.angle[0], voxModel.sun.angle[1]) },
-         { "_area", ToShortString(voxModel.sun.area) },
-         { "_disk", voxModel.sun.disk ? "1" : "0" },
+              voxModelData.sun.color[0],
+              voxModelData.sun.color[1],
+              voxModelData.sun.color[2]) },
+         { "_angle", Format::FormatString("%1 %2", voxModelData.sun.angle[0], voxModelData.sun.angle[1]) },
+         { "_area", ToShortString(voxModelData.sun.area) },
+         { "_disk", voxModelData.sun.disk ? "1" : "0" },
       });
       if (!result)
       {
@@ -1473,12 +1682,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Uniform sky
       result = WriteRenderObj(f, {
          { "_type", "_uni" },
-         { "_i", ToShortString(voxModel.sky.intensity) },
+         { "_i", ToShortString(voxModelData.sky.intensity) },
          { "_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.sky.color[0],
-              voxModel.sky.color[1],
-              voxModel.sky.color[2]) },
+              voxModelData.sky.color[0],
+              voxModelData.sky.color[1],
+              voxModelData.sky.color[2]) },
       });
       if (!result)
       {
@@ -1489,25 +1698,25 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Atmospheric sky
       result = WriteRenderObj(f, {
          { "_type", "_atm" },
-         { "_ray_d", ToShortString(voxModel.atm.rayleighDensity) },
+         { "_ray_d", ToShortString(voxModelData.atm.rayleighDensity) },
          { "_ray_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.atm.rayleighColor[0],
-              voxModel.atm.rayleighColor[1],
-              voxModel.atm.rayleighColor[2]) },
-         { "_mie_d", ToShortString(voxModel.atm.mieDensity) },
+              voxModelData.atm.rayleighColor[0],
+              voxModelData.atm.rayleighColor[1],
+              voxModelData.atm.rayleighColor[2]) },
+         { "_mie_d", ToShortString(voxModelData.atm.mieDensity) },
          { "_mie_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.atm.mieColor[0],
-              voxModel.atm.mieColor[1],
-              voxModel.atm.mieColor[2]) },
-         { "_mie_g", ToShortString(voxModel.atm.miePhase) },
-         { "_o3_d", ToShortString(voxModel.atm.ozoneDensity) },
+              voxModelData.atm.mieColor[0],
+              voxModelData.atm.mieColor[1],
+              voxModelData.atm.mieColor[2]) },
+         { "_mie_g", ToShortString(voxModelData.atm.miePhase) },
+         { "_o3_d", ToShortString(voxModelData.atm.ozoneDensity) },
          { "_o3_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.atm.ozoneColor[0],
-              voxModel.atm.ozoneColor[1],
-              voxModel.atm.ozoneColor[2]) },
+              voxModelData.atm.ozoneColor[0],
+              voxModelData.atm.ozoneColor[1],
+              voxModelData.atm.ozoneColor[2]) },
       });
       if (!result)
       {
@@ -1518,12 +1727,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Uniform fog
       result = WriteRenderObj(f, {
          { "_type", "_fog_uni" },
-         { "_d", ToShortString(voxModel.fog.density) },
+         { "_d", ToShortString(voxModelData.fog.density) },
          { "_k", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.fog.color[0],
-              voxModel.fog.color[1],
-              voxModel.fog.color[2]) },
+              voxModelData.fog.color[0],
+              voxModelData.fog.color[1],
+              voxModelData.fog.color[2]) },
       });
       if (!result)
       {
@@ -1534,13 +1743,13 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Lens
       result = WriteRenderObj(f, {
          { "_type", "_lens" },
-         { "_fov", std::to_string(voxModel.lens.fov) },
-         { "_dof", ToShortString(voxModel.lens.depthOfField) },
-         { "_expo", voxModel.lens.exposure ? "1" : "0" },
-         { "_vig", voxModel.lens.vignette ? "1" : "0" },
-         { "_sg", voxModel.lens.stereographics ? "1" : "0" },
-         { "_blade_n", std::to_string(voxModel.lens.bladeNumber) },
-         { "_blade_r", std::to_string(voxModel.lens.bladeRotation) },
+         { "_fov", std::to_string(voxModelData.lens.fov) },
+         { "_dof", ToShortString(voxModelData.lens.depthOfField) },
+         { "_expo", voxModelData.lens.exposure ? "1" : "0" },
+         { "_vig", voxModelData.lens.vignette ? "1" : "0" },
+         { "_sg", voxModelData.lens.stereographics ? "1" : "0" },
+         { "_blade_n", std::to_string(voxModelData.lens.bladeNumber) },
+         { "_blade_r", std::to_string(voxModelData.lens.bladeRotation) },
       });
       if (!result)
       {
@@ -1551,10 +1760,10 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Bloom
       result = WriteRenderObj(f, {
          { "_type", "_bloom" },
-         { "_mix", ToShortString(voxModel.bloom.mix) },
-         { "_scale", ToShortString(voxModel.bloom.scale) },
-         { "_aspect", ToShortString(voxModel.bloom.aspect) },
-         { "_threshold", ToShortString(voxModel.bloom.threshold) },
+         { "_mix", ToShortString(voxModelData.bloom.mix) },
+         { "_scale", ToShortString(voxModelData.bloom.scale) },
+         { "_aspect", ToShortString(voxModelData.bloom.aspect) },
+         { "_threshold", ToShortString(voxModelData.bloom.threshold) },
       });
       if (!result)
       {
@@ -1565,8 +1774,8 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Tone
       result = WriteRenderObj(f, {
          { "_type", "_tone" },
-         { "_aces", voxModel.tone.aces ? "1" : "0" },
-         { "_gam", ToShortString(voxModel.tone.gamma) },
+         { "_aces", voxModelData.tone.aces ? "1" : "0" },
+         { "_gam", ToShortString(voxModelData.tone.gamma) },
       });
       if (!result)
       {
@@ -1579,10 +1788,10 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          { "_type", "_ground" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.ground.color[0],
-              voxModel.ground.color[1],
-              voxModel.ground.color[2]) },
-         { "_hor", ToShortString(voxModel.ground.horizon) },
+              voxModelData.ground.color[0],
+              voxModelData.ground.color[1],
+              voxModelData.ground.color[2]) },
+         { "_hor", ToShortString(voxModelData.ground.horizon) },
       });
       if (!result)
       {
@@ -1595,9 +1804,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          { "_type", "_bg" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.bg.color[0],
-              voxModel.bg.color[1],
-              voxModel.bg.color[2]) },
+              voxModelData.bg.color[0],
+              voxModelData.bg.color[1],
+              voxModelData.bg.color[2]) },
       });
       if (!result)
       {
@@ -1610,10 +1819,10 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          { "_type", "_edge" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.edge.color[0],
-              voxModel.edge.color[1],
-              voxModel.edge.color[2]) },
-         { "_width", ToShortString(voxModel.edge.width) },
+              voxModelData.edge.color[0],
+              voxModelData.edge.color[1],
+              voxModelData.edge.color[2]) },
+         { "_width", ToShortString(voxModelData.edge.width) },
       });
       if (!result)
       {
@@ -1626,12 +1835,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
          { "_type", "_grid" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.grid.color[0],
-              voxModel.grid.color[1],
-              voxModel.grid.color[2]) },
-         { "_spacing", std::to_string(voxModel.grid.spacing) },
-         { "_width", std::to_string(voxModel.grid.width) },
-         { "_display", voxModel.grid.onGround ? "1" : "0" },
+              voxModelData.grid.color[0],
+              voxModelData.grid.color[1],
+              voxModelData.grid.color[2]) },
+         { "_spacing", std::to_string(voxModelData.grid.spacing) },
+         { "_width", std::to_string(voxModelData.grid.width) },
+         { "_display", voxModelData.grid.onGround ? "1" : "0" },
       });
       if (!result)
       {
@@ -1642,18 +1851,18 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModel& voxModel)
       // Settings
       result = WriteRenderObj(f, {
          { "_type", "_setting" },
-         { "_ground", voxModel.settings.ground ? "1" : "0" },
-         { "_sw", voxModel.settings.shadow ? "1" : "0" },
-         { "_aa", voxModel.settings.antialias ? "1" : "0" },
-         { "_grid", voxModel.settings.grid ? "1" : "0" },
-         { "_edge", voxModel.settings.edge ? "1" : "0" },
-         { "_bg_c", voxModel.settings.background ? "1" : "0" },
-         { "_bg_a", voxModel.settings.bgTransparent ? "1" : "0" },
+         { "_ground", voxModelData.settings.ground ? "1" : "0" },
+         { "_sw", voxModelData.settings.shadow ? "1" : "0" },
+         { "_aa", voxModelData.settings.antialias ? "1" : "0" },
+         { "_grid", voxModelData.settings.grid ? "1" : "0" },
+         { "_edge", voxModelData.settings.edge ? "1" : "0" },
+         { "_bg_c", voxModelData.settings.background ? "1" : "0" },
+         { "_bg_a", voxModelData.settings.bgTransparent ? "1" : "0" },
          { "_scale", 
            Format::FormatString("%1 %2 %3", 
-              voxModel.settings.scale[0],
-              voxModel.settings.scale[1],
-              voxModel.settings.scale[2]) },
+              voxModelData.settings.scale[0],
+              voxModelData.settings.scale[1],
+              voxModelData.settings.scale[2]) },
       });
       if (!result)
       {
@@ -1685,25 +1894,25 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       return Failure{"Voxel data provided was empty."};
    }
 
-   VoxModel voxModel;
-   voxModel.materials.clear();
-   voxModel.groups.clear();
-   voxModel.shapes.clear();
-   voxModel.transforms.clear();
-   voxModel.layers.clear();
+   VoxModelData voxModelData;
+   voxModelData.materials.clear();
+   voxModelData.groups.clear();
+   voxModelData.shapes.clear();
+   voxModelData.transforms.clear();
+   voxModelData.layers.clear();
 
-   VoxModel::Model model;
+   VoxModelData::Model model;
    model.width = modelData.mMetadata.width;
    model.height = modelData.mMetadata.height;
    model.length = modelData.mMetadata.length;
 
    uint8_t available = 255;
-   memcpy(voxModel.palette, default_palette, sizeof(voxModel.palette));
+   memcpy(voxModelData.palette, default_palette, sizeof(voxModelData.palette));
    for (size_t i = 0; i < 255; i ++)
    {
-      voxModel.palette[i] = default_palette[i];
+      voxModelData.palette[i] = default_palette[i];
    }
-   // memset(voxModel.palette, 0, sizeof(voxModel.palette));
+   // memset(voxModelData.palette, 0, sizeof(voxModelData.palette));
    for (const Voxel::Data& voxel : modelData.mVoxelData)
    {
       uint32_t rgba = (uint8_t(voxel.color.r)) | (uint8_t(voxel.color.g) << 8) | (uint8_t(voxel.color.b) << 16) | 0xff << 24;
@@ -1711,7 +1920,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       uint8_t colorIndex = 255;
       for (; colorIndex > 1; colorIndex --)
       {
-         if (voxModel.palette[colorIndex - 1] == rgba)
+         if (voxModelData.palette[colorIndex - 1] == rgba)
          {
             break;
          }
@@ -1724,7 +1933,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
          }
          colorIndex = available--;
 
-         voxModel.palette[colorIndex - 1] = rgba;
+         voxModelData.palette[colorIndex - 1] = rgba;
       }
       else if (colorIndex <= available)
       {
@@ -1734,7 +1943,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
             return Failure("Too many colors");
          }
 
-         voxModel.palette[colorIndex - 1] = rgba;
+         voxModelData.palette[colorIndex - 1] = rgba;
       }
 
       // Inverse of how we do centering.
@@ -1750,42 +1959,42 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
    };
    for (int i = 1; i < 256; i ++)
    {
-      // voxModel.palette[i] = 0xff00f285;
+      // voxModelData.palette[i] = 0xff00f285;
    }
 
-   voxModel.models.push_back(model);
+   voxModelData.models.push_back(model);
 
-   voxModel.layers.push_back({0, "0", false});
-   voxModel.layers.push_back({1, "1", false});
-   voxModel.layers.push_back({2, "2", false});
-   voxModel.layers.push_back({3, "3", false});
-   voxModel.layers.push_back({4, "4", false});
-   voxModel.layers.push_back({5, "5", false});
-   voxModel.layers.push_back({6, "6", false});
-   voxModel.layers.push_back({7, "7", false});
+   voxModelData.layers.push_back({0, "0", false});
+   voxModelData.layers.push_back({1, "1", false});
+   voxModelData.layers.push_back({2, "2", false});
+   voxModelData.layers.push_back({3, "3", false});
+   voxModelData.layers.push_back({4, "4", false});
+   voxModelData.layers.push_back({5, "5", false});
+   voxModelData.layers.push_back({6, "6", false});
+   voxModelData.layers.push_back({7, "7", false});
 
-   VoxModel::TransformNode transform;
+   VoxModelData::TransformNode transform;
    transform.id = 0;
    transform.child = 1;
    transform.layer = -1;
-   voxModel.transforms.emplace(transform.id, transform);
+   voxModelData.transforms.emplace(transform.id, transform);
 
-   VoxModel::GroupNode group;
+   VoxModelData::GroupNode group;
    group.id = 1;
    group.children.push_back(2);
-   voxModel.groups.emplace(group.id, group);
+   voxModelData.groups.emplace(group.id, group);
 
    transform.id = 2;
    transform.child = 3;
    transform.layer = 0;
-   voxModel.transforms.emplace(transform.id, transform);
+   voxModelData.transforms.emplace(transform.id, transform);
 
-   VoxModel::ShapeNode shape;
+   VoxModelData::ShapeNode shape;
    shape.id = 3;
    shape.model = 0;
-   voxModel.shapes.emplace(shape.id, shape);
+   voxModelData.shapes.emplace(shape.id, shape);
 
-   return Write(path, voxModel);
+   return Write(path, voxModelData);
 }
 
 }; // namespace Voxel

@@ -12,6 +12,7 @@
 #include <Engine/Graphics/Program.h>
 
 #include "../Components/CubeModel.h"
+#include "../Components/VoxModel.h"
 #include "../DebugHelper.h"
 #include "AnimationSystem.h"
 #include "VoxelRenderSystem.h"
@@ -121,6 +122,31 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
 
       CHECK_GL_ERRORS();
+   });
+
+   entities.Each<Transform, VoxModel>([&](Engine::Entity /*entity*/, Transform& transform, VoxModel& voxModel) {
+      voxModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
+      voxModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
+      voxModel.mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+
+      glm::mat4 matrix = transform.GetMatrix();
+
+      for (const VoxModel::Part& part : voxModel.mParts)
+      {
+         if (part.size == 0)
+         {
+            continue;
+         }
+
+         glm::mat4 partMatrix = matrix * part.transform;
+         glm::vec3 noTint = glm::vec3(255.0f);
+
+         program->UniformMatrix4f("uModelMatrix", partMatrix);
+         program->UniformVector3f("uTint", part.tintable ? voxModel.mTint : noTint);
+
+         glDrawArrays(GL_POINTS, GLsizei(part.start), GLsizei(part.size));
+         CHECK_GL_ERRORS();
+      }
    });
 
    entities.Each<Transform, AnimatedSkeleton>([&](Engine::Entity /*entity*/, Transform& transform, AnimatedSkeleton& skeleton) {

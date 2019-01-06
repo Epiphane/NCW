@@ -14,7 +14,7 @@ namespace CubeWorld
 namespace Voxel
 {
 
-struct VoxModel {
+struct VoxModelData {
    struct TransformNode {
       int32_t id;
       std::string name = "";
@@ -23,7 +23,7 @@ struct VoxModel {
       int32_t layer;
 
       // Frame attributes
-      int8_t rotate = 0;
+      int8_t rotate = 0b0000100;
       int32_t translate[3] = {0, 0, 0};
    };
 
@@ -186,21 +186,63 @@ struct VoxModel {
 };
 
 //
+// Contains a single VBO for all the shapes in a multi-shape model, as well as information
+// about rendering them all.
+//
+class VoxModel {
+public:
+   struct Part {
+      std::string name;
+      bool tintable;
+      //
+      // To draw this part, draw the Model's VBO using indices [start, start + size)
+      // Size 0 represents an ethereal part, used for skeleton reasoning but not drawn.
+      //
+      uint32_t start, size;
+      // Transformation relative to the root of the model.
+      glm::mat4 transform;
+   };
+
+public:
+   //
+   // Creation functions.
+   //
+   VoxModel() 
+      : parts{}
+      , partLookup{}
+      , vbo(Engine::Graphics::VBO::Vertices)
+   {};
+
+public:
+   // Member data
+   std::vector<Part> parts;
+   std::unordered_map<std::string, size_t> partLookup;
+
+   Engine::Graphics::VBO vbo;
+};
+
+//
 // Documentation:
 // https://github.com/ephtracy/voxel-model/blob/master/MagicaVoxel-file-format-vox.txt
 //
 class VoxFormat {
 public:
+   //
    // Load performs a read, and then buffers that data to the GPU as well.
+   // Not supported for multi-model skeletons, use the VoxModel component for that.
+   // Also soft-deprecated, I want to use VoxModel for everything.
+   //
    static Model* Load(const std::string& path, bool tintable);
+   static Maybe<VoxModel*> Load(const std::string& path);
 
-   static Maybe<std::unique_ptr<VoxModel>> ReadScene(const std::string& path);
+   static Maybe<std::unique_ptr<VoxModelData>> ReadScene(const std::string& path);
    static Maybe<std::unique_ptr<ModelData>> Read(const std::string& path, bool tintable);
-   static Maybe<void> Write(const std::string& path, const VoxModel& model);
+   static Maybe<void> Write(const std::string& path, const VoxModelData& model);
    static Maybe<void> Write(const std::string& path, const ModelData& model);
 
 private:
-   static std::unordered_map<std::string, std::unique_ptr<Model>> sModels;
+   static std::unordered_map<std::string, std::unique_ptr<Model>> sDepModels;
+   static std::unordered_map<std::string, std::unique_ptr<VoxModel>> sModels;
 };
 
 }; // namespace Voxel
