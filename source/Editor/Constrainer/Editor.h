@@ -7,11 +7,9 @@
 #include <Engine/Event/EventManager.h>
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/StateWindow.h>
+#include <Shared/Helpers/JsonFileSync.h>
 
 #include "../Controls.h"
-//#include "Dock.h"
-//#include "Sidebar.h"
-//#include "State.h"
 
 namespace CubeWorld
 {
@@ -34,10 +32,14 @@ public:
 
    void TestButton();
 
+   virtual void UpdateRoot() override;
+
 private:
    void BigDumbTest();
 
    Engine::EventManager mEvents;
+
+   Shared::JsonFileSync mFileSyncer;
 
 //   TextButton* mTestContextMenuButton;
 };

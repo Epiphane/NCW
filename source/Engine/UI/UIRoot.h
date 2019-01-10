@@ -114,7 +114,7 @@ public:
    //
    // Rebalance all elements according to contraints.
    //
-   void UpdateRoot();
+   virtual void UpdateRoot();
 
    //
    // Render the entire UI.

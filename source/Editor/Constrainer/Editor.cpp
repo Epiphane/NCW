@@ -24,7 +24,9 @@ namespace Constrainer
 using Engine::UIContextMenu;
 using UI::RectFilled;
 
-Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(input)
+Editor::Editor(Engine::Input* input, const Controls::Options& options)
+   : UIRoot(input)
+   , mFileSyncer("lol.txt")
 {
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
@@ -38,10 +40,6 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
    
-   
-   std::vector<std::string> farts = {"lol.txt"};
-   fsw::monitor* boyo = fsw::monitor_factory::create_monitor(system_default_monitor_type, farts, nullptr);
-   
 //   TextButton::Options buttonOptions;
 //   buttonOptions.text = "I'm a big boy";
 //   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
@@ -53,7 +51,10 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 
    Engine::UISerializationHelper serializer;
 
-   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("example_ui_serialized.json")), mpRoot, mContentLayer);
+   std::string path = Paths::Normalize(Asset::UIElement("example_ui_serialized.json"));
+   Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(path, mpRoot, mContentLayer);
+
+   Engine::ElementsByName elementMap = *maybeElementMap;
 
    UIElement* mainContent = elementMap["TestJSONStuff"];
    mainContent->ConstrainHeightTo(this);
@@ -78,6 +79,15 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 //   UIContextMenu *testMenu = mpRoot->Add<UIContextMenu>("TestThingy", bleh);
 //   testMenu->ConstrainCenterTo(this);
 //   testMenu->ConstrainInFrontOfAllDescendants(mainContent);
+}
+
+void Editor::UpdateRoot()
+{
+   if (mFileSyncer.DoesFileHaveNewUpdate()) {
+      
+   }
+
+   UIRoot::UpdateRoot();
 }
 
 void Editor::BigDumbTest()

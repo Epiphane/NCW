@@ -10,7 +10,7 @@
 #include <string>
 #include <map>
 
-#include <Shared/Helpers/json.hpp>
+#include <Shared/Helpers/JsonHelper.h>
 
 #include "UIConstraint.h"
 
@@ -27,12 +27,13 @@ typedef std::map<std::string, UIElement*> ElementsByName;
    
 class UISerializationHelper {
 public:
-   ElementsByName CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent);
+   Maybe<ElementsByName> CreateUIFromJSONData(nlohmann::json data, UIRoot* pRoot, UIElement* pParent);
+   Maybe<ElementsByName> CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent);
 
 private:
    UIConstraint::Target ConstraintTargetFromString(std::string name);
-   void ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName& elementMap);
-   void ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, ElementsByName &elementsMap);
+   Maybe<void> ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut);
+   Maybe<void> ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, const ElementsByName &elementsMap);
 };
    
 } // CubeWorld

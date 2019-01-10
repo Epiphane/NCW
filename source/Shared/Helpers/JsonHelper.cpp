@@ -4,11 +4,13 @@
 
 #include "JsonHelper.h"
 
+#include <fstream>
+#include <sstream>
 
-namespace Shared
+namespace CubeWorld
 {
 
-namespace JsonHelpers
+namespace Shared
 {
 
 glm::vec3 JsonToVec3(const nlohmann::json& json)
@@ -38,6 +40,26 @@ nlohmann::json Vec4ToJson(glm::vec4 vec4)
          (double)std::round(vec4.z * 100) / 100,
          (double)std::round(vec4.w * 100) / 100
    };
+}
+   
+Maybe<nlohmann::json> GetJsonFromFile(const std::string& filename)
+{
+   nlohmann::json result;
+   
+   std::ifstream file(filename);
+   
+   if (!file.good()) {
+      return Failure{"Could not open file %1", filename.c_str()};
+   }
+   
+   try {
+      file >> result;
+   }
+   catch(nlohmann::detail::exception e) {
+      return Failure{"Parse error in %1: %2", filename.c_str(), e.what()};
+   }
+   
+   return result;
 }
 
 } // JsonHelpers

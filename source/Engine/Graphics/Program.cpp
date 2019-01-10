@@ -63,6 +63,8 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    std::ifstream file(filePath);
    std::string code;
 
+   assert(file.good() && "Error loading shader!");
+
    file.seekg(0, std::ios::end);
    code.reserve(static_cast<size_t>(file.tellg()));
    file.seekg(0, std::ios::beg);

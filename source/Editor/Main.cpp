@@ -3,9 +3,10 @@
 //
 
 #include <algorithm>
-#include <GL/includes.h>
 #include <cassert>
 #include <cmath>
+#include <GL/includes.h>
+#include <libfswatch/c/libfswatch.h>
 
 #include <Engine/Core/Input.h>
 #include <Engine/Core/Timer.h>
@@ -73,6 +74,10 @@ int main(int argc, char** argv)
    auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
       window->SetShouldClose(true);
    });
+
+   // Setup file watching library
+   fsw_init_library();
+   fsw_set_verbose(true);
 
    // Swaps between the different editors
    UI::Swapper windowContent;

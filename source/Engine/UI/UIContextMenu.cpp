@@ -31,7 +31,11 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
       : UIElement(root, parent, name)
 {
    Engine::UISerializationHelper serializer;
-   Engine::ElementsByName elementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("context_menu.json")), mpRoot, this);
+   Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("context_menu.json")), mpRoot, this);
+
+   assert(maybeElementMap && "Unable to create UI for context menu.");
+
+   Engine::ElementsByName elementMap = *maybeElementMap;
 
    UIElement* mainBackground = elementMap["ContextMenuBackgroundBorder"];
    mainBackground->ConstrainEqualBounds(this);

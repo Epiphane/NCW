@@ -29,8 +29,8 @@ size_t AddBoneToSkeleton(AnimatedSkeleton* skeleton, const size_t parent, const 
 {
    AnimatedSkeleton::Bone bone;
    bone.name = name;
-   bone.position = bone.originalPosition = Shared::JsonHelpers::JsonToVec3(data["position"]);
-   bone.rotation = bone.originalRotation = Shared::JsonHelpers::JsonToVec3(data["rotation"]);
+   bone.position = bone.originalPosition = Shared::JsonToVec3(data["position"]);
+   bone.rotation = bone.originalRotation = Shared::JsonToVec3(data["rotation"]);
    bone.parent = parent;
 
    size_t id = skeleton->bones.size();
@@ -66,8 +66,8 @@ nlohmann::json SerializeBone(AnimatedSkeleton* skeleton, AnimatedSkeleton::Bone&
 {
    nlohmann::json data;
 
-   data["position"] = Shared::JsonHelpers::Vec3ToJson(bone.originalPosition);
-   data["rotation"] = Shared::JsonHelpers::Vec3ToJson(bone.originalRotation);
+   data["position"] = Shared::Vec3ToJson(bone.originalPosition);
+   data["rotation"] = Shared::Vec3ToJson(bone.originalRotation);
 
    for (auto childId : bone.children)
    {
@@ -171,11 +171,11 @@ void AnimatedSkeleton::Load(const std::string& filename)
                {
                   if (auto pos = modification.value().find("position"); pos != modification.value().end())
                   {
-                     position = keyframe.positions[boneId] = Shared::JsonHelpers::JsonToVec3(pos.value());
+                     position = keyframe.positions[boneId] = Shared::JsonToVec3(pos.value());
                   }
                   if (auto rot = modification.value().find("rotation"); rot != modification.value().end())
                   {
-                     rotation = keyframe.rotations[boneId] = Shared::JsonHelpers::JsonToVec3(rot.value());
+                     rotation = keyframe.rotations[boneId] = Shared::JsonToVec3(rot.value());
                   }
                }
             }
@@ -278,11 +278,11 @@ std::string AnimatedSkeleton::Serialize()
             Bone& bone = bones[boneId];
             if (keyframe.positions[boneId] != bone.originalPosition)
             {
-               keyframeData["bones"][bone.name]["position"] = Shared::JsonHelpers::Vec3ToJson(keyframe.positions[boneId]);
+               keyframeData["bones"][bone.name]["position"] = Shared::Vec3ToJson(keyframe.positions[boneId]);
             }
             if (keyframe.rotations[boneId] != bone.originalRotation)
             {
-               keyframeData["bones"][bone.name]["rotation"] = Shared::JsonHelpers::Vec3ToJson(keyframe.rotations[boneId]);
+               keyframeData["bones"][bone.name]["rotation"] = Shared::Vec3ToJson(keyframe.rotations[boneId]);
             }
          }
 

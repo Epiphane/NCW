@@ -43,7 +43,7 @@ void RectFilled::InitFromJSON(nlohmann::json data)
 {
    UIElement::InitFromJSON(data);
 
-   mColor = Shared::JsonHelpers::JsonToVec4(data["backgroundColor"]);
+   mColor = Shared::JsonToVec4(data["backgroundColor"]);
 }
 
 }; // namespace UI

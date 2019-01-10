@@ -46,8 +46,14 @@ namespace Engine
 			},
 		]
 	}
+ *
+ * @param element        JSON data representing the element tree to parse
+ * @param pRoot          Root element all the elements will belong to
+ * @param pParent        Element that the hierarchy will be parented to
+ * @param elementMapOut  Pass in an ElementsByName reference that will be populated with the elements that are parsed
+ *                          from the JSON.
  */
-void UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName& elementMapOut)
+Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut)
 {
    std::unique_ptr<UIElement> newElement;
    std::string newElementClass = element["class"].get<std::string>();
@@ -62,22 +68,29 @@ void UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot
       newElement = std::make_unique<UIStackView>(pRoot, pParent, element["name"]);
    }
    else {
-      assert(false && "Unsupported class name! I should probably add it >_>");
+      return Failure{"Unsupported class name in file: %1", newElementClass.c_str()};
    }
 
    // Let each class do some initialization based on the JSON data
    newElement->InitFromJSON(element);
 
-   if (elementMapOut.find(element["name"]) != elementMapOut.end()) {
-      assert(false && "You duplicated a UIElement name! Don't do that!");
+   if (elementMapOut->find(element["name"]) != elementMapOut->end()) {
+      std::string badName = element["name"];
+      return Failure{"Duplicate element name %1 in file", badName.c_str()};
    }
 
    UIElement* reference = pParent->AddChild(std::move(newElement));
-   elementMapOut[element["name"]] = reference;
+   (*elementMapOut)[element["name"]] = reference;
 
    for (auto child : element["children"]) {
-      ParseUIElement(child, pRoot, reference, elementMapOut);
+      Maybe<void> result = ParseUIElement(child, pRoot, reference, elementMapOut);
+      
+      if (!result) {
+         return result;
+      }
    }
+   
+   return Success;
 }
 
 UIConstraint::Target UISerializationHelper::ConstraintTargetFromString(std::string name)
@@ -125,9 +138,10 @@ UIConstraint::Target UISerializationHelper::ConstraintTargetFromString(std::stri
 		}
 ]
 
- * @param pRoot UIRoot that will be receiving these constraints.
+ * @param pRoot         UIRoot that will be receiving these constraints.
+ * @param elementsMap   An elementsMap of all the elements that are involved in constraints
  */
-void UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, ElementsByName &elementsMap)
+Maybe<void> UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, const ElementsByName &elementsMap)
 {
    for (auto constraintData : constraints) {
       std::string primaryElementName   = constraintData["primaryElement"];
@@ -139,12 +153,17 @@ void UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot*
       UIElement* primaryElement = nullptr;
       UIElement* secondaryElement = nullptr;
 
-      assert(elementsMap.find(primaryElementName) != elementsMap.end() && "Unknown element name in constraint JSON");
-      primaryElement = elementsMap[primaryElementName];
+      if (elementsMap.find(primaryElementName) == elementsMap.end()) {
+         return Failure{"Unknown element name %1 when creating constraints.", primaryElementName};
+      }
+      
+      primaryElement = elementsMap.at(primaryElementName);
 
       if (!secondaryElementName.empty()) {
-         assert(elementsMap.find(secondaryElementName) != elementsMap.end() && "Unknown element name in constraint JSON");
-         secondaryElement = elementsMap[secondaryElementName];
+         if (elementsMap.find(secondaryElementName) == elementsMap.end()) {
+            return Failure{"Unknown element name %1 when creating constraints.", secondaryElementName};
+         }
+         secondaryElement = elementsMap.at(secondaryElementName);
       }
 
       UIConstraint::Target primaryTarget = ConstraintTargetFromString(primaryTargetName);
@@ -160,34 +179,51 @@ void UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot*
 
       pRoot->AddConstraint(newConstraint);
    }
+
+   return Success;
 }
 
 /**
- * Create a new UIElement hierarchy based on data from the specified JSON file,
+ * Create a new UIElement hierarchy based on data from the specified JSON data,
  *  and adds it as a child to the specified parent.
  *
- * Also adds constraints from the JSON file to the specified UIRoot.
+ * Also adds constraints from the JSON data to the specified UIRoot.
  *
- * Returns a map of newly created elements by their name.
+ * Returns a map of newly created elements by their name, or a Failure state
+ *  if we have bad data (unknown class names, etc.)
  */
-ElementsByName UISerializationHelper::CreateUIFromJSONFile(const std::string &filename, UIRoot* pRoot, UIElement* pParent)
+Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(nlohmann::json data, UIRoot* pRoot, UIElement* pParent)
 {
-   std::ifstream file(filename);
+   ElementsByName elementMap; // Passed into ParseUIElement and populated there
+   Maybe<void> parsingResult;
 
-   if (!file.good()) {
-      assert(false && "Something is terribly wrong with that file!");
+   parsingResult = ParseUIElement(data["baseElement"], pRoot, pParent, &elementMap);
+   if (!parsingResult) {
+      return parsingResult.Failure();
    }
 
-   nlohmann::json data;
-   file >> data;
+   parsingResult = ParseConstraints(data["constraints"], pRoot, elementMap);
+   if (!parsingResult) {
+      return parsingResult.Failure();
+   }
 
-   ElementsByName elementsByName;
-
-   ParseUIElement(data["baseElement"], pRoot, pParent, elementsByName);
-
-   ParseConstraints(data["constraints"], pRoot, elementsByName);
-
-   return elementsByName;
+   return elementMap;
+}
+   
+/**
+ * Helper function that parses the JSON at the given path then calls CreateUIFromJSONData.
+ *
+ * Returns a failure state if the file is missing or invalid JSON.
+ */
+Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent)
+{
+   Maybe<nlohmann::json> data = Shared::GetJsonFromFile(filename);
+   
+   if (!data) {
+      return Failure(data.Failure()).WithContext("UI Creation Failed");
+   }
+   
+   return CreateUIFromJSONData(*data, pRoot, pParent);
 }
 
 
