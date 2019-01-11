@@ -8,6 +8,7 @@
 #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+// #include <glm/gtx/decomposition.hpp>
 #include <queue>
 #include <vector>
 
@@ -1043,10 +1044,11 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
    model->vbo.BufferData(sizeof(Data) * voxels.size(), &voxels[0], GL_STATIC_DRAW);
 
    // Dive down the tree, building all shapes
-   std::queue<std::pair<int32_t, glm::mat4>> remaining({ {0, glm::mat4(1)} });
+   std::queue<std::tuple<uint32_t, uint32_t, glm::mat4>> remaining({ {0, 0, glm::mat4(1)} });
+   model->parents.resize(data->transforms.size(), -1);
    while (!remaining.empty())
    {
-      auto [id, parent] = remaining.front();
+      auto [id, parentID, parent] = remaining.front();
       remaining.pop();
 
       if (data->transforms.find(id) == data->transforms.end())
@@ -1116,6 +1118,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
 
       // Combine rotation and translation
       VoxModel::Part part;
+      part.id = model->parts.size();
       part.name = node.name;
       part.transform = glm::translate(parent, glm::vec3{
          node.translate[0],
@@ -1124,7 +1127,36 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       }) * rotate;
       part.tintable = false;
       part.size = part.start = 0;
+      model->parents[part.id] = parentID;
 
+      // Deconstruct matrix back into position and rotation.
+      part.position = glm::vec3(part.transform[3]);
+      part.rotation.y = asin(-part.transform[0][2]);
+		if (cos(part.rotation.y) != 0) {
+         part.rotation.x = atan2(part.transform[1][2], part.transform[2][2]);
+         part.rotation.z = atan2(part.transform[0][1], part.transform[0][0]);
+		} else {
+         part.rotation.x = atan2(-part.transform[2][0], part.transform[1][1]);
+         part.rotation.z = 0;
+		}
+
+      part.position = glm::vec3{node.translate[0],node.translate[2],-node.translate[1]};
+      part.rotation.y = asin(-rotate[0][2]);
+		if (cos(part.rotation.y) != 0) {
+         part.rotation.x = atan2(rotate[1][2], rotate[2][2]);
+         part.rotation.z = atan2(rotate[0][1], rotate[0][0]);
+		} else {
+         part.rotation.x = atan2(-rotate[2][0], rotate[1][1]);
+         part.rotation.z = 0;
+		}
+
+      // To reconstruct part.transform, run the following:
+      // part.transform = glm::translate(glm::mat4(1), part.position);
+      // part.transform = glm::rotate(part.transform, part.rotation.y, glm::vec3(0, 1, 0));
+      // part.transform = glm::rotate(part.transform, part.rotation.x, glm::vec3(1, 0, 0));
+      // part.transform = glm::rotate(part.transform, part.rotation.z, glm::vec3(0, 0, 1));
+
+      // Respect layer names
       if (node.layer >= 0)
       {
          const VoxModelData::Layer& layer = data->layers[node.layer];
@@ -1134,18 +1166,19 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          }
          else if (layer.name == "Exclude")
          {
-            LOG_DEBUG("Ignoring node %1, which is in the Exclude layer", node.id);
+            LOG_DEBUG("Ignoring node %1 (%2), which is in the Exclude layer", node.id, node.name);
             continue;
          }
       }
 
+      // Figure out what kind of node this is
       if (data->groups.find(node.child) != data->groups.end())
       {
          const VoxModelData::GroupNode& group = data->groups[node.child];
 
          for (const int32_t& child : group.children)
          {
-            remaining.push({ child, part.transform });
+            remaining.push({ child, part.id, part.transform });
          }
 
          // Add to the final model

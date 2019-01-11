@@ -11,15 +11,13 @@
 
 #include <Shared/Components/ArmCamera.h>
 
-#include "Backdrop.h"
-
 namespace CubeWorld
 {
 
 namespace Editor
 {
 
-namespace ModelMaker
+namespace Skeletor
 {
 
 class MainState : public Engine::State, public Engine::Receiver<MainState> {
@@ -45,12 +43,9 @@ private:
 
    Engine::Input* mInput;
    Bounded& mParent;
-
-private:
-   std::unique_ptr<Backdrop> mBackdrop;
 };
 
-}; // namespace ModelMaker
+}; // namespace Skeletor
 
 }; // namespace Editor
 

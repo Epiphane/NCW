@@ -24,6 +24,7 @@
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "Constrainer/Editor.h"
+#include "Skeletor/Editor.h"
 
 #include "Controls.h"
 #include "Main.h"
@@ -78,12 +79,20 @@ int main(int argc, char** argv)
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
    Editor::Constrainer::Editor* constrainer = nullptr;
+   Editor::Skeletor::Editor* skeletor = nullptr;
    Editor::Controls::Options controlsOptions{
       {
          "Animation Station",
          [&]() {
             Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
             animationStation->Start();
+         }
+      },
+      {
+         "Skeletor",
+         [&]() {
+            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            skeletor->Start();
          }
       },
       {
@@ -102,6 +111,10 @@ int main(int argc, char** argv)
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window, controlsOptions);
    animationStation->SetBounds(*window);
    animationStation->SetName("Animation Station");
+
+   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window, controlsOptions);
+   skeletor->SetBounds(*window);
+   skeletor->SetName("Skeletor");
 
    constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
    constrainer->SetBounds(*window);
@@ -145,8 +158,8 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
-   animationStation->Start();
-   windowContent.Swap(animationStation);
+   skeletor->Start();
+   windowContent.Swap(skeletor);
    constrainer->Start();
 
    Timer<100> windowContentRender;

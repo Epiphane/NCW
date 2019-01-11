@@ -6,7 +6,6 @@
 #include "Dock.h"
 #include "Editor.h"
 #include "Sidebar.h"
-#include "State.h"
 
 namespace CubeWorld
 {
@@ -14,7 +13,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace ModelMaker
+namespace Skeletor
 {
 
 using UI::StateWindow;
@@ -31,6 +30,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
+   Dock* dock = Add<Dock>();
 
    // Organize everything
    sidebar->ConstrainLeftAlignedTo(this);
@@ -42,10 +42,15 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
 
-   mStateWindow->ConstrainToRightOf(sidebar);
-   mStateWindow->ConstrainHeightTo(this);
+   dock->ConstrainToRightOf(sidebar);
+   dock->ConstrainRightAlignedTo(this);
+   dock->ConstrainBottomAlignedTo(this);
+   dock->ConstrainHeightTo(this, 0, 0.4);
+
+   mStateWindow->ConstrainLeftAlignedTo(dock);
    mStateWindow->ConstrainTopAlignedTo(this);
-   mStateWindow->ConstrainRightAlignedTo(this);
+   mStateWindow->ConstrainAbove(dock);
+   mStateWindow->ConstrainRightAlignedTo(dock);
 
    mStateWindow->SetState(std::move(state));
 }
@@ -55,7 +60,7 @@ void Editor::Start()
    DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
 }
 
-}; // namespace ModelMaker
+}; // namespace Skeletor
 
 }; // namespace Editor
 

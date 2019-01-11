@@ -11,6 +11,7 @@
 #include "../Controls.h"
 #include "Dock.h"
 #include "Sidebar.h"
+#include "State.h"
 
 namespace CubeWorld
 {
@@ -18,7 +19,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace ModelMaker
+namespace Skeletor
 {
 
 class Editor : public Engine::UIRoot
@@ -37,7 +38,7 @@ private:
    UI::StateWindow* mStateWindow;
 };
 
-}; // namespace ModelMaker
+}; // namespace Skeletor
 
 }; // namespace Editor
 

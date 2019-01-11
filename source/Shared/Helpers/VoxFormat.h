@@ -192,6 +192,7 @@ struct VoxModelData {
 class VoxModel {
 public:
    struct Part {
+      uint32_t id;
       std::string name;
       bool tintable;
       //
@@ -199,7 +200,15 @@ public:
       // Size 0 represents an ethereal part, used for skeleton reasoning but not drawn.
       //
       uint32_t start, size;
-      // Transformation relative to the root of the model.
+      //
+      // Transformation relative to the root of the model. Represents the "base"
+      // position and rotation, and should never be changed during runtime.
+      //
+      glm::vec3 position;
+      glm::vec3 rotation;
+      //
+      // May not reflect position and rotation exactly, e.g. after animations
+      //
       glm::mat4 transform;
    };
 
@@ -216,6 +225,7 @@ public:
 public:
    // Member data
    std::vector<Part> parts;
+   std::vector<uint32_t> parents;
    std::unordered_map<std::string, size_t> partLookup;
 
    Engine::Graphics::VBO vbo;

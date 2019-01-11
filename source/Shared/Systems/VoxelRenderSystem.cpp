@@ -11,7 +11,6 @@
 #include <Engine/Core/Scope.h>
 #include <Engine/Graphics/Program.h>
 
-#include "../Components/CubeModel.h"
 #include "../Components/VoxModel.h"
 #include "../DebugHelper.h"
 #include "AnimationSystem.h"
@@ -110,20 +109,6 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       CHECK_GL_ERRORS();
    });
 
-   entities.Each<Transform, CubeModel>([&](Engine::Entity /*entity*/, Transform& transform, CubeModel& cubModel) {
-      cubModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
-      cubModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
-      cubModel.mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
-
-      glm::mat4 model = transform.GetMatrix();
-      program->UniformMatrix4f("uModelMatrix", model);
-      program->UniformVector3f("uTint", cubModel.mTint);
-
-      glDrawArrays(GL_POINTS, 0, GLsizei(cubModel.mNumVoxels));
-
-      CHECK_GL_ERRORS();
-   });
-
    entities.Each<Transform, VoxModel>([&](Engine::Entity /*entity*/, Transform& transform, VoxModel& voxModel) {
       voxModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
       voxModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
@@ -145,27 +130,6 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
          program->UniformVector3f("uTint", part.tintable ? voxModel.mTint : noTint);
 
          glDrawArrays(GL_POINTS, GLsizei(part.start), GLsizei(part.size));
-         CHECK_GL_ERRORS();
-      }
-   });
-
-   entities.Each<Transform, AnimatedSkeleton>([&](Engine::Entity /*entity*/, Transform& transform, AnimatedSkeleton& skeleton) {
-      glm::mat4 matrix = transform.GetMatrix();
-
-      for (const AnimatedSkeleton::ModelAttachment& model : skeleton.models)
-      {
-         AnimatedSkeleton::Bone bone = skeleton.bones[model.bone];
-         glm::mat4 boneMatrix = matrix * bone.matrix;
-
-         model.model->mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
-         model.model->mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
-         model.model->mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
-
-         program->UniformMatrix4f("uModelMatrix", boneMatrix);
-         program->UniformVector3f("uTint", model.tint);
-
-         glDrawArrays(GL_POINTS, 0, GLsizei(model.model->mVoxelData.size()));
-
          CHECK_GL_ERRORS();
       }
    });

@@ -177,7 +177,7 @@ namespace Game
       // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.vox"));
 
       player.Add<VoxModel>(Asset::Model("character.vox"), glm::vec3(0, 0, 168.0f));
-      // player.Add<AnimatedSkeleton>(Asset::Model("character.json"));
+      player.Add<AnimatedSkeleton>(Asset::Model("character.json"))->model = player.Get<VoxModel>();
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;

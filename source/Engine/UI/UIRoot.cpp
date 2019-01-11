@@ -269,8 +269,6 @@ void UIRoot::UpdateRoot()
 
       Emit<UIRebalancedEvent>();
       mDirty = false;
-
-      LogDebugInfo();
    }
 }
 

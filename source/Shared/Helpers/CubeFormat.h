@@ -14,6 +14,12 @@ namespace CubeWorld
 namespace Voxel
 {
 
+//
+// NOTE: This is deprecated. The cub extension is no longer used by anything, but in the
+// interest of allowing for data conversion one day in the future (using MagicaVoxel to
+// make mods for real CubeWorld, exporting assets from mods/game to an editable format)
+// the read/write functionality is still supported.
+//
 class CubeFormat {
 public:
    // Load performs a read, and then buffers that data to the GPU as well.

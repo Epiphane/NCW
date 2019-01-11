@@ -33,7 +33,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace AnimationStation
+namespace Skeletor
 {
 
 using Entity = Engine::Entity;
@@ -96,7 +96,7 @@ void MainState::Initialize()
 
    // Colors
    const glm::vec4 BASE(18, 18, 18, 1);
-   const glm::vec4 LINE(0, 160, 51, 1);
+   const glm::vec4 LINE(77, 133, 255, 1);
    const int size = 150;
    for (int i = -size; i <= size; ++i) {
       for (int j = -size; j <= size; ++j) {
@@ -132,7 +132,7 @@ void MainState::Receive(const Engine::UIRebalancedEvent&)
    mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
 }
 
-}; // namespace AnimationStation
+}; // namespace Skeletor
 
 }; // namespace Editor
 
