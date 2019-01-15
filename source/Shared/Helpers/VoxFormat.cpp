@@ -1116,10 +1116,10 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       rotate[col1][1] = val1;
       rotate[col2][2] = val2;
 
-      // Combine rotation and translation
       VoxModel::Part part;
       part.id = model->parts.size();
-      part.name = node.name;
+      part.name = part.id > 0 ? node.name : "root";
+      // Combine rotation and translation
       part.transform = glm::translate(parent, glm::vec3{
          node.translate[0],
          node.translate[2],
@@ -1128,17 +1128,6 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       part.tintable = false;
       part.size = part.start = 0;
       model->parents[part.id] = parentID;
-
-      // Deconstruct matrix back into position and rotation.
-      part.position = glm::vec3(part.transform[3]);
-      part.rotation.y = asin(-part.transform[0][2]);
-		if (cos(part.rotation.y) != 0) {
-         part.rotation.x = atan2(part.transform[1][2], part.transform[2][2]);
-         part.rotation.z = atan2(part.transform[0][1], part.transform[0][0]);
-		} else {
-         part.rotation.x = atan2(-part.transform[2][0], part.transform[1][1]);
-         part.rotation.z = 0;
-		}
 
       part.position = glm::vec3{node.translate[0],node.translate[2],-node.translate[1]};
       part.rotation.y = asin(-rotate[0][2]);

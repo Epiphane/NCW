@@ -13,11 +13,12 @@ namespace Editor
 struct AnimationSystemController : public Engine::Component<AnimationSystemController>
 {
    //
-   // Editing switches. Pause all animations and disable transitions.
+   // Editing switches. Pause all animations (but do not disable) and disable transitions.
    //
    double speed = 1.0;
    bool paused = true;
    TIMEDELTA nextTick = 0;
+   bool animate = true;
    bool transitions = false;
 };
 

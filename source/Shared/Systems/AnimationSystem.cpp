@@ -153,16 +153,16 @@ void AnimatedSkeleton::Load(const std::string& filename)
          return;
       }
 
-      Voxel::VoxModel* model = *maybeModel;
+      Voxel::VoxModel* voxModel = *maybeModel;
 
-      bones.resize(model->parts.size());
-      for (const Voxel::VoxModel::Part& part : model->parts)
+      bones.resize(voxModel->parts.size());
+      for (const Voxel::VoxModel::Part& part : voxModel->parts)
       {
          AnimatedSkeleton::Bone& bone = bones[part.id];
          bone.name = part.name;
          bone.position = bone.originalPosition = part.position;
          bone.rotation = bone.originalRotation = part.rotation;
-         bone.parent = model->parents[part.id];
+         bone.parent = voxModel->parents[part.id];
          bone.children.clear();
          ComputeBoneMatrix(part.id);
 
@@ -298,6 +298,12 @@ std::string AnimatedSkeleton::Serialize()
    data["bones"][bones[0].name] = SerializeBone(this, bones[0]);
    data["default"] = states[0].name;
 
+   // Bone customization
+   for (size_t boneId = 0; boneId < bones.size(); boneId ++)
+   {
+      
+   }
+
    // States and their transitions
    for (auto state : states)
    {
@@ -423,6 +429,7 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       }
 
       // Advance basic animation
+      if (mAnimate)
       {
          State& state = skeleton.states[skeleton.current];
          skeleton.time += dt;

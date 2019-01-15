@@ -1,6 +1,6 @@
 {
    "bones": {
-      "": {
+      "root": {
          "bones": {
             "": {
                "bones": {
@@ -209,6 +209,14 @@
             -0.0,
             0.0
          ]
+      }
+   },
+   "custom": {
+      "Left Leg": {
+         "position": [-0.5, 0, 0]
+      },
+      "Right Leg": {
+         "position": [0.5, 0, 0]
       }
    },
    "default": "idle",

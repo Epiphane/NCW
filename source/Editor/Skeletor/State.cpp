@@ -65,7 +65,8 @@ void MainState::Initialize()
 
    // Add a shell entity for controlling animation state
    Entity controls = mEntities.Create();
-   controls.Add<AnimationSystemController>();
+   auto controller = controls.Add<AnimationSystemController>();
+   controller->animate = false;
 
    // Create a player component
    Entity player = mEntities.Create();
@@ -85,7 +86,7 @@ void MainState::Initialize()
    cameraOptions.distance = 3.5f;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
    playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT);
-   playerCamera.Add<KeyControlledCameraArm>();
+   playerCamera.Add<MouseControlledCameraArm>();
 
    mCamera.Set(mPlayerCam.get());
 
