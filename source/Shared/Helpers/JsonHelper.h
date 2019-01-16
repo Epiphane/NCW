@@ -25,6 +25,10 @@ nlohmann::json Vec4ToJson(glm::vec4 vec4);
 // Reads a JSON file and returns the appropriate JSON object.
 //
 Maybe<nlohmann::json> GetJsonFromFile(const std::string& filename);
+   
+// Failure codes
+const int FAILURE_CODE_JSON_FILE_NOT_FOUND = 1;
+const int FAILURE_CODE_JSON_FILE_INVALID_JSON = 2;
 
 } // JsonHelpers
 

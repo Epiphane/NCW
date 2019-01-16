@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include <Shared/Helpers/json.hpp>
+#include <Engine/Core/Maybe.h>
+#include <Shared/Helpers/JsonHelper.h>
 
 #include <libfswatch/c++/monitor.hpp>
 #include <thread>
@@ -43,7 +44,13 @@ public:
    //
    // Writes serialized JSON to the given file.
    //
-   void SaveJsonToFilename(const std::string& filename);
+   void SaveJsonToFilename(const nlohmann::json& data);
+   
+   // 
+   // Get the JSON from the file. Returns a Failure if the JSON is invalid
+   //    or the file is missing.
+   //
+   Maybe<nlohmann::json> GetJsonFromFile();
 
    bool DoesFileHaveNewUpdate();
 
@@ -58,16 +65,25 @@ private:
    //
    static void FileWasChanged(const std::vector<fsw::event>& events, void *context);
    
+   
+   //
+   // Main thread body that saves data to the file.
+   //
+   static void WriteLatestDataToFile(JsonFileSync *self);
+   
    //
    // Handles file state changes
    //
    void HandleFSWEvent(fsw::event event);
 
    std::thread* mFileWatchingThread;
+    
+   std::thread* mFileSavingThread;
+   mutable std::mutex mWritingMutex;   // Mutex used to serialize writing to the file
 
    // Filename we're tracking with this JsonFileSync object
    std::string mFilename;
-
+   
    //
    // Enum describing all the states the file can be in.
    //    Note that when I say "client data" I'm referring to the in-memory
@@ -76,8 +92,7 @@ private:
    typedef enum {
       Idle,               // There is no pending change to the file or the client data.
       FileChanged,        // The file has changed on the filesystem, and we haven't parsed it into client data
-      ClientChanged,      // We made some update to the client data JSON and it isn't saved in the file yet
-      FileClientConflict, // Uh oh! BOTH the filesystem and the client data have a change!
+      WritingData,        // We are currently writing to the file on a background thread.
       FileMissing,        // There is no longer a file at the path "mFilename". Prompt the user to re-save the file.
    } FileState;
    
