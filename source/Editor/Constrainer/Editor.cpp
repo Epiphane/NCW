@@ -1,12 +1,11 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
+#include <Engine/Logger/Logger.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Engine/UI/UIContextMenu.h>
 #include <Engine/UI/UISerializationHelper.h>
-
-#include <libfswatch/c++/monitor_factory.hpp>
 
 #include "Editor.h"
 #include "Sidebar.h"
@@ -39,7 +38,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
    controls->ConstrainLeftAlignedTo(this);
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
-   
+
 //   TextButton::Options buttonOptions;
 //   buttonOptions.text = "I'm a big boy";
 //   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
@@ -84,7 +83,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
 void Editor::UpdateRoot()
 {
    if (mFileSyncer.DoesFileHaveNewUpdate()) {
-      
+
    }
 
    UIRoot::UpdateRoot();
@@ -98,12 +97,11 @@ void Editor::BigDumbTest()
          {"Test THIS out", std::bind(&Editor::TestButton, this)}
    };
 
-   printf("%s", mpRoot->GetDebugString(true).c_str());
-//   mpRoot->CreateUIContextMenu(mTestContextMenuButton->GetX(), mTestContextMenuButton->GetY(), bleh);
+   mpRoot->CreateUIContextMenu(200, 200, bleh);
 }
 
 void Editor::TestButton() {
-   printf("%s", mpRoot->GetDebugString(true).c_str());
+   LogDebugInfo();
 }
 
 void Editor::Start()

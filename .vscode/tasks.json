@@ -46,6 +46,19 @@
             "problemMatcher": []
         },
         {
+            "label": "make DataCLI",
+            "args": [
+                "-j",
+                "8",
+                "DataCLI"
+            ],
+            "type": "shell",
+            "group": "build",
+            "command": "make",
+            "dependsOn": "cmake",
+            "problemMatcher": []
+        },
+        {
             "label": "make all",
             "args": [
                 "-j",

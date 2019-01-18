@@ -25,7 +25,7 @@ public:
    static DebugLogger* Instance();
 
 public:
-   void Log(const char* message) override;
+   void Log(const char* message, Color color = Default) override;
 
 private:
    static std::unique_ptr<DebugLogger> sInstance;

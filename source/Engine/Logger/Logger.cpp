@@ -1,7 +1,6 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#include <stdio.h>
 
 #include "Logger.h"
 
@@ -69,12 +68,11 @@ void LogManager::Log(LogLevel level, const char* message)
    }
 }
 
-void LogManager::Log(const char* message)
+void LogManager::Log(const char* message, Color color)
 {
    for (auto logger = loggers.begin(); logger != loggers.end(); ++logger)
    {
-      (*logger)->Log(message);
-      (*logger)->Log("\n");
+      (*logger)->Log(message, color);
    }
 }
 

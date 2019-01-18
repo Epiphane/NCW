@@ -24,8 +24,8 @@
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
-#include "ModelMaker/Editor.h"
 #include "Constrainer/Editor.h"
+#include "Skeletor/Editor.h"
 
 #include "Controls.h"
 #include "Main.h"
@@ -83,8 +83,8 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
-   Editor::ModelMaker::Editor* modelMaker = nullptr;
    Editor::Constrainer::Editor* constrainer = nullptr;
+   Editor::Skeletor::Editor* skeletor = nullptr;
    Editor::Controls::Options controlsOptions{
       {
          "Animation Station",
@@ -94,10 +94,10 @@ int main(int argc, char** argv)
          }
       },
       {
-         "Model Maker",
+         "Skeletor",
          [&]() {
-            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, modelMaker);
-            modelMaker->Start();
+            Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            skeletor->Start();
          }
       },
       {
@@ -117,9 +117,9 @@ int main(int argc, char** argv)
    animationStation->SetBounds(*window);
    animationStation->SetName("Animation Station");
 
-   modelMaker = windowContent.Add<Editor::ModelMaker::Editor>(window, controlsOptions);
-   modelMaker->SetBounds(*window);
-   modelMaker->SetName("Model Maker");
+   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window, controlsOptions);
+   skeletor->SetBounds(*window);
+   skeletor->SetName("Skeletor");
 
    constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
    constrainer->SetBounds(*window);
@@ -162,9 +162,9 @@ int main(int argc, char** argv)
       Editor::CommandStack::Instance()->Redo();
    });
 
-   // Start in Model Maker
-   modelMaker->Start();
-   windowContent.Swap(modelMaker);
+   // Start in Animation Station
+   skeletor->Start();
+   windowContent.Swap(skeletor);
    constrainer->Start();
 
    Timer<100> windowContentRender;

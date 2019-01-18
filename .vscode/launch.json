@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/make/source/Editor/Editor",
-            "args": [],
+            "args": ["--asset-root", "${workspaceFolder}/Assets"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/make/source/Editor",
             "environment": [{"name": "PWD", "value": "${workspaceFolder}/build/make/source/Editor"}],
@@ -29,6 +29,19 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "make game"
+        },
+        {
+            "name": "(lldb) DataCLI",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/make/source/DataCLI/DataCLI",
+            "args": ["convert", "itself.vox", "itself.cub"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{"name": "PWD", "value": "${workspaceFolder}"}],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "make datacli"
         }
     ]
 }

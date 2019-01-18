@@ -12,7 +12,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 #include <glm/glm.hpp>
 #include <rhea/variable.hpp>
@@ -24,6 +23,7 @@
 #include "../Event/EventManager.h"
 #include "../Event/Receiver.h"
 #include "../Event/InputEvent.h"
+#include "../Logger/Logger.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
 #include "../UI/UIConstrainable.h"
@@ -154,9 +154,27 @@ public:
    bool ContainsPoint(double x, double y);
 
    //
-   // Returns a human-readable string with this element's relevant properties
+   // Used below.
    //
-   std::string GetDebugString(bool bRecursive = false, int indentLevel = 0);
+   struct DebugInfo {
+      std::string name;
+      std::string type = "UIElement";
+      glm::tvec2<uint32_t> origin;
+      glm::tvec2<uint32_t> size;
+      double z, maxZ;
+      std::vector<DebugInfo> children;
+   };
+
+   //
+   // Returns debug info with this element's relevant properties
+   //
+   DebugInfo GetDebugInfo(bool bRecursive = false);
+
+   //
+   // Logs a human-readable message with the debug info above. Leave output to null
+   // to use default program output.
+   //
+   void LogDebugInfo(bool bRecursive = true, Logger::LogManager* output = nullptr, uint32_t indentLevel = 0);
 
 public:
    //

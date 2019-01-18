@@ -8,12 +8,14 @@
 #include <vector>
 
 #include <Engine/System/System.h>
-#include "../Components/CubeModel.h"
+#include "../Components/VoxModel.h"
+#include "../Voxel.h"
 
 namespace CubeWorld
 {
 
 struct AnimatedSkeleton : public Engine::Component<AnimatedSkeleton> {
+public:
    struct Keyframe {
       double time;
       std::vector<glm::vec3> positions;
@@ -73,7 +75,19 @@ public:
    void Reset();
    void Load(const std::string& file);
    std::string Serialize();
-   
+
+public:
+   void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
+   void SetParameter(const std::string& name, bool val) { boolParams[name] = val; }
+
+public:
+   void Play(const std::string& state, double startTime = 0.0);
+   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0);
+
+public:
+   // Data
+   std::string modelFilename;
+
    std::vector<State> states;
    std::unordered_map<std::string, size_t> statesByName;
 
@@ -85,10 +99,6 @@ public:
    std::unordered_map<std::string, float> floatParams;
    std::unordered_map<std::string, bool> boolParams;
 
-public:
-   void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
-
-public:
    size_t current;
    double time;
 
@@ -98,46 +108,9 @@ public:
    double transitionCurrent;
    double transitionStart, transitionEnd;
 
-   std::string CurrentState() { return states[current].name; }
-
-public:
-   // CubeModels attached to the skeleton.
-   // For now, a model can only be attached to one bone, but for extensibility
-   // the interface pretends to allow multiple.
-   using BoneWeights = std::vector<std::pair<std::string, float>>;
-   void AddModel(const BoneWeights& bones, const std::string& model);
-   void AddModel(const BoneWeights& bones, const std::string& model, glm::vec3 tint);
-
-   struct ModelAttachment {
-      size_t bone;
-      float weight;
-      CubeModelInfo* model;
-      glm::vec3 tint;
-   };
-   std::vector<ModelAttachment> models;
-
-public:
-   void Play(const std::string& state, double startTime = 0.0);
-   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0);
-};
-
-struct BoneAttachment : public Engine::Component<BoneAttachment> {
-   Engine::ComponentHandle<AnimatedSkeleton> skeleton;
-   std::string bone;
-   glm::vec3 relativePosition;
-   glm::vec3 relativeRotation;
-
-   BoneAttachment(
-      const Engine::ComponentHandle<AnimatedSkeleton>& skeleton,
-      const std::string& bone,
-      const glm::vec3& relativePosition = glm::vec3(0),
-      const glm::vec3& relativeRotation = glm::vec3(0)
-   )
-      : skeleton(skeleton)
-      , bone(bone)
-      , relativePosition(relativePosition)
-      , relativeRotation(relativeRotation)
-   {};
+   // Attach a VoxModel component directly. Note that it doesn't _have_
+   // to be hosted by the same entity as this AnimatedSkeleton.
+   Engine::ComponentHandle<VoxModel> model;
 };
 
 class BaseAnimationSystem {

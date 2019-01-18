@@ -25,7 +25,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Animation("player.json")))
+   , mFilename(Paths::Normalize(Asset::Model("character.json")))
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
 
@@ -37,7 +37,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    buttons->SetOffset(8.0);
 
    TextButton::Options buttonOptions;
-   buttonOptions.text = "Load";
+   buttonOptions.text = "Open";
    buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
    TextButton* load = buttons->Add<TextButton>(buttonOptions);
 
@@ -130,13 +130,6 @@ void Sidebar::LoadFile(const std::string& filename)
    }
 
    mSkeleton->Load(filename);
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-   mSkeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
 
    mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);

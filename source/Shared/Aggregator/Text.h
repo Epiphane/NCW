@@ -35,8 +35,14 @@ public:
    void Render() override;
 
 private:
+   struct VBOWithData
+   {
+      Engine::Graphics::VBO vbo;
+      std::vector<GLuint> data;
+      bool dirty;
+   };
+
    // Map from Texture ID to a list of indices in mVBO.
-   using VBOWithData = std::pair<Engine::Graphics::VBO, std::vector<GLuint>>;
    std::unordered_map<GLuint, VBOWithData> mTextureIndices;
 
 private:

@@ -9,8 +9,8 @@
 
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
-#include <Shared/Components/CubeModel.h>
 #include <Shared/Components/ArmCamera.h>
+#include <Shared/Components/VoxModel.h>
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
@@ -167,14 +167,17 @@ namespace Game
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
       
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.cub"));
-      skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.cub"));
+      // Engine::ComponentHandle<AnimatedSkeleton> skeleton = player.Add<AnimatedSkeleton>(Asset::Animation("player.json"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"torso",1.0f}}, Asset::Model("body4.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"head",1.0f}}, Asset::Model("elf-head-m02.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"hair",1.0f}}, Asset::Model("elf-hair-m09.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_hand",1.0f}}, Asset::Model("hand2.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_hand",1.0f}}, Asset::Model("hand2.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"left_foot",1.0f}}, Asset::Model("foot.vox"));
+      // skeleton->AddModel(AnimatedSkeleton::BoneWeights{{"right_foot",1.0f}}, Asset::Model("foot.vox"));
+
+      player.Add<VoxModel>(Asset::Model("character.vox"), glm::vec3(0, 0, 168.0f));
+      player.Add<AnimatedSkeleton>(Asset::Model("character.json"))->model = player.Get<VoxModel>();
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;

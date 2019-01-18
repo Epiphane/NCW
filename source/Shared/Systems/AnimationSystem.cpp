@@ -2,11 +2,15 @@
 
 #include <fstream>
 #include <glm/ext.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 #include <stack>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Core/Config.h>
-#include <Shared/Helpers/JsonHelper.h>
+#include <Engine/Core/Paths.h>
 
+#include "../Helpers/JsonHelper.h"
+#include "../Helpers/VoxFormat.h"
 #include "../Helpers/json.hpp"
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
@@ -113,7 +117,6 @@ void AnimatedSkeleton::Reset()
    bonesByName.clear();
    floatParams.clear();
    boolParams.clear();
-   models.clear();
    current = 0;
    time = 0;
    next = 0;
@@ -130,10 +133,49 @@ void AnimatedSkeleton::Load(const std::string& filename)
    nlohmann::json data;
    file >> data;
 
-   // Add bone data.
-   for (auto it = data["bones"].begin(); it != data["bones"].end(); it++)
+   // Load VOX model for bone data.
+   modelFilename = data.value("model", "");
+   if (modelFilename == "")
    {
-      AddBoneToSkeleton(this, 0, it.key(), it.value());
+      // Deprecated: add bone data directly from file.
+      LOG_WARNING("'model' field not provided, building the skeleton locally...");
+      for (auto it = data["bones"].begin(); it != data["bones"].end(); it++)
+      {
+         AddBoneToSkeleton(this, 0, it.key(), it.value());
+      }
+   }
+   else
+   {
+      Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(Paths::Join(Paths::GetDirectory(filename), modelFilename));
+      if (!maybeModel)
+      {
+         LOG_ERROR(maybeModel.Failure().WithContext("Failed loading reference model").GetMessage());
+         return;
+      }
+
+      Voxel::VoxModel* model = *maybeModel;
+
+      bones.resize(model->parts.size());
+      for (const Voxel::VoxModel::Part& part : model->parts)
+      {
+         AnimatedSkeleton::Bone& bone = bones[part.id];
+         bone.name = part.name;
+         bone.position = bone.originalPosition = part.position;
+         bone.rotation = bone.originalRotation = part.rotation;
+         bone.parent = model->parents[part.id];
+         bone.children.clear();
+         ComputeBoneMatrix(part.id);
+
+         if (bone.parent != part.id)
+         {
+            bones[bone.parent].children.push_back(part.id);
+         }
+
+         if (bone.name != "")
+         {
+            bonesByName.emplace(bone.name, part.id);
+         }
+      }
    }
 
    // Add animation states.
@@ -250,6 +292,7 @@ std::string AnimatedSkeleton::Serialize()
 {
    nlohmann::json data;
    data["version"] = 1;
+   data["model"] = modelFilename;
 
    // Bones
    data["bones"][bones[0].name] = SerializeBone(this, bones[0]);
@@ -328,34 +371,6 @@ std::string AnimatedSkeleton::Serialize()
    return data.dump(3);
 }
 
-void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& model)
-{
-   assert(weights.size() == 1 && "Multiple bones not supported");
-   ModelAttachment attachment;
-   assert(bonesByName.find(weights[0].first) != bonesByName.end());
-   attachment.bone = bonesByName.find(weights[0].first)->second;
-   attachment.weight = 1;
-   attachment.model = CubeModelInfo::Load(model, false);
-   assert(attachment.model != nullptr);
-   attachment.tint = glm::vec3(255);
-
-   models.push_back(std::move(attachment));
-}
-
-void AnimatedSkeleton::AddModel(const BoneWeights& weights, const std::string& model, glm::vec3 tint)
-{
-   assert(weights.size() == 1 && "Multiple bones not supported");
-   ModelAttachment attachment;
-   assert(bonesByName.find(weights[0].first) != bonesByName.end());
-   attachment.bone = bonesByName.find(weights[0].first)->second;
-   attachment.weight = 1;
-   attachment.model = CubeModelInfo::Load(model, true);
-   assert(attachment.model != nullptr);
-   attachment.tint = tint;
-
-   models.push_back(std::move(attachment));
-}
-
 void AnimatedSkeleton::Play(const std::string& state, double startTime)
 {
    auto it = statesByName.find(state);
@@ -426,8 +441,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
          const Keyframe& src = state.keyframes[keyframeIndex];
          const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
-         const float dstTime = isLastFrame ? state.length : dst.time;
-         const float progress = float(skeleton.time - src.time) / (dstTime - src.time);
+         const double dstTime = isLastFrame ? state.length : dst.time;
+         const float progress = float(skeleton.time - src.time) / float(dstTime - src.time);
 
          skeleton.bones[0].matrix = glm::mat4(1);
          for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
@@ -472,8 +487,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
             const Keyframe& src = state.keyframes[keyframeIndex];
             const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
-            const float dstTime = isLastFrame ? state.length : dst.time;
-            const float progress = float(time - src.time) / (dstTime - src.time);
+            const double dstTime = isLastFrame ? state.length : dst.time;
+            const float progress = float(time - src.time) / float(dstTime - src.time);
 
             for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
             {
@@ -524,6 +539,21 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
       {
          skeleton.ComputeBoneMatrix(boneId);
+      }
+
+      if (skeleton.model)
+      {
+         size_t nBones = skeleton.bones.size();
+         if (skeleton.bones.size() != skeleton.model->mParts.size())
+         {
+            LOG_WARNING("Attached model and skeleton have a different amount of parts. Something may look strange");
+            nBones = std::min(skeleton.bones.size(), skeleton.model->mParts.size());
+         }
+
+         for (size_t boneId = 0; boneId < nBones; ++boneId)
+         {
+            skeleton.model->mParts[boneId].transform = skeleton.bones[boneId].matrix;
+         }
       }
    });
 }

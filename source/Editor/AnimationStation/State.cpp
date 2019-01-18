@@ -14,7 +14,7 @@
 #include <Engine/Logger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
-#include <Shared/Components/CubeModel.h>
+#include <Shared/Components/VoxModel.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
@@ -71,7 +71,8 @@ void MainState::Initialize()
    Entity player = mEntities.Create();
    player.Add<Transform>(glm::vec3(0, 1.3, 0));
    player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   player.Add<AnimatedSkeleton>();
+   player.Add<VoxModel>(Asset::Model("character.vox"), glm::vec3(0, 0, 168.0f));
+   player.Add<AnimatedSkeleton>()->model = player.Get<VoxModel>();
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 0, 0);

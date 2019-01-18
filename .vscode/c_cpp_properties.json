@@ -20,7 +20,7 @@
                 "${workspaceFolder}/dependencies/glm/0.9.9.0",
                 "${workspaceFolder}/dependencies/rhea/0.2.4"
             ],
-            "defines": [],
+            "defines": ["CUBEWORLD_PLATFORM_MACOSX"],
             "macFrameworkPath": [
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks"
             ],

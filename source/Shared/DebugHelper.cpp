@@ -120,7 +120,10 @@ void DebugHelper::Update()
       {
          leftText += "\n" + system.first;
          std::string ms = Format::FormatString("%.1fms", system.second * 1000.0);
-         ms.insert(ms.begin(), 7 - ms.size(), ' ');
+         if (ms.size() < 7)
+         {
+            ms.insert(ms.begin(), 7 - ms.size(), ' ');
+         }
          rightText += "\n" + std::move(ms);
       }
       std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);

@@ -29,7 +29,8 @@ If you're going to change up things such as the UI, it's good to know what to ex
 
 1. Make sure you can see [the Trello board](https://trello.com/b/X0QjsQet/not-cube-world).
 2. You need [CMake](https://cmake.org/).
-3. Use either Mac or Windows
+3. Use either Mac or Windows x64.
+4. (Editing models) Download [MagicaVoxel](https://ephtracy.github.io/). Refer to [Editing Models](#editing-models) for setup info.
 
 ### Windows-Specific
 
@@ -76,6 +77,29 @@ Assertion failed: (maybeFont), function Controls, file /Users/tsteinke/CubeWorld
 ```
 
 In this case, just navigate to the directory where the executable lives.
+
+### Editing Models
+
+To exit the models, instead of using a handrolled editor I've moved to using [MagicaVoxel](https://ephtracy.github.io/). It's very clean and useful - check it out. Once you've downloaded the tool, in order to modify the models in the game change the file located at `<Magica-Voxel-Dir>/config/config.txt`:
+
+```
+workspace
+(
+	// notice :
+	// 1. use '$' for current directory, otherwise use full path
+	// 2. use single '/' or '\' in the path
+	// 3. don't have empty space at ends of the path
+
+	dir_model		= [[/path/to/CubeWorld/Assets/Models]]
+	dir_pattern		= [[/path/to/CubeWorld/Assets/Models]]
+	dir_palette		= [[/path/to/CubeWorld/Assets/palette]]
+	dir_export		= [[/path/to/CubeWorld/Assets/Models]]
+	dir_snapshot		= [[$/export]]
+	dir_xs_shader		= [[$/shader]]
+)
+
+...
+```
 
 ## Repo Layout
 

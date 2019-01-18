@@ -7,6 +7,7 @@
 
 #include "UIElementDesignerWrapper.h"
 
+#include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
 namespace CubeWorld
@@ -46,7 +47,7 @@ UIElement::Action UIElementDesignerWrapper::MouseClick(const MouseClickEvent &ev
 
    mpRoot->CreateUIContextMenu(event.x, event.y, choices);
 
-   printf("%s", mpRoot->GetDebugString(true).c_str());
+   LogDebugInfo();
 
    return Handled;
 }

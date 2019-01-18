@@ -25,7 +25,9 @@ public:
    virtual void OnDeregister() {};
 
 public:
-   virtual void Log(const char* message) = 0;
+   enum Color { Default, Red };
+
+   virtual void Log(const char* message, Color color = Default) = 0;
 
    template <typename... Args>
    const inline void Log(std::string_view fmt, const Args& ... args) { Log(Format::FormatString(fmt, args...).c_str()); }
@@ -40,7 +42,7 @@ enum LogLevel {
    kAlways
 };
 
-class LogManager : Logger
+class LogManager : public Logger
 {
 public:
    NO_REGISTER_HOOKS
@@ -52,7 +54,7 @@ public:
    static LogManager* Instance();
 
 public:
-   void Log(const char* message) override;
+   void Log(const char* message, Color color = Default) override;
    void Log(LogLevel level, const char* message);
 
    template <typename... Args>

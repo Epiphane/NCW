@@ -39,16 +39,20 @@ void Text::ConnectToTexture(const Region& region, GLuint texture)
    auto entry = mTextureIndices.find(texture);
    if (entry == mTextureIndices.end())
    {
-      VBOWithData data = std::make_pair(Engine::Graphics::VBO(Engine::Graphics::VBO::Indices), std::vector<GLuint>());
+      VBOWithData data = VBOWithData{
+         Engine::Graphics::VBO(Engine::Graphics::VBO::Indices),
+         std::vector<GLuint>(),
+         true
+      };
       mTextureIndices.emplace(texture, std::move(data));
    }
 
    VBOWithData& vboData = mTextureIndices[texture];
    for (size_t index = region.index(); index < region.index() + region.size(); index++)
    {
-      vboData.second.push_back(GLuint(index));
+      vboData.data.push_back(GLuint(index));
    }
-   vboData.first.BufferData(sizeof(GLuint) * GLsizei(vboData.second.size()), vboData.second.data(), GL_STATIC_DRAW);
+   vboData.dirty = true;
 }
 
 void Text::Render()
@@ -57,6 +61,11 @@ void Text::Render()
 
    for (auto& pair : mTextureIndices)
    {
+      if (pair.second.dirty) {
+         pair.second.vbo.BufferData(sizeof(GLuint) * GLsizei(pair.second.data.size()), pair.second.data.data(), GL_STATIC_DRAW);
+         pair.second.dirty = false;
+      }
+
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, pair.first);
       program->Uniform1i("uTexture", 0);
@@ -66,8 +75,8 @@ void Text::Render()
       mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TextData), (void*)(sizeof(glm::vec3)));
 
       VBOWithData indices = pair.second;
-      indices.first.Bind();
-      glDrawElements(GL_LINES, GLsizei(indices.second.size()), GL_UNSIGNED_INT, (void*)0);
+      indices.vbo.Bind();
+      glDrawElements(GL_LINES, GLsizei(indices.data.size()), GL_UNSIGNED_INT, (void*)0);
    }
 }
 
