@@ -30,8 +30,8 @@ public:
       double fov = 45.0;
       double near = 0.1;
       double far = 100.0;
-      float distance = 0;
-      float minDistance = 5;
+      float distance = 5;
+      float minDistance = 2;
       float maxDistance = 100;
    };
 

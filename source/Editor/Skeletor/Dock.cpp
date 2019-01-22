@@ -148,7 +148,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Scrubber<float>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double newVal, double oldVal) {
+      scrubberOptions.onChange = [&](double, double) {
          Bone& bone = mSkeleton->bones[mBone];
 
          // Update animations.
