@@ -148,7 +148,30 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Scrubber<float>::Options scrubberOptions;
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton); };
+      scrubberOptions.onChange = [&](double newVal, double oldVal) {
+         Bone& bone = mSkeleton->bones[mBone];
+
+         // Update animations.
+         for (AnimatedSkeleton::State& state : mSkeleton->states)
+         {
+            for (AnimatedSkeleton::Keyframe& keyframe : state.keyframes)
+            {
+               if (keyframe.positions[mBone] == bone.originalPosition)
+               {
+                  keyframe.positions[mBone] = bone.position;
+               }
+               if (keyframe.rotations[mBone] == bone.originalRotation)
+               {
+                  keyframe.rotations[mBone] = bone.rotation;
+               }
+            }
+         }
+
+         bone.originalPosition = bone.position;
+         bone.originalRotation = bone.rotation;
+
+         mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
+      };
       scrubberOptions.sensitivity = 0.1;
 
       UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");

@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <algorithm>
 #include <fstream>
 #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -176,6 +177,29 @@ void AnimatedSkeleton::Load(const std::string& filename)
             bonesByName.emplace(bone.name, part.id);
          }
       }
+
+      // Examine the file's skeleton for consistency, and then apply it.
+      for (auto it = data["bones"].begin(); it != data["bones"].end(); it++)
+      {
+         std::string name = it.key();
+
+         auto boneId = bonesByName.find(name);
+         if (boneId == bonesByName.end())
+         {
+            continue;
+         }
+
+         AnimatedSkeleton::Bone& bone = bones[boneId->second];
+         AnimatedSkeleton::Bone& parent = bones[bone.parent];
+         nlohmann::json& boneData = it.value();
+         if (boneData["parent"] != parent.name)
+         {
+            continue;
+         }
+
+         bone.position = bone.originalPosition = Shared::JsonHelpers::JsonToVec3(boneData["position"]);
+         bone.rotation = bone.originalRotation = Shared::JsonHelpers::JsonToVec3(boneData["rotation"]);
+      }
    }
 
    // Add animation states.
@@ -295,16 +319,17 @@ std::string AnimatedSkeleton::Serialize()
    data["model"] = modelFilename;
 
    // Bones
-   data["bones"][bones[0].name] = SerializeBone(this, bones[0]);
-   data["default"] = states[0].name;
-
-   // Bone customization
-   for (size_t boneId = 0; boneId < bones.size(); boneId ++)
+   for (const AnimatedSkeleton::Bone& bone : bones)
    {
-      
+      nlohmann::json info;
+      info["parent"] = bones[bone.parent].name;
+      info["position"] = Shared::JsonHelpers::Vec3ToJson(bone.originalPosition);
+      info["rotation"] = Shared::JsonHelpers::Vec3ToJson(bone.originalRotation);
+      data["bones"][bone.name] = info;
    }
 
    // States and their transitions
+   data["default"] = states[0].name;
    for (auto state : states)
    {
       nlohmann::json stateData;
