@@ -35,7 +35,7 @@ struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
 
    int button;
    double sensitivity[2];
-   bool engaged;
+   bool engaged = false;
 };
 
 struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {

@@ -115,13 +115,14 @@ public:
 
 class BaseAnimationSystem {
 public:
-   BaseAnimationSystem() : mTransitions(true) {};
+   BaseAnimationSystem() : mAnimate(true), mTransitions(true) {};
    ~BaseAnimationSystem() {}
    
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 protected:
-   // Whether transitions are enabled. Used for editing.
+   // Whether animation and transitions are enabled. Used for editing.
+   bool mAnimate;
    bool mTransitions;
 };
 

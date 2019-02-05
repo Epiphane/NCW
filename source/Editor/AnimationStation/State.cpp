@@ -85,7 +85,7 @@ void MainState::Initialize()
    cameraOptions.distance = 3.5f;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
    playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT);
-   playerCamera.Add<KeyControlledCameraArm>();
+   playerCamera.Add<MouseControlledCameraArm>();
 
    mCamera.Set(mPlayerCam.get());
 

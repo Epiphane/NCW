@@ -991,21 +991,21 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
    std::vector<Voxel::Data> voxels{};
    std::vector<VoxModel::Part> models{};
    std::unique_ptr<VoxModelData> data = std::move(maybeData.Result());
-   for (const Voxel::VoxModelData::Model& model : data->models)
+   for (const Voxel::VoxModelData::Model& subModel : data->models)
    {
       VoxModel::Part part;
       part.tintable = false; // May be changed later
-      part.start = voxels.size();
+      part.start = uint32_t(voxels.size());
       part.size = 0;
 
       ModelData::Metadata metadata;
-      metadata.width = model.width;
-      metadata.length = model.length;
-      metadata.height = model.height;
+      metadata.width = subModel.width;
+      metadata.length = subModel.length;
+      metadata.height = subModel.height;
 
       // TODO allocation might be slow
-      std::vector<bool> filled(model.width * model.height * model.length, false);
-      for (const auto& info : model.voxels)
+      std::vector<bool> filled(subModel.width * subModel.height * subModel.length, false);
+      for (const auto& info : subModel.voxels)
       {
          uint8_t y = (info >> 16) & 0xff;
          uint8_t z = (info >> 8) & 0xff;
@@ -1015,7 +1015,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          filled[ndx] = true;
       }
 
-      for (const auto& info : model.voxels)
+      for (const auto& info : subModel.voxels)
       {
          Voxel::Data voxel;
          uint8_t i = (info >> 24) & 0xff;
@@ -1041,11 +1041,11 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
    }
 
    // Buffer to GPU
-   model->vbo.BufferData(sizeof(Data) * voxels.size(), &voxels[0], GL_STATIC_DRAW);
+   model->vbo.BufferData(GLsizei(sizeof(Data) * voxels.size()), &voxels[0], GL_STATIC_DRAW);
 
    // Dive down the tree, building all shapes
    std::queue<std::tuple<uint32_t, uint32_t, glm::mat4>> remaining({ {0, 0, glm::mat4(1)} });
-   model->parents.resize(data->transforms.size(), -1);
+   model->parents.resize(data->transforms.size(), 0);
    while (!remaining.empty())
    {
       auto [id, parentID, parent] = remaining.front();
@@ -1116,10 +1116,14 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       rotate[col1][1] = val1;
       rotate[col2][2] = val2;
 
-      // Combine rotation and translation
       VoxModel::Part part;
-      part.id = model->parts.size();
-      part.name = node.name;
+      part.id = uint32_t(model->parts.size());
+      part.name = part.id > 0 ? node.name : "root";
+      if (part.name == "")
+      {
+         part.name = Format::FormatString("Unnammed node %1", part.id);
+      }
+      // Combine rotation and translation
       part.transform = glm::translate(parent, glm::vec3{
          node.translate[0],
          node.translate[2],
@@ -1128,17 +1132,6 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       part.tintable = false;
       part.size = part.start = 0;
       model->parents[part.id] = parentID;
-
-      // Deconstruct matrix back into position and rotation.
-      part.position = glm::vec3(part.transform[3]);
-      part.rotation.y = asin(-part.transform[0][2]);
-		if (cos(part.rotation.y) != 0) {
-         part.rotation.x = atan2(part.transform[1][2], part.transform[2][2]);
-         part.rotation.z = atan2(part.transform[0][1], part.transform[0][0]);
-		} else {
-         part.rotation.x = atan2(-part.transform[2][0], part.transform[1][1]);
-         part.rotation.z = 0;
-		}
 
       part.position = glm::vec3{node.translate[0],node.translate[2],-node.translate[1]};
       part.rotation.y = asin(-rotate[0][2]);

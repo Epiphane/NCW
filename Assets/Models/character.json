@@ -1,207 +1,205 @@
 {
    "bones": {
-      "": {
-         "bones": {
-            "": {
-               "bones": {
-                  "Spine": {
-                     "bones": {
-                        "Head": {
-                           "bones": {
-                              "Face": {
-                                 "position": [
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                 ],
-                                 "rotation": [
-                                    0.0,
-                                    -0.0,
-                                    0.0
-                                 ]
-                              },
-                              "Hair": {
-                                 "position": [
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                 ],
-                                 "rotation": [
-                                    0.0,
-                                    -0.0,
-                                    0.0
-                                 ]
-                              }
-                           },
-                           "position": [
-                              0.0,
-                              4.0,
-                              0.0
-                           ],
-                           "rotation": [
-                              0.0,
-                              -0.0,
-                              0.0
-                           ]
-                        },
-                        "Torso": {
-                           "bones": {
-                              "Body": {
-                                 "position": [
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                 ],
-                                 "rotation": [
-                                    0.0,
-                                    -0.0,
-                                    0.0
-                                 ]
-                              },
-                              "Shoulders": {
-                                 "bones": {
-                                    "Left Hand": {
-                                       "position": [
-                                          6.0,
-                                          0.0,
-                                          0.0
-                                       ],
-                                       "rotation": [
-                                          0.0,
-                                          -0.0,
-                                          0.0
-                                       ]
-                                    },
-                                    "Right Hand": {
-                                       "position": [
-                                          -7.0,
-                                          0.0,
-                                          0.0
-                                       ],
-                                       "rotation": [
-                                          0.0,
-                                          -0.0,
-                                          0.0
-                                       ]
-                                    }
-                                 },
-                                 "position": [
-                                    0.0,
-                                    1.0,
-                                    1.0
-                                 ],
-                                 "rotation": [
-                                    0.0,
-                                    -0.0,
-                                    0.0
-                                 ]
-                              }
-                           },
-                           "position": [
-                              0.0,
-                              -6.0,
-                              0.0
-                           ],
-                           "rotation": [
-                              0.0,
-                              -0.0,
-                              0.0
-                           ]
-                        }
-                     },
-                     "position": [
-                        0.0,
-                        0.0,
-                        0.0
-                     ],
-                     "rotation": [
-                        0.0,
-                        -0.0,
-                        0.0
-                     ]
-                  }
-               },
-               "position": [
-                  0.0,
-                  7.0,
-                  0.0
-               ],
-               "rotation": [
-                  0.0,
-                  -0.0,
-                  0.0
-               ]
-            },
-            "Hips": {
-               "bones": {
-                  "Left Leg": {
-                     "bones": {
-                        "Left Foot": {
-                           "position": [
-                              0.0,
-                              -5.0,
-                              0.0
-                           ],
-                           "rotation": [
-                              0.0,
-                              -0.0,
-                              0.0
-                           ]
-                        }
-                     },
-                     "position": [
-                        4.0,
-                        0.0,
-                        0.0
-                     ],
-                     "rotation": [
-                        0.0,
-                        -0.0,
-                        0.0
-                     ]
-                  },
-                  "Right Leg": {
-                     "bones": {
-                        "Right Foot": {
-                           "position": [
-                              0.0,
-                              -5.0,
-                              0.0
-                           ],
-                           "rotation": [
-                              0.0,
-                              -0.0,
-                              0.0
-                           ]
-                        }
-                     },
-                     "position": [
-                        -5.0,
-                        0.0,
-                        0.0
-                     ],
-                     "rotation": [
-                        0.0,
-                        -0.0,
-                        0.0
-                     ]
-                  }
-               },
-               "position": [
-                  0.0,
-                  0.0,
-                  0.0
-               ],
-               "rotation": [
-                  0.0,
-                  -0.0,
-                  0.0
-               ]
-            }
-         },
+      "Body": {
+         "parent": "Torso",
          "position": [
             0.0,
             0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Face": {
+         "parent": "Head",
+         "position": [
+            0.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Hair": {
+         "parent": "Head",
+         "position": [
+            0.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Head": {
+         "parent": "Spine",
+         "position": [
+            0.0,
+            4.0,
+            0.6
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Hips": {
+         "parent": "root",
+         "position": [
+            0.0,
+            1.5,
+            0.8
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Left Foot": {
+         "parent": "Left Leg",
+         "position": [
+            0.0,
+            -5.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Left Hand": {
+         "parent": "Shoulders",
+         "position": [
+            6.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Left Leg": {
+         "parent": "Hips",
+         "position": [
+            2.5,
+            -1.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Right Foot": {
+         "parent": "Right Leg",
+         "position": [
+            0.0,
+            -5.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Right Hand": {
+         "parent": "Shoulders",
+         "position": [
+            -7.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Right Leg": {
+         "parent": "Hips",
+         "position": [
+            -3.5,
+            -1.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Shoulders": {
+         "parent": "Torso",
+         "position": [
+            0.0,
+            0.9,
+            2.1
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Spine": {
+         "parent": "Unnammed node 2",
+         "position": [
+            0.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Torso": {
+         "parent": "Spine",
+         "position": [
+            0.0,
+            -6.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "Unnammed node 2": {
+         "parent": "root",
+         "position": [
+            0.0,
+            7.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ]
+      },
+      "root": {
+         "parent": "root",
+         "position": [
+            0.0,
+            -0.5,
             0.0
          ],
          "rotation": [
@@ -324,6 +322,13 @@
                         0.0
                      ]
                   },
+                  "Hips": {
+                     "rotation": [
+                        5.0,
+                        -0.0,
+                        0.0
+                     ]
+                  },
                   "Spine": {
                      "rotation": [
                         5.0,
@@ -352,6 +357,13 @@
                      "rotation": [
                         -5.0,
                         0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "rotation": [
+                        5.0,
+                        -0.0,
                         0.0
                      ]
                   },
@@ -419,6 +431,13 @@
                         0.0
                      ]
                   },
+                  "Hips": {
+                     "rotation": [
+                        5.0,
+                        -0.0,
+                        0.0
+                     ]
+                  },
                   "Spine": {
                      "rotation": [
                         5.0,
@@ -447,6 +466,13 @@
                      "rotation": [
                         -5.0,
                         0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "rotation": [
+                        5.0,
+                        -0.0,
                         0.0
                      ]
                   },
@@ -520,6 +546,18 @@
                         0.0
                      ]
                   },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        0.5,
+                        1.2
+                     ],
+                     "rotation": [
+                        15.0,
+                        -0.0,
+                        0.0
+                     ]
+                  },
                   "Left Hand": {
                      "position": [
                         6.4,
@@ -535,6 +573,11 @@
                      ]
                   },
                   "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.0
+                     ],
                      "rotation": [
                         15.0,
                         0.0,
@@ -562,6 +605,13 @@
                      "rotation": [
                         -15.0,
                         0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "rotation": [
+                        15.0,
+                        -0.0,
                         0.0
                      ]
                   },
@@ -594,6 +644,11 @@
                      ]
                   },
                   "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.0
+                     ],
                      "rotation": [
                         15.0,
                         0.0,
@@ -629,6 +684,13 @@
                         0.0
                      ]
                   },
+                  "Hips": {
+                     "rotation": [
+                        15.0,
+                        -0.0,
+                        0.0
+                     ]
+                  },
                   "Left Hand": {
                      "position": [
                         6.4,
@@ -644,6 +706,11 @@
                      ]
                   },
                   "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.0
+                     ],
                      "rotation": [
                         15.0,
                         0.0,
@@ -671,6 +738,13 @@
                      "rotation": [
                         -15.0,
                         0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "rotation": [
+                        15.0,
+                        -0.0,
                         0.0
                      ]
                   },
@@ -703,6 +777,11 @@
                      ]
                   },
                   "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.0
+                     ],
                      "rotation": [
                         15.0,
                         0.0,
@@ -1437,13 +1516,6 @@
                      "position": [
                         0.67,
                         -1.48,
-                        0.0
-                     ]
-                  },
-                  "Right Foot": {
-                     "position": [
-                        -0.0,
-                        -5.5,
                         0.0
                      ]
                   },
