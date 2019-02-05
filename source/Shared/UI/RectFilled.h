@@ -20,7 +20,8 @@ namespace UI
 class RectFilled : public Engine::UIElement {
 public:
    RectFilled(Engine::UIRoot* root, UIElement* parent, const std::string& name, glm::vec4 color = glm::vec4(0, 0, 0, 1));
-
+   DebugInfo GetDebugInfo(bool bRecursive = false);
+   
    //
    // Set the fill color of this rectangle. r, g, b, and a are between 0 and 1.
    //

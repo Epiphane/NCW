@@ -175,6 +175,12 @@ void UIElement::LogDebugInfo(bool bRecursive, Logger::LogManager* output, uint32
 void UIElement::InitFromJSON(nlohmann::json data)
 {
 }
+   
+nlohmann::json UIElement::ConvertToJSON()
+{
+   nlohmann::json result;
+   return result;
+}
 
 bool UIElement::IsMarkedForDeletion() const
 {

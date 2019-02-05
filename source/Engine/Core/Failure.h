@@ -21,6 +21,12 @@ public:
 
    template <typename ...Args>
    Failure(const std::string& fmt, const Args& ... args) : message(Format::FormatString(fmt, args...)) {};
+   
+   template <typename ...Args>
+   Failure(int failureCode, const std::string& fmt, const Args& ... args) 
+      : message(Format::FormatString(fmt, args...))
+      , failureCode(failureCode)
+   {};
 
    const std::string GetMessage() const { return message; }
    int GetFailureCode() const { return failureCode; }

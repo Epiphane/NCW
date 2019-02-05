@@ -78,6 +78,7 @@ public:
    virtual ~UIElement();
 
    virtual void InitFromJSON(nlohmann::json data); // Override me :3
+   virtual nlohmann::json ConvertToJSON();         // Also override me :3
 
    //
    // Add a UIElement as a child of this one.
@@ -168,7 +169,7 @@ public:
    //
    // Returns debug info with this element's relevant properties
    //
-   DebugInfo GetDebugInfo(bool bRecursive = false);
+   virtual DebugInfo GetDebugInfo(bool bRecursive = false);
 
    //
    // Logs a human-readable message with the debug info above. Leave output to null

@@ -1,4 +1,4 @@
-# Add GLFW
+# Add rhea
 set(VERSION "0.2.4")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")

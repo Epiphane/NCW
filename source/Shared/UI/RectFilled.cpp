@@ -22,6 +22,14 @@ RectFilled::RectFilled(Engine::UIRoot* root, UIElement* parent, const std::strin
    , mRegion(root->Reserve<Aggregator::Rect>(2))
 {
 }
+   
+Engine::UIElement::DebugInfo RectFilled::GetDebugInfo(bool bRecursive) {
+   DebugInfo result = UIElement::GetDebugInfo(bRecursive);
+   
+   result.type = "RectFilled";
+   
+   return result;
+}
 
 void RectFilled::Redraw()
 {

@@ -21,6 +21,7 @@ namespace CubeWorld
 namespace Engine
 {
 
+#pragma mark Going from JSON to UI
 
 /**
  * Parse a single UIElement and its children.
@@ -86,7 +87,7 @@ Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot
       Maybe<void> result = ParseUIElement(child, pRoot, reference, elementMapOut);
       
       if (!result) {
-         return result;
+         return result; // Return on Failure state
       }
    }
    
@@ -210,11 +211,11 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(nlohmann::json
    return elementMap;
 }
    
-/**
- * Helper function that parses the JSON at the given path then calls CreateUIFromJSONData.
- *
- * Returns a failure state if the file is missing or invalid JSON.
- */
+//
+// Helper function that parses the JSON at the given path then calls CreateUIFromJSONData.
+//
+// Returns a failure state if the file is missing or invalid JSON.
+//
 Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent)
 {
    Maybe<nlohmann::json> data = Shared::GetJsonFromFile(filename);
@@ -225,7 +226,45 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::str
    
    return CreateUIFromJSONData(*data, pRoot, pParent);
 }
+   
+#pragma mark Going from UI to JSON
 
+//
+// Serialize a UIElement's heirarchy to JSON, including the constraints passed in from the editor.
+//
+nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
+   nlohmann::json uiElementData;
+   
+   SerializeUIElement(element, &uiElementData);
+   nlohmann::json constraintData = SerializeConstraints(element, constraints);
+   
+   nlohmann::json result;
+   result["baseElement"] = uiElementData;
+   result["constraints"] = constraintData;
+   
+   return result;
+}
+   
+//
+// Converts the specified UIElement to JSON. Recursively adds the data to dataIn by
+//    going through the children of 'element'.
+//
+void UISerializationHelper::SerializeUIElement(UIElement* element, nlohmann::json* dataIn) {
+   element->GetDebugInfo().type
+}
+
+//
+// Looks at the given UIElement's UIRoot and grabs all its constraints. Then, we filter
+//    to get only the constraints involving the UIElement and its descendants. Then,
+//    convert them all to JSON.
+//
+nlohmann::json UISerializationHelper::SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints) {
+   nlohmann::json result;
+   
+   for (UIConstraint constraint : constraints) {
+      // Serialize + add to JSON
+   }
+}
 
 } // CubeWorld
 

@@ -49,7 +49,7 @@ Maybe<nlohmann::json> GetJsonFromFile(const std::string& filename)
    std::ifstream file(filename);
    
    if (!file.good()) {
-      return Failure{"Could not open file %1", filename.c_str()};
+      return Failure{FAILURE_CODE_JSON_FILE_NOT_FOUND, "Could not open file %1", filename.c_str()};
    }
    
    try {

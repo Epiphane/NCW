@@ -6,8 +6,10 @@
 
 #include "JsonFileSync.h"
 
+#if !CUBEWORLD_PLATFORM_WINDOWS
 #include <libfswatch/c++/monitor_factory.hpp>
 #include <libfswatch/c/libfswatch.h>
+#endif
 
 namespace CubeWorld
 {
@@ -20,8 +22,8 @@ JsonFileSync::JsonFileSync(const std::string& filename)
    , mFilename(filename)
    , mFileState(FileChanged)  // Start at "FileChanged" so we load the JSON file into memory on startup
 {
-   mWritingMutex.lock(); // Lock the mWritingMutex on the MAIN THREAD. When we want
-                         //    the file-writing thread to run, unlock it from the main thread.
+   mSavingMutex.lock(); // Lock the mSavingMutex on the MAIN THREAD. When we want
+                        //    the file-writing thread to run, unlock it from the main thread.
 
    mFileWatchingThread = new std::thread(JsonFileSync::WatchFile, this);
    mFileSavingThread = new std::thread(JsonFileSync::WriteLatestDataToFile, this);
@@ -50,7 +52,7 @@ void JsonFileSync::WatchFile(JsonFileSync* self)
 //
 void JsonFileSync::HandleFSWEvent(fsw::event event) 
 {
-   // Unfortunately, events don't always match exactly what happened. OS X seems to 
+   // Unfortunately, events don't always match exactly what happened. OS X seems to
    //    be fond of "rename" events instead of "move" or "delete" events,
    //    so all we can do is note that the file changed somehow and check
    //    that it still exists.
@@ -121,20 +123,18 @@ Maybe<nlohmann::json> JsonFileSync::GetJsonFromFile()
 //
 void JsonFileSync::WriteLatestDataToFile(JsonFileSync* self)
 {
-   // Should immediately stop.
-   self->mWritingMutex.lock();
-   
-   
-}
-   
-void JsonFileSync::SaveJsonToFilename(const nlohmann::json& data)
-{
-   if (mFileState == FileChanged) {
-      // PANIC
-      // Save current Json to a backup file, then reload the new Json and inform the user.
+   while (true) {
+      self->mSavingMutex.lock();
+      
+      if (self->mFileState == FileChanged) {
+         // PANIC
+         // Save current Json to a backup file, then reload the new Json and inform the user.
+         
+      }
       
    }
 }
+   
 
 
 }; // Shared

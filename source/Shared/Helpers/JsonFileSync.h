@@ -41,11 +41,6 @@ public:
    //
    JsonFileSync(const std::string& filename);
 
-   //
-   // Writes serialized JSON to the given file.
-   //
-   void SaveJsonToFilename(const nlohmann::json& data);
-   
    // 
    // Get the JSON from the file. Returns a Failure if the JSON is invalid
    //    or the file is missing.
@@ -79,7 +74,13 @@ private:
    std::thread* mFileWatchingThread;
     
    std::thread* mFileSavingThread;
-   mutable std::mutex mWritingMutex;   // Mutex used to serialize writing to the file
+   std::mutex mSavingMutex;   // Mutex used to serialize writing to the file
+
+   // Current idea: when the client changes the state of whatever it's editing,
+   //                it blocks as it copies the json structure over to us. Should be doable in 1 frame.
+   //                orrrr have the json data be owned by this object, which uses a mutex to make sure nobody's
+   //                reading/writing at the same time as each other.
+   nlohmann::json mData;
 
    // Filename we're tracking with this JsonFileSync object
    std::string mFilename;
