@@ -197,8 +197,8 @@ void AnimatedSkeleton::Load(const std::string& filename)
             continue;
          }
 
-         bone.position = bone.originalPosition = Shared::JsonHelpers::JsonToVec3(boneData["position"]);
-         bone.rotation = bone.originalRotation = Shared::JsonHelpers::JsonToVec3(boneData["rotation"]);
+         bone.position = bone.originalPosition = Shared::JsonToVec3(boneData["position"]);
+         bone.rotation = bone.originalRotation = Shared::JsonToVec3(boneData["rotation"]);
       }
    }
 
@@ -323,8 +323,8 @@ std::string AnimatedSkeleton::Serialize()
    {
       nlohmann::json info;
       info["parent"] = bones[bone.parent].name;
-      info["position"] = Shared::JsonHelpers::Vec3ToJson(bone.originalPosition);
-      info["rotation"] = Shared::JsonHelpers::Vec3ToJson(bone.originalRotation);
+      info["position"] = Shared::Vec3ToJson(bone.originalPosition);
+      info["rotation"] = Shared::Vec3ToJson(bone.originalRotation);
       data["bones"][bone.name] = info;
    }
 

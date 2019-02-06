@@ -20,6 +20,19 @@ namespace CubeWorld
 
 namespace Engine
 {
+   
+static const std::map<UIConstraint::Target, std::string> CONSTRAINT_NAME_MAPPING = {
+   {UIConstraint::Left,     "Left"},
+   {UIConstraint::Bottom,   "Bottom"},
+   {UIConstraint::Top,      "Top"},
+   {UIConstraint::Right,    "Right"},
+   {UIConstraint::Width,    "Width"},
+   {UIConstraint::Height,   "Height"},
+   {UIConstraint::CenterX,  "CenterX"},
+   {UIConstraint::CenterY,  "CenterY"},
+   {UIConstraint::ZHeight,  "ZHeight"},
+   {UIConstraint::NoTarget, "NoTarget"},
+};
 
 #pragma mark Going from JSON to UI
 
@@ -96,25 +109,14 @@ Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot
 
 UIConstraint::Target UISerializationHelper::ConstraintTargetFromString(std::string name)
 {
-   static std::map<std::string, UIConstraint::Target> mapping = {
-         {"Left",     UIConstraint::Left},
-         {"Bottom",   UIConstraint::Bottom},
-         {"Top",      UIConstraint::Top},
-         {"Right",    UIConstraint::Right},
-         {"Width",    UIConstraint::Width},
-         {"Height",   UIConstraint::Height},
-         {"CenterX",  UIConstraint::CenterX},
-         {"CenterY",  UIConstraint::CenterY},
-         {"ZHeight",  UIConstraint::ZHeight},
-         {"NoTarget", UIConstraint::NoTarget},
-   };
-
-   if (mapping.find(name) == mapping.end()) {
-      assert(false && "Unknown constraint target name");
-      return UIConstraint::NoTarget;
+   for (auto const& [target, mapName] : CONSTRAINT_NAME_MAPPING) {
+      if (name == mapName) {
+         return target;
+      }
    }
-
-   return mapping[name];
+   
+   assert(false && "Unknown constraint target name");
+   return UIConstraint::NoTarget;
 }
 
 /**
@@ -249,8 +251,19 @@ nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const
 // Converts the specified UIElement to JSON. Recursively adds the data to dataIn by
 //    going through the children of 'element'.
 //
-void UISerializationHelper::SerializeUIElement(UIElement* element, nlohmann::json* dataIn) {
-   element->GetDebugInfo().type
+void UISerializationHelper::SerializeUIElement(UIElement* element, nlohmann::json* dataIn) 
+{
+   
+}
+   
+std::string UISerializationHelper::StringFromConstraintTarget(UIConstraint::Target target) 
+{
+   if (CONSTRAINT_NAME_MAPPING.find(target) == CONSTRAINT_NAME_MAPPING.end()) {
+      assert(false && "Unknown constraint target name");
+      return "NoTarget";
+   }
+   
+   return CONSTRAINT_NAME_MAPPING.at(target);
 }
 
 //
@@ -258,12 +271,28 @@ void UISerializationHelper::SerializeUIElement(UIElement* element, nlohmann::jso
 //    to get only the constraints involving the UIElement and its descendants. Then,
 //    convert them all to JSON.
 //
-nlohmann::json UISerializationHelper::SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints) {
+nlohmann::json UISerializationHelper::SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints) 
+{
    nlohmann::json result;
    
    for (UIConstraint constraint : constraints) {
-      // Serialize + add to JSON
+      nlohmann::json constraintJson;
+      constraintJson["primaryElement"] = constraint.GetPrimaryElement()->GetName();
+      constraintJson["primaryTarget"] = StringFromConstraintTarget(constraint.GetPrimaryTarget());
+      
+      if (constraint.GetSecondaryElement()) {
+         constraintJson["secondaryElement"] = constraint.GetSecondaryElement()->GetName();
+         constraintJson["secondaryTarget"] = StringFromConstraintTarget(constraint.GetSecondaryTarget());
+      }
+      
+      const UIConstraint::Options& opts = constraint.GetOptions();
+      constraintJson["constant"] = opts.constant;
+      constraintJson["multiplier"] = opts.multiplier;
+      
+      result.push_back(constraintJson);
    }
+   
+   return result;
 }
 
 } // CubeWorld

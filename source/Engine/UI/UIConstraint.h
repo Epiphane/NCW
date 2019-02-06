@@ -65,7 +65,12 @@ public:
    UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options{});
 
    UIConstrainable* GetPrimaryElement() const;
+   Target           GetPrimaryTarget() const;
+   
    UIConstrainable* GetSecondaryElement() const;
+   Target           GetSecondaryTarget() const;
+   
+   const Options& GetOptions() const;
 
 private:
    Options mOptions;

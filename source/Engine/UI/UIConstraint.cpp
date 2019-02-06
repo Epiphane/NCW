@@ -70,10 +70,25 @@ UIConstrainable* UIConstraint::GetPrimaryElement() const
 {
    return mPrimaryElement;
 }
+   
+UIConstraint::Target UIConstraint::GetPrimaryTarget() const
+{
+   return mPrimaryTarget;
+}
 
 UIConstrainable* UIConstraint::GetSecondaryElement() const
 {
    return mSecondaryElement;
+}
+   
+UIConstraint::Target UIConstraint::GetSecondaryTarget() const
+{
+   return mSecondaryTarget;
+}
+   
+const UIConstraint::Options& UIConstraint::GetOptions() const
+{
+   return mOptions;
 }
 
 }; // namespace Engine

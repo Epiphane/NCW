@@ -42,6 +42,7 @@ private:
    
    // Serialization helpers
    void SerializeUIElement(UIElement* element, nlohmann::json* dataIn);
+   std::string StringFromConstraintTarget(UIConstraint::Target target);
    nlohmann::json SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints);
 };
    
