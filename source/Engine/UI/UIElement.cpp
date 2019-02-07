@@ -176,10 +176,16 @@ void UIElement::InitFromJSON(nlohmann::json data)
 {
 }
    
-nlohmann::json UIElement::ConvertToJSON()
+void UIElement::ConvertToJSON(nlohmann::json* outJson)
 {
-   nlohmann::json result;
-   return result;
+   (*outJson)["class"] = GetDebugInfo().type;
+   (*outJson)["name"]  = GetName();
+   
+   for (const auto& child : mChildren) {
+      (*outJson)["children"].push_back(nlohmann::json::object());
+      nlohmann::json* newChild = &(*outJson)["children"].back();
+      child->ConvertToJSON(newChild);
+   }
 }
 
 bool UIElement::IsMarkedForDeletion() const

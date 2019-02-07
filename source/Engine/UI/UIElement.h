@@ -77,8 +77,8 @@ public:
    UIElement(UIRoot *root, UIElement *parent, const std::string& name = "");
    virtual ~UIElement();
 
-   virtual void InitFromJSON(nlohmann::json data); // Override me :3
-   virtual nlohmann::json ConvertToJSON();         // Also override me :3
+   virtual void InitFromJSON(nlohmann::json data);      // Override me :3
+   virtual void ConvertToJSON(nlohmann::json *outJson); // Also override me :3
 
    //
    // Add a UIElement as a child of this one.

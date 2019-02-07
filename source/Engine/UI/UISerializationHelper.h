@@ -41,9 +41,8 @@ private:
    Maybe<void> ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, const ElementsByName &elementsMap);
    
    // Serialization helpers
-   void SerializeUIElement(UIElement* element, nlohmann::json* dataIn);
    std::string StringFromConstraintTarget(UIConstraint::Target target);
-   nlohmann::json SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints);
+   void SerializeConstraints(const std::vector<UIConstraint>& constraints, nlohmann::json* outConstraintJson);
 };
    
 } // CubeWorld

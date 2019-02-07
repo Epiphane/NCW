@@ -235,25 +235,12 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::str
 // Serialize a UIElement's heirarchy to JSON, including the constraints passed in from the editor.
 //
 nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
-   nlohmann::json uiElementData;
-   
-   SerializeUIElement(element, &uiElementData);
-   nlohmann::json constraintData = SerializeConstraints(element, constraints);
-   
    nlohmann::json result;
-   result["baseElement"] = uiElementData;
-   result["constraints"] = constraintData;
+   
+   element->ConvertToJSON(&result["baseElement"]);
+   SerializeConstraints(constraints, &result["constraints"]);
    
    return result;
-}
-   
-//
-// Converts the specified UIElement to JSON. Recursively adds the data to dataIn by
-//    going through the children of 'element'.
-//
-void UISerializationHelper::SerializeUIElement(UIElement* element, nlohmann::json* dataIn) 
-{
-   
 }
    
 std::string UISerializationHelper::StringFromConstraintTarget(UIConstraint::Target target) 
@@ -267,14 +254,11 @@ std::string UISerializationHelper::StringFromConstraintTarget(UIConstraint::Targ
 }
 
 //
-// Looks at the given UIElement's UIRoot and grabs all its constraints. Then, we filter
-//    to get only the constraints involving the UIElement and its descendants. Then,
-//    convert them all to JSON.
+// Given the list of constraints from the Editor, serialize everything to a JSON file.
+//    Builds the constraint JSON data in the provided json parameter.
 //
-nlohmann::json UISerializationHelper::SerializeConstraints(UIElement* element, const std::vector<UIConstraint>& constraints) 
+void UISerializationHelper::SerializeConstraints(const std::vector<UIConstraint>& constraints, nlohmann::json* outConstraintJson) 
 {
-   nlohmann::json result;
-   
    for (UIConstraint constraint : constraints) {
       nlohmann::json constraintJson;
       constraintJson["primaryElement"] = constraint.GetPrimaryElement()->GetName();
@@ -289,10 +273,8 @@ nlohmann::json UISerializationHelper::SerializeConstraints(UIElement* element, c
       constraintJson["constant"] = opts.constant;
       constraintJson["multiplier"] = opts.multiplier;
       
-      result.push_back(constraintJson);
+      outConstraintJson->push_back(constraintJson);
    }
-   
-   return result;
 }
 
 } // CubeWorld
