@@ -8,6 +8,7 @@
 #include <Engine/UI/UISerializationHelper.h>
 
 #include "Editor.h"
+#include "ElementListSidebar.h"
 #include "Sidebar.h"
 #include "UIElementDesignerWrapper.h"
 
@@ -27,6 +28,8 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
    : UIRoot(input)
    , mFileSyncer("lol.txt")
 {
+   ElementListSidebar* elementSidebar = Add<ElementListSidebar>();
+
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
 
