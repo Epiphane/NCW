@@ -30,6 +30,8 @@ public:
 public:
    Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options, const std::string& name = "");
 
+   // Set new image UVs on the same texture
+   void SetImage(std::string imageName);
    void Redraw() override;
 
 protected:

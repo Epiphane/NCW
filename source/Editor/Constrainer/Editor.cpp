@@ -28,7 +28,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
    : UIRoot(input)
    , mFileSyncer("lol.txt")
 {
-   ElementListSidebar* elementSidebar = Add<ElementListSidebar>();
+   ElementListSidebar* elementList = Add<ElementListSidebar>();
 
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
@@ -41,6 +41,11 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
    controls->ConstrainLeftAlignedTo(this);
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
+   
+   elementList->ConstrainToRightOf(sidebar);
+   elementList->ConstrainWidthTo(this, 0.0, 0.2);
+   elementList->ConstrainTopAlignedTo(this);
+   elementList->ConstrainBottomAlignedTo(this);
 
 //   TextButton::Options buttonOptions;
 //   buttonOptions.text = "I'm a big boy";
@@ -60,7 +65,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
 
    UIElement* mainContent = elementMap["TestJSONStuff"];
    mainContent->ConstrainHeightTo(this);
-   mainContent->ConstrainToRightOf(sidebar);
+   mainContent->ConstrainToRightOf(elementList);
    mainContent->ConstrainTopAlignedTo(this);
    mainContent->ConstrainRightAlignedTo(this);
 

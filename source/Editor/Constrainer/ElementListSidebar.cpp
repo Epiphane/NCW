@@ -6,6 +6,8 @@
 
 #include "ElementListSidebar.h"
 
+#include "ElementListItem.h"
+
 namespace CubeWorld
 {
 
@@ -18,6 +20,10 @@ namespace Constrainer
 ElementListSidebar::ElementListSidebar(Engine::UIRoot* root, Engine::UIElement* parent)
       : UIElement(root, parent, "ConstrainerElementList")
 {
+   mStackView = Add<UIStackView>("ElementListView");
+   mStackView->ConstrainEqualBounds(this);
+
+   mStackView->Add<ElementListItem>("Test1");
 }
 
 }; // namespace Constrainer

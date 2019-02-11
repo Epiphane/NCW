@@ -331,13 +331,13 @@ std::pair<UIConstraint, UIConstraint> UIConstrainable::ConstrainCenterTo(UIConst
 /**
  * Constrain bounds equal, with an optional margin on each side
  */
-void UIConstrainable::ConstrainEqualBounds(UIConstrainable* other, double leftMargin, double topMargin, double rightMargin, double bottomMargin, UIConstraint::Options options) {
+std::tuple<UIConstraint, UIConstraint, UIConstraint, UIConstraint> UIConstrainable::ConstrainEqualBounds(UIConstrainable* other, double leftMargin, double topMargin, double rightMargin, double bottomMargin, UIConstraint::Options options) {
    UIConstraint leftConstraint   = ConstrainLeftAlignedTo  (other, leftMargin,   options);
    UIConstraint topConstraint    = ConstrainTopAlignedTo   (other, topMargin,    options);
    UIConstraint rightConstraint  = ConstrainRightAlignedTo (other, rightMargin,  options);
    UIConstraint bottomConstraint = ConstrainBottomAlignedTo(other, bottomMargin, options);
    
-   // Should return something, eventually. Probably a tuple like above?
+   return std::make_tuple(leftConstraint, topConstraint, rightConstraint, bottomConstraint);
 }
    
 /* Constrain In Front Of:

@@ -61,6 +61,8 @@ public:
    //
    void RemoveConstraint(std::string constraintNameToRemove);
 
+   void RemoveConstraintsForElement(const UIElement* element);
+
    //
    // Returns a pointer to a UIConstraint. Will return NULL if not found.
    //
@@ -170,6 +172,12 @@ public:
    UIElement* AddChild(std::unique_ptr<UIElement> &&element) override;
 
 private:
+   // On ^D, turn on constraint debugging mode
+   void ToggleDebugConstraints(int key, int action, int mods);
+   
+   // On mouse move, highlight the frontmost element with a cute pink rectangle
+   void HandleMouseMoveDebugConstraints(const MouseMoveEvent& evt);
+   
    // Input manager.
    Input* mInput;
 
@@ -185,8 +193,19 @@ private:
    // Parents any UIContextMenu we want to show. Lets us place it in front of all other content.
    UIContextMenuParent* mContextMenuLayer;
 
+   // Pink rectangle that will highlight elements when you debug constraints
+   UIElement* mConstraintDebugHighlight;
+   // Label that goes over mConstraintDebugHighlight and tells you how many UIElements are under your mouses
+   UIElement* mConstraintDebugLabel;
+   UIElement* mConstraintDebugLabelBG;
+   
+   std::unique_ptr<Input::KeyCallbackLink> mDebugKeycallback;
+
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;
+   
+   // If true, ignore normal input events and instead help debug constraints.
+   bool mConstraintDebuggingEnabled;
 };
 
 }; // namespace Engine

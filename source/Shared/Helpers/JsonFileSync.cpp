@@ -20,6 +20,7 @@ namespace Shared
 JsonFileSync::JsonFileSync(const std::string& filename)
    : mFileWatchingThread(nullptr)
    , mFilename(filename)
+   , mMonitor(nullptr)
    , mFileState(FileChanged)  // Start at "FileChanged" so we load the JSON file into memory on startup
 {
    mSavingMutex.lock(); // Lock the mSavingMutex on the MAIN THREAD. When we want
@@ -27,6 +28,13 @@ JsonFileSync::JsonFileSync(const std::string& filename)
 
    mFileWatchingThread = new std::thread(JsonFileSync::WatchFile, this);
    mFileSavingThread = new std::thread(JsonFileSync::WriteLatestDataToFile, this);
+}
+
+JsonFileSync::~JsonFileSync()
+{
+   if (mMonitor) {
+      mMonitor->stop();
+   }
 }
 
 #pragma mark - Watching and reading FROM file
@@ -37,14 +45,14 @@ JsonFileSync::JsonFileSync(const std::string& filename)
 void JsonFileSync::WatchFile(JsonFileSync* self)
 {
    std::vector<std::string> filename = {self->mFilename};
-   fsw::monitor* new_monitor = fsw::monitor_factory::create_monitor(system_default_monitor_type, filename, &JsonFileSync::FileWasChanged, self);
+   self->mMonitor = fsw::monitor_factory::create_monitor(system_default_monitor_type, filename, &JsonFileSync::FileWasChanged, self);
    
 #ifdef __OSX__
    // noDefer means we get events instantly instead of batched together
-   new_monitor->set_property("darwin.eventStream.noDefer", "true");
+   self->mMonitor->set_property("darwin.eventStream.noDefer", "true");
 #endif
    
-   new_monitor->start();
+   self->mMonitor->start();
 }
  
 //

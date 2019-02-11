@@ -2,9 +2,13 @@
 
 #include <utility>
 
+#include <Engine/Core/Window.h>
+#include <Engine/Core/Format.h>
 #include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/TimSort.h>
+#include <Shared/UI/RectFilled.h>
+#include <Shared/UI/Text.h>
 
 #include "UIRoot.h"
 
@@ -14,6 +18,9 @@ namespace CubeWorld
 namespace Engine
 {
 
+using UI::RectFilled;
+using UI::Text;
+
 UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
@@ -21,6 +28,7 @@ UIRoot::UIRoot(Input* input)
    , mContentLayer(nullptr)
    , mContextMenuLayer(nullptr)
    , mDirty(false)
+   , mConstraintDebuggingEnabled(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
    mSolver.set_autosolve(false);
@@ -48,6 +56,24 @@ UIRoot::UIRoot(Input* input)
    Subscribe<MouseDownEvent>(*this);
    Subscribe<MouseUpEvent>(*this);
    Subscribe<MouseClickEvent>(*this);
+   
+// #ifdef DEBUG
+   mDebugKeycallback = mInput->AddCallback(Window::CtrlKey(GLFW_KEY_D), std::bind(&UIRoot::ToggleDebugConstraints, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+   mConstraintDebugHighlight = Add<RectFilled>("ConstraintDebugHighlighter", glm::vec4(1.0f, 0.41f, 0.71f, 1));
+
+   mConstraintDebugLabelBG = Add<RectFilled>("ConstraintDebugLabelBG", glm::vec4(0, 0, 0, 1));
+   mConstraintDebugLabel = mConstraintDebugLabelBG->Add<Text>(Text::Options{"X Elements Possible"});
+   mConstraintDebugLabelBG->ConstrainWidth(200);
+   mConstraintDebugLabelBG->ConstrainHeight(30);
+   mConstraintDebugLabelBG->ConstrainTopAlignedTo(this);
+   mConstraintDebugLabelBG->ConstrainLeftAlignedTo(this);
+   
+   mConstraintDebugLabel->ConstrainEqualBounds(mConstraintDebugLabelBG);
+   
+   mConstraintDebugHighlight->SetActive(false);
+   mConstraintDebugLabelBG->SetActive(false);
+   mConstraintDebugLabel->SetActive(false);
+// #endif
 }
 
 UIRoot::~UIRoot()
@@ -55,6 +81,41 @@ UIRoot::~UIRoot()
    // Remove all my constraints and all my children, so that they don't try and reference me later.
    mConstraintMap.clear();
    mChildren.clear();
+}
+   
+void UIRoot::ToggleDebugConstraints(int key, int action, int mods) {
+   mConstraintDebuggingEnabled = !mConstraintDebuggingEnabled;
+   
+   mConstraintDebugLabel->SetActive(mConstraintDebuggingEnabled);
+   mConstraintDebugHighlight->SetActive(mConstraintDebuggingEnabled);
+   mConstraintDebugLabelBG->SetActive(mConstraintDebuggingEnabled);
+}
+
+void UIRoot::HandleMouseMoveDebugConstraints(const MouseMoveEvent &evt)
+{
+   bool foundFrontmostElement = false;
+   int numElementsUnderCursor = 0;
+
+   // Find the frontmost UIElement under the mouse
+   for (long ndx = 0; ndx < mElements.size(); ndx++) {
+      UIElement* elem = mElements[ndx];
+
+      if (elem == mContextMenuLayer || elem == mConstraintDebugHighlight) {
+         continue;
+      }
+
+      if (!foundFrontmostElement && elem->ContainsPoint(evt.x, evt.y)) {
+         RemoveConstraintsForElement(mConstraintDebugHighlight);
+         mConstraintDebugHighlight->ConstrainEqualBounds(elem);
+         foundFrontmostElement = true;
+      }
+
+      if (elem->ContainsPoint(evt.x, evt.y)) {
+         numElementsUnderCursor++;
+      }
+   }
+
+   ((Text*) mConstraintDebugLabel)->SetText(Format::FormatString("%1 Possible Elements", numElementsUnderCursor));
 }
 
 UIElement* UIRoot::AddChild(std::unique_ptr<UIElement> &&element)
@@ -79,7 +140,7 @@ void UIRoot::SetBounds(const Bounded& bounds)
       mFrame.bottom == bounds.GetY()
    };
 
-   // Se the values immediately, so that they can be accessed
+   // Set the values immediately, so that they can be accessed
    mFrame.width.set_value(bounds.GetWidth());
    mFrame.height.set_value(bounds.GetHeight());
    mFrame.left.set_value(bounds.GetX());
@@ -170,6 +231,13 @@ void UIRoot::Receive(const ElementAddedEvent& evt)
 
 void UIRoot::ElementDestructing(UIElement* element)
 {
+   RemoveConstraintsForElement(element);
+
+   mElements.erase(std::remove(mElements.begin(), mElements.end(), element), mElements.end());
+}
+
+void UIRoot::RemoveConstraintsForElement(const UIElement* element)
+{
    // Remove constraints that were attached to this element
    std::vector<std::string> constraintKeysToMurder;
 
@@ -183,12 +251,20 @@ void UIRoot::ElementDestructing(UIElement* element)
    for (std::string keyToMurder : constraintKeysToMurder) {
       RemoveConstraint(keyToMurder);
    }
-
-   mElements.erase(std::remove(mElements.begin(), mElements.end(), element), mElements.end());
 }
 
 void UIRoot::Receive(const MouseDownEvent& evt)
 {
+   if (mConstraintDebuggingEnabled) {
+      for (long ndx = 0; ndx < mElements.size(); ndx++) {
+         UIElement* elem = mElements[ndx];
+         if (elem->ContainsPoint(evt.x, evt.y)) {
+            elem->LogDebugInfo();
+         }
+      }
+      return;
+   }
+   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements{mElements};
@@ -200,9 +276,14 @@ void UIRoot::Receive(const MouseDownEvent& evt)
       }
    }
 }
-
+   
 void UIRoot::Receive(const MouseMoveEvent& evt)
 {
+   if (mConstraintDebuggingEnabled) {
+      HandleMouseMoveDebugConstraints(evt);
+      return;
+   }
+   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements{mElements};
@@ -217,6 +298,10 @@ void UIRoot::Receive(const MouseMoveEvent& evt)
 
 void UIRoot::Receive(const MouseUpEvent& evt)
 {
+   if (mConstraintDebuggingEnabled) {
+      return;
+   }
+   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements{mElements};
@@ -231,6 +316,10 @@ void UIRoot::Receive(const MouseUpEvent& evt)
 
 void UIRoot::Receive(const MouseClickEvent& evt)
 {
+   if (mConstraintDebuggingEnabled) {
+      return;
+   }
+   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements{mElements};

@@ -43,6 +43,11 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
 }
 
+void Image::SetImage(std::string imageName)
+{
+   mCoords = mTexture->GetImage(imageName);
+}
+
 void Image::Redraw()
 {
    std::vector<Aggregator::ImageData> vertices;

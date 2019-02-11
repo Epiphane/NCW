@@ -33,12 +33,21 @@ Engine::UIElement::DebugInfo RectFilled::GetDebugInfo(bool bRecursive) {
 
 void RectFilled::Redraw()
 {
-   std::vector<Aggregator::RectData> data({
-      { mFrame.GetBottomLeft(), mColor },
-      { mFrame.GetTopRight(), mColor },
-   });
+   std::vector<Aggregator::RectData> data;
+   
+   if (mActive) {
+      data = {
+         { mFrame.GetBottomLeft(), mColor },
+         { mFrame.GetTopRight(), mColor },
+      }; 
+   }
+   
+   while (data.size() < mRegion.size())
+   {
+      data.push_back(Aggregator::RectData{glm::vec3(0),glm::vec4(0)});
+   }
 
-   mRegion.Set(data);
+   mRegion.Set(data.data());
 }
 
 void RectFilled::SetColor(glm::vec4 color)

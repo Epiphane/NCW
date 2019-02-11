@@ -59,8 +59,8 @@ struct UIFrame : public Bounded
    
    uint32_t GetX() const override { return left.int_value(); }
    uint32_t GetY() const override { return bottom.int_value(); }
-   uint32_t GetWidth() const override { return width.int_value(); }
-   uint32_t GetHeight() const override { return height.int_value(); }
+   uint32_t GetWidth() const override { return right.int_value() - left.int_value(); }
+   uint32_t GetHeight() const override { return top.int_value() - bottom.int_value(); }
 };
    
 class UIConstrainable : public Bounded {
@@ -91,7 +91,7 @@ public:
    UIConstraint ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    std::pair<UIConstraint, UIConstraint> ConstrainCenterTo          (UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
-   void ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   std::tuple<UIConstraint, UIConstraint, UIConstraint, UIConstraint> ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
    UIConstraint ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
    UIConstraint ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());

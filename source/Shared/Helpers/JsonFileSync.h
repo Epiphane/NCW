@@ -40,6 +40,7 @@ public:
    //    creates a file with the filename if none exists.
    //
    JsonFileSync(const std::string& filename);
+   virtual ~JsonFileSync();
 
    // 
    // Get the JSON from the file. Returns a Failure if the JSON is invalid
@@ -84,6 +85,9 @@ private:
 
    // Filename we're tracking with this JsonFileSync object
    std::string mFilename;
+   
+   // Filewatching minotaur
+   fsw::monitor* mMonitor;
    
    //
    // Enum describing all the states the file can be in.
