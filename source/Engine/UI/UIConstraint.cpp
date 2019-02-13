@@ -16,6 +16,41 @@ namespace CubeWorld
 
 namespace Engine
 {
+   
+static const std::map<UIConstraint::Target, std::string> CONSTRAINT_NAME_MAPPING = {
+   {UIConstraint::Left,     "Left"},
+   {UIConstraint::Bottom,   "Bottom"},
+   {UIConstraint::Top,      "Top"},
+   {UIConstraint::Right,    "Right"},
+   {UIConstraint::Width,    "Width"},
+   {UIConstraint::Height,   "Height"},
+   {UIConstraint::CenterX,  "CenterX"},
+   {UIConstraint::CenterY,  "CenterY"},
+   {UIConstraint::ZHeight,  "ZHeight"},
+   {UIConstraint::NoTarget, "NoTarget"},
+};
+   
+std::string UIConstraint::StringFromConstraintTarget(Target target) 
+{
+   if (CONSTRAINT_NAME_MAPPING.find(target) == CONSTRAINT_NAME_MAPPING.end()) {
+      assert(false && "Unknown constraint target name");
+      return "NoTarget";
+   }
+   
+   return CONSTRAINT_NAME_MAPPING.at(target);
+}
+   
+UIConstraint::Target UIConstraint::ConstraintTargetFromString(std::string name)
+{
+   for (auto const& [target, mapName] : CONSTRAINT_NAME_MAPPING) {
+      if (name == mapName) {
+         return target;
+      }
+   }
+   
+   assert(false && "Unknown constraint target name");
+   return NoTarget;
+}
 
 UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement,
                            Target primaryTarget, Target secondaryTarget, const Options& options)

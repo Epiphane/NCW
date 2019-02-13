@@ -20,19 +20,6 @@ namespace CubeWorld
 
 namespace Engine
 {
-   
-static const std::map<UIConstraint::Target, std::string> CONSTRAINT_NAME_MAPPING = {
-   {UIConstraint::Left,     "Left"},
-   {UIConstraint::Bottom,   "Bottom"},
-   {UIConstraint::Top,      "Top"},
-   {UIConstraint::Right,    "Right"},
-   {UIConstraint::Width,    "Width"},
-   {UIConstraint::Height,   "Height"},
-   {UIConstraint::CenterX,  "CenterX"},
-   {UIConstraint::CenterY,  "CenterY"},
-   {UIConstraint::ZHeight,  "ZHeight"},
-   {UIConstraint::NoTarget, "NoTarget"},
-};
 
 #pragma mark Going from JSON to UI
 
@@ -107,18 +94,6 @@ Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot
    return Success;
 }
 
-UIConstraint::Target UISerializationHelper::ConstraintTargetFromString(std::string name)
-{
-   for (auto const& [target, mapName] : CONSTRAINT_NAME_MAPPING) {
-      if (name == mapName) {
-         return target;
-      }
-   }
-   
-   assert(false && "Unknown constraint target name");
-   return UIConstraint::NoTarget;
-}
-
 /**
  * Parse constraints from JSON data.
  *
@@ -169,8 +144,8 @@ Maybe<void> UISerializationHelper::ParseConstraints(nlohmann::json constraints, 
          secondaryElement = elementsMap.at(secondaryElementName);
       }
 
-      UIConstraint::Target primaryTarget = ConstraintTargetFromString(primaryTargetName);
-      UIConstraint::Target secondaryTarget = ConstraintTargetFromString(secondaryTargetName);
+      UIConstraint::Target primaryTarget = UIConstraint::ConstraintTargetFromString(primaryTargetName);
+      UIConstraint::Target secondaryTarget = UIConstraint::ConstraintTargetFromString(secondaryTargetName);
 
       UIConstraint::Options options;
       options.customNameConnector = constraintData.value("name", "");
@@ -242,16 +217,6 @@ nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const
    
    return result;
 }
-   
-std::string UISerializationHelper::StringFromConstraintTarget(UIConstraint::Target target) 
-{
-   if (CONSTRAINT_NAME_MAPPING.find(target) == CONSTRAINT_NAME_MAPPING.end()) {
-      assert(false && "Unknown constraint target name");
-      return "NoTarget";
-   }
-   
-   return CONSTRAINT_NAME_MAPPING.at(target);
-}
 
 //
 // Given the list of constraints from the Editor, serialize everything to a JSON file.
@@ -262,11 +227,11 @@ void UISerializationHelper::SerializeConstraints(const std::vector<UIConstraint>
    for (UIConstraint constraint : constraints) {
       nlohmann::json constraintJson;
       constraintJson["primaryElement"] = constraint.GetPrimaryElement()->GetName();
-      constraintJson["primaryTarget"] = StringFromConstraintTarget(constraint.GetPrimaryTarget());
+      constraintJson["primaryTarget"] = UIConstraint::StringFromConstraintTarget(constraint.GetPrimaryTarget());
       
       if (constraint.GetSecondaryElement()) {
          constraintJson["secondaryElement"] = constraint.GetSecondaryElement()->GetName();
-         constraintJson["secondaryTarget"] = StringFromConstraintTarget(constraint.GetSecondaryTarget());
+         constraintJson["secondaryTarget"] = UIConstraint::StringFromConstraintTarget(constraint.GetSecondaryTarget());
       }
       
       const UIConstraint::Options& opts = constraint.GetOptions();

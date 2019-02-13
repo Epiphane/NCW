@@ -26,15 +26,20 @@ ElementListItem::ElementListItem(Engine::UIRoot* root, Engine::UIElement* parent
    mArrow = Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "button_right"});
    mLabel = Add<Text>(Text::Options{"Funny man"});
    
-   mLabel->ConstrainToRightOf(mArrow, 5.0);
    mLabel->ConstrainWidth(100);
+   mLabel->ConstrainHeight(20);
 
    mArrow->ConstrainWidth(10);
-   mArrow->ConstrainLeftAlignedTo(this);
-
-   mLabel->ConstrainRightAlignedTo(this);
-   mLabel->ConstrainTopAlignedTo(this);
-   mLabel->ConstrainBottomAlignedTo(this);
+   
+   mLabel->ConstrainToRightOf(mArrow, 5.0);
+   mLabel->ConstrainVerticalCenterTo(mArrow);
+   
+   this->Contains(mLabel);
+   this->Contains(mArrow);
+   
+   Engine::UIConstraint::Options opt;
+   opt.relationship = Engine::UIConstraint::GreaterOrEqual;
+   this->ConstrainHeight(0, opt);
 }
 
 }; // namespace Constrainer

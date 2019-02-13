@@ -58,8 +58,11 @@ public:
       ZHeight,
       ZHeightDescendants,
 
-      NoTarget,
+      NoTarget
    };
+   
+   static std::string StringFromConstraintTarget(Target target);
+   static Target ConstraintTargetFromString(std::string name);
 
    UIConstraint();
    UIConstraint(UIConstrainable* primaryElement, UIConstrainable* secondaryElement, Target primaryTarget, Target secondaryTarget, const Options& options = Options{});

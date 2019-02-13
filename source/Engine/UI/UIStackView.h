@@ -21,6 +21,17 @@ namespace Engine
 class UIStackView : public UIElement
 {
 public:
+   //
+   // Enum that lets you specify more constraints to be added to stacked elements.
+   //    For instance, specifying (Left | Right) means both the left and right edge 
+   //    of the stacked elements will be aligned to the Stackview.
+   //
+   enum AlignItemsBy {
+      Left, Right, CenterX,
+      Top, Bottom, CenterY,
+      Count
+   };
+   
    UIStackView(UIRoot *root, UIElement *parent, const std::string& name = "");
 
    virtual UIElement *AddChild(std::unique_ptr<UIElement> &&element) override;
@@ -36,13 +47,22 @@ public:
 
    // Set the StackView's orientation.
    void SetVertical(bool vertical);
+   
+   // Accessors to the alignItemsBy field
+   void SetAlignItemsBy(AlignItemsBy alignmentFlag);
+   void UnsetAlignItemsBy(AlignItemsBy alignmentFlag);
 
 private:
+   void DestroyOldConstraints();
    void RemakeConstraints();
 
    std::vector<UIConstraint> mConstraintsBetweenChildren;  ///< A list of all the constraints between children.
                                                            ///< First element is the constraint between the first and second children.
                                                            ///< Note that the size will always be children.size - 1
+   
+   std::vector<UIConstraint> mAlignmentConstraints; ///< Extra constraints to align elements to the Stackview.
+   std::bitset<AlignItemsBy::Count> mAlignItemsBy;  ///< Bitflags you can set to add more constraints to stacked elements. See AlignItemsBy for more info.
+   
 
    UIConstraint mTopConstraint;     ///< Constrain the first child to my top
    UIConstraint mBottomConstraint;  ///< Constrain the last child to my butt

@@ -36,12 +36,10 @@ public:
 
 private:
    // Deserialization helpers
-   UIConstraint::Target ConstraintTargetFromString(std::string name);
    Maybe<void> ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut);
    Maybe<void> ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, const ElementsByName &elementsMap);
    
    // Serialization helpers
-   std::string StringFromConstraintTarget(UIConstraint::Target target);
    void SerializeConstraints(const std::vector<UIConstraint>& constraints, nlohmann::json* outConstraintJson);
 };
    
