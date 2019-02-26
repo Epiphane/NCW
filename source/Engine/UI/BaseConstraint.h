@@ -28,7 +28,7 @@ public:
    //
    enum Relationship {
       Equal = 0,
-      GreaterOrEqual,
+      GreaterThanOrEqual,
       LessThanOrEqual
    };
    
@@ -45,19 +45,15 @@ public:
    double GetPriority() const;
    void SetPriority(double newPriority);
    
-   void SetDirty(bool newDirty);
-   
    std::string GetName() const;
    void SetName(std::string newName);
-   
+
 protected:
    rhea::constraint mInternalConstraint;  ///< The actual internal rhea constraint
    
 private:
    std::string mName;                     ///< Unique identifier for this constraint. Should be human readable + helpful for debugging.
    double mPriority;                      ///< Our version of weight. Simplified down to one number.
-   
-   bool mbDirty;                          ///< If true, the mpRoot will update its solver with this constraint's new data this frame.
 };
 
 }; // namespace Engine

@@ -36,7 +36,6 @@ typedef std::vector<UIConstraint*> ConstraintArray;
 struct UIFrame : public Bounded
 {  
    rhea::variable left, right, top, bottom;
-   rhea::variable centerX, centerY, width, height;
    
    // Larger z is displayed on top
    rhea::variable z;
@@ -55,7 +54,7 @@ struct UIFrame : public Bounded
       return glm::vec3(left.value(), bottom.value(), z.value());
    }
    
-   rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target);
+   rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target) const;
    
    uint32_t GetX() const override { return left.int_value(); }
    uint32_t GetY() const override { return bottom.int_value(); }

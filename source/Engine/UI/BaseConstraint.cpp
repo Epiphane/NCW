@@ -31,7 +31,6 @@ rhea::constraint BaseConstraint::GetInternalConstraint() const {
 void BaseConstraint::SetInternalConstraint(rhea::constraint newConstraint) { 
    mInternalConstraint = newConstraint;
    SetPriority(mPriority);
-   mbDirty = true;
 }
    
 //
@@ -47,24 +46,18 @@ void BaseConstraint::SetInternalConstraint(rhea::constraint newConstraint) {
 //
 void BaseConstraint::SetPriority(double newPriority) {
    mInternalConstraint.change_strength(rhea::symbolic_weight(newPriority, newPriority, newPriority));
-   mbDirty = true;
 }
    
 double BaseConstraint::GetPriority() const {
    return mPriority;
 }
-   
-void BaseConstraint::SetDirty(bool newDirty) {
-   mbDirty = newDirty;
-}   
-   
+
 std::string BaseConstraint::GetName() const {
    return mName;
 }
    
 void BaseConstraint::SetName(std::string newName) {
    mName = newName;
-   mbDirty = true;
 }
 
 }; // namespace Engine

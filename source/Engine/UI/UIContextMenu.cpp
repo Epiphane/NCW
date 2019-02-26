@@ -68,7 +68,7 @@ void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMe
 
    // The menu MUST remain within my bounds
    UIConstraint::Options leftOptions;
-   leftOptions.relationship = UIConstraint::GreaterOrEqual;
+   leftOptions.relationship = UIConstraint::GreaterThanOrEqual;
    mCurrentMenu->ConstrainLeftAlignedTo(this, 0.0, leftOptions);
 
    UIConstraint::Options topOption;
@@ -80,7 +80,7 @@ void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMe
    mCurrentMenu->ConstrainRightAlignedTo(this, 0.0, rightOptions);
 
    UIConstraint::Options bottomOptions;
-   bottomOptions.relationship = UIConstraint::GreaterOrEqual;
+   bottomOptions.relationship = UIConstraint::GreaterThanOrEqual;
    mCurrentMenu->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
 
    // "Menu Corner" is a 0-size point where the mouse cursor is.

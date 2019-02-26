@@ -73,6 +73,8 @@ public:
    UIConstrainable* GetSecondaryElement() const;
    Target           GetSecondaryTarget() const;
    
+   // Produce a human-readable string that represents this constraint.
+   std::string ToString() const;
    const Options& GetOptions() const;
 
 private:

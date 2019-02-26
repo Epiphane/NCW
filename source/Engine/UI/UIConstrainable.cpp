@@ -22,7 +22,7 @@ namespace Engine
 //
 // Converts from our Target enum to a rhea::linear_expression.
 //
-rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target target)
+rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target target) const
 {
    std::map<UIConstraint::Target, rhea::linear_expression> mapping = {
       {UIConstraint::Left,   left},
@@ -348,7 +348,7 @@ UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConst
    if (options.customNameConnector == "")
       options.customNameConnector = "_inFrontOf_";
    
-   options.relationship = UIConstraint::GreaterOrEqual;
+   options.relationship = UIConstraint::GreaterThanOrEqual;
    options.constant = 1.0f;
 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
@@ -382,7 +382,7 @@ UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* 
    if (options.customNameConnector == "")
       options.customNameConnector = "_inFrontOfAllDescendants_";
 
-   options.relationship = UIConstraint::GreaterOrEqual;
+   options.relationship = UIConstraint::GreaterThanOrEqual;
    options.constant = 1.0f;
 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeightDescendants, options);

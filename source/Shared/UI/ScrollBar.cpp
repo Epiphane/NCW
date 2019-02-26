@@ -49,7 +49,8 @@ void ScrollBar::Update(TIMEDELTA)
    if (mScrubbing)
    {
       glm::tvec2<double> mouse = mpRoot->GetInput()->GetRawMousePosition();
-      double relative = std::clamp((mouse.x - mFrame.left.int_value()) / mFrame.width.int_value(), 0.0, 1.0);
+      double width = mFrame.GetWidth();
+      double relative = std::clamp((mouse.x - mFrame.left.int_value()) / width, 0.0, 1.0);
       SetValue(mMin + mRange * relative);
       if (mCallback)
       {
@@ -72,12 +73,12 @@ void ScrollBar::Redraw()
    {
       double pixelW = mCoords.z * mTexture->GetWidth();
       double pixelH = mCoords.w * mTexture->GetHeight();
-      double height = mFrame.height.value();
+      double height = mFrame.GetHeight();
       double width = height * pixelW / pixelH;
       double offset = (GetValue() - mMin) / mRange; // [0, 1]
 
       glm::vec3 bottomLeft = mFrame.GetBottomLeft();
-      bottomLeft.x += float(mFrame.width.value() * offset - pixelW / 2);
+      bottomLeft.x += float(mFrame.GetWidth() * offset - pixelW / 2);
       glm::vec3 topRight = bottomLeft + glm::vec3(width, height, 0);
 
       vertices.push_back({bottomLeft, glm::vec2(mCoords.x, mCoords.y + mCoords.w)});

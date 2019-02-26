@@ -7,6 +7,8 @@
 // By Elliot Fiske
 //
 
+#include <sstream>
+
 #include "UIConstraint.h"
 
 #include "UIConstrainable.h"
@@ -76,7 +78,7 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
       case BaseConstraint::Equal:
          SetInternalConstraint(leftSide == rightSide * options.multiplier + options.constant);
          break;
-      case BaseConstraint::GreaterOrEqual:
+      case BaseConstraint::GreaterThanOrEqual:
          SetInternalConstraint(leftSide >= rightSide * options.multiplier + options.constant);
          break;
       case BaseConstraint::LessThanOrEqual:
@@ -119,6 +121,43 @@ UIConstrainable* UIConstraint::GetSecondaryElement() const
 UIConstraint::Target UIConstraint::GetSecondaryTarget() const
 {
    return mSecondaryTarget;
+}
+ 
+std::string UIConstraint::ToString() const
+{
+   std::ostringstream result;
+   
+   result << mPrimaryElement->GetName() << "." << StringFromConstraintTarget(mPrimaryTarget);
+   
+   switch (mOptions.relationship) {
+      case BaseConstraint::Equal:
+         result << " == ";
+         break;
+      case BaseConstraint::GreaterThanOrEqual:
+         result << " >= ";
+         break;
+      case BaseConstraint::LessThanOrEqual:
+         result << " <= ";
+         break;
+   }
+   
+   if (mSecondaryElement) {
+      result << mSecondaryElement->GetName() << "." << StringFromConstraintTarget(mSecondaryTarget);
+      
+      if (mOptions.multiplier != 1.0) {
+         result << " * " << mOptions.multiplier;
+      }
+      
+      if (mOptions.constant != 0.0) {
+         result << " + ";
+      }
+   }
+   
+   if (mOptions.constant != 0.0) {
+      result << mOptions.constant;
+   }
+   
+   return result.str();
 }
    
 const UIConstraint::Options& UIConstraint::GetOptions() const

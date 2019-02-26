@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <utility>
+#include <sstream>
 
 #include <Engine/Core/Window.h>
 #include <Engine/Core/Format.h>
@@ -133,18 +134,18 @@ void UIRoot::SetBounds(const Bounded& bounds)
    mSolver.remove_constraints(mBoundConstraints);
 
    mBoundConstraints = {
-      mFrame.width == bounds.GetWidth(),
-      mFrame.height == bounds.GetHeight(),
+      mFrame.top == mFrame.bottom + (double) bounds.GetHeight(),
+      mFrame.right == mFrame.left + (double) bounds.GetWidth(),
 
       mFrame.left == bounds.GetX(),
       mFrame.bottom == bounds.GetY()
    };
 
    // Set the values immediately, so that they can be accessed
-   mFrame.width.set_value(bounds.GetWidth());
-   mFrame.height.set_value(bounds.GetHeight());
    mFrame.left.set_value(bounds.GetX());
    mFrame.bottom.set_value(bounds.GetY());
+   mFrame.right.set_value(bounds.GetX() + bounds.GetWidth());
+   mFrame.top.set_value(bounds.GetY() + bounds.GetHeight());
 
    // UIRoot covers the entirety of its bounds.
    mSolver.add_constraints(mBoundConstraints);
@@ -153,10 +154,8 @@ void UIRoot::SetBounds(const Bounded& bounds)
 void UIRoot::AddConstraintsForElement(UIFrame& frame)
 {
    mSolver.add_constraints({
-      frame.width  == (frame.right  - frame.left),
-      frame.height == (frame.top - frame.bottom),
-      frame.width >= 0,
-      frame.height >= 0,
+      frame.top >= frame.bottom,
+      frame.right >= frame.left,
 
       frame.z >= 0,
       frame.biggestDescendantZ >= frame.z,
@@ -186,7 +185,7 @@ void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
       mConstraintMap.erase(constraintNameToRemove);
    }
    else {
-      LOG_ERROR("Trying to remove unknown constraint %s", constraintNameToRemove.c_str());
+      LOG_ERROR("Trying to remove unknown constraint %1", constraintNameToRemove.c_str());
       assert(false && "Attempting to remove an unknown constraint");
    }
 }
@@ -199,6 +198,33 @@ UIConstraint *UIRoot::GetConstraint(std::string constraintName)
    }
    else {
       return NULL;
+   }
+}
+   
+void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
+{
+   std::vector<UIConstraint> constraintsForElement;
+   for (auto const& [_, constraint] : mConstraintMap) {
+      if (constraint.GetPrimaryElement() == element || constraint.GetSecondaryElement() == element) {
+         constraintsForElement.push_back(constraint);
+      }
+   }
+   
+   for (int targetVal = 0; targetVal < UIConstraint::NoTarget - 1; targetVal++) {
+      std::ostringstream result;
+      UIConstraint::Target target = UIConstraint::Target(targetVal);
+      result << UIConstraint::StringFromConstraintTarget(target) << ": " << element->GetFrame().ConvertTargetToVariable(target).evaluate() << std::endl;
+      
+      for (UIConstraint constraint : constraintsForElement) {      
+         if (constraint.GetPrimaryElement() == element && constraint.GetPrimaryTarget() == target) {
+            result << "   " << constraint.ToString() << std::endl;
+         }
+         else if (constraint.GetSecondaryElement() == element && constraint.GetSecondaryTarget() == target) {
+            result << "   " << constraint.ToString() << std::endl;
+         }
+      }
+      
+      LOG_DEBUG(result.str());
    }
 }
 

@@ -39,7 +39,7 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
 
    if (FT_Set_Pixel_Sizes(mFace, 0, 32))
    {
-      return Failure{"Failed to set pixel size to 48"};
+      return Failure{"Failed to set pixel size to 32"};
    }
 
    // Disable byte-alignment restriction
@@ -73,6 +73,31 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
 
    return Success;
 }
+   
+glm::vec2 Font::GetSizeOfRenderedText(GLfloat availableWidth, const std::string& text)
+{
+   glm::vec2 result;
+   GLfloat cursor = 0;
+   
+   for (auto c : text)
+   {
+      if (c == '\n')
+      {
+         cursor = 0;
+         result.y += 28;   // TODO-EF: Actual line-height
+         continue;
+      }
+      
+      Character ch = characters[c];
+      
+      cursor += ch.bearing.x;
+      result.x = fmax(cursor, result.x);  // Longest line sets the width
+      
+      cursor += (ch.advance >> 6);
+   }
+   
+   return result;
+}
 
 std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat availableWidth, GLfloat scale, const std::string& text, Alignment alignment)
 {
@@ -85,7 +110,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
       if (c == '\n')
       {
          cursor = x;
-         y -= 28 * scale;
+         y -= 28 * scale;   // TODO-EF: Actual line-height
          continue;
       }
 

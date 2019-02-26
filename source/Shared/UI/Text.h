@@ -39,7 +39,6 @@ public:
       virtual uint32_t DefaultSize() const { return uint32_t(text.size()); }
    };
 
-public:
    Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name = "");
 
    //
@@ -49,12 +48,16 @@ public:
 
    void SetAlignment(Engine::Graphics::Font::Alignment newAlignment);
    Engine::Graphics::Font::Alignment GetAlignment();
+   
+   // Adds a constraint to this element such that it will take up as much space as its rendered text
+   void ConstrainLayoutWidthToContentWidth();
+   void ConstrainLayoutHeightToContentHeight();
 
-public:
    void Redraw() override;
 
 protected:
    void RenderText(const std::string& text);
+   void RecalculateSize();
 
    Engine::Graphics::Font* mFont;
 
@@ -65,6 +68,11 @@ protected:
    Aggregator::Text::Region mRegion;
 
    Engine::Graphics::Font::Alignment mAlignment;
+
+   // Edit variable that lets you make constraints to the rendered text size.
+   //    Will change their values whenever new text or new fonts arrive.
+   rhea::variable mContentSizeX;
+   rhea::variable mContentSizeY;
 };
 
 }; // namespace UI

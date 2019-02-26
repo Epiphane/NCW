@@ -37,7 +37,7 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    double pixelW = mCoords.z * mTexture->GetWidth();
    double pixelH = mCoords.w * mTexture->GetHeight();
    root->AddConstraints({
-      rhea::constraint(mFrame.width * pixelH == mFrame.height * pixelW, rhea::strength::medium())
+      rhea::constraint((mFrame.right - mFrame.left) * pixelH == (mFrame.top - mFrame.bottom) * pixelW, rhea::strength::medium())
    });
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());

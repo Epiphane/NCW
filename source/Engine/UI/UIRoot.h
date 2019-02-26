@@ -67,6 +67,12 @@ public:
    // Returns a pointer to a UIConstraint. Will return NULL if not found.
    //
    UIConstraint* GetConstraint(std::string constraintName);
+   
+   //
+   // Prints out all the constraints for an element and how they affect
+   //    each axis
+   //
+   void DebugLogConstraintsForElement(const UIElement* element);
 
    //
    // Add arbitrary contraints.

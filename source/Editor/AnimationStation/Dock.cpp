@@ -582,7 +582,7 @@ void Dock::UpdateKeyframeIcons()
          fImage > fKeyframes,
          fImage.top == fKeyframes.top,
          fImage.bottom == fKeyframes.bottom,
-         fImage.left == fKeyframes.left + kTimelineWidth * entry.second - fImage.width / 2,
+         fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
       });
 
       mKeyframeIcons.push_back(entry);

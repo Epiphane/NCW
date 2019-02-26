@@ -38,7 +38,7 @@ ElementListItem::ElementListItem(Engine::UIRoot* root, Engine::UIElement* parent
    this->Contains(mArrow);
    
    Engine::UIConstraint::Options opt;
-   opt.relationship = Engine::UIConstraint::GreaterOrEqual;
+   opt.relationship = Engine::UIConstraint::GreaterThanOrEqual;
    this->ConstrainHeight(0, opt);
 }
 

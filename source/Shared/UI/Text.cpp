@@ -34,7 +34,8 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
 
    // Suggest a size based on what we reserved.
    root->AddConstraints({
-      rhea::constraint(mFrame.width >= size * 14.0, rhea::strength::weak())
+      rhea::constraint(mFrame.right - mFrame.left >= size * 14.0, rhea::strength::weak()),
+      rhea::constraint(mFrame.top - mFrame.bottom >= 28.0, rhea::strength::weak())
    });
 
    SetText(options.text);
@@ -87,6 +88,22 @@ void Text::RenderText(const std::string& text)
 {
    mRendered = text;
    Redraw();
+}
+   
+void Text::RecalculateSize() {
+   
+}
+   
+void Text::ConstrainLayoutWidthToContentWidth() 
+{
+   mpRoot->AddConstraints({
+      
+   });
+}
+   
+void Text::ConstrainLayoutHeightToContentHeight()
+{
+   
 }
 
 }; // namespace UI
