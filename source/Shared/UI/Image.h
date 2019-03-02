@@ -33,12 +33,20 @@ public:
    // Set new image UVs on the same texture
    void SetImage(std::string imageName);
    void Redraw() override;
+   
+   rhea::linear_expression ConvertTargetToVariable(Engine::UIConstraint::Target target) const override;
 
 protected:
    Engine::Graphics::Texture* mTexture;
    glm::vec4 mCoords;
 
    Aggregator::Image::Region mRegion;
+   
+   // Edit variables that let you make constraints to the texture size.
+   //    Will change their values whenever a new image is specified.
+   rhea::variable mImageContentWidth;
+   rhea::variable mImageContentHeight;
+   
 };
 
 }; // namespace UI

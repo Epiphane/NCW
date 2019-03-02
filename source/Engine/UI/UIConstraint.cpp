@@ -66,11 +66,11 @@ UIConstraint::UIConstraint(UIConstrainable* primaryElement, UIConstrainable* sec
    , mPrimaryTarget  (primaryTarget)
    , mSecondaryTarget(secondaryTarget)
 {
-   rhea::linear_expression leftSide = primaryElement->GetFrame().ConvertTargetToVariable(primaryTarget);
+   rhea::linear_expression leftSide = primaryElement->ConvertTargetToVariable(primaryTarget);
    rhea::linear_expression rightSide;
 
    if (secondaryElement != nullptr)
-      rightSide = secondaryElement->GetFrame().ConvertTargetToVariable(secondaryTarget);
+      rightSide = secondaryElement->ConvertTargetToVariable(secondaryTarget);
    else
       rightSide = 0;
 

@@ -74,9 +74,9 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
    return Success;
 }
    
-glm::vec2 Font::GetSizeOfRenderedText(GLfloat availableWidth, const std::string& text)
+glm::vec2 Font::GetSizeOfRenderedText(const std::string& text)
 {
-   glm::vec2 result;
+   glm::vec2 result(0, 28);
    GLfloat cursor = 0;
    
    for (auto c : text)
@@ -91,9 +91,8 @@ glm::vec2 Font::GetSizeOfRenderedText(GLfloat availableWidth, const std::string&
       Character ch = characters[c];
       
       cursor += ch.bearing.x;
-      result.x = fmax(cursor, result.x);  // Longest line sets the width
-      
       cursor += (ch.advance >> 6);
+      result.x = fmax(cursor, result.x);  // Longest line sets the width
    }
    
    return result;

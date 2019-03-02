@@ -53,7 +53,7 @@ public:
 
    Maybe<void> Load(const FT_Library& library, const std::string& path);
 
-   glm::vec2 GetSizeOfRenderedText(GLfloat availableWidth, const std::string& text);
+   glm::vec2 GetSizeOfRenderedText(const std::string& text);
    std::vector<CharacterVertexUV> Write(GLfloat x, GLfloat y, GLfloat availableWidth, GLfloat scale, const std::string& text, Alignment alignment);
 
    GLuint GetTexture() { return mAtlas.GetTexture(); }

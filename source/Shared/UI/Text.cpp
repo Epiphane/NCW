@@ -37,6 +37,9 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
       rhea::constraint(mFrame.right - mFrame.left >= size * 14.0, rhea::strength::weak()),
       rhea::constraint(mFrame.top - mFrame.bottom >= 28.0, rhea::strength::weak())
    });
+   
+   mpRoot->AddEditVar(mTextContentWidth);
+   mpRoot->AddEditVar(mTextContentHeight);
 
    SetText(options.text);
    root->GetAggregator<Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
@@ -51,6 +54,7 @@ void Text::SetText(const std::string& text)
 
    mText = text;
    RenderText(text);
+   RecalculateSize();
 }
 
 void Text::SetAlignment(Engine::Graphics::Font::Alignment newAlignment)
@@ -83,6 +87,18 @@ void Text::Redraw()
 
    mRegion.Set(data.data());
 }
+   
+rhea::linear_expression Text::ConvertTargetToVariable(Engine::UIConstraint::Target target) const
+{
+   switch(target) {
+      case Engine::UIConstraint::ContentWidth:
+         return mTextContentWidth;
+      case Engine::UIConstraint::ContentHeight:
+         return mTextContentHeight;
+      default:
+         return UIElement::ConvertTargetToVariable(target);
+   }
+}
 
 void Text::RenderText(const std::string& text)
 {
@@ -91,19 +107,10 @@ void Text::RenderText(const std::string& text)
 }
    
 void Text::RecalculateSize() {
-   
-}
-   
-void Text::ConstrainLayoutWidthToContentWidth() 
-{
-   mpRoot->AddConstraints({
-      
-   });
-}
-   
-void Text::ConstrainLayoutHeightToContentHeight()
-{
-   
+   glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
+
+   mpRoot->Suggest(mTextContentWidth, size.x);
+   mpRoot->Suggest(mTextContentHeight, size.y);
 }
 
 }; // namespace UI

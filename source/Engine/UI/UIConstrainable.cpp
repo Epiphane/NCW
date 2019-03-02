@@ -19,36 +19,38 @@ namespace CubeWorld
 namespace Engine
 {
 
-//
-// Converts from our Target enum to a rhea::linear_expression.
-//
-rhea::linear_expression UIFrame::ConvertTargetToVariable(UIConstraint::Target target) const
-{
-   std::map<UIConstraint::Target, rhea::linear_expression> mapping = {
-      {UIConstraint::Left,   left},
-      {UIConstraint::Top,    top},
-      {UIConstraint::Bottom, bottom},
-      {UIConstraint::Right,  right},
-      
-      {UIConstraint::CenterX, (left + right) / 2 },
-      {UIConstraint::CenterY, (top + bottom) / 2 },
-      
-      {UIConstraint::Width,   (right - left) },
-      {UIConstraint::Height,  (top - bottom) },
-      
-      {UIConstraint::ZHeight, z},
-      {UIConstraint::ZHeightDescendants, biggestDescendantZ},
-   };
-   
-   return mapping[target];
-}
-
 uint64_t UIConstrainable::sID = 0;
 
 UIConstrainable::UIConstrainable(UIRoot* root, const std::string& name)
    : mpRoot(root)
    , mName(name.empty() ? Format::FormatString("Element_%1", sID++) : name)
 {
+}
+   
+//
+// Converts from our Target enum to a rhea::linear_expression.
+//
+rhea::linear_expression UIConstrainable::ConvertTargetToVariable(UIConstraint::Target target) const
+{
+   std::map<UIConstraint::Target, rhea::linear_expression> mapping = {
+      {UIConstraint::Left,   mFrame.left},
+      {UIConstraint::Top,    mFrame.top},
+      {UIConstraint::Bottom, mFrame.bottom},
+      {UIConstraint::Right,  mFrame.right},
+      
+      {UIConstraint::CenterX, (mFrame.left + mFrame.right) / 2 },
+      {UIConstraint::CenterY, (mFrame.top + mFrame.bottom) / 2 },
+      
+      {UIConstraint::Width,   (mFrame.right - mFrame.left) },
+      {UIConstraint::Height,  (mFrame.top - mFrame.bottom) },
+      
+      {UIConstraint::ZHeight, mFrame.z},
+      {UIConstraint::ZHeightDescendants, mFrame.biggestDescendantZ}
+   };
+   
+   assert(mapping.find(target) != mapping.end() && "Unknown constraint target for UIElement!");
+   
+   return mapping[target];
 }
 
 /* Constrain constant width:
@@ -388,6 +390,47 @@ UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeightDescendants, options);
    mpRoot->AddConstraint(newConstraint);
 
+   return newConstraint;
+}
+
+/**
+ * Constrain this element to use the width of its content as its layout width. 
+ */
+UIConstraint UIConstrainable::ConstrainWidthToContent(UIConstraint::Options options)
+{
+   if (options.customNameConnector == "")
+      options.customNameConnector = "_widthToContentWidth";
+
+   UIConstraint newConstraint(this, this, UIConstraint::Width, UIConstraint::ContentWidth, options);
+   mpRoot->AddConstraint(newConstraint);
+
+   return newConstraint;
+}
+
+/**
+ * Constrain this element to use the height of its content as its layout height. 
+ */
+UIConstraint UIConstrainable::ConstrainHeightToContent(UIConstraint::Options options)
+{
+   if (options.customNameConnector == "")
+      options.customNameConnector = "_heightToContentHeight";
+
+   UIConstraint newConstraint(this, this, UIConstraint::Height, UIConstraint::ContentHeight, options);
+   mpRoot->AddConstraint(newConstraint);
+
+   return newConstraint;
+}
+
+/**
+ * Constrain this element such that its (layout width) / (layout height) = (aspect ratio of its content)
+ *
+ * NOTE: We can't use an edit variable, because otherwise it wouldn't be a linear constraint.
+ *          Therefore it's impossible to do this until we write our own simplex solver :P
+ */
+UIConstraint UIConstrainable::ConstrainAspectRatioToContent(UIConstraint::Options options)
+{
+   assert(false && "This isn't supported quite yet ;P");
+   UIConstraint newConstraint(this, this, UIConstraint::Width, UIConstraint::Height, options);
    return newConstraint;
 }
 

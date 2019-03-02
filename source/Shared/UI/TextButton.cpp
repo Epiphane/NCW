@@ -48,11 +48,14 @@ void TextButton::Update(TIMEDELTA)
    if (hovered && !mIsHovered)
    {
       RenderText("> " + mText);
+      RecalculateSize(); // TODO-EF: This is changing constraints when the constraint solver has
+                         //            already run this frame. Needs looking into.
       mIsHovered = true;
    }
    else if (!hovered && mIsHovered)
    {
       RenderText(mText);
+      RecalculateSize();
       mIsHovered = false;
    }
 }

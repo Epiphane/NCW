@@ -36,9 +36,9 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
 
    double pixelW = mCoords.z * mTexture->GetWidth();
    double pixelH = mCoords.w * mTexture->GetHeight();
-   root->AddConstraints({
-      rhea::constraint((mFrame.right - mFrame.left) * pixelH == (mFrame.top - mFrame.bottom) * pixelW, rhea::strength::medium())
-   });
+   Engine::UIConstraint::Options opts;
+   opts.priority = Engine::UIConstraint::MEDIUM_PRIORITY;
+   ConstrainAspectRatio(pixelW / pixelH, opts);
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
 }
@@ -63,6 +63,18 @@ void Image::Redraw()
    }
 
    mRegion.Set(vertices.data());
+}
+   
+rhea::linear_expression Image::ConvertTargetToVariable(Engine::UIConstraint::Target target) const
+{
+   switch(target) {
+      case Engine::UIConstraint::ContentWidth:
+         return mImageContentWidth;
+      case Engine::UIConstraint::ContentHeight:
+         return mImageContentHeight;
+      default:
+         return UIElement::ConvertTargetToVariable(target);
+   }
 }
 
 }; // namespace UI

@@ -36,10 +36,10 @@ public:
       std::string customNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
 
       double constant = 0.0;                ///< Lets you set a scalar offset for the constraint.
-                                             ///<  e.g. if mConstant = 10, the constraint might be (left == right + 10)
+                                            ///<  e.g. if mConstant = 10, the constraint might be (left == right + 10)
 
       double multiplier = 1.0;              ///< Lets you set a scalar multiplier for the constraint.
-                                             ///<  e.g. if mMultiplier = 0.5, the constraint might be (width == height * 0.5)
+                                            ///<  e.g. if mMultiplier = 0.5, the constraint might be (width == height * 0.5)
 
       double priority = REQUIRED_PRIORITY;
       bool isConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
@@ -57,6 +57,10 @@ public:
 
       ZHeight,
       ZHeightDescendants,
+      
+      // For Text and Images, we might want to constrain the size of the element to the size
+      //    of its rendered text, or the size of the rendered image.
+      ContentWidth, ContentHeight, ContentAspectRatio,
 
       NoTarget
    };

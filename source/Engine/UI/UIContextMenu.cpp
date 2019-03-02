@@ -41,6 +41,7 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
    mainBackground->ConstrainEqualBounds(this);
 
    mOptionList = (UIStackView*) elementMap["ContextMenuItemList"];
+   mOptionList->SetAlignItemsBy(UIStackView::Left);
 
    // Instantiate choices
    for (Choice c : choices) {
@@ -49,9 +50,12 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
       buttonOptions.onClick = c.callback;
       TextButton* load = mOptionList->Add<TextButton>(buttonOptions);
 
-      load->ConstrainLeftAlignedTo(mOptionList);
-      load->ConstrainRightAlignedTo(mOptionList);
-      load->ConstrainHeight(32);
+      load->ConstrainWidthToContent();
+      load->ConstrainHeightToContent();
+      
+      UIConstraint::Options opts;
+      opts.relationship = UIConstraint::GreaterThanOrEqual;
+      mOptionList->ConstrainWidthTo(load, 0, 1.0, opts);
    }
 }
 

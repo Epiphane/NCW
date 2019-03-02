@@ -48,12 +48,10 @@ public:
 
    void SetAlignment(Engine::Graphics::Font::Alignment newAlignment);
    Engine::Graphics::Font::Alignment GetAlignment();
-   
-   // Adds a constraint to this element such that it will take up as much space as its rendered text
-   void ConstrainLayoutWidthToContentWidth();
-   void ConstrainLayoutHeightToContentHeight();
 
    void Redraw() override;
+   
+   rhea::linear_expression ConvertTargetToVariable(Engine::UIConstraint::Target target) const override;
 
 protected:
    void RenderText(const std::string& text);
@@ -71,8 +69,8 @@ protected:
 
    // Edit variable that lets you make constraints to the rendered text size.
    //    Will change their values whenever new text or new fonts arrive.
-   rhea::variable mContentSizeX;
-   rhea::variable mContentSizeY;
+   rhea::variable mTextContentWidth;
+   rhea::variable mTextContentHeight;
 };
 
 }; // namespace UI

@@ -213,7 +213,7 @@ void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
    for (int targetVal = 0; targetVal < UIConstraint::NoTarget - 1; targetVal++) {
       std::ostringstream result;
       UIConstraint::Target target = UIConstraint::Target(targetVal);
-      result << UIConstraint::StringFromConstraintTarget(target) << ": " << element->GetFrame().ConvertTargetToVariable(target).evaluate() << std::endl;
+      result << UIConstraint::StringFromConstraintTarget(target) << ": " << element->ConvertTargetToVariable(target).evaluate() << std::endl;
       
       for (UIConstraint constraint : constraintsForElement) {      
          if (constraint.GetPrimaryElement() == element && constraint.GetPrimaryTarget() == target) {
@@ -235,7 +235,7 @@ void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
 
 void UIRoot::AddEditVar(const rhea::variable& variable)
 {
-   mSolver.add_edit_var(variable);
+   mSolver.add_edit_var(variable, rhea::strength::required());
 }
 
 void UIRoot::Suggest(const rhea::variable& variable, double value)

@@ -54,8 +54,6 @@ struct UIFrame : public Bounded
       return glm::vec3(left.value(), bottom.value(), z.value());
    }
    
-   rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target) const;
-   
    uint32_t GetX() const override { return left.int_value(); }
    uint32_t GetY() const override { return bottom.int_value(); }
    uint32_t GetWidth() const override { return right.int_value() - left.int_value(); }
@@ -65,6 +63,8 @@ struct UIFrame : public Bounded
 class UIConstrainable : public Bounded {
 public:
    UIConstrainable(UIRoot* root, const std::string& name);
+   
+   virtual rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target) const;
    
    // Constrain measurements to a CONSTANT
    UIConstraint ConstrainWidth(double width, UIConstraint::Options options = UIConstraint::Options());
@@ -88,7 +88,7 @@ public:
    
    UIConstraint ConstrainHorizontalCenterTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    UIConstraint ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   std::pair<UIConstraint, UIConstraint> ConstrainCenterTo          (UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   std::pair<UIConstraint, UIConstraint> ConstrainCenterTo(UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
    std::tuple<UIConstraint, UIConstraint, UIConstraint, UIConstraint> ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
@@ -96,6 +96,10 @@ public:
    UIConstraint ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
 
    UIConstraint ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   
+   UIConstraint ConstrainWidthToContent(UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainHeightToContent(UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint ConstrainAspectRatioToContent(UIConstraint::Options options = UIConstraint::Options());
 
    //
    // Set the name of this element

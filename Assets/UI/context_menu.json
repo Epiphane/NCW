@@ -19,13 +19,6 @@
 
 	"constraints" : [
 		{
-			"primaryElement" : "ContextMenuBackgroundBorder",
-			"primaryTarget" : "Width",
-			"name" : " _constantWidth",
-			"constant" : 100.0
-		},
-
-		{
 			"primaryElement" : "ContextMenuBackground",
 			"secondaryElement" : "ContextMenuBackgroundBorder",
 			"primaryTarget" : "Left",
