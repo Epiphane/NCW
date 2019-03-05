@@ -21,7 +21,7 @@ ElementListSidebar::ElementListSidebar(Engine::UIRoot* root, Engine::UIElement* 
       : UIElement(root, parent, "ConstrainerElementList")
 {
    mStackView = Add<UIStackView>("ElementListView");
-   mStackView->SetAlignItemsBy(UIStackView::CenterX);
+   mStackView->SetAlignItemsBy(UIStackView::Left);
    
    this->Contains(mStackView);
    mStackView->ConstrainTopAlignedTo(this);

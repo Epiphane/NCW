@@ -85,7 +85,7 @@ private:
    Options mOptions;
 
    UIConstrainable* mPrimaryElement;    ///< First element being constrained.
-   UIConstrainable* mSecondaryElement;  ///< Second element being constrained. NOTE: CAN BE THE SAME AS THE PRIMARY ELEMENT.
+   UIConstrainable* mSecondaryElement;  ///< Second element being constrained. NOTE: CAN BE THE SAME AS THE PRIMARY ELEMENT, OR NULL.
 
    Target mPrimaryTarget;         ///< Describes which aspect of each element is being constrained.
    Target mSecondaryTarget;

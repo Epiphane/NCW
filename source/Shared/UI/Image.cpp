@@ -41,11 +41,17 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    ConstrainAspectRatio(pixelW / pixelH, opts);
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
+   
+   mpRoot->AddEditVar(mImageContentWidth);
+   mpRoot->AddEditVar(mImageContentHeight);
+   
+   UpdateContentSize();
 }
 
 void Image::SetImage(std::string imageName)
 {
    mCoords = mTexture->GetImage(imageName);
+   UpdateContentSize();
 }
 
 void Image::Redraw()
@@ -75,6 +81,15 @@ rhea::linear_expression Image::ConvertTargetToVariable(Engine::UIConstraint::Tar
       default:
          return UIElement::ConvertTargetToVariable(target);
    }
+}
+   
+void Image::UpdateContentSize()
+{
+   double pixelW = mCoords.z * mTexture->GetWidth();
+   double pixelH = mCoords.w * mTexture->GetHeight();
+   
+   mpRoot->Suggest(mImageContentWidth,  pixelW);
+   mpRoot->Suggest(mImageContentHeight, pixelH);
 }
 
 }; // namespace UI

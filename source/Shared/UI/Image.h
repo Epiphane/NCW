@@ -47,6 +47,9 @@ protected:
    rhea::variable mImageContentWidth;
    rhea::variable mImageContentHeight;
    
+   // Set mImageContentWidth and mImageContentHeight to the size of the rendered texture.
+   void UpdateContentSize();
+   
 };
 
 }; // namespace UI
