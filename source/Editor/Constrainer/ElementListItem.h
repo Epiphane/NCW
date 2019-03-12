@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <Engine/UI/UITapGestureRecognizer.h>
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/Image.h>
 #include <Shared/UI/Text.h>
@@ -28,8 +29,13 @@ public:
    ElementListItem(Engine::UIRoot* root, UIElement* parent, const std::string &name);
 
 private:
+   void TapMeDaddy(const Engine::UIGestureRecognizer& rec);
+   
    UI::Image* mArrow;
    UI::Text*  mLabel;
+   
+   // If true, show the elements beneath this in the hierarchy
+   bool mbExpanded;
 };
 
 }; // namespace Constrainer

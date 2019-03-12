@@ -102,7 +102,7 @@ void UIElement::Contains(UIElement* other, rhea::strength strength)
    });
 }
 
-bool UIElement::ContainsPoint(double x, double y)
+bool UIElement::ContainsPoint(double x, double y) const
 {
    return
       x >= mFrame.left.int_value() &&
@@ -171,6 +171,12 @@ void UIElement::LogDebugInfo(bool bRecursive, Logger::LogManager* output, uint32
       }
    }
 }
+   
+UIGestureRecognizer* UIElement::AddGestureRecognizer(std::unique_ptr<UIGestureRecognizer> recognizer)
+{
+   mGestureRecognizers.push_back(std::move(recognizer));
+   return recognizer.get();
+}
 
 void UIElement::InitFromJSON(nlohmann::json data)
 {
@@ -216,6 +222,33 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs)
 rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 {
    return lhs.z >= rhs.z + 1.0;
+}   
+
+UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt) 
+{
+   for (auto& g : mGestureRecognizers) {
+      g->MouseDown(evt);
+   }
+   
+   return Unhandled;
+}
+
+UIElement::Action UIElement::MouseMove(const MouseMoveEvent& evt)
+{
+   for (auto& g : mGestureRecognizers) {
+      g->MouseMove(evt);
+   }
+   
+   return Unhandled;
+}
+
+UIElement::Action UIElement::MouseUp(const MouseUpEvent& evt)
+{
+   for (auto& g : mGestureRecognizers) {
+      g->MouseUp(evt);
+   }
+   
+   return Unhandled;
 }
 
 }; // namespace Engine

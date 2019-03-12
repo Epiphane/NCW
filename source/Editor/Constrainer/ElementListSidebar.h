@@ -22,6 +22,8 @@ namespace Editor
 namespace Constrainer
 {
 
+class ElementListItem; ///< Forward declare
+   
 using Engine::UIStackView;
 
 class ElementListSidebar : public Engine::UIElement
@@ -32,6 +34,7 @@ public:
 private:
    UIStackView *mStackView;
 
+   std::vector<ElementListItem*> mItems;
 };
 
 }; // namespace Constrainer

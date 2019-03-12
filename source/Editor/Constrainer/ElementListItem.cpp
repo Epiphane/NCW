@@ -6,6 +6,7 @@
 
 #include "ElementListItem.h"
 
+#include <Engine/UI/UITapGestureRecognizer.h>
 #include <Shared/Helpers/Asset.h>
 
 namespace CubeWorld
@@ -37,6 +38,22 @@ ElementListItem::ElementListItem(Engine::UIRoot* root, Engine::UIElement* parent
    
    this->Contains(mLabel);
    this->Contains(mArrow);
+   
+   Engine::GestureCallback callback = std::bind(&ElementListItem::TapMeDaddy, this, std::placeholders::_1);
+   this->CreateAndAddGestureRecognizer<Engine::UITapGestureRecognizer>(callback);
+}
+   
+void ElementListItem::TapMeDaddy(const Engine::UIGestureRecognizer& rec) {
+   if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
+      mbExpanded = !mbExpanded;
+      if (mbExpanded) {
+         mArrow->SetImage("button_down");
+      }
+      else
+      {
+         mArrow->SetImage("button_right");
+      }
+   }
 }
 
 }; // namespace Constrainer

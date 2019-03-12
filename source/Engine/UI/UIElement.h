@@ -18,15 +18,16 @@
 #include <rhea/constraint.hpp>
 #include <Shared/Helpers/json.hpp>
 
+#include "UIConstrainable.h"
+#include "UIGestureRecognizer.h"
 #include "../Core/Config.h"
 #include "../Event/Event.h"
 #include "../Event/EventManager.h"
 #include "../Event/Receiver.h"
 #include "../Event/InputEvent.h"
-#include "../Logger/Logger.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
-#include "../UI/UIConstrainable.h"
+#include "../Logger/Logger.h"
 
 namespace CubeWorld
 {
@@ -96,6 +97,18 @@ public:
 
       return static_cast<E*>(AddChild(std::make_unique<E>(mpRoot, this, std::forward<Args>(args)...)));
    }
+   
+   //
+   // Add a new gesture recognizer of type G to this element.
+   // Returns a shared_pointer to the element, for referencing, configuring, etc.
+   //
+   template <typename G, typename ...Args>
+   G* CreateAndAddGestureRecognizer(Args ...args)
+   {
+      static_assert(std::is_base_of<UIGestureRecognizer, G>::value, "Only subclasses of UIGestureRecognizer should be added through here");
+      
+      return static_cast<G*>(AddGestureRecognizer(std::make_unique<G>(this, std::forward<Args>(args)...)));
+   }
 
    //
    // Called whenever the UI is rebalanced or the active-ness of this element
@@ -152,7 +165,7 @@ public:
    // Returns whether the point [x, y] in pixel space
    // is contained within this element.
    //
-   bool ContainsPoint(double x, double y);
+   bool ContainsPoint(double x, double y) const;
 
    //
    // Used below.
@@ -188,10 +201,12 @@ public:
    // Unhandled if you don't care.
    //
    enum Action { Handled, Unhandled };
-   virtual Action MouseDown(const MouseDownEvent&) { return Unhandled; }
-   virtual Action MouseMove(const MouseMoveEvent&) { return Unhandled; }
-   virtual Action MouseUp(const MouseUpEvent&) { return Unhandled; }
+   virtual Action MouseDown(const MouseDownEvent& evt);
+   virtual Action MouseMove(const MouseMoveEvent& evt);
+   virtual Action MouseUp(const MouseUpEvent& evt);
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
+   
+   UIGestureRecognizer* AddGestureRecognizer(std::unique_ptr<UIGestureRecognizer> recognizer);
 
 protected:
 
@@ -206,6 +221,9 @@ protected:
    std::vector<std::unique_ptr<UIElement>> mChildren;
 
    UIElement* mpParent;
+   
+   // List of gesture recognizers on this element
+   std::vector<std::unique_ptr<UIGestureRecognizer>> mGestureRecognizers;
 };
 
 //
