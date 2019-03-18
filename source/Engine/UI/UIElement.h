@@ -17,6 +17,7 @@
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
 #include <Shared/Helpers/json.hpp>
+#include <Shared/Helpers/DereferenceIterator.h>
 
 #include "UIConstrainable.h"
 #include "UIGestureRecognizer.h"
@@ -145,6 +146,16 @@ public:
    //
    UIElement* GetParent() const;
 
+   typedef Shared::DereferenceIterator<std::vector<std::unique_ptr<UIElement>>::iterator> ChildIterator;
+   
+   ChildIterator BeginChildren() {
+      return Shared::MakeDereferenceIterator(mChildren.begin());
+   }
+   
+   ChildIterator EndChildren() {
+      return Shared::MakeDereferenceIterator(mChildren.end());
+   }
+
    //
    // Update the element, called once per frame with the time elapsed.
    // Useful for animations, resizing, and responding to input.
@@ -219,11 +230,11 @@ protected:
 
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
-
-   UIElement* mpParent;
    
    // List of gesture recognizers on this element
    std::vector<std::unique_ptr<UIGestureRecognizer>> mGestureRecognizers;
+
+   UIElement* mpParent;
 };
 
 //

@@ -20,6 +20,10 @@ UIGestureRecognizer::UIGestureRecognizer(UIElement* element, GestureCallback cal
 {
 }
 
+UIGestureRecognizer::~UIGestureRecognizer()
+{
+}
+
 } // namespace Engine
    
 } // namespace CubeWorld

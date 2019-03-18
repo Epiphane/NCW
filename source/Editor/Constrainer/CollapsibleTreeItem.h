@@ -1,5 +1,5 @@
 //
-// ElementListItem.h
+// CollapsibleTreeItem.h
 //
 // An arrow next to an element name. Can click to expand to see this
 //    element's children in the hierarchy.
@@ -23,10 +23,10 @@ namespace Editor
 namespace Constrainer
 {
 
-class ElementListItem : public Engine::UIElement
+class CollapsibleTreeItem : public Engine::UIElement
 {
 public:
-   ElementListItem(Engine::UIRoot* root, UIElement* parent, const std::string &name);
+   CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent, const std::string &name);
 
 private:
    void TapMeDaddy(const Engine::UIGestureRecognizer& rec);

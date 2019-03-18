@@ -1,10 +1,10 @@
 //
-// ElementListItem.cpp
+// CollapsibleTreeItem.cpp
 //
 // This file created by the ELLIOT FISKE gang
 //
 
-#include "ElementListItem.h"
+#include "CollapsibleTreeItem.h"
 
 #include <Engine/UI/UITapGestureRecognizer.h>
 #include <Shared/Helpers/Asset.h>
@@ -21,7 +21,7 @@ namespace Constrainer
 using UI::Image;
 using UI::Text;
 
-ElementListItem::ElementListItem(Engine::UIRoot* root, Engine::UIElement* parent, const std::string &name)
+CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, Engine::UIElement* parent, const std::string &name)
       : UIElement(root, parent, name)
 {
    mArrow = Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "button_right"});
@@ -39,11 +39,11 @@ ElementListItem::ElementListItem(Engine::UIRoot* root, Engine::UIElement* parent
    this->Contains(mLabel);
    this->Contains(mArrow);
    
-   Engine::GestureCallback callback = std::bind(&ElementListItem::TapMeDaddy, this, std::placeholders::_1);
+   Engine::GestureCallback callback = std::bind(&CollapsibleTreeItem::TapMeDaddy, this, std::placeholders::_1);
    this->CreateAndAddGestureRecognizer<Engine::UITapGestureRecognizer>(callback);
 }
    
-void ElementListItem::TapMeDaddy(const Engine::UIGestureRecognizer& rec) {
+void CollapsibleTreeItem::TapMeDaddy(const Engine::UIGestureRecognizer& rec) {
    if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
       mbExpanded = !mbExpanded;
       if (mbExpanded) {

@@ -24,7 +24,7 @@
 #include "AnimationStation/Editor.h"
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
-#include "Constrainer/Editor.h"
+#include "Constrainer/ConstrainerController.h"
 #include "Skeletor/Editor.h"
 
 #include "Controls.h"
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
-   Editor::Constrainer::Editor* constrainer = nullptr;
+   Editor::Constrainer::ConstrainerController* constrainer = nullptr;
    Editor::Skeletor::Editor* skeletor = nullptr;
    Editor::Controls::Options controlsOptions{
       {
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
    skeletor->SetBounds(*window);
    skeletor->SetName("Skeletor");
 
-   constrainer = windowContent.Add<Editor::Constrainer::Editor>(window, controlsOptions);
+   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerController>(window, controlsOptions);
    constrainer->SetBounds(*window);
    constrainer->SetName("Constrainer");
 

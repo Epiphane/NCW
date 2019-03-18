@@ -7,8 +7,7 @@
 #include <Engine/UI/UIContextMenu.h>
 #include <Engine/UI/UISerializationHelper.h>
 
-#include "Editor.h"
-#include "ElementListSidebar.h"
+#include "ConstrainerController.h"
 #include "Sidebar.h"
 #include "UIElementDesignerWrapper.h"
 
@@ -24,11 +23,10 @@ namespace Constrainer
 using Engine::UIContextMenu;
 using UI::RectFilled;
 
-Editor::Editor(Engine::Input* input, const Controls::Options& options)
+ConstrainerController::ConstrainerController(Engine::Input* input, const Controls::Options& options)
    : UIRoot(input)
-   , mFileSyncer("lol.txt")
 {
-   ElementListSidebar* elementList = Add<ElementListSidebar>();
+   mElementList = Add<CollapsibleTreeView>(this, this);
 
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
@@ -42,19 +40,10 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
    controls->ConstrainBottomAlignedTo(this);
    controls->ConstrainWidthTo(sidebar);
    
-   elementList->ConstrainToRightOf(sidebar);
-   elementList->ConstrainWidthTo(this, 0.0, 0.2);
-   elementList->ConstrainTopAlignedTo(this);
-   elementList->ConstrainBottomAlignedTo(this);
-
-//   TextButton::Options buttonOptions;
-//   buttonOptions.text = "I'm a big boy";
-//   buttonOptions.onClick = std::bind(&Editor::BigDumbTest, this);
-//   mTestContextMenuButton = Add<TextButton>(buttonOptions);
-//
-//   mTestContextMenuButton->ConstrainWidth(100);
-//   mTestContextMenuButton->ConstrainHeight(30);
-//   mTestContextMenuButton->ConstrainCenterTo(this);
+   mElementList->ConstrainToRightOf(sidebar);
+   mElementList->ConstrainWidthTo(this, 0.0, 0.2);
+   mElementList->ConstrainTopAlignedTo(this);
+   mElementList->ConstrainBottomAlignedTo(this);
 
    Engine::UISerializationHelper serializer;
 
@@ -65,9 +54,12 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
 
    UIElement* mainContent = elementMap["TestJSONStuff"];
    mainContent->ConstrainHeightTo(this);
-   mainContent->ConstrainToRightOf(elementList);
+   mainContent->ConstrainToRightOf(mElementList);
    mainContent->ConstrainTopAlignedTo(this);
    mainContent->ConstrainRightAlignedTo(this);
+
+   mModel.SetModelUpdatedCallback(std::bind(&ConstrainerController::ModelUpdated, this));
+   mModel.SetBaseElement(mainContent);
 
    UIElement* wrapperLayer = Add<UIElement>();
    wrapperLayer->ConstrainInFrontOfAllDescendants(mainContent);
@@ -79,42 +71,49 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options)
 
       wrapperLayer->Add<UIElementDesignerWrapper>(wrapperName, elementToWrap);
    }
-//   std::list<UIContextMenu::Choice> bleh = {
-//         {"Test this out", std::bind(&Editor::TestButton, this)}
-//   };
-
-//   UIContextMenu *testMenu = mpRoot->Add<UIContextMenu>("TestThingy", bleh);
-//   testMenu->ConstrainCenterTo(this);
-//   testMenu->ConstrainInFrontOfAllDescendants(mainContent);
 }
 
-void Editor::UpdateRoot()
+void ConstrainerController::ModelUpdated()
 {
-   if (mFileSyncer.DoesFileHaveNewUpdate()) {
+   // Convert the element tree into just their names and pass it
+   //    through to the CollapsibleTreeView
+   mElementList->DataChanged();
+}
 
+std::unique_ptr<CollapsibleTreeItemData> ConstrainerController::ParseUIElementTitles(UIElement& baseElement)
+{
+   auto result = std::make_unique<CollapsibleTreeItemData>();
+   result->title = baseElement.GetName();
+   
+   for (auto it = baseElement.BeginChildren(); it != baseElement.EndChildren(); it++) {
+      result->children.push_back(*ParseUIElementTitles(*it));
    }
-
-   UIRoot::UpdateRoot();
+   
+   return result;
 }
 
-void Editor::BigDumbTest()
-{
-   std::list<UIContextMenu::Choice> bleh = {
-         {"Test this out", std::bind(&Editor::TestButton, this)},
-         {"Test THIS out", std::bind(&Editor::TestButton, this)},
-         {"Test THIS out", std::bind(&Editor::TestButton, this)}
-   };
-
-   mpRoot->CreateUIContextMenu(200, 200, bleh);
-}
-
-void Editor::TestButton() {
-   LogDebugInfo();
-}
-
-void Editor::Start()
+void ConstrainerController::Start()
 {
 }
+
+#pragma mark - Collapsible Tree View Datasource
+
+std::unique_ptr<CollapsibleTreeItemData> ConstrainerController::GetTreeData()
+{
+   if (!mModel.GetBaseElement()) {
+      return std::make_unique<CollapsibleTreeItemData>();
+   }
+   
+   return ParseUIElementTitles(*mModel.GetBaseElement());
+}
+
+#pragma mark - Collapsible Tree View Delegate
+
+void ConstrainerController::ItemSelected(CollapsibleTreeItem* item)
+{
+   printf("Selected an item!");
+}
+
 
 }; // namespace Constrainer
 

@@ -25,6 +25,7 @@ namespace Engine
    class UIGestureRecognizer {
    public:
       UIGestureRecognizer(UIElement* element, GestureCallback callback);
+      virtual ~UIGestureRecognizer();
       
       //
       // What part of the gesture's lifecycle is this recognizer on?
