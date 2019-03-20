@@ -34,7 +34,8 @@ struct CollapsibleTreeItemData {
    
 class CollapsibleTreeViewDatasource {
 public:
-   virtual std::unique_ptr<CollapsibleTreeItemData> GetTreeData() = 0; 
+   virtual uint32_t NumberOfRootElementsForTree() = 0;
+   virtual std::unique_ptr<CollapsibleTreeItem> GetTreeItemAtIndex(uint32_t index) = 0;
 };
    
 class CollapsibleTreeViewDelegate {

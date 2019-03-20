@@ -6,7 +6,21 @@
 			{
 				"class" : "UIRectFilled",
 				"name" : "TestRedRectangle",
-				"backgroundColor" : [1.0, 0, 0, 1.0]
+				"backgroundColor" : [1.0, 0, 0, 1.0],
+				"children" : [
+					{
+						"class" : "UIRectFilled",
+						"name" : "TestGreenRectangle",
+						"backgroundColor" : [0.0, 1.0, 0, 1.0],
+						"children" : [
+							{
+								"class" : "UIRectFilled",
+								"name" : "TestDarkRedRectangle",
+								"backgroundColor" : [0.5, 0, 0, 1.0]
+							}
+						]
+					}
+				]
 			},
 			{
 				"class" : "UIRectFilled",

@@ -27,6 +27,8 @@ CollapsibleTreeView::CollapsibleTreeView(Engine::UIRoot* root, Engine::UIElement
    mStackView->SetAlignItemsBy(UIStackView::Left);
    
    mStackView->ConstrainTopAlignedTo(this);
+   mStackView->ConstrainHorizontalCenterTo(this);
+   mStackView->ConstrainWidthTo(this);
    
    DataChanged();
 }
@@ -45,8 +47,10 @@ void CollapsibleTreeView::DataChanged()
       return;
    }
    
-   std::unique_ptr<CollapsibleTreeItemData> newData = mDatasource->GetTreeData();
-   mStackView->Add<CollapsibleTreeItem>(newData->title);
+   for (int ndx = 0; ndx < mDatasource->NumberOfRootElementsForTree(); ndx++) {
+      std::unique_ptr<CollapsibleTreeItem> newItem = mDatasource->GetTreeItemAtIndex(ndx);
+      mStackView->AddChild(std::move(newItem));
+   }
 }
 
 }; // namespace Constrainer

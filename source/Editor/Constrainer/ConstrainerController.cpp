@@ -7,6 +7,7 @@
 #include <Engine/UI/UIContextMenu.h>
 #include <Engine/UI/UISerializationHelper.h>
 
+#include "CollapsibleTreeItem.h"
 #include "ConstrainerController.h"
 #include "Sidebar.h"
 #include "UIElementDesignerWrapper.h"
@@ -80,13 +81,12 @@ void ConstrainerController::ModelUpdated()
    mElementList->DataChanged();
 }
 
-std::unique_ptr<CollapsibleTreeItemData> ConstrainerController::ParseUIElementTitles(UIElement& baseElement)
+std::unique_ptr<CollapsibleTreeItem> ConstrainerController::ParseUIElementTitles(UIElement& baseElement)
 {
-   auto result = std::make_unique<CollapsibleTreeItemData>();
-   result->title = baseElement.GetName();
+   auto result = std::make_unique<CollapsibleTreeItem>(mpRoot, this, "", baseElement.GetName());
    
    for (auto it = baseElement.BeginChildren(); it != baseElement.EndChildren(); it++) {
-      result->children.push_back(*ParseUIElementTitles(*it));
+      result->AddSubElement(ParseUIElementTitles(*it));
    }
    
    return result;
@@ -98,12 +98,8 @@ void ConstrainerController::Start()
 
 #pragma mark - Collapsible Tree View Datasource
 
-std::unique_ptr<CollapsibleTreeItemData> ConstrainerController::GetTreeData()
+std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(uint32_t index)
 {
-   if (!mModel.GetBaseElement()) {
-      return std::make_unique<CollapsibleTreeItemData>();
-   }
-   
    return ParseUIElementTitles(*mModel.GetBaseElement());
 }
 
@@ -114,6 +110,13 @@ void ConstrainerController::ItemSelected(CollapsibleTreeItem* item)
    printf("Selected an item!");
 }
 
+uint32_t ConstrainerController::NumberOfRootElementsForTree()
+{
+   if (!mModel.GetBaseElement()) {
+      return 0;
+   }
+   return 1;
+}
 
 }; // namespace Constrainer
 

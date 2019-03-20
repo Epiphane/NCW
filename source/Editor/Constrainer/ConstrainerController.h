@@ -35,7 +35,8 @@ public:
    void Start();
 
    // Collapsible Tree View Datasource
-   std::unique_ptr<CollapsibleTreeItemData> GetTreeData() override;
+   uint32_t NumberOfRootElementsForTree() override;
+   std::unique_ptr<CollapsibleTreeItem> GetTreeItemAtIndex(uint32_t index) override;
 
    // Collapsible Tree View Delegate
    void ItemSelected(CollapsibleTreeItem* item) override;
@@ -44,7 +45,7 @@ public:
 private:
    // Called when the Model has updates (i.e. if the user edits UI, or if the underlying JSON changes)
    void ModelUpdated();
-   std::unique_ptr<CollapsibleTreeItemData> ParseUIElementTitles(UIElement& baseElement);
+   std::unique_ptr<CollapsibleTreeItem> ParseUIElementTitles(UIElement& baseElement);
 
    Engine::EventManager mEvents;
 
