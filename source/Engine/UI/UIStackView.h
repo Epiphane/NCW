@@ -55,6 +55,9 @@ public:
 private:
    void DestroyOldConstraints();
    void RemakeConstraints();
+   
+   // Helper function that creates constraints to honor SetAlignItemsBy
+   void CreateConstraintsForItemAlignment();
 
    std::vector<UIConstraint> mConstraintsBetweenChildren;  ///< A list of all the constraints between children.
                                                            ///< First element is the constraint between the first and second children.

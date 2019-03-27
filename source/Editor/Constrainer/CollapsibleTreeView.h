@@ -34,7 +34,7 @@ struct CollapsibleTreeItemData {
    
 class CollapsibleTreeViewDatasource {
 public:
-   virtual uint32_t NumberOfRootElementsForTree() = 0;
+   virtual uint32_t NumberOfCellsInTableView() = 0;
    virtual std::unique_ptr<CollapsibleTreeItem> GetTreeItemAtIndex(uint32_t index) = 0;
 };
    
@@ -52,10 +52,10 @@ public:
    // When called, I will ask my datasource for the new tree views
    void DataChanged();
    
-private:
-   // Helper function that creates + adds a CollapsibleTreeItem for the given data
-   void CreateItemForData(const CollapsibleTreeItemData& data);
+   // One of my child items was selected
+   void ItemWasClicked(CollapsibleTreeItem* item);
    
+private:
    CollapsibleTreeViewDelegate*   mDelegate;
    CollapsibleTreeViewDatasource* mDatasource;
    

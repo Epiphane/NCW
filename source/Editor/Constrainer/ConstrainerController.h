@@ -35,7 +35,7 @@ public:
    void Start();
 
    // Collapsible Tree View Datasource
-   uint32_t NumberOfRootElementsForTree() override;
+   uint32_t NumberOfCellsInTableView() override;
    std::unique_ptr<CollapsibleTreeItem> GetTreeItemAtIndex(uint32_t index) override;
 
    // Collapsible Tree View Delegate

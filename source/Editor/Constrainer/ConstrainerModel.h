@@ -33,8 +33,14 @@ public:
    void SetBaseElement(UIElement* mpBaseElement);
 
    void SetModelUpdatedCallback(const std::function<void()> &mModelUpdatedCallback);
+   
+   size_t GetTotalNumElements();
 
 private:
+   // Helper function that returns how many elements are in my hierarchy
+   //    (plus one for me)
+   size_t TotalNumberOfElementsInSubtree(UIElement& subtreeRoot);
+   
    std::function<void(void)> mModelUpdatedCallback;
 
    // All the constraints created for the UI we're editing

@@ -192,6 +192,8 @@ private:
 
    // Holds all the elements in this tree, sorted by z-value.
    std::vector<UIElement*> mElements;
+   
+   std::vector<UIGestureRecognizer*> mActiveRecognizers;
 
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;

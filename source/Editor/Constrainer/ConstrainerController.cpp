@@ -104,18 +104,20 @@ std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(u
 }
 
 #pragma mark - Collapsible Tree View Delegate
+   
+
 
 void ConstrainerController::ItemSelected(CollapsibleTreeItem* item)
 {
-   printf("Selected an item!");
+   item->SetHighlighted(true);
 }
 
-uint32_t ConstrainerController::NumberOfRootElementsForTree()
+uint32_t ConstrainerController::NumberOfCellsInTableView()
 {
    if (!mModel.GetBaseElement()) {
       return 0;
    }
-   return 1;
+   return mModel.GetTotalNumElements();
 }
 
 }; // namespace Constrainer

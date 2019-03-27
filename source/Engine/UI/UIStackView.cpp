@@ -148,6 +148,10 @@ void UIStackView::RemakeConstraints()
       }
    }
    
+   CreateConstraintsForItemAlignment();
+}
+   
+void UIStackView::CreateConstraintsForItemAlignment() {
    for (int ndx = 0; ndx < AlignItemsBy::Count; ndx++) {
       AlignItemsBy axisToAlignItems = (AlignItemsBy)ndx;
       if (mAlignItemsBy.test(axisToAlignItems)) {

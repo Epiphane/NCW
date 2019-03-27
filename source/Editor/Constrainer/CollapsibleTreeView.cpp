@@ -33,10 +33,6 @@ CollapsibleTreeView::CollapsibleTreeView(Engine::UIRoot* root, Engine::UIElement
    DataChanged();
 }
    
-void CollapsibleTreeView::CreateItemForData(const CollapsibleTreeItemData& data) {
-   
-}   
-
 void CollapsibleTreeView::DataChanged()
 {
    for (auto it = mStackView->BeginChildren(); it != mStackView->EndChildren(); it++) {
@@ -47,9 +43,17 @@ void CollapsibleTreeView::DataChanged()
       return;
    }
    
-   for (int ndx = 0; ndx < mDatasource->NumberOfRootElementsForTree(); ndx++) {
+   for (int ndx = 0; ndx < mDatasource->NumberOfCellsInTableView(); ndx++) {
       std::unique_ptr<CollapsibleTreeItem> newItem = mDatasource->GetTreeItemAtIndex(ndx);
+      newItem->SetTreeView(this);
       mStackView->AddChild(std::move(newItem));
+   }
+}
+   
+void CollapsibleTreeView::ItemWasClicked(CollapsibleTreeItem* item)
+{
+   if (mDelegate) {
+      mDelegate->ItemSelected(item);
    }
 }
 

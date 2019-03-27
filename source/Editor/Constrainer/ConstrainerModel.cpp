@@ -38,6 +38,22 @@ void ConstrainerModel::SetModelUpdatedCallback(const std::function<void()> &mode
 {
    mModelUpdatedCallback = modelUpdatedCallback;
 }
+   
+size_t ConstrainerModel::TotalNumberOfElementsInSubtree(UIElement& subtreeRoot)
+{
+   size_t result = 1;
+   
+   for (auto it = subtreeRoot.BeginChildren(); it != subtreeRoot.EndChildren(); it++) {
+      result += TotalNumberOfElementsInSubtree(*it);
+   }
+   
+   return result;
+}
+   
+size_t ConstrainerModel::GetTotalNumElements()
+{
+   return TotalNumberOfElementsInSubtree(*mpBaseElement);
+}
 
 }; // namespace Constrainer
 
