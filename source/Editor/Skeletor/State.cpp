@@ -42,6 +42,7 @@ using Transform = Engine::Transform;
 MainState::MainState(Engine::Input* input, Bounded& parent)
    : mInput(input)
    , mParent(parent)
+   , mPlayer(&mEntities, Engine::Entity::ID(0))
 {
 }
 
@@ -52,6 +53,10 @@ MainState::~MainState()
 
 void MainState::Initialize()
 {
+   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
+   mEvents.Subscribe<SkeletonClearedEvent>(*this);
+   mEvents.Subscribe<AddSkeletonPartEvent>(*this);
+
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
@@ -69,15 +74,14 @@ void MainState::Initialize()
    controller->animate = false;
 
    // Create a player component
-   Entity player = mEntities.Create();
-   player.Add<Transform>(glm::vec3(0, 1.3, 0));
-   player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   player.Add<VoxModel>(Asset::Model("character.vox"), glm::vec3(0, 0, 168.0f));
-   player.Add<AnimatedSkeleton>()->model = player.Get<VoxModel>();
+   mPlayer = mEntities.Create();
+   mPlayer.Add<Transform>(glm::vec3(0, 1.3, 0));
+   mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+   mPlayer.Add<AnimationController>();
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 0, 0);
-   playerCamera.Get<Transform>()->SetParent(player);
+   playerCamera.Get<Transform>()->SetParent(mPlayer);
    playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
    playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
@@ -124,13 +128,37 @@ void MainState::Initialize()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<VoxelRender>(std::move(carpet));
-
-   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
 }
 
 void MainState::Receive(const Engine::UIRebalancedEvent&)
 {
    mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+}
+
+void MainState::Receive(const SkeletonClearedEvent&)
+{
+   for (const Engine::Entity& part : mPlayerParts)
+   {
+      mEntities.Destroy(part.GetID());
+   }
+
+   auto controller = mPlayer.Get<AnimationController>();
+   controller->Reset();
+
+   mPlayerParts.clear();
+}
+
+void MainState::Receive(const AddSkeletonPartEvent& evt)
+{
+   Engine::Entity part = mEntities.Create(0, 0, 0);
+   part.Get<Transform>()->SetParent(mPlayer);
+   auto model = part.Add<VoxModel>();
+   auto skeleton = part.Add<AnimatedSkeleton>(evt.filename, model);
+
+   auto controller = mPlayer.Get<AnimationController>();
+   controller->AddSkeleton(skeleton);
+
+   mPlayerParts.push_back(part);
 }
 
 }; // namespace Skeletor

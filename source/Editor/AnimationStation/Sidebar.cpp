@@ -25,7 +25,8 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("character.json")))
+   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
+   , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
 
@@ -73,11 +74,11 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
 {
    mSkeleton = evt.component;
 
@@ -123,13 +124,41 @@ void Sidebar::LoadNewFile()
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   if (!mSkeleton)
-   {
-      // Wait until the component exists!
-      return;
-   }
+   mpRoot->Emit<SkeletonClearedEvent>();
+   mSkeletonFiles.clear();
 
-   mSkeleton->Load(filename);
+   std::stack<std::string> parts;
+   std::string currentFile = filename;
+   do
+   {
+      std::string name = Paths::GetFilename(filename);
+      if (mSkeletonFiles.find(name) != mSkeletonFiles.end())
+      {
+         LOG_ERROR("Duplicate file %1 found in skeleton. Ummmm..idk what to do", name);
+      }
+      mSkeletonFiles.emplace(name, filename);
+      std::ifstream file(currentFile);
+      nlohmann::json data;
+      file >> data;
+
+      parts.push(currentFile);
+
+      std::string parent = data.value("parent", "");
+      if (parent == "")
+      {
+         currentFile = "";
+      }
+      else
+      {
+         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+      }
+   } while (currentFile != "");
+
+   while (!parts.empty())
+   {
+      mpRoot->Emit<AddSkeletonPartEvent>(parts.top());
+      parts.pop();
+   }
 
    mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);
@@ -147,9 +176,23 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mSkeleton->Serialize();
+   for (size_t i = 0; i < mSkeleton->NumSkeletons(); ++i)
+   {
+      Engine::ComponentHandle<AnimatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
+      std::string serialized = skeleton->Serialize();
+
+      auto filenameIt = mSkeletonFiles.find(skeleton->name);
+      if (filenameIt == mSkeletonFiles.end())
+      {
+         LOG_ERROR("Somehow the name of this skeleton changed, idk... (name %1 not found in mapping)", skeleton->name);
+      }
+      std::ofstream out(skeleton->name);
+      //out << serialized << std::endl;
+   }
+
+   std::string serialized;// = mSkeleton->Serialize();
    std::ofstream out(mFilename);
-   out << serialized << std::endl;
+   //out << serialized << std::endl;
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);

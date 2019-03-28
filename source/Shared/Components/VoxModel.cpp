@@ -17,10 +17,11 @@ VoxModel::VoxModel()
 
 VoxModel::VoxModel(const std::string& path, glm::vec3 tint)
 {
-   Load(path, tint);
+   Load(path);
+   mTint = tint;
 }
 
-void VoxModel::Load(const std::string& path, glm::vec3 tint)
+void VoxModel::Load(const std::string& path)
 {
    Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(path);
    if (!maybeModel)
@@ -29,9 +30,11 @@ void VoxModel::Load(const std::string& path, glm::vec3 tint)
       return;
    }
 
-   Voxel::VoxModel* data = maybeModel.Result();
+   Set(maybeModel.Result());
+}
 
-   mTint = tint;
+void VoxModel::Set(Voxel::VoxModel* data)
+{
    mParts = data->parts;
    mPartLookup = data->partLookup;
    mVBO = data->vbo;

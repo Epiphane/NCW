@@ -15,25 +15,34 @@ namespace Editor
 namespace AnimationStation
 {
 
+struct SkeletonClearedEvent : public Engine::Event<SkeletonClearedEvent> {};
+
+struct AddSkeletonPartEvent : public Engine::Event<AddSkeletonPartEvent>
+{
+   AddSkeletonPartEvent(const std::string& filename) : filename(filename) {};
+
+   std::string filename;
+};
+
 struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
 {
-   SkeletonLoadedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   SkeletonLoadedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimationController> component;
 };
 
 struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
 {
-   SkeletonSavedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   SkeletonSavedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimationController> component;
 };
 
 struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
 {
-   SkeletonModifiedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};
+   SkeletonModifiedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimatedSkeleton> component;
+   Engine::ComponentHandle<AnimationController> component;
 };
 
 }; // namespace AnimationStation

@@ -15,6 +15,7 @@
 #include <Engine/Event/Event.h>
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Camera.h>
+#include <Shared/Systems/AnimationSystem.h>
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/Image.h>
@@ -50,8 +51,8 @@ public:
    const double kTimelineWidth = 512.0;
 
 public:
-   using State = AnimatedSkeleton::State;
-   using Keyframe = AnimatedSkeleton::Keyframe;
+   using State = AnimationController::State;
+   using Keyframe = AnimationController::Keyframe;
    using Bone = AnimatedSkeleton::Bone;
 
    Dock(Engine::UIRoot* root, Engine::UIElement* parent);
@@ -63,7 +64,7 @@ public:
 public:
    // Dock state actions
    void SetState(const size_t& index);
-   void SetBone(const size_t& boneId);
+   void SetBone(const AnimationController::BoneID& boneId);
    void SetTime(double time);
 
 public:
@@ -78,14 +79,14 @@ private:
 public:
    // Event handlers
    void Receive(const SkeletonLoadedEvent& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
 private:
    // State
-   size_t mBone;
+   AnimationController::BoneID mBone;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<AnimationController> mSkeleton;
    Engine::ComponentHandle<AnimationSystemController> mController;
 
 private:
@@ -195,7 +196,7 @@ private:
 
    protected:
       size_t keyframeIndex;
-      AnimatedSkeleton::Keyframe keyframe{};
+      AnimationController::Keyframe keyframe{};
    };
 
    //

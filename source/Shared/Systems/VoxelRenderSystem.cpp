@@ -118,7 +118,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
 
       for (const VoxModel::Part& part : voxModel.mParts)
       {
-         if (part.size == 0)
+         if (part.size == 0 || part.hidden)
          {
             continue;
          }

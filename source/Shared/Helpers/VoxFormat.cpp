@@ -12,6 +12,7 @@
 #include <queue>
 #include <vector>
 
+#include <Engine/Core/Config.h>
 #include <Engine/Core/Scope.h>
 #include <Engine/Helpers/StringHelper.h>
 #include <Engine/Logger/Logger.h>
@@ -92,6 +93,7 @@ public:
    const static uint32_t XYZI;
    const static uint32_t RGBA;
    const static uint32_t LAYR;
+   const static uint32_t IMAP;
    const static uint32_t MATL;
    const static uint32_t nTRN;
    const static uint32_t nGRP;
@@ -105,6 +107,7 @@ const uint32_t Chunk::PACK = MakeChunkID("PACK");
 const uint32_t Chunk::XYZI = MakeChunkID("XYZI");
 const uint32_t Chunk::RGBA = MakeChunkID("RGBA");
 const uint32_t Chunk::LAYR = MakeChunkID("LAYR");
+const uint32_t Chunk::IMAP = MakeChunkID("IMAP");
 const uint32_t Chunk::MATL = MakeChunkID("MATL");
 const uint32_t Chunk::nTRN = MakeChunkID("nTRN");
 const uint32_t Chunk::nGRP = MakeChunkID("nGRP");
@@ -454,6 +457,11 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
       }
 
       model->shapes.emplace(node.id, node);
+   }
+   else if (chunk.header.id == Chunk::IMAP)
+   {
+      // Unused??
+      data = (int32_t*)(&chunk.data[0] + chunk.header.length);
    }
    else if (chunk.header.id == Chunk::LAYR)
    {
@@ -1130,16 +1138,17 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          -node.translate[1],
       }) * rotate;
       part.tintable = false;
+      part.hidden = false;
       part.size = part.start = 0;
       model->parents[part.id] = parentID;
 
       part.position = glm::vec3{node.translate[0],node.translate[2],-node.translate[1]};
-      part.rotation.y = asin(-rotate[0][2]);
+      part.rotation.y = DEGREES(asin(-rotate[0][2]));
 		if (cos(part.rotation.y) != 0) {
-         part.rotation.x = atan2(rotate[1][2], rotate[2][2]);
-         part.rotation.z = atan2(rotate[0][1], rotate[0][0]);
+         part.rotation.x = DEGREES(atan2(rotate[1][2], rotate[2][2]));
+         part.rotation.z = DEGREES(atan2(rotate[0][1], rotate[0][0]));
 		} else {
-         part.rotation.x = atan2(-rotate[2][0], rotate[1][1]);
+         part.rotation.x = DEGREES(atan2(-rotate[2][0], rotate[1][1]));
          part.rotation.z = 0;
 		}
 
@@ -1161,6 +1170,10 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          {
             LOG_DEBUG("Ignoring node %1 (%2), which is in the Exclude layer", node.id, node.name);
             continue;
+         }
+         else if (layer.name == "Hidden" || layer.name == "Debug" || layer.hidden)
+         {
+            part.hidden = true;
          }
       }
 

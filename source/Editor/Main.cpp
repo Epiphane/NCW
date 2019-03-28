@@ -163,9 +163,9 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
-   skeletor->Start();
-   windowContent.Swap(skeletor);
-   constrainer->Start();
+   auto firstState = animationStation;
+   firstState->Start();
+   windowContent.Swap(firstState);
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {

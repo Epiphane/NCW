@@ -30,7 +30,8 @@ public:
    VoxModel();
    VoxModel(const std::string& path, glm::vec3 tint = glm::vec3(255));
 
-   void Load(const std::string& path, glm::vec3 tint = glm::vec3(255));
+   void Load(const std::string& path);
+   void Set(Voxel::VoxModel* model);
 
 public:
    // Member data
@@ -41,5 +42,11 @@ public:
 
    Engine::Graphics::VBO mVBO;
 };
+
+//class VoxModelComponent : public Engine::Component<VoxModelComponent>, public VoxModel {
+//public:
+//   VoxModelComponent(const std::string& path, glm::vec3 tint = glm::vec3(255))
+//      : VoxModel(path, tint) {};
+//};
 
 }; // namespace CubeWorld

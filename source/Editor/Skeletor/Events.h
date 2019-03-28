@@ -15,6 +15,15 @@ namespace Editor
 namespace Skeletor
 {
 
+struct SkeletonClearedEvent : public Engine::Event<SkeletonClearedEvent> {};
+
+struct AddSkeletonPartEvent : public Engine::Event<AddSkeletonPartEvent>
+{
+   AddSkeletonPartEvent(const std::string& filename) : filename(filename) {};
+
+   std::string filename;
+};
+
 struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
 {
    SkeletonLoadedEvent(Engine::ComponentHandle<AnimatedSkeleton> component) : component(component) {};

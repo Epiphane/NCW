@@ -11,6 +11,8 @@
 
 #include <Shared/Components/ArmCamera.h>
 
+#include "Events.h"
+
 namespace CubeWorld
 {
 
@@ -36,10 +38,15 @@ public:
 
 public:
    void Receive(const Engine::UIRebalancedEvent& evt);
+   void Receive(const SkeletonClearedEvent& evt);
+   void Receive(const AddSkeletonPartEvent& evt);
 
 private:
    Engine::Graphics::CameraHandle mCamera;
    Engine::ComponentHandle<ArmCamera> mPlayerCam;
+
+   Engine::Entity mPlayer;
+   std::vector<Engine::Entity> mPlayerParts;
 
    Engine::Input* mInput;
    Bounded& mParent;

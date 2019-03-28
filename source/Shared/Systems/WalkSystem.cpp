@@ -111,7 +111,7 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
       }
    });
 
-   entities.Each<WalkSpeed, SimplePhysics::Body, AnimatedSkeleton>([&](Engine::Entity, WalkSpeed&, SimplePhysics::Body& body, AnimatedSkeleton& skeleton) {
+   entities.Each<WalkSpeed, SimplePhysics::Body, AnimationController>([&](Engine::Entity, WalkSpeed&, SimplePhysics::Body& body, AnimationController& skeleton) {
       skeleton.SetParameter("speed", std::sqrt(body.velocity.x * body.velocity.x + body.velocity.z * body.velocity.z));
    });
 }
