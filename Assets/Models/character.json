@@ -309,6 +309,7 @@
    },
    "default": "idle",
    "model": "character.vox",
+   "parent": "",
    "states": [
       {
          "keyframes": [

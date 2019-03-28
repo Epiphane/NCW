@@ -131,12 +131,12 @@ void Sidebar::LoadFile(const std::string& filename)
    std::string currentFile = filename;
    do
    {
-      std::string name = Paths::GetFilename(filename);
+      std::string name = Paths::GetFilename(currentFile);
       if (mSkeletonFiles.find(name) != mSkeletonFiles.end())
       {
          LOG_ERROR("Duplicate file %1 found in skeleton. Ummmm..idk what to do", name);
       }
-      mSkeletonFiles.emplace(name, filename);
+      mSkeletonFiles.emplace(name, currentFile);
       std::ifstream file(currentFile);
       nlohmann::json data;
       file >> data;
@@ -185,14 +185,11 @@ void Sidebar::SaveFile()
       if (filenameIt == mSkeletonFiles.end())
       {
          LOG_ERROR("Somehow the name of this skeleton changed, idk... (name %1 not found in mapping)", skeleton->name);
+         continue;
       }
-      std::ofstream out(skeleton->name);
-      //out << serialized << std::endl;
+      std::ofstream out(filenameIt->second);
+      out << serialized << std::endl;
    }
-
-   std::string serialized;// = mSkeleton->Serialize();
-   std::ofstream out(mFilename);
-   //out << serialized << std::endl;
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);

@@ -262,6 +262,11 @@ std::string AnimatedSkeleton::Serialize()
       data["bones"][bone.name] = info;
    }
 
+   if (!parentFilename.empty())
+   {
+      data["bones"]["root"]["parent"] = parentBone;
+   }
+
    // States and their transitions
    data["default"] = states[0].name;
    for (auto state : states)
