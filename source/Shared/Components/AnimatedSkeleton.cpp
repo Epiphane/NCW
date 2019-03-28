@@ -150,9 +150,9 @@ void AnimatedSkeleton::Load(const std::string& filename)
             parentBone = boneData.value("parent", "root");
          }
 
-         bone.position = bone.originalPosition = Shared::JsonHelpers::JsonToVec3(boneData["position"]);
-         bone.rotation = bone.originalRotation = Shared::JsonHelpers::JsonToVec3(boneData["rotation"]);
-         bone.scale = bone.originalScale = Shared::JsonHelpers::JsonToVec3(boneData["scale"]);
+         bone.position = bone.originalPosition = Shared::JsonToVec3(boneData["position"]);
+         bone.rotation = bone.originalRotation = Shared::JsonToVec3(boneData["rotation"]);
+         bone.scale = bone.originalScale = Shared::JsonToVec3(boneData["scale"]);
       }
    }
 
@@ -183,15 +183,15 @@ void AnimatedSkeleton::Load(const std::string& filename)
 
                if (auto pos = modification.value().find("position"); pos != modification.value().end())
                {
-                  keyframe.positions.emplace(boneName, Shared::JsonHelpers::JsonToVec3(pos.value()));
+                  keyframe.positions.emplace(boneName, Shared::JsonToVec3(pos.value()));
                }
                if (auto rot = modification.value().find("rotation"); rot != modification.value().end())
                {
-                  keyframe.rotations.emplace(boneName, Shared::JsonHelpers::JsonToVec3(rot.value()));
+                  keyframe.rotations.emplace(boneName, Shared::JsonToVec3(rot.value()));
                }
                if (auto scl = modification.value().find("scale"); scl != modification.value().end())
                {
-                  keyframe.scales.emplace(boneName, Shared::JsonHelpers::JsonToVec3(scl.value()));
+                  keyframe.scales.emplace(boneName, Shared::JsonToVec3(scl.value()));
                }
             }
          }
@@ -256,9 +256,9 @@ std::string AnimatedSkeleton::Serialize()
    {
       nlohmann::json info;
       info["parent"] = bones[bone.parent].name;
-      info["position"] = Shared::JsonHelpers::Vec3ToJson(bone.originalPosition);
-      info["rotation"] = Shared::JsonHelpers::Vec3ToJson(bone.originalRotation);
-      info["scale"] = Shared::JsonHelpers::Vec3ToJson(bone.originalScale);
+      info["position"] = Shared::Vec3ToJson(bone.originalPosition);
+      info["rotation"] = Shared::Vec3ToJson(bone.originalRotation);
+      info["scale"] = Shared::Vec3ToJson(bone.originalScale);
       data["bones"][bone.name] = info;
    }
 
@@ -288,15 +288,15 @@ std::string AnimatedSkeleton::Serialize()
 
          for (const auto& modification : keyframe.positions)
          {
-            keyframeData["bones"][modification.first]["position"] = Shared::JsonHelpers::Vec3ToJson(modification.second);
+            keyframeData["bones"][modification.first]["position"] = Shared::Vec3ToJson(modification.second);
          }
          for (const auto& modification : keyframe.rotations)
          {
-            keyframeData["bones"][modification.first]["rotation"] = Shared::JsonHelpers::Vec3ToJson(modification.second);
+            keyframeData["bones"][modification.first]["rotation"] = Shared::Vec3ToJson(modification.second);
          }
          for (const auto& modification : keyframe.scales)
          {
-            keyframeData["bones"][modification.first]["scale"] = Shared::JsonHelpers::Vec3ToJson(modification.second);
+            keyframeData["bones"][modification.first]["scale"] = Shared::Vec3ToJson(modification.second);
          }
 
          stateData["keyframes"].push_back(keyframeData);

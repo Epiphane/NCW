@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 if (WIN32)
    add_definitions(-DCUBEWORLD_PLATFORM_WINDOWS)
-   add_definitions("-W4 /wd4201")
+   add_definitions("-W4 /wd4201 /wd4068")
 else()
    add_definitions(-DCUBEWORLD_PLATFORM_MACOSX)
 endif()

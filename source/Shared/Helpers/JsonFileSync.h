@@ -19,11 +19,14 @@
 
 #pragma once
 
+#include <mutex>
+#include <thread>
+#if !CUBEWORLD_PLATFORM_WINDOWS
+#include <libfswatch/c++/monitor.hpp>
+#endif
+
 #include <Engine/Core/Maybe.h>
 #include <Shared/Helpers/JsonHelper.h>
-
-#include <libfswatch/c++/monitor.hpp>
-#include <thread>
 
 namespace CubeWorld
 {
@@ -55,22 +58,23 @@ private:
    // Main thread body that watches the file.
    //
    static void WatchFile(JsonFileSync *self);
+   
+#if !CUBEWORLD_PLATFORM_WINDOWS
+   //
+   // Handles file state changes
+   //
+   void HandleFSWEvent(fsw::event event);
 
    //
    // Triggered when the file is changed or moved.
    //
    static void FileWasChanged(const std::vector<fsw::event>& events, void *context);
-   
+#endif
    
    //
    // Main thread body that saves data to the file.
    //
    static void WriteLatestDataToFile(JsonFileSync *self);
-   
-   //
-   // Handles file state changes
-   //
-   void HandleFSWEvent(fsw::event event);
 
    std::thread* mFileWatchingThread;
     
@@ -86,8 +90,10 @@ private:
    // Filename we're tracking with this JsonFileSync object
    std::string mFilename;
    
+#if !CUBEWORLD_PLATFORM_WINDOWS
    // Filewatching minotaur
    fsw::monitor* mMonitor;
+#endif
    
    //
    // Enum describing all the states the file can be in.

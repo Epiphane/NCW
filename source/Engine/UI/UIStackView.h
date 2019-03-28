@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <bitset>
+
 #include <Engine/UI/UIElement.h>
 
 namespace CubeWorld

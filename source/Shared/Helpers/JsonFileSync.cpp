@@ -4,6 +4,8 @@
 // This file created by the ELLIOT FISKE gang
 //
 
+#include <Engine/Logger/Logger.h>
+
 #include "JsonFileSync.h"
 
 #if !CUBEWORLD_PLATFORM_WINDOWS
@@ -20,7 +22,9 @@ namespace Shared
 JsonFileSync::JsonFileSync(const std::string& filename)
    : mFileWatchingThread(nullptr)
    , mFilename(filename)
+#if !CUBEWORLD_PLATFORM_WINDOWS
    , mMonitor(nullptr)
+#endif
    , mFileState(FileChanged)  // Start at "FileChanged" so we load the JSON file into memory on startup
 {
    mSavingMutex.lock(); // Lock the mSavingMutex on the MAIN THREAD. When we want
@@ -32,9 +36,11 @@ JsonFileSync::JsonFileSync(const std::string& filename)
 
 JsonFileSync::~JsonFileSync()
 {
+#if !CUBEWORLD_PLATFORM_WINDOWS
    if (mMonitor) {
       mMonitor->stop();
    }
+#endif
 }
 
 #pragma mark - Watching and reading FROM file
@@ -44,6 +50,10 @@ JsonFileSync::~JsonFileSync()
 //
 void JsonFileSync::WatchFile(JsonFileSync* self)
 {
+#if CUBEWORLD_PLATFORM_WINDOWS
+   self;
+   LOG_WARNING("File watching not supported on Windows :(");
+#else
    std::vector<std::string> filename = {self->mFilename};
    self->mMonitor = fsw::monitor_factory::create_monitor(system_default_monitor_type, filename, &JsonFileSync::FileWasChanged, self);
    
@@ -53,8 +63,10 @@ void JsonFileSync::WatchFile(JsonFileSync* self)
 #endif
    
    self->mMonitor->start();
+#endif
 }
  
+#if !CUBEWORLD_PLATFORM_WINDOWS
 //
 // Looks at the flags on a given event and handles them based on the current state of the syncer.
 //
@@ -111,6 +123,7 @@ void JsonFileSync::FileWasChanged(const std::vector<fsw::event> &events, void* c
       self->HandleFSWEvent(event);
    }
 }
+#endif
 
 bool JsonFileSync::DoesFileHaveNewUpdate()
 {

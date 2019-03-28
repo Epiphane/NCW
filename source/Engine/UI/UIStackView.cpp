@@ -157,11 +157,11 @@ void UIStackView::RemakeConstraints()
          }
          
          UIConstraint::Target target = CONSTRAINT_MAPPING.at(axisToAlignItems);
-         for (int ndx = 0; ndx < mChildren.size(); ndx++) {
+         for (int child = 0; child < mChildren.size(); child++) {
             UIConstraint::Options options;
             options.customNameConnector = "_aligned" + UIConstraint::StringFromConstraintTarget(target) + "ToStackView_";
             
-            UIConstraint newConstraint(this, mChildren[ndx].get(), target, target, options);
+            UIConstraint newConstraint(this, mChildren[child].get(), target, target, options);
             mpRoot->AddConstraint(newConstraint);
             mAlignmentConstraints.push_back(newConstraint);
          }

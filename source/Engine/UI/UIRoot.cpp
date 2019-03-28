@@ -84,7 +84,7 @@ UIRoot::~UIRoot()
    mChildren.clear();
 }
    
-void UIRoot::ToggleDebugConstraints(int key, int action, int mods) {
+void UIRoot::ToggleDebugConstraints(int /*key*/, int /*action*/, int /*mods*/) {
    mConstraintDebuggingEnabled = !mConstraintDebuggingEnabled;
    
    mConstraintDebugLabel->SetActive(mConstraintDebuggingEnabled);
@@ -204,7 +204,9 @@ UIConstraint *UIRoot::GetConstraint(std::string constraintName)
 void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
 {
    std::vector<UIConstraint> constraintsForElement;
+#pragma warning(disable : 4101)
    for (auto const& [_, constraint] : mConstraintMap) {
+#pragma warning(default : 4101)
       if (constraint.GetPrimaryElement() == element || constraint.GetSecondaryElement() == element) {
          constraintsForElement.push_back(constraint);
       }
