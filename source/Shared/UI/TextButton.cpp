@@ -24,7 +24,35 @@ TextButton::TextButton(
    : Text(root, parent, options, name)
    , mClickCallback(options.onClick)
    , mIsHovered(false)
+   , mIsFocused(false)
 {}
+
+void TextButton::Focus()
+{
+   if (mIsFocused)
+   {
+      return;
+   }
+
+   RenderText("> " + mText);
+   RecalculateSize();
+   mIsFocused = true;
+}
+
+void TextButton::Unfocus()
+{
+   if (!mIsFocused)
+   {
+      return;
+   }
+
+   if (!mIsHovered)
+   {
+      RenderText(mText);
+      RecalculateSize();
+   }
+   mIsFocused = false;
+}
 
 Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
 {
@@ -52,7 +80,7 @@ void TextButton::Update(TIMEDELTA)
                          //            already run this frame. Needs looking into.
       mIsHovered = true;
    }
-   else if (!hovered && mIsHovered)
+   else if (!mIsFocused && !hovered && mIsHovered)
    {
       RenderText(mText);
       RecalculateSize();

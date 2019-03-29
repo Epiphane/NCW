@@ -43,13 +43,18 @@ public:
 public:
    TextButton(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name = "");
 
+   void Focus();
+   void Unfocus();
+
    Action MouseClick(const MouseClickEvent& evt) override;
 
    void Update(TIMEDELTA dt) override;
 
 private:
    std::function<void(void)> mClickCallback;
+
    bool mIsHovered;
+   bool mIsFocused;
 };
 
 }; // namespace UI

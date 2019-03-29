@@ -92,7 +92,7 @@ void MainState::Initialize()
    mPlayer.Add<AnimationController>();
 
    // Create a camera
-   Entity playerCamera = mEntities.Create(0, 0, 0);
+   Entity playerCamera = mEntities.Create(0, 2, 0);
    playerCamera.Get<Transform>()->SetParent(mPlayer);
    playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
    playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));

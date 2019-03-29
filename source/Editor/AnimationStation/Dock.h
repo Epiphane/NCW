@@ -79,6 +79,7 @@ private:
 public:
    // Event handlers
    void Receive(const SkeletonLoadedEvent& evt);
+   void Receive(const SkeletonSelectedEvent& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
@@ -86,8 +87,9 @@ private:
    // State
    AnimationController::BoneID mBone;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimationController> mSkeleton;
-   Engine::ComponentHandle<AnimationSystemController> mController;
+   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<AnimationController> mController;
+   Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
 private:
    // Layout and elements
@@ -189,7 +191,7 @@ private:
    public:
       AddKeyframeCommand(Dock* dock) : DockCommand(dock)
       {
-         keyframe.time = dock->mSkeleton->time;
+         keyframe.time = dock->mController->time;
       };
       void Do() override;
       void Undo() override;

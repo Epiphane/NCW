@@ -45,6 +45,17 @@ struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
    Engine::ComponentHandle<AnimationController> component;
 };
 
+struct SkeletonSelectedEvent : public Engine::Event<SkeletonSelectedEvent>
+{
+   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<AnimatedSkeleton> component)
+      : index(index)
+      , component(component)
+   {};
+
+   size_t index;
+   Engine::ComponentHandle<AnimatedSkeleton> component;
+};
+
 }; // namespace AnimationStation
 
 }; // namespace Editor
