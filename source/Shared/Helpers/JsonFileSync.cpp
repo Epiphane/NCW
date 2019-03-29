@@ -20,18 +20,15 @@ namespace Shared
 {
 
 JsonFileSync::JsonFileSync(const std::string& filename)
-   : mFileWatchingThread(nullptr)
-   , mFilename(filename)
+   : mFilename(filename)
 #if !CUBEWORLD_PLATFORM_WINDOWS
    , mMonitor(nullptr)
 #endif
    , mFileState(FileChanged)  // Start at "FileChanged" so we load the JSON file into memory on startup
+   , mExiting(false)
 {
-   mSavingMutex.lock(); // Lock the mSavingMutex on the MAIN THREAD. When we want
-                        //    the file-writing thread to run, unlock it from the main thread.
-
-   mFileWatchingThread = new std::thread(JsonFileSync::WatchFile, this);
-   mFileSavingThread = new std::thread(JsonFileSync::WriteLatestDataToFile, this);
+   mFileWatchingThread = std::thread(std::bind(&JsonFileSync::WatchFile, this));
+   mFileSavingThread = std::thread(std::bind(&JsonFileSync::WriteLatestDataToFile, this));
 }
 
 JsonFileSync::~JsonFileSync()
@@ -41,6 +38,14 @@ JsonFileSync::~JsonFileSync()
       mMonitor->stop();
    }
 #endif
+
+   mSavingMutex.lock();
+   mExiting = true;
+   mSavingMutex.unlock();
+   mCondition.notify_one();
+
+   mFileWatchingThread.join();
+   mFileSavingThread.join();
 }
 
 #pragma mark - Watching and reading FROM file
@@ -48,10 +53,9 @@ JsonFileSync::~JsonFileSync()
 //
 // Static function. Starts watching the JSON file here.
 //
-void JsonFileSync::WatchFile(JsonFileSync* self)
+void JsonFileSync::WatchFile()
 {
 #if CUBEWORLD_PLATFORM_WINDOWS
-   self;
    LOG_WARNING("File watching not supported on Windows :(");
 #else
    std::vector<std::string> filename = {self->mFilename};
@@ -90,7 +94,10 @@ void JsonFileSync::HandleFSWEvent(fsw::event event)
                break;
             }
             else {
+               mSavingMutex.lock();
                mFileState = FileChanged;
+               mSavingMutex.unlock();
+               mCondition.notify_one();
             }
             break;
          case NoOp:
@@ -142,17 +149,22 @@ Maybe<nlohmann::json> JsonFileSync::GetJsonFromFile()
 //
 // Static function. Blocks until new data comes in to write to the file.
 //
-void JsonFileSync::WriteLatestDataToFile(JsonFileSync* self)
+void JsonFileSync::WriteLatestDataToFile()
 {
-   while (true) {
-      self->mSavingMutex.lock();
+   std::unique_lock<std::mutex> lock{mSavingMutex};
+
+   for (;;) {
+      mCondition.wait(lock, [&] { return mExiting || DoesFileHaveNewUpdate(); });
       
-      if (self->mFileState == FileChanged) {
-         // PANIC
-         // Save current Json to a backup file, then reload the new Json and inform the user.
-         
+      if (mExiting)
+      {
+         break;
       }
-      
+
+      mFileState = Idle;
+
+      // PANIC
+      // Save current Json to a backup file, then reload the new Json and inform the user.
    }
 }
    

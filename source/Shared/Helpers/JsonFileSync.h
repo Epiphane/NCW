@@ -57,7 +57,7 @@ private:
    //
    // Main thread body that watches the file.
    //
-   static void WatchFile(JsonFileSync *self);
+   void WatchFile();
    
 #if !CUBEWORLD_PLATFORM_WINDOWS
    //
@@ -68,18 +68,19 @@ private:
    //
    // Triggered when the file is changed or moved.
    //
-   static void FileWasChanged(const std::vector<fsw::event>& events, void *context);
+   void FileWasChanged(const std::vector<fsw::event>& events, void *context);
 #endif
    
    //
    // Main thread body that saves data to the file.
    //
-   static void WriteLatestDataToFile(JsonFileSync *self);
+   void WriteLatestDataToFile();
 
-   std::thread* mFileWatchingThread;
-    
-   std::thread* mFileSavingThread;
+   std::thread mFileWatchingThread;
+   std::thread mFileSavingThread;
+
    std::mutex mSavingMutex;   // Mutex used to serialize writing to the file
+   std::condition_variable mCondition;
 
    // Current idea: when the client changes the state of whatever it's editing,
    //                it blocks as it copies the json structure over to us. Should be doable in 1 frame.
@@ -108,6 +109,8 @@ private:
    } FileState;
    
    FileState mFileState;
+
+   bool mExiting;
 };
 
 }; // Shared

@@ -50,13 +50,3 @@ extern int w_width;
 extern int w_height;
 extern float aspect_ratio;
 extern bool fullscreen;
-
-glm::vec2 characterUV(char c);
-
-//void resize_obj(std::vector<tinyobj::shape_t> &shapes);
-
-// Debugging operators
-std::ostream &operator<< (std::ostream &out, const glm::vec2 &vec);
-std::ostream &operator<< (std::ostream &out, const glm::vec3 &vec);
-std::ostream &operator<< (std::ostream &out, const glm::vec4 &vec);
-std::ostream &operator<< (std::ostream &out, const glm::mat4 &vec);
