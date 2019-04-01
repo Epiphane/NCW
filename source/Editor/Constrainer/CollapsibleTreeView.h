@@ -26,12 +26,6 @@ class CollapsibleTreeItem; ///< Forward declare
 using Engine::UIStackView;
 using Engine::UIElement;
 
-struct CollapsibleTreeItemData {
-   std::string uniqueId;
-   std::string title;
-   std::vector<CollapsibleTreeItemData> children;
-};
-   
 class CollapsibleTreeViewDatasource {
 public:
    virtual uint32_t NumberOfCellsInTableView() = 0;

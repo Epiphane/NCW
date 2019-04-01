@@ -102,8 +102,11 @@ rhea::linear_expression Text::ConvertTargetToVariable(Engine::UIConstraint::Targ
 
 void Text::RenderText(const std::string& text)
 {
-   mRendered = text;
-   Redraw();
+   if (text != mRendered)
+   {
+      mRendered = text;
+      Redraw();
+   }
 }
    
 void Text::RecalculateSize() {

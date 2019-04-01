@@ -6,6 +6,7 @@
 #include "Dock.h"
 #include "Editor.h"
 #include "Sidebar.h"
+#include "SkeletonList.h"
 
 namespace CubeWorld
 {
@@ -29,6 +30,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    state->TransformParentEvents<MouseClickEvent>(mStateWindow);
 
    Sidebar* sidebar = Add<Sidebar>();
+   SkeletonList* skeletons = Add<SkeletonList>();
    Controls* controls = Add<Controls>(options);
    Dock* dock = Add<Dock>();
 
@@ -47,10 +49,15 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
    dock->ConstrainBottomAlignedTo(this);
    dock->ConstrainHeightTo(this, 0, 0.4);
 
+   skeletons->ConstrainTopAlignedTo(this);
+   skeletons->ConstrainWidthTo(this, 0, 0.2);
+   skeletons->ConstrainRightAlignedTo(dock);
+   skeletons->ConstrainAbove(dock);
+
    mStateWindow->ConstrainLeftAlignedTo(dock);
    mStateWindow->ConstrainTopAlignedTo(this);
    mStateWindow->ConstrainAbove(dock);
-   mStateWindow->ConstrainRightAlignedTo(dock);
+   mStateWindow->ConstrainToLeftOf(skeletons);
 
    mStateWindow->SetState(std::move(state));
 }

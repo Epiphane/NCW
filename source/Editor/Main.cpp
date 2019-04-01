@@ -6,7 +6,9 @@
 #include <cassert>
 #include <cmath>
 #include <GL/includes.h>
+#if !CUBEWORLD_PLATFORM_WINDOWS
 #include <libfswatch/c/libfswatch.h>
+#endif
 
 #include <Engine/Core/Input.h>
 #include <Engine/Core/Timer.h>
@@ -76,8 +78,10 @@ int main(int argc, char** argv)
    });
 
    // Setup file watching library
+#if !CUBEWORLD_PLATFORM_WINDOWS
    fsw_init_library();
    fsw_set_verbose(true);
+#endif
 
    // Swaps between the different editors
    UI::Swapper windowContent;
@@ -163,9 +167,9 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
-   skeletor->Start();
-   windowContent.Swap(skeletor);
-   constrainer->Start();
+   auto firstState = animationStation;
+   firstState->Start();
+   windowContent.Swap(firstState);
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {

@@ -195,6 +195,7 @@ public:
       uint32_t id;
       std::string name;
       bool tintable;
+      bool hidden;
       //
       // To draw this part, draw the Model's VBO using indices [start, start + size)
       // Size 0 represents an ethereal part, used for skeleton reasoning but not drawn.

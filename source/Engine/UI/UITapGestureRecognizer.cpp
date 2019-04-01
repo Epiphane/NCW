@@ -47,7 +47,7 @@ void UITapGestureRecognizer::MouseDown(const MouseDownEvent& evt)
    }
 }
 
-void UITapGestureRecognizer::MouseUp(const MouseUpEvent& evt)
+void UITapGestureRecognizer::MouseUp(const MouseUpEvent& /*evt*/)
 {
    if (mState == Happening) {
       mState = Ending;

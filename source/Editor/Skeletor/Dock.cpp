@@ -100,18 +100,24 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    // Bone positions, rotations and sliders
    UIElement* bonePosition = Add<UIElement>();
    UIElement* boneRotation = Add<UIElement>();
+   UIElement* boneScale = Add<UIElement>();
    bonePosition->ConstrainBelow(boneHeader, 8);
    bonePosition->ConstrainLeftAlignedTo(boneHeader);
 
    boneRotation->ConstrainTopAlignedTo(bonePosition);
-   boneRotation->ConstrainRightAlignedTo(boneHeader);
-   boneRotation->ConstrainToRightOf(bonePosition);
+   boneRotation->ConstrainToRightOf(bonePosition, 16);
    boneRotation->ConstrainWidthTo(bonePosition);
+
+   boneScale->ConstrainTopAlignedTo(boneRotation);
+   boneScale->ConstrainRightAlignedTo(boneHeader);
+   boneScale->ConstrainToRightOf(boneRotation, 16);
+   boneScale->ConstrainWidthTo(boneRotation);
 
    {
       // Position/rotation icons that look good
       Image* position = bonePosition->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "position"});
       Image* rotation = boneRotation->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "rotation"});
+      Image* scale = boneScale->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "scale"});
 
       position->ConstrainWidth(37);
       position->ConstrainLeftAlignedTo(bonePosition);
@@ -119,6 +125,9 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       rotation->ConstrainWidth(40);
       rotation->ConstrainLeftAlignedTo(boneRotation);
       rotation->ConstrainVerticalCenterTo(boneRotation);
+      scale->ConstrainWidth(37);
+      scale->ConstrainLeftAlignedTo(boneScale);
+      scale->ConstrainVerticalCenterTo(boneScale);
 
       // Bone position/rotation reset buttons
       Button::Options buttonOptions;
@@ -151,39 +160,29 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.onChange = [&](double, double) {
          Bone& bone = mSkeleton->bones[mBone];
 
-         // Update animations.
-         for (AnimatedSkeleton::State& state : mSkeleton->states)
-         {
-            for (AnimatedSkeleton::Keyframe& keyframe : state.keyframes)
-            {
-               if (keyframe.positions[mBone] == bone.originalPosition)
-               {
-                  keyframe.positions[mBone] = bone.position;
-               }
-               if (keyframe.rotations[mBone] == bone.originalRotation)
-               {
-                  keyframe.rotations[mBone] = bone.rotation;
-               }
-            }
-         }
-
          bone.originalPosition = bone.position;
          bone.originalRotation = bone.rotation;
+         bone.originalScale = bone.scale;
 
          mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
       };
-      scrubberOptions.sensitivity = 0.1;
+      scrubberOptions.sensitivity = 0.02;
 
       UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
-      UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
-      positionScrubbers->ConstrainToRightOf(resetPositionButton, 32);
+      positionScrubbers->ConstrainToRightOf(resetPositionButton, 16);
       positionScrubbers->ConstrainHeightTo(bonePosition);
       positionScrubbers->ConstrainTopAlignedTo(bonePosition);
       positionScrubbers->ConstrainRightAlignedTo(bonePosition, 12);
-      rotationScrubbers->ConstrainToRightOf(resetRotationButton, 32);
+      UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
+      rotationScrubbers->ConstrainToRightOf(resetRotationButton, 16);
       rotationScrubbers->ConstrainHeightTo(boneRotation);
       rotationScrubbers->ConstrainTopAlignedTo(boneRotation);
       rotationScrubbers->ConstrainRightAlignedTo(boneRotation, 12);
+      UIStackView* scaleScrubbers = boneScale->Add<UIStackView>("ScaleScrubbers");
+      scaleScrubbers->ConstrainToRightOf(scale, 16);
+      scaleScrubbers->ConstrainHeightTo(boneScale);
+      scaleScrubbers->ConstrainTopAlignedTo(boneScale);
+      scaleScrubbers->ConstrainRightAlignedTo(boneScale, 12);
 
       for (int i = 0; i < 3; i++)
       {
@@ -191,6 +190,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(scrubberOptions);
          mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
          mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         mBoneScl[i].text = scaleScrubbers->Add<NumDisplay<float>>(textOptions);
+         mBoneScl[i].scrubber = scaleScrubbers->Add<Scrubber<float>>(scrubberOptions);
 
          mBonePos[i].text->ConstrainHeight(32);
          mBonePos[i].text->ConstrainLeftAlignedTo(positionScrubbers);
@@ -200,28 +201,24 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          mBoneRot[i].text->ConstrainLeftAlignedTo(rotationScrubbers);
          mBoneRot[i].scrubber->ConstrainHeight(7);
          mBoneRot[i].scrubber->ConstrainLeftAlignedTo(rotationScrubbers);
+         mBoneScl[i].text->ConstrainHeight(32);
+         mBoneScl[i].text->ConstrainLeftAlignedTo(scaleScrubbers);
+         mBoneScl[i].scrubber->ConstrainHeight(7);
+         mBoneScl[i].scrubber->ConstrainLeftAlignedTo(scaleScrubbers);
       }
 
       mBonePos[0].scrubber->ConstrainRightAlignedTo(bonePosition);
       mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
+      mBoneScl[0].scrubber->ConstrainRightAlignedTo(boneScale);
    }
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
 }
 
 ///
 ///
 ///
 void Dock::Receive(const SkeletonLoadedEvent& evt)
-{
-   mSkeleton = evt.component;
-}
-
-///
-///
-///
-void Dock::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
    mSkeleton = evt.component;
 }
@@ -245,6 +242,9 @@ void Dock::SetBone(const size_t& boneId)
    mBoneRot[0].text->Bind(&bone.rotation.x);
    mBoneRot[1].text->Bind(&bone.rotation.y);
    mBoneRot[2].text->Bind(&bone.rotation.z);
+   mBoneScl[0].text->Bind(&bone.scale.x);
+   mBoneScl[1].text->Bind(&bone.scale.y);
+   mBoneScl[2].text->Bind(&bone.scale.z);
 
    mBonePos[0].scrubber->Bind(&bone.position.x);
    mBonePos[1].scrubber->Bind(&bone.position.y);
@@ -252,6 +252,9 @@ void Dock::SetBone(const size_t& boneId)
    mBoneRot[0].scrubber->Bind(&bone.rotation.x);
    mBoneRot[1].scrubber->Bind(&bone.rotation.y);
    mBoneRot[2].scrubber->Bind(&bone.rotation.z);
+   mBoneScl[0].scrubber->Bind(&bone.scale.x);
+   mBoneScl[1].scrubber->Bind(&bone.scale.y);
+   mBoneScl[2].scrubber->Bind(&bone.scale.z);
 }
 
 ///

@@ -98,7 +98,7 @@ void ConstrainerController::Start()
 
 #pragma mark - Collapsible Tree View Datasource
 
-std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(uint32_t index)
+std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(uint32_t /*index*/)
 {
    return ParseUIElementTitles(*mModel.GetBaseElement());
 }
@@ -107,7 +107,7 @@ std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(u
    
 
 
-void ConstrainerController::ItemSelected(CollapsibleTreeItem* item)
+void ConstrainerController::ItemSelected(CollapsibleTreeItem* /*item*/)
 {
    item->SetHighlighted(true);
 }

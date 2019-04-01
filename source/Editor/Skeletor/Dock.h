@@ -59,7 +59,6 @@ public:
 public:
    // Event handlers
    void Receive(const SkeletonLoadedEvent& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
 
 private:
    // State
@@ -83,6 +82,7 @@ private:
    Text* mBoneParent;
    LabelAndScrubber<float> mBonePos[3];
    LabelAndScrubber<float> mBoneRot[3];
+   LabelAndScrubber<float> mBoneScl[3];
 
 private:
    //

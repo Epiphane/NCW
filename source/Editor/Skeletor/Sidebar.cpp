@@ -25,7 +25,8 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("character.json")))
+   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
+   , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
 
@@ -73,15 +74,24 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
+   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
+
+   SetModified(false);
+}
+
+void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>&)
+{
+   LoadFile(mFilename);
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
 {
+   // Lol beautiful trickery: we add skeleton parts from the root-most first,
+   // up to the final piece being the one the user wants to load. Therefore,
+   // by the time we hit any other business logic this will be the right one.
    mSkeleton = evt.component;
-
-   LoadFile(mFilename);
 }
 
 void Sidebar::Receive(const SkeletonModifiedEvent&)
@@ -99,7 +109,7 @@ void Sidebar::SetModified(bool modified)
 
    mModified = modified;
 
-   std::string title = "NCW - Animation Station - ";
+   std::string title = "NCW - Skeletor - ";
    if (mModified)
    {
       title += "*";
@@ -123,13 +133,35 @@ void Sidebar::LoadNewFile()
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   if (!mSkeleton)
-   {
-      // Wait until the component exists!
-      return;
-   }
+   mpRoot->Emit<SkeletonClearedEvent>();
 
-   mSkeleton->Load(filename);
+   std::stack<std::string> parts;
+   std::string currentFile = filename;
+   do
+   {
+      std::ifstream file(currentFile);
+      nlohmann::json data;
+      file >> data;
+
+      parts.push(currentFile);
+
+      std::string parent = data.value("parent", "");
+      if (parent == "")
+      {
+         currentFile = "";
+      }
+      else
+      {
+         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+      }
+   }
+   while (currentFile != "");
+
+   while (!parts.empty())
+   {
+      mpRoot->Emit<AddSkeletonPartEvent>(parts.top());
+      parts.pop();
+   }
 
    mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
    SetModified(false);
