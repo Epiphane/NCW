@@ -109,7 +109,7 @@ std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(u
 
 void ConstrainerController::ItemSelected(CollapsibleTreeItem* /*item*/)
 {
-   item->SetHighlighted(true);
+//   item->SetHighlighted(true);
 }
 
 uint32_t ConstrainerController::NumberOfCellsInTableView()

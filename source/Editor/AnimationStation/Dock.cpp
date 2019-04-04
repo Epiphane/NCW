@@ -298,7 +298,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Button::Options buttonOptions;
       buttonOptions.filename = Asset::Image("EditorIcons.png");
 
-      buttonOptions.image = "button_play";
+      buttonOptions.image = "scale";
       buttonOptions.hoverImage = "hover_button_play";
       buttonOptions.pressImage = "press_button_play";
       buttonOptions.onClick = [&]() { mSystemControls->paused = false; };
