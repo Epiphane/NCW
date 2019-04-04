@@ -553,7 +553,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 void Dock::Receive(const SkeletonSelectedEvent& evt)
 {
-   mSkeleton = evt.component;
+   mSkeleton = evt.index;
 }
 
 ///
@@ -702,25 +702,30 @@ void Dock::SetBone(const AnimationController::BoneID& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
-   /*
    if (state.keyframes.size() == 0)
    {
       Keyframe keyframe;
-      std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
+      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
+      {
+         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+         std::vector<Bone>& bones = skeleton->bones;
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.originalScale; });
+      }
 
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
+
+      state.skeletonId = dock->mSkeleton;
    }
 
-   dock->mSkeleton->states.insert(dock->mSkeleton->states.begin() + dock->mSkeleton->current + (afterCurrent ? 1 : 0), state);
+   dock->mController->states.insert(dock->mController->states.begin() + dock->mController->current + (afterCurrent ? 1 : 0), state);
    if (afterCurrent)
    {
-      dock->SetState(dock->mSkeleton->current + 1);
+      dock->SetState(dock->mController->current + 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///
@@ -728,18 +733,16 @@ void Dock::AddStateCommand::Do()
 ///
 void Dock::AddStateCommand::Undo()
 {
-   /*
-   afterCurrent = dock->mSkeleton->current > 0;
+   afterCurrent = dock->mController->current > 0;
    // Get current state as a copy not a reference
    state = dock->GetCurrentState();
 
-   dock->mSkeleton->states.erase(dock->mSkeleton->states.begin() + dock->mSkeleton->current);
+   dock->mController->states.erase(dock->mController->states.begin() + dock->mController->current);
    if (afterCurrent)
    {
-      dock->SetState(dock->mSkeleton->current - 1);
+      dock->SetState(dock->mController->current - 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///
@@ -779,25 +782,29 @@ void Dock::SetStateNameCommand::Do()
 ///
 void Dock::AddKeyframeCommand::Do()
 {
-   /*
    State& state = dock->GetCurrentState();
 
-   if (keyframe.positions.size() != dock->mSkeleton->bones.size())
+   if (keyframe.positions.size() != dock->mController->bones.size())
    {
       keyframe.positions.clear();
       keyframe.rotations.clear();
 
       // Insert the CURRENT values of position and rotation at this timestamp.
-      std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
+      {
+         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+
+         std::vector<Bone>& bones = skeleton->bones;
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.scale; });
+      }
    }
 
-   keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
+   keyframeIndex = GetKeyframeIndex(state, dock->mController->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///

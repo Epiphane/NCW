@@ -47,7 +47,7 @@ public:
    void remove();
 
    // Get the entity associated with this component.
-   Entity GetEntity();
+   Entity GetEntity() const;
 
    bool operator==(const ComponentHandle<C>& other) const {
       return manager == other.manager && id == other.id;
@@ -134,10 +134,10 @@ inline void ComponentHandle<C, EM>::remove()
 }
 
 template<typename C, typename EM>
-inline Entity ComponentHandle<C, EM>::GetEntity()
+inline Entity ComponentHandle<C, EM>::GetEntity() const
 {
    assert(IsValid());
-   return manager->Get(id);
+   return manager->GetEntity(id);
 }
 
 }; // namespace Engine

@@ -26,27 +26,11 @@ public:
       std::vector<glm::vec3> scales;
    };
 
-   struct Transition {
-      struct Trigger {
-         typedef enum {
-            FloatGte, FloatLt, Bool
-         } Type;
-
-         Type type;
-         std::string parameter;
-         union {
-            float floatVal;
-            bool boolVal;
-         };
-      };
-
-      std::string destination;
-      double time;
-      std::vector<Trigger> triggers;
-   };
+   using Transition = AnimatedSkeleton::Transition;
 
    struct State {
       std::string name;
+      size_t skeletonId;
 
       double length;
       std::vector<Keyframe> keyframes;
@@ -59,15 +43,22 @@ public:
 
    void Reset();
 
+   // Ensure that skeletons reflect the state of the animation controller.
+   void UpdateSkeletonStates();
+
 public:
    // Info and manipulation
-   AnimationController::State& GetCurrentState();
+   State& GetCurrentState();
 
    void AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton);
    size_t NumSkeletons() { return skeletons.size(); }
+
+   void AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& state);
+
+public:
+   // Bone and skeleton lookup
    Engine::ComponentHandle<AnimatedSkeleton> GetSkeleton(size_t ndx) { return skeletons[ndx]; }
    Engine::ComponentHandle<AnimatedSkeleton> GetSkeletonForBone(BoneID id);
-
    AnimatedSkeleton::Bone* GetBone(BoneID id);
    BoneID NextBone(BoneID id);
    BoneID PrevBone(BoneID id);
@@ -85,17 +76,18 @@ private:
    // Skeleton and model objects
    friend class BaseAnimationSystem;
    std::vector<Engine::ComponentHandle<AnimatedSkeleton>> skeletons;
-   std::unordered_map<std::string, size_t> bonesByName;
    // Pair of skeleton ID and bone ID
    std::vector<size_t> skeletonRootId;
    std::vector<std::pair<size_t, size_t>> skeletonParents;
-   size_t numBones;
 
-   std::unordered_map<std::string, size_t> statesByName;
+public:
+   std::vector<std::string> bones;
+   std::unordered_map<std::string, size_t> bonesByName;
 
 public:
    // Combined skeleton data.
    std::vector<State> states;
+   std::unordered_map<std::string, size_t> statesByName;
 
    // Animation FSM parameters
    std::unordered_map<std::string, float> floatParams;

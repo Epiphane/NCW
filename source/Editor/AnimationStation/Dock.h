@@ -87,7 +87,7 @@ private:
    // State
    AnimationController::BoneID mBone;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   size_t mSkeleton;
    Engine::ComponentHandle<AnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
@@ -161,7 +161,8 @@ private:
 
    private:
       bool afterCurrent;
-      State state{"", 1.0f, {}, {}};
+
+      State state{"", 0, 1.0f, {}, {}};
    };
 
    //

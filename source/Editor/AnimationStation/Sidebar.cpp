@@ -46,10 +46,6 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
    mSave = buttons->Add<TextButton>(buttonOptions);
 
-   buttonOptions.text = "Save As...";
-   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
-
    buttonOptions.text = "Discard Changes";
    buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
    TextButton* discard = buttons->Add<TextButton>(buttonOptions);
@@ -67,10 +63,8 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    load->ConstrainHeight(32);
    mSave->ConstrainDimensionsTo(load);
    mSave->ConstrainLeftAlignedTo(load);
-   saveAs->ConstrainDimensionsTo(mSave);
-   saveAs->ConstrainLeftAlignedTo(mSave);
-   discard->ConstrainDimensionsTo(saveAs);
-   discard->ConstrainLeftAlignedTo(saveAs);
+   discard->ConstrainDimensionsTo(mSave);
+   discard->ConstrainLeftAlignedTo(mSave);
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
@@ -164,18 +158,11 @@ void Sidebar::LoadFile(const std::string& filename)
    SetModified(false);
 }
 
-void Sidebar::SaveNewFile()
-{
-   std::string file = SaveFileDialog(mFilename);
-   if (!file.empty())
-   {
-      mFilename = file;
-      SaveFile();
-   }
-}
-
 void Sidebar::SaveFile()
 {
+   mSkeleton->UpdateSkeletonStates();
+
+   // Then, save each skeleton
    for (size_t i = 0; i < mSkeleton->NumSkeletons(); ++i)
    {
       Engine::ComponentHandle<AnimatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
