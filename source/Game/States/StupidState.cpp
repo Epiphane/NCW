@@ -166,10 +166,24 @@ namespace Game
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
+      auto controller = player.Add<AnimationController>();
 
-      Engine::ComponentHandle<VoxModel> model = player.Add<VoxModel>();
-      player.Add<AnimatedSkeleton>(Asset::Model("character.json"), model);
+      player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+      });
+
+      Engine::Entity part = mEntities.Create(0, 0, 0);
+      part.Get<Transform>()->SetParent(player);
+      Engine::ComponentHandle<VoxModel> model = part.Add<VoxModel>();
       model->mTint = glm::vec3(0, 0, 168.0f);
+      Engine::ComponentHandle<AnimatedSkeleton> skeleton = part.Add<AnimatedSkeleton>(Asset::Model("character.json"), model);
+      controller->AddSkeleton(skeleton);
+
+      part = mEntities.Create(0, 0, 0);
+      part.Get<Transform>()->SetParent(player);
+      model = part.Add<VoxModel>();
+      skeleton = part.Add<AnimatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
+      controller->AddSkeleton(skeleton);
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;

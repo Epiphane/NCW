@@ -37,7 +37,7 @@
          ]
       }
    },
-   "default": "swing",
+   "default": "swing 1",
    "model": "wood-greatmace02.vox",
    "parent": "character.json",
    "states": [
@@ -743,6 +743,106 @@
                   }
                },
                "time": 0.69
+            }
+         ],
+         "length": 0.7,
+         "name": "swing 1",
+         "next": "swing 1 recoil"
+      },
+      {
+         "keyframes": [
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.86,
+                        -2.0
+                     ],
+                     "rotation": [
+                        -21.09,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        1.5,
+                        2.1
+                     ],
+                     "rotation": [
+                        3.8,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        0.48,
+                        1.92,
+                        0.72
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.38,
+                        2.18,
+                        2.5
+                     ],
+                     "rotation": [
+                        70.78,
+                        -53.91,
+                        0.0
+                     ]
+                  },
+                  "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        6.12
+                     ],
+                     "rotation": [
+                        24.22,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.0,
+                        46.09,
+                        0.0
+                     ]
+                  }
+               },
+               "time": 0.0
             },
             {
                "bones": {
@@ -757,10 +857,10 @@
                      "position": [
                         0.0,
                         4.86,
-                        -0.94
+                        -2.0
                      ],
                      "rotation": [
-                        -13.59,
+                        -21.09,
                         0.0,
                         0.0
                      ]
@@ -775,13 +875,6 @@
                         3.5,
                         -0.0,
                         0.0
-                     ]
-                  },
-                  "Left Foot": {
-                     "position": [
-                        -0.0,
-                        -5.0,
-                        -0.0
                      ]
                   },
                   "Left Hand": {
@@ -812,44 +905,44 @@
                   },
                   "Right Hand": {
                      "position": [
-                        0.47,
-                        1.84,
-                        0.95
+                        0.48,
+                        1.92,
+                        0.72
                      ]
                   },
                   "Shoulders": {
                      "position": [
-                        -8.55,
-                        2.16,
-                        2.19
+                        -8.38,
+                        2.18,
+                        2.5
                      ],
                      "rotation": [
-                        70.82,
-                        -53.89,
-                        -0.0
+                        70.78,
+                        -53.91,
+                        0.0
                      ]
                   },
                   "Spine": {
                      "position": [
                         0.0,
-                        -0.4,
-                        6.18
+                        0.0,
+                        6.12
                      ],
                      "rotation": [
-                        24.13,
+                        24.22,
                         0.0,
                         0.0
                      ]
                   },
                   "Torso": {
                      "rotation": [
-                        0.02,
-                        51.55,
-                        0.02
+                        0.0,
+                        46.09,
+                        0.0
                      ]
                   }
                },
-               "time": 1.13
+               "time": 0.43
             },
             {
                "bones": {
@@ -925,7 +1018,7 @@
                      ]
                   }
                },
-               "time": 1.34
+               "time": 0.64
             },
             {
                "bones": {
@@ -1001,11 +1094,62 @@
                      ]
                   }
                },
-               "time": 1.36
+               "time": 0.66
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        -0.55,
+                        0.0,
+                        0.95
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -6.0,
+                        3.37,
+                        2.77
+                     ],
+                     "rotation": [
+                        0.0,
+                        0.0,
+                        15.78
+                     ]
+                  }
+               },
+               "time": 0.79
             }
          ],
-         "length": 1.5,
-         "name": "swing"
+         "length": 0.8,
+         "name": "swing 1 recoil",
+         "next": "idle"
       },
       {
          "keyframes": [
@@ -1529,197 +1673,314 @@
                      ]
                   }
                },
-               "time": 0.91
-            },
-            {
-               "bones": {
-                  "Attachment": {
-                     "position": [
-                        0.0,
-                        0.0,
-                        -0.0
-                     ]
-                  },
-                  "Head": {
-                     "position": [
-                        0.0,
-                        4.33,
-                        -0.39
-                     ],
-                     "rotation": [
-                        -8.03,
-                        0.0,
-                        0.0
-                     ]
-                  },
-                  "Hips": {
-                     "position": [
-                        0.0,
-                        1.5,
-                        2.1
-                     ],
-                     "rotation": [
-                        3.8,
-                        -0.0,
-                        0.0
-                     ]
-                  },
-                  "Left Hand": {
-                     "position": [
-                        0.67,
-                        -1.48,
-                        0.0
-                     ]
-                  },
-                  "Mace": {
-                     "position": [
-                        0.0,
-                        11.54,
-                        0.0
-                     ],
-                     "rotation": [
-                        0.0,
-                        -0.0,
-                        -0.04
-                     ]
-                  },
-                  "Right Hand": {
-                     "position": [
-                        0.48,
-                        1.92,
-                        0.72
-                     ]
-                  },
-                  "Shoulders": {
-                     "position": [
-                        -8.38,
-                        0.06,
-                        7.95
-                     ],
-                     "rotation": [
-                        79.34,
-                        -15.69,
-                        0.0
-                     ]
-                  },
-                  "Spine": {
-                     "position": [
-                        0.0,
-                        0.0,
-                        3.57
-                     ],
-                     "rotation": [
-                        11.09,
-                        0.0,
-                        0.0
-                     ]
-                  },
-                  "Torso": {
-                     "rotation": [
-                        0.0,
-                        16.41,
-                        0.0
-                     ]
-                  }
-               },
-               "time": 1.09
-            },
-            {
-               "bones": {
-                  "Attachment": {
-                     "position": [
-                        0.0,
-                        0.0,
-                        -0.0
-                     ]
-                  },
-                  "Head": {
-                     "position": [
-                        0.0,
-                        4.33,
-                        -0.39
-                     ],
-                     "rotation": [
-                        -8.03,
-                        0.0,
-                        0.0
-                     ]
-                  },
-                  "Hips": {
-                     "position": [
-                        0.0,
-                        1.5,
-                        2.1
-                     ],
-                     "rotation": [
-                        3.8,
-                        -0.0,
-                        0.0
-                     ]
-                  },
-                  "Left Hand": {
-                     "position": [
-                        0.67,
-                        -1.48,
-                        0.0
-                     ]
-                  },
-                  "Mace": {
-                     "position": [
-                        0.0,
-                        11.54,
-                        0.0
-                     ],
-                     "rotation": [
-                        0.0,
-                        -0.0,
-                        -0.04
-                     ]
-                  },
-                  "Right Hand": {
-                     "position": [
-                        0.48,
-                        1.92,
-                        0.72
-                     ]
-                  },
-                  "Shoulders": {
-                     "position": [
-                        -8.38,
-                        0.06,
-                        7.95
-                     ],
-                     "rotation": [
-                        79.34,
-                        -15.69,
-                        0.0
-                     ]
-                  },
-                  "Spine": {
-                     "position": [
-                        0.0,
-                        0.0,
-                        3.57
-                     ],
-                     "rotation": [
-                        11.09,
-                        0.0,
-                        0.0
-                     ]
-                  },
-                  "Torso": {
-                     "rotation": [
-                        0.0,
-                        16.41,
-                        0.0
-                     ]
-                  }
-               },
-               "time": 1.46
+               "time": 0.89
             }
          ],
-         "length": 1.5,
-         "name": "swing 2"
+         "length": 0.9,
+         "name": "swing 2",
+         "next": "swing 2 recoil"
+      },
+      {
+         "keyframes": [
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.29,
+                        -0.28
+                     ],
+                     "rotation": [
+                        -7.13,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        1.5,
+                        2.1
+                     ],
+                     "rotation": [
+                        3.8,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        0.48,
+                        1.92,
+                        0.72
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.38,
+                        0.06,
+                        7.95
+                     ],
+                     "rotation": [
+                        79.34,
+                        -15.69,
+                        0.0
+                     ]
+                  },
+                  "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.57
+                     ],
+                     "rotation": [
+                        11.09,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.0,
+                        16.41,
+                        0.0
+                     ]
+                  }
+               },
+               "time": 0.0
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.85,
+                        -0.93
+                     ],
+                     "rotation": [
+                        -13.52,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        0.34,
+                        1.6,
+                        0.95
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.54,
+                        2.17,
+                        2.19
+                     ],
+                     "rotation": [
+                        70.39,
+                        -53.68,
+                        0.05
+                     ]
+                  },
+                  "Spine": {
+                     "rotation": [
+                        8.33,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.02,
+                        51.27,
+                        0.02
+                     ]
+                  }
+               },
+               "time": 0.64
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.82,
+                        -0.9
+                     ],
+                     "rotation": [
+                        -13.02,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        -0.55,
+                        -0.0,
+                        0.95
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.45,
+                        2.21,
+                        2.21
+                     ],
+                     "rotation": [
+                        67.53,
+                        -52.24,
+                        0.41
+                     ]
+                  },
+                  "Spine": {
+                     "rotation": [
+                        8.03,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.04,
+                        49.38,
+                        0.02
+                     ]
+                  }
+               },
+               "time": 0.66
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        -0.55,
+                        0.0,
+                        0.95
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -6.0,
+                        3.37,
+                        2.77
+                     ],
+                     "rotation": [
+                        0.0,
+                        0.0,
+                        15.78
+                     ]
+                  }
+               },
+               "time": 0.79
+            }
+         ],
+         "length": 0.9,
+         "name": "swing 2 recoil",
+         "next": "idle"
       },
       {
          "keyframes": [
@@ -1921,11 +2182,197 @@
                   "Head": {
                      "position": [
                         0.0,
-                        4.29,
-                        -0.26
+                        4.33,
+                        -0.39
                      ],
                      "rotation": [
-                        -6.95,
+                        -8.03,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        1.5,
+                        2.0
+                     ],
+                     "rotation": [
+                        3.49,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        0.39,
+                        1.76,
+                        0.74
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.38,
+                        0.06,
+                        7.95
+                     ],
+                     "rotation": [
+                        79.34,
+                        -15.69,
+                        0.0
+                     ]
+                  },
+                  "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.57
+                     ],
+                     "rotation": [
+                        11.09,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.0,
+                        16.41,
+                        0.0
+                     ]
+                  }
+               },
+               "time": 0.43
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.33,
+                        -0.39
+                     ],
+                     "rotation": [
+                        -8.03,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        1.5,
+                        1.99
+                     ],
+                     "rotation": [
+                        3.48,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        0.39,
+                        1.76,
+                        0.74
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -8.38,
+                        0.44,
+                        7.95
+                     ],
+                     "rotation": [
+                        81.87,
+                        -15.69,
+                        0.0
+                     ]
+                  },
+                  "Spine": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        3.57
+                     ],
+                     "rotation": [
+                        11.09,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.0,
+                        16.41,
+                        0.0
+                     ]
+                  }
+               },
+               "time": 0.54
+            },
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.33,
+                        -0.39
+                     ],
+                     "rotation": [
+                        -8.03,
                         0.0,
                         0.0
                      ]
@@ -1970,13 +2417,13 @@
                   },
                   "Shoulders": {
                      "position": [
-                        -8.24,
-                        0.5,
-                        7.8
+                        -8.38,
+                        4.06,
+                        4.25
                      ],
                      "rotation": [
-                        68.72,
-                        -13.59,
+                        95.54,
+                        -15.69,
                         0.0
                      ]
                   },
@@ -1984,10 +2431,10 @@
                      "position": [
                         0.0,
                         0.0,
-                        3.09
+                        3.57
                      ],
                      "rotation": [
-                        9.6,
+                        11.09,
                         0.0,
                         0.0
                      ]
@@ -1995,12 +2442,12 @@
                   "Torso": {
                      "rotation": [
                         0.0,
-                        14.21,
+                        16.41,
                         0.0
                      ]
                   }
                },
-               "time": 0.32
+               "time": 0.61
             },
             {
                "bones": {
@@ -2093,7 +2540,7 @@
                      ]
                   }
                },
-               "time": 0.38
+               "time": 0.67
             },
             {
                "bones": {
@@ -2193,7 +2640,7 @@
                      ]
                   }
                },
-               "time": 0.43
+               "time": 0.73
             },
             {
                "bones": {
@@ -2228,13 +2675,6 @@
                         0.0
                      ]
                   },
-                  "Left Foot": {
-                     "position": [
-                        0.0,
-                        -5.0,
-                        0.0
-                     ]
-                  },
                   "Left Hand": {
                      "position": [
                         0.67,
@@ -2243,11 +2683,6 @@
                      ]
                   },
                   "Left Leg": {
-                     "position": [
-                        2.5,
-                        -1.0,
-                        0.0
-                     ],
                      "rotation": [
                         -29.56,
                         -0.0,
@@ -2264,13 +2699,6 @@
                         0.0,
                         -0.0,
                         -0.04
-                     ]
-                  },
-                  "Right Foot": {
-                     "position": [
-                        0.0,
-                        -5.0,
-                        0.0
                      ]
                   },
                   "Right Hand": {
@@ -2312,7 +2740,114 @@
                      ]
                   }
                },
-               "time": 1.01
+               "time": 0.99
+            }
+         ],
+         "length": 1.0,
+         "name": "swing 3",
+         "next": "swing 3 recoil"
+      },
+      {
+         "keyframes": [
+            {
+               "bones": {
+                  "Attachment": {
+                     "position": [
+                        0.0,
+                        0.0,
+                        -0.0
+                     ]
+                  },
+                  "Head": {
+                     "position": [
+                        0.0,
+                        4.01,
+                        0.58
+                     ],
+                     "rotation": [
+                        6.79,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Hips": {
+                     "position": [
+                        0.0,
+                        1.5,
+                        0.83
+                     ],
+                     "rotation": [
+                        0.08,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Left Hand": {
+                     "position": [
+                        0.67,
+                        -1.48,
+                        0.0
+                     ]
+                  },
+                  "Left Leg": {
+                     "rotation": [
+                        -29.56,
+                        -0.0,
+                        0.0
+                     ]
+                  },
+                  "Mace": {
+                     "position": [
+                        0.0,
+                        11.54,
+                        0.0
+                     ],
+                     "rotation": [
+                        0.0,
+                        -0.0,
+                        -0.04
+                     ]
+                  },
+                  "Right Hand": {
+                     "position": [
+                        -0.53,
+                        0.04,
+                        0.94
+                     ]
+                  },
+                  "Shoulders": {
+                     "position": [
+                        -7.25,
+                        1.36,
+                        0.2
+                     ],
+                     "rotation": [
+                        -37.73,
+                        15.12,
+                        1.23
+                     ]
+                  },
+                  "Spine": {
+                     "position": [
+                        0.0,
+                        0.77,
+                        -3.69
+                     ],
+                     "rotation": [
+                        -16.09,
+                        0.0,
+                        0.0
+                     ]
+                  },
+                  "Torso": {
+                     "rotation": [
+                        0.0,
+                        0.35,
+                        0.0
+                     ]
+                  }
+               },
+               "time": 0.0
             },
             {
                "bones": {
@@ -2362,12 +2897,51 @@
                      ]
                   }
                },
-               "time": 1.46
+               "time": 0.49
             }
          ],
-         "length": 1.5,
-         "name": "swing 3"
+         "length": 0.5,
+         "name": "swing 3 recoil",
+         "next": "idle"
       }
    ],
+   "transitions": {
+      "idle": [
+         {
+            "time": 0.1,
+            "to": "swing 1",
+            "triggers": [
+               {
+                  "bool": true,
+                  "parameter": "attack"
+               }
+            ]
+         }
+      ],
+      "swing 1 recoil": [
+         {
+            "time": 0.1,
+            "to": "swing 2",
+            "triggers": [
+               {
+                  "bool": true,
+                  "parameter": "attack"
+               }
+            ]
+         }
+      ],
+      "swing 2 recoil": [
+         {
+            "time": 0.1,
+            "to": "swing 3",
+            "triggers": [
+               {
+                  "bool": true,
+                  "parameter": "attack"
+               }
+            ]
+         }
+      ]
+   },
    "version": 1
 }

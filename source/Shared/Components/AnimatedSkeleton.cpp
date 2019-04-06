@@ -56,6 +56,7 @@ void AnimatedSkeleton::Reset()
 {
    states.clear();
    statesByName.clear();
+   transitions.clear();
    bones.clear();
    bonesByName.clear();
 }
@@ -161,6 +162,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
    {
       AnimatedSkeleton::State state;
       state.name = anim.value("name", "");
+      state.next = anim.value("next", "");
       state.length = anim["length"];
 
       assert(state.name != "");
@@ -209,7 +211,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
    {
       for (auto it = data["transitions"].begin(); it != data["transitions"].end(); it++)
       {
-         State& source = states[statesByName[it.key()]];
+         std::vector<Transition>& source = transitions[it.key()];
 
          for (auto info : it.value())
          {
@@ -238,7 +240,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
 
                transition.triggers.push_back(std::move(trigger));
             }
-            source.transitions.push_back(std::move(transition));
+            source.push_back(std::move(transition));
          }
       }
    }
@@ -269,13 +271,14 @@ std::string AnimatedSkeleton::Serialize()
 
    // States and their transitions
    data["default"] = states[0].name;
-   for (auto state : states)
+   for (const State& state : states)
    {
       nlohmann::json stateData;
       stateData["name"] = state.name;
+      stateData["next"] = state.next;
       stateData["length"] = std::round(state.length * 100) / 100;
 
-      for (auto keyframe : state.keyframes)
+      for (const Keyframe& keyframe : state.keyframes)
       {
          if (keyframe.time == state.length)
          {
@@ -303,9 +306,12 @@ std::string AnimatedSkeleton::Serialize()
       }
 
       data["states"].push_back(stateData);
+   }
 
-      // Add transitions for this state.
-      for (auto transition : state.transitions)
+   // Add transitions for this state.
+   for (const auto& [state, list] : transitions)
+   {
+      for (const Transition& transition : list)
       {
          nlohmann::json transitionData;
 
@@ -318,23 +324,23 @@ std::string AnimatedSkeleton::Serialize()
             triggerData["parameter"] = trigger.parameter;
             switch (trigger.type)
             {
-               case AnimatedSkeleton::Transition::Trigger::FloatGte:
-                  triggerData["gte"] = (double)std::round(trigger.floatVal * 100) / 100;
-                  break;
-               case AnimatedSkeleton::Transition::Trigger::FloatLt:
-                  triggerData["lt"] = (double)std::round(trigger.floatVal * 100) / 100;
-                  break;
-               case AnimatedSkeleton::Transition::Trigger::Bool:
-                  triggerData["bool"] = trigger.boolVal;
-                  break;
-               default:
-                  assert(false && "Unrecognized trigger type");
+            case AnimatedSkeleton::Transition::Trigger::FloatGte:
+               triggerData["gte"] = (double)std::round(trigger.floatVal * 100) / 100;
+               break;
+            case AnimatedSkeleton::Transition::Trigger::FloatLt:
+               triggerData["lt"] = (double)std::round(trigger.floatVal * 100) / 100;
+               break;
+            case AnimatedSkeleton::Transition::Trigger::Bool:
+               triggerData["bool"] = trigger.boolVal;
+               break;
+            default:
+               assert(false && "Unrecognized trigger type");
             }
 
             transitionData["triggers"].push_back(triggerData);
          }
-      
-         data["transitions"][state.name].push_back(transitionData);
+
+         data["transitions"][state].push_back(transitionData);
       }
    }
 

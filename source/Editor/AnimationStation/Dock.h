@@ -164,7 +164,7 @@ private:
    private:
       bool afterCurrent;
 
-      State state{"", 0, 1.0f, {}, {}};
+      State state{"", "", 0, 1.0f, {}, {}};
    };
 
    //

@@ -53,6 +53,7 @@ void AnimationController::UpdateSkeletonStates()
    {
       skeleton->states.clear();
       skeleton->statesByName.clear();
+      skeleton->transitions.clear();
    }
 
    std::vector<AnimatedSkeleton::State> stateData;
@@ -75,6 +76,7 @@ void AnimationController::UpdateSkeletonStates()
    {
       AnimatedSkeleton::State info;
       info.name = state.name;
+      info.next = state.next;
       info.length = state.length;
 
       for (const Keyframe& keyframe : state.keyframes)
@@ -126,9 +128,14 @@ void AnimationController::UpdateSkeletonStates()
                }
             }
          }
+
+         if (modified)
+         {
+            skeleton->statesByName.emplace(info.name, skeleton->states.size());
+            skeleton->states.push_back(info);
+         }
          
          // Now, add transition information
-         info.transitions.clear();
          for (const Transition& transition : state.transitions)
          {
             // Case 1: This is the skeleton creating the state - add if this is the dest skeleton too.
@@ -136,15 +143,8 @@ void AnimationController::UpdateSkeletonStates()
             const State& other = states[statesByName[transition.destination]];
             if (other.skeletonId == s)
             {
-               info.transitions.push_back(transition);
-               modified = true;
+               skeleton->transitions[state.name].push_back(transition);
             }
-         }
-
-         if (modified)
-         {
-            skeleton->statesByName.emplace(info.name, skeleton->states.size());
-            skeleton->states.push_back(info);
          }
       }
    }
@@ -209,6 +209,20 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    {
       AddState(skeleton, state);
    }
+
+   for (const auto&[stateName, transitions] : skeleton->transitions)
+   {
+      auto stateId = statesByName.find(stateName);
+      if (stateId == statesByName.end())
+      {
+         LOG_ERROR("Tried to add transitions for state '%1', but state does not exists", stateName);
+         continue;
+      }
+
+      // Append transition data
+      State& state = states[stateId->second];
+      std::transform(transitions.begin(), transitions.end(), std::back_inserter(state.transitions), [](const auto& t) { return t; });
+   }
 }
 
 void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& definition)
@@ -244,10 +258,10 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
 
       State state;
       state.name = definition.name;
+      state.next = definition.next;
       state.skeletonId = skeletonNdx;
       state.length = definition.length;
       state.keyframes.resize(definition.keyframes.size());
-      state.transitions.reserve(definition.transitions.size());
 
       for (size_t i = 0; i < definition.keyframes.size(); i++)
       {
@@ -267,9 +281,6 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
 
    // Add this skeleton's info to the state
    State& state = states[stateId];
-
-   // Append transition data
-   std::transform(definition.transitions.begin(), definition.transitions.end(), std::back_inserter(state.transitions), [](const auto& t) { return t; });
 
    if (definition.length != 0 && definition.length != state.length)
    {
@@ -392,8 +403,8 @@ AnimationController::BoneID AnimationController::ParentBone(BoneID id)
 void AnimationController::Play(const std::string& state, double startTime)
 {
    // TODO this and transitions lol
-   auto it = skeletons[0]->statesByName.find(state);
-   assert(it != skeletons[0]->statesByName.end());
+   auto it = statesByName.find(state);
+   assert(it != statesByName.end());
 
    if (current == it->second)
    {
@@ -413,8 +424,8 @@ void AnimationController::TransitionTo(const std::string& state, double transiti
       time = transitionCurrent;
    }
 
-   auto it = skeletons[0]->statesByName.find(state);
-   assert(it != skeletons[0]->statesByName.end());
+   auto it = statesByName.find(state);
+   assert(it != statesByName.end());
 
    if (current == it->second && next == it->second)
    {

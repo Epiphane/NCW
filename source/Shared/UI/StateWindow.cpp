@@ -73,6 +73,11 @@ bool StateWindow::IsKeyDown(int key) const
    return mpRoot->GetInput()->IsKeyDown(key);
 }
 
+bool StateWindow::IsMouseDown(int button) const
+{
+   return mMousePressed[button];
+}
+
 bool StateWindow::IsDragging(int button) const
 {
    return mMouseDragging[button];

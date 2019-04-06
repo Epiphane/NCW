@@ -127,6 +127,7 @@ public:
    void Reset() override;
    void Update() override;
    bool IsKeyDown(int key) const override;
+   bool IsMouseDown(int button) const override { return mMousePressed[button]; }
    bool IsDragging(int button) const override { return mMouseDragging[button]; }
    glm::tvec2<double> GetRawMousePosition() const override;
    glm::tvec2<double> GetMousePosition() const override;

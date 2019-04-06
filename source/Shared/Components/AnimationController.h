@@ -30,6 +30,7 @@ public:
 
    struct State {
       std::string name;
+      std::string next;
       size_t skeletonId;
 
       double length;
@@ -65,8 +66,11 @@ public:
    BoneID ParentBone(BoneID id);
 
 public:
+   float GetFloatParameter(const std::string& name) { return floatParams[name]; }
    void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
-   void SetParameter(const std::string& name, bool val) { boolParams[name] = val; }
+   
+   bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
+   void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
 
 public:
    void Play(const std::string& state, double startTime = 0.0);

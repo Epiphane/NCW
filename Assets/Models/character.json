@@ -389,7 +389,8 @@
             }
          ],
          "length": 5.02,
-         "name": "idle"
+         "name": "idle",
+         "next": ""
       },
       {
          "keyframes": [
@@ -637,7 +638,8 @@
             }
          ],
          "length": 0.8,
-         "name": "walk"
+         "name": "walk",
+         "next": ""
       },
       {
          "keyframes": [
@@ -938,7 +940,8 @@
             }
          ],
          "length": 0.4,
-         "name": "run"
+         "name": "run",
+         "next": ""
       }
    ],
    "transitions": {
