@@ -59,6 +59,7 @@ public:
 
    void Update(TIMEDELTA dt) override;
 
+   void AddKeyframeIcon();
    void UpdateKeyframeIcons();
 
 public:

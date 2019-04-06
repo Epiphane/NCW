@@ -342,7 +342,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
    // Bone information
    UIElement* boneHeader = Add<UIStackView>();
-   boneHeader->ConstrainToRightOf(dockStateInfo, 48);
+   boneHeader->ConstrainToRightOf(dockStateInfo, 64);
    boneHeader->ConstrainTopAlignedTo(dockStateInfo);
    {
       UIStackView* row1 = boneHeader->Add<UIStackView>();
@@ -531,6 +531,11 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
    }
 
+   for (size_t i = 0; i < 20; ++i)
+   {
+      AddKeyframeIcon();
+   }
+
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<SkeletonSelectedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
@@ -605,6 +610,32 @@ void Dock::Update(TIMEDELTA dt)
 ///
 ///
 ///
+void Dock::AddKeyframeIcon()
+{
+   Image::Options keyframeOptions;
+   keyframeOptions.filename = Asset::Image("EditorIcons.png");
+   keyframeOptions.image = "keyframe";
+
+   Image* image = mKeyframes->Add<Image>(keyframeOptions);
+   image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
+
+   UIFrame& fImage = image->GetFrame();
+   UIFrame& fKeyframes = mKeyframes->GetFrame();
+   auto entry = std::make_pair(image, rhea::variable());
+   mpRoot->AddEditVar(entry.second);
+   mpRoot->AddConstraints({
+      fImage > fKeyframes,
+      fImage.top == fKeyframes.top,
+      fImage.bottom == fKeyframes.bottom,
+      fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
+   });
+
+   mKeyframeIcons.push_back(entry);
+}
+
+///
+///
+///
 void Dock::UpdateKeyframeIcons()
 {
    State& state = GetCurrentState();
@@ -612,25 +643,7 @@ void Dock::UpdateKeyframeIcons()
    size_t nKeyframes = state.keyframes.size();
    while (mKeyframeIcons.size() < nKeyframes)
    {
-      Image::Options keyframeOptions;
-      keyframeOptions.filename = Asset::Image("EditorIcons.png");
-      keyframeOptions.image = "keyframe";
-
-      Image* image = mKeyframes->Add<Image>(keyframeOptions);
-      image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
-
-      UIFrame& fImage = image->GetFrame();
-      UIFrame& fKeyframes = mKeyframes->GetFrame();
-      auto entry = std::make_pair(image, rhea::variable());
-      mpRoot->AddEditVar(entry.second);
-      mpRoot->AddConstraints({
-         fImage > fKeyframes,
-         fImage.top == fKeyframes.top,
-         fImage.bottom == fKeyframes.bottom,
-         fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
-      });
-
-      mKeyframeIcons.push_back(entry);
+      AddKeyframeIcon();
    }
    for (size_t i = 0; i < mKeyframeIcons.size(); i++)
    {
