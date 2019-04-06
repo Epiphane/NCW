@@ -25,8 +25,20 @@ TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
       mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(key), onAlpha));
       mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::ShiftKey(key), onAlpha));
    }
+   for (int key = GLFW_KEY_0; key <= GLFW_KEY_9; key++)
+   {
+      mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(key), onAlpha));
+      mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::ShiftKey(key), onAlpha));
+   }
+   mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(GLFW_KEY_SPACE), onAlpha));
    mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(GLFW_KEY_BACKSPACE), onAlpha));
    mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(GLFW_KEY_ENTER), onAlpha));
+}
+
+void TextField::AddCharacter(char ch)
+{
+   mText.insert(mText.end() - 1, ch);
+   RenderText(mText);
 }
 
 void TextField::OnAlphaKey(int key, int action, int mods)
@@ -52,6 +64,39 @@ void TextField::OnAlphaKey(int key, int action, int mods)
       mChangeCallback(mText);
       RenderText(mText);
       break;
+   case GLFW_KEY_SPACE:
+      AddCharacter(' ');
+      break;
+   case GLFW_KEY_0:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? ')' : '0');
+      break;
+   case GLFW_KEY_1:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '!' : '1');
+      break;
+   case GLFW_KEY_2:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '@' : '2');
+      break;
+   case GLFW_KEY_3:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '#' : '3');
+      break;
+   case GLFW_KEY_4:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '$' : '4');
+      break;
+   case GLFW_KEY_5:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '%' : '5');
+      break;
+   case GLFW_KEY_6:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '^' : '6');
+      break;
+   case GLFW_KEY_7:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '&' : '7');
+      break;
+   case GLFW_KEY_8:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '*' : '8');
+      break;
+   case GLFW_KEY_9:
+      AddCharacter((mods & GLFW_MOD_SHIFT) != 0 ? '(' : '9');
+      break;
    default:
       // It's a letter
       char ch = static_cast<char>((key - GLFW_KEY_A) + 'a');
@@ -59,8 +104,8 @@ void TextField::OnAlphaKey(int key, int action, int mods)
       {
          ch += 'A' - 'a';
       }
-      mText.insert(mText.end() - 1, ch);
-      RenderText(mText);
+      AddCharacter(ch);
+      break;
    }
 }
 

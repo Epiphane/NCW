@@ -93,6 +93,7 @@ void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& 
    mButtons[mActive]->Focus();
 
    mSkeletons.push_back(evt.component);
+   mpRoot->Emit<SkeletonSelectedEvent>(mActive, evt.component);
 }
 
 void SkeletonList::Receive(const SkeletonClearedEvent&)

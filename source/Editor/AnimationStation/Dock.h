@@ -157,6 +157,7 @@ private:
    {
    public:
       AddStateCommand(Dock* dock) : DockCommand(dock), afterCurrent(true) {};
+      AddStateCommand(Dock* dock, State base) : DockCommand(dock), afterCurrent(true), state(base) {};
       void Do() override;
       void Undo() override;
 

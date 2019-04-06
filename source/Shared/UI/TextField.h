@@ -53,6 +53,8 @@ private:
    bool mIsFocused;
 
    std::vector<std::unique_ptr<Engine::Input::KeyCallbackLink>> mKeyCallbacks;
+
+   void AddCharacter(char ch);
    void OnAlphaKey(int key, int action, int mods);
 };
 

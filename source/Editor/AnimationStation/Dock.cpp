@@ -127,6 +127,18 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       addStateButton->ConstrainTopAlignedTo(stateName);
       addStateButton->ConstrainHeightTo(stateName);
 
+      buttonOptions.image = "button_add";
+      buttonOptions.hoverImage = "hover_button_add";
+      buttonOptions.pressImage = "press_button_add";
+      buttonOptions.onClick = [&]() {
+         State newState = GetCurrentState();
+         newState.name += " Copy";
+         CommandStack::Instance()->Do<AddStateCommand>(this, newState);
+      };
+      Button* dupStateButton = stateName->Add<Button>(buttonOptions);
+      dupStateButton->ConstrainTopAlignedTo(stateName);
+      dupStateButton->ConstrainHeightTo(stateName);
+
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
@@ -435,7 +447,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].originalPosition, keyframe.rotations[mBone]);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mController->GetBone(mBone)->originalPosition, keyframe.rotations[mBone]);
          }
       };
       Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -450,8 +462,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
-            //Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
+            Keyframe& prev = state.keyframes[index - 1];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
          }
       };
       Button* setPrevPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -464,7 +476,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].originalRotation);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mController->GetBone(mBone)->originalRotation);
          }
       };
       Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
@@ -479,8 +491,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
-            //Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
+            Keyframe& prev = state.keyframes[index - 1];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
          }
       };
       Button* setPrevRotationButton = bonePosition->Add<Button>(buttonOptions);

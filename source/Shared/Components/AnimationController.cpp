@@ -100,7 +100,7 @@ void AnimationController::UpdateSkeletonStates()
          size_t first = state.skeletonId == s ? 0 : skeletonRootId[s];
          size_t last = s == skeletons.size() - 1 ? bones.size() : skeletonRootId[s + 1];
          
-         bool modified = false;
+         bool modified = (s == state.skeletonId);
          for (size_t b = first; b < last; ++b)
          {
             std::string name = bones[b];
