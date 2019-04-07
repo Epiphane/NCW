@@ -270,42 +270,45 @@ std::string AnimatedSkeleton::Serialize()
    }
 
    // States and their transitions
-   data["default"] = states[0].name;
-   for (const State& state : states)
+   if (states.size() > 0)
    {
-      nlohmann::json stateData;
-      stateData["name"] = state.name;
-      stateData["next"] = state.next;
-      stateData["length"] = std::round(state.length * 100) / 100;
-
-      for (const Keyframe& keyframe : state.keyframes)
+      data["default"] = states[0].name;
+      for (const State& state : states)
       {
-         if (keyframe.time == state.length)
+         nlohmann::json stateData;
+         stateData["name"] = state.name;
+         stateData["next"] = state.next;
+         stateData["length"] = std::round(state.length * 100) / 100;
+
+         for (const Keyframe& keyframe : state.keyframes)
          {
-            continue;
+            if (keyframe.time == state.length)
+            {
+               continue;
+            }
+
+            nlohmann::json keyframeData;
+
+            keyframeData["time"] = std::round(keyframe.time * 100) / 100;
+
+            for (const auto& modification : keyframe.positions)
+            {
+               keyframeData["bones"][modification.first]["position"] = Shared::Vec3ToJson(modification.second);
+            }
+            for (const auto& modification : keyframe.rotations)
+            {
+               keyframeData["bones"][modification.first]["rotation"] = Shared::Vec3ToJson(modification.second);
+            }
+            for (const auto& modification : keyframe.scales)
+            {
+               keyframeData["bones"][modification.first]["scale"] = Shared::Vec3ToJson(modification.second);
+            }
+
+            stateData["keyframes"].push_back(keyframeData);
          }
 
-         nlohmann::json keyframeData;
-
-         keyframeData["time"] = std::round(keyframe.time * 100) / 100;
-
-         for (const auto& modification : keyframe.positions)
-         {
-            keyframeData["bones"][modification.first]["position"] = Shared::Vec3ToJson(modification.second);
-         }
-         for (const auto& modification : keyframe.rotations)
-         {
-            keyframeData["bones"][modification.first]["rotation"] = Shared::Vec3ToJson(modification.second);
-         }
-         for (const auto& modification : keyframe.scales)
-         {
-            keyframeData["bones"][modification.first]["scale"] = Shared::Vec3ToJson(modification.second);
-         }
-
-         stateData["keyframes"].push_back(keyframeData);
+         data["states"].push_back(stateData);
       }
-
-      data["states"].push_back(stateData);
    }
 
    // Add transitions for this state.
