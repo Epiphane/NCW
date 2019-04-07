@@ -8,7 +8,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "../Core/Pool.h"
+#include <RGBDesignPatterns/Pool.h>
 #include "../Event/EventManager.h"
 #include "Entity.h"
 #include "Component.h"

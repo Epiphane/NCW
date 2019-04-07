@@ -3,8 +3,8 @@
 #include <deque>
 #include <glad/glad.h>
 
-#include <Engine/Core/Scope.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
 #include "../Event/NamedEvent.h"

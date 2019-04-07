@@ -2,7 +2,7 @@
 
 #include <glm/ext.hpp>
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "EntityManager.h"
 #include "Transform.h"

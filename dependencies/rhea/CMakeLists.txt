@@ -4,6 +4,7 @@ set(VERSION "0.2.4")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
 list(APPEND CW_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}")
 list(APPEND CW_LIBS rhea-s)
+set_target_properties(rhea PROPERTIES FOLDER "_")
 
 # Propagate variables back up
 set(CW_INCLUDES ${CW_INCLUDES} PARENT_SCOPE)

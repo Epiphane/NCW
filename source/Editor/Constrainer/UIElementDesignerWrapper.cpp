@@ -7,7 +7,7 @@
 
 #include "UIElementDesignerWrapper.h"
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
 namespace CubeWorld

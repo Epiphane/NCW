@@ -13,9 +13,9 @@
 #include <Engine/Core/Input.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
-#include <Engine/Logger/StdoutLogger.h>
-#include <Engine/Logger/DebugLogger.h>
+#include <RGBLogger/Logger.h>
+#include <RGBLogger/StdoutLogger.h>
+#include <RGBLogger/DebugLogger.h>
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>

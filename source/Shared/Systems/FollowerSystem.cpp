@@ -1,6 +1,6 @@
 // By Thomas Steinke
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "FollowerSystem.h"
 

@@ -7,8 +7,8 @@
 #include <GL/includes.h>
 #include <glm/ext.hpp>
 
-#include <Engine/Logger/Logger.h>
-#include <Engine/Core/Scope.h>
+#include <RGBLogger/Logger.h>
+#include <RGBDesignPatterns/Scope.h>
 #include <Engine/Graphics/Program.h>
 
 #include "../Components/VoxModel.h"

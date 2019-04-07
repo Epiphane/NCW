@@ -6,8 +6,8 @@
 #include <cstdio>
 #include <errno.h>
 
-#include <Engine/Core/Scope.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
 
 #include "CubeFormat.h"
 

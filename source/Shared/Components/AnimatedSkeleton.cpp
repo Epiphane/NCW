@@ -6,11 +6,11 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include <stack>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Config.h>
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 
-#include "../Helpers/JsonHelper.h"
+#include <RGBBinding/JsonHelper.h>
 #include "../Helpers/VoxFormat.h"
 #include "../Event/NamedEvent.h"
 #include "AnimatedSkeleton.h"

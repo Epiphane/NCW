@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <Engine/Core/StateManager.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Engine/UI/UIContextMenu.h>

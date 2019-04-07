@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 namespace CubeWorld
 {

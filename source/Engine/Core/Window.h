@@ -6,8 +6,8 @@
 
 #include "Bounded.h"
 #include "Input.h"
-#include "Maybe.h"
-#include "Singleton.h"
+#include <RGBDesignPatterns/Maybe.h>
+#include <RGBDesignPatterns/Singleton.h>
 #include "../Graphics/VAO.h"
 
 namespace CubeWorld

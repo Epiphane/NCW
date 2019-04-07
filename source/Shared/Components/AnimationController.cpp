@@ -2,8 +2,8 @@
 
 #include <fstream>
 
-#include <Engine/Core/Paths.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Entity/EntityManager.h>
 
 #include "AnimationController.h"

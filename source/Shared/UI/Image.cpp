@@ -2,10 +2,10 @@
 
 #include <cassert>
 
-#include <Engine/Core/Paths.h>
-#include <Engine/Core/Scope.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
 #include "Image.h"

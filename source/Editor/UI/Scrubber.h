@@ -9,12 +9,12 @@
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
-#include <Engine/Core/Command.h>
+#include <RGBDesignPatterns/Command.h>
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/UI/Binding.h>
 #include <Engine/UI/UIElement.h>
 #include <Shared/UI/Image.h>

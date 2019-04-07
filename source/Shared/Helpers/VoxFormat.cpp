@@ -8,14 +8,13 @@
 #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
-// #include <glm/gtx/decomposition.hpp>
 #include <queue>
 #include <vector>
 
+#include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
+#include <RGBText/StringHelper.h>
 #include <Engine/Core/Config.h>
-#include <Engine/Core/Scope.h>
-#include <Engine/Helpers/StringHelper.h>
-#include <Engine/Logger/Logger.h>
 
 #include "VoxFormat.h"
 

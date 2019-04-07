@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#include <Engine/Core/Command.h>
+#include <RGBDesignPatterns/Command.h>
 #include <Shared/UI/Swapper.h>
 
 namespace CubeWorld

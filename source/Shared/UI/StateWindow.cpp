@@ -2,8 +2,8 @@
 
 #include <cassert>
 
-#include <Engine/Core/Scope.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 
 #include "../Aggregator/Image.h"

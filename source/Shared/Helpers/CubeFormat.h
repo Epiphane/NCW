@@ -5,7 +5,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include <Engine/Core/Maybe.h>
+#include <RGBFileSystem/Paths.h>
 #include "../Voxel.h"
 
 namespace CubeWorld

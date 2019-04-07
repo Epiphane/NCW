@@ -2,11 +2,10 @@
 
 #include <glm/glm.hpp>
 
+#include <RGBBinding/JsonHelper.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
 #include <Engine/UI/UIRoot.h>
-
-#include <Shared/Helpers/JsonHelper.h>
 
 #include "RectFilled.h"
 

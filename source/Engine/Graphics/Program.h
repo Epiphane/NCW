@@ -10,8 +10,8 @@
 #include <GL/includes.h>
 #include <glm/glm.hpp>
 
-#include "../Core/Maybe.h"
-#include "../Core/Scope.h"
+#include <RGBDesignPatterns/Maybe.h>
+#include <RGBDesignPatterns/Scope.h>
 
 namespace CubeWorld
 {

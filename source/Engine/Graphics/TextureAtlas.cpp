@@ -4,8 +4,8 @@
 #include <glad/glad.h>
 #include <algorithm>
 
-#include <Engine/Core/Format.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBText/Format.h>
+#include <RGBLogger/Logger.h>
 
 #include "TextureAtlas.h"
 

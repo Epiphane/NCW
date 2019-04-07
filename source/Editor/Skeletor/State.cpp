@@ -9,9 +9,9 @@
 #include <noiseutils/noiseutils.h>
 #pragma warning(pop)
 
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 #include <Engine/Core/StateManager.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
 #include <Shared/Components/VoxModel.h>

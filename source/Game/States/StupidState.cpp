@@ -7,7 +7,7 @@
 #include <noiseutils/noiseutils.h>
 #pragma warning(pop)
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>

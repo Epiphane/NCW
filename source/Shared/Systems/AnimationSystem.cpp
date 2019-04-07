@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Config.h>
 
 #include "AnimationSystem.h"
