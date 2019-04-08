@@ -1,20 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(RGBDesignPatterns)
 
-file(GLOB_RECURSE OSX_SOURCES "OSX/*")
-file(GLOB_RECURSE WIN_SOURCES "Windows/*")
-
 file(GLOB_RECURSE SOURCES
    "*.h"
    "*.cpp"
    "*.mm"
 )
-
-if (APPLE)
-# list(REMOVE_ITEM SOURCES ${WIN_SOURCES})
-elseif(WIN32)
-# list(REMOVE_ITEM SOURCES ${OSX_SOURCES})
-endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Library")
@@ -28,5 +19,6 @@ foreach(source IN LISTS SOURCES)
    source_group("${source_path_msvc}" FILES "${source}")
 endforeach()
 
-list(APPEND CW_LIBS ${PROJECT_NAME})
-set(CW_LIBS ${CW_LIBS} PARENT_SCOPE)
+# No lib file created, no source compiled
+# list(APPEND CW_LIBS ${PROJECT_NAME})
+# set(CW_LIBS ${CW_LIBS} PARENT_SCOPE)

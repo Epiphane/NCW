@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "../Logger/Logger.h"
+#include <RGBLogger/Logger.h>
 #include "InputEventSystem.h"
 
 namespace CubeWorld
