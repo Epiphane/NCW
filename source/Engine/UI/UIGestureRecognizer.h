@@ -36,6 +36,7 @@ namespace Engine
       //
       enum State {
          Possible,
+         Starting,
          Happening,
          Ending,
          Cancelled    ///< Usually triggered externally (i.e. if a Scrollview becomes hidden while scrolling)

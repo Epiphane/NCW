@@ -19,24 +19,21 @@ class ButtonVC : public UIElement
 public:
    ButtonVC(UIRoot* root, UIElement* parent, const std::string &name);
 
+   Action MouseMove(const MouseMoveEvent &evt) override;
+
 private:
    enum State { NORMAL, HOVER, PRESS };
    void SetState(State state);
-   
-   void TapHandler(const Engine::UIGestureRecognizer& rec);
 
-   // Visual state change callbacks
-   std::function<void(ButtonVC*)> mIdleCallback;
-   std::function<void(ButtonVC*)> mHoverCallback;
-   std::function<void(ButtonVC*)> mPressCallback;
+   void TapHandler(const Engine::UIGestureRecognizer& rec);
    
    // Callback for completed click
    std::function<void(void)> mClickCallback;
-   
+
+   bool mIsHovered; ///< True if the mouse is currently over us
    State mState;
 };
 
 }; // namespace Engine
 
 }; // namespace CubeWorld
-

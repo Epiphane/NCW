@@ -23,9 +23,17 @@ ButtonVC::ButtonVC(UIRoot* root, UIElement* parent, const std::string &name)
    
 void ButtonVC::TapHandler(const Engine::UIGestureRecognizer& rec)
 {
-   if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
-      mClickCallback();
-   } else {
+   switch (rec.GetState()) {
+      case Engine::UIGestureRecognizer::Starting:
+         break;
+      case Engine::UIGestureRecognizer::Possible:
+      case Engine::UIGestureRecognizer::Cancelled:
+         break;
+      case Engine::UIGestureRecognizer::Ending:
+         break;
+      case Engine::UIGestureRecognizer::Happening:
+         // Do nothing, we're already depressed
+         break;
    }
 }
 
@@ -49,6 +57,21 @@ void ButtonVC::SetState(State state)
          mPressCallback(this);
          break;
    }
+}
+
+UIElement::Action ButtonVC::MouseMove(const MouseMoveEvent &evt)
+{
+   bool hovering = ContainsPoint(evt.x, evt.y);
+   if (hovering != mIsHovered) {
+      mIsHovered = hovering;
+
+      if (hovering) {
+      }
+      if (!hovering) {
+      }
+   }
+
+   return Unhandled;
 }
 
 }; // namespace Engine

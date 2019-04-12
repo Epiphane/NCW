@@ -217,7 +217,7 @@ public:
    virtual Action MouseUp(const MouseUpEvent& evt);
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
    
-   UIGestureRecognizer* AddGestureRecognizer(std::unique_ptr<UIGestureRecognizer> recognizer);
+   UIGestureRecognizer* AddGestureRecognizer(std::shared_ptr<UIGestureRecognizer> recognizer);
 
 protected:
 
@@ -232,7 +232,7 @@ protected:
    std::vector<std::unique_ptr<UIElement>> mChildren;
    
    // List of gesture recognizers on this element
-   std::vector<std::unique_ptr<UIGestureRecognizer>> mGestureRecognizers;
+   std::vector<std::shared_ptr<UIGestureRecognizer>> mGestureRecognizers;
 
    UIElement* mpParent;
 };

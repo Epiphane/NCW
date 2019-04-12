@@ -172,7 +172,7 @@ void UIElement::LogDebugInfo(bool bRecursive, Logger::LogManager* output, uint32
    }
 }
    
-UIGestureRecognizer* UIElement::AddGestureRecognizer(std::unique_ptr<UIGestureRecognizer> recognizer)
+UIGestureRecognizer* UIElement::AddGestureRecognizer(std::shared_ptr<UIGestureRecognizer> recognizer)
 {
    mGestureRecognizers.push_back(std::move(recognizer));
    return recognizer.get();
