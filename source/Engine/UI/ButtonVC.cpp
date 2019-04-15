@@ -48,30 +48,12 @@ void ButtonVC::SetState(State state)
    switch (mState)
    {
       case NORMAL:
-         mIdleCallback(this);
          break;
       case HOVER:
-         mHoverCallback(this);
          break;
       case PRESS:
-         mPressCallback(this);
          break;
    }
-}
-
-UIElement::Action ButtonVC::MouseMove(const MouseMoveEvent &evt)
-{
-   bool hovering = ContainsPoint(evt.x, evt.y);
-   if (hovering != mIsHovered) {
-      mIsHovered = hovering;
-
-      if (hovering) {
-      }
-      if (!hovering) {
-      }
-   }
-
-   return Unhandled;
 }
 
 }; // namespace Engine

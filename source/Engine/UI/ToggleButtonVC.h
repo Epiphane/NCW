@@ -8,11 +8,15 @@
 
 #include "ButtonVC.h"
 
+#include <Shared/UI/Image.h>
+
 namespace CubeWorld
 {
 
 namespace Engine
 {
+   
+using UI::Image;
 
 // My idea:
 //  These "Observable" values live in the model or the VC.
@@ -27,22 +31,29 @@ template<typename T>
 class Observable
 {
 public:
-   void SetData(T t);
+   typedef std::function<void(T)> ValueChangedCallback;
    
-   void AddCallback(std::function<void(T)> newCallback);
+   void SetData(T t) const;
+   
+   void AddCallback(ValueChangedCallback newCallback) const;
    
 private:
-   T internalData;
+   std::vector<ValueChangedCallback> mCallbacks;
 };
-
-typedef Observable<bool> Observabool;  // Dumb joke, ignore
 
 class ToggleButtonVC : public ButtonVC
 {
 public:
-   ToggleButtonVC(UIRoot* root, UIElement* parent, const std::string &name);
+   ToggleButtonVC(UIRoot* root, UIElement* parent, const Observable<bool>& isOn, Image::Options offImage, Image::Options onImage, const std::string& name = "");
 
-   Observabool mIsOn;   // oh god don't actually use that typedef
+private:
+   void Toggled(bool isOn);
+   
+   Image* mOffImage;
+   Image* mOnImage;
+   
+   // If true, this toggle button is ENABLED
+   const Observable<bool>& mIsOn;
 };
 
 }; // namespace Engine

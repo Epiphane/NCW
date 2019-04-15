@@ -64,8 +64,8 @@ UIRoot::UIRoot(Input* input)
 
    mConstraintDebugLabelBG = Add<RectFilled>("ConstraintDebugLabelBG", glm::vec4(0, 0, 0, 1));
    mConstraintDebugLabel = mConstraintDebugLabelBG->Add<Text>(Text::Options{"X Elements Possible"});
-   mConstraintDebugLabelBG->ConstrainWidth(200);
-   mConstraintDebugLabelBG->ConstrainHeight(30);
+   mConstraintDebugLabel->ConstrainWidthToContent();
+   mConstraintDebugLabel->ConstrainHeightToContent();
    mConstraintDebugLabelBG->ConstrainTopAlignedTo(this);
    mConstraintDebugLabelBG->ConstrainLeftAlignedTo(this);
    
