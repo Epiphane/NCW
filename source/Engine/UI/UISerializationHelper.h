@@ -10,7 +10,7 @@
 #include <string>
 #include <map>
 
-#include <Shared/Helpers/JsonHelper.h>
+#include <RGBBinding/JsonHelper.h>
 
 #include "UIConstraint.h"
 

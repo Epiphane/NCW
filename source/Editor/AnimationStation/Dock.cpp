@@ -127,6 +127,18 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       addStateButton->ConstrainTopAlignedTo(stateName);
       addStateButton->ConstrainHeightTo(stateName);
 
+      buttonOptions.image = "button_add";
+      buttonOptions.hoverImage = "hover_button_add";
+      buttonOptions.pressImage = "press_button_add";
+      buttonOptions.onClick = [&]() {
+         State newState = GetCurrentState();
+         newState.name += " Copy";
+         CommandStack::Instance()->Do<AddStateCommand>(this, newState);
+      };
+      Button* dupStateButton = stateName->Add<Button>(buttonOptions);
+      dupStateButton->ConstrainTopAlignedTo(stateName);
+      dupStateButton->ConstrainHeightTo(stateName);
+
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
@@ -342,7 +354,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
    // Bone information
    UIElement* boneHeader = Add<UIStackView>();
-   boneHeader->ConstrainToRightOf(dockStateInfo, 48);
+   boneHeader->ConstrainToRightOf(dockStateInfo, 64);
    boneHeader->ConstrainTopAlignedTo(dockStateInfo);
    {
       UIStackView* row1 = boneHeader->Add<UIStackView>();
@@ -435,7 +447,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, mSkeleton->bones[mBone].originalPosition, keyframe.rotations[mBone]);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mController->GetBone(mBone)->originalPosition, keyframe.rotations[mBone]);
          }
       };
       Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -450,8 +462,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
-            //Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
+            Keyframe& prev = state.keyframes[index - 1];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
          }
       };
       Button* setPrevPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -464,7 +476,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mSkeleton->bones[mBone].originalRotation);
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mController->GetBone(mBone)->originalRotation);
          }
       };
       Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
@@ -479,8 +491,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
-            //Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
+            Keyframe& prev = state.keyframes[index - 1];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
          }
       };
       Button* setPrevRotationButton = bonePosition->Add<Button>(buttonOptions);
@@ -531,6 +543,11 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
    }
 
+   for (size_t i = 0; i < 20; ++i)
+   {
+      AddKeyframeIcon();
+   }
+
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<SkeletonSelectedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
@@ -553,7 +570,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 void Dock::Receive(const SkeletonSelectedEvent& evt)
 {
-   mSkeleton = evt.component;
+   mSkeleton = evt.index;
 }
 
 ///
@@ -605,6 +622,32 @@ void Dock::Update(TIMEDELTA dt)
 ///
 ///
 ///
+void Dock::AddKeyframeIcon()
+{
+   Image::Options keyframeOptions;
+   keyframeOptions.filename = Asset::Image("EditorIcons.png");
+   keyframeOptions.image = "keyframe";
+
+   Image* image = mKeyframes->Add<Image>(keyframeOptions);
+   image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
+
+   UIFrame& fImage = image->GetFrame();
+   UIFrame& fKeyframes = mKeyframes->GetFrame();
+   auto entry = std::make_pair(image, rhea::variable());
+   mpRoot->AddEditVar(entry.second);
+   mpRoot->AddConstraints({
+      fImage > fKeyframes,
+      fImage.top == fKeyframes.top,
+      fImage.bottom == fKeyframes.bottom,
+      fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
+   });
+
+   mKeyframeIcons.push_back(entry);
+}
+
+///
+///
+///
 void Dock::UpdateKeyframeIcons()
 {
    State& state = GetCurrentState();
@@ -612,25 +655,7 @@ void Dock::UpdateKeyframeIcons()
    size_t nKeyframes = state.keyframes.size();
    while (mKeyframeIcons.size() < nKeyframes)
    {
-      Image::Options keyframeOptions;
-      keyframeOptions.filename = Asset::Image("EditorIcons.png");
-      keyframeOptions.image = "keyframe";
-
-      Image* image = mKeyframes->Add<Image>(keyframeOptions);
-      image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
-
-      UIFrame& fImage = image->GetFrame();
-      UIFrame& fKeyframes = mKeyframes->GetFrame();
-      auto entry = std::make_pair(image, rhea::variable());
-      mpRoot->AddEditVar(entry.second);
-      mpRoot->AddConstraints({
-         fImage > fKeyframes,
-         fImage.top == fKeyframes.top,
-         fImage.bottom == fKeyframes.bottom,
-         fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
-      });
-
-      mKeyframeIcons.push_back(entry);
+      AddKeyframeIcon();
    }
    for (size_t i = 0; i < mKeyframeIcons.size(); i++)
    {
@@ -702,25 +727,30 @@ void Dock::SetBone(const AnimationController::BoneID& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
-   /*
    if (state.keyframes.size() == 0)
    {
       Keyframe keyframe;
-      std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
+      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
+      {
+         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+         std::vector<Bone>& bones = skeleton->bones;
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.originalScale; });
+      }
 
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
+
+      state.skeletonId = dock->mSkeleton;
    }
 
-   dock->mSkeleton->states.insert(dock->mSkeleton->states.begin() + dock->mSkeleton->current + (afterCurrent ? 1 : 0), state);
+   dock->mController->states.insert(dock->mController->states.begin() + dock->mController->current + (afterCurrent ? 1 : 0), state);
    if (afterCurrent)
    {
-      dock->SetState(dock->mSkeleton->current + 1);
+      dock->SetState(dock->mController->current + 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///
@@ -728,18 +758,16 @@ void Dock::AddStateCommand::Do()
 ///
 void Dock::AddStateCommand::Undo()
 {
-   /*
-   afterCurrent = dock->mSkeleton->current > 0;
+   afterCurrent = dock->mController->current > 0;
    // Get current state as a copy not a reference
    state = dock->GetCurrentState();
 
-   dock->mSkeleton->states.erase(dock->mSkeleton->states.begin() + dock->mSkeleton->current);
+   dock->mController->states.erase(dock->mController->states.begin() + dock->mController->current);
    if (afterCurrent)
    {
-      dock->SetState(dock->mSkeleton->current - 1);
+      dock->SetState(dock->mController->current - 1);
    }
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///
@@ -779,25 +807,29 @@ void Dock::SetStateNameCommand::Do()
 ///
 void Dock::AddKeyframeCommand::Do()
 {
-   /*
    State& state = dock->GetCurrentState();
 
-   if (keyframe.positions.size() != dock->mSkeleton->bones.size())
+   if (keyframe.positions.size() != dock->mController->bones.size())
    {
       keyframe.positions.clear();
       keyframe.rotations.clear();
 
       // Insert the CURRENT values of position and rotation at this timestamp.
-      std::vector<Bone>& bones = dock->mSkeleton->bones;
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-      std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
+      {
+         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+
+         std::vector<Bone>& bones = skeleton->bones;
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
+         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.scale; });
+      }
    }
 
-   keyframeIndex = GetKeyframeIndex(state, dock->mSkeleton->time) + 1;
+   keyframeIndex = GetKeyframeIndex(state, dock->mController->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
-   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mSkeleton);
-   */
+   dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
 ///

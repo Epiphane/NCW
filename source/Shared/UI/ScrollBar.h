@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <Engine/Core/Bounded.h>
-#include <Engine/Core/Command.h>
+#include <RGBDesignPatterns/Command.h>
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/Program.h>

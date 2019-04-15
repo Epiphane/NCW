@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Engine/Core/Command.h>
+#include <RGBDesignPatterns/Command.h>
 
 namespace CubeWorld
 {

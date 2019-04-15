@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include <RGBDesignPatterns/Singleton.h>
 #include "Config.h"
-#include "Singleton.h"
 #include "State.h"
 
 namespace CubeWorld

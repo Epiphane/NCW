@@ -6,10 +6,10 @@
 #include <glad/glad.h>
 #include <lodepng/lodepng.h>
 
-#include <Engine/Core/Format.h>
-#include <Engine/Core/Paths.h>
-#include <Engine/Logger/Logger.h>
-#include <Shared/Helpers/json.hpp>
+#include <RGBText/Format.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBLogger/Logger.h>
+#include <RGBBinding/tmp/json.hpp>
 
 #include "TextureManager.h"
 

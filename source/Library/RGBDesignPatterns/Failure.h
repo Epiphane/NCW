@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "Format.h"
+#include <RGBText/Format.h>
 
 #if defined(_WIN32)
 #define NOMSG

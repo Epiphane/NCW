@@ -6,8 +6,8 @@
 
 #include <glm/glm.hpp>
 
-#include <Engine/Core/Maybe.h>
-#include <Shared/Helpers/json.hpp>
+#include <RGBDesignPatterns/Maybe.h>
+#include "tmp/json.hpp"
 
 namespace CubeWorld
 {

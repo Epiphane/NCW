@@ -30,7 +30,6 @@ private:
    void SetModified(bool modified);
 
    void LoadNewFile();
-   void SaveNewFile();
 
    void SaveFile();
    void LoadFile(const std::string& filename);

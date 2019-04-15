@@ -5,8 +5,8 @@
 #include <functional>
 #include <cmath>
 
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
 
 #include "Input.h"
 

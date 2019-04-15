@@ -1,10 +1,8 @@
 // By Thomas Steinke
 
-#include "../Logger/Logger.h"
-#include "../Graphics/VAO.h"
+#include <RGBLogger/Logger.h>
+
 #include "Window.h"
-#include "Scope.h"
-#include "Singleton.h"
 
 namespace CubeWorld
 {

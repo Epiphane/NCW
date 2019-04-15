@@ -1,20 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(Engine)
 
-file(GLOB_RECURSE OSX_SOURCES "*/OSX/*")
-file(GLOB_RECURSE WIN_SOURCES "*/Windows/*")
-
 file(GLOB_RECURSE SOURCES
    "*.h"
    "*.cpp"
    "*.mm"
 )
-
-if (APPLE)
-list(REMOVE_ITEM SOURCES ${WIN_SOURCES})
-elseif(WIN32)
-list(REMOVE_ITEM SOURCES ${OSX_SOURCES})
-endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${CW_LIBS})

@@ -11,8 +11,8 @@
 #include <unistd.h>
 #endif
 
+#include <RGBText/StringHelper.h>
 #include "Paths.h"
-#include "../Helpers/StringHelper.h"
 
 namespace CubeWorld
 {

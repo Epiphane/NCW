@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 
 #include "Console.h"
 #include "Database.h"

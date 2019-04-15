@@ -7,16 +7,18 @@ else()
    add_definitions(-DCUBEWORLD_PLATFORM_MACOSX)
 endif()
 
-# Allow for referencing, e.g. <Engine/Core/Scope.h>
+# Allow for referencing, e.g. <RGBDesignPatterns/Scope.h>
 # from any of these projects.
 include_directories(.)
+include_directories(Library)
 
 # Order is important
 add_subdirectory(Engine)
+add_subdirectory(Library)
 add_subdirectory(Shared)
 add_subdirectory(DataCLI)
 add_subdirectory(Editor)
 add_subdirectory(Game)
 
 # Nobody cares what you do here
-add_subdirectory(Sandbox EXCLUDE_FROM_ALL)
+add_subdirectory(Sandbox EXCLUDE_FROM_DEFAULT_BUILD)

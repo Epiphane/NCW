@@ -2,8 +2,8 @@
 
 #include <sqlite3.h>
 
-#include <Engine/Core/Paths.h>
-#include <Engine/Core/Scope.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBDesignPatterns/Scope.h>
 
 #include "Database.h"
 

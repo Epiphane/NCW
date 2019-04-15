@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/UI/UIRoot.h>
 #include <Shared/Helpers/Asset.h>
 

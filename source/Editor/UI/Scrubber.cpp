@@ -2,9 +2,9 @@
 
 #include <cassert>
 
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "../Command/CommandStack.h"
 #include "Scrubber.h"

@@ -4,11 +4,12 @@
 //
 // By Thomas Steinke
 
-#include <Engine/Core/Format.h>
-#include <Engine/Helpers/StringHelper.h>
-#include <Engine/Logger/Logger.h>
-#include <Engine/UI/UIRoot.h>
 #include <sstream>
+
+#include <RGBText/Format.h>
+#include <RGBText/StringHelper.h>
+#include <RGBLogger/Logger.h>
+#include <Engine/UI/UIRoot.h>
 
 #include "UIElement.h"
 

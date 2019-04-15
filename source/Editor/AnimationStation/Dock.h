@@ -8,8 +8,8 @@
 
 #include <rhea/variable.hpp>
 #include <Engine/Core/Bounded.h>
-#include <Engine/Core/Command.h>
-#include <Engine/Core/Either.h>
+#include <RGBDesignPatterns/Command.h>
+#include <RGBDesignPatterns/Either.h>
 #include <Engine/Core/State.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Event/Event.h>
@@ -59,6 +59,7 @@ public:
 
    void Update(TIMEDELTA dt) override;
 
+   void AddKeyframeIcon();
    void UpdateKeyframeIcons();
 
 public:
@@ -87,7 +88,7 @@ private:
    // State
    AnimationController::BoneID mBone;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   size_t mSkeleton;
    Engine::ComponentHandle<AnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
@@ -156,12 +157,14 @@ private:
    {
    public:
       AddStateCommand(Dock* dock) : DockCommand(dock), afterCurrent(true) {};
+      AddStateCommand(Dock* dock, State base) : DockCommand(dock), afterCurrent(true), state(base) {};
       void Do() override;
       void Undo() override;
 
    private:
       bool afterCurrent;
-      State state{"", 1.0f, {}, {}};
+
+      State state{"", "", 0, 1.0f, {}, {}};
    };
 
    //

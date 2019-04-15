@@ -5,11 +5,6 @@
 #include <vector>
 #include <GL/includes.h>
 
-#include "Bounded.h"
-#include "Maybe.h"
-#include "Singleton.h"
-#include "../Graphics/VAO.h"
-
 namespace CubeWorld
 {
 

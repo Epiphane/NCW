@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include "../Core/Scope.h"
-#include "../Logger/Logger.h"
+#include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
 #include "Framebuffer.h"
 
 namespace CubeWorld

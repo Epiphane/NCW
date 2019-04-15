@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Core/Maybe.h>
+#include <RGBFileSystem/Paths.h>
 
 struct sqlite3;
 struct sqlite3_stmt;

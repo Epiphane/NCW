@@ -3,9 +3,9 @@
 #include <utility>
 #include <sstream>
 
+#include <RGBText/Format.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Core/Format.h>
-#include <Engine/Logger/Logger.h>
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/TimSort.h>
 #include <Shared/UI/RectFilled.h>

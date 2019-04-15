@@ -1,0 +1,43 @@
+{
+   "bones": {
+      "Sword": {
+         "parent": "root",
+         "position": [
+            0.0,
+            4.54,
+            1.04
+         ],
+         "rotation": [
+            135.0,
+            89.96,
+            0.0
+         ],
+         "scale": [
+            1.0,
+            1.0,
+            1.0
+         ]
+      },
+      "root": {
+         "parent": "Attachment",
+         "position": [
+            0.0,
+            0.0,
+            0.0
+         ],
+         "rotation": [
+            0.0,
+            -0.0,
+            0.0
+         ],
+         "scale": [
+            1.0,
+            1.0,
+            1.0
+         ]
+      }
+   },
+   "model": "iron-sword1.vox",
+   "parent": "character.json",
+   "version": 1
+}

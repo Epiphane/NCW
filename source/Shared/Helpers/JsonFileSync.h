@@ -25,8 +25,8 @@
 #include <libfswatch/c++/monitor.hpp>
 #endif
 
-#include <Engine/Core/Maybe.h>
-#include <Shared/Helpers/JsonHelper.h>
+#include <RGBBinding/JsonHelper.h>
+#include <RGBFileSystem/Paths.h>
 
 namespace CubeWorld
 {

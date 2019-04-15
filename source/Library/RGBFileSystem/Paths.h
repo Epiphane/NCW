@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Core/Maybe.h>
+#include <RGBDesignPatterns/Maybe.h>
 
 namespace CubeWorld
 {

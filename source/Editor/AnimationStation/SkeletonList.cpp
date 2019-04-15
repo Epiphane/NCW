@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <fstream>
-#include <Engine/Core/File.h>
+#include <RGBFileSystem/File.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -93,6 +93,7 @@ void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& 
    mButtons[mActive]->Focus();
 
    mSkeletons.push_back(evt.component);
+   mpRoot->Emit<SkeletonSelectedEvent>(mActive, evt.component);
 }
 
 void SkeletonList::Receive(const SkeletonClearedEvent&)

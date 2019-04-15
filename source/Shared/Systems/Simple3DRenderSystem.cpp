@@ -7,10 +7,10 @@
 #include <glad/glad.h>
 #include <glm/ext.hpp>
 
-#include <Engine/Core/Scope.h>
+#include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Program.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "Simple3DRenderSystem.h"
 

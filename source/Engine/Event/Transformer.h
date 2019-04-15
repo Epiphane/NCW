@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-#include "../Core/Singleton.h"
+#include <RGBDesignPatterns/Singleton.h>
 
 namespace CubeWorld
 {

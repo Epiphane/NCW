@@ -4,9 +4,9 @@
 #include <algorithm>
 
 #include <Engine/Core/Input.h>
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "ScrollBar.h"
 

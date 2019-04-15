@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include <Engine/Core/Paths.h>
+#include <RGBFileSystem/Paths.h>
 
 namespace CubeWorld
 {

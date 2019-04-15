@@ -5,8 +5,8 @@
 #include <memory>
 #include <stack>
 
-#include <Engine/Core/Command.h>
-#include <Engine/Core/Singleton.h>
+#include <RGBDesignPatterns/Command.h>
+#include <RGBDesignPatterns/Singleton.h>
 #include <Engine/Event/Event.h>
 
 namespace CubeWorld

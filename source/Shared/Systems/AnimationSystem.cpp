@@ -1,7 +1,7 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Config.h>
 
 #include "AnimationSystem.h"
@@ -26,24 +26,39 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       // Advance basic animation
       if (mAnimate)
       {
-         State& state = controller.states[controller.current];
+         State* state = &controller.states[controller.current];
          controller.time += dt;
-         while (controller.time >= state.length)
+         while (controller.time >= state->length)
          {
-            controller.time -= state.length;
+            controller.time -= state->length;
+            if (mTransitions && state->next != "")
+            {
+               const auto& it = controller.statesByName.find(state->next);
+               if (it == controller.statesByName.end())
+               {
+                  LOG_ERROR("State %1 specified next='%2', which doesn't exist", state->name, state->next);
+                  state->next = "";
+               }
+               else
+               {
+                  controller.current = controller.next = it->second;
+                  state = &controller.states[controller.current];
+               }
+            }
          }
 
-         size_t keyframeIndex = state.keyframes.size() - 1;
-         while (controller.time < state.keyframes[keyframeIndex].time && keyframeIndex > 0)
+         const auto& keyframes = state->keyframes;
+         size_t keyframeIndex = keyframes.size() - 1;
+         while (controller.time < keyframes[keyframeIndex].time && keyframeIndex > 0)
          {
             keyframeIndex--;
          }
 
-         bool isLastFrame = (keyframeIndex == state.keyframes.size() - 1);
+         bool isLastFrame = (keyframeIndex == keyframes.size() - 1);
 
-         const Keyframe& src = state.keyframes[keyframeIndex];
-         const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
-         const double dstTime = isLastFrame ? state.length : dst.time;
+         const Keyframe& src = keyframes[keyframeIndex];
+         const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
+         const double dstTime = isLastFrame ? state->length : dst.time;
          const float progress = float(controller.time - src.time) / float(dstTime - src.time);
 
          size_t boneId = 0;
@@ -62,24 +77,23 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       if (mTransitions)
       {
          // Transitions!
-         // TODO fix
-         /*if (controller.current.second != controller.next)
+         if (controller.current != controller.next)
          {
-            State& state = skeleton.states[skeleton.next];
-            skeleton.transitionCurrent = skeleton.transitionCurrent + dt;
+            State& state = controller.states[controller.next];
+            controller.transitionCurrent = controller.transitionCurrent + dt;
             float transitionProgress;
-            if (skeleton.transitionCurrent < skeleton.transitionEnd)
+            if (controller.transitionCurrent < controller.transitionEnd)
             {
-               transitionProgress = float(skeleton.transitionCurrent / (skeleton.transitionEnd - skeleton.transitionStart));
+               transitionProgress = float(controller.transitionCurrent / (controller.transitionEnd - controller.transitionStart));
             }
             else
             {
                transitionProgress = 1;
-               skeleton.current = skeleton.next;
-               skeleton.time = skeleton.transitionCurrent;
+               controller.current = controller.next;
+               controller.time = controller.transitionCurrent;
             }
 
-            double time = skeleton.transitionCurrent;
+            double time = controller.transitionCurrent;
             while (time >= state.length)
             {
                time -= state.length;
@@ -98,18 +112,25 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
             const double dstTime = isLastFrame ? state.length : dst.time;
             const float progress = float(time - src.time) / float(dstTime - src.time);
 
-            for (size_t boneId = 0; boneId < skeleton.bones.size(); ++boneId)
+            size_t boneId = 0;
+            for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : controller.skeletons)
             {
-               glm::vec3 position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
-               glm::vec3 rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
-               skeleton.bones[boneId].position = transitionProgress * position + (1 - transitionProgress) * skeleton.bones[boneId].position;
-               skeleton.bones[boneId].rotation = transitionProgress * rotation + (1 - transitionProgress) * skeleton.bones[boneId].rotation;
+               for (AnimatedSkeleton::Bone& bone : skeleton->bones)
+               {
+                  glm::vec3 position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
+                  glm::vec3 rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
+                  glm::vec3 scale = progress * dst.scales[boneId] + (1 - progress) * src.scales[boneId];
+                  bone.position = transitionProgress * position + (1 - transitionProgress) * bone.position;
+                  bone.rotation = transitionProgress * rotation + (1 - transitionProgress) * bone.rotation;
+                  bone.scale = transitionProgress * scale + (1 - transitionProgress) * bone.scale;
+                  boneId++;
+               }
             }
          }
 
          // Compute new transitions
-         if (skeleton.current == skeleton.next) {
-            State& state = skeleton.states[skeleton.current];
+         if (controller.current == controller.next) {
+            State& state = controller.states[controller.current];
             for (Transition& transition : state.transitions)
             {
                // Check triggers.
@@ -119,13 +140,13 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
                   switch (trigger.type)
                   {
                   case Transition::Trigger::FloatGte:
-                     valid &= skeleton.floatParams[trigger.parameter] >= trigger.floatVal;
+                     valid &= controller.floatParams[trigger.parameter] >= trigger.floatVal;
                      break;
                   case Transition::Trigger::FloatLt:
-                     valid &= skeleton.floatParams[trigger.parameter] < trigger.floatVal;
+                     valid &= controller.floatParams[trigger.parameter] < trigger.floatVal;
                      break;
                   case Transition::Trigger::Bool:
-                     valid &= skeleton.boolParams[trigger.parameter] == trigger.boolVal;
+                     valid &= controller.boolParams[trigger.parameter] == trigger.boolVal;
                      break;
                   default:
                      assert(false && "Unrecognized trigger type");
@@ -134,11 +155,11 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
                if (valid)
                {
-                  skeleton.TransitionTo(transition.destination, transition.time);
+                  controller.TransitionTo(transition.destination, transition.time);
                   break;
                }
             }
-         }*/
+         }
       }
    
       // IMPORTANT: This is where the actual matrix transformation gets done, after all the

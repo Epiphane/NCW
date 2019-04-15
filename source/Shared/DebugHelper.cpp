@@ -2,9 +2,9 @@
 
 #include <glad/glad.h>
 
-#include <Engine/Core/Scope.h>
+#include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Window.h>
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "Helpers/Asset.h"
 #include "DebugHelper.h"

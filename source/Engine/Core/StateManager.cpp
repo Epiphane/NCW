@@ -4,7 +4,7 @@
 #include <cassert>
 #include <functional>
 
-#include <Engine/Logger/Logger.h>
+#include <RGBLogger/Logger.h>
 
 #include "StateManager.h"
 

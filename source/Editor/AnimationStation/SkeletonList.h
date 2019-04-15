@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <Engine/Core/Command.h>
+#include <RGBDesignPatterns/Command.h>
 #include <Engine/UI/UIElement.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>

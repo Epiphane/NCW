@@ -8,8 +8,8 @@
 
 #include <rhea/variable.hpp>
 #include <Engine/Core/Bounded.h>
-#include <Engine/Core/Command.h>
-#include <Engine/Core/Either.h>
+#include <RGBDesignPatterns/Command.h>
+#include <RGBDesignPatterns/Either.h>
 #include <Engine/Core/State.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Event/Event.h>

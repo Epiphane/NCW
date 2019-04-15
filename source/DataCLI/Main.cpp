@@ -8,9 +8,9 @@
 
 #include <sqlite3.h>
 
-#include <Engine/Logger/Logger.h>
-#include <Engine/Logger/DebugLogger.h>
-#include <Engine/Logger/StdoutLogger.h>
+#include <RGBLogger/Logger.h>
+#include <RGBLogger/DebugLogger.h>
+#include <RGBLogger/StdoutLogger.h>
 
 #include "Console.h"
 #include "ConvertCommand.h"

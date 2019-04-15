@@ -2,9 +2,9 @@
 // NotCubeWorld - An attempt to make something that looks like CubeWorld
 //
 
-#include <Engine/Logger/Logger.h>
-#include <Engine/Logger/StdoutLogger.h>
-#include <Engine/Logger/DebugLogger.h>
+#include <RGBLogger/Logger.h>
+#include <RGBLogger/StdoutLogger.h>
+#include <RGBLogger/DebugLogger.h>
 #include <Engine/Core/Input.h>
 #include <Engine/Core/StateManager.h>
 #include <Engine/Core/Timer.h>

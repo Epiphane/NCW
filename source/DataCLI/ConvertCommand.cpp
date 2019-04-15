@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 
-#include <Engine/Logger/Logger.h>
-#include <Engine/Core/Paths.h>
+#include <RGBLogger/Logger.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBText/StringHelper.h>
 #include <Shared/Helpers/CubeFormat.h>
-#include <Engine/Helpers/StringHelper.h>
 #include <Shared/Helpers/VoxFormat.h>
 
 #include "Console.h"

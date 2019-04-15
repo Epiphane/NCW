@@ -16,8 +16,10 @@
 #include <glm/glm.hpp>
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
-#include <Shared/Helpers/json.hpp>
-#include <Shared/Helpers/DereferenceIterator.h>
+
+#include <RGBDesignPatterns/DereferenceIterator.h>
+#include <RGBLogger/Logger.h>
+#include <RGBBinding/tmp/json.hpp>
 
 #include "UIConstrainable.h"
 #include "UIGestureRecognizer.h"
@@ -28,7 +30,6 @@
 #include "../Event/InputEvent.h"
 #include "../Graphics/VBO.h"
 #include "../Graphics/FontManager.h"
-#include "../Logger/Logger.h"
 
 namespace CubeWorld
 {

@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include <Engine/Core/Singleton.h>
+#include <RGBDesignPatterns/Singleton.h>
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/FontManager.h>
 #include <Engine/Graphics/Program.h>

@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include <forward_list>
 
-#include <Engine/Core/Maybe.h>
-#include <Engine/Core/Singleton.h>
+#include <RGBDesignPatterns/Maybe.h>
+#include <RGBDesignPatterns/Singleton.h>
 
 namespace CubeWorld
 {

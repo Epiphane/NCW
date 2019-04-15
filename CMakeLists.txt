@@ -34,6 +34,10 @@ add_subdirectory("${DEP_DIR}/sqlite")
 add_subdirectory("${DEP_DIR}/FMOD")
 add_subdirectory("${DEP_DIR}/zlib")
 
+foreach(lib IN LISTS CW_LIBS)
+set_target_properties(${lib} PROPERTIES FOLDER "dependencies")
+endforeach()
+
 # Ensure everything after draws from header files
 # specified in the dependencies.
 include_directories(${CW_INCLUDES})

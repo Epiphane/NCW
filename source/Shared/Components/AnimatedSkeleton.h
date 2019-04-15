@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include <RGBBinding/tmp/json.hpp>
 #include <Engine/Entity/ComponentHandle.h>
 #include <Engine/Entity/EntityManager.h>
 #include "../Components/VoxModel.h"
-#include "../Helpers/json.hpp"
 #include "../Voxel.h"
 
 namespace CubeWorld
@@ -46,10 +46,10 @@ public:
 
    struct State {
       std::string name;
+      std::string next;
 
       double length;
       std::vector<Keyframe> keyframes;
-      std::vector<Transition> transitions;
    };
 
    struct Bone {
@@ -93,6 +93,7 @@ public:
 
    std::vector<State> states;
    std::unordered_map<std::string, size_t> statesByName;
+   std::unordered_map<std::string, std::vector<Transition>> transitions;
 
    // Index 0 is the root of the skeleton.
    std::vector<Bone> bones;

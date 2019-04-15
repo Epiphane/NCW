@@ -105,6 +105,11 @@ public:
    virtual bool IsKeyDown(int key) const = 0;
 
    //
+   // Returns whether or not a specific mouse button is being pressed
+   //
+   virtual bool IsMouseDown(int button) const = 0;
+
+   //
    // Returns whether or not the mouse is being dragged with a specific button held down.
    //
    virtual bool IsDragging(int button) const = 0;

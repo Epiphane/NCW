@@ -1,7 +1,6 @@
 // By Thomas Steinke
 
 #include <sstream>
-#include "../Logger/Logger.h"
 
 #include "StringHelper.h"
 
