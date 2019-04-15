@@ -8,6 +8,7 @@
 
 #include "../Command/CommandStack.h"
 
+#include "AnimationSystem.h"
 #include "Dock.h"
 
 namespace CubeWorld
@@ -213,6 +214,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    }
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
 }
 
 ///
@@ -223,9 +225,20 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
    mSkeleton = evt.component;
 }
 
+void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
+{
+   mSkeletons = evt.component;
+}
+
 ///
 ///
 ///
+void Dock::SetStance(const size_t& stance)
+{
+   mStance = stance;
+   mSkeletons->stance = mStance;
+}
+
 void Dock::SetBone(const size_t& boneId)
 {
    mBone = boneId;

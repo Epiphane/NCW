@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <deque>
+
 #if CUBEWORLD_PLATFORM_WINDOWS
 #include <Windows.h>
 #else
@@ -167,44 +169,70 @@ Maybe<void> DiskFileSystem::MakeDirectory(const std::string& path)
 ///
 ///
 ///
-Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(const std::string& path, bool recursive)
+Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
+   const std::string& base,
+   bool includeDirectories,
+   bool recursive
+)
 {
    std::vector<DiskFileSystem::FileEntry> result;
 
+   std::deque<std::string> paths{base};
+   while (!paths.empty())
+   {
+      std::string path = paths.front();
+      paths.pop_front();
+
 #if defined CUBEWORLD_PLATFORM_WINDOWS
-   std::wstring pathW = Utf8ToWide(path);
-   WIN32_FIND_DATAW info;
+      std::wstring pathW = Utf8ToWide(path + "/*");
 
-   HANDLE handle = FindFirstFileW(pathW.c_str(), &info);
-   if (handle == INVALID_HANDLE_VALUE)
-   {
-      return result;
-   }
-   
-   CUBEWORLD_SCOPE_EXIT([&] {FindClose(handle); })
-   do
-   {
-      DiskFileSystem::FileEntry entry;
-      entry.filename = WideToUtf8(info.cFileName);
-      if ((info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+      WIN32_FIND_DATAW info;
+      HANDLE handle = FindFirstFileW(pathW.c_str(), &info);
+      if (handle == INVALID_HANDLE_VALUE)
       {
-         assert(!recursive && "unimplemented lol");
+         return result;
       }
-      else
-      {
-         entry.size = (uint64_t(info.nFileSizeHigh) << 32) + info.nFileSizeLow;
-         result.push_back(std::move(entry));
-      }
-   } while (FindNextFileW(handle, &info) != 0);
 
-   DWORD error = GetLastError();
-   if (error != ERROR_NO_MORE_FILES)
-   {
-      return TransformPlatformError("Failed enumerating files");
-   }
+      CUBEWORLD_SCOPE_EXIT([&] {FindClose(handle); });
+      do
+      {
+         if (wcscmp(info.cFileName, L".") == 0 || wcscmp(info.cFileName, L"..") == 0)
+         {
+            continue;
+         }
+
+         DiskFileSystem::FileEntry entry;
+         entry.name = path + "/" + WideToUtf8(info.cFileName);
+         entry.isDirectory = (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+         entry.size = 0;
+         if (entry.isDirectory)
+         {
+            if (recursive)
+            {
+               paths.push_back(entry.name);
+            }
+            if (includeDirectories)
+            {
+               result.push_back(std::move(entry));
+            }
+         }
+         else
+         {
+            entry.size = (uint64_t(info.nFileSizeHigh) << 32) + info.nFileSizeLow;
+            result.push_back(std::move(entry));
+         }
+      } while (FindNextFileW(handle, &info) != 0);
+
+      DWORD error = GetLastError();
+      if (error != ERROR_NO_MORE_FILES)
+      {
+         return TransformPlatformError("Failed enumerating files");
+      }
 #else
 #warning "DiskFileSystem::ListDirectory isn't implemented for non-Windows yet lol"
 #endif
+   }
+
    return result;
 }
 

@@ -42,19 +42,21 @@
          "inherit": "base",
          "bones": {
             "Mace": {
-               "parent": "root",
                "rotation": [
                   0.0,
                   -0.0,
                   -135.0
                ]
+            },
+            "root": {
+               "parent": "Attachment"
             }
          }
       }
    },
    "default": "swing 1",
    "model": "wood-greatmace02.vox",
-   "parent": "character.json",
+   "parent": "character",
    "transitions": {
       "idle": [
          {

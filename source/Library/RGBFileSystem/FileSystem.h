@@ -14,7 +14,8 @@ class FileSystem
 {
 public:
    struct FileEntry {
-      std::string filename;
+      std::string name;
+      bool isDirectory;
       uint64_t size;
    };
 
@@ -43,7 +44,11 @@ public:
    //
    // List all the files in a directory
    //
-   virtual Maybe<std::vector<FileEntry>> ListDirectory(const std::string& path, bool recursive = false) = 0;
+   virtual Maybe<std::vector<FileEntry>> ListDirectory(
+      const std::string& path,
+      bool includeDirectories,
+      bool recursive
+   ) = 0;
 
    //
    // Open a file for reading.
@@ -112,7 +117,11 @@ public:
    //
    //
    //
-   Maybe<std::vector<FileEntry>> ListDirectory(const std::string& path, bool recursive = false) override;
+   Maybe<std::vector<FileEntry>> ListDirectory(
+      const std::string& path,
+      bool includeDirectories,
+      bool recursive
+   ) override;
 
    //
    //

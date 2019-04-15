@@ -31,6 +31,7 @@ public:
    struct State {
       std::string name;
       std::string next;
+      std::string stance;
       size_t skeletonId;
 
       double length;

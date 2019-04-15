@@ -26,7 +26,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
+   , mFilename(Asset::Skeleton("greatmace"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -75,14 +75,14 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 
    SetModified(false);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>&)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
 {
    LoadFile(mFilename);
 }
@@ -140,7 +140,7 @@ void Sidebar::LoadFile(const std::string& filename)
    std::string currentFile = filename;
    do
    {
-      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
+      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile + ".json");
       if (!maybeData)
       {
          LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
@@ -157,7 +157,7 @@ void Sidebar::LoadFile(const std::string& filename)
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+         currentFile = Paths::Join(Paths::GetDirectory(currentFile), parent);
       }
    }
    while (currentFile != "");

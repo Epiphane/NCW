@@ -8,9 +8,10 @@
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/JSONSerializer.h>
-
 #include <Engine/Core/Config.h>
 #include <Engine/Core/FileSystemProvider.h>
+
+#include "../Helpers/Asset.h"
 #include "../Helpers/VoxFormat.h"
 #include "../Event/NamedEvent.h"
 #include "AnimatedSkeleton.h"
@@ -80,7 +81,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
 {
    Reset();
 
-   Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(filename);
+   Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(filename + ".json");
    if (!maybeData)
    {
       LOG_ERROR("Failed reading %1: %2", filename, maybeData.Failure().GetMessage());
@@ -89,20 +90,27 @@ void AnimatedSkeleton::Load(const std::string& filename)
 
    BindingProperty data = std::move(maybeData.Result());
 
-   name = Paths::GetFilename(filename);
-   std::string workingDirectory = Paths::GetDirectory(filename);
+   name = data["name"].GetStringValue(Paths::GetRelativePath(filename, Asset::Skeleton("")));
+   if (auto it = name.rfind('.'); it != std::string::npos)
+   {
+      name.erase(it);
+   }
 
-   // Load VOX model for bone data.
-   parentFilename = data["parent"].GetStringValue();
-   modelFilename = data["model"].GetStringValue();
+   parent = data["parent"];
+   if (auto it = parent.rfind('.'); it != std::string::npos)
+   {
+      parent.erase(it);
+   }
 
+   modelFilename = data["model"];
    if (modelFilename.empty())
    {
       LOG_ERROR("No model provided");
       return;
    }
 
-   Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(Paths::Join(workingDirectory, modelFilename));
+   // Load VOX model for bone data.
+   Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(Asset::Model(modelFilename));
    if (!maybeModel)
    {
       LOG_ERROR(maybeModel.Failure().WithContext("Failed loading reference model").GetMessage());
@@ -138,11 +146,11 @@ void AnimatedSkeleton::Load(const std::string& filename)
       }
    }
 
-   for (const auto& stanceDef : data["stances"])
+   for (const auto&[stanceName, def] : data["stances"].pairs())
    {
       Stance stance;
-      stance.name = stanceDef["name"].GetStringValue();
-      stance.inherit = stanceDef["inherit"].GetStringValue();
+      stance.name = stanceName;
+      stance.inherit = def["inherit"];
 
       if (stance.name.empty())
       {
@@ -170,7 +178,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
       }
 
       // Apply modifications
-      for (const auto [boneName, boneData] : data["bones"].pairs())
+      for (const auto&[boneName, boneData] : def["bones"].pairs())
       {
          auto boneId = bonesByName.find(boneName);
          if (boneId == bonesByName.end())
@@ -180,19 +188,19 @@ void AnimatedSkeleton::Load(const std::string& filename)
          }
 
          AnimatedSkeleton::Bone& bone = stance.bones[boneId->second];
-         if (std::string parent = boneData["parent"]; !parent.empty())
+         if (std::string parentBoneName = boneData["parent"]; !parentBoneName.empty())
          {
             if (boneId->second == 0)
             {
-               stance.parentBone = parent;
+               stance.parentBone = parentBoneName;
             }
-            else if (bonesByName.find(parent) == bonesByName.end())
+            else if (bonesByName.find(parentBoneName) == bonesByName.end())
             {
-               LOG_WARNING("Bone '%1' specifies a parent of '%2', which doesn't exist. Nice try kiddo", bone.name, parent);
+               LOG_WARNING("Bone '%1' specifies a parent of '%2', which doesn't exist. Nice try kiddo", bone.name, parentBoneName);
             }
             else
             {
-               bone.parent = bonesByName[parent];
+               bone.parent = bonesByName[parentBoneName];
                stance.bones[bone.parent].children.push_back(boneId->second);
             }
          }
@@ -206,52 +214,69 @@ void AnimatedSkeleton::Load(const std::string& filename)
       stances.push_back(std::move(stance));
    }
 
-   // Add animation states.
-   for (const auto& anim : data["states"])
+   // Find and add animation states.
+   Maybe<std::vector<FileSystem::FileEntry>> animations = DiskFileSystem{}.ListDirectory(
+      Asset::Animation(name),
+      false, /* includeDirectories */
+      true /* recursive */
+   );
+   if (!animations)
    {
-      AnimatedSkeleton::State state;
-      state.name = anim["name"];
-      state.next = anim["next"];
-      state.length = anim["length"].GetDoubleValue(1);
-
-      assert(state.name != "");
-      assert(state.length > 0);
-
-      double lastTime = -1;
-      for (const auto& frame : anim["keyframes"])
-      {
-         AnimatedSkeleton::Keyframe keyframe;
-         keyframe.time = frame["time"].GetDoubleValue();
-
-         assert(keyframe.time > lastTime);
-         lastTime = keyframe.time;
-
-         // https://stackoverflow.com/questions/53721714/why-does-structured-binding-not-work-as-expected-on-struct
-         // Workaround: don’t use const on the struct.
-         // In order to keep this const (so it doesn't change the actual properties), we just do it the hard way.
-         for (const auto& [bone, modification] : frame["bones"].pairs())
-         {
-            if (const auto& pos = modification["position"]; pos.IsVec3())
-            {
-               keyframe.positions.emplace(bone, pos.GetVec3());
-            }
-            if (const auto& rot = modification["rotation"]; rot.IsVec3())
-            {
-               keyframe.positions.emplace(bone, rot.GetVec3());
-            }
-            if (const auto& scl = modification["scale"]; scl.IsVec3())
-            {
-               keyframe.positions.emplace(bone, scl.GetVec3());
-            }
-         }
-         state.keyframes.push_back(std::move(keyframe));
-      }
-
-      statesByName.emplace(state.name, states.size());
-      states.push_back(std::move(state));
+      LOG_ERROR("Failed loading animations in %1: %2", Asset::Animation(name), animations.Failure().GetMessage());
    }
+   else
+   {
+      for (const FileSystem::FileEntry& entry : *animations)
+      {
+         Maybe<BindingProperty> maybeAnimation = JSONSerializer::DeserializeFile(entry.name);
+         if (!maybeAnimation)
+         {
+            LOG_ERROR("Failed reading %1: %2", entry.name, maybeAnimation.Failure().GetMessage());
+            continue;
+         }
 
-   //assert(states.size() > 0);
+         const BindingProperty anim = std::move(*maybeAnimation);
+
+         AnimatedSkeleton::State state;
+         state.name = anim["name"];
+         state.next = anim["next"];
+         state.stance = anim["stance"].GetStringValue("base");
+         state.length = anim["length"].GetDoubleValue(1);
+
+         assert(state.name != "");
+         assert(state.length > 0);
+
+         double lastTime = -1;
+         for (const auto& frame : anim["keyframes"])
+         {
+            AnimatedSkeleton::Keyframe keyframe;
+            keyframe.time = frame["time"].GetDoubleValue();
+
+            assert(keyframe.time > lastTime);
+            lastTime = keyframe.time;
+
+            for (const auto&[bone, modification] : frame["bones"].pairs())
+            {
+               if (const auto& pos = modification["position"]; pos.IsVec3())
+               {
+                  keyframe.positions.emplace(bone, pos.GetVec3());
+               }
+               if (const auto& rot = modification["rotation"]; rot.IsVec3())
+               {
+                  keyframe.rotations.emplace(bone, rot.GetVec3());
+               }
+               if (const auto& scl = modification["scale"]; scl.IsVec3())
+               {
+                  keyframe.scales.emplace(bone, scl.GetVec3());
+               }
+            }
+            state.keyframes.push_back(std::move(keyframe));
+         }
+
+         statesByName.emplace(state.name, states.size());
+         states.push_back(std::move(state));
+      }
+   }
 
    // Add transitions.
    for (const auto& [src, definitions] : data["transitions"].pairs())
@@ -295,7 +320,7 @@ std::string AnimatedSkeleton::Serialize()
    BindingProperty data;
    data["version"] = 1;
    data["model"] = modelFilename;
-   data["parent"] = parentFilename;
+   data["parent"] = parent;
 
    // Bones
    for (const AnimatedSkeleton::Bone& bone : bones)
@@ -308,7 +333,7 @@ std::string AnimatedSkeleton::Serialize()
       data["bones"][bone.name] = info;
    }
 
-   if (!parentFilename.empty())
+   if (!parent.empty())
    {
       data["bones"]["root"]["parent"] = parentBone;
    }

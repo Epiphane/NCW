@@ -26,7 +26,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
+   , mFilename(Asset::Skeleton("greatmace"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -133,7 +133,7 @@ void Sidebar::LoadFile(const std::string& filename)
       }
       mSkeletonFiles.emplace(name, currentFile);
 
-      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
+      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile + ".json");
       if (!maybeData)
       {
          LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());

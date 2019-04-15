@@ -10,6 +10,9 @@ namespace CubeWorld
 namespace Editor
 {
 
+namespace AnimationStation
+{
+
 struct AnimationSystemController : public Engine::Component<AnimationSystemController>
 {
    //
@@ -23,7 +26,7 @@ struct AnimationSystemController : public Engine::Component<AnimationSystemContr
 };
 
 //
-// Editor::AnimationSystem extends Game::AnimationSystem and allows for control by
+// AnimationStation::AnimationSystem extends Game::AnimationSystem and allows for control by
 // an entity containing the AnimationSystemController component.
 //
 class AnimationSystem : public Engine::System<AnimationSystem>, private BaseAnimationSystem
@@ -31,10 +34,12 @@ class AnimationSystem : public Engine::System<AnimationSystem>, private BaseAnim
 public:
    AnimationSystem() {};
    ~AnimationSystem() {}
-      
+
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 };
 
-}; // namespace Game
+}; // namespace AnimationStation
+
+}; // namespace Editor
 
 }; // namespace CubeWorld

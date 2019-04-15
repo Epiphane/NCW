@@ -25,6 +25,7 @@
 #include <Shared/UI/TextField.h>
 
 #include "../UI/Scrubber.h"
+#include "AnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -54,17 +55,21 @@ public:
 
 public:
    // Dock state actions
+   void SetStance(const size_t& stance);
    void SetBone(const size_t& boneId);
 
 public:
    // Event handlers
    void Receive(const SkeletonLoadedEvent& evt);
+   void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
 
 private:
    // State
    size_t mBone;
+   size_t mStance;
    std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<SkeletonCollection> mSkeletons;
 
 private:
    template <typename N>

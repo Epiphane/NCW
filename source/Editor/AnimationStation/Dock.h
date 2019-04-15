@@ -25,8 +25,8 @@
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/TextField.h>
 
-#include "../Systems/AnimationSystem.h"
 #include "../UI/Scrubber.h"
+#include "AnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -164,7 +164,7 @@ private:
    private:
       bool afterCurrent;
 
-      State state{"", "", 0, 1.0f, {}, {}};
+      State state{"", "", "base", 0, 1.0f, {}, {}};
    };
 
    //

@@ -42,9 +42,13 @@ public:
       return get()->MakeDirectory(path);
    }
 
-   Maybe<std::vector<FileEntry>> ListDirectory(const std::string& path, bool recursive = false) override
+   Maybe<std::vector<FileEntry>> ListDirectory(
+      const std::string& path,
+      bool includeDirectories,
+      bool recursive
+   ) override
    {
-      return get()->ListDirectory(path, recursive);
+      return get()->ListDirectory(path, includeDirectories, recursive);
    }
 
    Maybe<FileHandle> OpenFileRead(const std::string& path) override

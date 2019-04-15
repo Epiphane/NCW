@@ -95,6 +95,47 @@ std::string Canonicalize(const std::string& path)
    }
 }
 
+std::string GetRelativePath(const std::string& path_, const std::string& base_)
+{
+   const std::string path = Canonicalize(path_);
+   const std::string base = Canonicalize(base_);
+
+   std::vector<std::string> baseParts = StringHelper::Split(base);
+   std::vector<std::string> pathParts = StringHelper::Split(path);
+
+   size_t common = 0;
+   for (;common < baseParts.size() && common < pathParts.size(); ++common)
+   {
+      if (baseParts[common] != pathParts[common])
+      {
+         break;
+      }
+   }
+
+   // Example state:
+   // path: /path/to/Assets/Skeletons/character
+   // base: /path/to/Assets/Models
+   // common: 3
+   // want: ../Skeletons/Character
+   std::string result = "";
+   for (size_t i = 0; i < baseParts.size() - common; ++i)
+   {
+      result += "../";
+   }
+
+   for (size_t i = common; i < pathParts.size(); ++i)
+   {
+      result += pathParts[i] + "/";
+   }
+
+   // Remove trailing slash
+   if (result.size() > 0)
+   {
+      result.erase(result.size() - 1);
+   }
+   return result;
+}
+
 std::string GetFilename(const std::string& path)
 {
    std::string normalized = Normalize(path);

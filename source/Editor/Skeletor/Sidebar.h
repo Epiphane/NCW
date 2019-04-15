@@ -9,6 +9,7 @@
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
+#include "AnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -45,7 +46,7 @@ private:
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
+   void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
    void Receive(const SkeletonModifiedEvent& evt);
 

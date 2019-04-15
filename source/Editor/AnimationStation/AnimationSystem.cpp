@@ -8,6 +8,9 @@ namespace CubeWorld
 namespace Editor
 {
 
+namespace AnimationStation
+{
+
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
 {
    auto controllers = entities.EntitiesWithComponents<AnimationSystemController>();
@@ -29,6 +32,8 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
    BaseAnimationSystem::Update(entities, events, dt);
 }
 
-}; // namespace Game
+}; // namespace AnimationStation
+
+}; // namespace Editor
 
 }; // namespace CubeWorld

@@ -485,6 +485,9 @@ public:
          return !(*this == rhs);
       }
 
+      // https://stackoverflow.com/questions/53721714/why-does-structured-binding-not-work-as-expected-on-struct
+      // Workaround: don’t use const on the struct.
+      // In order to keep this const (so it doesn't change the actual properties), just do it the hard way.
       KV& operator*() const
       {
          return mObject->data.objectVal[mIndex];

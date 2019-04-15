@@ -24,7 +24,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include "../Systems/AnimationSystem.h"
+#include "AnimationSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -73,7 +73,7 @@ void MainState::Initialize()
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
-   mSystems.Add<Editor::AnimationSystem>();
+   mSystems.Add<AnimationSystem>();
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();

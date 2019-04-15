@@ -4,7 +4,7 @@
 
 #include <Engine/Event/Event.h>
 #include <Engine/Entity/ComponentHandle.h>
-#include <Shared/Systems/AnimationSystem.h>
+#include <Shared/Components/AnimatedSkeleton.h>
 
 namespace CubeWorld
 {

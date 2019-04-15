@@ -162,7 +162,7 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    std::pair<size_t, size_t> parent = {0, 0};
    for (size_t i = 0; i < skeletons.size(); i++)
    {
-      if (skeletons[i]->name == Paths::GetFilename(skeleton->parentFilename))
+      if (skeletons[i]->name == skeleton->parent)
       {
          parent.first = i;
          
@@ -197,11 +197,17 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
 
    for (State& state : states)
    {
+      std::vector<AnimatedSkeleton::Bone>* stance = &skeleton->bones;
+      if (skeleton->stancesByName.find(state.stance) != skeleton->stancesByName.end())
+      {
+         stance = &skeleton->stances[skeleton->stancesByName[state.stance]].bones;
+      }
+
       for (Keyframe& keyframe : state.keyframes)
       {
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
+         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
+         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
+         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
       }
    }
 
@@ -216,7 +222,7 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
       auto stateId = statesByName.find(stateName);
       if (stateId == statesByName.end())
       {
-         LOG_ERROR("Tried to add transitions for state '%1', but state does not exists", stateName);
+         LOG_ERROR("Tried to add transitions for state '%1', but state does not exist", stateName);
          continue;
       }
 
@@ -260,6 +266,7 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
       State state;
       state.name = definition.name;
       state.next = definition.next;
+      state.stance = definition.stance;
       state.skeletonId = skeletonNdx;
       state.length = definition.length;
       state.keyframes.resize(definition.keyframes.size());

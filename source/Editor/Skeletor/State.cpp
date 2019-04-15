@@ -24,7 +24,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include "../Systems/AnimationSystem.h"
+#include "AnimationSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -60,7 +60,7 @@ void MainState::Initialize()
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
-   mSystems.Add<Editor::AnimationSystem>();
+   mSystems.Add<AnimationSystem>();
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
@@ -70,14 +70,12 @@ void MainState::Initialize()
 
    // Add a shell entity for controlling animation state
    Entity controls = mEntities.Create();
-   auto controller = controls.Add<AnimationSystemController>();
-   controller->animate = false;
 
    // Create a player component
    mPlayer = mEntities.Create();
    mPlayer.Add<Transform>(glm::vec3(0, 1.3, 0));
    mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   mPlayer.Add<AnimationController>();
+   mPlayer.Add<SkeletonCollection>();
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 0, 0);
@@ -142,8 +140,9 @@ void MainState::Receive(const SkeletonClearedEvent&)
       mEntities.Destroy(part.GetID());
    }
 
-   auto controller = mPlayer.Get<AnimationController>();
-   controller->Reset();
+   auto controller = mPlayer.Get<SkeletonCollection>();
+   controller->skeletons.clear();
+   controller->stance = 0;
 
    mPlayerParts.clear();
 }
@@ -155,9 +154,7 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    auto model = part.Add<VoxModel>();
    auto skeleton = part.Add<AnimatedSkeleton>(evt.filename, model);
 
-   auto controller = mPlayer.Get<AnimationController>();
-   controller->AddSkeleton(skeleton);
-
+   mPlayer.Get<SkeletonCollection>()->skeletons.push_back(skeleton);
    mPlayerParts.push_back(part);
 }
 

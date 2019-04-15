@@ -46,6 +46,7 @@ public:
    struct State {
       std::string name;
       std::string next;
+      std::string stance;
 
       double length;
       std::vector<Keyframe> keyframes;
@@ -94,7 +95,7 @@ public:
    // Data
    std::string name;
    std::string modelFilename;
-   std::string parentFilename;
+   std::string parent;
    std::string parentBone;
 
    std::vector<State> states;
