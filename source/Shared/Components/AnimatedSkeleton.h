@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <RGBBinding/tmp/json.hpp>
 #include <Engine/Entity/ComponentHandle.h>
 #include <Engine/Entity/EntityManager.h>
 #include "../Components/VoxModel.h"
@@ -34,7 +33,7 @@ public:
          Type type;
          std::string parameter;
          union {
-            float floatVal;
+            double doubleVal;
             bool boolVal;
          };
       };
@@ -72,6 +71,14 @@ public:
       std::vector<size_t> children;
    };
 
+   struct Stance {
+      std::string name;
+      std::string inherit;
+      std::string parentBone; // If this is a child skeleton
+
+      std::vector<Bone> bones;
+   };
+
 public:
    void ComputeBoneMatrix(size_t boneId);
    
@@ -81,7 +88,6 @@ public:
    AnimatedSkeleton(const std::string& file, Engine::ComponentHandle<VoxModel> model) : model(model) { Load(file); }
    void Reset();
    void Load(const std::string& file);
-   //void Load(const std::string& workingDirectory, const nlohmann::json& data);
    std::string Serialize();
 
 public:
@@ -96,8 +102,12 @@ public:
    std::unordered_map<std::string, std::vector<Transition>> transitions;
 
    // Index 0 is the root of the skeleton.
+   // bones describe the stance-less state of this skeleton.
    std::vector<Bone> bones;
    std::unordered_map<std::string, size_t> bonesByName;
+
+   std::vector<Stance> stances;
+   std::unordered_map<std::string, size_t> stancesByName;
 
    // Attach a VoxModel component directly. Note that it doesn't _have_
    // to be hosted by the same entity as this AnimatedSkeleton.

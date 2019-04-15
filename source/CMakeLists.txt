@@ -6,6 +6,9 @@ if (WIN32)
 else()
    add_definitions(-DCUBEWORLD_PLATFORM_MACOSX)
 endif()
+add_definitions(-D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
+add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+add_definitions(-DNOMINMAX)
 
 # Allow for referencing, e.g. <RGBDesignPatterns/Scope.h>
 # from any of these projects.

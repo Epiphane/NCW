@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <algorithm>
 #include <fstream>
 
 #include <RGBFileSystem/Paths.h>

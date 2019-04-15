@@ -1,12 +1,11 @@
 // By Thomas Steinke
 
-#if CUBEWORLD_PLATFORM_WINDOWS
+#if defined CUBEWORLD_PLATFORM_WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <cstdio>
-#include <errno.h>
-#include <glm/ext.hpp>
+
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <queue>
 #include <vector>
@@ -15,6 +14,7 @@
 #include <RGBLogger/Logger.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/Core/Config.h>
+#include <Engine/Core/FileSystemProvider.h>
 
 #include "VoxFormat.h"
 
@@ -220,31 +220,29 @@ struct LAYR {
    int32_t reserved = -1;
 };
 
-Maybe<Chunk> ReadChunk(FILE* f)
+Maybe<Chunk> ReadChunk(FileSystem& fs, FileSystem::FileHandle handle)
 {
    Chunk chunk;
 
-   size_t bytes = fread(&chunk.header, 1, sizeof(Chunk::Header), f);
-   if (bytes != sizeof(Chunk::Header))
+   if (Maybe<void> read = fs.ReadFile(handle, &chunk.header, sizeof(Chunk::Header)); !read)
    {
-      return Failure("Failed to read chunk header: only received %1 bytes out of %2.", bytes, sizeof(Chunk::Header));
+      return read.Failure().WithContext("Failed reading chunk header");
    }
 
    chunk.data.resize(chunk.header.length);
 
    if (chunk.header.length > 0)
    {
-      bytes = fread(&chunk.data[0], 1, chunk.header.length, f);
-      if (bytes != chunk.header.length)
+      if (Maybe<void> read = fs.ReadFile(handle, &chunk.data[0], chunk.header.length); !read)
       {
-         return Failure("Failed to read chunk data: only received %1 bytes out of %2.", bytes, chunk.header.length);
+         return read.Failure().WithContext("Failed reading chunk data");
       }
    }
 
    uint32_t read = 0;
    while (read < chunk.header.childLength)
    {
-      Maybe<Chunk> child = ReadChunk(f);
+      Maybe<Chunk> child = ReadChunk(fs, handle);
       if (!child)
       {
          return child.Failure().WithContext("Failed reading child %1 of %2 chunk", chunk.children.size(), chunk.id());
@@ -874,7 +872,7 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
    return Success;
 }
 
-Maybe<size_t> WriteRenderObj(FILE* f, const std::vector<std::pair<std::string, std::string>>& properties)
+Maybe<size_t> WriteRenderObj(FileSystem& fs, FileSystem::FileHandle handle, const std::vector<std::pair<std::string, std::string>>& properties)
 {
    size_t chunkSize = sizeof(int32_t) /* DICT header */;
    for (const auto& keyval : properties)
@@ -897,13 +895,11 @@ Maybe<size_t> WriteRenderObj(FILE* f, const std::vector<std::pair<std::string, s
    WriteDict((int32_t*)(header + 1), properties);
 
    // Write the chunk to disk.
-   size_t written = fwrite(&data[0], 1, data.size(), f);
-   if (written != data.size())
+   if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
    {
-      return Failure("Failed to write %1-byte rOBJ chunk: Only wrote %2 bytes", data.size(), written);
+      return write.Failure().WithContext("Failed to write %1-byte rOBJ chunk", data.size());
    }
-
-   return written;
+   return data.size();
 }
 
 }; // anonymous namespace
@@ -913,7 +909,7 @@ namespace
 
 bool IsFilled(const std::vector<bool>& filled, int index)
 {
-   if (index < 0 || index >= filled.size())
+   if (index < 0 || size_t(index) >= filled.size())
    {
       return false;
    }
@@ -1221,19 +1217,20 @@ Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& pat
 {
    std::unique_ptr<VoxModelData> model = std::make_unique<VoxModelData>();
 
-   FILE* f = fopen(path.c_str(), "rb");
-   if (f == nullptr)
+   auto fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileRead(path);
+   if (!maybeHandle)
    {
-      return Failure("Failed opening %1 with errno %2", path, errno);
+      return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
-   CUBEWORLD_SCOPE_EXIT([&] { fclose(f); })
+   FileSystem::FileHandle handle = maybeHandle.Result();
+   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
 
    FileHeader header;
-   size_t bytes = fread(&header, 1, sizeof(FileHeader), f);
-   if (bytes != sizeof(FileHeader))
+   if (Maybe<void> read = fs->ReadFile(handle, &header, sizeof(FileHeader)); !read)
    {
-      return Failure("Failed to read %1 bytes: got %2 instead.", sizeof(FileHeader), bytes);
+      return read.Failure().WithContext("Failed reading file header");
    }
    
    if (strncmp(header.id, "VOX ", 4) != 0)
@@ -1246,7 +1243,7 @@ Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& pat
       return Failure("Header version is %1. Only 150 is supported", header.version);
    }
 
-   Maybe<Chunk> maybeChunk = ReadChunk(f);
+   Maybe<Chunk> maybeChunk = ReadChunk(*fs, handle);
    if (!maybeChunk)
    {
       return maybeChunk.Failure().WithContext("Failed reading RIFF file");
@@ -1329,13 +1326,15 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
 
 Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxModelData)
 {
-   FILE* f = fopen(path.c_str(), "wb+");
-   if (f == nullptr)
+   auto fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileWrite(path);
+   if (!maybeHandle)
    {
-      return Failure("Failed opening %1 with errno %2", path, errno);
+      return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
-   CUBEWORLD_SCOPE_EXIT([&] { fclose(f); });
+   FileSystem::FileHandle handle = maybeHandle.Result();
+   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
 
    // Write overarching file headers
    std::vector<uint8_t> data {
@@ -1345,10 +1344,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       0, 0, 0, 0,
       0, 0, 0, 0 /* determined later */
    };
-   size_t written = fwrite(&data[0], 1, data.size(), f);
-   if (written != data.size())
+   if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
    {
-      return Failure("Failed to write %1-byte header: wrote %2 instead", data.size(), written);
+      return write.Failure().WithContext("Failed to write metadata header");
    }
 
    size_t chunkBytes = 0; // Saved to offset 0x10 after computing it.
@@ -1367,11 +1365,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       size->height = model.height;
       size->length = model.length;
 
-      chunkBytes += written = fwrite(&data[0], sizeof(uint8_t), data.size(), f);
-      if (written != data.size())
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
       {
-         return Failure("Failed to write %1-byte SIZE chunk: Only wrote %2 bytes", data.size(), written);
+         return write.Failure().WithContext("Failed to write %1-byte SIZE chunk", data.size());
       }
+      chunkBytes += data.size();
 
       header->id = Chunk::XYZI;
       header->length = uint32_t(sizeof(uint32_t) + sizeof(uint32_t) * model.voxels.size());
@@ -1381,18 +1379,18 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       uint32_t* cursor = (uint32_t*)(header + 1);
       *cursor = uint32_t(model.voxels.size());
 
-      chunkBytes += written = fwrite(&data[0], 1, sizeof(Chunk::Header) + sizeof(uint32_t), f);
-      if (written != sizeof(Chunk::Header) + sizeof(uint32_t))
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], sizeof(Chunk::Header) + sizeof(uint32_t)); !write)
       {
-         return Failure("Failed to write %1-byte XYZI header: Only wrote %2 bytes", sizeof(Chunk::Header) + sizeof(uint32_t), written);
+         return write.Failure().WithContext("Failed to write %1-byte XYZI chunk", sizeof(Chunk::Header) + sizeof(uint32_t));
       }
+      chunkBytes += data.size();
 
       // Write the voxel data next.
-      chunkBytes += written = fwrite(&model.voxels[0], 1, sizeof(uint32_t) * model.voxels.size(), f);
-      if (written != sizeof(uint32_t) * model.voxels.size())
+      if (Maybe<void> write = fs->WriteFile(handle, (void*)&model.voxels[0], sizeof(uint32_t) * model.voxels.size()); !write)
       {
-         return Failure("Failed to write %1 voxels: Only wrote %2 bytes", sizeof(uint32_t) * model.voxels.size(), written);
+         return write.Failure().WithContext("Failed to write %1 voxels", sizeof(uint32_t) * model.voxels.size());
       }
+      chunkBytes += data.size();
    }
 
    // Write render transforms (pretty much unused)
@@ -1546,12 +1544,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       }
       
       // Write the node.
-      chunkBytes += written = fwrite(&data[0], 1, data.size(), f);
-      if (written != data.size())
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
       {
          Chunk::Header* header = (Chunk::Header*)&data[0];
-         return Failure("Failed to write %1-byte %2 chunk: Only wrote %3 bytes", data.size(), Chunk::ReadChunkID(header->id), written);
+         return write.Failure().WithContext("Failed to write %1-byte %2 chunk", data.size(), Chunk::ReadChunkID(header->id));
       }
+      chunkBytes += data.size();
    }
 
    // Write layer info
@@ -1601,11 +1599,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       *cursor++ = -1;
 
       // Write the chunk to disk.
-      chunkBytes += written = fwrite(&data[0], 1, data.size(), f);
-      if (written != data.size())
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
       {
-         return Failure("Failed to write %1-byte LAYR chunk: Only wrote %2 bytes", data.size(), written);
+         return write.Failure().WithContext("Failed to write %1-byte LAYR chunk", data.size());
       }
+      chunkBytes += data.size();
    }
 
    // Write the palette
@@ -1619,11 +1617,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
 
       memcpy(header + 1, voxModelData.palette, sizeof(voxModelData.palette));
 
-      chunkBytes += written = fwrite(&data[0], 1, data.size(), f);
-      if (written != data.size())
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
       {
-         return Failure("Failed to write %1-byte RGBA chunk: Only wrote %2 bytes", data.size(), written);
+         return write.Failure().WithContext("Failed to write %1-byte RGBA chunk", data.size());
       }
+      chunkBytes += data.size();
    }
 
    // Write materials
@@ -1689,17 +1687,17 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       cursor = WriteDict(cursor, properties);
 
       // Write the chunk to disk.
-      chunkBytes += written = fwrite(&data[0], 1, data.size(), f);
-      if (written != data.size())
+      if (Maybe<void> write = fs->WriteFile(handle, &data[0], data.size()); !write)
       {
-         return Failure("Failed to write %1-byte MATL chunk: Only wrote %2 bytes", data.size(), written);
+         return write.Failure().WithContext("Failed to write %1-byte MATL chunk", data.size());
       }
+      chunkBytes += data.size();
    }
 
    // Write render objects
    {
       // Sun
-      Maybe<size_t> result = WriteRenderObj(f, {
+      Maybe<size_t> result = WriteRenderObj(*fs, handle, {
          { "_type", "_inf" },
          { "_i", ToShortString(voxModelData.sun.intensity) },
          { "_k", 
@@ -1718,7 +1716,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Uniform sky
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_uni" },
          { "_i", ToShortString(voxModelData.sky.intensity) },
          { "_k", 
@@ -1734,7 +1732,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Atmospheric sky
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_atm" },
          { "_ray_d", ToShortString(voxModelData.atm.rayleighDensity) },
          { "_ray_k", 
@@ -1763,7 +1761,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Uniform fog
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_fog_uni" },
          { "_d", ToShortString(voxModelData.fog.density) },
          { "_k", 
@@ -1779,7 +1777,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Lens
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_lens" },
          { "_fov", std::to_string(voxModelData.lens.fov) },
          { "_dof", ToShortString(voxModelData.lens.depthOfField) },
@@ -1796,7 +1794,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Bloom
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_bloom" },
          { "_mix", ToShortString(voxModelData.bloom.mix) },
          { "_scale", ToShortString(voxModelData.bloom.scale) },
@@ -1810,7 +1808,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Tone
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_tone" },
          { "_aces", voxModelData.tone.aces ? "1" : "0" },
          { "_gam", ToShortString(voxModelData.tone.gamma) },
@@ -1822,7 +1820,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Ground
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_ground" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
@@ -1838,7 +1836,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Background
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_bg" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
@@ -1853,7 +1851,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Edge
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_edge" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
@@ -1869,7 +1867,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Grid
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_grid" },
          { "_color", 
            Format::FormatString("%1 %2 %3", 
@@ -1887,7 +1885,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
 
       // Settings
-      result = WriteRenderObj(f, {
+      result = WriteRenderObj(*fs, handle, {
          { "_type", "_setting" },
          { "_ground", voxModelData.settings.ground ? "1" : "0" },
          { "_sw", voxModelData.settings.shadow ? "1" : "0" },
@@ -1909,15 +1907,14 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       chunkBytes += *result;
    }
 
-   if (fseek(f, 0x10, SEEK_SET) != 0)
+   if (Maybe<void> seek = fs->SeekFile(handle, FileSystem::Seek::BEGIN, 0x10); !seek)
    {
-      return Failure("Failed to seek to offset 0x10: errno %1", errno);
+      return seek.Failure().WithContext("Failed to seek to offset 0x10");
    }
-
-   written = fwrite(&chunkBytes, 1, sizeof(chunkBytes), f);
-   if (written != sizeof(chunkBytes))
+   
+   if (Maybe<void> write = fs->WriteFile(handle, &chunkBytes, sizeof(chunkBytes)); !write)
    {
-      return Failure("Failed to write size of MAIN chunk. Only wrote %1 bytes", written);
+      return write.Failure().WithContext("Failed to write size of MAIN chunk");
    }
 
    return Success;

@@ -23,7 +23,7 @@
 namespace CubeWorld
 {
 
-class DebugHelper : public Engine::Singleton<DebugHelper> {
+class DebugHelper : public Singleton<DebugHelper> {
 public:
    // Metrics are stored as a doubly-linked list, to allow for easy insertion and removal.
    struct MetricLink {

@@ -140,10 +140,10 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
                   switch (trigger.type)
                   {
                   case Transition::Trigger::FloatGte:
-                     valid &= controller.floatParams[trigger.parameter] >= trigger.floatVal;
+                     valid &= controller.floatParams[trigger.parameter] >= trigger.doubleVal;
                      break;
                   case Transition::Trigger::FloatLt:
-                     valid &= controller.floatParams[trigger.parameter] < trigger.floatVal;
+                     valid &= controller.floatParams[trigger.parameter] < trigger.doubleVal;
                      break;
                   case Transition::Trigger::Bool:
                      valid &= controller.boolParams[trigger.parameter] == trigger.boolVal;

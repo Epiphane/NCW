@@ -30,9 +30,6 @@ std::string Canonicalize(const std::string& path);
 std::string GetFilename(const std::string& path);
 std::string GetDirectory(const std::string& path);
 
-bool Exists(const std::string& path);
-Maybe<void> MakeDirectory(const std::string& path);
-
 std::string GetWorkingDirectory();
 
 }; // namespace Paths

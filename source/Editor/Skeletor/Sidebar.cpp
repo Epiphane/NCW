@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <RGBFileSystem/File.h>
+#include <RGBNetworking/JSONSerializer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -139,13 +140,17 @@ void Sidebar::LoadFile(const std::string& filename)
    std::string currentFile = filename;
    do
    {
-      std::ifstream file(currentFile);
-      nlohmann::json data;
-      file >> data;
+      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
+      if (!maybeData)
+      {
+         LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
+         break;
+      }
+      const BindingProperty data = std::move(*maybeData);
 
       parts.push(currentFile);
 
-      std::string parent = data.value("parent", "");
+      std::string parent = data["parent"];
       if (parent == "")
       {
          currentFile = "";

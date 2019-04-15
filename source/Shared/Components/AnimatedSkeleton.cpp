@@ -1,19 +1,20 @@
 // By Thomas Steinke
 
 #include <algorithm>
-#include <fstream>
 #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
-#include <stack>
-#include <RGBLogger/Logger.h>
-#include <Engine/Core/Config.h>
-#include <RGBFileSystem/Paths.h>
 
-#include <RGBBinding/JsonHelper.h>
+#include <RGBFileSystem/Paths.h>
+#include <RGBLogger/Logger.h>
+#include <RGBNetworking/JSONSerializer.h>
+
+#include <Engine/Core/Config.h>
+#include <Engine/Core/FileSystemProvider.h>
 #include "../Helpers/VoxFormat.h"
 #include "../Event/NamedEvent.h"
 #include "AnimatedSkeleton.h"
+
 
 namespace CubeWorld
 {
@@ -41,6 +42,20 @@ void AnimatedSkeleton::ComputeBoneMatrix(size_t boneId)
    }
    else
    {
+      // TODO: This may assert one day if stances get super funky.
+      // Until thennnnn let's hope they don't :)
+      // tl;dr is that a few things are going on:
+      // 1. VoxModel is a list of parts
+      // 2. Those parts correspond 1:1 with a list of bones
+      // 3. Assigning bones to new parents (in a non-base stance) means
+      //    that bone N might now have parent M, when M > N
+      // 4. These matrices are computed in order, so a violation of
+      //    the child > parent order means that a child bone would
+      //    be computed BEFORE it's parent.
+      // It could be as easy as "if boneId > bone.parent, compute
+      // bone parent first", but I don't want to overengineer so
+      // we can cross that bridge when we come to it.
+      assert(boneId > bone.parent);
       bone.matrix = bones[bone.parent].matrix;
    }
 
@@ -63,74 +78,100 @@ void AnimatedSkeleton::Reset()
 
 void AnimatedSkeleton::Load(const std::string& filename)
 {
-   std::ifstream file(filename);
-   nlohmann::json data;
-   file >> data;
-
-   //name = Paths::GetFilename(filename);
-   //Load(Paths::GetDirectory(filename), data);
-//}
-
-//void AnimatedSkeleton::Load(const std::string& workingDirectory, const nlohmann::json& data)
-//{
    Reset();
+
+   Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(filename);
+   if (!maybeData)
+   {
+      LOG_ERROR("Failed reading %1: %2", filename, maybeData.Failure().GetMessage());
+      return;
+   }
+
+   BindingProperty data = std::move(maybeData.Result());
 
    name = Paths::GetFilename(filename);
    std::string workingDirectory = Paths::GetDirectory(filename);
 
    // Load VOX model for bone data.
-   parentFilename = data.value("parent", "");
+   parentFilename = data["parent"].GetStringValue();
+   modelFilename = data["model"].GetStringValue();
 
-   modelFilename = data.value("model", "");
-   if (modelFilename == "")
+   if (modelFilename.empty())
    {
       LOG_ERROR("No model provided");
       return;
    }
-   else
+
+   Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(Paths::Join(workingDirectory, modelFilename));
+   if (!maybeModel)
    {
-      Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(Paths::Join(workingDirectory, modelFilename));
-      if (!maybeModel)
+      LOG_ERROR(maybeModel.Failure().WithContext("Failed loading reference model").GetMessage());
+      return;
+   }
+
+   Voxel::VoxModel* voxModel = *maybeModel;
+   if (model)
+   {
+      model->Set(voxModel);
+   }
+
+   bones.resize(voxModel->parts.size());
+   for (const Voxel::VoxModel::Part& part : voxModel->parts)
+   {
+      AnimatedSkeleton::Bone& bone = bones[part.id];
+      bone.name = part.name;
+      bone.position = bone.originalPosition = part.position;
+      bone.rotation = bone.originalRotation = part.rotation;
+      bone.scale = bone.originalScale = glm::vec3(1);
+      bone.parent = voxModel->parents[part.id];
+      bone.children.clear();
+      ComputeBoneMatrix(part.id);
+
+      if (bone.parent != part.id)
       {
-         LOG_ERROR(maybeModel.Failure().WithContext("Failed loading reference model").GetMessage());
-         return;
+         bones[bone.parent].children.push_back(part.id);
       }
 
-      Voxel::VoxModel* voxModel = *maybeModel;
-
-      if (model)
+      if (bone.name != "")
       {
-         model->Set(voxModel);
+         bonesByName.emplace(bone.name, part.id);
+      }
+   }
+
+   for (const auto& stanceDef : data["stances"])
+   {
+      Stance stance;
+      stance.name = stanceDef["name"].GetStringValue();
+      stance.inherit = stanceDef["inherit"].GetStringValue();
+
+      if (stance.name.empty())
+      {
+         LOG_ERROR("Empty stance name. Skipping");
+         continue;
       }
 
-      bones.resize(voxModel->parts.size());
-      for (const Voxel::VoxModel::Part& part : voxModel->parts)
+      if (stance.inherit == "base")
       {
-         AnimatedSkeleton::Bone& bone = bones[part.id];
-         bone.name = part.name;
-         bone.position = bone.originalPosition = part.position;
-         bone.rotation = bone.originalRotation = part.rotation;
-         bone.scale = bone.originalScale = glm::vec3(1);
-         bone.parent = voxModel->parents[part.id];
+         stance.bones = bones;
+      }
+      else if (stancesByName.find(stance.inherit) == stancesByName.end())
+      {
+         LOG_ERROR("Stance '%1' specifies inherit from '%2', which does not exist", stance.name, stance.inherit);
+         continue;
+      }
+      else
+      {
+         stance.bones = stances[stancesByName[stance.inherit]].bones;
+      }
+
+      for (Bone& bone : stance.bones)
+      {
          bone.children.clear();
-         ComputeBoneMatrix(part.id);
-
-         if (bone.parent != part.id)
-         {
-            bones[bone.parent].children.push_back(part.id);
-         }
-
-         if (bone.name != "")
-         {
-            bonesByName.emplace(bone.name, part.id);
-         }
       }
 
-      // Examine the file's skeleton for consistency, and then apply it.
-      for (auto it = data["bones"].begin(); it != data["bones"].end(); it++)
+      // Apply modifications
+      for (const auto [boneName, boneData] : data["bones"].pairs())
       {
-         std::string boneName = it.key();
-
          auto boneId = bonesByName.find(boneName);
          if (boneId == bonesByName.end())
          {
@@ -138,63 +179,69 @@ void AnimatedSkeleton::Load(const std::string& filename)
             continue;
          }
 
-         AnimatedSkeleton::Bone& bone = bones[boneId->second];
-         AnimatedSkeleton::Bone& parent = bones[bone.parent];
-         const nlohmann::json& boneData = it.value();
-         if (boneId->second > 0 && boneData["parent"] != parent.name)
+         AnimatedSkeleton::Bone& bone = stance.bones[boneId->second];
+         if (std::string parent = boneData["parent"]; !parent.empty())
          {
-            continue;
-         }
-         
-         if (boneId->second == 0)
-         {
-            parentBone = boneData.value("parent", "root");
+            if (boneId->second == 0)
+            {
+               stance.parentBone = parent;
+            }
+            else if (bonesByName.find(parent) == bonesByName.end())
+            {
+               LOG_WARNING("Bone '%1' specifies a parent of '%2', which doesn't exist. Nice try kiddo", bone.name, parent);
+            }
+            else
+            {
+               bone.parent = bonesByName[parent];
+               stance.bones[bone.parent].children.push_back(boneId->second);
+            }
          }
 
-         bone.position = bone.originalPosition = Shared::JsonToVec3(boneData["position"]);
-         bone.rotation = bone.originalRotation = Shared::JsonToVec3(boneData["rotation"]);
-         bone.scale = bone.originalScale = Shared::JsonToVec3(boneData["scale"]);
+         bone.position = bone.originalPosition = boneData["position"].GetVec3(bone.originalPosition);
+         bone.rotation = bone.originalRotation = boneData["rotation"].GetVec3(bone.originalRotation);
+         bone.scale = bone.originalScale = boneData["scale"].GetVec3(bone.originalScale);
       }
+
+      stancesByName.emplace(stance.name, stances.size());
+      stances.push_back(std::move(stance));
    }
 
    // Add animation states.
-   for (auto anim : data["states"])
+   for (const auto& anim : data["states"])
    {
       AnimatedSkeleton::State state;
-      state.name = anim.value("name", "");
-      state.next = anim.value("next", "");
-      state.length = anim["length"];
+      state.name = anim["name"];
+      state.next = anim["next"];
+      state.length = anim["length"].GetDoubleValue(1);
 
       assert(state.name != "");
       assert(state.length > 0);
 
       double lastTime = -1;
-      for (auto frame : anim["keyframes"])
+      for (const auto& frame : anim["keyframes"])
       {
          AnimatedSkeleton::Keyframe keyframe;
-         keyframe.time = frame["time"];
+         keyframe.time = frame["time"].GetDoubleValue();
 
          assert(keyframe.time > lastTime);
          lastTime = keyframe.time;
 
-         if (auto boneData = frame.find("bones"); boneData != frame.end())
+         // https://stackoverflow.com/questions/53721714/why-does-structured-binding-not-work-as-expected-on-struct
+         // Workaround: don’t use const on the struct.
+         // In order to keep this const (so it doesn't change the actual properties), we just do it the hard way.
+         for (const auto& [bone, modification] : frame["bones"].pairs())
          {
-            for (auto modification = boneData.value().begin(); modification != boneData.value().end(); modification++)
+            if (const auto& pos = modification["position"]; pos.IsVec3())
             {
-               std::string boneName = modification.key();
-
-               if (auto pos = modification.value().find("position"); pos != modification.value().end())
-               {
-                  keyframe.positions.emplace(boneName, Shared::JsonToVec3(pos.value()));
-               }
-               if (auto rot = modification.value().find("rotation"); rot != modification.value().end())
-               {
-                  keyframe.rotations.emplace(boneName, Shared::JsonToVec3(rot.value()));
-               }
-               if (auto scl = modification.value().find("scale"); scl != modification.value().end())
-               {
-                  keyframe.scales.emplace(boneName, Shared::JsonToVec3(scl.value()));
-               }
+               keyframe.positions.emplace(bone, pos.GetVec3());
+            }
+            if (const auto& rot = modification["rotation"]; rot.IsVec3())
+            {
+               keyframe.positions.emplace(bone, rot.GetVec3());
+            }
+            if (const auto& scl = modification["scale"]; scl.IsVec3())
+            {
+               keyframe.positions.emplace(bone, scl.GetVec3());
             }
          }
          state.keyframes.push_back(std::move(keyframe));
@@ -207,48 +254,45 @@ void AnimatedSkeleton::Load(const std::string& filename)
    //assert(states.size() > 0);
 
    // Add transitions.
-   if (data.find("transitions") != data.end())
+   for (const auto& [src, definitions] : data["transitions"].pairs())
    {
-      for (auto it = data["transitions"].begin(); it != data["transitions"].end(); it++)
+      std::vector<Transition>& source = transitions[src];
+
+      for (const BindingProperty& info : definitions)
       {
-         std::vector<Transition>& source = transitions[it.key()];
-
-         for (auto info : it.value())
+         Transition transition;
+         transition.destination = info["to"];
+         transition.time = info["time"].GetDoubleValue();
+         for (const BindingProperty& triggerInfo : info["triggers"])
          {
-            Transition transition;
-            transition.destination = info.value("to", "");
-            transition.time = info.value("time", 0.0);
-            for (auto triggerInfo : info["triggers"])
+            Transition::Trigger trigger;
+            trigger.parameter = triggerInfo["parameter"];
+            if (const auto& gte = triggerInfo["gte"]; gte.IsDouble())
             {
-               Transition::Trigger trigger;
-               trigger.parameter = triggerInfo.value("parameter", "");
-               if (auto gte = triggerInfo.find("gte"); gte != triggerInfo.end())
-               {
-                  trigger.type = Transition::Trigger::FloatGte;
-                  trigger.floatVal = gte.value();
-               }
-               if (auto lt = triggerInfo.find("lt"); lt != triggerInfo.end())
-               {
-                  trigger.type = Transition::Trigger::FloatLt;
-                  trigger.floatVal = lt.value();
-               }
-               if (auto boolean = triggerInfo.find("bool"); boolean != triggerInfo.end())
-               {
-                  trigger.type = Transition::Trigger::Bool;
-                  trigger.boolVal = boolean.value();
-               }
-
-               transition.triggers.push_back(std::move(trigger));
+               trigger.type = Transition::Trigger::FloatGte;
+               trigger.doubleVal = gte.GetDoubleValue();
             }
-            source.push_back(std::move(transition));
+            if (const auto& lt = triggerInfo["gte"]; lt.IsDouble())
+            {
+               trigger.type = Transition::Trigger::FloatLt;
+               trigger.doubleVal = lt.GetDoubleValue();
+            }
+            if (const auto& boolean = triggerInfo["bool"]; boolean.IsBool())
+            {
+               trigger.type = Transition::Trigger::Bool;
+               trigger.boolVal = boolean.GetBooleanValue();
+            }
+
+            transition.triggers.push_back(std::move(trigger));
          }
+         source.push_back(std::move(transition));
       }
    }
 }
 
 std::string AnimatedSkeleton::Serialize()
 {
-   nlohmann::json data;
+   BindingProperty data;
    data["version"] = 1;
    data["model"] = modelFilename;
    data["parent"] = parentFilename;
@@ -256,11 +300,11 @@ std::string AnimatedSkeleton::Serialize()
    // Bones
    for (const AnimatedSkeleton::Bone& bone : bones)
    {
-      nlohmann::json info;
+      BindingProperty info;
       info["parent"] = bones[bone.parent].name;
-      info["position"] = Shared::Vec3ToJson(bone.originalPosition);
-      info["rotation"] = Shared::Vec3ToJson(bone.originalRotation);
-      info["scale"] = Shared::Vec3ToJson(bone.originalScale);
+      info["position"] = bone.originalPosition;
+      info["rotation"] = bone.originalRotation;
+      info["scale"] = bone.originalScale;
       data["bones"][bone.name] = info;
    }
 
@@ -275,7 +319,7 @@ std::string AnimatedSkeleton::Serialize()
       data["default"] = states[0].name;
       for (const State& state : states)
       {
-         nlohmann::json stateData;
+         BindingProperty stateData;
          stateData["name"] = state.name;
          stateData["next"] = state.next;
          stateData["length"] = std::round(state.length * 100) / 100;
@@ -287,21 +331,21 @@ std::string AnimatedSkeleton::Serialize()
                continue;
             }
 
-            nlohmann::json keyframeData;
+            BindingProperty keyframeData;
 
             keyframeData["time"] = std::round(keyframe.time * 100) / 100;
 
             for (const auto& modification : keyframe.positions)
             {
-               keyframeData["bones"][modification.first]["position"] = Shared::Vec3ToJson(modification.second);
+               keyframeData["bones"][modification.first]["position"] = modification.second;
             }
             for (const auto& modification : keyframe.rotations)
             {
-               keyframeData["bones"][modification.first]["rotation"] = Shared::Vec3ToJson(modification.second);
+               keyframeData["bones"][modification.first]["rotation"] = modification.second;
             }
             for (const auto& modification : keyframe.scales)
             {
-               keyframeData["bones"][modification.first]["scale"] = Shared::Vec3ToJson(modification.second);
+               keyframeData["bones"][modification.first]["scale"] = modification.second;
             }
 
             stateData["keyframes"].push_back(keyframeData);
@@ -316,22 +360,22 @@ std::string AnimatedSkeleton::Serialize()
    {
       for (const Transition& transition : list)
       {
-         nlohmann::json transitionData;
+         BindingProperty transitionData;
 
          transitionData["to"] = transition.destination;
          transitionData["time"] = std::round(transition.time * 100) / 100;
          for (auto trigger : transition.triggers)
          {
-            nlohmann::json triggerData;
+            BindingProperty triggerData;
 
             triggerData["parameter"] = trigger.parameter;
             switch (trigger.type)
             {
             case AnimatedSkeleton::Transition::Trigger::FloatGte:
-               triggerData["gte"] = (double)std::round(trigger.floatVal * 100) / 100;
+               triggerData["gte"] = std::round(trigger.doubleVal * 100) / 100;
                break;
             case AnimatedSkeleton::Transition::Trigger::FloatLt:
-               triggerData["lt"] = (double)std::round(trigger.floatVal * 100) / 100;
+               triggerData["lt"] = std::round(trigger.doubleVal * 100) / 100;
                break;
             case AnimatedSkeleton::Transition::Trigger::Bool:
                triggerData["bool"] = trigger.boolVal;
@@ -347,7 +391,12 @@ std::string AnimatedSkeleton::Serialize()
       }
    }
 
-   return data.dump(3);
+   auto result = JSONSerializer::Serialize(data);
+   if (!result)
+   {
+      LOG_ERROR("Failed to serialize skeleton: %1", result.Failure().GetMessage());
+   }
+   return *result;
 }
 
 }; // namespace CubeWorld

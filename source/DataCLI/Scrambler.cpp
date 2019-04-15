@@ -15,12 +15,12 @@ const uint32_t Scrambler::offsets[] = {
 
 void Scrambler::Scramble(char* data, size_t size)
 {
-   for (int i = 0; i < size; i++)
+   for (size_t i = 0; i < size; i++)
    {
       data[i] = (char)(-1 - data[i]);
    }
 
-   for (int currOff = 0; currOff < size; currOff++)
+   for (size_t currOff = 0; currOff < size; currOff++)
    {
       int offset = (currOff + offsets[currOff % 44]) % size;
 
@@ -41,7 +41,7 @@ void Scrambler::Unscramble(char* data, size_t size)
       data[offset] = temp;
    }
 
-   for (int i = 0; i < size; i++)
+   for (size_t i = 0; i < size; i++)
    {
       data[i] = (char)(-1 - data[i]);
    }

@@ -129,7 +129,7 @@ void UIStackView::RemakeConstraints()
       bottomOptions.customNameConnector = "_bottomAlignedWithStackView_";
       mBottomConstraint = mChildren.back()->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
 
-      for (int ndx = 1; ndx < mChildren.size(); ndx++) {
+      for (size_t ndx = 1; ndx < mChildren.size(); ndx++) {
          UIConstraint::Options options;
          options.customNameConnector = "_belowInStackView_";
          UIConstraint newConstraint = mChildren[ndx]->ConstrainBelow(mChildren[ndx-1].get(), mOffset, options);
@@ -140,7 +140,7 @@ void UIStackView::RemakeConstraints()
       mTopConstraint    = mChildren.front()->ConstrainLeftAlignedTo(this);
       mBottomConstraint = mChildren.back()->ConstrainRightAlignedTo(this);
 
-      for (int ndx = 1; ndx < mChildren.size(); ndx++) {
+      for (size_t ndx = 1; ndx < mChildren.size(); ndx++) {
          UIConstraint::Options options;
          options.customNameConnector = "_rightOfInStackView_";
          UIConstraint newConstraint = mChildren[ndx]->ConstrainToRightOf(mChildren[ndx-1].get(), mOffset, options);
@@ -148,7 +148,7 @@ void UIStackView::RemakeConstraints()
       }
    }
    
-   for (int ndx = 0; ndx < AlignItemsBy::Count; ndx++) {
+   for (size_t ndx = 0; ndx < AlignItemsBy::Count; ndx++) {
       AlignItemsBy axisToAlignItems = (AlignItemsBy)ndx;
       if (mAlignItemsBy.test(axisToAlignItems)) {
          if (CONSTRAINT_MAPPING.find(axisToAlignItems) == CONSTRAINT_MAPPING.end()) {
@@ -157,7 +157,7 @@ void UIStackView::RemakeConstraints()
          }
          
          UIConstraint::Target target = CONSTRAINT_MAPPING.at(axisToAlignItems);
-         for (int child = 0; child < mChildren.size(); child++) {
+         for (size_t child = 0; child < mChildren.size(); child++) {
             UIConstraint::Options options;
             options.customNameConnector = "_aligned" + UIConstraint::StringFromConstraintTarget(target) + "ToStackView_";
             

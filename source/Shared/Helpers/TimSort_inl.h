@@ -20,9 +20,9 @@ struct Run {
    
 template <typename T>
 inline void InsertionSortInPlace(std::vector<T>& arr, std::function<bool(T,T)> GreaterThan) {
-   int i = 1;
+   size_t i = 1;
    while (i < arr.size()) {
-      int j = i;
+      size_t j = i;
                               //  arr[j-1] > arr[j]
       while (j > 0 && GreaterThan(arr[j-1],  arr[j])) {
          T temp = arr[j];
@@ -95,7 +95,7 @@ void TimSortInPlace(std::vector<T>& arr, std::function<bool(T,T)> GreaterThan) {
    firstRun.startIndex = 0;
    runs.push_back(firstRun);
    
-   for (int ndx = 1; ndx < arr.size(); ndx++) {
+   for (size_t ndx = 1; ndx < arr.size(); ndx++) {
                   //  arr[ndx - 1] > arr[ndx]
       if (GreaterThan(arr[ndx - 1],  arr[ndx])) {
          // Current run is over, we just found an element like [5 6 7 8 2 <-- ] 
