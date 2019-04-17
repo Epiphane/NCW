@@ -326,9 +326,17 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
 
          for (const auto& s : skeletons)
          {
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
+            std::string stanceName = definition.stance;
+            std::vector<AnimatedSkeleton::Stance>::const_iterator it;
+            do
+            {
+               it = std::find_if(s->stances.begin(), s->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+               stanceName = GetStance(stanceName).inherit;
+            } while (it == s->stances.end());
+
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
          }
       }
 
