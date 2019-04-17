@@ -77,6 +77,7 @@ public:
    BindingProperty(uint64_t u64);
    BindingProperty(double d);
    BindingProperty(float f);
+   BindingProperty(const char* s);
    BindingProperty(const std::string& s);
    BindingProperty(std::string&& s);
    BindingProperty(const glm::vec3& vec3);
@@ -87,10 +88,12 @@ public:
    BindingProperty& operator=(BindingProperty&& other);
 
    // Creates an element if the index does not exist.
+   BindingProperty& operator[](const int& index);
    BindingProperty& operator[](const size_t& index);
    BindingProperty& operator[](const std::string& key);
    BindingProperty& operator[](const char* key);
 
+   const BindingProperty& operator[](const int& index) const;
    const BindingProperty& operator[](const size_t& index) const;
    const BindingProperty& operator[](const std::string& key) const;
    const BindingProperty& operator[](const char* key) const;
@@ -132,6 +135,10 @@ public:
    ConstArray AsArray() const;
    Object AsObject();
    ConstObject AsObject() const;
+
+   bool Has(const std::string& key);
+   ObjectIterator Find(const std::string& key);
+   ConstObjectIterator Find(const std::string& key) const;
 
    Iterator begin();
    Iterator end();
@@ -198,8 +205,6 @@ public:
    inline void pop_back() { return PopBack(); }
 
    BindingProperty& SetObject() { this->~BindingProperty(); new (this) BindingProperty(kObjectType); return *this; }
-   ObjectIterator Find(const std::string& key);
-   ConstObjectIterator Find(const std::string& key) const;
    BindingProperty& Set(const std::string& key, const BindingProperty& value);
    BindingProperty& Set(const std::string& key, BindingProperty&& value);
 

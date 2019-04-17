@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <algorithm>
+#include <deque>
 #include <fstream>
 
 #include <RGBFileSystem/Paths.h>
@@ -13,31 +14,19 @@ namespace CubeWorld
 {
 
 AnimationController::AnimationController()
-   : skeletons{}
-   , skeletonRootId{}
-   , skeletonParents{}
-   , bones{}
-   , bonesByName{}
-   , states{}
-   , floatParams{}
-   , boolParams{}
-   , current{0}
-   , time{0}
-   , next{0}
-   , transitionCurrent{0}
-   , transitionStart{0}
-   , transitionEnd{0}
-{}
+{
+   Reset();
+}
 
 void AnimationController::Reset()
 {
    skeletons.clear();
    skeletonRootId.clear();
-   skeletonParents.clear();
    bones.clear();
    bonesByName.clear();
    states.clear();
    statesByName.clear();
+   stances.clear();
    floatParams.clear();
    boolParams.clear();
    current = 0;
@@ -159,21 +148,14 @@ AnimationController::State& AnimationController::GetCurrentState()
 void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton)
 {
    // Could optimize this later
-   std::pair<size_t, size_t> parent = {0, 0};
-   for (size_t i = 0; i < skeletons.size(); i++)
+   Engine::ComponentHandle<AnimatedSkeleton> parentSkeleton;
+   size_t parentRootId = 0;
+   for (size_t i = 0; i < skeletons.size(); ++i)
    {
       if (skeletons[i]->name == skeleton->parent)
       {
-         parent.first = i;
-         
-         auto bone = skeletons[i]->bonesByName.find(skeleton->parentBone);
-         if (bone == skeletons[i]->bonesByName.end())
-         {
-            LOG_ERROR("Could not find bone '%1' in skeleton '%2'", skeletons[i]->name, skeleton->parentBone);
-         }
-         else {
-            parent.second = bone->second;
-         }
+         parentSkeleton = skeletons[i];
+         parentRootId = skeletonRootId[i];
          break;
       }
    }
@@ -182,8 +164,8 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    
    skeletons.push_back(skeleton);
    skeletonRootId.push_back(rootId);
-   skeletonParents.push_back(parent);
 
+   // Add bones
    for (const auto& bone : skeleton->bones)
    {
       // If there's a collision, leave the first bone with that name (the parent-most)
@@ -195,19 +177,80 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
       bones.push_back(bone.name);
    }
 
+   // Add stances
+   for (const auto& stance : skeleton->stances)
+   {
+      auto it = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return stance.name == s.name; });
+      if (it == stances.end())
+      {
+         Stance newStance;
+         newStance.name = stance.name;
+         newStance.inherit = stance.inherit;
+
+         if (stance.name == "base")
+         {
+            assert(rootId == 0 && "The base stance must be defined by the very first skeleton");
+         }
+         else
+         {
+            auto parent = std::find_if(stances.rbegin(), stances.rend(), [&](const Stance& s) { return s.name == stance.inherit; });
+            if (parent == stances.rend())
+            {
+               LOG_ERROR("I don't know what to do, no stance '%1' found (parent of '%2')", stance.inherit, stance.name);
+               newStance.parents = stances[0].parents;
+            }
+            else
+            {
+               newStance.parents = parent->parents;
+            }
+         }
+
+         stances.push_back(std::move(newStance));
+      }
+   }
+
+   // Prepare existing stances
+   for (Stance& stance : stances)
+   {
+      std::string stanceName = stance.name;
+      std::vector<AnimatedSkeleton::Stance>::iterator it;
+      do
+      {
+         it = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+         stanceName = GetStance(stanceName).inherit;
+      } while (it == skeleton->stances.end());
+
+      std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(stance.parents), [&](const AnimatedSkeleton::Bone& bone) { return rootId + bone.parent; });
+
+      if (rootId > 0)
+      {
+         size_t b = rootId - 1;
+         for (; b > 0; --b)
+         {
+            if (bones[b] == it->parentBone)
+            {
+               break;
+            }
+         }
+         stance.parents[rootId] = b;
+      }
+   }
+
    for (State& state : states)
    {
-      std::vector<AnimatedSkeleton::Bone>* stance = &skeleton->bones;
-      if (skeleton->stancesByName.find(state.stance) != skeleton->stancesByName.end())
+      std::string stanceName = stances[state.stance].name;
+      std::vector<AnimatedSkeleton::Stance>::iterator stance;
+      do
       {
-         stance = &skeleton->stances[skeleton->stancesByName[state.stance]].bones;
-      }
+         stance = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+         stanceName = stances[state.stance].inherit;
+      } while (stance == skeleton->stances.end() && stanceName != "base");
 
       for (Keyframe& keyframe : state.keyframes)
       {
-         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-         std::transform(stance->begin(), stance->end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
       }
    }
 
@@ -217,6 +260,7 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
       AddState(skeleton, state);
    }
 
+   // Add transitions
    for (const auto&[stateName, transitions] : skeleton->transitions)
    {
       auto stateId = statesByName.find(stateName);
@@ -266,7 +310,11 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
       State state;
       state.name = definition.name;
       state.next = definition.next;
-      state.stance = definition.stance;
+      state.stance = 0;
+      while (stances[state.stance].name != definition.stance)
+      {
+         ++state.stance;
+      }
       state.skeletonId = skeletonNdx;
       state.length = definition.length;
       state.keyframes.resize(definition.keyframes.size());
@@ -350,6 +398,13 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
    }
 }
 
+AnimationController::Stance& AnimationController::GetStance(const std::string& name)
+{
+   const auto it = std::find_if(stances.rbegin(), stances.rend(), [&](const Stance& s) { return s.name == name; });
+   assert(it != stances.rend() && "Stance does not exist");
+   return *it;
+}
+
 Engine::ComponentHandle<AnimatedSkeleton> AnimationController::GetSkeletonForBone(BoneID id)
 {
    for (auto& skeleton : skeletons)
@@ -388,24 +443,7 @@ AnimationController::BoneID AnimationController::PrevBone(BoneID id)
 
 AnimationController::BoneID AnimationController::ParentBone(BoneID id)
 {
-   for (size_t i = 0; i < skeletons.size(); ++i)
-   {
-      const auto& skeleton = skeletons[i];
-      if (skeleton->bones.size() > id)
-      {
-         if (id == 0)
-         {
-            const auto& parent = skeletonParents[i];
-            return skeletonRootId[parent.first] + parent.second;
-         }
-         else
-         {
-            return skeletonRootId[i] + skeleton->bones[id].parent;
-         }
-      }
-      id -= skeleton->bones.size();
-   }
-   return 0;
+   return stances[states[current].stance].parents[id];
 }
 
 void AnimationController::Play(const std::string& state, double startTime)

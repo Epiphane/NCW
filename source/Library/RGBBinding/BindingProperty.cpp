@@ -124,6 +124,12 @@ BindingProperty::BindingProperty(float f)
    flags = kNumberDoubleFlag;
 }
 
+BindingProperty::BindingProperty(const char* s)
+{
+   new (&data.stringVal) std::string(s);
+   flags = kStringFlag;
+}
+
 BindingProperty::BindingProperty(const std::string& s)
 {
    new (&data.stringVal) std::string(s);
@@ -168,6 +174,12 @@ BindingProperty& BindingProperty::operator=(BindingProperty&& other)
    return *this;
 }
 
+BindingProperty& BindingProperty::operator[](const int& index)
+{
+   assert(index >= 0 && "Negative index is invalid");
+   return this->operator[](size_t(index));
+}
+
 BindingProperty& BindingProperty::operator[](const size_t& index)
 {
    assert((IsArray() || IsNull()) && "index operator only valid on null or arrays");
@@ -194,6 +206,12 @@ BindingProperty& BindingProperty::operator[](const std::string& key)
 BindingProperty& BindingProperty::operator[](const char* key)
 {
    return this->operator[](std::string{key});
+}
+
+const BindingProperty& BindingProperty::operator[](const int& index) const
+{
+   assert(index >= 0 && "Negative index is invalid");
+   return this->operator[](size_t(index));
 }
 
 const BindingProperty& BindingProperty::operator[](const size_t& index) const
@@ -379,6 +397,22 @@ void BindingProperty::PopBack()
 ///
 ///
 ///
+bool BindingProperty::Has(const std::string& key)
+{
+   assert(IsObject() && "Has is only valid on an object");
+   Object me = AsObject();
+   ObjectIterator it = me.begin();
+   ObjectIterator end = me.end();
+   for (; it != end; ++it)
+   {
+      if (it->key == key)
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
 BindingProperty::ObjectIterator BindingProperty::Find(const std::string& key)
 {
    assert(IsObject() && "Find is only valid on an object");

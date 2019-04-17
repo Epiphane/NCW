@@ -37,8 +37,17 @@
          ]
       }
    },
-   "stances": {
-      "resting": {
+   "stances": [
+      {
+         "name": "base",
+         "bones": {
+            "root": {
+               "parent": "Attachment"
+            }
+         }
+      },
+      {
+         "name": "resting",
          "inherit": "base",
          "bones": {
             "Mace": {
@@ -47,13 +56,10 @@
                   -0.0,
                   -135.0
                ]
-            },
-            "root": {
-               "parent": "Attachment"
             }
          }
       }
-   },
+   ],
    "default": "swing 1",
    "model": "wood-greatmace02.vox",
    "parent": "character",

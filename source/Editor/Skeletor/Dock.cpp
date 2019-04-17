@@ -215,6 +215,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
+
+   SetStance(0);
 }
 
 ///
@@ -228,6 +230,8 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
 {
    mSkeletons = evt.component;
+
+   SetStance(mStance);
 }
 
 ///
@@ -236,7 +240,11 @@ void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
 void Dock::SetStance(const size_t& stance)
 {
    mStance = stance;
-   mSkeletons->stance = mStance;
+
+   if (mSkeletons)
+   {
+      mSkeletons->stance = mStance;
+   }
 }
 
 void Dock::SetBone(const size_t& boneId)
@@ -244,8 +252,8 @@ void Dock::SetBone(const size_t& boneId)
    mBone = boneId;
 
    // Update bone info
-   Bone& bone = mSkeleton->bones[mBone];
-   Bone& parent = mSkeleton->bones[mBone != 0 ? bone.parent : 0];
+   Bone& bone = mSkeleton->stances[mStance].bones[mBone];
+   Bone& parent = mSkeleton->stances[mStance].bones[mBone != 0 ? bone.parent : 0];
    mBoneName->SetText(bone.name);
    mBoneParent->SetText(parent.name);
 

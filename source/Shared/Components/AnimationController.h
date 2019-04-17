@@ -31,12 +31,18 @@ public:
    struct State {
       std::string name;
       std::string next;
-      std::string stance;
+      size_t stance;
       size_t skeletonId;
 
       double length;
       std::vector<Keyframe> keyframes;
       std::vector<Transition> transitions;
+   };
+
+   struct Stance {
+      std::string name;
+      std::string inherit;
+      std::vector<size_t> parents;
    };
 
 public:
@@ -56,6 +62,9 @@ public:
    size_t NumSkeletons() { return skeletons.size(); }
 
    void AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& state);
+
+public:
+   Stance& GetStance(const std::string& name);
 
 public:
    // Bone and skeleton lookup
@@ -83,7 +92,6 @@ private:
    std::vector<Engine::ComponentHandle<AnimatedSkeleton>> skeletons;
    // Pair of skeleton ID and bone ID
    std::vector<size_t> skeletonRootId;
-   std::vector<std::pair<size_t, size_t>> skeletonParents;
 
 public:
    std::vector<std::string> bones;
@@ -93,6 +101,8 @@ public:
    // Combined skeleton data.
    std::vector<State> states;
    std::unordered_map<std::string, size_t> statesByName;
+
+   std::vector<Stance> stances;
 
    // Animation FSM parameters
    std::unordered_map<std::string, float> floatParams;

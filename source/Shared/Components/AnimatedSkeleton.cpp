@@ -146,11 +146,22 @@ void AnimatedSkeleton::Load(const std::string& filename)
       }
    }
 
-   for (const auto&[stanceName, def] : data["stances"].pairs())
+   // Create base stance
+   if (data["stances"][0]["name"] != "base")
    {
       Stance stance;
-      stance.name = stanceName;
-      stance.inherit = def["inherit"];
+      stance.name = "base";
+      stance.inherit = "base";
+      stance.bones = bones;
+      stances.push_back(std::move(stance));
+      stancesByName.emplace("base", 0);
+   }
+
+   for (const auto& def : data["stances"])
+   {
+      Stance stance;
+      stance.name = def["name"];
+      stance.inherit = def["inherit"].GetStringValue("base");
 
       if (stance.name.empty())
       {
@@ -158,7 +169,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
          continue;
       }
 
-      if (stance.inherit == "base")
+      if (stance.name == "base")
       {
          stance.bones = bones;
       }
@@ -169,6 +180,7 @@ void AnimatedSkeleton::Load(const std::string& filename)
       }
       else
       {
+         stance.parentBone = stances[stancesByName[stance.inherit]].parentBone;
          stance.bones = stances[stancesByName[stance.inherit]].bones;
       }
 

@@ -1,6 +1,8 @@
 // By Thomas Steinke
 
 #include <algorithm>
+#include <glm/ext.hpp>
+
 #include <RGBLogger/Logger.h>
 #include <Engine/Core/Config.h>
 
@@ -165,19 +167,45 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       // IMPORTANT: This is where the actual matrix transformation gets done, after all the
       // transitioning and looping work. Don't early out before here! If you do, nothing will
       // animate ever.
+      size_t boneId = 0;
+      std::vector<glm::mat4> matrixes;
+      matrixes.resize(controller.bones.size(), glm::mat4(1));
+
+      AnimationController::Stance& stance = controller.stances[controller.states[controller.current].stance];
       for (size_t i = 0; i < controller.skeletons.size(); i ++)
       {
          Engine::ComponentHandle<AnimatedSkeleton>& skeleton = controller.skeletons[i];
-         for (size_t boneId = 0; boneId < skeleton->bones.size(); ++boneId)
+         for (AnimatedSkeleton::Bone& bone : skeleton->bones)
          {
-            skeleton->ComputeBoneMatrix(boneId);
+            glm::mat4& matrix = matrixes[boneId];
 
-            if (i > 0 && boneId == 0)
+            if (boneId != 0)
             {
-               auto parentId = controller.skeletonParents[i];
-               Engine::ComponentHandle<AnimatedSkeleton>& parent = controller.skeletons[parentId.first];
-               skeleton->bones[boneId].matrix = parent->bones[parentId.second].matrix * skeleton->bones[boneId].matrix;
+               // TODO: This may assert one day if stances get super funky.
+               // Until thennnnn let's hope they don't :)
+               // tl;dr is that a few things are going on:
+               // 1. VoxModel is a list of parts
+               // 2. Those parts correspond 1:1 with a list of bones
+               // 3. Assigning bones to new parents (in a non-base stance) means
+               //    that bone N might now have parent M, when M > N
+               // 4. These matrices are computed in order, so a violation of
+               //    the child > parent order means that a child bone would
+               //    be computed BEFORE it's parent.
+               // It could be as easy as "if boneId > bone.parent, compute
+               // bone parent first", but I don't want to overengineer so
+               // we can cross that bridge when we come to it.
+               assert(boneId > stance.parents[boneId]);
+               matrix = matrixes[stance.parents[boneId]];
             }
+
+            matrix = glm::translate(matrix, bone.position);
+            matrix = glm::rotate(matrix, RADIANS(bone.rotation.y), glm::vec3(0, 1, 0));
+            matrix = glm::rotate(matrix, RADIANS(bone.rotation.x), glm::vec3(1, 0, 0));
+            matrix = glm::rotate(matrix, RADIANS(bone.rotation.z), glm::vec3(0, 0, 1));
+            matrix = glm::scale(matrix, bone.scale);
+            bone.matrix = matrix;
+
+            ++boneId;
          }
 
          if (skeleton->model)
@@ -189,9 +217,9 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
                nBones = std::min(skeleton->bones.size(), skeleton->model->mParts.size());
             }
 
-            for (size_t boneId = 0; boneId < nBones; ++boneId)
+            for (size_t b = 0; b < nBones; ++b)
             {
-               skeleton->model->mParts[boneId].transform = skeleton->bones[boneId].matrix;
+               skeleton->model->mParts[b].transform = skeleton->bones[b].matrix;
             }
          }
       }
