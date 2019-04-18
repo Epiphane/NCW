@@ -176,13 +176,13 @@ namespace Game
       part.Get<Transform>()->SetParent(player);
       Engine::ComponentHandle<VoxModel> model = part.Add<VoxModel>();
       model->mTint = glm::vec3(0, 0, 168.0f);
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = part.Add<AnimatedSkeleton>(Asset::Model("character.json"), model);
+      Engine::ComponentHandle<DeprecatedSkeleton> skeleton = part.Add<DeprecatedSkeleton>(Asset::Model("character.json"), model);
       controller->AddSkeleton(skeleton);
 
       part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
       model = part.Add<VoxModel>();
-      skeleton = part.Add<AnimatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
+      skeleton = part.Add<DeprecatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
       controller->AddSkeleton(skeleton);
 
       Entity playerCamera = mEntities.Create(0, 0, 0);

@@ -45,13 +45,13 @@ private:
 public:
    // Event handlers
    void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt);
    void Receive(const SkeletonClearedEvent& evt);
 
 private:
    // State
    Engine::ComponentHandle<AnimationController> mController;
-   std::vector<Engine::ComponentHandle<AnimatedSkeleton>> mSkeletons;
+   std::vector<Engine::ComponentHandle<DeprecatedSkeleton>> mSkeletons;
 
 private:
    //

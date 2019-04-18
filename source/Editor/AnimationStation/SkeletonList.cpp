@@ -70,7 +70,7 @@ SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    buttons->ConstrainWidthTo(foreground, -12);
 
    root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<DeprecatedSkeleton>>(*this);
    root->Subscribe<SkeletonClearedEvent>(*this);
 }
 
@@ -79,7 +79,7 @@ void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimationController
    mController = evt.component;
 }
 
-void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void SkeletonList::Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt)
 {
    if (mSkeletons.size() >= mButtons.size())
    {

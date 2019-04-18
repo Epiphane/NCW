@@ -152,10 +152,20 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    Engine::Entity part = mEntities.Create(0, 0, 0);
    part.Get<Transform>()->SetParent(mPlayer);
    auto model = part.Add<VoxModel>();
-   auto skeleton = part.Add<AnimatedSkeleton>(evt.filename, model);
+   auto skeleton = part.Add<DeprecatedSkeleton>(evt.filename, model);
 
-   mPlayer.Get<SkeletonCollection>()->skeletons.push_back(skeleton);
+   auto collection = mPlayer.Get<SkeletonCollection>();
+
+   collection->skeletons.push_back(skeleton);
    mPlayerParts.push_back(part);
+
+   for (const auto& stance : skeleton->stances)
+   {
+      if (std::find(collection->stances.begin(), collection->stances.end(), stance.name) == collection->stances.end())
+      {
+         collection->stances.push_back(stance.name);
+      }
+   }
 }
 
 }; // namespace Skeletor

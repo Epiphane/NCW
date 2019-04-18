@@ -20,7 +20,7 @@ namespace Editor
 namespace Skeletor
 {
 
-using Bone = AnimatedSkeleton::Bone;
+using Bone = DeprecatedSkeleton::Bone;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;

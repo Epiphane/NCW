@@ -38,7 +38,7 @@ namespace Editor
 namespace Skeletor
 {
 
-using Bone = AnimatedSkeleton::Bone;
+using Bone = DeprecatedSkeleton::Bone;
 using UI::Image;
 using UI::NumDisplay;
 using UI::RectFilled;
@@ -68,7 +68,7 @@ private:
    size_t mBone;
    size_t mStance;
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<DeprecatedSkeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
 
 private:

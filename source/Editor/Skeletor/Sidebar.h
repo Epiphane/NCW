@@ -47,13 +47,13 @@ private:
 public:
    // Event handlers
    void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt);
    void Receive(const SkeletonModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<DeprecatedSkeleton> mSkeleton;
    bool mModified;
 };
 

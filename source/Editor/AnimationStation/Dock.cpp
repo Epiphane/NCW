@@ -22,7 +22,7 @@ namespace AnimationStation
 
 using State = AnimationController::State;
 using Keyframe = AnimationController::Keyframe;
-using Bone = AnimatedSkeleton::Bone;
+using Bone = DeprecatedSkeleton::Bone;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
@@ -710,7 +710,7 @@ void Dock::SetBone(const AnimationController::BoneID& boneId)
    mBoneRot[2].text->Bind(&bone->rotation.z);
 
    State& state = GetCurrentState();
-   Engine::ComponentHandle<AnimatedSkeleton> skeleton = mController->GetSkeletonForBone(mBone);
+   Engine::ComponentHandle<DeprecatedSkeleton> skeleton = mController->GetSkeletonForBone(mBone);
    if (mSelectedKeyframe <= state.keyframes.size())
    {
       mBonePos[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].x);
@@ -732,7 +732,7 @@ void Dock::AddStateCommand::Do()
       Keyframe keyframe;
       for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
       {
-         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+         Engine::ComponentHandle<DeprecatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
          std::vector<Bone>& bones = skeleton->bones;
          std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
          std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
@@ -817,7 +817,7 @@ void Dock::AddKeyframeCommand::Do()
       // Insert the CURRENT values of position and rotation at this timestamp.
       for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
       {
-         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
+         Engine::ComponentHandle<DeprecatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
 
          std::vector<Bone>& bones = skeleton->bones;
          std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });

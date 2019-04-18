@@ -76,7 +76,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainLeftAlignedTo(discard);
       
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<DeprecatedSkeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 
    SetModified(false);
@@ -87,7 +87,7 @@ void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt)
 {
    // Lol beautiful trickery: we add skeleton parts from the root-most first,
    // up to the final piece being the one the user wants to load. Therefore,

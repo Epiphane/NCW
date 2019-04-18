@@ -4,7 +4,7 @@
 
 #include <Engine/Entity/Component.h>
 #include <Engine/System/System.h>
-#include <Shared/Components/AnimatedSkeleton.h>
+#include <Shared/Components/DeprecatedSkeleton.h>
 
 namespace CubeWorld
 {
@@ -20,7 +20,8 @@ namespace Skeletor
 //
 struct SkeletonCollection : Engine::Component<SkeletonCollection>
 {
-   std::vector<Engine::ComponentHandle<AnimatedSkeleton>> skeletons;
+   std::vector<Engine::ComponentHandle<DeprecatedSkeleton>> skeletons;
+   std::vector<std::string> stances;
    size_t stance;
 };
 

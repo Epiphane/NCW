@@ -47,13 +47,13 @@ struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
 
 struct SkeletonSelectedEvent : public Engine::Event<SkeletonSelectedEvent>
 {
-   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<AnimatedSkeleton> component)
+   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<DeprecatedSkeleton> component)
       : index(index)
       , component(component)
    {};
 
    size_t index;
-   Engine::ComponentHandle<AnimatedSkeleton> component;
+   Engine::ComponentHandle<DeprecatedSkeleton> component;
 };
 
 }; // namespace AnimationStation

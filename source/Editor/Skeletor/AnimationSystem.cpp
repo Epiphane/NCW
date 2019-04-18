@@ -19,8 +19,8 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
    entities.Each<SkeletonCollection>([&](Engine::Entity, SkeletonCollection& collection) {
       for (size_t i = 0; i < collection.skeletons.size(); i++)
       {
-         Engine::ComponentHandle<AnimatedSkeleton>& skeleton = collection.skeletons[i];
-         const AnimatedSkeleton::Stance& stance = skeleton->stances[collection.stance];
+         Engine::ComponentHandle<DeprecatedSkeleton>& skeleton = collection.skeletons[i];
+         const DeprecatedSkeleton::Stance& stance = skeleton->stances[collection.stance];
          for (size_t boneId = 0; boneId < skeleton->bones.size(); ++boneId)
          {
             skeleton->bones[boneId].position = stance.bones[boneId].position;

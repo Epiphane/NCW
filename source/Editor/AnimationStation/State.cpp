@@ -184,7 +184,7 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    Engine::Entity part = mEntities.Create(0, 0, 0);
    part.Get<Transform>()->SetParent(mPlayer);
    auto model = part.Add<VoxModel>();
-   auto skeleton = part.Add<AnimatedSkeleton>(evt.filename, model);
+   auto skeleton = part.Add<DeprecatedSkeleton>(evt.filename, model);
 
    auto controller = mPlayer.Get<AnimationController>();
    controller->AddSkeleton(skeleton);

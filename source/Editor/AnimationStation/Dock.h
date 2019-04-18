@@ -53,7 +53,7 @@ public:
 public:
    using State = AnimationController::State;
    using Keyframe = AnimationController::Keyframe;
-   using Bone = AnimatedSkeleton::Bone;
+   using Bone = DeprecatedSkeleton::Bone;
 
    Dock(Engine::UIRoot* root, Engine::UIElement* parent);
 

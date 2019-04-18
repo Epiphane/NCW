@@ -171,7 +171,7 @@ void Sidebar::SaveFile()
    // Then, save each skeleton
    for (size_t i = 0; i < mSkeleton->NumSkeletons(); ++i)
    {
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
+      Engine::ComponentHandle<DeprecatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
       std::string serialized = skeleton->Serialize();
 
       auto filenameIt = mSkeletonFiles.find(skeleton->name);

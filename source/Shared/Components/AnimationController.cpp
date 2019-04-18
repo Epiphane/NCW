@@ -39,22 +39,22 @@ void AnimationController::Reset()
 
 void AnimationController::UpdateSkeletonStates()
 {
-   for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : skeletons)
+   for (Engine::ComponentHandle<DeprecatedSkeleton>& skeleton : skeletons)
    {
       skeleton->states.clear();
       skeleton->statesByName.clear();
       skeleton->transitions.clear();
    }
 
-   std::vector<AnimatedSkeleton::State> stateData;
+   std::vector<DeprecatedSkeleton::State> stateData;
 
    // For looking up later
    std::vector<glm::vec3> originalPosition;
    std::vector<glm::vec3> originalRotation;
    std::vector<glm::vec3> originalScale;
-   for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : skeletons)
+   for (Engine::ComponentHandle<DeprecatedSkeleton>& skeleton : skeletons)
    {
-      for (const AnimatedSkeleton::Bone& bone : skeleton->bones)
+      for (const DeprecatedSkeleton::Bone& bone : skeleton->bones)
       {
          originalPosition.push_back(bone.originalPosition);
          originalRotation.push_back(bone.originalRotation);
@@ -64,14 +64,14 @@ void AnimationController::UpdateSkeletonStates()
 
    for (const State& state : states)
    {
-      AnimatedSkeleton::State info;
+      DeprecatedSkeleton::State info;
       info.name = state.name;
       info.next = state.next;
       info.length = state.length;
 
       for (const Keyframe& keyframe : state.keyframes)
       {
-         info.keyframes.push_back(AnimatedSkeleton::Keyframe{keyframe.time});
+         info.keyframes.push_back(DeprecatedSkeleton::Keyframe{keyframe.time});
       }
 
       // Start at the skeleton that _created_ the state. This way we don't add
@@ -79,8 +79,8 @@ void AnimationController::UpdateSkeletonStates()
       // the ownership.
       for (size_t s = state.skeletonId; s < skeletons.size(); ++s)
       {
-         Engine::ComponentHandle<AnimatedSkeleton>& skeleton = skeletons[s];
-         for (AnimatedSkeleton::Keyframe& keyframeInfo : info.keyframes)
+         Engine::ComponentHandle<DeprecatedSkeleton>& skeleton = skeletons[s];
+         for (DeprecatedSkeleton::Keyframe& keyframeInfo : info.keyframes)
          {
             keyframeInfo.positions.clear();
             keyframeInfo.rotations.clear();
@@ -99,7 +99,7 @@ void AnimationController::UpdateSkeletonStates()
             for (size_t i = 0; i < state.keyframes.size(); ++i)
             {
                const Keyframe& keyframe = state.keyframes[i];
-               AnimatedSkeleton::Keyframe& keyframeInfo = info.keyframes[i];
+               DeprecatedSkeleton::Keyframe& keyframeInfo = info.keyframes[i];
 
                if (keyframe.positions[b] != originalPosition[b])
                {
@@ -145,10 +145,10 @@ AnimationController::State& AnimationController::GetCurrentState()
    return states[current];
 }
 
-void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton)
+void AnimationController::AddSkeleton(Engine::ComponentHandle<DeprecatedSkeleton> skeleton)
 {
    // Could optimize this later
-   Engine::ComponentHandle<AnimatedSkeleton> parentSkeleton;
+   Engine::ComponentHandle<DeprecatedSkeleton> parentSkeleton;
    size_t parentRootId = 0;
    for (size_t i = 0; i < skeletons.size(); ++i)
    {
@@ -213,14 +213,14 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    for (Stance& stance : stances)
    {
       std::string stanceName = stance.name;
-      std::vector<AnimatedSkeleton::Stance>::iterator it;
+      std::vector<DeprecatedSkeleton::Stance>::iterator it;
       do
       {
-         it = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+         it = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const DeprecatedSkeleton::Stance& stance) { return stance.name == stanceName; });
          stanceName = GetStance(stanceName).inherit;
       } while (it == skeleton->stances.end());
 
-      std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(stance.parents), [&](const AnimatedSkeleton::Bone& bone) { return rootId + bone.parent; });
+      std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(stance.parents), [&](const DeprecatedSkeleton::Bone& bone) { return rootId + bone.parent; });
 
       if (rootId > 0)
       {
@@ -239,23 +239,23 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    for (State& state : states)
    {
       std::string stanceName = stances[state.stance].name;
-      std::vector<AnimatedSkeleton::Stance>::iterator stance;
+      std::vector<DeprecatedSkeleton::Stance>::iterator stance;
       do
       {
-         stance = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+         stance = std::find_if(skeleton->stances.begin(), skeleton->stances.end(), [&](const DeprecatedSkeleton::Stance& stance) { return stance.name == stanceName; });
          stanceName = stances[state.stance].inherit;
       } while (stance == skeleton->stances.end() && stanceName != "base");
 
       for (Keyframe& keyframe : state.keyframes)
       {
-         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.positions), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalPosition; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.rotations), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalRotation; });
+         std::transform(stance->bones.begin(), stance->bones.end(), std::back_inserter(keyframe.scales), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalScale; });
       }
    }
 
    // Modify or add states
-   for (const AnimatedSkeleton::State& state : skeleton->states)
+   for (const DeprecatedSkeleton::State& state : skeleton->states)
    {
       AddState(skeleton, state);
    }
@@ -276,7 +276,7 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> 
    }
 }
 
-void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& definition)
+void AnimationController::AddState(Engine::ComponentHandle<DeprecatedSkeleton> skeleton, const DeprecatedSkeleton::State& definition)
 {
    Engine::Entity::ID sID = skeleton.GetEntity().GetID();
    size_t skeletonNdx = 0;
@@ -327,16 +327,16 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
          for (const auto& s : skeletons)
          {
             std::string stanceName = definition.stance;
-            std::vector<AnimatedSkeleton::Stance>::const_iterator it;
+            std::vector<DeprecatedSkeleton::Stance>::const_iterator it;
             do
             {
-               it = std::find_if(s->stances.begin(), s->stances.end(), [&](const AnimatedSkeleton::Stance& stance) { return stance.name == stanceName; });
+               it = std::find_if(s->stances.begin(), s->stances.end(), [&](const DeprecatedSkeleton::Stance& stance) { return stance.name == stanceName; });
                stanceName = GetStance(stanceName).inherit;
             } while (it == s->stances.end());
 
-            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.positions), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalPosition; });
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.rotations), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalRotation; });
+            std::transform(it->bones.begin(), it->bones.end(), std::back_inserter(keyframe.scales), [](const DeprecatedSkeleton::Bone& bone) { return bone.originalScale; });
          }
       }
 
@@ -353,7 +353,7 @@ void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> ske
    }
 
    size_t j = 0;
-   for (const AnimatedSkeleton::Keyframe& newKeyframe : definition.keyframes)
+   for (const DeprecatedSkeleton::Keyframe& newKeyframe : definition.keyframes)
    {
       // Find the existing keyframe at this time or after
       while (j < state.keyframes.size() && state.keyframes[j].time < newKeyframe.time)
@@ -413,7 +413,7 @@ AnimationController::Stance& AnimationController::GetStance(const std::string& n
    return *it;
 }
 
-Engine::ComponentHandle<AnimatedSkeleton> AnimationController::GetSkeletonForBone(BoneID id)
+Engine::ComponentHandle<DeprecatedSkeleton> AnimationController::GetSkeletonForBone(BoneID id)
 {
    for (auto& skeleton : skeletons)
    {
@@ -426,7 +426,7 @@ Engine::ComponentHandle<AnimatedSkeleton> AnimationController::GetSkeletonForBon
    return {};
 }
 
-AnimatedSkeleton::Bone* AnimationController::GetBone(BoneID id)
+DeprecatedSkeleton::Bone* AnimationController::GetBone(BoneID id)
 {
    for (auto& skeleton : skeletons)
    {

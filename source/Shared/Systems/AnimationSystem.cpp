@@ -64,9 +64,9 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
          const float progress = float(controller.time - src.time) / float(dstTime - src.time);
 
          size_t boneId = 0;
-         for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : controller.skeletons)
+         for (Engine::ComponentHandle<DeprecatedSkeleton>& skeleton : controller.skeletons)
          {
-            for (AnimatedSkeleton::Bone& bone : skeleton->bones)
+            for (DeprecatedSkeleton::Bone& bone : skeleton->bones)
             {
                bone.position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
                bone.rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
@@ -115,9 +115,9 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
             const float progress = float(time - src.time) / float(dstTime - src.time);
 
             size_t boneId = 0;
-            for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : controller.skeletons)
+            for (Engine::ComponentHandle<DeprecatedSkeleton>& skeleton : controller.skeletons)
             {
-               for (AnimatedSkeleton::Bone& bone : skeleton->bones)
+               for (DeprecatedSkeleton::Bone& bone : skeleton->bones)
                {
                   glm::vec3 position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
                   glm::vec3 rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
@@ -174,8 +174,8 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       AnimationController::Stance& stance = controller.stances[controller.states[controller.current].stance];
       for (size_t i = 0; i < controller.skeletons.size(); i ++)
       {
-         Engine::ComponentHandle<AnimatedSkeleton>& skeleton = controller.skeletons[i];
-         for (AnimatedSkeleton::Bone& bone : skeleton->bones)
+         Engine::ComponentHandle<DeprecatedSkeleton>& skeleton = controller.skeletons[i];
+         for (DeprecatedSkeleton::Bone& bone : skeleton->bones)
          {
             glm::mat4& matrix = matrixes[boneId];
 

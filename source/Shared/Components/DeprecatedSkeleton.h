@@ -15,8 +15,7 @@
 namespace CubeWorld
 {
 
-struct AnimatedSkeleton : Engine::Component<AnimatedSkeleton>  {
-   /*
+struct DeprecatedSkeleton : Engine::Component<DeprecatedSkeleton>  {
 public:
    struct Keyframe {
       double time;
@@ -114,7 +113,6 @@ public:
    // Attach a VoxModel component directly. Note that it doesn't _have_
    // to be hosted by the same entity as this DeprecatedSkeleton.
    Engine::ComponentHandle<VoxModel> model;
-   */
 };
 
 }; // namespace CubeWorld

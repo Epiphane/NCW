@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include <Engine/Entity/Component.h>
-#include "AnimatedSkeleton.h"
+#include "DeprecatedSkeleton.h"
 #include "VoxModel.h"
 
 namespace CubeWorld
@@ -26,7 +26,7 @@ public:
       std::vector<glm::vec3> scales;
    };
 
-   using Transition = AnimatedSkeleton::Transition;
+   using Transition = DeprecatedSkeleton::Transition;
 
    struct State {
       std::string name;
@@ -58,19 +58,19 @@ public:
    // Info and manipulation
    State& GetCurrentState();
 
-   void AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton);
+   void AddSkeleton(Engine::ComponentHandle<DeprecatedSkeleton> skeleton);
    size_t NumSkeletons() { return skeletons.size(); }
 
-   void AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& state);
+   void AddState(Engine::ComponentHandle<DeprecatedSkeleton> skeleton, const DeprecatedSkeleton::State& state);
 
 public:
    Stance& GetStance(const std::string& name);
 
 public:
    // Bone and skeleton lookup
-   Engine::ComponentHandle<AnimatedSkeleton> GetSkeleton(size_t ndx) { return skeletons[ndx]; }
-   Engine::ComponentHandle<AnimatedSkeleton> GetSkeletonForBone(BoneID id);
-   AnimatedSkeleton::Bone* GetBone(BoneID id);
+   Engine::ComponentHandle<DeprecatedSkeleton> GetSkeleton(size_t ndx) { return skeletons[ndx]; }
+   Engine::ComponentHandle<DeprecatedSkeleton> GetSkeletonForBone(BoneID id);
+   DeprecatedSkeleton::Bone* GetBone(BoneID id);
    BoneID NextBone(BoneID id);
    BoneID PrevBone(BoneID id);
    BoneID ParentBone(BoneID id);
@@ -89,7 +89,7 @@ public:
 private:
    // Skeleton and model objects
    friend class BaseAnimationSystem;
-   std::vector<Engine::ComponentHandle<AnimatedSkeleton>> skeletons;
+   std::vector<Engine::ComponentHandle<DeprecatedSkeleton>> skeletons;
    // Pair of skeleton ID and bone ID
    std::vector<size_t> skeletonRootId;
 
