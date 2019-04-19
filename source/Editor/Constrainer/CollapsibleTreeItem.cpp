@@ -6,7 +6,7 @@
 
 #include "CollapsibleTreeItem.h"
 
-#include "CollapsibleTreeView.h"
+#include "CollapsibleTreeVC.h"
 
 #include <Engine/UI/UITapGestureRecognizer.h>
 #include <Shared/Helpers/Asset.h>
@@ -106,11 +106,6 @@ void CollapsibleTreeItem::SetActive(bool active)
    }
 }
    
-void CollapsibleTreeItem::SetTreeView(CollapsibleTreeView* treeView)
-{
-   mTreeViewParent = treeView;
-}
-   
 void CollapsibleTreeItem::SetHighlighted(bool bHighlighted)
 {
    mbSelected = bHighlighted;
@@ -141,7 +136,7 @@ void CollapsibleTreeItem::TapMeDaddy(const Engine::UIGestureRecognizer& rec) {
    
 void CollapsibleTreeItem::SelectItem(const Engine::UIGestureRecognizer& rec) {
    if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
-      mTreeViewParent->ItemWasClicked(this);
+      
    }
 }
 

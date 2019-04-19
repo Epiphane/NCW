@@ -8,9 +8,11 @@
 #include <Engine/UI/UISerializationHelper.h>
 
 #include "CollapsibleTreeItem.h"
-#include "ConstrainerController.h"
+#include "ConstrainerVC.h"
 #include "Sidebar.h"
 #include "UIElementDesignerWrapper.h"
+
+#include "../UI/rxcpp/rx.hpp"
 
 namespace CubeWorld
 {
@@ -24,10 +26,10 @@ namespace Constrainer
 using Engine::UIContextMenu;
 using UI::RectFilled;
 
-ConstrainerController::ConstrainerController(Engine::Input* input, const Controls::Options& options)
+ConstrainerVC::ConstrainerVC(Engine::Input* input, const Controls::Options& options)
    : UIRoot(input)
 {
-   mElementList = Add<CollapsibleTreeView>(this, this);
+   mElementList = Add<CollapsibleTreeVC>(this, this);
 
    Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
@@ -59,7 +61,7 @@ ConstrainerController::ConstrainerController(Engine::Input* input, const Control
    mainContent->ConstrainTopAlignedTo(this);
    mainContent->ConstrainRightAlignedTo(this);
 
-   mModel.SetModelUpdatedCallback(std::bind(&ConstrainerController::ModelUpdated, this));
+   mModel.SetModelUpdatedCallback(std::bind(&ConstrainerVC::ModelUpdated, this));
    mModel.SetBaseElement(mainContent);
 
    UIElement* wrapperLayer = Add<UIElement>();
@@ -74,14 +76,14 @@ ConstrainerController::ConstrainerController(Engine::Input* input, const Control
    }
 }
 
-void ConstrainerController::ModelUpdated()
+void ConstrainerVC::ModelUpdated()
 {
    // Convert the element tree into just their names and pass it
-   //    through to the CollapsibleTreeView
+   //    through to the CollapsibleTreeVC
    mElementList->DataChanged();
 }
 
-std::unique_ptr<CollapsibleTreeItem> ConstrainerController::ParseUIElementTitles(UIElement& baseElement)
+std::unique_ptr<CollapsibleTreeItem> ConstrainerVC::ParseUIElementTitles(UIElement& baseElement)
 {
    auto result = std::make_unique<CollapsibleTreeItem>(mpRoot, this, "", baseElement.GetName());
    
@@ -92,27 +94,25 @@ std::unique_ptr<CollapsibleTreeItem> ConstrainerController::ParseUIElementTitles
    return result;
 }
 
-void ConstrainerController::Start()
+void ConstrainerVC::Start()
 {
 }
 
 #pragma mark - Collapsible Tree View Datasource
 
-std::unique_ptr<CollapsibleTreeItem> ConstrainerController::GetTreeItemAtIndex(uint32_t /*index*/)
+std::unique_ptr<CollapsibleTreeItem> ConstrainerVC::GetTreeItemAtIndex(uint32_t /*index*/)
 {
    return ParseUIElementTitles(*mModel.GetBaseElement());
 }
 
 #pragma mark - Collapsible Tree View Delegate
-   
 
-
-void ConstrainerController::ItemSelected(CollapsibleTreeItem* /*item*/)
+void ConstrainerVC::ItemSelected(CollapsibleTreeItem* /*item*/)
 {
 //   item->SetHighlighted(true);
 }
 
-uint32_t ConstrainerController::NumberOfCellsInTableView()
+uint32_t ConstrainerVC::NumberOfCellsInTableView()
 {
    if (!mModel.GetBaseElement()) {
       return 0;

@@ -18,14 +18,19 @@ class ButtonVC : public UIElement
 {
 public:
    ButtonVC(UIRoot* root, UIElement* parent, const std::string &name);
-
    
+   void SetCallback(std::function<void(void)> callback);
+   
+protected:
+   virtual void OnClick();
    
 private:
    enum State { NORMAL, HOVER, PRESS };
    void SetState(State state);
 
    void TapHandler(const Engine::UIGestureRecognizer& rec);
+   
+   std::function<void(void)> mClickCallback;
 
    State mState;
 };

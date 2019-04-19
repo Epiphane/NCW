@@ -11,9 +11,11 @@
 
 #include "ConstrainerModel.h"
 
-#include "CollapsibleTreeView.h"
+#include "CollapsibleTreeVC.h"
 
 #include "../Controls.h"
+
+#include "../UI/ReactiveX/linq.hpp"
 
 namespace CubeWorld
 {
@@ -24,10 +26,10 @@ namespace Editor
 namespace Constrainer
 {
 
-class ConstrainerController : public Engine::UIRoot, public CollapsibleTreeViewDatasource, public CollapsibleTreeViewDelegate
+class ConstrainerVC : public Engine::UIRoot, public CollapsibleTreeViewDatasource, public CollapsibleTreeViewDelegate
 {
 public:
-   ConstrainerController(Engine::Input* input, const Controls::Options& options);
+   ConstrainerVC(Engine::Input* input, const Controls::Options& options);
 
    //
    // Called every time this editor is reactivated.
@@ -51,7 +53,7 @@ private:
 
    ConstrainerModel mModel;
    
-   CollapsibleTreeView *mElementList;
+   CollapsibleTreeVC *mElementList;
 };
 
 }; // namespace Constrainer

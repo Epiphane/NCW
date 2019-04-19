@@ -48,6 +48,9 @@ private:
 
    // The base element of the UI we're editing
    UIElement* mpBaseElement;
+   
+   // Currently selected element, if any
+   UIElement* mpSelectedElement;
 
    // Syncs the state of the editor's elements to a JSON file
    Shared::JsonFileSync mFileSyncer;

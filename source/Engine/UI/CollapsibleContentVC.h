@@ -1,5 +1,5 @@
 //
-// UICollapsibleContentVC.h
+// CollapsibleContentVC.h
 //
 // This describes an element with a label and a ToggleButtonVC that
 //    you can toggle to collapse/expand content beneath the label.
@@ -15,19 +15,19 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UICollapsibleContentVC : public UIElement
+class CollapsibleContentVC : public UIElement
 {
 public:
-   UICollapsibleContentVC(UIRoot* root, UIElement* parent, const std::string &name);
+   CollapsibleContentVC(UIRoot* root, UIElement* parent, const std::string &name);
 
 private:
    void ExpandedStateChanged(bool bIsExpanded);
    
    // Constraint that sets mContent.height = 0. Disabled if content is expanded.
    UIConstraint mCollapseContent;
-   
+
    // If true, the content is shown.
-   Observable<bool> mIsExpanded;
+   std::shared_ptr<Observable<bool>> mIsExpanded;
 
    ToggleButtonVC* mToggle;
    UIElement* mContent;

@@ -25,8 +25,6 @@ namespace Editor
 
 namespace Constrainer
 {
-
-class CollapsibleTreeView; ///< Forward declare
    
 class CollapsibleTreeItem : public Engine::UIElement
 {
@@ -38,15 +36,10 @@ public:
 
    void SetActive(bool active) override;
    
-   // Set the tree view so we can let it know when this item is selected
-   void SetTreeView(CollapsibleTreeView* treeView);
-   
    // When you click an item, it will gain a selection highlight to show it's the current selected item
    void SetHighlighted(bool bHighlighted);
 
 private:
-   friend class CollapsibleTreeView;
-
    void TapMeDaddy(const Engine::UIGestureRecognizer& rec);
    void SelectItem(const Engine::UIGestureRecognizer& rec);
    
@@ -58,8 +51,6 @@ private:
    UI::RectFilled* mSelectedHighlight;
    
    Engine::UIStackView* mSubElementStackView;
-   
-   CollapsibleTreeView* mTreeViewParent;
    
    // List of elements beneath this one in the heirarchy
    std::vector<CollapsibleTreeItem*> mSubElements;

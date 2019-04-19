@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include <Engine/Core/Singleton.h>
+#include <RGBDesignPatterns/Singleton.h>
 
 #include "UIGestureRecognizer.h"
 

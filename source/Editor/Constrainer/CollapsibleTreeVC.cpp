@@ -1,10 +1,10 @@
 //
-// CollapsibleTreeView.cpp
+// CollapsibleTreeVC.cpp
 //
 // This file created by the ELLIOT FISKE gang
 //
 
-#include "CollapsibleTreeView.h"
+#include "CollapsibleTreeVC.h"
 
 #include "CollapsibleTreeItem.h"
 
@@ -17,7 +17,7 @@ namespace Editor
 namespace Constrainer
 {
 
-CollapsibleTreeView::CollapsibleTreeView(Engine::UIRoot* root, Engine::UIElement* parent, 
+CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* parent, 
                                          CollapsibleTreeViewDelegate* delegate, CollapsibleTreeViewDatasource* datasource)
    : UIElement(root, parent, "ConstrainerElementList")
    , mDelegate(delegate)
@@ -33,7 +33,7 @@ CollapsibleTreeView::CollapsibleTreeView(Engine::UIRoot* root, Engine::UIElement
    DataChanged();
 }
 
-void CollapsibleTreeView::DataChanged()
+void CollapsibleTreeVC::DataChanged()
 {
    for (auto it = mStackView->BeginChildren(); it != mStackView->EndChildren(); it++) {
       it->MarkForDeletion();
@@ -45,12 +45,11 @@ void CollapsibleTreeView::DataChanged()
    
    for (uint32_t ndx = 0; ndx < mDatasource->NumberOfCellsInTableView(); ndx++) {
       std::unique_ptr<CollapsibleTreeItem> newItem = mDatasource->GetTreeItemAtIndex(ndx);
-      newItem->SetTreeView(this);
       mStackView->AddChild(std::move(newItem));
    }
 }
 
-void CollapsibleTreeView::ItemWasClicked(CollapsibleTreeItem* item)
+void CollapsibleTreeVC::ItemWasClicked(CollapsibleTreeItem* item)
 {
    if (mDelegate) {
       mDelegate->ItemSelected(item);

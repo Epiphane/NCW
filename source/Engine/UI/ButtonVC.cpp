@@ -30,30 +30,21 @@ void ButtonVC::TapHandler(const Engine::UIGestureRecognizer& rec)
       case Engine::UIGestureRecognizer::Cancelled:
          break;
       case Engine::UIGestureRecognizer::Ending:
+         OnClick();
          break;
       case Engine::UIGestureRecognizer::Happening:
          // Do nothing, we're already depressed
          break;
    }
 }
-
-void ButtonVC::SetState(State state)
+   
+void ButtonVC::SetCallback(std::function<void(void)> callback) {
+   mClickCallback = callback;
+}
+   
+void ButtonVC::OnClick()
 {
-   if (mState == state)
-   {
-      return;
-   }
-
-   mState = state;
-   switch (mState)
-   {
-      case NORMAL:
-         break;
-      case HOVER:
-         break;
-      case PRESS:
-         break;
-   }
+   mClickCallback();
 }
 
 }; // namespace Engine

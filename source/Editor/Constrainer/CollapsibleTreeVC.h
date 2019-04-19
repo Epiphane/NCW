@@ -1,5 +1,5 @@
 //
-// CollapsibleTreeView.h
+// CollapsibleTreeVC.h
 //
 // UIElement that holds a tree of items. You can click each
 //    item to expand the children underneath it in the tree.
@@ -38,10 +38,10 @@ public:
    virtual void ItemSelected(CollapsibleTreeItem* item) = 0;
 };
 
-class CollapsibleTreeView : public UIElement
+class CollapsibleTreeVC : public UIElement
 {
 public:
-   CollapsibleTreeView(Engine::UIRoot* root, UIElement* parent, CollapsibleTreeViewDelegate* delegate, CollapsibleTreeViewDatasource* datasource);
+   CollapsibleTreeVC(Engine::UIRoot* root, UIElement* parent, CollapsibleTreeViewDelegate* delegate, CollapsibleTreeViewDatasource* datasource);
 
    // When called, I will ask my datasource for the new tree views
    void DataChanged();
