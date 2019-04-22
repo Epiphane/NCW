@@ -76,18 +76,18 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainLeftAlignedTo(discard);
       
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<DeprecatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 
    SetModified(false);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
 {
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<Skeleton>& evt)
 {
    // Lol beautiful trickery: we add skeleton parts from the root-most first,
    // up to the final piece being the one the user wants to load. Therefore,
@@ -164,7 +164,7 @@ void Sidebar::LoadFile(const std::string& filename)
 
    while (!parts.empty())
    {
-      mpRoot->Emit<AddSkeletonPartEvent>(parts.top());
+      mpRoot->Emit<AddSkeletonPartEvent>(parts.top() + ".json");
       parts.pop();
    }
 

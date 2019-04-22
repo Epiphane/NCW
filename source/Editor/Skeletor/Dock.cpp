@@ -8,7 +8,6 @@
 
 #include "../Command/CommandStack.h"
 
-#include "AnimationSystem.h"
 #include "Dock.h"
 
 namespace CubeWorld
@@ -20,7 +19,7 @@ namespace Editor
 namespace Skeletor
 {
 
-using Bone = DeprecatedSkeleton::Bone;
+using Bone = Skeleton::Bone;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
@@ -29,7 +28,7 @@ using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mBone(9)
+   , mBone("root")
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorDockFG", glm::vec4(0, 0, 0, 1));
 
@@ -74,28 +73,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       row2->SetOffset(8.0);
       row2->ConstrainHeightTo(row1);
       row2->ConstrainLeftAlignedTo(row1);
-
-      Text* parentLabel = row2->Add<Text>(Text::Options{"Parent"});
-      parentLabel->ConstrainTopAlignedTo(row2);
-      parentLabel->ConstrainHeightTo(row2);
-
-      Text::Options parentOptions{"N/A"};
-      parentOptions.size = 12;
-      parentOptions.alignment = Engine::Graphics::Font::Right;
-      mBoneParent = row2->Add<Text>(parentOptions);
-      mBoneParent->ConstrainTopAlignedTo(row2);
-      mBoneParent->ConstrainHeightTo(row2);
-
-      buttonOptions.image = "button_up";
-      buttonOptions.hoverImage = "hover_button_up";
-      buttonOptions.pressImage = "press_button_up";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
-      Button* parentBoneButton = row2->Add<Button>(buttonOptions);
-      parentBoneButton->ConstrainTopAlignedTo(row2);
-      parentBoneButton->ConstrainHeightTo(row2);
-
-      // parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
-      // mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
    }
 
    // Bone positions, rotations and sliders
@@ -159,11 +136,13 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.filename = Asset::Image("EditorIcons.png");
       scrubberOptions.image = "drag_number";
       scrubberOptions.onChange = [&](double, double) {
+         /*
          Bone& bone = mSkeleton->bones[mBone];
 
          bone.originalPosition = bone.position;
          bone.originalRotation = bone.rotation;
          bone.originalScale = bone.scale;
+         */
 
          mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
       };
@@ -216,7 +195,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
 
-   SetStance(0);
+   SetStance("resting");
 }
 
 ///
@@ -225,19 +204,35 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mSkeleton = evt.component;
+
+   mStances.clear();
+   if (mSkeletons)
+   {
+      // Every stance has a parent
+      for (const auto& entry : mSkeletons->parents)
+      {
+         mStances.push_back(entry.first);
+      }
+   }
+   SetStance(mStance);
 }
 
 void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
 {
    mSkeletons = evt.component;
 
+   // Every stance has a parent
+   for (const auto& entry : mSkeletons->parents)
+   {
+      mStances.push_back(entry.first);
+   }
    SetStance(mStance);
 }
 
 ///
 ///
 ///
-void Dock::SetStance(const size_t& stance)
+void Dock::SetStance(const std::string& stance)
 {
    mStance = stance;
 
@@ -245,37 +240,68 @@ void Dock::SetStance(const size_t& stance)
    {
       mSkeletons->stance = mStance;
    }
+
+   SetBone(mBone);
 }
 
-void Dock::SetBone(const size_t& boneId)
+void Dock::SetBone(const std::string& bone)
 {
-   mBone = boneId;
+   if (!mSkeleton)
+   {
+      mBone = bone;
+      return;
+   }
+
+   Skeleton::Stance& stance = mSkeleton->stances[mStance];
+   {
+      const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
+      if (original.position == stance.positions[original.name])
+      {
+         stance.positions.erase(original.name);
+      }
+   }
+
+   mBone = bone;
 
    // Update bone info
-   Bone& bone = mSkeleton->stances[mStance].bones[mBone];
-   Bone& parent = mSkeleton->stances[mStance].bones[mBone != 0 ? bone.parent : 0];
-   mBoneName->SetText(bone.name);
-   mBoneParent->SetText(parent.name);
+   mBoneName->SetText(mBone);
 
-   mBonePos[0].text->Bind(&bone.position.x);
-   mBonePos[1].text->Bind(&bone.position.y);
-   mBonePos[2].text->Bind(&bone.position.z);
-   mBoneRot[0].text->Bind(&bone.rotation.x);
-   mBoneRot[1].text->Bind(&bone.rotation.y);
-   mBoneRot[2].text->Bind(&bone.rotation.z);
-   mBoneScl[0].text->Bind(&bone.scale.x);
-   mBoneScl[1].text->Bind(&bone.scale.y);
-   mBoneScl[2].text->Bind(&bone.scale.z);
+   const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
+   if (stance.positions.count(mBone) == 0)
+   {
+      stance.positions[mBone] = original.position;
+   }
+   if (stance.rotations.count(mBone) == 0)
+   {
+      stance.rotations[mBone] = original.rotation;
+   }
+   if (stance.scales.count(mBone) == 0)
+   {
+      stance.scales[mBone] = original.scale;
+   }
+   glm::vec3& position = stance.positions[mBone];
+   glm::vec3& rotation = stance.rotations[mBone];
+   glm::vec3& scale = stance.scales[mBone];
 
-   mBonePos[0].scrubber->Bind(&bone.position.x);
-   mBonePos[1].scrubber->Bind(&bone.position.y);
-   mBonePos[2].scrubber->Bind(&bone.position.z);
-   mBoneRot[0].scrubber->Bind(&bone.rotation.x);
-   mBoneRot[1].scrubber->Bind(&bone.rotation.y);
-   mBoneRot[2].scrubber->Bind(&bone.rotation.z);
-   mBoneScl[0].scrubber->Bind(&bone.scale.x);
-   mBoneScl[1].scrubber->Bind(&bone.scale.y);
-   mBoneScl[2].scrubber->Bind(&bone.scale.z);
+   mBonePos[0].text->Bind(&position.x);
+   mBonePos[1].text->Bind(&position.y);
+   mBonePos[2].text->Bind(&position.z);
+   mBoneRot[0].text->Bind(&rotation.x);
+   mBoneRot[1].text->Bind(&rotation.y);
+   mBoneRot[2].text->Bind(&rotation.z);
+   mBoneScl[0].text->Bind(&scale.x);
+   mBoneScl[1].text->Bind(&scale.y);
+   mBoneScl[2].text->Bind(&scale.z);
+
+   mBonePos[0].scrubber->Bind(&position.x);
+   mBonePos[1].scrubber->Bind(&position.y);
+   mBonePos[2].scrubber->Bind(&position.z);
+   mBoneRot[0].scrubber->Bind(&rotation.x);
+   mBoneRot[1].scrubber->Bind(&rotation.y);
+   mBoneRot[2].scrubber->Bind(&rotation.z);
+   mBoneScl[0].scrubber->Bind(&scale.x);
+   mBoneScl[1].scrubber->Bind(&scale.y);
+   mBoneScl[2].scrubber->Bind(&scale.z);
 }
 
 ///
@@ -283,13 +309,14 @@ void Dock::SetBone(const size_t& boneId)
 ///
 void Dock::NextBoneCommand::Do()
 {
-   if (dock->mBone >= dock->mSkeleton->bones.size() - 1)
+   size_t ndx = dock->mSkeleton->boneLookup[dock->mBone];
+   if (ndx >= dock->mSkeleton->bones.size() - 1)
    {
-      dock->SetBone(0);
+      dock->SetBone(dock->mSkeleton->bones[0].name);
    }
    else
    {
-      dock->SetBone(dock->mBone + 1);
+      dock->SetBone(dock->mSkeleton->bones[ndx + 1].name);
    }
 }
 
@@ -298,34 +325,15 @@ void Dock::NextBoneCommand::Do()
 ///
 void Dock::NextBoneCommand::Undo()
 {
-   if (dock->mBone == 0)
+   size_t ndx = dock->mSkeleton->boneLookup[dock->mBone];
+   if (ndx == 0)
    {
-      dock->SetBone(dock->mSkeleton->bones.size() - 1);
+      dock->SetBone(dock->mSkeleton->bones[dock->mSkeleton->bones.size() - 1].name);
    }
    else
    {
-      dock->SetBone(dock->mBone - 1);
+      dock->SetBone(dock->mSkeleton->bones[ndx - 1].name);
    }
-}
-
-///
-///
-///
-void Dock::ParentBoneCommand::Do()
-{
-   last = dock->mBone;
-   if (dock->mBone > 0)
-   {
-      dock->SetBone(dock->mSkeleton->bones[dock->mBone].parent);
-   }
-}
-
-///
-///
-///
-void Dock::ParentBoneCommand::Undo()
-{
-   dock->SetBone(last);
 }
 
 }; // namespace Skeletor

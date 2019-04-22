@@ -299,5 +299,31 @@
    "stance": "resting",
    "length": 0.4,
    "name": "run",
-   "next": ""
+   "next": "",
+   "transitions": [
+      {
+         "time": 0.2,
+         "to": "idle",
+         "triggers": [
+            {
+               "lt": 1.0,
+               "parameter": "speed"
+            }
+         ]
+      },
+      {
+         "time": 0.5,
+         "to": "walk",
+         "triggers": [
+            {
+               "gte": 1.0,
+               "parameter": "speed"
+            },
+            {
+               "lt": 8.0,
+               "parameter": "speed"
+            }
+         ]
+      }
+   ]
 }

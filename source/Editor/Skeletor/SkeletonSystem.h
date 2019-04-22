@@ -4,7 +4,7 @@
 
 #include <Engine/Entity/Component.h>
 #include <Engine/System/System.h>
-#include <Shared/Components/DeprecatedSkeleton.h>
+#include <Shared/Components/Skeleton.h>
 
 namespace CubeWorld
 {
@@ -20,9 +20,19 @@ namespace Skeletor
 //
 struct SkeletonCollection : Engine::Component<SkeletonCollection>
 {
-   std::vector<Engine::ComponentHandle<DeprecatedSkeleton>> skeletons;
-   std::vector<std::string> stances;
-   size_t stance;
+public:
+   void AddSkeleton(const Engine::ComponentHandle<Skeleton>& skeleton);
+   void Reset();
+
+   void SetStance(const std::string& stance);
+
+private:
+   friend class Dock;
+   friend class SkeletonSystem;
+   std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
+   std::unordered_map<std::string, std::string> parents;
+   std::string stance;
+   bool dirty;
 };
 
 //
@@ -30,11 +40,11 @@ struct SkeletonCollection : Engine::Component<SkeletonCollection>
 // doesn't actually animate or anything like that. It just allows for showing
 // raw stance data.
 //
-class AnimationSystem : public Engine::System<AnimationSystem>
+class SkeletonSystem : public Engine::System<SkeletonSystem>
 {
 public:
-   AnimationSystem() {};
-   ~AnimationSystem() {}
+   SkeletonSystem() {};
+   ~SkeletonSystem() {}
 
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 };

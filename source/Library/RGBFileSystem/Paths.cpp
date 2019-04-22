@@ -136,6 +136,24 @@ std::string GetRelativePath(const std::string& path_, const std::string& base_)
    return result;
 }
 
+std::string GetBasename(const std::string& path)
+{
+   std::string normalized = Normalize(path);
+   if (auto dot = normalized.rfind('.'); dot != std::string::npos)
+   {
+      normalized.erase(dot);
+   }
+   
+   if (auto last = normalized.rfind('/'); last != std::string::npos)
+   {
+      return normalized.substr(last + 1);
+   }
+   else
+   {
+      return normalized;
+   }
+}
+
 std::string GetFilename(const std::string& path)
 {
    std::string normalized = Normalize(path);
@@ -154,11 +172,11 @@ std::string GetDirectory(const std::string& path)
    std::string normalized = Normalize(path);
    if (auto last = normalized.rfind('/'); last != std::string::npos)
    {
-      return path.substr(0, last);
+      return normalized.substr(0, last);
    }
    else
    {
-      return path;
+      return normalized;
    }
 }
 

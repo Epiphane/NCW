@@ -4,7 +4,7 @@
 
 #include <Engine/Event/Event.h>
 #include <Engine/Entity/ComponentHandle.h>
-#include <Shared/Components/DeprecatedSkeleton.h>
+#include "SkeletonSystem.h"
 
 namespace CubeWorld
 {
@@ -26,23 +26,23 @@ struct AddSkeletonPartEvent : public Engine::Event<AddSkeletonPartEvent>
 
 struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
 {
-   SkeletonLoadedEvent(Engine::ComponentHandle<DeprecatedSkeleton> component) : component(component) {};
+   SkeletonLoadedEvent(Engine::ComponentHandle<Skeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<DeprecatedSkeleton> component;
+   Engine::ComponentHandle<Skeleton> component;
 };
 
 struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
 {
-   SkeletonSavedEvent(Engine::ComponentHandle<DeprecatedSkeleton> component) : component(component) {};
+   SkeletonSavedEvent(Engine::ComponentHandle<Skeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<DeprecatedSkeleton> component;
+   Engine::ComponentHandle<Skeleton> component;
 };
 
 struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
 {
-   SkeletonModifiedEvent(Engine::ComponentHandle<DeprecatedSkeleton> component) : component(component) {};
+   SkeletonModifiedEvent(Engine::ComponentHandle<Skeleton> component) : component(component) {};
 
-   Engine::ComponentHandle<DeprecatedSkeleton> component;
+   Engine::ComponentHandle<Skeleton> component;
 };
 
 }; // namespace Skeletor

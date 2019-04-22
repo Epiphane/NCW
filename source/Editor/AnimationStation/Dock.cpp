@@ -61,6 +61,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
    , mBone(0)
 {
+   /*
    RectFilled* foreground = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainCenterTo(this);
@@ -552,6 +553,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<SkeletonSelectedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
+   */
 }
 
 ///

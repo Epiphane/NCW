@@ -288,7 +288,7 @@ void AnimationController::AddState(Engine::ComponentHandle<DeprecatedSkeleton> s
       }
    }
 
-   if (skeletonNdx == skeletons.size())
+   if (skeletonNdx != skeletons.size())
    {
       LOG_ERROR("Attempt to add a state, using an origin skeleton that doesn't exist.");
       return;

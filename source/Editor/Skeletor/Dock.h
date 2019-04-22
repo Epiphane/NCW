@@ -25,7 +25,7 @@
 #include <Shared/UI/TextField.h>
 
 #include "../UI/Scrubber.h"
-#include "AnimationSystem.h"
+#include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -38,7 +38,7 @@ namespace Editor
 namespace Skeletor
 {
 
-using Bone = DeprecatedSkeleton::Bone;
+using Bone = Skeleton::Bone;
 using UI::Image;
 using UI::NumDisplay;
 using UI::RectFilled;
@@ -55,8 +55,8 @@ public:
 
 public:
    // Dock state actions
-   void SetStance(const size_t& stance);
-   void SetBone(const size_t& boneId);
+   void SetStance(const std::string& stance);
+   void SetBone(const std::string& bone);
 
 public:
    // Event handlers
@@ -65,11 +65,13 @@ public:
 
 private:
    // State
-   size_t mBone;
-   size_t mStance;
+   std::string mBone;
+   std::string mStance;
+
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<DeprecatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<Skeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
+   std::vector<std::string> mStances;
 
 private:
    template <typename N>
@@ -78,13 +80,8 @@ private:
       Scrubber<N>* scrubber;
    };
 
-   // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   UIElement* mKeyframes;
-   std::vector<std::pair<Image*, rhea::variable>> mKeyframeIcons;
-
    // Bone inspector
    Text* mBoneName;
-   Text* mBoneParent;
    LabelAndScrubber<float> mBonePos[3];
    LabelAndScrubber<float> mBoneRot[3];
    LabelAndScrubber<float> mBoneScl[3];
@@ -116,19 +113,6 @@ private:
    //
    //
    using PrevBoneCommand = ReverseCommand<NextBoneCommand>;
-
-   //
-   //
-   //
-   class ParentBoneCommand : public DockCommand
-   {
-   public:
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   private:
-      size_t last;
-   };
 
    //
    //

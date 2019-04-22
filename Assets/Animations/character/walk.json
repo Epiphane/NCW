@@ -246,5 +246,27 @@
    "stance": "resting",
    "length": 0.8,
    "name": "walk",
-   "next": ""
+   "next": "",
+   "transitions": [
+      {
+         "time": 0.2,
+         "to": "idle",
+         "triggers": [
+            {
+               "lt": 1.0,
+               "parameter": "speed"
+            }
+         ]
+      },
+      {
+         "time": 0.5,
+         "to": "run",
+         "triggers": [
+            {
+               "gte": 8.0,
+               "parameter": "speed"
+            }
+         ]
+      }
+   ]
 }

@@ -147,7 +147,7 @@ void DeprecatedSkeleton::Load(const std::string& filename)
    }
 
    // Create base stance
-   if (data["stances"][0]["name"] != "base")
+   /*if (data["stances"][0]["name"] != "base")
    {
       Stance stance;
       stance.name = "base";
@@ -155,7 +155,7 @@ void DeprecatedSkeleton::Load(const std::string& filename)
       stance.bones = bones;
       stances.push_back(std::move(stance));
       stancesByName.emplace("base", 0);
-   }
+   }*/
 
    for (const auto& def : data["stances"])
    {

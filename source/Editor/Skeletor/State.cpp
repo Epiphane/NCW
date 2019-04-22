@@ -10,6 +10,7 @@
 #pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
+#include <RGBNetworking/JSONSerializer.h>
 #include <Engine/Core/StateManager.h>
 #include <RGBLogger/Logger.h>
 #include <Engine/Entity/Transform.h>
@@ -24,7 +25,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include "AnimationSystem.h"
+#include "SkeletonSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -60,7 +61,7 @@ void MainState::Initialize()
    // Create systems and configure
    DebugHelper::Instance()->SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
-   mSystems.Add<AnimationSystem>();
+   mSystems.Add<SkeletonSystem>();
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
@@ -140,32 +141,26 @@ void MainState::Receive(const SkeletonClearedEvent&)
       mEntities.Destroy(part.GetID());
    }
 
-   auto controller = mPlayer.Get<SkeletonCollection>();
-   controller->skeletons.clear();
-   controller->stance = 0;
-
+   mPlayer.Get<SkeletonCollection>()->Reset();
    mPlayerParts.clear();
 }
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
+   LOG_DEBUG("Adding skeleton %1", evt.filename);
+   Maybe<BindingProperty> data = JSONSerializer::DeserializeFile(evt.filename);
+   if (!data)
+   {
+      LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());
+      return;
+   }
+
    Engine::Entity part = mEntities.Create(0, 0, 0);
    part.Get<Transform>()->SetParent(mPlayer);
-   auto model = part.Add<VoxModel>();
-   auto skeleton = part.Add<DeprecatedSkeleton>(evt.filename, model);
+   auto skeleton = part.Add<Skeleton>(*data, part.Add<VoxModel>());
 
-   auto collection = mPlayer.Get<SkeletonCollection>();
-
-   collection->skeletons.push_back(skeleton);
+   mPlayer.Get<SkeletonCollection>()->AddSkeleton(skeleton);
    mPlayerParts.push_back(part);
-
-   for (const auto& stance : skeleton->stances)
-   {
-      if (std::find(collection->stances.begin(), collection->stances.end(), stance.name) == collection->stances.end())
-      {
-         collection->stances.push_back(stance.name);
-      }
-   }
 }
 
 }; // namespace Skeletor

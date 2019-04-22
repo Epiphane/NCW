@@ -78,5 +78,31 @@
    "stance": "resting",
    "length": 5.02,
    "name": "idle",
-   "next": ""
+   "next": "",
+   "transitions": [
+      {
+         "time": 0.5,
+         "to": "walk",
+         "triggers": [
+            {
+               "gte": 1.0,
+               "parameter": "speed"
+            },
+            {
+               "lt": 8.0,
+               "parameter": "speed"
+            }
+         ]
+      },
+      {
+         "time": 0.5,
+         "to": "run",
+         "triggers": [
+            {
+               "gte": 8.0,
+               "parameter": "speed"
+            }
+         ]
+      }
+   ]
 }
