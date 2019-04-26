@@ -10,6 +10,7 @@
 #include <Shared/Helpers/TimSort.h>
 #include <Shared/UI/RectFilled.h>
 #include <Shared/UI/Text.h>
+#include <Editor/rxcpp/rx.h>
 
 #include "UIRoot.h"
 

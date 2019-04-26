@@ -8,6 +8,8 @@
 
 #include <functional>
 
+#include <Editor/rxcpp/rx.h>
+
 #include "../Event/InputEvent.h"
 
 namespace CubeWorld

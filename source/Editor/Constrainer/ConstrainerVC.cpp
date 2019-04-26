@@ -12,8 +12,6 @@
 #include "Sidebar.h"
 #include "UIElementDesignerWrapper.h"
 
-#include "../UI/rxcpp/rx.hpp"
-
 namespace CubeWorld
 {
 

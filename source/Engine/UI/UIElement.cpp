@@ -231,7 +231,7 @@ UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt)
       g->MouseDown(evt);
    }
    
-   return Unhandled;
+   return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 
 UIElement::Action UIElement::MouseMove(const MouseMoveEvent& evt)
@@ -240,7 +240,7 @@ UIElement::Action UIElement::MouseMove(const MouseMoveEvent& evt)
       g->MouseMove(evt);
    }
    
-   return Unhandled;
+   return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 
 UIElement::Action UIElement::MouseUp(const MouseUpEvent& evt)
@@ -249,7 +249,7 @@ UIElement::Action UIElement::MouseUp(const MouseUpEvent& evt)
       g->MouseUp(evt);
    }
    
-   return Unhandled;
+   return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 
 }; // namespace Engine

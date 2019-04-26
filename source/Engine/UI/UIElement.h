@@ -228,6 +228,9 @@ protected:
 
    // If true, this element is MARKED FOR DEATH
    bool mbDeleteAfterThisFrame = false;
+   
+   // If true, this element will block mouse events to elements behind it.
+   bool mbAbsorbsMouseEvents = true;
 
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
