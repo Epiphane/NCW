@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <RGBFileSystem/File.h>
+#include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/JSONSerializer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
@@ -26,7 +27,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Asset::Skeleton("greatmace"))
+   , mFilename(Asset::Skeleton("greatmace.json"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -82,7 +83,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    SetModified(false);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
 {
    LoadFile(mFilename);
 }
@@ -140,7 +141,7 @@ void Sidebar::LoadFile(const std::string& filename)
    std::string currentFile = filename;
    do
    {
-      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile + ".json");
+      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
       if (!maybeData)
       {
          LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
@@ -157,14 +158,14 @@ void Sidebar::LoadFile(const std::string& filename)
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(currentFile), parent);
+         currentFile = Paths::Join(Paths::GetDirectory(currentFile), parent + ".json");
       }
    }
    while (currentFile != "");
 
    while (!parts.empty())
    {
-      mpRoot->Emit<AddSkeletonPartEvent>(parts.top() + ".json");
+      mpRoot->Emit<AddSkeletonPartEvent>(parts.top());
       parts.pop();
    }
 
@@ -184,9 +185,14 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mSkeleton->Serialize();
-   std::ofstream out(mFilename);
-   out << serialized << std::endl;
+   mpRoot->Emit<SuspendEditingEvent>();
+   BindingProperty serialized = mSkeleton->Serialize();
+   mpRoot->Emit<ResumeEditingEvent>();
+   Maybe<void> written = JSONSerializer{}.SerializeFile(mFilename, serialized);
+   if (!written)
+   {
+      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
+   }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);

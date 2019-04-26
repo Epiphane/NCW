@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rapidjson/stringbuffer.h>
+#include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>
 
 #include <RGBBinding/BindingPropertyReader.h>
@@ -36,7 +37,9 @@ Maybe<BindingProperty> JSONSerializer::DeserializeFile(const std::string& path)
 Maybe<std::string> JSONSerializer::Serialize(const BindingProperty& data)
 {
    rapidjson::StringBuffer buffer;
-   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+   writer.SetFormatOptions(rapidjson::kFormatSingleLineArray);
+   writer.SetIndent(' ', 3);
 
    Maybe<void> result = data.Write(writer);
    if (!result)

@@ -1,44 +1,10 @@
 {
-   "bones": {
-      "Mace": {
-         "parent": "root",
-         "position": [
-            0.0,
-            5.0,
-            0.0
-         ],
-         "rotation": [
-            0.0,
-            -0.0,
-            -135.0
-         ],
-         "scale": [
-            1.0,
-            1.0,
-            1.0
-         ]
-      },
-      "root": {
-         "parent": "Attachment",
-         "position": [
-            0.0,
-            0.0,
-            0.0
-         ],
-         "rotation": [
-            0.0,
-            0.0,
-            0.0
-         ],
-         "scale": [
-            1.0,
-            1.0,
-            1.0
-         ]
-      }
-   },
+   "name": "greatmace",
+   "parent": "character",
+   "default_model": "wood-greatmace02.vox",
    "stances": {
       "base": {
+         "inherit": "",
          "bones": {
             "root": {
                "parent": "Attachment"
@@ -48,57 +14,13 @@
       "resting": {
          "inherit": "base",
          "bones": {
+            "root": {
+               "position": [0.0, 5.0, 0.0]
+            },
             "Mace": {
-               "rotation": [
-                  0.0,
-                  -0.0,
-                  -135.0
-               ]
+               "rotation": [0.0, -0.0, -135.0]
             }
          }
       }
-   },
-   "default": "swing 1",
-   "default_model": "wood-greatmace02.vox",
-   "name": "greatmace",
-   "parent": "character",
-   "transitions": {
-      "idle": [
-         {
-            "time": 0.1,
-            "to": "swing 1",
-            "triggers": [
-               {
-                  "bool": true,
-                  "parameter": "attack"
-               }
-            ]
-         }
-      ],
-      "swing 1 recoil": [
-         {
-            "time": 0.1,
-            "to": "swing 2",
-            "triggers": [
-               {
-                  "bool": true,
-                  "parameter": "attack"
-               }
-            ]
-         }
-      ],
-      "swing 2 recoil": [
-         {
-            "time": 0.1,
-            "to": "swing 3",
-            "triggers": [
-               {
-                  "bool": true,
-                  "parameter": "attack"
-               }
-            ]
-         }
-      ]
-   },
-   "version": 1
+   }
 }

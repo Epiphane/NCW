@@ -1,0 +1,32 @@
+{
+   "keyframes": [
+      {
+         "time": 0.0
+      },
+      {
+         "time": 0.79
+      },
+      {
+         "time": 2.64
+      },
+      {
+         "time": 3.23
+      }
+   ],
+   "stance": "resting",
+   "length": 5.02,
+   "name": "idle",
+   "next": "",
+   "transitions": [
+      {
+         "time": 0.1,
+         "to": "swing 1",
+         "triggers": [
+            {
+               "bool": true,
+               "parameter": "attack"
+            }
+         ]
+      }
+   ]
+}

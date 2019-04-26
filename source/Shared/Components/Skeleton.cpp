@@ -130,6 +130,33 @@ BindingProperty Skeleton::Serialize()
 {
    BindingProperty result;
 
+   result["name"] = name;
+   result["parent"] = parent;
+   result["default_model"] = defaultModel;
+
+   for (const auto& [stanceName, stance] : stances)
+   {
+      BindingProperty& def = result["stances"][stanceName];
+      def["inherit"] = stance.parent;
+      BindingProperty& bones = def["bones"];
+      for (const auto&[bone, pos] : stance.positions)
+      {
+         bones[bone]["position"] = pos;
+      }
+      for (const auto&[bone, rot] : stance.rotations)
+      {
+         bones[bone]["rotation"] = rot;
+      }
+      for (const auto&[bone, scl] : stance.scales)
+      {
+         bones[bone]["scale"] = scl;
+      }
+      for (const auto&[bone, par] : stance.parents)
+      {
+         bones[bone]["parent"] = par;
+      }
+   }
+
    return result;
 }
 

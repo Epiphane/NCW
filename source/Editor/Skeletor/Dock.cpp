@@ -28,7 +28,7 @@ using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mBone("root")
+   , mBone("")
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorDockFG", glm::vec4(0, 0, 0, 1));
 
@@ -192,9 +192,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       mBoneScl[0].scrubber->ConstrainRightAlignedTo(boneScale);
    }
 
+   root->Subscribe<SuspendEditingEvent>(*this);
+   root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
 
+   SetBone("root");
    SetStance("resting");
 }
 
@@ -229,56 +232,146 @@ void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
    SetStance(mStance);
 }
 
-///
-///
-///
-void Dock::SetStance(const std::string& stance)
+void Dock::Receive(const SuspendEditingEvent&)
 {
-   mStance = stance;
-
-   if (mSkeletons)
+   if (!mSkeleton || !mSkeletons)
    {
-      mSkeletons->stance = mStance;
+      return;
    }
 
-   SetBone(mBone);
+   // Not editing yet
+   if (!mBonePos[0].text->IsBound())
+   {
+      return;
+   }
+
+   // Revert any pending edits so that they are not persisted.
+   Skeleton::Stance& stance = mSkeleton->stances[mStance];
+   {
+      bool changed[4] = {false}; // position, rotation, scale, parent
+      bool checked[4] = {false}; // position, rotation, scale, parent
+      for (std::string it = mSkeletons->parents[mStance]; !it.empty(); it = mSkeletons->parents[it])
+      {
+         if (!checked[0] && mSkeleton->stances[it].positions.count(mBone) != 0)
+         {
+            changed[0] = mSkeleton->stances[it].positions[mBone] != stance.positions[mBone];
+            checked[0] = true;
+         }
+         if (!checked[1] && mSkeleton->stances[it].rotations.count(mBone) != 0)
+         {
+            changed[1] = mSkeleton->stances[it].rotations[mBone] != stance.rotations[mBone];
+            checked[1] = true;
+         }
+         if (!checked[2] && mSkeleton->stances[it].scales.count(mBone) != 0)
+         {
+            changed[2] = mSkeleton->stances[it].scales[mBone] != stance.scales[mBone];
+            checked[2] = true;
+         }
+         if (!checked[3] && mSkeleton->stances[it].parents.count(mBone) != 0)
+         {
+            changed[3] = mSkeleton->stances[it].parents[mBone] != stance.parents[mBone];
+            checked[3] = true;
+         }
+      }
+
+      const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
+      
+      if (!checked[0])
+      {
+         changed[0] = !glm::all(glm::equal(original.position, stance.positions[original.name], FLT_EPSILON));
+         checked[0] = true;
+      }
+      if (!checked[1])
+      {
+         changed[1] = !glm::all(glm::equal(original.rotation, stance.rotations[original.name], FLT_EPSILON));
+         checked[1] = true;
+      }
+      if (!checked[2])
+      {
+         changed[2] = !glm::all(glm::equal(original.scale, stance.scales[original.name], FLT_EPSILON));
+         checked[2] = true;
+      }
+      if (!checked[3])
+      {
+         changed[3] = original.parent != stance.parents[original.name];
+         checked[3] = true;
+      }
+
+      if (!changed[0])
+      {
+         stance.positions.erase(mBone);
+      }
+      if (!changed[1])
+      {
+         stance.rotations.erase(mBone);
+      }
+      if (!changed[2])
+      {
+         stance.scales.erase(mBone);
+      }
+      if (!changed[3])
+      {
+         stance.parents.erase(mBone);
+      }
+   }
 }
 
-void Dock::SetBone(const std::string& bone)
+void Dock::Receive(const ResumeEditingEvent&)
 {
-   if (!mSkeleton)
+   if (!mSkeleton || !mSkeletons)
    {
-      mBone = bone;
       return;
    }
 
    Skeleton::Stance& stance = mSkeleton->stances[mStance];
+   bool set[4] = {false}; // position, rotation, scale, parent
+   for (std::string it = mStance; !it.empty(); it = mSkeletons->parents[it])
    {
-      const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
-      if (original.position == stance.positions[original.name])
+      Skeleton::Stance& s = mSkeleton->stances[it];
+      if (!set[0] && s.positions.count(mBone) != 0)
       {
-         stance.positions.erase(original.name);
+         stance.positions[mBone] = s.positions[mBone];
+         set[0] = true;
+      }
+      if (!set[1] && s.rotations.count(mBone) != 0)
+      {
+         stance.rotations[mBone] = s.rotations[mBone];
+         set[1] = true;
+      }
+      if (!set[2] && s.scales.count(mBone) != 0)
+      {
+         stance.scales[mBone] = s.scales[mBone];
+         set[2] = true;
+      }
+      if (!set[3] && s.parents.count(mBone) != 0)
+      {
+         stance.parents[mBone] = s.parents[mBone];
+         set[3] = true;
       }
    }
 
-   mBone = bone;
-
-   // Update bone info
-   mBoneName->SetText(mBone);
-
    const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
-   if (stance.positions.count(mBone) == 0)
+   if (!set[0])
    {
       stance.positions[mBone] = original.position;
+      set[0] = true;
    }
-   if (stance.rotations.count(mBone) == 0)
+   if (!set[1])
    {
       stance.rotations[mBone] = original.rotation;
+      set[1] = true;
    }
-   if (stance.scales.count(mBone) == 0)
+   if (!set[2])
    {
       stance.scales[mBone] = original.scale;
+      set[2] = true;
    }
+   if (!set[3])
+   {
+      stance.parents[mBone] = original.parent;
+      set[3] = true;
+   }
+
    glm::vec3& position = stance.positions[mBone];
    glm::vec3& rotation = stance.rotations[mBone];
    glm::vec3& scale = stance.scales[mBone];
@@ -302,6 +395,39 @@ void Dock::SetBone(const std::string& bone)
    mBoneScl[0].scrubber->Bind(&scale.x);
    mBoneScl[1].scrubber->Bind(&scale.y);
    mBoneScl[2].scrubber->Bind(&scale.z);
+}
+
+///
+///
+///
+void Dock::SetStance(const std::string& stance)
+{
+   mStance = stance;
+
+   if (mSkeletons)
+   {
+      mSkeletons->stance = mStance;
+   }
+
+   SetBone(mBone);
+}
+
+void Dock::SetBone(const std::string& bone)
+{
+   if (!mSkeleton)
+   {
+      mBone = bone;
+      return;
+   }
+
+   Receive(SuspendEditingEvent{});
+
+   mBone = bone;
+
+   // Update bone info
+   mBoneName->SetText(mBone);
+
+   Receive(ResumeEditingEvent{});
 }
 
 ///

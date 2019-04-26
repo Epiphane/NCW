@@ -10,41 +10,6 @@
 
 namespace CubeWorld
 {
-/*
-template<typename T> class Maybe;
-
-template<> class Maybe<void>
-{
-public:
-   Maybe() : isSuccess(true) {};
-   Maybe(const Failure& failure) : failure(failure), isSuccess(false) {};
-   Maybe(const Maybe<void>& other) : failure(other.failure), isSuccess(other.isSuccess) {};
-   ~Maybe() {}
-
-   bool Succeeded() { return isSuccess; }
-   bool Failed() { return !Succeeded(); }
-
-   Failure& Failure() { assert(Failed()); return failure; }
-
-   constexpr Maybe& operator=(const Maybe& other)
-   { 
-      if (isSuccess = other.isSuccess)
-      {
-         failure = other.failure;
-      }
-      return *this;
-   }
-
-   constexpr void operator*() { assert(false); }
-   constexpr void* operator->() { assert(false); }
-   constexpr bool operator !() const { return !isSuccess; }
-
-protected:
-   CubeWorld::Failure failure;
-
-   bool isSuccess;
-};*/
-
 template <typename T, typename FailureType>
 class MaybeType : protected Either<
    typename std::conditional<std::is_void<T>::value, std::nullptr_t, T>::type,

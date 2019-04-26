@@ -398,5 +398,17 @@
    ],
    "length": 0.8,
    "name": "swing 1 recoil",
-   "next": "idle"
+   "next": "idle",
+   "transitions": [
+      {
+         "time": 0.1,
+         "to": "swing 2",
+         "triggers": [
+            {
+               "bool": true,
+               "parameter": "attack"
+            }
+         ]
+      }
+   ]
 }

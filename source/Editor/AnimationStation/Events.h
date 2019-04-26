@@ -15,8 +15,16 @@ namespace Editor
 namespace AnimationStation
 {
 
+// Suspend editing for serialization
+struct SuspendEditingEvent : public Engine::Event<SuspendEditingEvent> {};
+
+// Resume editability (after serialization)
+struct ResumeEditingEvent : public Engine::Event<ResumeEditingEvent> {};
+
+// Clear the current skeleton for loading
 struct SkeletonClearedEvent : public Engine::Event<SkeletonClearedEvent> {};
 
+// Add a part to the current skeleton
 struct AddSkeletonPartEvent : public Engine::Event<AddSkeletonPartEvent>
 {
    AddSkeletonPartEvent(const std::string& filename) : filename(filename) {};
