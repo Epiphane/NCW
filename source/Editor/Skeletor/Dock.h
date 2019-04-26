@@ -62,6 +62,7 @@ public:
    // Event handlers
    void Receive(const SuspendEditingEvent& evt);
    void Receive(const ResumeEditingEvent& evt);
+   void Receive(const SkeletonClearedEvent& evt);
    void Receive(const SkeletonLoadedEvent& evt);
    void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
 

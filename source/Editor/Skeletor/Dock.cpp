@@ -194,11 +194,38 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
+   root->Subscribe<SkeletonClearedEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
 
    SetBone("root");
    SetStance("resting");
+}
+
+///
+///
+///
+void Dock::Receive(const SkeletonClearedEvent&)
+{
+   mBonePos[0].text->Bind(nullptr);
+   mBonePos[1].text->Bind(nullptr);
+   mBonePos[2].text->Bind(nullptr);
+   mBoneRot[0].text->Bind(nullptr);
+   mBoneRot[1].text->Bind(nullptr);
+   mBoneRot[2].text->Bind(nullptr);
+   mBoneScl[0].text->Bind(nullptr);
+   mBoneScl[1].text->Bind(nullptr);
+   mBoneScl[2].text->Bind(nullptr);
+
+   mBonePos[0].scrubber->Bind(nullptr);
+   mBonePos[1].scrubber->Bind(nullptr);
+   mBonePos[2].scrubber->Bind(nullptr);
+   mBoneRot[0].scrubber->Bind(nullptr);
+   mBoneRot[1].scrubber->Bind(nullptr);
+   mBoneRot[2].scrubber->Bind(nullptr);
+   mBoneScl[0].scrubber->Bind(nullptr);
+   mBoneScl[1].scrubber->Bind(nullptr);
+   mBoneScl[2].scrubber->Bind(nullptr);
 }
 
 ///
@@ -217,6 +244,8 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
          mStances.push_back(entry.first);
       }
    }
+   mBone = "root";
+   Receive(SkeletonClearedEvent{});
    SetStance(mStance);
 }
 
