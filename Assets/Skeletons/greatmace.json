@@ -2,25 +2,24 @@
    "name": "greatmace",
    "parent": "character",
    "default_model": "wood-greatmace02.vox",
-   "stances": {
-      "base": {
+   "stances": [{
+         "name": "base",
          "inherit": "",
          "bones": {
-            "root": {
-               "parent": "Attachment"
+            "greatmace.root": {
+               "parent": "character.Attachment"
             }
          }
-      },
-      "resting": {
+      }, {
+         "name": "resting",
          "inherit": "base",
          "bones": {
-            "root": {
+            "greatmace.root": {
                "position": [0.0, 5.0, 0.0]
             },
-            "Mace": {
+            "greatmace.Mace": {
                "rotation": [0.0, -0.0, -135.0]
             }
          }
-      }
-   }
+      }]
 }

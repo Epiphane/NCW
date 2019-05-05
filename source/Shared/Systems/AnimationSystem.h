@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <Engine/System/System.h>
-#include "../Components/AnimationController.h"
+#include "../Components/DeprecatedController.h"
 #include "../Components/VoxModel.h"
 
 namespace CubeWorld

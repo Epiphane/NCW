@@ -1,6 +1,6 @@
 {
    "bones": {
-      "Mace": {
+      "greatmace.Mace": {
          "parent": "root",
          "position": [
             0.0,
@@ -19,7 +19,7 @@
          ]
       },
       "root": {
-         "parent": "Attachment",
+         "parent": "character.Attachment",
          "position": [
             0.0,
             0.0,
@@ -41,7 +41,7 @@
       "resting": {
          "inherit": "base",
          "bones": {
-            "Mace": {
+            "greatmace.Mace": {
                "parent": "root",
                "rotation": [
                   0.0,

@@ -4,7 +4,8 @@
 
 #include <Engine/Event/Event.h>
 #include <Engine/Entity/ComponentHandle.h>
-#include <Shared/Systems/AnimationSystem.h>
+
+#include "SimpleAnimationSystem.h"
 
 namespace CubeWorld
 {
@@ -34,34 +35,34 @@ struct AddSkeletonPartEvent : public Engine::Event<AddSkeletonPartEvent>
 
 struct SkeletonLoadedEvent : public Engine::Event<SkeletonLoadedEvent>
 {
-   SkeletonLoadedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
+   SkeletonLoadedEvent(Engine::ComponentHandle<SimpleAnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimationController> component;
+   Engine::ComponentHandle<SimpleAnimationController> component;
 };
 
 struct SkeletonSavedEvent : public Engine::Event<SkeletonSavedEvent>
 {
-   SkeletonSavedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
+   SkeletonSavedEvent(Engine::ComponentHandle<SimpleAnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimationController> component;
+   Engine::ComponentHandle<SimpleAnimationController> component;
 };
 
 struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
 {
-   SkeletonModifiedEvent(Engine::ComponentHandle<AnimationController> component) : component(component) {};
+   SkeletonModifiedEvent(Engine::ComponentHandle<SimpleAnimationController> component) : component(component) {};
 
-   Engine::ComponentHandle<AnimationController> component;
+   Engine::ComponentHandle<SimpleAnimationController> component;
 };
 
 struct SkeletonSelectedEvent : public Engine::Event<SkeletonSelectedEvent>
 {
-   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<DeprecatedSkeleton> component)
+   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<Skeleton> component)
       : index(index)
       , component(component)
    {};
 
    size_t index;
-   Engine::ComponentHandle<DeprecatedSkeleton> component;
+   Engine::ComponentHandle<Skeleton> component;
 };
 
 }; // namespace AnimationStation

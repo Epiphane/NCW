@@ -166,10 +166,10 @@ namespace Game
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-      auto controller = player.Add<AnimationController>();
+      auto controller = player.Add<DeprecatedController>();
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         player.Get<DeprecatedController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
       });
 
       Engine::Entity part = mEntities.Create(0, 0, 0);
@@ -181,7 +181,6 @@ namespace Game
 
       part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      model = part.Add<VoxModel>();
       skeleton = part.Add<DeprecatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
       controller->AddSkeleton(skeleton);
 

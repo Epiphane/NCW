@@ -13,12 +13,12 @@ namespace CubeWorld
 
 void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
-   using Keyframe = AnimationController::Keyframe;
-   using State = AnimationController::State;
-   using Transition = AnimationController::Transition;
+   using Keyframe = DeprecatedController::Keyframe;
+   using State = DeprecatedController::State;
+   using Transition = DeprecatedController::Transition;
 
    // First, update skeletons.
-   entities.Each<AnimationController>([&](Engine::Entity /*entity*/, AnimationController& controller) {
+   entities.Each<DeprecatedController>([&](Engine::Entity /*entity*/, DeprecatedController& controller) {
       // Check for an un-loaded skeleton
       if (controller.skeletons.empty())
       {
@@ -171,7 +171,7 @@ void BaseAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
       std::vector<glm::mat4> matrixes;
       matrixes.resize(controller.bones.size(), glm::mat4(1));
 
-      AnimationController::Stance& stance = controller.stances[controller.states[controller.current].stance];
+      DeprecatedController::Stance& stance = controller.stances[controller.states[controller.current].stance];
       for (size_t i = 0; i < controller.skeletons.size(); i ++)
       {
          Engine::ComponentHandle<DeprecatedSkeleton>& skeleton = controller.skeletons[i];

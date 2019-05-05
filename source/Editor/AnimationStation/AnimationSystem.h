@@ -21,8 +21,6 @@ struct AnimationSystemController : public Engine::Component<AnimationSystemContr
    double speed = 1.0;
    bool paused = true;
    TIMEDELTA nextTick = 0;
-   bool animate = true;
-   bool transitions = false;
 };
 
 //

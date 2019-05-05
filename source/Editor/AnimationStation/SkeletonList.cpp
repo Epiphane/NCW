@@ -69,17 +69,17 @@ SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    buttons->ConstrainHorizontalCenterTo(foreground);
    buttons->ConstrainWidthTo(foreground, -12);
 
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<DeprecatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<SkeletonClearedEvent>(*this);
 }
 
-void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
+void SkeletonList::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mController = evt.component;
 }
 
-void SkeletonList::Receive(const Engine::ComponentAddedEvent<DeprecatedSkeleton>& evt)
+void SkeletonList::Receive(const Engine::ComponentAddedEvent<Skeleton>& evt)
 {
    if (mSkeletons.size() >= mButtons.size())
    {

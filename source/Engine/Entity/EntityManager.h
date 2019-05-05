@@ -56,7 +56,7 @@ namespace Engine
 //   Engine::ComponentHandle<DeprecatedSkeleton> skeleton = 
 //      player.Add<DeprecatedSkeleton>("player.json");                // Add an animated skeleton
 //   skeleton->AddModel("torso", "body4.vox");                      // Add two models to the new skeleton
-//   skeleton->AddModel("head", "elf-head-m02.vox");
+//   skeleton->AddModel("character.Head", "elf-head-m02.vox");
 //
 //   Entity playerCamera = mEntities.Create(0, 0, 0);               // Create a camera to attach to the player.
 //   playerCamera.Get<Transform>()->SetParent(player);

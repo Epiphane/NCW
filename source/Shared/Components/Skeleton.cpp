@@ -5,6 +5,7 @@
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
+#include <RGBText/Format.h>
 #include <Engine/Core/Config.h>
 
 #include "../Helpers/Asset.h"
@@ -27,16 +28,6 @@ Skeleton::Skeleton()
 {}
 
 Skeleton::Skeleton(const BindingProperty& data)
-{
-   Load(data);
-}
-
-Skeleton::Skeleton(Engine::ComponentHandle<VoxModel> model)
-   : model(model)
-{}
-
-Skeleton::Skeleton(const BindingProperty& data, Engine::ComponentHandle<VoxModel> model)
-   : model(model)
 {
    Load(data);
 }
@@ -71,19 +62,14 @@ void Skeleton::Load(const BindingProperty& data)
       return;
    }
 
-   Voxel::VoxModel* voxModel = *maybeModel;
-   if (model)
-   {
-      model->Set(voxModel);
-   }
-
    // Load bones
+   Voxel::VoxModel* voxModel = *maybeModel;
    original.resize(voxModel->parts.size());
    for (const Voxel::VoxModel::Part& part : voxModel->parts)
    {
       Bone& bone = original[part.id];
-      bone.name = part.name;
-      bone.parent = voxModel->parts[voxModel->parents[part.id]].name;
+      bone.name = name + "." + part.name;
+      bone.parent = name + "." + voxModel->parts[voxModel->parents[part.id]].name;
       bone.position = part.position;
       bone.rotation = part.rotation;
       bone.scale = glm::vec3(1);
@@ -94,10 +80,20 @@ void Skeleton::Load(const BindingProperty& data)
    bones.assign(original.begin(), original.end());
 
    // Load stances
-   for (const auto& [id, def] : data["stances"].pairs())
+   if (data["stances"][0]["name"] != "base")
    {
-      Stance& stance = stances[id];
-      stance.name = id;
+      Stance base;
+      base.name = "base";
+      base.parent = "";
+      
+      stanceLookup.emplace("base", 0);
+      stances.push_back(std::move(base));
+   }
+
+   for (const auto& def : data["stances"])
+   {
+      Stance stance;
+      stance.name = def["name"];
       stance.parent = def["inherit"].GetStringValue("base");
       for (const auto& [boneName, boneDef] : def["bones"].pairs())
       {
@@ -118,12 +114,10 @@ void Skeleton::Load(const BindingProperty& data)
             stance.parents[boneName] = boneDef["parent"];
          }
       }
-   }
 
-   // Make sure we have a base stance!
-   Stance& base = stances["base"];
-   base.name = "base";
-   base.parent = "";
+      stanceLookup.emplace(stance.name, stances.size());
+      stances.push_back(std::move(stance));
+   }
 }
 
 BindingProperty Skeleton::Serialize()
@@ -134,9 +128,10 @@ BindingProperty Skeleton::Serialize()
    result["parent"] = parent;
    result["default_model"] = defaultModel;
 
-   for (const auto& [stanceName, stance] : stances)
+   for (const auto& stance : stances)
    {
-      BindingProperty& def = result["stances"][stanceName];
+      BindingProperty def;
+      def["name"] = stance.name;
       def["inherit"] = stance.parent;
       BindingProperty& bones = def["bones"];
       for (const auto&[bone, pos] : stance.positions)
@@ -155,6 +150,8 @@ BindingProperty Skeleton::Serialize()
       {
          bones[bone]["parent"] = par;
       }
+
+      result["stances"].push_back(std::move(def));
    }
 
    return result;

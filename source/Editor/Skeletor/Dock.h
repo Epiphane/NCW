@@ -74,7 +74,6 @@ private:
    std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<Skeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
-   std::vector<std::string> mStances;
 
 private:
    template <typename N>
@@ -82,6 +81,9 @@ private:
       NumDisplay<N>* text;
       Scrubber<N>* scrubber;
    };
+
+   // Stance inspector
+   Text* mStanceName;
 
    // Bone inspector
    Text* mBoneName;
@@ -120,10 +122,26 @@ private:
    //
    //
    //
-   class SetStateNameCommand : public DockCommand
+   class NextStanceCommand : public DockCommand
    {
    public:
-      SetStateNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
+      using DockCommand::DockCommand;
+      void Do() override;
+      void Undo() override;
+   };
+
+   //
+   //
+   //
+   using PrevStanceCommand = ReverseCommand<NextStanceCommand>;
+
+   //
+   //
+   //
+   class SetStanceNameCommand : public DockCommand
+   {
+   public:
+      SetStanceNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
       void Do() override;
       void Undo() override { Do(); }
 

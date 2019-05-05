@@ -157,7 +157,8 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
 
    Engine::Entity part = mEntities.Create(0, 0, 0);
    part.Get<Transform>()->SetParent(mPlayer);
-   auto skeleton = part.Add<Skeleton>(*data, part.Add<VoxModel>());
+   auto skeleton = part.Add<Skeleton>(*data);
+   part.Add<VoxModel>(Asset::Model(skeleton->defaultModel));
 
    mPlayer.Get<SkeletonCollection>()->AddSkeleton(skeleton);
    mPlayerParts.push_back(part);

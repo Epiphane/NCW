@@ -177,14 +177,14 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
 {
    std::vector<DiskFileSystem::FileEntry> result;
 
-   std::deque<std::string> paths{base};
+   std::deque<std::string> paths{""};
    while (!paths.empty())
    {
       std::string path = paths.front();
       paths.pop_front();
 
 #if defined CUBEWORLD_PLATFORM_WINDOWS
-      std::wstring pathW = Utf8ToWide(path + "/*");
+      std::wstring pathW = Utf8ToWide(Paths::Join(base, path) + "/*");
 
       WIN32_FIND_DATAW info;
       HANDLE handle = FindFirstFileW(pathW.c_str(), &info);

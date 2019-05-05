@@ -26,7 +26,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Asset::Skeleton("greatmace"))
+   , mFilename(Asset::Skeleton("greatmace.json"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -69,11 +69,11 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mSkeleton = evt.component;
 
@@ -120,20 +120,14 @@ void Sidebar::LoadNewFile()
 void Sidebar::LoadFile(const std::string& filename)
 {
    mpRoot->Emit<SkeletonClearedEvent>();
-   mSkeletonFiles.clear();
 
    std::stack<std::string> parts;
    std::string currentFile = filename;
    do
    {
       std::string name = Paths::GetFilename(currentFile);
-      if (mSkeletonFiles.find(name) != mSkeletonFiles.end())
-      {
-         LOG_ERROR("Duplicate file %1 found in skeleton. Ummmm..idk what to do", name);
-      }
-      mSkeletonFiles.emplace(name, currentFile);
 
-      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile + ".json");
+      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
       if (!maybeData)
       {
          LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
@@ -150,7 +144,7 @@ void Sidebar::LoadFile(const std::string& filename)
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+         currentFile = Paths::Join(Paths::GetDirectory(filename), parent) + ".json";
       }
    } while (currentFile != "");
 
@@ -168,20 +162,19 @@ void Sidebar::SaveFile()
 {
    mSkeleton->UpdateSkeletonStates();
 
-   // Then, save each skeleton
-   for (size_t i = 0; i < mSkeleton->NumSkeletons(); ++i)
+   for (const Engine::ComponentHandle<SkeletonAnimations>& anims : mSkeleton->animations)
    {
-      Engine::ComponentHandle<DeprecatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
-      std::string serialized = skeleton->Serialize();
+      BindingProperty serialized = anims->Serialize();
 
-      auto filenameIt = mSkeletonFiles.find(skeleton->name);
-      if (filenameIt == mSkeletonFiles.end())
+      for (const auto&[name, animation] : serialized.pairs())
       {
-         LOG_ERROR("Somehow the name of this skeleton changed, idk... (name %1 not found in mapping)", skeleton->name);
-         continue;
+         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".json"));
+         Maybe<void> serialized = JSONSerializer::SerializeFile(path, animation);
+         if (!serialized)
+         {
+            LOG_ERROR("Failed saving file %1: %2", path, serialized.Failure().GetMessage());
+         }
       }
-      std::ofstream out(filenameIt->second);
-      out << serialized << std::endl;
    }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);

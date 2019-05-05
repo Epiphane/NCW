@@ -240,7 +240,7 @@ void DeprecatedSkeleton::Load(const std::string& filename)
    {
       for (const FileSystem::FileEntry& entry : *animations)
       {
-         Maybe<BindingProperty> maybeAnimation = JSONSerializer::DeserializeFile(entry.name);
+         Maybe<BindingProperty> maybeAnimation = JSONSerializer::DeserializeFile(Paths::Join(Asset::Animation(name), entry.name));
          if (!maybeAnimation)
          {
             LOG_ERROR("Failed reading %1: %2", entry.name, maybeAnimation.Failure().GetMessage());

@@ -16,7 +16,7 @@ namespace Skeletor
 {
 
 //
-// A dumbed-down AnimationController, which just holds skeletons
+// A dumbed-down DeprecatedController, which just holds skeletons
 //
 struct SkeletonCollection : Engine::Component<SkeletonCollection>
 {

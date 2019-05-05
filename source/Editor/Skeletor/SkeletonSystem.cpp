@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <stack>
+#include <unordered_set>
 #include <RGBLogger/Logger.h>
 
 #include "SkeletonSystem.h"
@@ -19,9 +20,9 @@ void SkeletonCollection::AddSkeleton(const Engine::ComponentHandle<Skeleton>& sk
 {
    skeletons.push_back(skeleton);
 
-   for (const auto& [name, def] : skeleton->stances)
+   for (const Skeleton::Stance& def : skeleton->stances)
    {
-      std::string& parent = parents[name];
+      std::string& parent = parents[def.name];
       if (!parent.empty())
       {
          // TODO: we could get into an unhandled situation:
@@ -60,10 +61,10 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
       if (collection.dirty)
       {
          // Construct a stack where the topmost value is of the lowest priority.
-         std::stack<std::string> tree;
+         std::unordered_set<std::string> tree;
          for (std::string it = collection.stance; !it.empty(); it = collection.parents[it])
          {
-            tree.push(it);
+            tree.emplace(it);
          }
 
          // Reset all the skeletons
@@ -73,14 +74,14 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
          }
 
          // Layer each stance back on top
-         while (!tree.empty())
+         for (Engine::ComponentHandle<Skeleton> skeleton : collection.skeletons)
          {
-            std::string it = tree.top();
-            tree.pop();
-
-            for (Engine::ComponentHandle<Skeleton> skeleton : collection.skeletons)
+            for (const Skeleton::Stance& stance : skeleton->stances)
             {
-               const Skeleton::Stance& stance = skeleton->stances[it];
+               if (tree.count(stance.name) == 0)
+               {
+                  continue;
+               }
 
                for (const auto&[bone, pos] : stance.positions)
                {
@@ -105,11 +106,11 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
          {
             for (Skeleton::Bone& bone : skeleton->bones)
             {
-               if (bone.name == "root" && skeleton->parent == "")
+               if (bone.name == skeleton->name + ".root" && skeleton->parent == "")
                {
                   bone.matrix = glm::mat4(1);
                }
-               else if (bone.name == "root")
+               else if (bone.name == skeleton->name + ".root")
                {
                   auto it = std::find_if(collection.skeletons.begin(), collection.skeletons.end(), [&](const auto& other) { return skeleton->parent == other->name; });
                   if (it == collection.skeletons.end())
@@ -129,24 +130,23 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
 
                Skeleton::Transform(bone.matrix, bone.position, bone.rotation, bone.scale);
             }
-
-            if (skeleton->model)
-            {
-               size_t nBones = skeleton->bones.size();
-               if (skeleton->bones.size() != skeleton->model->mParts.size())
-               {
-                  LOG_WARNING("Attached model and skeleton have a different amount of parts. Something may look strange");
-                  nBones = std::min(skeleton->bones.size(), skeleton->model->mParts.size());
-               }
-
-               for (size_t boneId = 0; boneId < nBones; ++boneId)
-               {
-                  skeleton->model->mParts[boneId].transform = skeleton->bones[boneId].matrix;
-               }
-            }
          }
 
          //collection.dirty = false;
+      }
+   });
+
+   entities.Each<Skeleton, VoxModel>([&](Engine::Entity, Skeleton& skeleton, VoxModel& model) {
+      size_t nBones = skeleton.bones.size();
+      if (skeleton.bones.size() != model.mParts.size())
+      {
+         LOG_WARNING("Attached model and skeleton have a different amount of parts. Something may look strange");
+         nBones = std::min(skeleton.bones.size(), model.mParts.size());
+      }
+
+      for (size_t b = 0; b < nBones; ++b)
+      {
+         model.mParts[b].transform = skeleton.bones[b].matrix;
       }
    });
 }

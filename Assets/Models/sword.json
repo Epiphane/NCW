@@ -1,6 +1,6 @@
 {
    "bones": {
-      "Mace": {
+      "greatmace.Mace": {
          "parent": "root",
          "position": [
             0.0,
@@ -19,7 +19,7 @@
          ]
       },
       "root": {
-         "parent": "Attachment",
+         "parent": "character.Attachment",
          "position": [
             0.0,
             0.0,
@@ -45,7 +45,7 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -59,7 +59,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -71,14 +71,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.0,
                         3.37,
@@ -95,14 +95,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.04,
@@ -133,14 +133,14 @@
                         -0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         0.69,
                         0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -152,14 +152,14 @@
                         -0.04
                      ]
                   },
-                  "Right Foot": {
+                  "character.Right Foot": {
                      "rotation": [
                         -0.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         -0.0,
@@ -171,14 +171,14 @@
                         -0.0
                      ]
                   },
-                  "Right Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -2.25,
                         0.0,
                         0.0
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.45,
                         0.79,
@@ -197,7 +197,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         -24.84,
@@ -209,21 +209,21 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.09,
@@ -242,7 +242,7 @@
                         0.0
                      ]
                   },
-                  "Left Foot": {
+                  "character.Left Foot": {
                      "position": [
                         -0.0,
                         -5.5,
@@ -261,14 +261,14 @@
                         -0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         1.34,
                         0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -280,14 +280,14 @@
                         -0.04
                      ]
                   },
-                  "Right Foot": {
+                  "character.Right Foot": {
                      "position": [
                         0.0,
                         -5.5,
                         -0.0
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
@@ -299,14 +299,14 @@
                         -0.0
                      ]
                   },
-                  "Right Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -4.45,
                         0.0,
                         0.0
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -9.49,
                         1.01,
@@ -325,7 +325,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         -0.25,
                         -42.99,
@@ -337,21 +337,21 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.38,
@@ -382,14 +382,14 @@
                         -0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         4.73,
                         0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -401,14 +401,14 @@
                         -0.04
                      ]
                   },
-                  "Right Foot": {
+                  "character.Right Foot": {
                      "position": [
                         -0.0,
                         -5.5,
                         0.0
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
@@ -420,14 +420,14 @@
                         -0.0
                      ]
                   },
-                  "Right Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -16.75,
                         0.0,
                         0.0
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -9.7,
                         6.06,
@@ -446,7 +446,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         -1.56,
                         -44.34,
@@ -458,14 +458,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.81,
@@ -489,14 +489,14 @@
                         0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         8.59,
                         0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -508,14 +508,14 @@
                         -0.04
                      ]
                   },
-                  "Right Foot": {
+                  "character.Right Foot": {
                      "position": [
                         -0.0,
                         -5.5,
                         0.0
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
@@ -527,14 +527,14 @@
                         0.0
                      ]
                   },
-                  "Right Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -30.31,
                         0.0,
                         0.0
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.14,
                         8.65,
@@ -553,7 +553,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         1.16,
                         -45.86,
@@ -565,14 +565,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.85,
@@ -596,14 +596,14 @@
                         0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         4.11,
                         0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -615,7 +615,7 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
@@ -627,14 +627,14 @@
                         0.0
                      ]
                   },
-                  "Right Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -14.43,
                         0.0,
                         0.0
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -4.72,
                         5.51,
@@ -653,14 +653,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -691,7 +691,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -703,14 +703,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -734,7 +734,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -753,14 +753,14 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -791,7 +791,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -803,14 +803,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -834,7 +834,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -846,14 +846,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -884,7 +884,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -896,21 +896,21 @@
                         -0.04
                      ]
                   },
-                  "Right Foot": {
+                  "character.Right Foot": {
                      "position": [
                         0.0,
                         -5.0,
                         -0.0
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -934,7 +934,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -946,14 +946,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.85,
@@ -972,7 +972,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -984,14 +984,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.34,
                         1.6,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.54,
                         2.17,
@@ -1010,7 +1010,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.02,
                         51.27,
@@ -1022,14 +1022,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.82,
@@ -1048,7 +1048,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1060,14 +1060,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         -0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.45,
                         2.21,
@@ -1086,7 +1086,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.04,
                         49.38,
@@ -1098,7 +1098,7 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -1112,7 +1112,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1124,14 +1124,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.0,
                         3.37,
@@ -1155,14 +1155,14 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -1193,7 +1193,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1205,14 +1205,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -1236,7 +1236,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -1248,14 +1248,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -1286,7 +1286,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1298,14 +1298,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -1329,7 +1329,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -1341,14 +1341,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.86,
@@ -1379,7 +1379,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1391,14 +1391,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.38,
@@ -1422,7 +1422,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         17.59,
@@ -1434,7 +1434,7 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -1460,7 +1460,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1472,14 +1472,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         -1.02,
@@ -1491,7 +1491,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         -6.6,
@@ -1503,7 +1503,7 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -1529,7 +1529,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1541,14 +1541,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         -1.02,
@@ -1572,7 +1572,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         -6.6,
@@ -1584,14 +1584,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.29,
@@ -1622,7 +1622,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1634,14 +1634,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.06,
@@ -1665,7 +1665,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -1684,14 +1684,14 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.29,
@@ -1722,7 +1722,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1734,14 +1734,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.06,
@@ -1765,7 +1765,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -1777,14 +1777,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.85,
@@ -1803,7 +1803,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1815,14 +1815,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.34,
                         1.6,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.54,
                         2.17,
@@ -1841,7 +1841,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.02,
                         51.27,
@@ -1853,14 +1853,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.82,
@@ -1879,7 +1879,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1891,14 +1891,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         -0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.45,
                         2.21,
@@ -1917,7 +1917,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.04,
                         49.38,
@@ -1929,7 +1929,7 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -1943,7 +1943,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -1955,14 +1955,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.0,
                         3.37,
@@ -1986,14 +1986,14 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.29,
@@ -2024,7 +2024,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2036,14 +2036,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.06,
@@ -2067,7 +2067,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -2079,14 +2079,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.33,
@@ -2117,7 +2117,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2129,14 +2129,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.48,
                         1.92,
                         0.72
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.06,
@@ -2160,7 +2160,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -2172,14 +2172,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.33,
@@ -2210,7 +2210,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2222,14 +2222,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.39,
                         1.76,
                         0.74
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.06,
@@ -2253,7 +2253,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -2265,14 +2265,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.33,
@@ -2303,7 +2303,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2315,14 +2315,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.39,
                         1.76,
                         0.74
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         0.44,
@@ -2346,7 +2346,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -2358,14 +2358,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.33,
@@ -2396,7 +2396,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2408,14 +2408,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         0.34,
                         1.66,
                         0.75
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         4.06,
@@ -2439,7 +2439,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         16.41,
@@ -2451,14 +2451,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.01,
@@ -2489,7 +2489,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2501,14 +2501,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.53,
                         0.04,
                         0.94
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -7.35,
                         3.29,
@@ -2532,7 +2532,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         0.38,
@@ -2544,14 +2544,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.01,
@@ -2582,14 +2582,14 @@
                         0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -30.6,
                         -0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2601,14 +2601,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.53,
                         0.04,
                         0.94
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -7.29,
                         1.29,
@@ -2632,7 +2632,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         0.36,
@@ -2644,14 +2644,14 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         4.01,
@@ -2682,14 +2682,14 @@
                         0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -29.56,
                         -0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2701,14 +2701,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.53,
                         0.04,
                         0.94
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -7.25,
                         1.36,
@@ -2732,7 +2732,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         0.35,
@@ -2751,14 +2751,14 @@
          "keyframes": [
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "Head": {
+                  "character.Hips": {
                      "position": [
                         0.0,
                         4.01,
@@ -2789,14 +2789,14 @@
                         0.0
                      ]
                   },
-                  "Left Leg": {
+                  "character.Right Leg": {
                      "rotation": [
                         -29.56,
                         -0.0,
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2808,14 +2808,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.53,
                         0.04,
                         0.94
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -7.25,
                         1.36,
@@ -2839,7 +2839,7 @@
                         0.0
                      ]
                   },
-                  "Torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         0.35,
@@ -2851,7 +2851,7 @@
             },
             {
                "bones": {
-                  "Attachment": {
+                  "character.Attachment": {
                      "position": [
                         0.0,
                         0.0,
@@ -2865,7 +2865,7 @@
                         0.0
                      ]
                   },
-                  "Mace": {
+                  "greatmace.Mace": {
                      "position": [
                         0.0,
                         11.54,
@@ -2877,14 +2877,14 @@
                         -0.04
                      ]
                   },
-                  "Right Hand": {
+                  "character.Right Hand": {
                      "position": [
                         -0.55,
                         0.0,
                         0.95
                      ]
                   },
-                  "Shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.0,
                         3.37,

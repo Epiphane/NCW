@@ -1,7 +1,7 @@
 {
    "bones": {
-      "Attachment": {
-         "parent": "Shoulders",
+      "character.Attachment": {
+         "parent": "character.Shoulders",
          "position": [
             0.0,
             0.0,
@@ -19,7 +19,7 @@
          ]
       },
       "Body": {
-         "parent": "Torso",
+         "parent": "character.Torso",
          "position": [
             0.0,
             0.0,
@@ -37,7 +37,7 @@
          ]
       },
       "Face": {
-         "parent": "Head",
+         "parent": "character.Head",
          "position": [
             0.0,
             0.0,
@@ -54,8 +54,8 @@
             1.0
          ]
       },
-      "Hair": {
-         "parent": "Head",
+      "character.Hair": {
+         "parent": "character.Head",
          "position": [
             0.0,
             0.0,
@@ -72,7 +72,7 @@
             1.0
          ]
       },
-      "Head": {
+      "character.Head": {
          "parent": "Spine",
          "position": [
             0.0,
@@ -90,7 +90,7 @@
             1.0
          ]
       },
-      "Hips": {
+      "character.Hips": {
          "parent": "root",
          "position": [
             0.0,
@@ -108,8 +108,8 @@
             1.0
          ]
       },
-      "Left Foot": {
-         "parent": "Left Leg",
+      "character.Left Foot": {
+         "parent": "character.Left Leg",
          "position": [
             0.0,
             -5.0,
@@ -126,8 +126,8 @@
             1.0
          ]
       },
-      "Left Hand": {
-         "parent": "Shoulders",
+      "character.Left Hand": {
+         "parent": "character.Shoulders",
          "position": [
             6.0,
             0.0,
@@ -144,8 +144,8 @@
             1.0
          ]
       },
-      "Left Leg": {
-         "parent": "Hips",
+      "character.Left Leg": {
+         "parent": "character.Hips",
          "position": [
             2.5,
             -1.0,
@@ -162,8 +162,8 @@
             1.0
          ]
       },
-      "Right Foot": {
-         "parent": "Right Leg",
+      "character.Right Foot": {
+         "parent": "character.Right Leg",
          "position": [
             0.0,
             -5.0,
@@ -180,8 +180,8 @@
             1.0
          ]
       },
-      "Right Hand": {
-         "parent": "Shoulders",
+      "character.Right Hand": {
+         "parent": "character.Shoulders",
          "position": [
             -7.0,
             0.0,
@@ -198,8 +198,8 @@
             1.0
          ]
       },
-      "Right Leg": {
-         "parent": "Hips",
+      "character.Right Leg": {
+         "parent": "character.Hips",
          "position": [
             -3.5,
             -1.0,
@@ -216,8 +216,8 @@
             1.0
          ]
       },
-      "Shoulders": {
-         "parent": "Torso",
+      "character.Shoulders": {
+         "parent": "character.Torso",
          "position": [
             0.0,
             0.9,
@@ -252,7 +252,7 @@
             1.0
          ]
       },
-      "Torso": {
+      "character.Torso": {
          "parent": "Spine",
          "position": [
             0.0,
@@ -312,42 +312,42 @@
          "name": "resting",
          "inherit": "base",
          "bones": {
-            "Attachment": {
+            "character.Attachment": {
                "position": [
                   0.0,
                   0.0,
                   -10.1
                ]
             },
-            "Head": {
+            "character.Head": {
                "position": [
                   0.0,
                   4.0,
                   0.6
                ]
             },
-            "Hips": {
+            "character.Hips": {
                "position": [
                   0.0,
                   1.5,
                   0.8
                ]
             },
-            "Left Leg": {
+            "character.Left Leg": {
                "position": [
                   2.5,
                   -1.0,
                   0.0
                ]
             },
-            "Right Leg": {
+            "character.Right Leg": {
                "position": [
                   -3.5,
                   -1.0,
                   0.0
                ]
             },
-            "Shoulders": {
+            "character.Shoulders": {
                "position": [
                   0.0,
                   0.9,

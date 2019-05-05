@@ -1050,7 +1050,7 @@
     <plural>Fists</plural>
   </name>
 
-  <name key="Mace" tags="m">
+  <name key="greatmace.Mace" tags="m">
     <singular>Mace</singular>
     <plural>Maces</plural>
   </name>
@@ -1540,7 +1540,7 @@
     <plural>Cobwebs</plural>
   </name>
 
-  <name key="Hair">
+  <name key="character.Hair">
     <singular>Hair</singular>
     <plural>Hairs</plural>
   </name>

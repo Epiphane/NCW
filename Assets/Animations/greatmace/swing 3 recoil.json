@@ -1,0 +1,67 @@
+{
+   "name": "swing 3 recoil",
+   "next": "idle",
+   "stance": "base",
+   "length": 0.5,
+   "keyframes": [{
+         "time": 0.0,
+         "bones": {
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
+            },
+            "character.Shoulders": {
+               "position": [-7.25, 1.3600000143051148, 0.20000000298023225],
+               "rotation": [-37.72999954223633, 15.119999885559082, 1.2300000190734864]
+            },
+            "character.Head": {
+               "position": [0.0, 4.010000228881836, 0.5799999833106995],
+               "rotation": [6.789999961853027, 0.0, 0.0]
+            },
+            "character.Hips": {
+               "position": [0.0, 1.5, 0.8299999833106995],
+               "rotation": [0.07999999821186066, -0.0, 0.0]
+            },
+            "greatmace.Mace": {
+               "position": [0.0, 11.539999961853028, 0.0],
+               "rotation": [0.0, -0.0, -0.03999999910593033]
+            },
+            "character.Left Hand": {
+               "position": [0.6700000166893005, -1.4800000190734864, 0.0]
+            },
+            "character.Right Hand": {
+               "position": [-0.5299999713897705, 0.03999999910593033, 0.9399999976158142]
+            },
+            "character.Spine": {
+               "position": [0.0, 0.7699999809265137, -3.690000057220459],
+               "rotation": [-16.09000015258789, 0.0, 0.0]
+            },
+            "character.Left Leg": {
+               "rotation": [-29.559999465942384, -0.0, 0.0]
+            },
+            "character.Torso": {
+               "rotation": [0.0, 0.3499999940395355, 0.0]
+            }
+         }
+      }, {
+         "time": 0.49,
+         "bones": {
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
+            },
+            "character.Shoulders": {
+               "position": [-6.0, 3.369999885559082, 2.7699999809265138],
+               "rotation": [0.0, 0.0, 15.779999732971192]
+            },
+            "character.Left Hand": {
+               "position": [0.6700000166893005, -1.4800000190734864, 0.0]
+            },
+            "greatmace.Mace": {
+               "position": [0.0, 11.539999961853028, 0.0],
+               "rotation": [0.0, -0.0, -0.03999999910593033]
+            },
+            "character.Right Hand": {
+               "position": [-0.550000011920929, 0.0, 0.949999988079071]
+            }
+         }
+      }]
+}

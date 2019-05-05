@@ -24,9 +24,6 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          controller->nextTick = 0;
       }
       dt *= controller->speed;
-
-      mAnimate = controller->animate;
-      mTransitions = controller->transitions;
    }
 
    BaseAnimationSystem::Update(entities, events, dt);

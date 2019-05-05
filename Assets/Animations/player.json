@@ -2,7 +2,7 @@
    "bones": {
       "root": {
          "bones": {
-            "hips": {
+            "character.Hips": {
                "bones": {
                   "left_leg": {
                      "bones": {
@@ -68,11 +68,11 @@
                   0.0
                ]
             },
-            "spine": {
+            "character.Spine": {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "bones": {
-                        "hair": {
+                        "character.Hair": {
                            "position": [
                               0.0,
                               0.0,
@@ -96,9 +96,9 @@
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "bones": {
-                        "shoulders": {
+                        "character.Shoulders": {
                            "bones": {
                               "left_hand": {
                                  "position": [
@@ -182,28 +182,28 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.28,
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         0.0,
                         1.0,
                         2.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "position": [
                         0.0,
                         0.24,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         -0.05,
@@ -215,28 +215,28 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.41,
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         0.0,
                         1.55,
                         2.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "position": [
                         0.0,
                         0.44,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         -0.09,
@@ -248,7 +248,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.3,
@@ -262,14 +262,14 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         0.0,
                         1.89,
                         2.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "position": [
                         0.0,
                         0.33,
@@ -287,7 +287,7 @@
          "keyframes": [
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.5,
@@ -299,14 +299,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         5.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         0.5,
@@ -318,7 +318,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         11.5,
@@ -358,14 +358,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         5.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         1.5,
@@ -382,7 +382,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.5,
@@ -394,14 +394,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         5.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         0.5,
@@ -413,7 +413,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         11.5,
@@ -453,14 +453,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         5.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         1.5,
@@ -483,7 +483,7 @@
          "keyframes": [
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.5,
@@ -509,14 +509,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         15.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         0.5,
@@ -528,7 +528,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         11.0,
@@ -568,14 +568,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         15.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         1.5,
@@ -592,7 +592,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.5,
@@ -618,14 +618,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         15.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         0.5,
@@ -637,7 +637,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         11.0,
@@ -677,14 +677,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         15.0,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "position": [
                         0.0,
                         1.5,
@@ -721,7 +721,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.0,
                         3.37,
@@ -738,7 +738,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.04,
@@ -750,7 +750,7 @@
                         0.0
                      ]
                   },
-                  "hips": {
+                  "character.Hips": {
                      "rotation": [
                         -0.0,
                         0.0,
@@ -809,7 +809,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.45,
                         0.79,
@@ -821,14 +821,14 @@
                         6.8
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         -0.76,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         -24.84,
@@ -840,14 +840,14 @@
             },
             {
                "bones": {
-                  "hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.09,
@@ -859,7 +859,7 @@
                         0.0
                      ]
                   },
-                  "hips": {
+                  "character.Hips": {
                      "rotation": [
                         -0.0,
                         0.0,
@@ -925,7 +925,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -9.49,
                         1.01,
@@ -937,14 +937,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         -1.49,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         -0.25,
                         -42.99,
@@ -956,14 +956,14 @@
             },
             {
                "bones": {
-                  "hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.38,
@@ -975,7 +975,7 @@
                         0.0
                      ]
                   },
-                  "hips": {
+                  "character.Hips": {
                      "rotation": [
                         -0.0,
                         0.0,
@@ -1034,7 +1034,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -9.7,
                         6.06,
@@ -1046,14 +1046,14 @@
                         -1.37
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         -5.35,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         -1.56,
                         -44.34,
@@ -1065,14 +1065,14 @@
             },
             {
                "bones": {
-                  "hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.81,
@@ -1136,7 +1136,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -6.14,
                         8.65,
@@ -1148,14 +1148,14 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         -9.72,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         1.16,
                         -45.86,
@@ -1167,7 +1167,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.85,
@@ -1224,14 +1224,14 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -4.72,
                         5.51,
                         3.83
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         -0.3,
                         0.0,
@@ -1243,7 +1243,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.86,
@@ -1276,7 +1276,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.38,
                         2.18,
@@ -1288,7 +1288,7 @@
                         0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "position": [
                         0.0,
                         0.0,
@@ -1300,7 +1300,7 @@
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.0,
                         46.09,
@@ -1312,7 +1312,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.86,
@@ -1359,7 +1359,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.55,
                         2.16,
@@ -1371,14 +1371,14 @@
                         -0.0
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         8.38,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.02,
                         51.55,
@@ -1390,7 +1390,7 @@
             },
             {
                "bones": {
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.85,
@@ -1423,7 +1423,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.54,
                         2.17,
@@ -1435,14 +1435,14 @@
                         0.05
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         8.33,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.02,
                         51.27,
@@ -1454,14 +1454,14 @@
             },
             {
                "bones": {
-                  "hair": {
+                  "character.Hair": {
                      "position": [
                         0.0,
                         0.0,
                         -0.0
                      ]
                   },
-                  "head": {
+                  "character.Head": {
                      "position": [
                         0.0,
                         10.82,
@@ -1511,7 +1511,7 @@
                         0.0
                      ]
                   },
-                  "shoulders": {
+                  "character.Shoulders": {
                      "position": [
                         -8.45,
                         2.21,
@@ -1523,14 +1523,14 @@
                         0.41
                      ]
                   },
-                  "spine": {
+                  "character.Spine": {
                      "rotation": [
                         8.03,
                         0.0,
                         0.0
                      ]
                   },
-                  "torso": {
+                  "character.Torso": {
                      "rotation": [
                         0.04,
                         49.38,

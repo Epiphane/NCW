@@ -15,7 +15,6 @@
 #include <Engine/Event/Event.h>
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Camera.h>
-#include <Shared/Systems/AnimationSystem.h>
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
 #include <Shared/UI/Image.h>
@@ -51,9 +50,10 @@ public:
    const double kTimelineWidth = 512.0;
 
 public:
-   using State = AnimationController::State;
-   using Keyframe = AnimationController::Keyframe;
-   using Bone = DeprecatedSkeleton::Bone;
+   using Bone = Skeleton::Bone;
+   using Keyframe = SkeletonAnimations::Keyframe;
+   using State = SimpleAnimationController::State;
+   using Stance = SimpleAnimationController::Stance;
 
    Dock(Engine::UIRoot* root, Engine::UIElement* parent);
 
@@ -64,8 +64,8 @@ public:
 
 public:
    // Dock state actions
-   void SetState(const size_t& index);
-   void SetBone(const AnimationController::BoneID& boneId);
+   void SetState(const std::string& state);
+   void SetBone(const size_t& boneId);
    void SetTime(double time);
 
 public:
@@ -75,21 +75,26 @@ public:
 private:
    // Helper functions
    State& GetCurrentState();
+   Stance& GetCurrentStance();
    Keyframe& GetCurrentKeyframe();
 
 public:
    // Event handlers
+   void Receive(const SuspendEditingEvent& evt);
+   void Receive(const ResumeEditingEvent& evt);
    void Receive(const SkeletonLoadedEvent& evt);
    void Receive(const SkeletonSelectedEvent& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
+   void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
 private:
    // State
-   AnimationController::BoneID mBone;
-   std::unique_ptr<Command> mScrubbing;
+   size_t mBone;
    size_t mSkeleton;
-   Engine::ComponentHandle<AnimationController> mController;
+   std::vector<std::string> mStates;
+
+   std::unique_ptr<Command> mScrubbing;
+   Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
 private:
@@ -156,15 +161,13 @@ private:
    class AddStateCommand : public DockCommand
    {
    public:
-      AddStateCommand(Dock* dock) : DockCommand(dock), afterCurrent(true) {};
-      AddStateCommand(Dock* dock, State base) : DockCommand(dock), afterCurrent(true), state(base) {};
+      AddStateCommand(Dock* dock) : DockCommand(dock) {};
+      AddStateCommand(Dock* dock, State base) : DockCommand(dock), state(base) {};
       void Do() override;
       void Undo() override;
 
    private:
-      bool afterCurrent;
-
-      State state{"", "", 0, 0, 1.0f, {}, {}};
+      State state{"", "", "", "", 1.0f, {}};
    };
 
    //
@@ -201,7 +204,7 @@ private:
 
    protected:
       size_t keyframeIndex;
-      AnimationController::Keyframe keyframe{};
+      SkeletonAnimations::Keyframe keyframe{};
    };
 
    //
@@ -264,16 +267,17 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, glm::vec3 position, glm::vec3 rotation)
+      ResetBoneCommand(Dock* dock, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
          : DockCommand(dock)
          , position(position)
          , rotation(rotation)
+         , scale(scale)
       {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
-      glm::vec3 position, rotation;
+      glm::vec3 position, rotation, scale;
    };
 
    //

@@ -16,45 +16,10 @@
 namespace CubeWorld
 {
 
+struct SkeletonAnimations;
+
 struct Skeleton : Engine::Component<Skeleton>  {
    // Types
-   /*
-   struct Keyframe {
-      double time;
-      std::unordered_map<std::string, glm::vec3> positions;
-      std::unordered_map<std::string, glm::vec3> rotations;
-      std::unordered_map<std::string, glm::vec3> scales;
-   };
-
-   struct State {
-      std::string name;
-      std::string next;
-      std::string stance;
-
-      double length;
-      std::vector<Keyframe> keyframes;
-   };
-
-   struct Transition {
-      struct Trigger {
-         enum {
-            GreaterThan,
-            LessThan,
-            Bool
-         } type;
-         std::string parameter;
-         union {
-            double doubleVal;
-            bool boolVal;
-         };
-      };
-
-      std::string destination;
-      double time;
-      std::vector<Trigger> triggers;
-   };
-   */
-
    struct Bone {
       std::string name;
       std::string parent;
@@ -78,9 +43,7 @@ public:
 
 public:
    Skeleton();
-   Skeleton(Engine::ComponentHandle<VoxModel> model);
    Skeleton(const BindingProperty& data);
-   Skeleton(const BindingProperty& data, Engine::ComponentHandle<VoxModel> model);
 
    void Reset();
    void Load(const BindingProperty& data);
@@ -100,14 +63,11 @@ public:
    std::vector<Bone> original;
    std::unordered_map<std::string, size_t> boneLookup;
 
-   std::unordered_map<std::string, Stance> stances;
+   std::vector<Stance> stances;
+   std::unordered_map<std::string, size_t> stanceLookup;
 
-   //std::unordered_map<std::string, State> states;
-   //std::unordered_map<std::string, std::vector<Transition>> transitions;
-
-   // Attach a VoxModel component directly. Note that it doesn't _have_
-   // to be hosted by the same entity as this DeprecatedSkeleton.
-   Engine::ComponentHandle<VoxModel> model;
+   // Animations to apply to this skeleton.
+   Engine::ComponentHandle<SkeletonAnimations> animations;
 };
 
 }; // namespace CubeWorld

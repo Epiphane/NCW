@@ -28,17 +28,53 @@ using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mBone("")
+   , mBone("root")
+   , mStance("base")
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorDockFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainCenterTo(this);
    foreground->ConstrainDimensionsTo(this, -4);
 
+   // Stance information
+   UIElement* stanceHeader = Add<UIStackView>();
+   stanceHeader->ConstrainLeftAlignedTo(foreground, 32);
+   stanceHeader->ConstrainTopAlignedTo(foreground, 32);
+   {
+      UIStackView* row1 = stanceHeader->Add<UIStackView>();
+      row1->SetVertical(false);
+      row1->SetOffset(8.0);
+      row1->ConstrainHeight(19);
+      row1->ConstrainLeftAlignedTo(stanceHeader);
+
+      Button::Options buttonOptions;
+      buttonOptions.filename = Asset::Image("EditorIcons.png");
+      buttonOptions.image = "button_left";
+      buttonOptions.hoverImage = "hover_button_left";
+      buttonOptions.pressImage = "press_button_left";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStanceCommand>(this); };
+      Button* prevBoneButton = row1->Add<Button>(buttonOptions);
+      prevBoneButton->ConstrainTopAlignedTo(row1);
+      prevBoneButton->ConstrainHeightTo(row1);
+
+      mStanceName = row1->Add<Text>(Text::Options{"Stance name"});
+      mStanceName->ConstrainTopAlignedTo(row1);
+      mStanceName->ConstrainHeightTo(row1);
+
+      buttonOptions.image = "button_right";
+      buttonOptions.hoverImage = "hover_button_right";
+      buttonOptions.pressImage = "press_button_right";
+      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStanceCommand>(this); };
+      Button* nextBoneButton = row1->Add<Button>(buttonOptions);
+      nextBoneButton->ConstrainTopAlignedTo(row1);
+      nextBoneButton->ConstrainHeightTo(row1);
+      stanceHeader->Contains(nextBoneButton);
+   }
+
    // Bone information
    UIElement* boneHeader = Add<UIStackView>();
-   boneHeader->ConstrainLeftAlignedTo(foreground, 30);
-   boneHeader->ConstrainTopAlignedTo(foreground, 30);
+   boneHeader->ConstrainToRightOf(stanceHeader, 32);
+   boneHeader->ConstrainTopAlignedTo(stanceHeader);
    {
       UIStackView* row1 = boneHeader->Add<UIStackView>();
       row1->SetVertical(false);
@@ -67,12 +103,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       Button* nextBoneButton = row1->Add<Button>(buttonOptions);
       nextBoneButton->ConstrainTopAlignedTo(row1);
       nextBoneButton->ConstrainHeightTo(row1);
-
-      UIStackView* row2 = boneHeader->Add<UIStackView>();
-      row2->SetVertical(false);
-      row2->SetOffset(8.0);
-      row2->ConstrainHeightTo(row1);
-      row2->ConstrainLeftAlignedTo(row1);
    }
 
    // Bone positions, rotations and sliders
@@ -83,12 +113,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    bonePosition->ConstrainLeftAlignedTo(boneHeader);
 
    boneRotation->ConstrainTopAlignedTo(bonePosition);
-   boneRotation->ConstrainToRightOf(bonePosition, 16);
+   boneRotation->ConstrainToRightOf(bonePosition, 32);
    boneRotation->ConstrainWidthTo(bonePosition);
 
    boneScale->ConstrainTopAlignedTo(boneRotation);
    boneScale->ConstrainRightAlignedTo(boneHeader);
-   boneScale->ConstrainToRightOf(boneRotation, 16);
+   boneScale->ConstrainToRightOf(boneRotation, 32);
    boneScale->ConstrainWidthTo(boneRotation);
 
    {
@@ -126,6 +156,14 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       resetRotationButton->ConstrainWidth(35);
       resetRotationButton->ConstrainLeftAlignedTo(rotation);
       resetRotationButton->ConstrainBelow(rotation, 8);
+
+      buttonOptions.onClick = [&]() {
+         // TODO
+      };
+      Button* resetScaleButton = boneRotation->Add<Button>(buttonOptions);
+      resetScaleButton->ConstrainWidth(35);
+      resetScaleButton->ConstrainLeftAlignedTo(scale);
+      resetScaleButton->ConstrainBelow(scale, 8);
 
       // Bone position/rotation controls
       NumDisplay<float>::Options textOptions;
@@ -197,9 +235,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<SkeletonClearedEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
-
-   SetBone("root");
-   SetStance("resting");
 }
 
 ///
@@ -235,29 +270,17 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mSkeleton = evt.component;
 
-   mStances.clear();
-   if (mSkeletons)
-   {
-      // Every stance has a parent
-      for (const auto& entry : mSkeletons->parents)
-      {
-         mStances.push_back(entry.first);
-      }
-   }
-   mBone = "root";
+   // Clear all bindings
    Receive(SkeletonClearedEvent{});
+
    SetStance(mStance);
+   SetBone("root");
 }
 
 void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
 {
    mSkeletons = evt.component;
 
-   // Every stance has a parent
-   for (const auto& entry : mSkeletons->parents)
-   {
-      mStances.push_back(entry.first);
-   }
    SetStance(mStance);
 }
 
@@ -275,74 +298,93 @@ void Dock::Receive(const SuspendEditingEvent&)
    }
 
    // Revert any pending edits so that they are not persisted.
-   Skeleton::Stance& stance = mSkeleton->stances[mStance];
+   Skeleton::Stance& stance = mSkeleton->stances[mSkeleton->stanceLookup[mStance]];
+   bool changed[4] = {false}; // position, rotation, scale, parent
+   bool checked[4] = {false}; // position, rotation, scale, parent
+   for (std::string it = mSkeletons->parents[stance.name]; !it.empty(); it = mSkeletons->parents[it])
    {
-      bool changed[4] = {false}; // position, rotation, scale, parent
-      bool checked[4] = {false}; // position, rotation, scale, parent
-      for (std::string it = mSkeletons->parents[mStance]; !it.empty(); it = mSkeletons->parents[it])
+      Skeleton::Stance& parent = mSkeleton->stances[mSkeleton->stanceLookup[it]];
+      if (!checked[0] && parent.positions.count(mBone) != 0)
       {
-         if (!checked[0] && mSkeleton->stances[it].positions.count(mBone) != 0)
-         {
-            changed[0] = mSkeleton->stances[it].positions[mBone] != stance.positions[mBone];
-            checked[0] = true;
-         }
-         if (!checked[1] && mSkeleton->stances[it].rotations.count(mBone) != 0)
-         {
-            changed[1] = mSkeleton->stances[it].rotations[mBone] != stance.rotations[mBone];
-            checked[1] = true;
-         }
-         if (!checked[2] && mSkeleton->stances[it].scales.count(mBone) != 0)
-         {
-            changed[2] = mSkeleton->stances[it].scales[mBone] != stance.scales[mBone];
-            checked[2] = true;
-         }
-         if (!checked[3] && mSkeleton->stances[it].parents.count(mBone) != 0)
-         {
-            changed[3] = mSkeleton->stances[it].parents[mBone] != stance.parents[mBone];
-            checked[3] = true;
-         }
-      }
-
-      const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
-      
-      if (!checked[0])
-      {
-         changed[0] = !glm::all(glm::equal(original.position, stance.positions[original.name], FLT_EPSILON));
+         changed[0] = parent.positions[mBone] != stance.positions[mBone];
          checked[0] = true;
       }
-      if (!checked[1])
+      if (!checked[1] && parent.rotations.count(mBone) != 0)
       {
-         changed[1] = !glm::all(glm::equal(original.rotation, stance.rotations[original.name], FLT_EPSILON));
+         changed[1] = parent.rotations[mBone] != stance.rotations[mBone];
          checked[1] = true;
       }
-      if (!checked[2])
+      if (!checked[2] && parent.scales.count(mBone) != 0)
       {
-         changed[2] = !glm::all(glm::equal(original.scale, stance.scales[original.name], FLT_EPSILON));
+         changed[2] = parent.scales[mBone] != stance.scales[mBone];
          checked[2] = true;
       }
-      if (!checked[3])
+      if (!checked[3] && parent.parents.count(mBone) != 0)
       {
-         changed[3] = original.parent != stance.parents[original.name];
+         changed[3] = parent.parents[mBone] != stance.parents[mBone];
          checked[3] = true;
       }
-
-      if (!changed[0])
-      {
-         stance.positions.erase(mBone);
-      }
-      if (!changed[1])
-      {
-         stance.rotations.erase(mBone);
-      }
-      if (!changed[2])
-      {
-         stance.scales.erase(mBone);
-      }
-      if (!changed[3])
-      {
-         stance.parents.erase(mBone);
-      }
    }
+
+   const Skeleton::Bone& original = mSkeleton->original[mSkeleton->boneLookup[mBone]];
+
+   if (!checked[0])
+   {
+      changed[0] = !glm::all(glm::equal(original.position, stance.positions[original.name], FLT_EPSILON));
+      checked[0] = true;
+   }
+   if (!checked[1])
+   {
+      changed[1] = !glm::all(glm::equal(original.rotation, stance.rotations[original.name], FLT_EPSILON));
+      checked[1] = true;
+   }
+   if (!checked[2])
+   {
+      changed[2] = !glm::all(glm::equal(original.scale, stance.scales[original.name], FLT_EPSILON));
+      checked[2] = true;
+   }
+   if (!checked[3])
+   {
+      changed[3] = original.parent != stance.parents[original.name];
+      checked[3] = true;
+   }
+
+   if (!changed[0])
+   {
+      stance.positions.erase(mBone);
+   }
+   if (!changed[1])
+   {
+      stance.rotations.erase(mBone);
+   }
+   if (!changed[2])
+   {
+      stance.scales.erase(mBone);
+   }
+   if (!changed[3])
+   {
+      stance.parents.erase(mBone);
+   }
+
+   mBonePos[0].text->Bind(nullptr);
+   mBonePos[1].text->Bind(nullptr);
+   mBonePos[2].text->Bind(nullptr);
+   mBoneRot[0].text->Bind(nullptr);
+   mBoneRot[1].text->Bind(nullptr);
+   mBoneRot[2].text->Bind(nullptr);
+   mBoneScl[0].text->Bind(nullptr);
+   mBoneScl[1].text->Bind(nullptr);
+   mBoneScl[2].text->Bind(nullptr);
+
+   mBonePos[0].scrubber->Bind(nullptr);
+   mBonePos[1].scrubber->Bind(nullptr);
+   mBonePos[2].scrubber->Bind(nullptr);
+   mBoneRot[0].scrubber->Bind(nullptr);
+   mBoneRot[1].scrubber->Bind(nullptr);
+   mBoneRot[2].scrubber->Bind(nullptr);
+   mBoneScl[0].scrubber->Bind(nullptr);
+   mBoneScl[1].scrubber->Bind(nullptr);
+   mBoneScl[2].scrubber->Bind(nullptr);
 }
 
 void Dock::Receive(const ResumeEditingEvent&)
@@ -352,11 +394,16 @@ void Dock::Receive(const ResumeEditingEvent&)
       return;
    }
 
-   Skeleton::Stance& stance = mSkeleton->stances[mStance];
-   bool set[4] = {false}; // position, rotation, scale, parent
-   for (std::string it = mStance; !it.empty(); it = mSkeletons->parents[it])
+   if (mSkeleton->boneLookup.count(mBone) == 0)
    {
-      Skeleton::Stance& s = mSkeleton->stances[it];
+      return;
+   }
+
+   Skeleton::Stance& stance = mSkeleton->stances[mSkeleton->stanceLookup[mStance]];
+   bool set[4] = {false}; // position, rotation, scale, parent
+   for (std::string it = stance.name; !it.empty(); it = mSkeletons->parents[it])
+   {
+      Skeleton::Stance& s = mSkeleton->stances[mSkeleton->stanceLookup[it]];
       if (!set[0] && s.positions.count(mBone) != 0)
       {
          stance.positions[mBone] = s.positions[mBone];
@@ -431,14 +478,18 @@ void Dock::Receive(const ResumeEditingEvent&)
 ///
 void Dock::SetStance(const std::string& stance)
 {
+   Receive(SuspendEditingEvent{});
+
    mStance = stance;
+
+   mStanceName->SetText(mStance);
 
    if (mSkeletons)
    {
       mSkeletons->stance = mStance;
    }
 
-   SetBone(mBone);
+   Receive(ResumeEditingEvent{});
 }
 
 void Dock::SetBone(const std::string& bone)
@@ -453,7 +504,6 @@ void Dock::SetBone(const std::string& bone)
 
    mBone = bone;
 
-   // Update bone info
    mBoneName->SetText(mBone);
 
    Receive(ResumeEditingEvent{});
@@ -488,6 +538,40 @@ void Dock::NextBoneCommand::Undo()
    else
    {
       dock->SetBone(dock->mSkeleton->bones[ndx - 1].name);
+   }
+}
+
+///
+///
+///
+void Dock::NextStanceCommand::Do()
+{
+   size_t index = dock->mSkeleton->stanceLookup[dock->mStance];
+   const auto& stances = dock->mSkeleton->stances;
+   if (index >= stances.size() - 1)
+   {
+      dock->SetStance(stances[0].name);
+   }
+   else
+   {
+      dock->SetStance(stances[index + 1].name);
+   }
+}
+
+///
+///
+///
+void Dock::NextStanceCommand::Undo()
+{
+   size_t index = dock->mSkeleton->stanceLookup[dock->mStance];
+   const auto& stances = dock->mSkeleton->stances;
+   if (index == 0)
+   {
+      dock->SetStance(stances[stances.size() - 1].name);
+   }
+   else
+   {
+      dock->SetStance(stances[index - 1].name);
    }
 }
 

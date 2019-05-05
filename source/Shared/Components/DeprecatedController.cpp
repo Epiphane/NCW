@@ -8,17 +8,17 @@
 #include <RGBLogger/Logger.h>
 #include <Engine/Entity/EntityManager.h>
 
-#include "AnimationController.h"
+#include "DeprecatedController.h"
 
 namespace CubeWorld
 {
 
-AnimationController::AnimationController()
+DeprecatedController::DeprecatedController()
 {
    Reset();
 }
 
-void AnimationController::Reset()
+void DeprecatedController::Reset()
 {
    skeletons.clear();
    skeletonRootId.clear();
@@ -37,7 +37,7 @@ void AnimationController::Reset()
    transitionEnd = 0;
 }
 
-void AnimationController::UpdateSkeletonStates()
+void DeprecatedController::UpdateSkeletonStates()
 {
    for (Engine::ComponentHandle<DeprecatedSkeleton>& skeleton : skeletons)
    {
@@ -140,12 +140,12 @@ void AnimationController::UpdateSkeletonStates()
    }
 }
 
-AnimationController::State& AnimationController::GetCurrentState()
+DeprecatedController::State& DeprecatedController::GetCurrentState()
 {
    return states[current];
 }
 
-void AnimationController::AddSkeleton(Engine::ComponentHandle<DeprecatedSkeleton> skeleton)
+void DeprecatedController::AddSkeleton(Engine::ComponentHandle<DeprecatedSkeleton> skeleton)
 {
    // Could optimize this later
    Engine::ComponentHandle<DeprecatedSkeleton> parentSkeleton;
@@ -276,7 +276,7 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<DeprecatedSkeleton
    }
 }
 
-void AnimationController::AddState(Engine::ComponentHandle<DeprecatedSkeleton> skeleton, const DeprecatedSkeleton::State& definition)
+void DeprecatedController::AddState(Engine::ComponentHandle<DeprecatedSkeleton> skeleton, const DeprecatedSkeleton::State& definition)
 {
    Engine::Entity::ID sID = skeleton.GetEntity().GetID();
    size_t skeletonNdx = 0;
@@ -406,14 +406,14 @@ void AnimationController::AddState(Engine::ComponentHandle<DeprecatedSkeleton> s
    }
 }
 
-AnimationController::Stance& AnimationController::GetStance(const std::string& name)
+DeprecatedController::Stance& DeprecatedController::GetStance(const std::string& name)
 {
    const auto it = std::find_if(stances.rbegin(), stances.rend(), [&](const Stance& s) { return s.name == name; });
    assert(it != stances.rend() && "Stance does not exist");
    return *it;
 }
 
-Engine::ComponentHandle<DeprecatedSkeleton> AnimationController::GetSkeletonForBone(BoneID id)
+Engine::ComponentHandle<DeprecatedSkeleton> DeprecatedController::GetSkeletonForBone(BoneID id)
 {
    for (auto& skeleton : skeletons)
    {
@@ -426,7 +426,7 @@ Engine::ComponentHandle<DeprecatedSkeleton> AnimationController::GetSkeletonForB
    return {};
 }
 
-DeprecatedSkeleton::Bone* AnimationController::GetBone(BoneID id)
+DeprecatedSkeleton::Bone* DeprecatedController::GetBone(BoneID id)
 {
    for (auto& skeleton : skeletons)
    {
@@ -439,22 +439,22 @@ DeprecatedSkeleton::Bone* AnimationController::GetBone(BoneID id)
    return nullptr;
 }
 
-AnimationController::BoneID AnimationController::NextBone(BoneID id)
+DeprecatedController::BoneID DeprecatedController::NextBone(BoneID id)
 {
    return (id < bones.size()) ? id + 1 : 0;
 }
 
-AnimationController::BoneID AnimationController::PrevBone(BoneID id)
+DeprecatedController::BoneID DeprecatedController::PrevBone(BoneID id)
 {
    return (id == 0) ? bones.size() - 1 : id - 1;
 }
 
-AnimationController::BoneID AnimationController::ParentBone(BoneID id)
+DeprecatedController::BoneID DeprecatedController::ParentBone(BoneID id)
 {
    return stances[states[current].stance].parents[id];
 }
 
-void AnimationController::Play(const std::string& state, double startTime)
+void DeprecatedController::Play(const std::string& state, double startTime)
 {
    // TODO this and transitions lol
    auto it = statesByName.find(state);
@@ -469,7 +469,7 @@ void AnimationController::Play(const std::string& state, double startTime)
    time = startTime;
 }
 
-void AnimationController::TransitionTo(const std::string& state, double transitionTime, double startTime)
+void DeprecatedController::TransitionTo(const std::string& state, double transitionTime, double startTime)
 {
    // If a transition is in flight, skip to the end of it.
    if (current != next)
