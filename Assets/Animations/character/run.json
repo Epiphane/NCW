@@ -42,12 +42,12 @@
             "character.Left Hand": {
                "position": [6.0, 0.0, 3.0]
             },
+            "character.Right Hand": {
+               "position": [-6.0, 0.0, -3.0]
+            },
             "character.Torso": {
                "position": [0.0, -5.5, 0.0],
                "rotation": [0.0, -20.0, 0.0]
-            },
-            "character.Right Hand": {
-               "position": [-6.0, 0.0, -3.0]
             },
             "character.Spine": {
                "position": [0.0, 0.0, 3.0],
@@ -56,11 +56,11 @@
             "character.Left Leg": {
                "rotation": [-75.0, 0.0, 0.0]
             },
-            "character.Right Leg": {
-               "rotation": [75.0, 0.0, 0.0]
-            },
             "character.Hips": {
                "rotation": [15.0, -0.0, 0.0]
+            },
+            "character.Right Leg": {
+               "rotation": [75.0, 0.0, 0.0]
             }
          }
       }, {
@@ -101,12 +101,12 @@
             "character.Left Hand": {
                "position": [6.0, 0.0, -3.0]
             },
+            "character.Right Hand": {
+               "position": [-6.0, 0.0, 3.0]
+            },
             "character.Torso": {
                "position": [0.0, -5.5, 0.0],
                "rotation": [0.0, 20.0, 0.0]
-            },
-            "character.Right Hand": {
-               "position": [-6.0, 0.0, 3.0]
             },
             "character.Spine": {
                "position": [0.0, 0.0, 3.0],
@@ -115,11 +115,11 @@
             "character.Left Leg": {
                "rotation": [75.0, 0.0, 0.0]
             },
-            "character.Right Leg": {
-               "rotation": [-75.0, 0.0, 0.0]
-            },
             "character.Hips": {
                "rotation": [15.0, -0.0, 0.0]
+            },
+            "character.Right Leg": {
+               "rotation": [-75.0, 0.0, 0.0]
             }
          }
       }],

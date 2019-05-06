@@ -1,6 +1,8 @@
 // By Thomas Steinke
 
 #include <algorithm>
+
+#include <RGBText/StringHelper.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/Button.h>
@@ -28,7 +30,7 @@ using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mBone("root")
+   , mBone("none.root")
    , mStance("base")
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorDockFG", glm::vec4(0, 0, 0, 1));
@@ -274,7 +276,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
    Receive(SkeletonClearedEvent{});
 
    SetStance(mStance);
-   SetBone("root");
+   SetBone(mSkeleton->bones[0].name);
 }
 
 void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
@@ -504,7 +506,8 @@ void Dock::SetBone(const std::string& bone)
 
    mBone = bone;
 
-   mBoneName->SetText(mBone);
+   std::vector<std::string> parts = StringHelper::Split(mBone, '.');
+   mBoneName->SetText(parts[1]);
 
    Receive(ResumeEditingEvent{});
 }
