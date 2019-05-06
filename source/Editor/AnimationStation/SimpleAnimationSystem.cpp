@@ -246,7 +246,14 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
             if (boneId != 0)
             {
                // Assume this will always succeed
-               matrix = std::find_if(skeleton->bones.begin(), skeleton->bones.end(), [&](const auto& b) { return b.name == bone.parent; })->matrix;
+               const std::string& parent = stance.bones[boneId].parent;
+               for (const auto& s : controller.skeletons)
+               {
+                  if (s->boneLookup.count(parent) > 0)
+                  {
+                     matrix = s->bones[s->boneLookup[parent]].matrix;
+                  }
+               }
             }
 
             matrix = glm::translate(matrix, bone.position);

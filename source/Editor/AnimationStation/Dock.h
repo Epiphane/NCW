@@ -267,8 +267,9 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+      ResetBoneCommand(Dock* dock, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
          : DockCommand(dock)
+         , boneId(bone)
          , position(position)
          , rotation(rotation)
          , scale(scale)
@@ -277,6 +278,7 @@ private:
       void Undo() override { Do(); }
 
    private:
+      size_t boneId;
       glm::vec3 position, rotation, scale;
    };
 

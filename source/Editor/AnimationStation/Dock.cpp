@@ -447,10 +447,15 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       // Reset position
       buttonOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
+         Keyframe& keyframe = GetCurrentKeyframe();
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, mController->GetBone(mBone)->originalPosition, keyframe.rotations[mBone]);
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+               original.position,
+               keyframe.rotations[original.name],
+               keyframe.scales[original.name]);
          }
       };
       Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -465,8 +470,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
             Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
+            glm::vec3 pos = prev.positions.count(original.name) != 0 ?
+               prev.positions.at(original.name) :
+               original.position;
+
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+               pos,
+               keyframe.rotations[original.name],
+               keyframe.scales[original.name]);
          }
       };
       Button* setPrevPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -479,7 +493,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mController->GetBone(mBone)->originalRotation);
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+               keyframe.positions[original.name],
+               original.rotation,
+               keyframe.scales[original.name]);
          }
       };
       Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
@@ -494,8 +513,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
             Keyframe& prev = state.keyframes[index - 1];
-            //CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
+            glm::vec3 rot = prev.rotations.count(original.name) != 0 ?
+               prev.rotations.at(original.name) :
+               original.rotation;
+
+            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+               keyframe.positions[original.name],
+               rot,
+               keyframe.scales[original.name]);
          }
       };
       Button* setPrevRotationButton = bonePosition->Add<Button>(buttonOptions);
@@ -560,7 +588,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 ///
 ///
 ///
-void Dock::Receive(const SuspendEditingEvent& evt)
+void Dock::Receive(const SuspendEditingEvent&)
 {
    if (!mSkeleton || !mController)
    {
@@ -607,7 +635,7 @@ void Dock::Receive(const SuspendEditingEvent& evt)
 ///
 ///
 ///
-void Dock::Receive(const ResumeEditingEvent& evt)
+void Dock::Receive(const ResumeEditingEvent&)
 {
    State& state = GetCurrentState();
    if (mSelectedKeyframe >= state.keyframes.size())
@@ -780,6 +808,13 @@ void Dock::UpdateKeyframeIcons()
 ///
 void Dock::SetState(const std::string& name)
 {
+   if (mController->current == name)
+   {
+      return;
+   }
+
+   Receive(SuspendEditingEvent{});
+
    mController->current = name;
 
    State& state = GetCurrentState();
@@ -789,6 +824,9 @@ void Dock::SetState(const std::string& name)
    mScrubber->SetBounds(0, state.length);
 
    UpdateKeyframeIcons();
+
+   SetTime(mController->time);
+   Receive(ResumeEditingEvent{});
 }
 
 ///
@@ -796,6 +834,11 @@ void Dock::SetState(const std::string& name)
 ///
 void Dock::SetBone(const size_t& boneId)
 {
+   if (mBone == boneId)
+   {
+      return;
+   }
+
    Receive(SuspendEditingEvent{});
 
    mBone = boneId;
@@ -1092,21 +1135,25 @@ void Dock::ParentBoneCommand::Undo()
 ///
 void Dock::ResetBoneCommand::Do()
 {
-   State& state = dock->GetCurrentState();
-   Keyframe& keyframe = GetKeyframe(state, dock->mController->time);
+   Keyframe& keyframe = dock->GetCurrentKeyframe();
    if (dock->mController->time != keyframe.time)
    {
       return;
    }
    
-   Stance& stance = dock->GetCurrentStance();
-   std::string bone = stance.bones[dock->mBone].name;
-   glm::vec3 pos = keyframe.positions[bone];
-   glm::vec3 rot = keyframe.rotations[bone];
-   glm::vec3 scl = keyframe.scales[bone];
-   keyframe.positions[bone] = position;
-   keyframe.rotations[bone] = rotation;
-   keyframe.scales[bone] = scl;
+   const Stance& stance = dock->GetCurrentStance();
+   const Bone& bone = stance.bones[dock->mBone];
+
+   assert(keyframe.positions.count(bone.name) > 0 && "Not editing a bone");
+   assert(keyframe.rotations.count(bone.name) > 0 && "Not editing a bone");
+   assert(keyframe.scales.count(bone.name) > 0 && "Not editing a bone");
+
+   glm::vec3 pos = keyframe.positions[bone.name];
+   glm::vec3 rot = keyframe.rotations[bone.name];
+   glm::vec3 scl = keyframe.scales[bone.name];
+   keyframe.positions[bone.name] = position;
+   keyframe.rotations[bone.name] = rotation;
+   keyframe.scales[bone.name] = scl;
    position = pos;
    rotation = rot;
    scale = scl;
