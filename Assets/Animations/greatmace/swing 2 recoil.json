@@ -6,24 +6,24 @@
    "keyframes": [{
          "time": 0.0,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-8.380000114440918, 0.05999999865889549, 7.949999809265137],
                "rotation": [79.33999633789063, -15.6899995803833, 0.0]
             },
-            "character.Head": {
-               "position": [0.0, 4.289999961853027, -0.2800000011920929],
-               "rotation": [-7.130000114440918, 0.0, 0.0]
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
+            },
+            "greatmace.Mace": {
+               "position": [0.0, 11.539999961853028, 0.0],
+               "rotation": [0.0, -0.0, -0.03999999910593033]
             },
             "character.Hips": {
                "position": [0.0, 1.5, 2.0999999046325685],
                "rotation": [3.799999952316284, -0.0, 0.0]
             },
-            "greatmace.Mace": {
-               "position": [0.0, 11.539999961853028, 0.0],
-               "rotation": [0.0, -0.0, -0.03999999910593033]
+            "character.Head": {
+               "position": [0.0, 4.289999961853027, -0.2800000011920929],
+               "rotation": [-7.130000114440918, 0.0, 0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]
@@ -42,20 +42,20 @@
       }, {
          "time": 0.64,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-8.539999961853028, 2.1700000762939455, 2.190000057220459],
                "rotation": [70.38999938964844, -53.68000030517578, 0.05000000074505806]
             },
-            "character.Head": {
-               "position": [0.0, 4.849999904632568, -0.9300000071525574],
-               "rotation": [-13.520000457763672, 0.0, 0.0]
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
             },
             "greatmace.Mace": {
                "position": [0.0, 11.539999961853028, 0.0],
                "rotation": [0.0, -0.0, -0.03999999910593033]
+            },
+            "character.Head": {
+               "position": [0.0, 4.849999904632568, -0.9300000071525574],
+               "rotation": [-13.520000457763672, 0.0, 0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]
@@ -73,20 +73,20 @@
       }, {
          "time": 0.66,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-8.449999809265137, 2.2100000381469728, 2.2100000381469728],
                "rotation": [67.52999877929688, -52.2400016784668, 0.4099999964237213]
             },
-            "character.Head": {
-               "position": [0.0, 4.820000171661377, -0.8999999761581421],
-               "rotation": [-13.020000457763672, 0.0, 0.0]
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
             },
             "greatmace.Mace": {
                "position": [0.0, 11.539999961853028, 0.0],
                "rotation": [0.0, -0.0, -0.03999999910593033]
+            },
+            "character.Head": {
+               "position": [0.0, 4.820000171661377, -0.8999999761581421],
+               "rotation": [-13.020000457763672, 0.0, 0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]
@@ -104,12 +104,12 @@
       }, {
          "time": 0.79,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-6.0, 3.369999885559082, 2.7699999809265138],
                "rotation": [0.0, 0.0, 15.779999732971192]
+            },
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]

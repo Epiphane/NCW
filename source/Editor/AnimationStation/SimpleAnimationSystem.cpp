@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <RGBLogger/Logger.h>
+#include <RGBText/StringHelper.h>
 
 #include "SimpleAnimationSystem.h"
 
@@ -23,7 +24,78 @@ void SimpleAnimationController::Reset()
 
 void SimpleAnimationController::UpdateSkeletonStates()
 {
+   for (const Engine::ComponentHandle<SkeletonAnimations>& anims : animations)
+   {
+      anims->states.clear();
+   }
 
+   for (const auto&[name, state] : states)
+   {
+      // Start at the skeleton that _created_ the state. This way we don't add
+      // state details for a sub-skeleton's state to it's parent, thus changing
+      // the ownership.
+      bool found = false;
+      std::vector<std::string> skipped;
+      for (const Engine::ComponentHandle<SkeletonAnimations>& anims : animations)
+      {
+         if (!found && anims->entity != state.entity)
+         {
+            skipped.push_back(anims->entity);
+            continue;
+         }
+
+         bool modified = !found;
+         found = true;
+
+         SkeletonAnimations::State newState;
+         newState.name = name;
+         newState.next = state.next;
+         newState.length = state.length;
+         newState.stance = state.stance;
+         for (const SkeletonAnimations::Keyframe& keyframe : state.keyframes)
+         {
+            SkeletonAnimations::Keyframe newKeyframe;
+            newKeyframe.time = keyframe.time;
+
+            for (const auto&[bone, pos] : keyframe.positions)
+            {
+               std::vector<std::string> parts = StringHelper::Split(bone, '.');
+               if (anims->entity == parts[0] ||
+                   std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
+               {
+                  newKeyframe.positions.emplace(bone, pos);
+               }
+            }
+            for (const auto&[bone, rot] : keyframe.rotations)
+            {
+               std::vector<std::string> parts = StringHelper::Split(bone, '.');
+               if (anims->entity == parts[0] ||
+                  std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
+               {
+                  newKeyframe.rotations.emplace(bone, rot);
+               }
+            }
+            for (const auto&[bone, scl] : keyframe.scales)
+            {
+               std::vector<std::string> parts = StringHelper::Split(bone, '.');
+               if (anims->entity == parts[0] ||
+                  std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
+               {
+                  newKeyframe.scales.emplace(bone, scl);
+               }
+            }
+
+            newState.keyframes.push_back(std::move(newKeyframe));
+         }
+
+         if (modified)
+         {
+            anims->states.emplace(name, std::move(newState));
+         }
+
+         skipped.clear();
+      }
+   }
 }
 
 void SimpleAnimationController::Play(const std::string& state, double startTime)

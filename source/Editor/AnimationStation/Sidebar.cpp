@@ -160,6 +160,7 @@ void Sidebar::LoadFile(const std::string& filename)
 
 void Sidebar::SaveFile()
 {
+   mpRoot->Emit<SuspendEditingEvent>();
    mSkeleton->UpdateSkeletonStates();
 
    for (const Engine::ComponentHandle<SkeletonAnimations>& anims : mSkeleton->animations)
@@ -169,15 +170,16 @@ void Sidebar::SaveFile()
       for (const auto&[name, animation] : serialized.pairs())
       {
          std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".json"));
-         Maybe<void> serialized = JSONSerializer::SerializeFile(path, animation);
-         if (!serialized)
+         Maybe<void> result = JSONSerializer::SerializeFile(path, animation);
+         if (!result)
          {
-            LOG_ERROR("Failed saving file %1: %2", path, serialized.Failure().GetMessage());
+            LOG_ERROR("Failed saving file %1: %2", path, result.Failure().GetMessage());
          }
       }
    }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
+   mpRoot->Emit<ResumeEditingEvent>();
    SetModified(false);
 }
 

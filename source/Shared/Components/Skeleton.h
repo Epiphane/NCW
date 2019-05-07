@@ -3,8 +3,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <limits>
 #include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <RGBBinding/BindingProperty.h>
@@ -32,10 +32,10 @@ struct Skeleton : Engine::Component<Skeleton>  {
    struct Stance {
       std::string name;
       std::string parent;
-      std::unordered_map<std::string, std::string> parents;
-      std::unordered_map<std::string, glm::vec3> positions;
-      std::unordered_map<std::string, glm::vec3> rotations;
-      std::unordered_map<std::string, glm::vec3> scales;
+      std::map<std::string, std::string> parents;
+      std::map<std::string, glm::vec3> positions;
+      std::map<std::string, glm::vec3> rotations;
+      std::map<std::string, glm::vec3> scales;
    };
 
 public:

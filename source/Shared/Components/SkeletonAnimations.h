@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <limits>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <RGBBinding/BindingProperty.h>
@@ -71,8 +71,8 @@ public:
 public:
    // Data
    std::string entity;
-   std::unordered_map<std::string, State> states;
-   std::unordered_map<std::string, std::vector<Transition>> transitions;
+   std::map<std::string, State> states;
+   std::map<std::string, std::vector<Transition>> transitions;
 };
 
 }; // namespace CubeWorld

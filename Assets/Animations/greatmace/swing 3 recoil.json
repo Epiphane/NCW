@@ -6,24 +6,24 @@
    "keyframes": [{
          "time": 0.0,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-7.25, 1.3600000143051148, 0.20000000298023225],
                "rotation": [-37.72999954223633, 15.119999885559082, 1.2300000190734864]
             },
-            "character.Head": {
-               "position": [0.0, 4.010000228881836, 0.5799999833106995],
-               "rotation": [6.789999961853027, 0.0, 0.0]
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
+            },
+            "greatmace.Mace": {
+               "position": [0.0, 11.539999961853028, 0.0],
+               "rotation": [0.0, -0.0, -0.03999999910593033]
             },
             "character.Hips": {
                "position": [0.0, 1.5, 0.8299999833106995],
                "rotation": [0.07999999821186066, -0.0, 0.0]
             },
-            "greatmace.Mace": {
-               "position": [0.0, 11.539999961853028, 0.0],
-               "rotation": [0.0, -0.0, -0.03999999910593033]
+            "character.Head": {
+               "position": [0.0, 4.010000228881836, 0.5799999833106995],
+               "rotation": [6.789999961853027, 0.0, 0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]
@@ -45,12 +45,12 @@
       }, {
          "time": 0.49,
          "bones": {
-            "character.Attachment": {
-               "position": [0.0, 0.0, -0.0]
-            },
             "character.Shoulders": {
                "position": [-6.0, 3.369999885559082, 2.7699999809265138],
                "rotation": [0.0, 0.0, 15.779999732971192]
+            },
+            "character.Attachment": {
+               "position": [0.0, 0.0, -0.0]
             },
             "character.Left Hand": {
                "position": [0.6700000166893005, -1.4800000190734864, 0.0]

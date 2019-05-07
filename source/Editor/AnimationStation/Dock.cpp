@@ -579,6 +579,8 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       AddKeyframeIcon();
    }
 
+   root->Subscribe<SuspendEditingEvent>(*this);
+   root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<SkeletonSelectedEvent>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
@@ -595,7 +597,7 @@ void Dock::Receive(const SuspendEditingEvent&)
       return;
    }
 
-   if (!mBonePos[0].text->IsBound())
+   if (!mBonePos[0].scrubber->IsBound())
    {
       return;
    }

@@ -133,22 +133,22 @@ BindingProperty Skeleton::Serialize()
       BindingProperty def;
       def["name"] = stance.name;
       def["inherit"] = stance.parent;
-      BindingProperty& bones = def["bones"];
+      BindingProperty& boneData = def["bones"];
       for (const auto&[bone, pos] : stance.positions)
       {
-         bones[bone]["position"] = pos;
+         boneData[bone]["position"] = pos;
       }
       for (const auto&[bone, rot] : stance.rotations)
       {
-         bones[bone]["rotation"] = rot;
+         boneData[bone]["rotation"] = rot;
       }
       for (const auto&[bone, scl] : stance.scales)
       {
-         bones[bone]["scale"] = scl;
+         boneData[bone]["scale"] = scl;
       }
       for (const auto&[bone, par] : stance.parents)
       {
-         bones[bone]["parent"] = par;
+         boneData[bone]["parent"] = par;
       }
 
       result["stances"].push_back(std::move(def));

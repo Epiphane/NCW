@@ -35,18 +35,18 @@ void SkeletonAnimations::Reset()
    transitions.clear();
 }
 
-void SkeletonAnimations::Load(const std::string& entity)
+void SkeletonAnimations::Load(const std::string& entity_)
 {
    Reset();
 
    BindingProperty data(BindingProperty::kArrayType);
 
    FileSystem* fs = Engine::FileSystemProvider::Instance();
-   std::string dir = Asset::Animation(entity);
+   std::string dir = Asset::Animation(entity_);
    Maybe<std::vector<FileSystem::FileEntry>> maybeFiles = fs->ListDirectory(dir, false, false);
    if (!maybeFiles)
    {
-      LOG_ERROR("Failed loading animations for entity %1: %2", entity, maybeFiles.Failure().GetMessage());
+      LOG_ERROR("Failed loading animations for entity %1: %2", entity_, maybeFiles.Failure().GetMessage());
       return;
    }
 
@@ -62,13 +62,13 @@ void SkeletonAnimations::Load(const std::string& entity)
       data.push_back(std::move(*animation));
    }
 
-   Load(entity, data);
+   Load(entity_, data);
 }
 
-void SkeletonAnimations::Load(const std::string& entity, const BindingProperty& data)
+void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty& data)
 {
    Reset();
-   this->entity = entity;
+   this->entity = entity_;
 
    for (const BindingProperty& anim : data)
    {
