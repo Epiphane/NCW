@@ -12,12 +12,6 @@ stances:
   inherit: base
   bones:
     greatmace.root:
-      position:
-      - 0
-      - 5
-      - 0
+      position: [0, 5, 0]
     greatmace.Mace:
-      rotation:
-      - 0
-      - 0
-      - -135
+      rotation: [0, 0, -135]
