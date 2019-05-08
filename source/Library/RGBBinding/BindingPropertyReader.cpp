@@ -5,16 +5,18 @@
 namespace CubeWorld
 {
 
-BindingPropertyReader::BindingPropertyReader() {}
+BindingPropertyReader::BindingPropertyReader()
+{
+   data.SetNull();
+   cursor.clear();
+   cursor.push_back(&data);
+}
 
 const BindingProperty BindingPropertyReader::Read(const std::string& buffer)
 {
    rapidjson::GenericStringStream<rapidjson::UTF8<>> stream(buffer.c_str());
    rapidjson::GenericReader<rapidjson::UTF8<>, rapidjson::UTF8<>> reader;
 
-   data.SetNull();
-   cursor.clear();
-   cursor.push_back(&data);
    reader.Parse(stream, *this);
    return data;
 }
@@ -177,6 +179,11 @@ bool BindingPropertyReader::EndObject(SizeType /*memberCount*/)
    if (!cursor.back()->IsObject()) { return false; }
    cursor.pop_back();
    return true;
+}
+
+bool BindingPropertyReader::CurrentIsObject()
+{
+   return cursor.back()->IsObject();
 }
 
 bool BindingPropertyReader::StartArray()

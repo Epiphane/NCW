@@ -2,21 +2,24 @@
 
 #pragma once
 
-#include <stack>
-#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
+#include <yaml.h>
 
-#include "BindingProperty.h"
+#include <RGBBinding/BindingProperty.h>
 
 namespace CubeWorld
 {
 
-class BindingPropertyReader
+class YAMLWriter
 {
-public:
-   BindingPropertyReader();
+private:
+   static const yaml_char_t* kNull;
+   static const yaml_char_t* kTrue;
+   static const yaml_char_t* kFalse;
+   static const yaml_char_t* kZero;
 
-   const BindingProperty Read(const std::string& buffer);
-   const BindingProperty GetResult() const { return data; }
+public:
+   YAMLWriter(yaml_emitter_t& emitter) : mEmitter(emitter) {};
 
 public:
    // rapidjson::Handler implementation
@@ -37,12 +40,13 @@ public:
    bool StartArray();
    bool EndArray(SizeType elementCount = 0);
 
-   // Helper functions
-   bool CurrentIsObject();
+   // Helper function
+   bool FlushArray(bool condensed);
 
 private:
-   BindingProperty data;
-   std::vector<BindingProperty*> cursor;
+   yaml_emitter_t& mEmitter;
+
+   BindingProperty mHolding;
 };
 
 }; // namespace CubeWorld
