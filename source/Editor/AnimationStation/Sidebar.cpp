@@ -2,7 +2,7 @@
 
 #include <fstream>
 #include <RGBFileSystem/File.h>
-#include <RGBNetworking/JSONSerializer.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -26,7 +26,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Asset::Skeleton("greatmace.json"))
+   , mFilename(Asset::Skeleton("greatmace.yaml"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -127,7 +127,7 @@ void Sidebar::LoadFile(const std::string& filename)
    {
       std::string name = Paths::GetFilename(currentFile);
 
-      Maybe<BindingProperty> maybeData = JSONSerializer::DeserializeFile(currentFile);
+      Maybe<BindingProperty> maybeData = YAMLSerializer::DeserializeFile(currentFile);
       if (!maybeData)
       {
          LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
@@ -144,7 +144,7 @@ void Sidebar::LoadFile(const std::string& filename)
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent) + ".json";
+         currentFile = Paths::Join(Paths::GetDirectory(filename), parent) + ".yaml";
       }
    } while (currentFile != "");
 
@@ -169,8 +169,8 @@ void Sidebar::SaveFile()
 
       for (const auto&[name, animation] : serialized.pairs())
       {
-         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".json"));
-         Maybe<void> result = JSONSerializer::SerializeFile(path, animation);
+         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".yaml"));
+         Maybe<void> result = YAMLSerializer::SerializeFile(path, animation);
          if (!result)
          {
             LOG_ERROR("Failed saving file %1: %2", path, result.Failure().GetMessage());

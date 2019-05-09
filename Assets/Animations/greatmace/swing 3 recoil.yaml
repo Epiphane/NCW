@@ -1,0 +1,47 @@
+---
+name: swing 3 recoil
+next: idle
+stance: base
+length: 0.5
+keyframes:
+- time: 0
+  bones:
+    character.Shoulders:
+      position: [-7.25, 1.36, 0.2]
+      rotation: [-37.73, 15.12, 1.23]
+    character.Attachment:
+      position: [0, 0, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Hips:
+      position: [0, 1.5, 0.83]
+      rotation: [0.08, 0, 0]
+    character.Head:
+      position: [0, 4.01, 0.58]
+      rotation: [6.79, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    character.Right Hand:
+      position: [-0.53, 0.04, 0.94]
+    character.Spine:
+      position: [0, 0.77, -3.69]
+      rotation: [-16.09, 0, 0]
+    character.Left Leg:
+      rotation: [-29.559999, 0, 0]
+    character.Torso:
+      rotation: [0, 0.35, 0]
+- time: 0.49
+  bones:
+    character.Shoulders:
+      position: [-6, 3.37, 2.77]
+      rotation: [0, 0, 15.78]
+    character.Attachment:
+      position: [0, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Right Hand:
+      position: [-0.55, 0, 0.95]

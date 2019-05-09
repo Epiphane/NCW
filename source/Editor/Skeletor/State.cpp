@@ -10,7 +10,7 @@
 #pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
-#include <RGBNetworking/JSONSerializer.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Core/StateManager.h>
 #include <RGBLogger/Logger.h>
 #include <Engine/Entity/Transform.h>
@@ -148,7 +148,7 @@ void MainState::Receive(const SkeletonClearedEvent&)
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
    LOG_DEBUG("Adding skeleton %1", evt.filename);
-   Maybe<BindingProperty> data = JSONSerializer::DeserializeFile(evt.filename);
+   Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
       LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());

@@ -261,19 +261,19 @@ bool BindingProperty::IsVec3() const
 {
    return IsArray()
       && data.arrayVal.size() == 3
-      && data.arrayVal[0].IsDouble()
-      && data.arrayVal[1].IsDouble()
-      && data.arrayVal[2].IsDouble();
+      && data.arrayVal[0].IsNumber()
+      && data.arrayVal[1].IsNumber()
+      && data.arrayVal[2].IsNumber();
 }
 
 bool BindingProperty::IsVec4() const
 {
    return IsArray()
       && data.arrayVal.size() == 4
-      && data.arrayVal[0].IsDouble()
-      && data.arrayVal[1].IsDouble()
-      && data.arrayVal[2].IsDouble()
-      && data.arrayVal[3].IsDouble();
+      && data.arrayVal[0].IsNumber()
+      && data.arrayVal[1].IsNumber()
+      && data.arrayVal[2].IsNumber()
+      && data.arrayVal[3].IsNumber();
 }
 
 ///

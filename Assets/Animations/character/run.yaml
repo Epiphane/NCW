@@ -1,0 +1,100 @@
+---
+name: run
+next: 
+stance: resting
+length: 0.4
+keyframes:
+- time: 0
+  bones:
+    character.Hips:
+      position: [0, 0.5, 1.2]
+      rotation: [15, 0, 0]
+    character.Head:
+      position: [0, 4.5, 0]
+      rotation: [-15, 0, 0]
+    character.Left Hand:
+      position: [6.4, 0, 0]
+    character.Torso:
+      position: [0, -6.5, 0]
+    character.Right Hand:
+      position: [-6.4, 0, 0]
+    character.Spine:
+      position: [0, 0, 3]
+      rotation: [15, 0, 0]
+- time: 0.1
+  bones:
+    character.Attachment:
+      position: [-1.8, -0.4, -10.1]
+      rotation: [0, 12.8, 0]
+    character.Head:
+      position: [0, 5, 0]
+      rotation: [-15, 0, 0]
+    character.Left Hand:
+      position: [6, 0, 3]
+    character.Torso:
+      position: [0, -5.5, 0]
+      rotation: [0, -20, 0]
+    character.Right Hand:
+      position: [-6, 0, -3]
+    character.Spine:
+      position: [0, 0, 3]
+      rotation: [15, 0, 0]
+    character.Left Leg:
+      rotation: [-75, 0, 0]
+    character.Right Leg:
+      rotation: [75, 0, 0]
+    character.Hips:
+      rotation: [15, 0, 0]
+- time: 0.2
+  bones:
+    character.Head:
+      position: [0, 4.5, 0]
+      rotation: [-15, 0, 0]
+    character.Left Hand:
+      position: [6.4, 0, 0]
+    character.Torso:
+      position: [0, -6.5, 0]
+    character.Right Hand:
+      position: [-6.4, 0, 0]
+    character.Spine:
+      position: [0, 0, 3]
+      rotation: [15, 0, 0]
+    character.Hips:
+      rotation: [15, 0, 0]
+- time: 0.3
+  bones:
+    character.Attachment:
+      position: [2.3, -0.4, -10.1]
+      rotation: [0, -20.200001, 0]
+    character.Head:
+      position: [0, 5, 0]
+      rotation: [-15, 0, 0]
+    character.Left Hand:
+      position: [6, 0, -3]
+    character.Torso:
+      position: [0, -5.5, 0]
+      rotation: [0, 20, 0]
+    character.Right Hand:
+      position: [-6, 0, 3]
+    character.Spine:
+      position: [0, 0, 3]
+      rotation: [15, 0, 0]
+    character.Left Leg:
+      rotation: [75, 0, 0]
+    character.Right Leg:
+      rotation: [-75, 0, 0]
+    character.Hips:
+      rotation: [15, 0, 0]
+transitions:
+- to: idle
+  time: 0.2
+  triggers:
+  - parameter: speed
+    lt: 1
+- to: walk
+  time: 0.5
+  triggers:
+  - parameter: speed
+    gte: 1
+  - parameter: speed
+    lt: 8

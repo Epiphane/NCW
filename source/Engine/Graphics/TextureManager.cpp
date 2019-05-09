@@ -11,6 +11,7 @@
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/JSONSerializer.h>
+#include <RGBNetworking/YAMLSerializer.h>
 
 #include "TextureManager.h"
 
@@ -70,9 +71,25 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
       return result.Failure().WithContext("Failed loading PNG file");
    }
 
+   BindingProperty metadata;
+
    // Look for and load any metadata
 #pragma warning(disable : 4101)
-   if (auto [_, exists] = DiskFileSystem{}.Exists(filename + ".json"); exists)
+   if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".yaml"); exists)
+#pragma warning(default : 4101)
+   {
+      Maybe<BindingProperty> maybeMetadata = YAMLSerializer::DeserializeFile(filename + ".yaml");
+      if (!maybeMetadata)
+      {
+         return maybeMetadata.Failure().WithContext("Failed reading metadata");
+      }
+      else
+      {
+         metadata = std::move(*maybeMetadata);
+      }
+   }
+#pragma warning(disable : 4101)
+   else if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".json"); exists)
 #pragma warning(default : 4101)
    {
       Maybe<BindingProperty> maybeMetadata = JSONSerializer::DeserializeFile(filename + ".json");
@@ -80,26 +97,29 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
       {
          return maybeMetadata.Failure().WithContext("Failed reading metadata");
       }
+      else
+      {
+         metadata = std::move(*maybeMetadata);
+      }
+   }
 
-      const BindingProperty metadata = std::move(*maybeMetadata);
-      if (metadata["width"] != texture->mWidth)
-      {
-         LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
-      }
-      if (metadata["height"] != texture->mHeight)
-      {
-         LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
-      }
+   if (metadata["width"] != texture->mWidth)
+   {
+      LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
+   }
+   if (metadata["height"] != texture->mHeight)
+   {
+      LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
+   }
 
-      for (const auto [name, info] : metadata["images"].pairs())
-      {
-         texture->mImages.emplace(name, glm::vec4(
-            info["x"].GetFloatValue() / texture->mWidth,
-            info["y"].GetFloatValue() / texture->mHeight,
-            info["w"].GetFloatValue() / texture->mWidth,
-            info["h"].GetFloatValue() / texture->mHeight
-         ));
-      }
+   for (const auto [name, info] : metadata["images"].pairs())
+   {
+      texture->mImages.emplace(name, glm::vec4(
+         info["x"].GetFloatValue() / texture->mWidth,
+         info["y"].GetFloatValue() / texture->mHeight,
+         info["w"].GetFloatValue() / texture->mWidth,
+         info["h"].GetFloatValue() / texture->mHeight
+      ));
    }
 
    return std::move(texture);

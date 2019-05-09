@@ -5,7 +5,7 @@
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
-#include <RGBNetworking/JSONSerializer.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Core/Config.h>
 #include <Engine/Core/FileSystemProvider.h>
 
@@ -52,7 +52,7 @@ void SkeletonAnimations::Load(const std::string& entity_)
 
    for (const FileSystem::FileEntry& entry : *maybeFiles)
    {
-      Maybe<BindingProperty> animation = JSONSerializer::DeserializeFile(*fs, Paths::Join(dir, entry.name));
+      Maybe<BindingProperty> animation = YAMLSerializer::DeserializeFile(*fs, Paths::Join(dir, entry.name));
       if (!animation)
       {
          LOG_ERROR("Failed loading animation %1: %2", entry.name, animation.Failure().GetMessage());
