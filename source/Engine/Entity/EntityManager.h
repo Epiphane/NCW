@@ -53,8 +53,8 @@ namespace Engine
 //   player.Add<Transform>(glm::vec3(0, 10, 0));                    // Start the player at [0, 10, 0]
 //   player.Add<SimplePhysics::Body>();                             // Subject the player to gravity
 //   player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8)); // Subject the player to collision
-//   Engine::ComponentHandle<DeprecatedSkeleton> skeleton = 
-//      player.Add<DeprecatedSkeleton>("player.json");                // Add an animated skeleton
+//   Engine::ComponentHandle<Skeleton> skeleton = 
+//      player.Add<Skeleton>("player.yaml");                        // Add an animated skeleton
 //   skeleton->AddModel("torso", "body4.vox");                      // Add two models to the new skeleton
 //   skeleton->AddModel("character.Head", "elf-head-m02.vox");
 //

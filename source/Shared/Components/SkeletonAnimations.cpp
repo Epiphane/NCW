@@ -68,7 +68,7 @@ void SkeletonAnimations::Load(const std::string& entity_)
 void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty& data)
 {
    Reset();
-   this->entity = entity_;
+   entity = entity_;
 
    for (const BindingProperty& anim : data)
    {
@@ -120,20 +120,26 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
          {
             Transition::Trigger trigger;
             trigger.parameter = triggerInfo["parameter"];
-            if (const auto& gte = triggerInfo["gte"]; gte.IsDouble())
+            if (const auto& gte = triggerInfo["gte"]; gte.IsNumber())
             {
                trigger.type = Transition::Trigger::GreaterThan;
                trigger.doubleVal = gte.GetDoubleValue();
             }
-            if (const auto& lt = triggerInfo["lt"]; lt.IsDouble())
+            else if (const auto& lt = triggerInfo["lt"]; lt.IsNumber())
             {
                trigger.type = Transition::Trigger::LessThan;
                trigger.doubleVal = lt.GetDoubleValue();
             }
-            if (const auto& boolean = triggerInfo["bool"]; boolean.IsBool())
+            else if (const auto& boolean = triggerInfo["bool"]; boolean.IsBool())
             {
                trigger.type = Transition::Trigger::Bool;
                trigger.boolVal = boolean.GetBooleanValue();
+            }
+            else
+            {
+               LOG_ERROR("I don't understand the trigger data for entity=%1 from=%2 to=%3 (param=%4)",
+                  entity, state.name, transition.destination, trigger.parameter);
+               continue;
             }
 
             transition.triggers.push_back(std::move(trigger));

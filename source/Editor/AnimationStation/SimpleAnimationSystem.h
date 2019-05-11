@@ -10,8 +10,6 @@
 #include <Shared/Components/Skeleton.h>
 #include <Shared/Components/SkeletonAnimations.h>
 
-#include "AnimationSystem.h"
-
 namespace CubeWorld
 {
 
@@ -20,6 +18,16 @@ namespace Editor
 
 namespace AnimationStation
 {
+
+struct AnimationSystemController : public Engine::Component<AnimationSystemController>
+{
+   //
+   // Editing switches. Pause all animations (but do not disable) and disable transitions.
+   //
+   double speed = 1.0;
+   bool paused = true;
+   TIMEDELTA nextTick = 0;
+};
 
 //
 // SimpleAnimationController doesn't do any fancy stuff with Skeletons or SkeletonAnimations.
@@ -49,8 +57,8 @@ public:
    void Reset();
    void UpdateSkeletonStates();
 
-   void Play(const std::string& state, double startTime = 0.0);
-   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0);
+   void Play(const std::string& state, double startTime = 0.0) override;
+   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) override;
 
    // Skeleton and model objects
    void AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton);

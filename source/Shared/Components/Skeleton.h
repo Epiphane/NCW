@@ -43,9 +43,11 @@ public:
 
 public:
    Skeleton();
+   Skeleton(const std::string& path);
    Skeleton(const BindingProperty& data);
 
    void Reset();
+   void Load(const std::string& path);
    void Load(const BindingProperty& data);
 
    BindingProperty Serialize();

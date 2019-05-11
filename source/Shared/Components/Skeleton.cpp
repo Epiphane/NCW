@@ -5,6 +5,7 @@
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <RGBText/Format.h>
 #include <Engine/Core/Config.h>
 
@@ -27,6 +28,11 @@ void Skeleton::Transform(glm::mat4& matrix, const glm::vec3& position, const glm
 Skeleton::Skeleton()
 {}
 
+Skeleton::Skeleton(const std::string& path)
+{
+   Load(path);
+}
+
 Skeleton::Skeleton(const BindingProperty& data)
 {
    Load(data);
@@ -38,6 +44,17 @@ void Skeleton::Reset()
    original.clear();
    boneLookup.clear();
    stances.clear();
+}
+
+void Skeleton::Load(const std::string& path)
+{
+   Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(path);
+   if (!data)
+   {
+      LOG_ERROR(data.Failure().WithContext("Failed loading file").GetMessage());
+      return;
+   }
+   Load(*data);
 }
 
 void Skeleton::Load(const BindingProperty& data)

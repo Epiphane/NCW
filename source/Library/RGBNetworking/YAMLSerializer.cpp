@@ -346,10 +346,27 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
          else
          {
             // Try to parse a number first, then interpret as a string
-            if (!YAMLSerializerInternal::ParseNumber(reader, event.data.scalar.value, event.data.scalar.length) &&
-                !reader.String((char*)event.data.scalar.value, event.data.scalar.length, true))
+            if (!YAMLSerializerInternal::ParseNumber(reader, event.data.scalar.value, event.data.scalar.length))
             {
-               return Failure{"Failed writing string"};
+               if (event.data.scalar.length == 4 && strncmp((char*)event.data.scalar.value, "true", 4) == 0)
+               {
+                  if (!reader.Bool(true))
+                  {
+                     return Failure{"Failed writing true"};
+                  }
+               }
+               else if (event.data.scalar.length == 5 && strncmp((char*)event.data.scalar.value, "false", 5) == 0)
+               {
+                  if (!reader.Bool(false))
+                  {
+                     return Failure{"Failed writing false"};
+                  }
+               }
+               else 
+               if (!reader.String((char*)event.data.scalar.value, event.data.scalar.length, true))
+               {
+                  return Failure{"Failed writing string"};
+               }
             }
          }
          break;

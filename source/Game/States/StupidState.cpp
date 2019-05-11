@@ -8,6 +8,7 @@
 #pragma warning(pop)
 
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>
@@ -166,23 +167,23 @@ namespace Game
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-      auto controller = player.Add<DeprecatedController>();
+      auto controller = player.Add<AnimationController>();
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-         player.Get<DeprecatedController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
       });
 
       Engine::Entity part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      Engine::ComponentHandle<VoxModel> model = part.Add<VoxModel>();
-      model->mTint = glm::vec3(0, 0, 168.0f);
-      Engine::ComponentHandle<DeprecatedSkeleton> skeleton = part.Add<DeprecatedSkeleton>(Asset::Model("character.json"), model);
-      controller->AddSkeleton(skeleton);
+      part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 0, 168.0f);
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
       part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      skeleton = part.Add<DeprecatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
-      controller->AddSkeleton(skeleton);
+      part.Add<VoxModel>(Asset::Model("wood-greatmace02.vox"));
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("greatmace.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("greatmace"));
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;

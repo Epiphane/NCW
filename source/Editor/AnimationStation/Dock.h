@@ -25,7 +25,6 @@
 #include <Shared/UI/TextField.h>
 
 #include "../UI/Scrubber.h"
-#include "AnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
