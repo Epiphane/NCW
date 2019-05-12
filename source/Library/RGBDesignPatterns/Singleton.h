@@ -7,9 +7,6 @@
 namespace CubeWorld
 {
 
-namespace Engine
-{
-
 template<typename T>
 class Singleton
 {
@@ -34,7 +31,5 @@ public:
       return &instance;
    }
 };
-
-}; // namespace Engine
 
 }; // namespace CubeWorld

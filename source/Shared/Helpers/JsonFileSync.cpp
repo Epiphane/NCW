@@ -5,6 +5,7 @@
 //
 
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/JSONSerializer.h>
 
 #include "JsonFileSync.h"
 
@@ -141,9 +142,9 @@ bool JsonFileSync::DoesFileHaveNewUpdate()
 // Should be called from the main thread. Parses and returns the latest JSON data,
 //    or a Failure state if the data is missing or corrupt.
 //
-Maybe<nlohmann::json> JsonFileSync::GetJsonFromFile()
+Maybe<BindingProperty> JsonFileSync::GetJsonFromFile()
 {
-   return Shared::GetJsonFromFile(mFilename);
+   return JSONSerializer::DeserializeFile(mFilename);
 }
    
 //

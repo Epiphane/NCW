@@ -1,0 +1,120 @@
+---
+name: swing 1 recoil
+next: idle
+stance: base
+length: 0.8
+keyframes:
+- time: 0
+  bones:
+    character.Shoulders:
+      position: [-8.38, 2.18, 2.5]
+      rotation: [70.779999, -53.91, 0]
+    character.Attachment:
+      position: [0, 0, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Hips:
+      position: [0, 1.5, 2.1]
+      rotation: [3.8, 0, 0]
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    character.Right Hand:
+      position: [0.48, 1.92, 0.72]
+    character.Spine:
+      position: [0, 0, 6.12]
+      rotation: [24.219999, 0, 0]
+    character.Torso:
+      rotation: [0, 46.09, 0]
+- time: 0.43
+  bones:
+    character.Attachment:
+      position: [0, 0, 0]
+    character.Shoulders:
+      position: [-8.38, 2.18, 2.5]
+      rotation: [70.779999, -53.91, 0]
+    character.Hips:
+      position: [0, 1.5, 2]
+      rotation: [3.5, 0, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
+    character.Right Foot:
+      position: [0, -5, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    character.Right Hand:
+      position: [0.48, 1.92, 0.72]
+    character.Spine:
+      position: [0, 0, 6.12]
+      rotation: [24.219999, 0, 0]
+    character.Torso:
+      rotation: [0, 46.09, 0]
+- time: 0.64
+  bones:
+    character.Shoulders:
+      position: [-8.54, 2.17, 2.19]
+      rotation: [70.389999, -53.68, 0.05]
+    character.Attachment:
+      position: [0, 0, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Head:
+      position: [0, 4.85, -0.93]
+      rotation: [-13.52, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    character.Right Hand:
+      position: [0.34, 1.6, 0.95]
+    character.Spine:
+      rotation: [8.33, 0, 0]
+    character.Torso:
+      rotation: [0.02, 51.27, 0.02]
+- time: 0.66
+  bones:
+    character.Shoulders:
+      position: [-8.45, 2.21, 2.21]
+      rotation: [67.529999, -52.240002, 0.41]
+    character.Attachment:
+      position: [0, 0, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Head:
+      position: [0, 4.82, -0.9]
+      rotation: [-13.02, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    character.Right Hand:
+      position: [-0.55, 0, 0.95]
+    character.Spine:
+      rotation: [8.03, 0, 0]
+    character.Torso:
+      rotation: [0.04, 49.380001, 0.02]
+- time: 0.79
+  bones:
+    character.Shoulders:
+      position: [-6, 3.37, 2.77]
+      rotation: [0, 0, 15.78]
+    character.Attachment:
+      position: [0, 0, 0]
+    character.Left Hand:
+      position: [0.67, -1.48, 0]
+    greatmace.Mace:
+      position: [0, 11.54, 0]
+      rotation: [0, 0, -0.04]
+    character.Right Hand:
+      position: [-0.55, 0, 0.95]
+transitions:
+- to: swing 2
+  time: 0.1
+  triggers:
+  - parameter: attack
+    bool: true

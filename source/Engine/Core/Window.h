@@ -97,6 +97,8 @@ public:
    bool ShouldClose();
    void Focus();
 
+   GLFWwindow* get() { return mGLFW; }
+
 private:
    GLFWwindow* mGLFW;
    Graphics::VAO mVAO;

@@ -8,6 +8,7 @@
 #pragma warning(pop)
 
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>
@@ -174,16 +175,15 @@ namespace Game
 
       Engine::Entity part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      Engine::ComponentHandle<VoxModel> model = part.Add<VoxModel>();
-      model->mTint = glm::vec3(0, 0, 168.0f);
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = part.Add<AnimatedSkeleton>(Asset::Model("character.json"), model);
-      controller->AddSkeleton(skeleton);
+      part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 0, 168.0f);
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
       part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      model = part.Add<VoxModel>();
-      skeleton = part.Add<AnimatedSkeleton>(Asset::Model("wood-greatmace02.json"), model);
-      controller->AddSkeleton(skeleton);
+      part.Add<VoxModel>(Asset::Model("wood-greatmace02.vox"));
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("greatmace.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("greatmace"));
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;

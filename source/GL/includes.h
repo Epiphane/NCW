@@ -10,6 +10,7 @@
 #if defined(_WIN32)
 #undef near
 #undef far
+#undef GetObject
 #endif
 
 #ifdef NDEBUG

@@ -179,20 +179,21 @@ UIGestureRecognizer* UIElement::AddGestureRecognizer(std::unique_ptr<UIGestureRe
    return recognizer.get();
 }
 
-void UIElement::InitFromJSON(nlohmann::json data)
+void UIElement::InitFromJSON(const BindingProperty& /*data*/)
 {
 }
    
-void UIElement::ConvertToJSON(nlohmann::json* outJson)
+BindingProperty UIElement::ConvertToJSON()
 {
-   (*outJson)["class"] = GetDebugInfo().type;
-   (*outJson)["name"]  = GetName();
+   BindingProperty result;
+   result["class"] = GetDebugInfo().type;
+   result["name"]  = GetName();
    
    for (const auto& child : mChildren) {
-      (*outJson)["children"].push_back(nlohmann::json::object());
-      nlohmann::json* newChild = &(*outJson)["children"].back();
-      child->ConvertToJSON(newChild);
+      result["children"].push_back(child->ConvertToJSON());
    }
+
+   return result;
 }
 
 bool UIElement::IsMarkedForDeletion() const

@@ -167,7 +167,7 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
-   auto firstState = skeletor;
+   auto firstState = animationStation;
    firstState->Start();
    windowContent.Swap(firstState);
 

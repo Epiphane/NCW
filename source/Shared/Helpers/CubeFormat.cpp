@@ -1,13 +1,8 @@
 // By Thomas Steinke
 
-#if CUBEWORLD_PLATFORM_WINDOWS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-#include <cstdio>
-#include <errno.h>
-
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
+#include <Engine/Core/FileSystemProvider.h>
 
 #include "CubeFormat.h"
 
@@ -24,7 +19,7 @@ namespace
 
 bool IsFilled(const std::vector<bool>& filled, int32_t index)
 {
-   if (index < 0 || index >= filled.size())
+   if (index < 0 || size_t(index) >= filled.size())
    {
       return false;
    }
@@ -93,23 +88,25 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
 {
    std::unique_ptr<ModelData> result = std::make_unique<ModelData>();
 
-   FILE* f = fopen(path.c_str(), "rb");
-   if (f == nullptr)
+   auto fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileRead(path);
+   if (!maybeHandle)
    {
-      return Failure("Failed opening %1 with errno %2", path, errno);
+      return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
-   CUBEWORLD_SCOPE_EXIT([&] { fclose(f); })
+   FileSystem::FileHandle handle = maybeHandle.Result();
+   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
 
-   size_t bytes = fread(&result->mMetadata, 1, sizeof(ModelData::Metadata), f);
-   if (bytes != sizeof(ModelData::Metadata))
+   if (Maybe<void> read = fs->ReadFile(handle, &result->mMetadata, sizeof(ModelData::Metadata)); !read)
    {
-      return Failure("Failed to read %1 bytes: got %2 instead.", sizeof(ModelData::Metadata), bytes);
+      return read.Failure().WithContext("Failed reading metadata header");
    }
 
-   assert(result->mMetadata.width > 0);
-   assert(result->mMetadata.length > 0);
-   assert(result->mMetadata.height > 0);
+   if (result->mMetadata.width == 0 || result->mMetadata.length == 0 || result->mMetadata.height == 0)
+   {
+      return Failure{"Invalid dimensions: %1x%2x%3", result->mMetadata.width, result->mMetadata.length, result->mMetadata.height};
+   }
 
    std::vector<uint8_t> data;
    std::vector<bool> filled;
@@ -118,10 +115,9 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
    data.resize(3 * nElements);
    filled.resize(nElements);
 
-   size_t numRead = fread(&data[0], sizeof(uint8_t), 3 * nElements, f);
-   if (numRead != 3 * nElements)
+   if (Maybe<void> read = fs->ReadFile(handle, &data[0], sizeof(uint8_t) * 3 * nElements); !read)
    {
-      return Failure("Failed to read %1 elements: got %2 instead.", 3 * nElements, numRead);
+      return read.Failure().WithContext("Failed reading data");
    }
 
    for (uint32_t i = 0; i < nElements; i++)
@@ -178,18 +174,19 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
       return Failure{"Voxel data provided was empty."};
    }
 
-   FILE* f = fopen(path.c_str(), "wb");
-   if (f == nullptr)
+   auto fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileWrite(path);
+   if (!maybeHandle)
    {
-      return Failure("Failed opening %1 with errno %2", path, errno);
+      return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
-   CUBEWORLD_SCOPE_EXIT([&] { fclose(f); });
+   FileSystem::FileHandle handle = maybeHandle.Result();
+   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
 
-   size_t bytes = fwrite(&model.mMetadata, 1, sizeof(Model::Metadata), f);
-   if (bytes != sizeof(Model::Metadata))
+   if (Maybe<void> write = fs->WriteFile(handle, (void*)&model.mMetadata, sizeof(Model::Metadata)); !write)
    {
-      return Failure("Failed to write %1-byte header: wrote %2 instead.", sizeof(Model::Metadata), bytes);
+      return write.Failure().WithContext("Failed to write metadata header");
    }
 
    std::vector<uint8_t> data;
@@ -219,10 +216,9 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
       data[3 * ndx + 2] = uint8_t(voxel.color.b);
    }
 
-   size_t written = fwrite(&data[0], sizeof(std::vector<uint8_t>::value_type), data.size(), f);
-   if (written != data.size())
+   if (Maybe<void> write = fs->WriteFile(handle, &data[0], sizeof(uint8_t) * data.size()); !write)
    {
-      return Failure("Failed to write %1 elements: wrote %2 instead.", data.size(), written);
+      return write.Failure().WithContext("Failed to write data");
    }
 
    return Success;

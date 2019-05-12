@@ -25,6 +25,7 @@
 #include <Shared/UI/TextField.h>
 
 #include "../UI/Scrubber.h"
+#include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -37,7 +38,7 @@ namespace Editor
 namespace Skeletor
 {
 
-using Bone = AnimatedSkeleton::Bone;
+using Bone = Skeleton::Bone;
 using UI::Image;
 using UI::NumDisplay;
 using UI::RectFilled;
@@ -54,17 +55,25 @@ public:
 
 public:
    // Dock state actions
-   void SetBone(const size_t& boneId);
+   void SetStance(const std::string& stance);
+   void SetBone(const std::string& bone);
 
 public:
    // Event handlers
+   void Receive(const SuspendEditingEvent& evt);
+   void Receive(const ResumeEditingEvent& evt);
+   void Receive(const SkeletonClearedEvent& evt);
    void Receive(const SkeletonLoadedEvent& evt);
+   void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
 
 private:
    // State
-   size_t mBone;
+   std::string mBone;
+   std::string mStance;
+
    std::unique_ptr<Command> mScrubbing;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<Skeleton> mSkeleton;
+   Engine::ComponentHandle<SkeletonCollection> mSkeletons;
 
 private:
    template <typename N>
@@ -73,13 +82,11 @@ private:
       Scrubber<N>* scrubber;
    };
 
-   // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   UIElement* mKeyframes;
-   std::vector<std::pair<Image*, rhea::variable>> mKeyframeIcons;
+   // Stance inspector
+   Text* mStanceName;
 
    // Bone inspector
    Text* mBoneName;
-   Text* mBoneParent;
    LabelAndScrubber<float> mBonePos[3];
    LabelAndScrubber<float> mBoneRot[3];
    LabelAndScrubber<float> mBoneScl[3];
@@ -115,23 +122,26 @@ private:
    //
    //
    //
-   class ParentBoneCommand : public DockCommand
+   class NextStanceCommand : public DockCommand
    {
    public:
       using DockCommand::DockCommand;
       void Do() override;
       void Undo() override;
-   private:
-      size_t last;
    };
 
    //
    //
    //
-   class SetStateNameCommand : public DockCommand
+   using PrevStanceCommand = ReverseCommand<NextStanceCommand>;
+
+   //
+   //
+   //
+   class SetStanceNameCommand : public DockCommand
    {
    public:
-      SetStateNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
+      SetStanceNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
       void Do() override;
       void Undo() override { Do(); }
 

@@ -32,12 +32,10 @@ public:
    operator bool() const;
 
    // Pointer operators.
-   C* operator->();
-   const C* operator->() const;
+   C* operator->() const;
 
    // Dereference operators.
-   C& operator*();
-   const C& operator*() const;
+   C& operator*() const;
 
    // Getter
    C* get();
@@ -85,28 +83,14 @@ inline ComponentHandle<C, EM>::operator bool() const
 }
 
 template<typename C, typename EM>
-inline C* ComponentHandle<C, EM>::operator->()
+inline C* ComponentHandle<C, EM>::operator->() const
 {
    assert(IsValid());
    return manager->template GetComponentPtr<C>(id);
 }
 
 template<typename C, typename EM>
-inline const C* ComponentHandle<C, EM>::operator->() const
-{
-   assert(IsValid());
-   return manager->template GetComponentPtr<C>(id);
-}
-
-template<typename C, typename EM>
-inline C& ComponentHandle<C, EM>::operator*()
-{
-   assert(IsValid());
-   return *manager->template GetComponentPtr<C>(id);
-}
-
-template<typename C, typename EM>
-inline const C& ComponentHandle<C, EM>::operator*() const
+inline C& ComponentHandle<C, EM>::operator*() const
 {
    assert(IsValid());
    return *manager->template GetComponentPtr<C>(id);

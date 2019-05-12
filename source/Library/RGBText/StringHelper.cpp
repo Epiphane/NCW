@@ -55,7 +55,7 @@ std::string Join(const std::vector<std::string>& parts, std::string delim)
    }
    std::ostringstream result;
 
-   for (int i = 0; i < parts.size(); ++i)
+   for (size_t i = 0; i < parts.size(); ++i)
    {
       if (i > 0)
       {

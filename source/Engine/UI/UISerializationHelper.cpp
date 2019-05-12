@@ -6,7 +6,7 @@
 //
 
 #include <fstream>
-#include <RGBBinding/tmp/json.hpp>
+#include <RGBNetworking/JSONSerializer.h>
 #include <Shared/UI/RectFilled.h>
 
 #include "UIElement.h"
@@ -54,10 +54,10 @@ namespace Engine
  * @param elementMapOut  Pass in an ElementsByName reference that will be populated with the elements that are parsed
  *                          from the JSON.
  */
-Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut)
+Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut)
 {
    std::unique_ptr<UIElement> newElement;
-   std::string newElementClass = element["class"].get<std::string>();
+   std::string newElementClass = element["class"];
 
    if (newElementClass.compare("UIElement") == 0) {
       newElement = std::make_unique<UIElement>(pRoot, pParent, element["name"]);
@@ -119,14 +119,14 @@ Maybe<void> UISerializationHelper::ParseUIElement(nlohmann::json element, UIRoot
  * @param pRoot         UIRoot that will be receiving these constraints.
  * @param elementsMap   An elementsMap of all the elements that are involved in constraints
  */
-Maybe<void> UISerializationHelper::ParseConstraints(nlohmann::json constraints, UIRoot* pRoot, const ElementsByName &elementsMap)
+Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& constraints, UIRoot* pRoot, const ElementsByName &elementsMap)
 {
-   for (auto constraintData : constraints) {
+   for (const auto& constraintData : constraints) {
       std::string primaryElementName   = constraintData["primaryElement"];
-      std::string secondaryElementName = constraintData.value("secondaryElement", "");
+      std::string secondaryElementName = constraintData["secondaryElement"];
 
       std::string primaryTargetName   = constraintData["primaryTarget"];
-      std::string secondaryTargetName = constraintData.value("secondaryTarget", "NoTarget");
+      std::string secondaryTargetName = constraintData["secondaryTarget"];
 
       UIElement* primaryElement = nullptr;
       UIElement* secondaryElement = nullptr;
@@ -148,10 +148,10 @@ Maybe<void> UISerializationHelper::ParseConstraints(nlohmann::json constraints, 
       UIConstraint::Target secondaryTarget = UIConstraint::ConstraintTargetFromString(secondaryTargetName);
 
       UIConstraint::Options options;
-      options.customNameConnector = constraintData.value("name", "");
-      options.constant = constraintData.value("constant", 0.0);
-      options.multiplier = constraintData.value("multiplier", 1.0);
-      options.priority = constraintData.value("mPriority", UIConstraint::REQUIRED_PRIORITY);
+      options.customNameConnector = constraintData["name"];
+      options.constant = constraintData["constant"].GetDoubleValue();
+      options.multiplier = constraintData["multiplier"].GetDoubleValue(1.0);
+      options.priority = constraintData["mPriority"].GetDoubleValue(UIConstraint::REQUIRED_PRIORITY);
 
       UIConstraint newConstraint(primaryElement, secondaryElement, primaryTarget, secondaryTarget, options);
 
@@ -170,7 +170,7 @@ Maybe<void> UISerializationHelper::ParseConstraints(nlohmann::json constraints, 
  * Returns a map of newly created elements by their name, or a Failure state
  *  if we have bad data (unknown class names, etc.)
  */
-Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(nlohmann::json data, UIRoot* pRoot, UIElement* pParent)
+Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingProperty& data, UIRoot* pRoot, UIElement* pParent)
 {
    ElementsByName elementMap; // Passed into ParseUIElement and populated there
    Maybe<void> parsingResult;
@@ -195,7 +195,7 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(nlohmann::json
 //
 Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent)
 {
-   Maybe<nlohmann::json> data = Shared::GetJsonFromFile(filename);
+   Maybe<BindingProperty> data = JSONSerializer::DeserializeFile(filename);
    
    if (!data) {
       return Failure(data.Failure()).WithContext("UI Creation Failed");
@@ -209,11 +209,11 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::str
 //
 // Serialize a UIElement's heirarchy to JSON, including the constraints passed in from the editor.
 //
-nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
-   nlohmann::json result;
+BindingProperty UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
+   BindingProperty result;
    
-   element->ConvertToJSON(&result["baseElement"]);
-   SerializeConstraints(constraints, &result["constraints"]);
+   result["baseElement"] = element->ConvertToJSON();
+   result["constraints"] = SerializeConstraints(constraints);
    
    return result;
 }
@@ -222,10 +222,11 @@ nlohmann::json UISerializationHelper::CreateJSONFromUI(UIElement *element, const
 // Given the list of constraints from the Editor, serialize everything to a JSON file.
 //    Builds the constraint JSON data in the provided json parameter.
 //
-void UISerializationHelper::SerializeConstraints(const std::vector<UIConstraint>& constraints, nlohmann::json* outConstraintJson) 
+BindingProperty UISerializationHelper::SerializeConstraints(const std::vector<UIConstraint>& constraints)
 {
+   BindingProperty result;
    for (UIConstraint constraint : constraints) {
-      nlohmann::json constraintJson;
+      BindingProperty constraintJson = result.push_back(BindingProperty{});
       constraintJson["primaryElement"] = constraint.GetPrimaryElement()->GetName();
       constraintJson["primaryTarget"] = UIConstraint::StringFromConstraintTarget(constraint.GetPrimaryTarget());
       
@@ -237,9 +238,8 @@ void UISerializationHelper::SerializeConstraints(const std::vector<UIConstraint>
       const UIConstraint::Options& opts = constraint.GetOptions();
       constraintJson["constant"] = opts.constant;
       constraintJson["multiplier"] = opts.multiplier;
-      
-      outConstraintJson->push_back(constraintJson);
    }
+   return result;
 }
 
 } // CubeWorld

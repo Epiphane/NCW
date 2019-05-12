@@ -8,6 +8,7 @@
 
 #if defined(_WIN32)
 #define NOMSG
+#undef GetMessage
 #endif
 
 namespace CubeWorld

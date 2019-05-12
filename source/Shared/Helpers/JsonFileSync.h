@@ -25,7 +25,7 @@
 #include <libfswatch/c++/monitor.hpp>
 #endif
 
-#include <RGBBinding/JsonHelper.h>
+#include <RGBBinding/BindingProperty.h>
 #include <RGBFileSystem/Paths.h>
 
 namespace CubeWorld
@@ -49,7 +49,7 @@ public:
    // Get the JSON from the file. Returns a Failure if the JSON is invalid
    //    or the file is missing.
    //
-   Maybe<nlohmann::json> GetJsonFromFile();
+   Maybe<BindingProperty> GetJsonFromFile();
 
    bool DoesFileHaveNewUpdate();
 
@@ -86,7 +86,7 @@ private:
    //                it blocks as it copies the json structure over to us. Should be doable in 1 frame.
    //                orrrr have the json data be owned by this object, which uses a mutex to make sure nobody's
    //                reading/writing at the same time as each other.
-   nlohmann::json mData;
+   BindingProperty mData;
 
    // Filename we're tracking with this JsonFileSync object
    std::string mFilename;

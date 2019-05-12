@@ -1,7 +1,7 @@
 {
    "bones": {
       "Backpack": {
-         "parent": "Attachment",
+         "parent": "character.Attachment",
          "position": [
             0.0,
             1.0,

@@ -98,7 +98,7 @@ void UIRoot::HandleMouseMoveDebugConstraints(const MouseMoveEvent &evt)
    int numElementsUnderCursor = 0;
 
    // Find the frontmost UIElement under the mouse
-   for (long ndx = 0; ndx < mElements.size(); ndx++) {
+   for (size_t ndx = 0; ndx < mElements.size(); ndx++) {
       UIElement* elem = mElements[ndx];
 
       if (elem == mContextMenuLayer || elem == mConstraintDebugHighlight) {
@@ -284,7 +284,7 @@ void UIRoot::RemoveConstraintsForElement(const UIElement* element)
 void UIRoot::Receive(const MouseDownEvent& evt)
 {
    if (mConstraintDebuggingEnabled) {
-      for (long ndx = 0; ndx < mElements.size(); ndx++) {
+      for (size_t ndx = 0; ndx < mElements.size(); ndx++) {
          UIElement* elem = mElements[ndx];
          if (elem->ContainsPoint(evt.x, evt.y)) {
             elem->LogDebugInfo();
@@ -366,9 +366,9 @@ void UIRoot::UpdateRoot()
 
    for (int64_t ndx = mElements.size() - 1; ndx >= 0; ndx--)
    {
-      if (mElements[ndx]->IsMarkedForDeletion()) {
-         UIElement* toErase = mElements[ndx];
-         toErase->GetParent()->DestroyChild(toErase);
+      UIElement* elem = mElements[size_t(ndx)];
+      if (elem->IsMarkedForDeletion()) {
+         elem->GetParent()->DestroyChild(elem);
       }
    }
 

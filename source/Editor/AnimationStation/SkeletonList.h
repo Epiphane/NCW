@@ -10,6 +10,7 @@
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
+#include "SimpleAnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -44,14 +45,14 @@ private:
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
+   void Receive(const Engine::ComponentAddedEvent<Skeleton>& evt);
    void Receive(const SkeletonClearedEvent& evt);
 
 private:
    // State
-   Engine::ComponentHandle<AnimationController> mController;
-   std::vector<Engine::ComponentHandle<AnimatedSkeleton>> mSkeletons;
+   Engine::ComponentHandle<SimpleAnimationController> mController;
+   std::vector<Engine::ComponentHandle<Skeleton>> mSkeletons;
 
 private:
    //

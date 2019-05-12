@@ -2,6 +2,7 @@ build/*
 Build2/*
 xcode_build/*
 .DS_Store
+.vscode/ipch
 
 Assets/cache
 

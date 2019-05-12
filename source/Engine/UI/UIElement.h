@@ -19,7 +19,7 @@
 
 #include <RGBDesignPatterns/DereferenceIterator.h>
 #include <RGBLogger/Logger.h>
-#include <RGBBinding/tmp/json.hpp>
+#include <RGBBinding/BindingProperty.h>
 
 #include "UIConstrainable.h"
 #include "UIGestureRecognizer.h"
@@ -80,8 +80,8 @@ public:
    UIElement(UIRoot *root, UIElement *parent, const std::string& name = "");
    virtual ~UIElement();
 
-   virtual void InitFromJSON(nlohmann::json data);      // Override me :3
-   virtual void ConvertToJSON(nlohmann::json *outJson); // Also override me :3
+   virtual void InitFromJSON(const BindingProperty& data); // Override me :3
+   virtual BindingProperty ConvertToJSON();                // Also override me :3
 
    //
    // Add a UIElement as a child of this one.

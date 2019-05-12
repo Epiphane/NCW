@@ -48,6 +48,11 @@ public:
    ///
    ///
    ///
+   bool IsBound() { return mBinding != nullptr; }
+
+   ///
+   ///
+   ///
    T GetValue() { return mInternalValue; }
 
 protected:

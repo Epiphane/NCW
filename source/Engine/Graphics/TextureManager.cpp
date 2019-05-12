@@ -7,9 +7,11 @@
 #include <lodepng/lodepng.h>
 
 #include <RGBText/Format.h>
+#include <RGBFileSystem/FileSystem.h>
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
-#include <RGBBinding/tmp/json.hpp>
+#include <RGBNetworking/JSONSerializer.h>
+#include <RGBNetworking/YAMLSerializer.h>
 
 #include "TextureManager.h"
 
@@ -69,35 +71,55 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
       return result.Failure().WithContext("Failed loading PNG file");
    }
 
+   BindingProperty metadata;
+
    // Look for and load any metadata
-   if (Paths::Exists(filename + ".json"))
+#pragma warning(disable : 4101)
+   if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".yaml"); exists)
+#pragma warning(default : 4101)
    {
-      std::ifstream file(filename + ".json");
-      nlohmann::json metadata;
-      file >> metadata;
+      Maybe<BindingProperty> maybeMetadata = YAMLSerializer::DeserializeFile(filename + ".yaml");
+      if (!maybeMetadata)
+      {
+         return maybeMetadata.Failure().WithContext("Failed reading metadata");
+      }
+      else
+      {
+         metadata = std::move(*maybeMetadata);
+      }
+   }
+#pragma warning(disable : 4101 4456)
+   else if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".json"); exists)
+#pragma warning(default : 4101 4456)
+   {
+      Maybe<BindingProperty> maybeMetadata = JSONSerializer::DeserializeFile(filename + ".json");
+      if (!maybeMetadata)
+      {
+         return maybeMetadata.Failure().WithContext("Failed reading metadata");
+      }
+      else
+      {
+         metadata = std::move(*maybeMetadata);
+      }
+   }
 
-      if (metadata["width"] != texture->mWidth)
-      {
-         LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata.value("width", 0));
-      }
-      if (metadata["height"] != texture->mHeight)
-      {
-         LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata.value("height", 0));
-      }
+   if (metadata["width"] != texture->mWidth)
+   {
+      LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
+   }
+   if (metadata["height"] != texture->mHeight)
+   {
+      LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
+   }
 
-      if (auto images = metadata.find("images"); images != metadata.end())
-      {
-         for (auto it = images->begin(); it != images->end(); it++)
-         {
-            nlohmann::json info = it.value();
-            texture->mImages.emplace(it.key(), glm::vec4(
-               info.value("x", 0.0f) / texture->mWidth,
-               info.value("y", 0.0f) / texture->mHeight,
-               info.value("w", 0.0f) / texture->mWidth,
-               info.value("h", 0.0f) / texture->mHeight
-            ));
-         }
-      }
+   for (const auto [name, info] : metadata["images"].pairs())
+   {
+      texture->mImages.emplace(name, glm::vec4(
+         info["x"].GetFloatValue() / texture->mWidth,
+         info["y"].GetFloatValue() / texture->mHeight,
+         info["w"].GetFloatValue() / texture->mWidth,
+         info["h"].GetFloatValue() / texture->mHeight
+      ));
    }
 
    return std::move(texture);

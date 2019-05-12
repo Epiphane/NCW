@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <RGBFileSystem/File.h>
+#include <RGBFileSystem/FileSystem.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -25,7 +27,7 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
+   , mFilename(Asset::Skeleton("greatmace.yaml"))
    , mModified(true)
 {
    RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
@@ -74,19 +76,19 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 
    SetModified(false);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>&)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
 {
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<Skeleton>& evt)
 {
    // Lol beautiful trickery: we add skeleton parts from the root-most first,
    // up to the final piece being the one the user wants to load. Therefore,
@@ -139,20 +141,24 @@ void Sidebar::LoadFile(const std::string& filename)
    std::string currentFile = filename;
    do
    {
-      std::ifstream file(currentFile);
-      nlohmann::json data;
-      file >> data;
+      Maybe<BindingProperty> maybeData = YAMLSerializer::DeserializeFile(currentFile);
+      if (!maybeData)
+      {
+         LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
+         break;
+      }
+      const BindingProperty data = std::move(*maybeData);
 
       parts.push(currentFile);
 
-      std::string parent = data.value("parent", "");
+      std::string parent = data["parent"];
       if (parent == "")
       {
          currentFile = "";
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+         currentFile = Paths::Join(Paths::GetDirectory(currentFile), parent + ".yaml");
       }
    }
    while (currentFile != "");
@@ -179,9 +185,14 @@ void Sidebar::SaveNewFile()
 
 void Sidebar::SaveFile()
 {
-   std::string serialized = mSkeleton->Serialize();
-   std::ofstream out(mFilename);
-   out << serialized << std::endl;
+   mpRoot->Emit<SuspendEditingEvent>();
+   BindingProperty serialized = mSkeleton->Serialize();
+   mpRoot->Emit<ResumeEditingEvent>();
+   Maybe<void> written = YAMLSerializer{}.SerializeFile(mFilename, serialized);
+   if (!written)
+   {
+      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
+   }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);
