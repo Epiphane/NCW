@@ -88,9 +88,9 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
          metadata = std::move(*maybeMetadata);
       }
    }
-#pragma warning(disable : 4101)
+#pragma warning(disable : 4101 4456)
    else if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".json"); exists)
-#pragma warning(default : 4101)
+#pragma warning(default : 4101 4456)
    {
       Maybe<BindingProperty> maybeMetadata = JSONSerializer::DeserializeFile(filename + ".json");
       if (!maybeMetadata)

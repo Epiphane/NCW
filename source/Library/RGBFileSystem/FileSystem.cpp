@@ -6,6 +6,7 @@
 #include <Windows.h>
 #else
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
@@ -228,8 +229,52 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
       {
          return TransformPlatformError("Failed enumerating files");
       }
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+      DIR *dir;
+      dir = opendir(Paths::Join(base, path).c_str());
+      if (dir == nullptr)
+      {
+         return TransformPlatformError(Format::FormatString("Failed opening %1", Paths::Join(base, path)));
+      }
+
+      while (struct dirent *info = readdir(dir); info != nullptr)
+      {
+         // Ignore . and ..
+         if (strcmp(info->d_name, ".") == 0 || strcmp(info->d_name, "..") == 0)
+         {
+            continue;
+         }
+
+         DiskFileSystem::FileEntry entry;
+         entry.name = path + "/" + info->d_name;
+         entry.size = 0;
+
+         struct stat status;
+         if (0 == stat(path.c_str(), &status))
+         {
+            entry.isDirectory = (status.st_mode & S_IFDIR) != 0;
+            entry.size = status.st_size;
+         }
+
+         if (entry.isDirectory)
+         {
+            if (recursive)
+            {
+               paths.push_back(entry.name);
+            }
+            if (includeDirectories)
+            {
+               result.push_back(std::move(entry));
+            }
+         }
+         else
+         {
+            result.push_back(std::move(entry));
+         }
+      }
+      closedir(dir);
 #else
-#warning "DiskFileSystem::ListDirectory isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
    }
 
@@ -250,8 +295,15 @@ Maybe<FileSystem::FileHandle> DiskFileSystem::OpenFileRead(const std::string& pa
    }
 
    return result;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   int file = open(path.c_str(), O_RDONLY);
+   if (file == -1)
+   {
+      return TransformPlatformError("Failed opening file for read");
+   }
+   return file;
 #else
-   #warning "DiskFileSystem::OpenFileRead isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
 }
 
@@ -273,8 +325,15 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
    }
 
    return Success;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   ssize_t numRead = read(handle, data, size);
+   if (numRead != size)
+   {
+      return Failure{"Tried to read %1 bytes, but only got %2", size, numRead};
+   }
+   return Success;
 #else
-   #warning "DiskFileSystem::ReadFile isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
 }
 
@@ -292,6 +351,7 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
 
    CUBEWORLD_SCOPE_EXIT([&] { CloseFile(*maybeHandle); });
 
+   int64_t fSize = 0;
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    LARGE_INTEGER fileSize;
    if (GetFileSizeEx(*maybeHandle, &fileSize) == 0)
@@ -299,8 +359,22 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
       return TransformPlatformError("Failed getting file size");
    }
 
-   uint32_t fSize = uint32_t(fileSize.QuadPart);
-   result.resize(fSize);
+   fSize = int64_t(fileSize.QuadPart);
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   if (fseek(*maybeHandle, 0, SEEK_END) != 0)
+   {
+      return TransformPlatformError("Failed seeking to end of file");
+   }
+
+   fSize = ftell(*maybeHandle);
+   if (fSize < 0)
+   {
+      return TransformPlatformError("Failed getting file size");
+   }
+#else
+#error "Unhandled platform"
+#endif
+   result.resize(static_cast<uint32_t>(fSize));
    Maybe<void> read = ReadFile(*maybeHandle, result.data(), fSize);
    if (!read)
    {
@@ -308,9 +382,6 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
    }
 
    return result;
-#else
-   #warning "DiskFileSystem::ReadEntireFile isn't implemented for non-Windows yet lol"
-#endif
 }
 
 ///
@@ -327,8 +398,15 @@ Maybe<DiskFileSystem::FileHandle> DiskFileSystem::OpenFileWrite(const std::strin
    }
 
    return result;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   int file = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC);
+   if (file == -1)
+   {
+      return TransformPlatformError("Failed opening file for read");
+}
+   return file;
 #else
-   #warning "DiskFileSystem::OpenFileWrite isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
 }
 
@@ -350,8 +428,15 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
    }
 
    return Success;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   ssize_t numWritten = write(handle, data, size);
+   if (numWritten != size)
+   {
+      return Failure{"Tried to write %1 bytes, but only wrote %2", size, numWritten};
+   }
+   return Success;
 #else
-   #warning "DiskFileSystem::WriteFile isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
 }
 
@@ -384,11 +469,15 @@ Maybe<void> DiskFileSystem::SeekFile(FileHandle handle, Seek method, int64_t dis
    {
       return TransformPlatformError("Failed setting pointer in file");
    }
-
-   return Success;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   if (fseek(handle, dist, method) != 0)
+   {
+      return TransformPlatformError("Failed setting pointer in file");
+   }
 #else
-   #warning "DiskFileSystem::SeekFile isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
+   return Success;
 }
 
 ///
@@ -401,11 +490,15 @@ Maybe<void> DiskFileSystem::CloseFile(FileHandle handle)
    {
       return TransformPlatformError();
    }
-
-   return Success;
+#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+   if (close(handle) != 0)
+   {
+      return TransformPlatformError();
+   }
 #else
-   #warning "DiskFileSystem::CloseFile isn't implemented for non-Windows yet lol"
+#error "Unhandled platform"
 #endif
+   return Success;
 }
 
 }; // namespace CubeWorld

@@ -83,7 +83,9 @@ public:
    //
    // Seek to a new position within a file
    //
-   enum Seek { BEGIN = 0, CURRENT = 1, END = 2 };
+   // Win:     FILE_BEGIN = 0, FILE_CURRENT = 1, FILE_END = 2
+   // OSX:     SEEK_SET = 0,   SEEK_CUR = 1,     SEEK_END = 2
+   enum Seek { BEGIN = 0,      CURRENT = 1,      END = 2 };
 
    virtual Maybe<void> SeekFile(FileHandle handle, Seek method, int64_t dist) = 0;
 
