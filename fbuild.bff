@@ -1,0 +1,264 @@
+// Not Cube World
+//------------------------------------------------------------------------------
+
+.OutputPath = "$_CURRENT_BFF_DIR_$/tmp/"
+
+#include "dependencies/SDK/GCC/GCC.bff"
+#include "dependencies/SDK/VisualStudio/VisualStudio.bff"
+#include "dependencies/SDK/Clang/Clang.bff"
+#include "dependencies/SDK/Windows/Windows.bff"
+
+// Unity compilation is faster for full rebuilds but slower for iteration
+// Example benchmark:
+//   Engine rebuild (Unity) - 10s
+//   Engine rebuild (Obj)   - 17s
+//
+//   Engine build 1 change (Unity) - 10s
+//   Engine build 1 change (Obj)   - 2s
+// #define UNITY_BUILD
+
+//------------------------------------------------------------------------------
+// Config Defines
+//------------------------------------------------------------------------------
+.CommonOptions = ' -I"source/Library"'
+               + ' /std:c++17'
+               + ' -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING'
+               + ' -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING'
+               + ' -D_CRT_SECURE_NO_WARNINGS'
+               + ' -DNOMINMAX'
+            #if __WINDOWS__
+               + ' -DCUBEWORLD_PLATFORM_WINDOWS'
+               + ' -D_WIN32_WINNT=0x0601' // Windows 7
+            #endif
+            #if __OSX__
+               + ' -DCUBEWORLD_PLATFORM_MACOSX'
+            #endif
+.PreprocessorDefinitions   = '_HAS_CXX17;_HAS_CXX20'
+                        #if __WINDOWS__
+                           + ';CUBEWORLD_PLATFORM_WINDOWS;_WIN32_WINNT=0x0601'
+                        #endif
+                        #if __OSX__
+                           + ';CUBEWORLD_PLATFORM_MACOSX'
+                        #endif
+.Debug_Config =
+[
+   .CompilerOptions              = ' -DDEBUG -DPROFILING_ENABLED'
+                                 + .CommonOptions
+   .CompilerOptionsC             = .CompilerOptions
+
+   .Config                       = 'Debug'
+]
+.Release_Config =
+[
+   .CompilerOptions              = ' -DRELEASE'
+                                 + .CommonOptions
+   .CompilerOptionsC             = .CompilerOptions
+   .CompilerOptionsDeoptimized   = .CompilerOptions
+
+   .Config                       = 'Release'
+]
+
+//------------------------------------------------------------------------------
+// Optimizations (MSVC)
+//------------------------------------------------------------------------------
+.Debug_Optimizations_MSVC =
+[
+    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /GR- /analyze'
+    .CompilerOptionsC   = .CompilerOptions
+]
+.Release_Optimizations_MSVC =
+[
+   .CompilerOptions              = ' /MD /Ox /Oy /Oi /GS- /GF /Gy /Gw /GR- /analyze /Zo'
+   .CompilerOptionsC             = .CompilerOptions
+   .LinkerOptions                = ' /OPT:REF,ICF'
+   .CompilerOptionsDeoptimized   = .CompilerOptions
+                                 - ' /Ox'
+                                 + ' /Od'
+]
+
+//------------------------------------------------------------------------------
+// Optimizations (Clang/GCC)
+//------------------------------------------------------------------------------
+.Debug_Optimizations =
+[
+   .CompilerOptions                = ' -O0'
+   .CompilerOptionsC               = .CompilerOptions
+]
+.Release_Optimizations =
+[
+   .CompilerOptions                = ' -O2'
+   .CompilerOptionsC               = .CompilerOptions
+   .CompilerOptionsDeoptimized     = ' -O0'
+]
+
+//------------------------------------------------------------------------------
+// X64
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .X64BaseConfig      = .ToolChain_VS_Windows_X64
+                        + .WindowsSDK_X64
+    .X64DebugConfig     = .X64BaseConfig
+                        + .Debug_Config
+                        + .Debug_Optimizations_MSVC
+    .X64ReleaseConfig   = .X64BaseConfig
+                        + .Release_Config
+                        + .Release_Optimizations_MSVC
+#endif
+
+//------------------------------------------------------------------------------
+// OSX
+//------------------------------------------------------------------------------
+#if __OSX__
+   .X64DebugConfig_OSX     = .ToolChain_Clang_OSX
+                           + .Debug_Config
+                           + .Debug_Optimizations
+   .X64ReleaseConfig_OSX   = .ToolChain_Clang_OSX
+                           + .Release_Config
+                           + .Release_Optimizations
+   .X64ProfileConfig_OSX   = .ToolChain_Clang_OSX
+                           + .Profile_Config
+                           + .Profile_Optimizations
+#endif
+
+// Configurations
+//------------------------------------------------------------------------------
+.Configs = { .X64DebugConfig, .X64ReleaseConfig }
+
+.Targets_x64_Debug = {}
+.Targets_x64_Release = {}
+
+//------------------------------------------------------------------------------
+// VisualStudio Project Generation
+//------------------------------------------------------------------------------
+.ProjectCommon =
+[
+   .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel ^$(ProjectName)-^$(Configuration)'
+   .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -clean ^$(ProjectName)-^$(Configuration)'
+   .OutputDirectory            = '^$(SolutionDir)\Temp'
+   .IntermediateDirectory      = '^$(SolutionDir)\Temp'
+   .BuildLogFile               = '^$(SolutionDir)\Temp\^$(ProjectName)-^$(Configuration).log'
+   .Platform                   = 'x64'
+   .PlatformToolset            = '$VS_PlatformToolset$'
+]
+
+.ProjectX64Debug        = [ Using( .ProjectCommon ) .Config = 'x64-Debug' ]
+.ProjectX64Release      = [ Using( .ProjectCommon ) .Config = 'x64-Release' ]
+.ProjectX64ClangDebug   = [ Using( .ProjectCommon ) .Config = 'x64Clang-Debug' ]
+.ProjectX64ClangRelease = [ Using( .ProjectCommon ) .Config = 'x64Clang-Release' ]
+
+.ProjectConfigs = { .ProjectX64Debug, .ProjectX64Release }
+
+//------------------------------------------------------------------------------
+// External Dependencies
+//------------------------------------------------------------------------------
+.Dependencies = {}
+.DependencyProjects = {}
+.IncludeSearchPath = ''
+#include "dependencies/freetype/freetype.bff"
+#include "dependencies/glad/glad.bff"
+#include "dependencies/glfw/glfw.bff"
+#include "dependencies/glm/glm.bff"
+#if !__WINDOWS__
+    #include "dependencies/libfswatch/libfswatch.bff"
+#endif
+#include "dependencies/libnoise/libnoise.bff"
+#include "dependencies/libyaml/libyaml.bff"
+#include "dependencies/lodepng/lodepng.bff"
+#include "dependencies/noiseutils/noiseutils.bff"
+#include "dependencies/rapidjson/rapidjson.bff"
+#include "dependencies/rhea/rhea.bff"
+#include "dependencies/sqlite/sqlite.bff"
+#include "dependencies/zlib/zlib.bff"
+
+Alias('All-Dependencies')
+{
+   .Targets = .Dependencies
+}
+
+//------------------------------------------------------------------------------
+// Source code
+//------------------------------------------------------------------------------
+.CoreLibraries = {}
+#include "source/source.bff"
+
+//------------------------------------------------------------------------------
+// Aliases
+//------------------------------------------------------------------------------
+VCXProject( 'All-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/All.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+}
+
+// Project to regenerate projects/solutions
+VCXProject( 'UpdateSolution-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/UpdateSolution.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+
+   .GenerateProjectsCommands =
+   [
+      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln -vs'
+      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln -vs -clean'
+   ]
+
+   .ProjectX64Debug        = [ Using( .ProjectX64Debug )       Using( .GenerateProjectsCommands ) ]
+   .ProjectX64Release      = [ Using( .ProjectX64Release )     Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs = { .ProjectX64Debug, .ProjectX64Release }
+}
+
+VSSolution('CubeWorld-sln')
+{
+   .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
+   .SolutionProjects    =  {
+                              'Engine-proj'
+                              'Shared-proj'
+                              'DataCLI-proj'
+                              'All-proj'
+                              'UpdateSolution-proj'
+                           }
+   .SolutionBuildProject   = 'All-proj'
+   .SolutionConfigs        = .ProjectConfigs
+   .SolutionVisualStudioVersion = .VS_Version
+   
+   .Folder_Dependencies =
+   [
+      .Path           = 'Dependencies'
+      .Projects       = .DependencyProjects
+   ]
+
+   .Folder_Library =
+   [
+      .Path           = 'Library'
+      .Projects       = .CoreLibraries
+   ]
+
+   .SolutionFolders   = {
+                           .Folder_Dependencies
+                           .Folder_Library
+                        }
+}
+
+Alias('All-x64-Debug')
+{
+   .Targets = .Targets_x64_Debug
+}
+
+Alias('All-x64-Release')
+{
+   .Targets = .Targets_x64_Release
+}
+
+// All
+//------------------------------------------------------------------------------
+Alias( 'All' )
+{
+   .Targets  = {
+                  'All-x64-Debug'
+                  'All-x64-Release'
+               }
+}

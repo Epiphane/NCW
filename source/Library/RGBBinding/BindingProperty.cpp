@@ -19,7 +19,9 @@ BindingProperty::BindingProperty(const Type& type)
    };
    assert(type <= kArrayType && "Invalid type provided");
 
+#pragma warning(disable : 6385) // Reading invalid data - doesn't recognize the assert above
    flags = defaultFlags[type];
+#pragma warning(default : 6385)
    if (type == kStringType) { data.stringVal.clear(); }
    else if (type == kObjectType) { new (&data.objectVal) RGBBinding::Array<KeyVal>(); }
    else if (type == kArrayType) { new (&data.arrayVal) RGBBinding::Array<BindingProperty>(); }
@@ -76,7 +78,7 @@ BindingProperty::BindingProperty(bool value)
 BindingProperty::BindingProperty(int32_t i)
 {
    data.numVal.i64 = i;
-   flags = (i >= 0) ? (kNumberIntFlag | kUintFlag | kUint64Flag) : kNumberIntFlag;
+   flags = uint16_t((i >= 0) ? (kNumberIntFlag | kUintFlag | kUint64Flag) : kNumberIntFlag);
 }
 
 BindingProperty::BindingProperty(int64_t i64)
@@ -97,7 +99,7 @@ BindingProperty::BindingProperty(int64_t i64)
 BindingProperty::BindingProperty(uint32_t u)
 {
    data.numVal.u64 = u;
-   flags = (u & 0x80000000) ? kNumberUintFlag : (kNumberUintFlag | kIntFlag | kInt64Flag);
+   flags = uint16_t((u & 0x80000000) ? kNumberUintFlag : (kNumberUintFlag | kIntFlag | kInt64Flag));
 }
 
 BindingProperty::BindingProperty(uint64_t u64)

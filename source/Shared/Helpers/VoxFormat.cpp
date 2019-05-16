@@ -1,9 +1,5 @@
 // By Thomas Steinke
 
-#if CUBEWORLD_PLATFORM_WINDOWS && !_CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -40,18 +36,15 @@ const VoxModelData::Material VoxModelData::Material::Default = {
    false, // ldr
 };
 
-namespace
-{
-
-struct FileHeader {
+struct VoxFormat::FileHeader {
    char id[4];
    int32_t version;
 };
 
-struct Chunk {
+struct VoxFormat::Chunk {
    constexpr static uint32_t MakeChunkID(const char id[])
    {
-      return (id[3] << 24) | (id[2] << 16) | (id[1] << 8) | id[0];
+      return uint32_t((id[3] << 24) | (id[2] << 16) | (id[1] << 8) | id[0]);
    }
 
    inline static std::string ReadChunkID(uint32_t id)
@@ -100,39 +93,39 @@ public:
    const static uint32_t rOBJ;
 };
 
-const uint32_t Chunk::MAIN = MakeChunkID("MAIN");
-const uint32_t Chunk::SIZE = MakeChunkID("SIZE");
-const uint32_t Chunk::PACK = MakeChunkID("PACK");
-const uint32_t Chunk::XYZI = MakeChunkID("XYZI");
-const uint32_t Chunk::RGBA = MakeChunkID("RGBA");
-const uint32_t Chunk::LAYR = MakeChunkID("LAYR");
-const uint32_t Chunk::IMAP = MakeChunkID("IMAP");
-const uint32_t Chunk::MATL = MakeChunkID("MATL");
-const uint32_t Chunk::nTRN = MakeChunkID("nTRN");
-const uint32_t Chunk::nGRP = MakeChunkID("nGRP");
-const uint32_t Chunk::nSHP = MakeChunkID("nSHP");
-const uint32_t Chunk::rOBJ = MakeChunkID("rOBJ");
+const uint32_t VoxFormat::Chunk::MAIN = MakeChunkID("MAIN");
+const uint32_t VoxFormat::Chunk::SIZE = MakeChunkID("SIZE");
+const uint32_t VoxFormat::Chunk::PACK = MakeChunkID("PACK");
+const uint32_t VoxFormat::Chunk::XYZI = MakeChunkID("XYZI");
+const uint32_t VoxFormat::Chunk::RGBA = MakeChunkID("RGBA");
+const uint32_t VoxFormat::Chunk::LAYR = MakeChunkID("LAYR");
+const uint32_t VoxFormat::Chunk::IMAP = MakeChunkID("IMAP");
+const uint32_t VoxFormat::Chunk::MATL = MakeChunkID("MATL");
+const uint32_t VoxFormat::Chunk::nTRN = MakeChunkID("nTRN");
+const uint32_t VoxFormat::Chunk::nGRP = MakeChunkID("nGRP");
+const uint32_t VoxFormat::Chunk::nSHP = MakeChunkID("nSHP");
+const uint32_t VoxFormat::Chunk::rOBJ = MakeChunkID("rOBJ");
 
-struct PACK {
+struct VoxFormat::PACK {
    uint32_t numModels;
 };
 
-struct SIZE {
+struct VoxFormat::SIZE {
    uint32_t width; // size x
    uint32_t length; // size z
    uint32_t height; // size y
 };
 
-struct XYZI {
+struct VoxFormat::XYZI {
    uint32_t numVoxels; // N
    // int32_t[4 * N] voxels; // (x, y, z, colorIndex)
 };
 
-struct RGBA {
+struct VoxFormat::RGBA {
    uint32_t values[256];
 };
 
-uint32_t default_palette[] = {
+const uint32_t VoxFormat::default_palette[] = {
    0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,
    0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff,
    0xffcc00ff, 0xff9900ff, 0xff6600ff, 0xff3300ff, 0xff0000ff, 0xffffffcc, 0xffccffcc, 0xff99ffcc, 0xff66ffcc, 0xff33ffcc, 0xff00ffcc, 0xffffcccc, 0xffcccccc, 0xff99cccc, 0xff66cccc, 0xff33cccc,
@@ -151,7 +144,7 @@ uint32_t default_palette[] = {
    0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
 };
 
-struct ROTATION {
+struct VoxFormat::ROTATION {
    // bit | value
    // 0-1 : 1 : index of the non-zero entry in the first row
    // 2-3 : 2 : index of the non-zero entry in the second row
@@ -161,7 +154,7 @@ struct ROTATION {
    uint8_t _r;
 };
 
-struct nTRN {
+struct VoxFormat::nTRN {
    struct Header {
       int32_t id;
    };
@@ -178,7 +171,7 @@ struct nTRN {
    Body body;
 };
 
-struct nGRP {
+struct VoxFormat::nGRP {
    struct Header {
       int32_t id;
    };
@@ -192,7 +185,7 @@ struct nGRP {
    Body body;
 };
 
-struct nSHP {
+struct VoxFormat::nSHP {
    struct Header {
       int32_t id;
    };
@@ -209,18 +202,18 @@ struct nSHP {
    Body body;
 };
 
-struct MATL {
+struct VoxFormat::MATL {
    int32_t id;
    // DICT properties;
 };
 
-struct LAYR {
+struct VoxFormat::LAYR {
    int32_t id;
    // DICT attributes;
    int32_t reserved = -1;
 };
 
-Maybe<Chunk> ReadChunk(FileSystem& fs, FileSystem::FileHandle handle)
+Maybe<VoxFormat::Chunk> VoxFormat::ReadChunk(FileSystem& fs, FileSystem::FileHandle handle)
 {
    Chunk chunk;
 
@@ -254,7 +247,7 @@ Maybe<Chunk> ReadChunk(FileSystem& fs, FileSystem::FileHandle handle)
    return chunk;
 }
 
-std::string ParseString(int32_t*& data)
+std::string VoxFormat::ParseString(int32_t*& data)
 {
    int32_t size = *data++;
    int8_t* start = (int8_t*)data;
@@ -264,7 +257,7 @@ std::string ParseString(int32_t*& data)
    return std::string(start, end);
 }
 
-int32_t* WriteString(int32_t* data, const std::string& string)
+int32_t* VoxFormat::WriteString(int32_t* data, const std::string& string)
 {
    *data++ = int32_t(string.size());
    char* start = (char*)data;
@@ -273,7 +266,7 @@ int32_t* WriteString(int32_t* data, const std::string& string)
    return (int32_t*)end;
 }
 
-std::vector<std::pair<std::string, std::string>> ParseDict(int32_t*& data)
+std::vector<std::pair<std::string, std::string>> VoxFormat::ParseDict(int32_t*& data)
 {
    std::vector<std::pair<std::string, std::string>> result;
    int32_t nAttributes = *data++;
@@ -286,7 +279,7 @@ std::vector<std::pair<std::string, std::string>> ParseDict(int32_t*& data)
    return result;
 }
 
-int32_t* WriteDict(int32_t* data, const std::vector<std::pair<std::string, std::string>>& pairs)
+int32_t* VoxFormat::WriteDict(int32_t* data, const std::vector<std::pair<std::string, std::string>>& pairs)
 {
    *data++ = int32_t(pairs.size());
    for (const auto& pair : pairs)
@@ -297,7 +290,7 @@ int32_t* WriteDict(int32_t* data, const std::vector<std::pair<std::string, std::
    return data;
 }
 
-std::string ToShortString(float val)
+std::string VoxFormat::ToShortString(float val)
 {
    std::string result = std::to_string(val);
    result.erase(result.find_last_not_of('0') + 1, std::string::npos);
@@ -305,7 +298,7 @@ std::string ToShortString(float val)
    return result;
 }
 
-Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
+Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
 {
    int32_t* data = (int32_t*)&chunk.data[0];
    if (chunk.header.id == Chunk::SIZE)
@@ -593,9 +586,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->sun.color[0] = int8_t(std::stoi(components[0]));
-         model->sun.color[1] = int8_t(std::stoi(components[1]));
-         model->sun.color[2] = int8_t(std::stoi(components[2]));
+         model->sun.color[0] = uint8_t(std::stoi(components[0]));
+         model->sun.color[1] = uint8_t(std::stoi(components[1]));
+         model->sun.color[2] = uint8_t(std::stoi(components[2]));
          components = StringHelper::Split(properties[3].second, ' ');
          if (components.size() != 2)
          {
@@ -622,9 +615,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->sky.color[0] = int8_t(std::stoi(components[0]));
-         model->sky.color[1] = int8_t(std::stoi(components[1]));
-         model->sky.color[2] = int8_t(std::stoi(components[2]));
+         model->sky.color[0] = uint8_t(std::stoi(components[0]));
+         model->sky.color[1] = uint8_t(std::stoi(components[1]));
+         model->sky.color[2] = uint8_t(std::stoi(components[2]));
       }
       else if (type == "_atm")
       {
@@ -647,9 +640,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->atm.rayleighColor[0] = int8_t(std::stoi(components[0]));
-         model->atm.rayleighColor[1] = int8_t(std::stoi(components[1]));
-         model->atm.rayleighColor[2] = int8_t(std::stoi(components[2]));
+         model->atm.rayleighColor[0] = uint8_t(std::stoi(components[0]));
+         model->atm.rayleighColor[1] = uint8_t(std::stoi(components[1]));
+         model->atm.rayleighColor[2] = uint8_t(std::stoi(components[2]));
 
          model->atm.mieDensity = std::stof(properties[3].second);
          components = StringHelper::Split(properties[4].second, ' ');
@@ -657,9 +650,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[4].second, components.size());
          }
-         model->atm.mieColor[0] = int8_t(std::stoi(components[0]));
-         model->atm.mieColor[1] = int8_t(std::stoi(components[1]));
-         model->atm.mieColor[2] = int8_t(std::stoi(components[2]));
+         model->atm.mieColor[0] = uint8_t(std::stoi(components[0]));
+         model->atm.mieColor[1] = uint8_t(std::stoi(components[1]));
+         model->atm.mieColor[2] = uint8_t(std::stoi(components[2]));
          model->atm.miePhase = std::stof(properties[5].second);
 
          model->atm.ozoneDensity = std::stof(properties[6].second);
@@ -668,9 +661,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[7].second, components.size());
          }
-         model->atm.ozoneColor[0] = int8_t(std::stoi(components[0]));
-         model->atm.ozoneColor[1] = int8_t(std::stoi(components[1]));
-         model->atm.ozoneColor[2] = int8_t(std::stoi(components[2]));
+         model->atm.ozoneColor[0] = uint8_t(std::stoi(components[0]));
+         model->atm.ozoneColor[1] = uint8_t(std::stoi(components[1]));
+         model->atm.ozoneColor[2] = uint8_t(std::stoi(components[2]));
       }
       else if (type == "_fog_uni")
       {
@@ -688,9 +681,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->fog.color[0] = int8_t(std::stoi(components[0]));
-         model->fog.color[1] = int8_t(std::stoi(components[1]));
-         model->fog.color[2] = int8_t(std::stoi(components[2]));
+         model->fog.color[0] = uint8_t(std::stoi(components[0]));
+         model->fog.color[1] = uint8_t(std::stoi(components[1]));
+         model->fog.color[2] = uint8_t(std::stoi(components[2]));
       }
       else if (type == "_lens")
       {
@@ -712,8 +705,8 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          model->lens.exposure = std::stof(properties[3].second);
          model->lens.vignette = properties[4].second == "1";
          model->lens.stereographics = properties[5].second == "1";
-         model->lens.bladeNumber = int8_t(std::stoi(properties[6].second));
-         model->lens.bladeRotation = int8_t(std::stoi(properties[7].second));
+         model->lens.bladeNumber = uint8_t(std::stoi(properties[6].second));
+         model->lens.bladeRotation = int16_t(std::stoi(properties[7].second));
       }
       else if (type == "_bloom")
       {
@@ -760,9 +753,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->ground.color[0] = int8_t(std::stoi(components[0]));
-         model->ground.color[1] = int8_t(std::stoi(components[1]));
-         model->ground.color[2] = int8_t(std::stoi(components[2]));
+         model->ground.color[0] = uint8_t(std::stoi(components[0]));
+         model->ground.color[1] = uint8_t(std::stoi(components[1]));
+         model->ground.color[2] = uint8_t(std::stoi(components[2]));
          model->ground.horizon = std::stof(properties[2].second);
       }
       else if (type == "_bg")
@@ -779,9 +772,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->bg.color[0] = int8_t(std::stoi(components[0]));
-         model->bg.color[1] = int8_t(std::stoi(components[1]));
-         model->bg.color[2] = int8_t(std::stoi(components[2]));
+         model->bg.color[0] = uint8_t(std::stoi(components[0]));
+         model->bg.color[1] = uint8_t(std::stoi(components[1]));
+         model->bg.color[2] = uint8_t(std::stoi(components[2]));
       }
       else if (type == "_edge")
       {
@@ -798,9 +791,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->edge.color[0] = int8_t(std::stoi(components[0]));
-         model->edge.color[1] = int8_t(std::stoi(components[1]));
-         model->edge.color[2] = int8_t(std::stoi(components[2]));
+         model->edge.color[0] = uint8_t(std::stoi(components[0]));
+         model->edge.color[1] = uint8_t(std::stoi(components[1]));
+         model->edge.color[2] = uint8_t(std::stoi(components[2]));
          model->edge.width = std::stof(properties[2].second);
       }
       else if (type == "_grid")
@@ -820,10 +813,10 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->grid.color[0] = int8_t(std::stoi(components[0]));
-         model->grid.color[1] = int8_t(std::stoi(components[1]));
-         model->grid.color[2] = int8_t(std::stoi(components[2]));
-         model->grid.spacing = std::stoi(properties[2].second);
+         model->grid.color[0] = uint8_t(std::stoi(components[0]));
+         model->grid.color[1] = uint8_t(std::stoi(components[1]));
+         model->grid.color[2] = uint8_t(std::stoi(components[2]));
+         model->grid.spacing = uint32_t(std::stoi(properties[2].second));
          model->grid.width = std::stof(properties[3].second);
          model->grid.onGround = properties[4].second == "1";
       }
@@ -855,9 +848,9 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
          {
             return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
          }
-         model->settings.scale[0] = int8_t(std::stoi(components[0]));
-         model->settings.scale[1] = int8_t(std::stoi(components[1]));
-         model->settings.scale[2] = int8_t(std::stoi(components[2]));
+         model->settings.scale[0] = uint8_t(std::stoi(components[0]));
+         model->settings.scale[1] = uint8_t(std::stoi(components[1]));
+         model->settings.scale[2] = uint8_t(std::stoi(components[2]));
       }
    }
    else
@@ -872,7 +865,7 @@ Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk)
    return Success;
 }
 
-Maybe<size_t> WriteRenderObj(FileSystem& fs, FileSystem::FileHandle handle, const std::vector<std::pair<std::string, std::string>>& properties)
+Maybe<size_t> VoxFormat::WriteRenderObj(FileSystem& fs, FileSystem::FileHandle handle, const std::vector<std::pair<std::string, std::string>>& properties)
 {
    size_t chunkSize = sizeof(int32_t) /* DICT header */;
    for (const auto& keyval : properties)
@@ -902,28 +895,23 @@ Maybe<size_t> WriteRenderObj(FileSystem& fs, FileSystem::FileHandle handle, cons
    return data.size();
 }
 
-}; // anonymous namespace
-
-namespace
-{
-
-bool IsFilled(const std::vector<bool>& filled, int index)
+bool VoxFormat::IsFilled(const std::vector<bool>& filled, int index)
 {
    if (index < 0 || size_t(index) >= filled.size())
    {
       return false;
    }
 
-   return filled[index];
+   return filled[size_t(index)];
 }
 
-int Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
+int32_t VoxFormat::Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    if (x >= metadata.width || y >= metadata.height || z >= metadata.length) { return -1; }
-   return x + z * metadata.width + y * metadata.width * metadata.length;
+   return int32_t(x + z * metadata.width + y * metadata.width * metadata.length);
 }
 
-uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
+uint8_t VoxFormat::GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    uint8_t faces = All;
    int right = Index(metadata, x + 1, y, z);
@@ -947,8 +935,6 @@ uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& 
    return faces;
 }
 
-}; // namespace
-
 Model* VoxFormat::Load(const std::string& path, bool tintable)
 {
    auto maybeModel = sDepModels.find(path);
@@ -967,7 +953,7 @@ Model* VoxFormat::Load(const std::string& path, bool tintable)
    }
    std::unique_ptr<Model> model = std::make_unique<Model>(std::move(result.Result()));
 
-   model->mVBO.BufferData(sizeof(Data) * int(model->mVoxelData.size()), &model->mVoxelData[0], GL_STATIC_DRAW);
+   model->mVBO.BufferData(sizeof(Data) * model->mVoxelData.size(), &model->mVoxelData[0], GL_STATIC_DRAW);
    model->mIsTintable = tintable;
 
    auto emplaceResult = sDepModels.emplace(path, std::move(model));
@@ -1014,7 +1000,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          uint8_t z = (info >> 8) & 0xff;
          uint8_t x = info & 0xff;
 
-         size_t ndx = Index(metadata, x, y, z);
+         size_t ndx = (size_t)Index(metadata, x, y, z);
          filled[ndx] = true;
       }
 
@@ -1044,17 +1030,17 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
    }
 
    // Buffer to GPU
-   model->vbo.BufferData(GLsizei(sizeof(Data) * voxels.size()), &voxels[0], GL_STATIC_DRAW);
+   model->vbo.BufferData(sizeof(Data) * voxels.size(), &voxels[0], GL_STATIC_DRAW);
 
    // Dive down the tree, building all shapes
-   std::queue<std::tuple<uint32_t, uint32_t, glm::mat4>> remaining({ {0, 0, glm::mat4(1)} });
+   std::queue<std::tuple<int32_t, uint32_t, glm::mat4>> remaining({ {int32_t(0), uint32_t(0), glm::mat4(1)} });
    model->parents.resize(data->transforms.size(), 0);
    while (!remaining.empty())
    {
       auto [id, parentID, parent] = remaining.front();
       remaining.pop();
 
-      if (data->transforms.find(id) == data->transforms.end())
+      if (data->transforms.count(id) == 0)
       {
          return Failure("Unexpected non-nTRN node: %1", id);
       }
@@ -1156,7 +1142,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       // Respect layer names
       if (node.layer >= 0)
       {
-         const VoxModelData::Layer& layer = data->layers[node.layer];
+         const VoxModelData::Layer& layer = data->layers[size_t(node.layer)];
          if (layer.name == "Tintable")
          {
             part.tintable = true;
@@ -1193,8 +1179,8 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       {
          const VoxModelData::ShapeNode& shape = data->shapes[node.child];
 
-         part.start = models[shape.model].start;
-         part.size = models[shape.model].size;
+         part.start = models[(size_t)shape.model].start;
+         part.size = models[(size_t)shape.model].size;
 
          // Add to the final model
          model->parts.push_back(part);
@@ -1299,7 +1285,7 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
       uint8_t z = (info >> 8) & 0xff;
       uint8_t x = info & 0xff;
 
-      size_t ndx = Index(result->mMetadata, x, y, z);
+      size_t ndx = (size_t)Index(result->mMetadata, x, y, z);
       filled[ndx] = true;
    }
 
@@ -1394,10 +1380,10 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
    }
 
    // Write render transforms (pretty much unused)
-   size_t nNodes = voxModelData.transforms.size() + voxModelData.groups.size() + voxModelData.shapes.size();
-   for (uint32_t id = 0; id < nNodes; id ++)
+   int32_t nNodes = int32_t(voxModelData.transforms.size() + voxModelData.groups.size() + voxModelData.shapes.size());
+   for (int32_t id = 0; id < nNodes; id ++)
    {
-      if (voxModelData.transforms.find(id) != voxModelData.transforms.end())
+      if (voxModelData.transforms.count(id) != 0)
       {
          const VoxModelData::TransformNode& transform = voxModelData.transforms.at(id);
 
@@ -1950,7 +1936,12 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
    // memset(voxModelData.palette, 0, sizeof(voxModelData.palette));
    for (const Voxel::Data& voxel : modelData.mVoxelData)
    {
-      uint32_t rgba = (uint8_t(voxel.color.r)) | (uint8_t(voxel.color.g) << 8) | (uint8_t(voxel.color.b) << 16) | 0xff << 24;
+      uint32_t rgba = uint32_t(
+         (uint8_t(voxel.color.r)) |
+         (uint8_t(voxel.color.g) << 8) |
+         (uint8_t(voxel.color.b) << 16) |
+         0xff << 24
+      );
 
       uint8_t colorIndex = 255;
       for (; colorIndex > 1; colorIndex --)
@@ -1972,7 +1963,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
       else if (colorIndex <= available)
       {
-         available = colorIndex - 1;
+         available = uint8_t(colorIndex - 1);
          if (available < 0)
          {
             return Failure("Too many colors");
@@ -1982,14 +1973,16 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
 
       // Inverse of how we do centering.
-      int32_t x = (modelData.mMetadata.width - 1) / 2 + int32_t(voxel.position.x);
-      int32_t z = modelData.mMetadata.height / 2 + int32_t(voxel.position.y);
-      int32_t y = (modelData.mMetadata.length - 1) / 2 - int32_t(voxel.position.z);
+      int32_t x = int32_t((modelData.mMetadata.width - 1)  / 2 + voxel.position.x);
+      int32_t z = int32_t( modelData.mMetadata.height      / 2 + voxel.position.y);
+      int32_t y = int32_t((modelData.mMetadata.length - 1) / 2 - voxel.position.z);
 
-      uint32_t packed = uint8_t(x) | 
+      uint32_t packed = uint32_t(
+         uint8_t(x) |
          (uint8_t(y) << 8) | 
          (uint8_t(z) << 16) | 
-         (colorIndex << 24);
+         (colorIndex << 24)
+      );
       model.voxels.push_back(packed);
    };
    for (int i = 1; i < 256; i ++)

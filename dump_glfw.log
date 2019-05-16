@@ -1,0 +1,22 @@
+Microsoft (R) COFF/PE Dumper Version 14.20.27508.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Users\Thomas\Code\CubeWorldC++\tmp\x64-Debug\glad\glad\glad.lib
+
+File Type: LIBRARY
+
+  Summary
+
+        1708 .bss
+          E8 .chks64
+        376C .data
+       12390 .debug$S
+        7168 .debug$T
+          30 .drectve
+         12C .pdata
+         150 .rdata
+           8 .rtc$IMZ
+           8 .rtc$TMZ
+        4054 .text$mn
+          D4 .xdata

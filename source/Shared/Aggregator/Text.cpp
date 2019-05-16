@@ -62,7 +62,7 @@ void Text::Render()
    for (auto& pair : mTextureIndices)
    {
       if (pair.second.dirty) {
-         pair.second.vbo.BufferData(sizeof(GLuint) * GLsizei(pair.second.data.size()), pair.second.data.data(), GL_STATIC_DRAW);
+         pair.second.vbo.BufferData(sizeof(GLuint) * pair.second.data.size(), pair.second.data.data(), GL_STATIC_DRAW);
          pair.second.dirty = false;
       }
 

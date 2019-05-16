@@ -1,0 +1,32 @@
+// LibFSWatch external library
+//------------------------------------------------------------------------------
+.LibFSWatchIncludePaths = ''
+{
+   .LibraryName         = 'libfswatch'
+   .LibraryVersion      = '0.2.4'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/libfswatch'
+   .LibrarySourceFiles  =  {
+                              'getopt.cpp'
+                              'cevent.cpp'
+                              'libfswatch.cpp'
+                              'libfswatch_log.cpp'
+                              'event.cpp'
+                              'filter.cpp'
+                              'libfswatch_exception.cpp'
+                              'monitor.cpp'
+                              'monitor_factory.cpp'
+                              'path_utils.cpp'
+                              'poll_monitor.cpp'
+                              'string_utils.cpp'
+                           }
+   .AdditionalCompilerOptions = ' -D_NOEXCEPT=noexcept'
+                              + ' -I$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/libfswatch'
+
+   #define UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^LibFSWatchIncludePaths = ' -I$LibraryIncludePaths$'
+}

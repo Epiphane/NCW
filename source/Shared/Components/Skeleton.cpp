@@ -103,7 +103,7 @@ void Skeleton::Load(const BindingProperty& data)
       base.name = "base";
       base.parent = "";
       
-      stanceLookup.emplace("base", 0);
+      stanceLookup.emplace("base", size_t(0));
       stances.push_back(std::move(base));
    }
 

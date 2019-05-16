@@ -86,7 +86,7 @@ public:
 
 public:
    Input();
-   ~Input();
+   virtual ~Input();
 
 public:
    //

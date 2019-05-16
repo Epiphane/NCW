@@ -40,7 +40,9 @@ void StdoutLogger::Log(const char* message, Color color)
    }
    else // TODO
    {
+#pragma warning(disable : 4129)
       fprintf(stdout, "\e[1;31m%s\e[m", message);
+#pragma warning(default : 4129)
    }
 }
 

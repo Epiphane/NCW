@@ -54,7 +54,7 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
          continue;
       }
 
-      Maybe<TextureAtlas::Region> region = mAtlas.Allocate(mFace->glyph->bitmap.width, mFace->glyph->bitmap.rows);
+      Maybe<TextureAtlas::Region> region = mAtlas.Allocate(GLsizei(mFace->glyph->bitmap.width), GLsizei(mFace->glyph->bitmap.rows));
       if (!region) {
          LOG_ERROR("Failed to allocate region for glyph: (%1)", c);
          continue;
@@ -88,7 +88,7 @@ glm::vec2 Font::GetSizeOfRenderedText(const std::string& text)
          continue;
       }
       
-      Character ch = characters[c];
+      Character ch = characters[size_t(c)];
       
       cursor += ch.bearing.x;
       cursor += (ch.advance >> 6);
@@ -113,7 +113,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
          continue;
       }
 
-      Character ch = characters[c];
+      Character ch = characters[size_t(c)];
 
       GLfloat xpos = cursor + ch.bearing.x * scale;
       GLfloat ypos = y + (ch.bearing.y - ch.size.y) * scale;

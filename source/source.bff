@@ -1,0 +1,33 @@
+// Source files
+//------------------------------------------------------------------------------
+
+.IncludeSearchPath + '$_WORKING_DIR_$/source;$_WORKING_DIR_$/source/Library;'
+
+#include "Library/RGBBinding/RGBBinding.bff"
+#include "Library/RGBDesignPatterns/RGBDesignPatterns.bff"
+#include "Library/RGBFileSystem/RGBFileSystem.bff"
+#include "Library/RGBLogger/RGBLogger.bff"
+#include "Library/RGBNetworking/RGBNetworking.bff"
+#include "Library/RGBText/RGBText.bff"
+
+// Include paths
+//------------------------------------------------------------------------------
+#include "Engine/Engine.bff"
+#include "Shared/Shared.bff"
+#include "DataCLI/DataCLI.bff"
+// .CompilerOptions  + ' -I"./source"'
+//                   + .GladIncludePaths
+//                   + .GlfwIncludePaths
+//                   + .GlmIncludePaths
+//                #if !__WINDOWS__
+//                   + .LibFSWatchIncludePaths
+//                #endif
+//                   + .LibNoiseIncludePaths
+//                   + .LibYamlIncludePaths
+//                   + .LodePNGIncludePaths
+//                   + .NoiseUtilsIncludePaths
+//                   + .RapidJsonIncludePaths
+//                   + .RheaIncludePaths
+//                   + .SqliteIncludePaths
+//                   + .ZlibIncludePaths
+

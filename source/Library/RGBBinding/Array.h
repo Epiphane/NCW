@@ -20,7 +20,7 @@ namespace RGBBinding
 template<typename Data>
 class Array {
 public:
-   static constexpr uint32_t INITIAL_SIZE = 4;
+   static constexpr size_t INITIAL_SIZE = 4;
 
 public:
    Array() : mSize(0), mCapacity(0), mData(nullptr)
@@ -31,7 +31,7 @@ public:
    Array(const Array& other) : mSize(0), mCapacity(0), mData(nullptr)
    {
       reserve(other.mSize);
-      for (uint32_t i = 0; i < other.mSize; ++i)
+      for (size_t i = 0; i < other.mSize; ++i)
       {
          new (&mData[i]) Data(other.mData[i]);
       }
@@ -64,7 +64,7 @@ public:
       clear();
 
       reserve(other.mSize);
-      for (uint32_t i = 0; i < other.mSize; ++i)
+      for (size_t i = 0; i < other.mSize; ++i)
       {
          mData[i] = other.mData[i];
       }
@@ -92,7 +92,7 @@ public:
    bool operator==(const Array& other) const
    {
       if (mSize != other.mSize) { return false; }
-      for (uint32_t i = 0; i < mSize; ++i)
+      for (size_t i = 0; i < mSize; ++i)
       {
          if (mData[i] != other.mData[i])
          {
@@ -115,16 +115,16 @@ public:
       }
    }
 
-   uint32_t size() const { return mSize; }
-   uint32_t capacity() const { return mCapacity; }
+   size_t size() const { return mSize; }
+   size_t capacity() const { return mCapacity; }
 
-   Data& operator[](uint32_t index)
+   Data& operator[](size_t index)
    {
       assert(index < mSize && "Index array out of bounds");
       return mData[index];
    }
 
-   const Data& operator[](uint32_t index) const
+   const Data& operator[](size_t index) const
    {
       assert(index < mSize && "Index array out of bounds");
       return mData[index];
@@ -160,11 +160,11 @@ public:
       mData[--mSize].~Data();
    }
 
-   void resize(uint32_t size)
+   void resize(size_t size)
    {
       if (mSize > size)
       {
-         for (uint32_t i = mSize - 1; i >= size; --i)
+         for (size_t i = mSize - 1; i >= size; --i)
          {
             mData[i].~Data();
          }
@@ -183,14 +183,14 @@ public:
       }
    }
 
-   void reserve(uint32_t size)
+   void reserve(size_t size)
    {
       if (mCapacity >= size)
       {
          return;
       }
 
-      uint32_t newCapacity = size;
+      size_t newCapacity = size;
       void* newData = std::malloc(newCapacity * sizeof(Data));
       if (newData != nullptr)
       {
@@ -241,14 +241,14 @@ public:
    private:
       friend class Array;
 
-      iterator_type(Arr* array, uint32_t index)
+      iterator_type(Arr* array, size_t index)
          : mArray(array)
          , mIndex(index)
       {}
 
    private:
       Arr* mArray;
-      uint32_t mIndex;
+      size_t mIndex;
    };
 
    typedef iterator_type<Array, Data> iterator;
@@ -260,8 +260,8 @@ public:
    const_iterator end() const { return const_iterator(this, mSize); }
 
 private:
-   uint32_t mSize;
-   uint32_t mCapacity;
+   size_t mSize;
+   size_t mCapacity;
    Data* mData;
 };
 

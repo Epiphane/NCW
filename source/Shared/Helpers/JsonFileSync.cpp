@@ -5,6 +5,7 @@
 //
 
 #include <functional>
+#include <mutex>
 
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/JSONSerializer.h>

@@ -88,6 +88,7 @@ public:
       , mDirty(false)
       , mFree{}
    {};
+   virtual ~Aggregator() = default;
 
    // Used internally for registration.
    // Defined here, because this is part of the template declaration,
@@ -153,7 +154,7 @@ public:
       // TODO make use of glBufferSubData.
       if (mDirty)
       {
-         mVBO.BufferData(GLsizei(sizeof(DataType) * mData.size()), mData.data(), GL_STATIC_DRAW);
+         mVBO.BufferData(sizeof(DataType) * mData.size(), mData.data(), GL_STATIC_DRAW);
          mDirty = false;
       }
    }

@@ -1,0 +1,19 @@
+// GLAD external library
+//------------------------------------------------------------------------------
+.GladIncludePaths = ''
+{
+   .LibraryName         = 'glad'
+   .LibraryVersion      = '09072018'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .AdditionalCompilerOptions = ' /wd6308'
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   .LibrarySourceFiles  = { 'glad.c' }
+
+   .UnityOutputPattern  = 'Unity*.c'
+   #define UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^GladIncludePaths = ' -I$LibraryIncludePaths$'
+}

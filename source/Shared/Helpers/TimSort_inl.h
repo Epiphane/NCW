@@ -132,12 +132,12 @@ void TimSortInPlace(std::vector<T>& arr, std::function<bool(T,T)> GreaterThan) {
       }
       
       // mergedRun += remainder of mergingRun1
-      mergedRun.insert(mergedRun.end(), arr.begin() + i, arr.begin() + mergingRun1.endIndex + 1);
+      mergedRun.insert(mergedRun.end(), arr.begin() + (int64_t)i, arr.begin() + (int64_t)mergingRun1.endIndex + 1);
       
       // mergedRun += remainder of mergingRun2
-      mergedRun.insert(mergedRun.end(), arr.begin() + j, arr.begin() + mergingRun2.endIndex + 1);
+      mergedRun.insert(mergedRun.end(), arr.begin() + (int64_t)j, arr.begin() + (int64_t)mergingRun2.endIndex + 1);
       
-      std::copy(mergedRun.begin(), mergedRun.end(), arr.begin() + mergingRun1.startIndex);
+      std::copy(mergedRun.begin(), mergedRun.end(), arr.begin() + (int64_t)mergingRun1.startIndex);
       
       Run newRun;
       newRun.startIndex = mergingRun1.startIndex;

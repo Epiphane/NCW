@@ -27,8 +27,10 @@ void SubFrameUIRoot::Receive(const Engine::ElementAddedEvent& evt)
 
 SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent)
+#pragma warning(disable : 4355)
    , mUIRoot(this)
-   , mFramebuffer(root->GetWidth(), root->GetHeight())
+#pragma warning(default : 4355)
+   , mFramebuffer((GLsizei)root->GetWidth(), (GLsizei)root->GetHeight())
    , mScroll{0, 0}
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {
@@ -76,7 +78,7 @@ void SubFrame::Redraw()
    // Resize the UI root within.
    mUIRoot.SetBounds(Bounds{mScroll.x, mScroll.y, mFrame.GetWidth(), mFrame.GetHeight()});
 
-   mFramebuffer.Resize(GetWidth(), GetHeight());
+   mFramebuffer.Resize((GLsizei)GetWidth(), (GLsizei)GetHeight());
    glm::vec2 textureSize{mFramebuffer.GetWidth(), mFramebuffer.GetHeight()};
    glm::vec2 uvSize = glm::vec2(mFrame.GetWidth(), mFrame.GetHeight()) / textureSize;
    glm::vec2 uvBottomLeft{

@@ -24,7 +24,7 @@ class Binding
 {
 public:
    Binding() : mBinding(nullptr) {}
-   ~Binding() {}
+   virtual ~Binding() = default;
 
    //
    // Update the current state of the binding. Returns true if an update was performed.

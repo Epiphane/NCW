@@ -1,0 +1,48 @@
+// zlib external library
+//------------------------------------------------------------------------------
+.ZlibIncludePaths = ''
+{
+   .LibraryName = 'zlib'
+   .LibraryVersion = '1.2.11'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .AdditionalCompilerOptions = ' -I"$_CURRENT_BFF_DIR_$/$LibraryVersion$/zlib"'
+                              + ' -D_CRT_SECURE_NO_DEPRECATE'
+                              + ' -D_CRT_NONSTDC_NO_DEPRECATE'
+                              + ' /wd4005' // macro redefinition
+                              + ' /wd4127' // conditional expression is constant
+                              + ' /wd4131' // '%s': uses old-style declarator
+                              + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4245' // '=': conversion from '%s' to '%s', signed/unsigned mismatch
+                              + ' /wd4267' // 'return': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd6297' // Arithmetic overflow
+                              + ' /wd6326' // Potential comparison of a constant with another constant.
+                              + ' /wd6385' // Reading invalid data from '%s'
+                              + ' /wd28278' // Function '%s' appears with no prototype in scope.
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
+   .LibrarySourceFiles  =  {
+                              'adler32.c'
+                              'compress.c'
+                              'crc32.c'
+                              'deflate.c'
+                              'gzclose.c'
+                              'gzlib.c'
+                              'gzread.c'
+                              'gzwrite.c'
+                              'inflate.c'
+                              'infback.c'
+                              'inftrees.c'
+                              'inffast.c'
+                              'trees.c'
+                              'uncompr.c'
+                              'zutil.c'
+                           }
+
+   #define NO_UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^ZlibIncludePaths = ' -I$LibraryIncludePaths$'
+}

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <stdio.h>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -72,7 +73,7 @@ public:
    explicit FormatInt(uint32_t value) : str(format_decimal(value)) {}
    explicit FormatInt(uint64_t value) : str(format_decimal(value)) {}
 
-   std::string result() const { return std::string(str, buffer - str + BUFFER_SIZE - 1); }
+   std::string result() const { return std::string(str, uint64_t(buffer - str + BUFFER_SIZE - 1)); }
 };
 
 std::string FormatBool(bool value)
@@ -183,7 +184,7 @@ uint32_t ParseNonnegativeInteger(std::string_view::iterator& it, std::string_vie
    assert('0' <= *it && *it <= '9');
    uint32_t value = 0;
 
-   uint32_t max_int = (std::numeric_limits<int32_t>::max)();
+   uint32_t max_int = (std::numeric_limits<uint32_t>::max)();
    uint32_t big = max_int / 10;
    do
    {

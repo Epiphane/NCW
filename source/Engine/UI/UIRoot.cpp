@@ -23,10 +23,12 @@ using UI::RectFilled;
 using UI::Text;
 
 UIRoot::UIRoot(Input* input)
+#pragma warning(disable : 4355) // 'this': used in base member initializer list
    : UIElement(this, nullptr, "Root")
-   , mBoundConstraints{}
-   , mContentLayer(nullptr)
-   , mInput(input)
+#pragma warning(default : 4355)
+	, mBoundConstraints{}
+	, mContentLayer(nullptr)
+	, mInput(input)
    , mActivelyCapturingElement(nullptr)
    , mContextMenuLayer(nullptr)
    , mDirty(false)
@@ -345,7 +347,7 @@ void UIRoot::UpdateRoot()
 {
    mSolver.solve();
 
-   for (int64_t ndx = mElements.size() - 1; ndx >= 0; ndx--)
+   for (int64_t ndx = (int64_t)mElements.size() - 1; ndx >= 0; ndx--)
    {
       UIElement* elem = mElements[size_t(ndx)];
       if (elem->IsMarkedForDeletion()) {

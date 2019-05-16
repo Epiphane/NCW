@@ -62,7 +62,7 @@ public:
    //
    // For best performance when preloading, call in the same order you use attributes in.
    //
-   GLint Attrib(const std::string& name);
+   GLuint Attrib(const std::string& name);
 
    //
    // Loads the ID for the specified attribute into memory.
@@ -71,7 +71,7 @@ public:
    //
    // For best performance when preloading, call in the same order you use uniforms in.
    //
-   GLuint Uniform(const std::string& name);
+   GLint Uniform(const std::string& name);
 
    inline void CheckErrors()
    {
@@ -96,7 +96,7 @@ private:
    GLuint id;
 
    std::vector<std::pair<std::string, GLuint>> attributes;
-   std::vector<std::pair<std::string, GLuint>> uniforms;
+   std::vector<std::pair<std::string, GLint>> uniforms;
 
 private:
    // Optimizing

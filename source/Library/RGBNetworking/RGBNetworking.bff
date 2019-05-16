@@ -1,0 +1,12 @@
+// RGBNetworking library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBNetworking'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = .RapidJsonIncludePaths
+                              + .GlmIncludePaths
+                              + .LibYamlIncludePaths
+
+   #include "../LibraryHelper.bff"
+}

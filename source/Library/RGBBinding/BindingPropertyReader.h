@@ -3,7 +3,6 @@
 #pragma once
 
 #include <stack>
-#include <rapidjson/document.h>
 
 #include "BindingProperty.h"
 

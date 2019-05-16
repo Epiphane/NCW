@@ -1,0 +1,10 @@
+// RGBDesignPatterns library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBDesignPatterns'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = ''
+
+   #include "../LibraryHelper.bff"
+}

@@ -1,0 +1,88 @@
+// External library helper
+// Required defines:
+//    .LibraryName
+//    .LibrarySourcePath
+//    .LibrarySourceFiles
+//    .LibraryIncludePaths
+//    .AdditionalCompilerOptions
+//------------------------------------------------------------------------------
+#if NO_UNITY_BUILD_ONCE
+   #if UNITY_BUILD
+      #define _UNITY_BUILD
+      #undef UNITY_BUILD
+   #endif
+   #undef NO_UNITY_BUILD_ONCE
+#endif
+#if UNITY_BUILD_ONCE
+   #if !UNITY_BUILD
+      #define _NO_UNITY_BUILD
+      #define UNITY_BUILD
+   #endif
+   #undef UNITY_BUILD_ONCE
+#endif
+
+ForEach( .Config in .Configs )
+{
+   Using( .Config )
+   .OutputPath + '$Platform$-$Config$/$LibraryName$'
+   .CompilerOutputPath = .OutputPath
+   .CompilerOptions     = .CompilerOptions
+                        + ' -I"$LibraryIncludePaths$"'
+                        + .AdditionalCompilerOptions
+
+   Unity('$LibraryName$-Unity-$Platform$-$Config$')
+   {
+      // .UnityInputPath      = .LibrarySourcePath
+      .UnityInputPattern         = .LibrarySourceFiles
+      .UnityInputPath            = '$LibrarySourcePath$'
+      .UnityOutputPath           = .OutputPath
+      
+   }
+
+   ObjectList('$LibraryName$-Obj-$Platform$-$Config$')
+   {
+      .CompilerOptions     = .CompilerOptions
+                           + ' -I"$LibraryIncludePaths$"'
+                           + .AdditionalCompilerOptions
+
+      .CompilerInputPath    = .LibrarySourcePath
+      .CompilerInputPattern = .LibrarySourceFiles
+   
+   }
+
+   Library('$LibraryName$-Lib-$Platform$-$Config$')
+   {
+// #if UNITY_BUILD
+//       .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
+// #else
+      .LibrarianAdditionalInputs = { '$LibraryName$-Obj-$Platform$-$Config$' }
+// #endif
+      .LibrarianOutput = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+
+   Alias( '$LibraryName$-$Platform$-$Config$' ) { .Targets = '$LibraryName$-Lib-$Platform$-$Config$' }
+   ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
+   ^Dependencies + { '$LibraryName$-$Platform$-$Config$' }
+}
+
+VCXProject('$LibraryName$-proj')
+{
+   .ProjectOutput       = '$OutputPath$/VisualStudio/Projects/Dependencies/$LibraryName$.vcxproj'
+   .ProjectInputPaths   = '$LibrarySourcePath$\'
+   .ProjectBasePath     = '$LibrarySourcePath$\'
+   .ProjectFiles        = { '$_CURRENT_BFF_DIR_$/$LibraryName$/$LibraryName$.bff' }
+   .Target              = '$LibraryName$-Lib'
+
+   .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$LibraryName$-X64-Debug' ]
+   .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$LibraryName$-X64-Release' ]
+}
+^DependencyProjects + { '$LibraryName$-proj' }
+   
+#if _UNITY_BUILD
+   #define UNITY_BUILD
+   #undef _UNITY_BUILD
+#endif
+#if _NO_UNITY_BUILD
+   #undef UNITY_BUILD
+   #undef _NO_UNITY_BUILD
+#endif

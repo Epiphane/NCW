@@ -317,7 +317,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
 {
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    DWORD numRead;
-   if (::ReadFile(handle, data, DWORD(size), &numRead, nullptr) == 0)
+   if (::ReadFile(handle, data, (DWORD)size, &numRead, nullptr) == 0)
    {
       return TransformPlatformError("Failed reading file");
    }
@@ -378,7 +378,7 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
 #error "Unhandled platform"
 #endif
    result.resize(static_cast<uint32_t>(fSize));
-   Maybe<void> read = ReadFile(*maybeHandle, result.data(), fSize);
+   Maybe<void> read = ReadFile(*maybeHandle, result.data(), (size_t)fSize);
    if (!read)
    {
       return read.Failure();
@@ -420,7 +420,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
 {
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    DWORD numWritten;
-   if (::WriteFile(handle, data, DWORD(size), &numWritten, nullptr) == 0)
+   if (::WriteFile(handle, data, (DWORD)size, &numWritten, nullptr) == 0)
    {
       return TransformPlatformError("Failed writing to file");
    }
@@ -467,7 +467,7 @@ Maybe<void> DiskFileSystem::SeekFile(FileHandle handle, Seek method, int64_t dis
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    LARGE_INTEGER distance;
    distance.QuadPart = dist;
-   DWORD ptr = ::SetFilePointer(handle, distance.LowPart, distance.HighPart != 0 ? &distance.HighPart : nullptr, method);
+   DWORD ptr = ::SetFilePointer(handle, (LONG)distance.LowPart, distance.HighPart != 0 ? &distance.HighPart : nullptr, method);
    if (ptr == INVALID_SET_FILE_POINTER)
    {
       return TransformPlatformError("Failed setting pointer in file");

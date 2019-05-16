@@ -6,6 +6,8 @@
 
 #pragma once
 
+#pragma warning(disable : 4365)
+
 #include "glm.hpp"
 
 #if GLM_MESSAGES == GLM_MESSAGES_ENABLED && !defined(GLM_MESSAGE_EXT_INCLUDED_DISPLAYED)
@@ -99,3 +101,5 @@
 #	include "./gtx/range.hpp"
 #endif
 #endif//GLM_ENABLE_EXPERIMENTAL
+
+#pragma warning(default : 4365)

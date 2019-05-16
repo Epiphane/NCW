@@ -88,7 +88,7 @@ void VBO::Init()
    mBuffer = GenerateBuffer();
 }
 
-void VBO::BufferData(GLsizei size, void* data, GLuint strategy)
+void VBO::BufferData(size_t size, void* data, GLuint strategy)
 {
    assert(mBuffer != 0);
    if (mBuffer < gBufferReferences.size() && gBufferReferences[mBuffer] > 1)
@@ -99,7 +99,7 @@ void VBO::BufferData(GLsizei size, void* data, GLuint strategy)
    }
 
    glBindBuffer(mBufferType, mBuffer);
-   glBufferData(mBufferType, size, data, strategy);
+   glBufferData(mBufferType, GLsizei(size), data, strategy);
 }
 
 void VBO::Bind()

@@ -17,7 +17,7 @@ class DebugLogger : public Logger
 {
 public:
    DebugLogger();
-   ~DebugLogger();
+   virtual ~DebugLogger();
 
    void OnRegister() override;
    void OnDeregister() override;

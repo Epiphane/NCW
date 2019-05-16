@@ -32,9 +32,9 @@ public:
       std::string name;
       Callback callback;
       MetricLink(DebugHelper* debug, const std::string& name, const Callback& callback)
-         : debug(debug)
-         , name(name)
+         : name(name)
          , callback(callback)
+         , debug(debug)
          , next(nullptr)
          , prev(nullptr)
       {};

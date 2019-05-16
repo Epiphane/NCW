@@ -1,0 +1,48 @@
+// Library generation helper
+// Required defines:
+//    .LibraryName
+//    .LibraryPath
+//    .AdditionalCompilerOptions
+//------------------------------------------------------------------------------
+ForEach( .Config in .Configs )
+{
+   Using( .Config )
+   .OutputPath + '/$Platform$-$Config$/$LibraryName$'
+   .CompilerOutputPath   = .OutputPath
+
+   // Unity
+   // --------------------------------------------------------------------------
+   Unity( '$LibraryName$-Unity-$Platform$-$Config$' )
+   {
+      .UnityInputPath             = '$LibraryPath$/'
+      .UnityOutputPath            = .OutputPath
+   }
+
+   // Library
+   //--------------------------------------------------------------------------
+   Library( '$LibraryName$-Lib-$Platform$-$Config$' )
+   {
+      // Input
+      .CompilerInputUnity        = '$LibraryName$-Unity-$Platform$-$Config$'
+      .CompilerOptions           + .AdditionalCompilerOptions
+
+      // Output
+      .CompilerOutputPath         = .OutputPath
+      .LibrarianOutput            = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+
+   Alias( '$LibraryName$-$Platform$-$Config$' ) { .Targets = '$LibraryName$-Lib-$Platform$-$Config$' }
+   ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
+}
+
+VCXProject('$LibraryName$-proj')
+{
+   .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$LibraryName$.vcxproj'
+   .ProjectInputPaths = '$LibraryPath$\'
+   .ProjectBasePath = '$LibraryPath$\'
+   .Target = '$LibraryName$-Lib'
+
+   .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$LibraryName$-X64-Debug' ]
+   .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$LibraryName$-X64-Release' ]
+}
+^CoreLibraries + { '$LibraryName$-proj' }

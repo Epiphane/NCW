@@ -39,13 +39,13 @@ VoxelRender::VoxelRender(const VoxelRender& other)
 void VoxelRender::Set(std::vector<Voxel::Data>&& voxels)
 {
    mSize = GLsizei(voxels.size());
-   mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), voxels.data(), GL_STATIC_DRAW);
+   mVoxelData.BufferData(sizeof(Voxel::Data) * voxels.size(), voxels.data(), GL_STATIC_DRAW);
 }
 
 void VoxelRender::Set(const std::vector<Voxel::Data>& voxels)
 {
    mSize = GLsizei(voxels.size());
-   mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), (void*)voxels.data(), GL_STATIC_DRAW);
+   mVoxelData.BufferData(sizeof(Voxel::Data) * voxels.size(), (void*)voxels.data(), GL_STATIC_DRAW);
 }
 
 std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;

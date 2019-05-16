@@ -87,7 +87,7 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    glGetShaderiv(shader->id, GL_COMPILE_STATUS, &result);
    glGetShaderiv(shader->id, GL_INFO_LOG_LENGTH, &infoLogLength);
    if (infoLogLength > 0) {
-      char* error = new char[infoLogLength + 1];
+      char* error = new char[size_t(infoLogLength + 1)];
       CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
 
       glGetShaderInfoLog(shader->id, infoLogLength, nullptr, error);
@@ -151,7 +151,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    glGetProgramiv(program->id, GL_LINK_STATUS, &result);
    glGetProgramiv(program->id, GL_INFO_LOG_LENGTH, &infoLogLength);
    if (infoLogLength > 0) {
-      char* error = new char[infoLogLength + 1];
+      char* error = new char[size_t(infoLogLength + 1)];
       CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
       glGetProgramInfoLog(program->id, infoLogLength, nullptr, error);
 
@@ -242,7 +242,7 @@ void Program::UniformMatrix4f(const std::string& name, const glm::mat4& matrix)
    glUniformMatrix4fv(Uniform(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-GLint Program::Attrib(const std::string& name)
+GLuint Program::Attrib(const std::string& name)
 {
    size_t oldCursor = attributeCursor;
    while (attributeCursor < attributes.size())
@@ -266,18 +266,21 @@ GLint Program::Attrib(const std::string& name)
 
    attributeCursor = 0;
    GLint location = glGetAttribLocation(id, name.c_str());
-   attributes.push_back(std::make_pair(name, location));
+   if (location >= 0)
+   {
+	   attributes.push_back(std::make_pair(name, (GLuint)location));
+   }
 
    CheckErrors();
-   return location;
+   return GLuint(location);
 }
 
-GLuint Program::Uniform(const std::string& name)
+GLint Program::Uniform(const std::string& name)
 {
    size_t oldCursor = uniformCursor;
    while (uniformCursor < uniforms.size())
    {
-      std::pair<std::string, GLuint>& entry = uniforms[uniformCursor++];
+      std::pair<std::string, GLint>& entry = uniforms[uniformCursor++];
       if (entry.first == name)
       {
          return entry.second;
@@ -287,7 +290,7 @@ GLuint Program::Uniform(const std::string& name)
    uniformCursor = 0;
    while (uniformCursor < oldCursor)
    {
-      std::pair<std::string, GLuint>& entry = uniforms[uniformCursor++];
+      std::pair<std::string, GLint>& entry = uniforms[uniformCursor++];
       if (entry.first == name)
       {
          return entry.second;
@@ -295,11 +298,14 @@ GLuint Program::Uniform(const std::string& name)
    }
 
    uniformCursor = 0;
-   GLuint location = glGetUniformLocation(id, name.c_str());
-   uniforms.push_back(std::make_pair(name, location));
+   GLint location = glGetUniformLocation(id, name.c_str());
+   if (location >= 0)
+   {
+      uniforms.push_back(std::make_pair(name, location));
+   }
 
    CheckErrors();
-   return location;
+   return GLint(location);
 }
 
 

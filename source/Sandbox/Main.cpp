@@ -7,49 +7,49 @@
 #include <GL/includes.h>
 #include <GLFW/glfw3native.h>
 
-#include <RGBNetworking/JSONSerializer.h>
-#include <RGBLogger/DebugLogger.h>
-#include <RGBLogger/StdoutLogger.h>
-#include <Engine/Core/Window.h>
+// #include <RGBNetworking/JSONSerializer.h>
+// #include <RGBLogger/DebugLogger.h>
+// #include <RGBLogger/StdoutLogger.h>
+// #include <Engine/Core/Window.h>
 
-using namespace CubeWorld;
-using namespace CubeWorld::Engine;
+// using namespace CubeWorld;
+// using namespace CubeWorld::Engine;
 
 #if CUBEWORLD_PLATFORM_WINDOWS
 WNDPROC prevWndProc;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-   char msss[128];
-   sprintf(msss, "Message: %04x (%u) %x %x", (int)message, (unsigned)message, (int)wParam, (int)lParam);
+   //char msss[128];
+   //sprintf(msss, "Message: %04x (%u) %x %x", message, message, wParam, lParam);
 
-   LOG_INFO(msss);
+   //LOG_INFO(msss);
 
    return CallWindowProc(prevWndProc, hWnd, message, wParam, lParam);
 }
 #endif
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int, char**)
 {
-   Logger::StdoutLogger::Instance();
-   Logger::DebugLogger::Instance();
+   // Logger::StdoutLogger::Instance();
+   // Logger::DebugLogger::Instance();
 
-   // Setup main window
-   Window::Options windowOptions;
-   windowOptions.title = "NCW Editor";
-   windowOptions.fullscreen = false;
-   windowOptions.width = 1280;
-   windowOptions.height = 760;
-   windowOptions.lockCursor = false;
-   Window& window = Window::Instance();
-   if (auto result = window.Initialize(windowOptions); !result)
-   {
-      return 1;
-   }
+   // // Setup main window
+   // Window::Options windowOptions;
+   // windowOptions.title = "NCW Editor";
+   // windowOptions.fullscreen = false;
+   // windowOptions.width = 1280;
+   // windowOptions.height = 760;
+   // windowOptions.lockCursor = false;
+   // Window* window = Window::Instance();
+   // if (auto result = window->Initialize(windowOptions); !result)
+   // {
+   //    return 1;
+   // }
 
-   auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
-      window.SetShouldClose(true);
-   });
+   // auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+   //    window->SetShouldClose(true);
+   // });
 
 #if CUBEWORLD_PLATFORM_WINDOWS
    ITaskbarList3* ptl; 
@@ -69,26 +69,26 @@ int main(int /*argc*/, char** /*argv*/)
       }
    }
 
+   // long progress = 0;
 
-   HWND h = glfwGetWin32Window(window.get());
+   // HWND h = glfwGetWin32Window(window->get());
 
-   prevWndProc = (WNDPROC) SetWindowLongPtr(h, GWLP_WNDPROC, (LONG_PTR)&WndProc);
-#endif
-   long progress = 0;
+   // prevWndProc = (WNDPROC) SetWindowLongPtr(h, GWLP_WNDPROC, (LONG_PTR)&WndProc);
 
-   do {
-      progress += 1;
+   // do {
+   //    //progress += 1;
 
-      //ptl->SetProgressState(h, TBPF_NOPROGRESS);
-      //ptl->SetProgressValue(h, progress, 100);
+   //    //ptl->SetProgressState(h, TBPF_NOPROGRESS);
+   //    //ptl->SetProgressValue(h, progress, 100);
 
-      //SendMessage
+   //    //SendMessage
 
-      // Swap buffers
-      //window->SwapBuffers();
-      glfwPollEvents();
-   } // Check if the ESC key was pressed or the window was closed
-   while (!window.ShouldClose() && progress < 100);
+   //    // Swap buffers
+   //    //window->SwapBuffers();
+   //    Sleep(10);
+   //    glfwPollEvents();
+   // } // Check if the ESC key was pressed or the window was closed
+   // while (!window->ShouldClose() && progress < 100);
 
    return 0;
 }

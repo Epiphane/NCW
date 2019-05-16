@@ -15,7 +15,8 @@ public:
    using RightType = typename std::conditional<std::is_void<R>::value, std::nullptr_t, R>::type;
 
 public:
-   constexpr Either(const LeftType& left) : leftVal(left), isLeft(true) {};
+#pragma warning (disable : 4582) // constructor is not implicitly called
+	constexpr Either(const LeftType& left) : leftVal(left), isLeft(true) {};
    constexpr Either(LeftType&& left) : leftVal(std::move(left)), isLeft(true) {};
    constexpr Either(const RightType& right) : rightVal(right), isLeft(false) {};
    constexpr Either(RightType&& right) : rightVal(std::move(right)), isLeft(false) {};
@@ -30,6 +31,8 @@ public:
          rightVal = std::move(other.rightVal);
       }
    };
+#pragma warning (default : 4582)
+#pragma warning (disable : 4583) // destructor is not implicitly called
    ~Either()
    {
       if (isLeft)
@@ -41,6 +44,7 @@ public:
          rightVal.~RightType();
       }
    }
+#pragma warning (default : 4583)
 
    constexpr bool IsLeft() const { return isLeft; }
    constexpr bool IsRight() const { return !isLeft; }

@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include <RGBDesignPatterns/Maybe.h>
+#include <RGBFileSystem/FileSystem.h>
 #include "../Voxel.h"
 
 namespace CubeWorld
@@ -254,6 +255,45 @@ public:
 private:
    static std::unordered_map<std::string, std::unique_ptr<Model>> sDepModels;
    static std::unordered_map<std::string, std::unique_ptr<VoxModel>> sModels;
+
+private:
+   // Internal helpers
+   struct FileHeader;
+   struct Chunk;
+   struct PACK;
+   struct SIZE;
+   struct XYZI;
+   struct RGBA;
+   static const uint32_t default_palette[];
+   struct ROTATION;
+   struct nTRN;
+   struct nGRP;
+   struct nSHP;
+   struct MATL;
+   struct LAYR;
+
+   static Maybe<Chunk> ReadChunk(FileSystem& fs, FileSystem::FileHandle handle);
+   static std::string ParseString(int32_t*& data);
+   static int32_t* WriteString(int32_t* data, const std::string& string);
+   static std::vector<std::pair<std::string, std::string>> ParseDict(int32_t*& data);
+   static int32_t* WriteDict(int32_t* data, const std::vector<std::pair<std::string, std::string>>& pairs);
+   static std::string ToShortString(float val);
+   static Maybe<void> ParseChunk(VoxModelData* model, const Chunk& chunk);
+   static Maybe<size_t> WriteRenderObj(
+      FileSystem& fs,
+      FileSystem::FileHandle handle,
+      const std::vector<std::pair<std::string, std::string>>& properties
+   );
+
+   static bool IsFilled(const std::vector<bool>& filled, int index);
+   static int32_t Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z);
+   static uint8_t GetExposedFaces(
+      const std::vector<bool>& filled,
+      const Model::Metadata& metadata,
+      uint32_t x,
+      uint32_t y,
+      uint32_t z
+   );
 };
 
 }; // namespace Voxel

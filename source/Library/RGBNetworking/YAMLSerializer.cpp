@@ -35,7 +35,9 @@ inline double Pow10(int n) {
       1e+301,1e+302,1e+303,1e+304,1e+305,1e+306,1e+307,1e+308
    };
    assert(n >= 0 && n <= 308);
+#pragma warning(disable : 6385) // n out of bounds
    return e[n];
+#pragma warning(default : 6385)
 }
 
 inline double FastPath(double significand, int exp) {
@@ -48,7 +50,7 @@ inline double FastPath(double significand, int exp) {
 }
 
 // Returns true if a number was successfully parsed.
-bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t /*len*/)
+bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, rapidjson::SizeType /*len*/)
 {
    yaml_char_t* start = str;
 
@@ -70,7 +72,7 @@ bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t /*len*/
    }
    else if (*str >= '1' && *str <= '9')
    {
-      i32 = (*str++ - '0');
+      i32 = uint32_t(*str++ - '0');
 
       if (neg)
       {
@@ -159,7 +161,7 @@ bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t /*len*/
    size_t decimalPos;
    if (*str == '.')
    {
-      decimalPos = ++str - start;
+      decimalPos = size_t(++str - start);
 
       if (*str < '0' || *str > '9')
       {
@@ -192,7 +194,7 @@ bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t /*len*/
    }
    else
    {
-      decimalPos = str - start;
+      decimalPos = size_t(str - start);
    }
 
    int exponent = 0;
@@ -344,7 +346,7 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
          else
          {
             // Try to parse a number first, then interpret as a string
-            if (!YAMLSerializerInternal::ParseNumber(reader, event.data.scalar.value, event.data.scalar.length))
+            if (!YAMLSerializerInternal::ParseNumber(reader, event.data.scalar.value, (rapidjson::SizeType)event.data.scalar.length))
             {
                if (event.data.scalar.length == 4 && strncmp((char*)event.data.scalar.value, "true", 4) == 0)
                {

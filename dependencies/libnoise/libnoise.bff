@@ -1,0 +1,63 @@
+// libnoise external library
+//------------------------------------------------------------------------------
+.LibNoiseIncludePaths = ''
+{
+   .LibraryName         = 'libnoise'
+   .LibraryVersion      = '1.0.0'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+   
+   .AdditionalCompilerOptions = ' -I"$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/noise"'
+                              + ' /wd4100' // '%s': unreferenced formal parameter
+                              + ' /wd4365' // signed/unsigned mismatch
+                              + ' /wd4464' // relative include path contains '..'
+							  + ' /wd6011' // Dereferencing NULL pointer
+   
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   .LibrarySourceFiles  =  {
+                              'noisegen.cpp'
+                              'latlon.cpp'
+
+                              // model
+                              'line.cpp'
+                              'plane.cpp'
+                              'sphere.cpp'
+                              'cylinder.cpp'
+
+                              // module
+                              'abs.cpp'
+                              'add.cpp'
+                              'billow.cpp'
+                              'blend.cpp'
+                              'cache.cpp'
+                              'checkerboard.cpp'
+                              'clamp.cpp'
+                              'const.cpp'
+                              'curve.cpp'
+                              'cylinders.cpp'
+                              'displace.cpp'
+                              'exponent.cpp'
+                              'invert.cpp'
+                              'max.cpp'
+                              'min.cpp'
+                              'modulebase.cpp'
+                              'multiply.cpp'
+                              'perlin.cpp'
+                              'power.cpp'
+                              'ridgedmulti.cpp'
+                              'rotatepoint.cpp'
+                              'scalebias.cpp'
+                              'scalepoint.cpp'
+                              'select.cpp'
+                              'spheres.cpp'
+                              'terrace.cpp'
+                              'translatepoint.cpp'
+                              'turbulence.cpp'
+                              'voronoi.cpp'
+                           }
+
+   #define UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^LibNoiseIncludePaths = ' -I$LibraryIncludePaths$'
+}

@@ -1,0 +1,32 @@
+// lodePNG external library
+//------------------------------------------------------------------------------
+.LodePNGIncludePaths = ''
+{
+   .LibraryName = 'lodepng'
+   .LibraryVersion = '20131222'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .AdditionalCompilerOptions = ' /EHsc'
+                              + ' -D_CRT_SECURE_NO_WARNINGS'
+                              + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4267' // 'return': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4334' // '<<': result of 32-bit shift implicitly converted to 64 bits
+                              + ' /wd4365' // '=': conversion from '%s' to '%s', signed/unsigned mismatch
+                              + ' /wd4456' // declaration of '%s' hides previous local declaration
+                              + ' /wd6011'
+                              + ' /wd6239'
+                              + ' /wd6246'
+                              + ' /wd6293'
+                              + ' /wd6297'
+                              + ' /wd6326'
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/lodepng'
+   .LibrarySourceFiles  = { 'lodepng.cpp' }
+
+   #define UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^LodePNGIncludePaths = ' -I$LibraryIncludePaths$'
+}

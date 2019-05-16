@@ -51,7 +51,7 @@ Maybe<void> Texture::LoadPNG(const std::string& filename) {
 
    glBindTexture(GL_TEXTURE_2D, mTexture);
 
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)mWidth, (GLsizei)mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
 
    //Always set reasonable texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//LINEAR);
@@ -88,9 +88,9 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
          metadata = std::move(*maybeMetadata);
       }
    }
-#pragma warning(disable : 4101 4456)
+#pragma warning(disable : 4101 4456 6246)
    else if (auto[_, exists] = DiskFileSystem{}.Exists(filename + ".json"); exists)
-#pragma warning(default : 4101 4456)
+#pragma warning(default : 4101 4456 6246)
    {
       Maybe<BindingProperty> maybeMetadata = JSONSerializer::DeserializeFile(filename + ".json");
       if (!maybeMetadata)
