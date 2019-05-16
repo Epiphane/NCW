@@ -6,4 +6,4 @@ xcode_build/*
 
 Assets/cache
 
-source/.config
+# source/.config
