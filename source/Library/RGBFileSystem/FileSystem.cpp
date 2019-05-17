@@ -5,6 +5,7 @@
 #if CUBEWORLD_PLATFORM_WINDOWS
 #include <Windows.h>
 #else
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -23,10 +24,11 @@ using namespace Paths;
 
 Failure DiskFileSystem::TransformPlatformError(const std::string& message)
 {
-#if defined(CUBEWORLD_PLATFORM_WINDOWS)
+#if CUBEWORLD_PLATFORM_WINDOWS
    Failure err{"Error %1", GetLastError()};
-#else
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    Failure err{"Error %1", errno};
+#else
 #error "Unhandled platform"
 #endif
 
@@ -42,7 +44,7 @@ Failure DiskFileSystem::TransformPlatformError(const std::string& message)
 ///
 std::pair<Maybe<void>, bool> DiskFileSystem::Exists(const std::string& path)
 {
-#if defined(CUBEWORLD_PLATFORM_WINDOWS)
+#if CUBEWORLD_PLATFORM_WINDOWS
    DWORD ret = ::GetFileAttributesW(Utf8ToWide(path).c_str());
    if (ret != INVALID_FILE_ATTRIBUTES)
    {
@@ -60,20 +62,20 @@ std::pair<Maybe<void>, bool> DiskFileSystem::Exists(const std::string& path)
          return {TransformPlatformError("Failed to get attributes"), false};
       }
    }
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    if (access(path.c_str(), 0) == 0)
    {
       struct stat status;
       if (stat(path.c_str(), &status) == 0)
       {
-         return true;
+         return {Success, true};
       }
    }
    if (errno == ENOENT)
    {
       return {Success, false};
    }
-   return false;
+   return {TransformPlatformError("Failed to get attributes"), false};
 #else
 #error "Unhandled platform"
 #endif
@@ -84,14 +86,14 @@ std::pair<Maybe<void>, bool> DiskFileSystem::Exists(const std::string& path)
 ///
 std::pair<Maybe<void>, bool> DiskFileSystem::IsDirectory(const std::string& path)
 {
-#if defined(CUBEWORLD_PLATFORM_WINDOWS)
+#if CUBEWORLD_PLATFORM_WINDOWS
    DWORD ret = ::GetFileAttributesW(Utf8ToWide(path).c_str());
    if (ret == INVALID_FILE_ATTRIBUTES)
    {
       return {TransformPlatformError("Failed to get attributes"), false};
    }
    return {Success, (ret & FILE_ATTRIBUTE_DIRECTORY) != 0};
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    if (access(path.c_str(), 0) == 0)
    {
       struct stat status;
@@ -229,7 +231,7 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
       {
          return TransformPlatformError("Failed enumerating files");
       }
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
       DIR *dir;
       dir = opendir(Paths::Join(base, path).c_str());
       if (dir == nullptr)
@@ -237,7 +239,8 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
          return TransformPlatformError(Format::FormatString("Failed opening %1", Paths::Join(base, path)));
       }
 
-      while (struct dirent *info = readdir(dir); info != nullptr)
+      
+      for (struct dirent *info = readdir(dir); info != nullptr; info = readdir(dir))
       {
          // Ignore . and ..
          if (strcmp(info->d_name, ".") == 0 || strcmp(info->d_name, "..") == 0)
@@ -295,7 +298,7 @@ Maybe<FileSystem::FileHandle> DiskFileSystem::OpenFileRead(const std::string& pa
    }
 
    return result;
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    int file = open(path.c_str(), O_RDONLY);
    if (file == -1)
    {
@@ -325,7 +328,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
    }
 
    return Success;
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    ssize_t numRead = read(handle, data, size);
    if (numRead != size)
    {
@@ -360,16 +363,16 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
    }
 
    fSize = int64_t(fileSize.QuadPart);
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
-   if (fseek(*maybeHandle, 0, SEEK_END) != 0)
-   {
-      return TransformPlatformError("Failed seeking to end of file");
-   }
-
-   fSize = ftell(*maybeHandle);
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
+   fSize = lseek(*maybeHandle, 0, SEEK_END);
    if (fSize < 0)
    {
       return TransformPlatformError("Failed getting file size");
+   }
+
+   if (lseek(*maybeHandle, 0, SEEK_SET) < 0)
+   {
+      return TransformPlatformError("Failed resetting to start of file");
    }
 #else
 #error "Unhandled platform"
@@ -398,7 +401,7 @@ Maybe<DiskFileSystem::FileHandle> DiskFileSystem::OpenFileWrite(const std::strin
    }
 
    return result;
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    int file = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC);
    if (file == -1)
    {
@@ -428,7 +431,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
    }
 
    return Success;
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    ssize_t numWritten = write(handle, data, size);
    if (numWritten != size)
    {
@@ -469,8 +472,8 @@ Maybe<void> DiskFileSystem::SeekFile(FileHandle handle, Seek method, int64_t dis
    {
       return TransformPlatformError("Failed setting pointer in file");
    }
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
-   if (fseek(handle, dist, method) != 0)
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
+   if (lseek(handle, dist, method) != 0)
    {
       return TransformPlatformError("Failed setting pointer in file");
    }
@@ -490,7 +493,7 @@ Maybe<void> DiskFileSystem::CloseFile(FileHandle handle)
    {
       return TransformPlatformError();
    }
-#elif (defined(CUBEWORLD_PLATFORM_MACOSX) || defined(CUBEWORLD_PLATFORM_LINUX))
+#elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    if (close(handle) != 0)
    {
       return TransformPlatformError();

@@ -14,6 +14,11 @@ namespace Editor
 namespace AnimationStation
 {
 
+SimpleAnimationController::SimpleAnimationController()
+   : current("")
+{
+}
+
 void SimpleAnimationController::Reset()
 {
    skeletons.clear();

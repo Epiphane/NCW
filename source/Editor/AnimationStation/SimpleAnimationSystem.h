@@ -54,6 +54,7 @@ public:
    };
 
 public:
+   SimpleAnimationController();
    void Reset();
    void UpdateSkeletonStates();
 

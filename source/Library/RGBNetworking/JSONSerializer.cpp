@@ -1,7 +1,5 @@
 // By Thomas Steinke
 
-#pragma once
-
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>

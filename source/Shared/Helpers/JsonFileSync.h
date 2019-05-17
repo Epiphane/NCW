@@ -68,7 +68,7 @@ private:
    //
    // Triggered when the file is changed or moved.
    //
-   void FileWasChanged(const std::vector<fsw::event>& events, void *context);
+   static void FileWasChanged(const std::vector<fsw::event>& events, void *context);
 #endif
    
    //

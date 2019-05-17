@@ -1,7 +1,9 @@
 #include <stdio.h>
 
+#if CUBEWORLD_PLATFORM_WINDOWS
 #include <ShlObj.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 #include <GL/includes.h>
 #include <GLFW/glfw3native.h>
 
@@ -13,6 +15,7 @@
 using namespace CubeWorld;
 using namespace CubeWorld::Engine;
 
+#if CUBEWORLD_PLATFORM_WINDOWS
 WNDPROC prevWndProc;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -24,6 +27,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
    return CallWindowProc(prevWndProc, hWnd, message, wParam, lParam);
 }
+#endif
 
 int main(int argc, char** argv)
 {
@@ -47,6 +51,7 @@ int main(int argc, char** argv)
       window->SetShouldClose(true);
    });
 
+#if CUBEWORLD_PLATFORM_WINDOWS
    ITaskbarList3* ptl; 
    CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_ALL, IID_ITaskbarList3, (void**)&ptl);
 
@@ -64,14 +69,15 @@ int main(int argc, char** argv)
       }
    }
 
-   long progress = 0;
 
    HWND h = glfwGetWin32Window(window->get());
 
    prevWndProc = (WNDPROC) SetWindowLongPtr(h, GWL_WNDPROC, (LONG_PTR)&WndProc);
+#endif
+   long progress = 0;
 
    do {
-      //progress += 1;
+      progress += 1;
 
       //ptl->SetProgressState(h, TBPF_NOPROGRESS);
       //ptl->SetProgressValue(h, progress, 100);
@@ -80,7 +86,6 @@ int main(int argc, char** argv)
 
       // Swap buffers
       //window->SwapBuffers();
-      Sleep(10);
       glfwPollEvents();
    } // Check if the ESC key was pressed or the window was closed
    while (!window->ShouldClose() && progress < 100);

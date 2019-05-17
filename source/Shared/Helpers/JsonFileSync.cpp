@@ -59,15 +59,15 @@ void JsonFileSync::WatchFile()
 #if CUBEWORLD_PLATFORM_WINDOWS
    LOG_WARNING("File watching not supported on Windows :(");
 #else
-   std::vector<std::string> filename = {self->mFilename};
-   self->mMonitor = fsw::monitor_factory::create_monitor(system_default_monitor_type, filename, &JsonFileSync::FileWasChanged, self);
+   std::vector<std::string> filename = {mFilename};
+   mMonitor = fsw::monitor_factory::create_monitor(system_default_monitor_type, filename, &JsonFileSync::FileWasChanged, (void*)this);
    
-#ifdef __OSX__
+#if CUBEWORLD_PLATFORM_MACOSX
    // noDefer means we get events instantly instead of batched together
-   self->mMonitor->set_property("darwin.eventStream.noDefer", "true");
+   mMonitor->set_property("darwin.eventStream.noDefer", "true");
 #endif
    
-   self->mMonitor->start();
+   mMonitor->start();
 #endif
 }
  
@@ -121,7 +121,7 @@ void JsonFileSync::HandleFSWEvent(fsw::event event)
 // Static function. Called by libfswatch whenever the file is moved or changed.
 //    Note that "context" is the "self" passed in from WatchFile.
 //
-void JsonFileSync::FileWasChanged(const std::vector<fsw::event> &events, void* context)
+void JsonFileSync::FileWasChanged(const std::vector<fsw::event>& events, void* context)
 {
    JsonFileSync* self = (JsonFileSync*)context;
 

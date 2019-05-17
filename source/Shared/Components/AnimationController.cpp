@@ -167,7 +167,8 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          newState.name = name;
          newState.next = mods.next;
 
-         const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == mods.stance; });
+         std::string stance = mods.stance;
+         const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });
          assert(stanceIt != stances.end());
          newState.stance = stanceIt - stances.begin();
          newState.length = mods.length;
