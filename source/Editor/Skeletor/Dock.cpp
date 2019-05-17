@@ -186,7 +186,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
          mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
       };
-      scrubberOptions.sensitivity = 0.02;
 
       UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
       positionScrubbers->ConstrainToRightOf(resetPositionButton, 16);
@@ -206,10 +205,13 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       for (int i = 0; i < 3; i++)
       {
+         scrubberOptions.sensitivity = 0.02;
          mBonePos[i].text = positionScrubbers->Add<NumDisplay<float>>(textOptions);
          mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         scrubberOptions.sensitivity = 0.1;
          mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
          mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         scrubberOptions.sensitivity = 0.02;
          mBoneScl[i].text = scaleScrubbers->Add<NumDisplay<float>>(textOptions);
          mBoneScl[i].scrubber = scaleScrubbers->Add<Scrubber<float>>(scrubberOptions);
 

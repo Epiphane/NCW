@@ -41,3 +41,18 @@ stances:
       rotation: [6.211718, 1.015625, 11.231565]
     character.Torso:
       position: [0, -6, -1.948438]
+- name: wield_right
+  inherit: resting
+  bones:
+    character.Right Hand:
+      position: [-6.180703, 0, 2.661406]
+      rotation: [0, 0, 11.580857]
+    character.Shoulders:
+      position: [0, 0.538985, 3.0325]
+      rotation: [3.903903, 0, 0]
+- name: wield_left
+  inherit: wield_right
+  bones:
+    character.Left Hand:
+      position: [6.180703, 0, 2.661406]
+      rotation: [0, 0, -11.580857]
