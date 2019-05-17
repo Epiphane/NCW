@@ -1,90 +1,54 @@
 ---
 name: swing 2 recoil
 next: idle
-stance: base
+stance: wield_twohands
 length: 0.9
 keyframes:
 - time: 0
   bones:
-    character.Shoulders:
-      position: [-8.38, 0.06, 7.95]
-      rotation: [79.339996, -15.69, 0]
-    character.Attachment:
-      position: [0, 0, 0]
-    greatmace.Mace:
-      position: [0, 11.54, 0]
-      rotation: [0, 0, -0.04]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
-    character.Head:
-      position: [0, 4.29, -0.28]
-      rotation: [-7.13, 0, 0]
-    character.Left Hand:
-      position: [0.67, -1.48, 0]
-    character.Right Hand:
-      position: [0.48, 1.92, 0.72]
     character.Spine:
       position: [0, 0, 3.57]
       rotation: [11.09, 0, 0]
+    character.Head:
+      position: [0, 4.29, -0.28]
+      rotation: [-7.13, 0, 0]
+    character.Shoulders:
+      position: [-8.38, 0.06, 7.95]
+      rotation: [79.339996, -15.69, 0]
     character.Torso:
       rotation: [0, 16.41, 0]
 - time: 0.64
   bones:
-    character.Shoulders:
-      position: [-8.54, 2.17, 2.19]
-      rotation: [70.389999, -53.68, 0.05]
-    character.Attachment:
-      position: [0, 0, 0]
-    greatmace.Mace:
-      position: [0, 11.54, 0]
-      rotation: [0, 0, -0.04]
     character.Head:
       position: [0, 4.85, -0.93]
       rotation: [-13.52, 0, 0]
-    character.Left Hand:
-      position: [0.67, -1.48, 0]
-    character.Right Hand:
-      position: [0.34, 1.6, 0.95]
-    character.Spine:
-      rotation: [8.33, 0, 0]
+    character.Shoulders:
+      position: [-8.54, 2.17, 2.19]
+      rotation: [70.389999, -53.68, 0.05]
     character.Torso:
       rotation: [0.02, 51.27, 0.02]
+    character.Spine:
+      rotation: [8.33, 0, 0]
 - time: 0.66
   bones:
-    character.Shoulders:
-      position: [-8.45, 2.21, 2.21]
-      rotation: [67.529999, -52.240002, 0.41]
-    character.Attachment:
-      position: [0, 0, 0]
-    greatmace.Mace:
-      position: [0, 11.54, 0]
-      rotation: [0, 0, -0.04]
     character.Head:
       position: [0, 4.82, -0.9]
       rotation: [-13.02, 0, 0]
-    character.Left Hand:
-      position: [0.67, -1.48, 0]
-    character.Right Hand:
-      position: [-0.55, 0, 0.95]
-    character.Spine:
-      rotation: [8.03, 0, 0]
+    character.Shoulders:
+      position: [-8.45, 2.21, 2.21]
+      rotation: [67.529999, -52.240002, 0.41]
     character.Torso:
       rotation: [0.04, 49.380001, 0.02]
+    character.Spine:
+      rotation: [8.03, 0, 0]
 - time: 0.79
   bones:
     character.Shoulders:
       position: [-6, 3.37, 2.77]
       rotation: [0, 0, 15.78]
-    character.Attachment:
-      position: [0, 0, 0]
-    character.Left Hand:
-      position: [0.67, -1.48, 0]
-    greatmace.Mace:
-      position: [0, 11.54, 0]
-      rotation: [0, 0, -0.04]
-    character.Right Hand:
-      position: [-0.55, 0, 0.95]
 transitions:
 - to: swing 3
   time: 0.1

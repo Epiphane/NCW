@@ -11,6 +11,7 @@
             "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/source",
+                "${workspaceFolder}/source/Library",
                 "${workspaceFolder}/dependencies",
                 "${workspaceFolder}/dependencies/glad/09072018/include",
                 "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
@@ -18,13 +19,17 @@
                 "${workspaceFolder}/dependencies/freetype/2.9.1/include",
                 "${workspaceFolder}/dependencies/glfw/3.2.1/include",
                 "${workspaceFolder}/dependencies/glm/0.9.9.0",
-                "${workspaceFolder}/dependencies/rhea/0.2.4"
+                "${workspaceFolder}/dependencies/libyaml/0.2.2",
+                "${workspaceFolder}/dependencies/rhea/0.2.4",
+                "${workspaceFolder}/dependencies/rapidjson/1.1.0"
             ],
-            "defines": ["CUBEWORLD_PLATFORM_MACOSX"],
+            "defines": [
+                "CUBEWORLD_PLATFORM_MACOSX"
+            ],
             "macFrameworkPath": [
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks"
             ],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"

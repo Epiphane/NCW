@@ -15,3 +15,11 @@ stances:
       position: [0, 5, 0]
     greatmace.Mace:
       rotation: [0, 0, -135]
+- name: wield_twohands
+  inherit: resting
+  bones:
+    greatmace.Mace:
+      position: [-0.006328, 7.198518, 1.893515]
+      rotation: [0, 0, -0.011585]
+    greatmace.root:
+      parent: character.Shoulders
