@@ -98,6 +98,7 @@ int main(int argc, char** argv)
          "Animation Station",
          [&]() {
             Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            SettingsProvider::Instance()->Set("main", "editor", "animation_station");
             animationStation->Start();
          }
       },
@@ -105,6 +106,7 @@ int main(int argc, char** argv)
          "Skeletor",
          [&]() {
             Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            SettingsProvider::Instance()->Set("main", "editor", "skeletor");
             skeletor->Start();
          }
       },
@@ -112,6 +114,7 @@ int main(int argc, char** argv)
          "Constrainer",
          [&]() {
             Editor::CommandStack::Instance()->Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            SettingsProvider::Instance()->Set("main", "editor", "constrainer");
             constrainer->Start();
          }
       },
@@ -171,9 +174,25 @@ int main(int argc, char** argv)
    });
 
    // Start in Animation Station
-   auto firstState = animationStation;
-   firstState->Start();
-   windowContent.Swap(firstState);
+   const std::string& firstState = SettingsProvider::Instance()->Get("main", "editor").GetStringValue("animation_station");
+   if (firstState == "skeletor")
+   {
+      auto state = skeletor;
+      state->Start();
+      windowContent.Swap(state);
+   }
+   else if (firstState == "constrainer")
+   {
+      auto state = constrainer;
+      state->Start();
+      windowContent.Swap(state);
+   }
+   else if (firstState == "animation_station")
+   {
+      auto state = animationStation;
+      state->Start();
+      windowContent.Swap(state);
+   }
 
    Timer<100> windowContentRender;
    auto _3 = debug->RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {

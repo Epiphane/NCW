@@ -4,6 +4,7 @@
 #include <RGBFileSystem/File.h>
 #include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/YAMLSerializer.h>
+#include <RGBSettings/SettingsProvider.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -27,9 +28,14 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Asset::Skeleton("greatmace.yaml"))
    , mModified(true)
 {
+   mFilename = SettingsProvider::Instance()->Get("animation_station", "filename").GetStringValue();
+   if (mFilename.empty())
+   {
+      mFilename = Asset::Skeleton("greatmace.yaml");
+   }
+
    RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainCenterTo(this);
@@ -129,6 +135,7 @@ void Sidebar::LoadNewFile()
    if (!file.empty())
    {
       mFilename = file;
+      SettingsProvider::Instance()->Set("skeletor", "filename", file);
       LoadFile(file);
    }
 }
