@@ -21,9 +21,9 @@ CollapsibleContentVC::CollapsibleContentVC(UIRoot* root, UIElement* parent, cons
 {
    mIsExpanded = std::make_shared<Observable<bool>>();
    
-   Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
-   Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
-   mToggle = Add<ToggleButtonVC>(mIsExpanded, offImage, onImage, name + "Toggle");
+//   Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
+//   Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
+//   mToggle = Add<ToggleButtonVC>(mIsExpanded, offImage, onImage, name + "Toggle");
    
    mContent = Add<UIElement>(name + "Content");
    mCollapseContent = mContent->ConstrainHeight(0);

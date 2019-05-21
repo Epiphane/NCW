@@ -22,7 +22,7 @@ using UI::Image;
 class ToggleButtonVC : public ButtonVC
 {
 public:
-   ToggleButtonVC(UIRoot* root, UIElement* parent, std::shared_ptr<Observable<bool>> isOn, Image::Options offImage, Image::Options onImage, const std::string& name = "");
+   ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name = "");
    
 protected:
    virtual void OnClick() override;
@@ -32,9 +32,6 @@ private:
    
    Image* mOffImage;
    Image* mOnImage;
-   
-   // If true, this toggle button is ENABLED
-   std::shared_ptr<Observable<bool>> mIsOn;
 };
 
 }; // namespace Engine

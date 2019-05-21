@@ -8,6 +8,42 @@
 
 namespace CubeWorld
 {
+   
+   // e.g. when the user mousedowns a scrubber, state is STARTING.
+   //    As they mousemove, state is CHANGING.
+   //    When they mouseup, state is ENDING.
+   enum InputState {
+      STARTING, CHANGING, ENDING
+   };
+   
+   template<typename T>
+   struct Message_InputChanged {
+      InputState state;
+      T value;
+   };
+   
+   template<typename T>
+   class MessageReceiver
+   {
+      
+   };
+   
+   template<typename T>
+   class MessageProducer
+   {
+      MessageProducer* Subscribe(std::function<void(T)> onMessage) {
+         
+         return this;
+      }
+   };
+   
+   template<typename IN_T, typename OUT_T>
+   class MessagePipe
+   {
+      MessageReceiver<IN_T> mInput;
+      MessageProducer<OUT_T> mOutput;
+   };
+   
 
 // My idea:
 //  These "Observable" values live in the model or the VC.

@@ -330,7 +330,7 @@ void UIRoot::Receive(const MouseUpEvent& evt)
    if (mConstraintDebuggingEnabled) {
       return;
    }
-   
+
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements{mElements};
