@@ -11,10 +11,6 @@ keyframes:
       rotation: [-5, 0, 0]
     character.Torso:
       position: [0, -6.5, 0]
-    character.root:
-      position: [0, 0, 0]
-      rotation: [0, 0, 0]
-      scale: [0, 0, 0]
     character.Hips:
       rotation: [5, 0, 0]
     character.Spine:

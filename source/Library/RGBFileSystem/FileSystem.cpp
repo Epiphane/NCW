@@ -253,7 +253,7 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
          entry.size = 0;
 
          struct stat status;
-         if (0 == stat(path.c_str(), &status))
+         if (0 == stat(Paths::Join(base, entry.name).c_str(), &status))
          {
             entry.isDirectory = (status.st_mode & S_IFDIR) != 0;
             entry.size = status.st_size;
