@@ -89,7 +89,7 @@ public:
 private:
    // State
    size_t mBone;
-   size_t mSkeleton;
+   std::string mSkeleton;
    std::vector<std::string> mStates;
 
    std::unique_ptr<Command> mScrubbing;
@@ -166,7 +166,7 @@ private:
       void Undo() override;
 
    private:
-      State state{"", "", "", "", 1.0f, {}};
+      State state{"", "", "", "base", 1.0f, {}};
    };
 
    //

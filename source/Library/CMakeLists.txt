@@ -6,6 +6,7 @@ add_subdirectory(RGBDesignPatterns)
 add_subdirectory(RGBFileSystem)
 add_subdirectory(RGBLogger)
 add_subdirectory(RGBNetworking)
+add_subdirectory(RGBSettings)
 add_subdirectory(RGBText)
 
 set(CW_LIBS ${CW_LIBS} PARENT_SCOPE)

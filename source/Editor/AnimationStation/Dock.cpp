@@ -592,7 +592,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 ///
 void Dock::Receive(const SuspendEditingEvent&)
 {
-   if (!mSkeleton || !mController)
+   if (!mController)
    {
       return;
    }
@@ -694,7 +694,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 void Dock::Receive(const SkeletonSelectedEvent& evt)
 {
-   mSkeleton = evt.index;
+   mSkeleton = evt.component->name;
 }
 
 ///
@@ -872,6 +872,16 @@ void Dock::SetBone(const size_t& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
+   if (state.entity.empty())
+   {
+      state.entity = dock->mSkeleton;
+   }
+
+   if (state.stance.empty())
+   {
+      state.stance = "base";
+   }
+
    if (state.keyframes.size() == 0)
    {
       Keyframe keyframe;
@@ -927,10 +937,16 @@ void Dock::SetStateLength(double newValue, double oldValue)
 void Dock::SetStateNameCommand::Do()
 {
    State& state = dock->GetCurrentState();
+
    std::string last = state.name;
    state.name = name;
+
+   dock->mController->states.emplace(state.name, dock->mController->states.at(last));
+   dock->SetState(name);
+   dock->mController->states.erase(last);
+
    name = last;
-   dock->mStateName->SetText(state.name);
+
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 

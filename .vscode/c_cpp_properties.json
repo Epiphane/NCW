@@ -10,18 +10,19 @@
             },
             "includePath": [
                 "${workspaceFolder}",
-                "${workspaceFolder}/source",
-                "${workspaceFolder}/source/Library",
                 "${workspaceFolder}/dependencies",
-                "${workspaceFolder}/dependencies/glad/09072018/include",
-                "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
-                "${workspaceFolder}/dependencies/noiseutils/0.9.0.1",
                 "${workspaceFolder}/dependencies/freetype/2.9.1/include",
+                "${workspaceFolder}/dependencies/glad/09072018/include",
                 "${workspaceFolder}/dependencies/glfw/3.2.1/include",
                 "${workspaceFolder}/dependencies/glm/0.9.9.0",
+                "${workspaceFolder}/dependencies/libfswatch/0.2.4/src",
+                "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
                 "${workspaceFolder}/dependencies/libyaml/0.2.2",
+                "${workspaceFolder}/dependencies/noiseutils/0.9.0.1",
+                "${workspaceFolder}/dependencies/rapidjson/1.1.0",
                 "${workspaceFolder}/dependencies/rhea/0.2.4",
-                "${workspaceFolder}/dependencies/rapidjson/1.1.0"
+                "${workspaceFolder}/source",
+                "${workspaceFolder}/source/Library"
             ],
             "defines": [
                 "CUBEWORLD_PLATFORM_MACOSX"

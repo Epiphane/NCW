@@ -227,6 +227,11 @@ const BindingProperty& BindingProperty::operator[](const size_t& index) const
 const BindingProperty& BindingProperty::operator[](const std::string& key) const
 {
    assert((IsObject() || IsNull()) && "key operator only valid on null or objects");
+   if (IsNull())
+   {
+      return Null;
+   }
+   
    ConstObjectIterator it = Find(key);
    if (it != AsObject().end())
    {

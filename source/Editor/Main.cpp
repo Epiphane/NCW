@@ -16,6 +16,7 @@
 #include <RGBLogger/Logger.h>
 #include <RGBLogger/StdoutLogger.h>
 #include <RGBLogger/DebugLogger.h>
+#include <RGBSettings/SettingsProvider.h>
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
@@ -57,6 +58,9 @@ int main(int argc, char** argv)
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
+
+   // Set up settings location
+   SettingsProvider::Instance()->SetLocalPath("Editor");
 
    // Setup main window
    Window::Options windowOptions;

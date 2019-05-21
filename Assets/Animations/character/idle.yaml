@@ -7,24 +7,24 @@ keyframes:
 - time: 0
 - time: 0.79
   bones:
-    character.Spine:
-      position: [0, 0.1, 0]
     character.Head:
       position: [0, 3.9, 0.6]
+    character.Spine:
+      position: [0, 0.1, 0]
 - time: 2.64
   bones:
-    character.Spine:
-      position: [0, 0.44, 0]
-    character.Shoulders:
-      position: [0, 1.1, 2.1]
     character.Head:
       position: [0, 4.1, 0.6]
+    character.Shoulders:
+      position: [0, 1.1, 2.1]
+    character.Spine:
+      position: [0, 0.44, 0]
 - time: 3.23
   bones:
-    character.Spine:
-      position: [0, 0.33, 0]
     character.Head:
       position: [0, 4.4, 0.6]
+    character.Spine:
+      position: [0, 0.33, 0]
 transitions:
 - to: walk
   time: 0.5
