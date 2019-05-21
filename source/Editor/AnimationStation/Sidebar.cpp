@@ -29,7 +29,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
    , mModified(true)
 {
-   mFilename = SettingsProvider::Instance()->Get("animation_station", "filename").GetStringValue();
+   mFilename = SettingsProvider::Instance().Get("animation_station", "filename").GetStringValue();
    if (mFilename.empty())
    {
       mFilename = Asset::Skeleton("greatmace.yaml");
@@ -107,7 +107,7 @@ void Sidebar::SetModified(bool modified)
       title += "*";
    }
    title += Paths::GetFilename(mFilename);
-   Engine::Window::Instance()->SetTitle(title);
+   Engine::Window::Instance().SetTitle(title);
 
    mSave->SetText(modified ? "*Save" : "Save");
    mQuit->SetText("Quit");
@@ -119,7 +119,7 @@ void Sidebar::LoadNewFile()
    if (!file.empty())
    {
       mFilename = file;
-      SettingsProvider::Instance()->Set("animation_station", "filename", file);
+      SettingsProvider::Instance().Set("animation_station", "filename", file);
       LoadFile(file);
    }
 }
@@ -200,7 +200,7 @@ void Sidebar::Quit()
 {
    if (!mModified)
    {
-      Engine::Window::Instance()->SetShouldClose(true);
+      Engine::Window::Instance().SetShouldClose(true);
    }
    else
    {

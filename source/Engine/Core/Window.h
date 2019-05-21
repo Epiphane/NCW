@@ -67,7 +67,7 @@ public:
    };
 
 protected:
-   // Instantiate this by calling Window::Instance()->Initialize(...);
+   // Instantiate this by calling Window::Instance().Initialize(...);
    Window();
    ~Window();
    friend class Singleton<Window>;

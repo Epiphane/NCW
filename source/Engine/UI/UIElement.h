@@ -200,7 +200,7 @@ public:
    // Logs a human-readable message with the debug info above. Leave output to null
    // to use default program output.
    //
-   void LogDebugInfo(bool bRecursive = true, Logger::LogManager* output = nullptr, uint32_t indentLevel = 0);
+   void LogDebugInfo(bool bRecursive = true, uint32_t indentLevel = 0);
 
 public:
    //

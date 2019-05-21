@@ -60,7 +60,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
       program->Uniform("uModelMatrix");
    }
 
-   metric = DebugHelper::Instance()->RegisterMetric("3D Render Time", [this]() -> std::string {
+   metric = DebugHelper::Instance().RegisterMetric("3D Render Time", [this]() -> std::string {
       return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }

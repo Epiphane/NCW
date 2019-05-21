@@ -21,14 +21,14 @@ protected:
                                    // non-virtual destructor [-Weffc++]
 
 public:
-   static T* Instance() noexcept(std::is_nothrow_constructible<T>::value)
+   static T& Instance() noexcept(std::is_nothrow_constructible<T>::value)
    {
       // Guaranteed to be destroyed.
       // Instantiated on first use.
       // Thread safe in C++11
       static T instance;
 
-      return &instance;
+      return instance;
    }
 };
 

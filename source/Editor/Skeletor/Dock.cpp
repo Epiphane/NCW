@@ -54,7 +54,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStanceCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevStanceCommand>(this); };
       Button* prevBoneButton = row1->Add<Button>(buttonOptions);
       prevBoneButton->ConstrainTopAlignedTo(row1);
       prevBoneButton->ConstrainHeightTo(row1);
@@ -66,7 +66,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStanceCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextStanceCommand>(this); };
       Button* nextBoneButton = row1->Add<Button>(buttonOptions);
       nextBoneButton->ConstrainTopAlignedTo(row1);
       nextBoneButton->ConstrainHeightTo(row1);
@@ -89,7 +89,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevBoneCommand>(this); };
       Button* prevBoneButton = row1->Add<Button>(buttonOptions);
       prevBoneButton->ConstrainTopAlignedTo(row1);
       prevBoneButton->ConstrainHeightTo(row1);
@@ -101,7 +101,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextBoneCommand>(this); };
       Button* nextBoneButton = row1->Add<Button>(buttonOptions);
       nextBoneButton->ConstrainTopAlignedTo(row1);
       nextBoneButton->ConstrainHeightTo(row1);

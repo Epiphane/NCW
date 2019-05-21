@@ -62,7 +62,7 @@ public:
    //template <typename T> struct identity { typedef T type; };
 
    // Register a debug line.
-   // Ex: DebugHelper::Instance()->RegisterMetric("FPS", []() { return "Unimplemented"; })
+   // Ex: DebugHelper::Instance().RegisterMetric("FPS", []() { return "Unimplemented"; })
    std::unique_ptr<MetricLink> RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn);
    void DeregisterMetric(std::unique_ptr<MetricLink> metric);
 

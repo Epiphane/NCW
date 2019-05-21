@@ -41,14 +41,14 @@ int main(int argc, char** argv)
    windowOptions.width = 1280;
    windowOptions.height = 760;
    windowOptions.lockCursor = false;
-   Window* window = Window::Instance();
-   if (auto result = window->Initialize(windowOptions); !result)
+   Window& window = Window::Instance();
+   if (auto result = window.Initialize(windowOptions); !result)
    {
       return 1;
    }
 
-   auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
-      window->SetShouldClose(true);
+   auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+      window.SetShouldClose(true);
    });
 
 #if CUBEWORLD_PLATFORM_WINDOWS
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
       //window->SwapBuffers();
       glfwPollEvents();
    } // Check if the ESC key was pressed or the window was closed
-   while (!window->ShouldClose() && progress < 100);
+   while (!window.ShouldClose() && progress < 100);
 
    return 0;
 }

@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
+#include <RGBDesignPatterns/Singleton.h>
 #include <RGBText/Format.h>
 
 #define NO_ON_REGISTER void OnRegister() override {};
@@ -42,7 +42,7 @@ enum LogLevel {
    kAlways
 };
 
-class LogManager : public Logger
+class LogManager : public Singleton<LogManager>, public Logger
 {
 public:
    NO_REGISTER_HOOKS
@@ -50,8 +50,6 @@ public:
 public:
    LogManager();
    ~LogManager();
-
-   static LogManager* Instance();
 
 public:
    void Log(const char* message, Color color = Default) override;
@@ -62,9 +60,6 @@ public:
    const inline void Log(LogLevel level, const std::string& message) { Log(level, message.c_str()); }
 
 private:
-   static std::unique_ptr<LogManager> sInstance;
-
-private:
    std::vector<Logger*> loggers;
 
 public:
@@ -72,11 +67,11 @@ public:
    void DeregisterLogger(Logger* logger);
 };
 
-#define LOG_DEBUG(fmt, ...)   (CubeWorld::Logger::LogManager::Instance()->Log(CubeWorld::Logger::LogLevel::kDebug, fmt, ## __VA_ARGS__))
-#define LOG_INFO(fmt, ...)    (CubeWorld::Logger::LogManager::Instance()->Log(CubeWorld::Logger::LogLevel::kInfo, fmt, ## __VA_ARGS__))
-#define LOG_WARNING(fmt, ...) (CubeWorld::Logger::LogManager::Instance()->Log(CubeWorld::Logger::LogLevel::kWarning, fmt, ## __VA_ARGS__))
-#define LOG_ERROR(fmt, ...)   (CubeWorld::Logger::LogManager::Instance()->Log(CubeWorld::Logger::LogLevel::kError, fmt, ## __VA_ARGS__))
-#define LOG_ALWAYS(fmt, ...)  (CubeWorld::Logger::LogManager::Instance()->Log(CubeWorld::Logger::LogLevel::kAlways, fmt, ## __VA_ARGS__))
+#define LOG_DEBUG(fmt, ...)   (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kDebug, fmt, ## __VA_ARGS__))
+#define LOG_INFO(fmt, ...)    (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kInfo, fmt, ## __VA_ARGS__))
+#define LOG_WARNING(fmt, ...) (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kWarning, fmt, ## __VA_ARGS__))
+#define LOG_ERROR(fmt, ...)   (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kError, fmt, ## __VA_ARGS__))
+#define LOG_ALWAYS(fmt, ...)  (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kAlways, fmt, ## __VA_ARGS__))
 
 }; // namespace Logger
 

@@ -21,7 +21,7 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
    , mText("")
    , mRendered("")
 {
-   auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font(options.font));
+   auto maybeFont = Engine::Graphics::FontManager::Instance().GetFont(Asset::Font(options.font));
    assert(maybeFont);
    mFont = *maybeFont;
 

@@ -35,13 +35,13 @@ namespace Game
    using Entity = Engine::Entity;
    using Transform = Engine::Transform;
 
-   StupidState::StupidState(Engine::Window* window) : mWindow(window)
+   StupidState::StupidState(Engine::Window& window) : mWindow(window)
    {
-      DebugHelper::Instance()->SetSystemManager(&mSystems);
-      mSystems.Add<CameraSystem>(window);
+      DebugHelper::Instance().SetSystemManager(&mSystems);
+      mSystems.Add<CameraSystem>(&window);
       mSystems.Add<AnimationSystem>();
-      mSystems.Add<FlySystem>(window);
-      mSystems.Add<WalkSystem>(window);
+      mSystems.Add<FlySystem>(&window);
+      mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
@@ -53,7 +53,7 @@ namespace Game
 
    StupidState::~StupidState()
    {
-      DebugHelper::Instance()->SetSystemManager(nullptr);
+      DebugHelper::Instance().SetSystemManager(nullptr);
    }
    
    namespace {
@@ -159,7 +159,7 @@ namespace Game
 
    void StupidState::Initialize()
    {
-      mWindow->SetMouseLock(true);
+      mWindow.SetMouseLock(true);
       
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
@@ -170,7 +170,7 @@ namespace Game
       auto controller = player.Add<AnimationController>();
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow->IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
       });
 
       Engine::Entity part = mEntities.Create(0, 0, 0);
@@ -187,7 +187,7 @@ namespace Game
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;
-      cameraOptions.aspect = float(mWindow->GetWidth()) / mWindow->GetHeight();
+      cameraOptions.aspect = float(mWindow.GetWidth()) / mWindow.GetHeight();
       cameraOptions.far = 1500.0f;
       cameraOptions.distance = 3.5f;
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);

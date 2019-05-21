@@ -57,7 +57,7 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 
 void Editor::Start()
 {
-   DebugHelper::Instance()->SetBounds(&mStateWindow->GetFrame());
+   DebugHelper::Instance().SetBounds(&mStateWindow->GetFrame());
 }
 
 }; // namespace Skeletor

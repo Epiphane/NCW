@@ -46,7 +46,7 @@ SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    for (size_t i = 0; i < 8; ++i)
    {
       buttonOptions.onClick = std::bind([this, i] {
-         CommandStack::Instance()->Do<SelectSkeletonCommand>(this, i);
+         CommandStack::Instance().Do<SelectSkeletonCommand>(this, i);
       });
       TextButton* btn = buttons->Add<TextButton>(buttonOptions);
       btn->SetActive(false);

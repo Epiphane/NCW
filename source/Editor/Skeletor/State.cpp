@@ -49,7 +49,7 @@ MainState::MainState(Engine::Input* input, Bounded& parent)
 
 MainState::~MainState()
 {
-   DebugHelper::Instance()->SetSystemManager(nullptr);
+   DebugHelper::Instance().SetSystemManager(nullptr);
 }
 
 void MainState::Initialize()
@@ -59,7 +59,7 @@ void MainState::Initialize()
    mEvents.Subscribe<AddSkeletonPartEvent>(*this);
 
    // Create systems and configure
-   DebugHelper::Instance()->SetSystemManager(&mSystems);
+   DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<SkeletonSystem>();
    mSystems.Add<MakeshiftSystem>();

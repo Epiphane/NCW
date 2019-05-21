@@ -88,17 +88,17 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
 {
    std::unique_ptr<ModelData> result = std::make_unique<ModelData>();
 
-   auto fs = Engine::FileSystemProvider::Instance();
-   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileRead(path);
+   Engine::FileSystemProvider& fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs.OpenFileRead(path);
    if (!maybeHandle)
    {
       return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
    FileSystem::FileHandle handle = maybeHandle.Result();
-   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
+   CUBEWORLD_SCOPE_EXIT([&] { fs.CloseFile(handle); });
 
-   if (Maybe<void> read = fs->ReadFile(handle, &result->mMetadata, sizeof(ModelData::Metadata)); !read)
+   if (Maybe<void> read = fs.ReadFile(handle, &result->mMetadata, sizeof(ModelData::Metadata)); !read)
    {
       return read.Failure().WithContext("Failed reading metadata header");
    }
@@ -115,7 +115,7 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
    data.resize(3 * nElements);
    filled.resize(nElements);
 
-   if (Maybe<void> read = fs->ReadFile(handle, &data[0], sizeof(uint8_t) * 3 * nElements); !read)
+   if (Maybe<void> read = fs.ReadFile(handle, &data[0], sizeof(uint8_t) * 3 * nElements); !read)
    {
       return read.Failure().WithContext("Failed reading data");
    }
@@ -174,17 +174,17 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
       return Failure{"Voxel data provided was empty."};
    }
 
-   auto fs = Engine::FileSystemProvider::Instance();
-   Maybe<FileSystem::FileHandle> maybeHandle = fs->OpenFileWrite(path);
+   Engine::FileSystemProvider& fs = Engine::FileSystemProvider::Instance();
+   Maybe<FileSystem::FileHandle> maybeHandle = fs.OpenFileWrite(path);
    if (!maybeHandle)
    {
       return maybeHandle.Failure().WithContext("Failed opening model");
    }
 
    FileSystem::FileHandle handle = maybeHandle.Result();
-   CUBEWORLD_SCOPE_EXIT([&] { fs->CloseFile(handle); });
+   CUBEWORLD_SCOPE_EXIT([&] { fs.CloseFile(handle); });
 
-   if (Maybe<void> write = fs->WriteFile(handle, (void*)&model.mMetadata, sizeof(Model::Metadata)); !write)
+   if (Maybe<void> write = fs.WriteFile(handle, (void*)&model.mMetadata, sizeof(Model::Metadata)); !write)
    {
       return write.Failure().WithContext("Failed to write metadata header");
    }
@@ -216,7 +216,7 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
       data[3 * ndx + 2] = uint8_t(voxel.color.b);
    }
 
-   if (Maybe<void> write = fs->WriteFile(handle, &data[0], sizeof(uint8_t) * data.size()); !write)
+   if (Maybe<void> write = fs.WriteFile(handle, &data[0], sizeof(uint8_t) * data.size()); !write)
    {
       return write.Failure().WithContext("Failed to write data");
    }

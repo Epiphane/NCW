@@ -99,7 +99,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       stateNameLabel->ConstrainHeightTo(stateName);
 
       mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
-         CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
+         CommandStack::Instance().Do<SetStateNameCommand>(this, value);
       }});
       mStateName->ConstrainTopAlignedTo(stateName);
       mStateName->ConstrainHeightTo(stateName);
@@ -109,7 +109,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevStateCommand>(this); };
       prevStateButton = stateName->Add<Button>(buttonOptions);
       prevStateButton->ConstrainTopAlignedTo(stateName);
       prevStateButton->ConstrainHeightTo(stateName);
@@ -117,7 +117,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextStateCommand>(this); };
       Button* nextStateButton = stateName->Add<Button>(buttonOptions);
       nextStateButton->ConstrainTopAlignedTo(stateName);
       nextStateButton->ConstrainHeightTo(stateName);
@@ -125,7 +125,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_add";
       buttonOptions.hoverImage = "hover_button_add";
       buttonOptions.pressImage = "press_button_add";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<AddStateCommand>(this); };
       Button* addStateButton = stateName->Add<Button>(buttonOptions);
       addStateButton->ConstrainTopAlignedTo(stateName);
       addStateButton->ConstrainHeightTo(stateName);
@@ -136,7 +136,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.onClick = [&]() {
          State newState = GetCurrentState();
          newState.name += " Copy";
-         CommandStack::Instance()->Do<AddStateCommand>(this, newState);
+         CommandStack::Instance().Do<AddStateCommand>(this, newState);
       };
       Button* dupStateButton = stateName->Add<Button>(buttonOptions);
       dupStateButton->ConstrainTopAlignedTo(stateName);
@@ -145,7 +145,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<RemoveStateCommand>(this); };
       Button* removeStateButton = stateName->Add<Button>(buttonOptions);
       removeStateButton->ConstrainTopAlignedTo(stateName);
       removeStateButton->ConstrainHeightTo(stateName);
@@ -227,7 +227,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time != keyframe.time)
          {
-            CommandStack::Instance()->Do<AddKeyframeCommand>(this);
+            CommandStack::Instance().Do<AddKeyframeCommand>(this);
          }
       };
       Button* addFrameButton = keyframe->Add<Button>(buttonOptions);
@@ -242,7 +242,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          size_t index = GetKeyframeIndex(state, mController->time);
          if (mController->time == state.keyframes[index].time)
          {
-            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
+            CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
          }
       };
       Button* removeFrameButton = keyframe->Add<Button>(buttonOptions);
@@ -371,7 +371,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevBoneCommand>(this); };
       Button* prevBoneButton = row1->Add<Button>(buttonOptions);
       prevBoneButton->ConstrainTopAlignedTo(row1);
       prevBoneButton->ConstrainHeightTo(row1);
@@ -383,7 +383,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextBoneCommand>(this); };
       Button* nextBoneButton = row1->Add<Button>(buttonOptions);
       nextBoneButton->ConstrainTopAlignedTo(row1);
       nextBoneButton->ConstrainHeightTo(row1);
@@ -408,7 +408,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_up";
       buttonOptions.hoverImage = "hover_button_up";
       buttonOptions.pressImage = "press_button_up";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<ParentBoneCommand>(this); };
       Button* parentBoneButton = row2->Add<Button>(buttonOptions);
       parentBoneButton->ConstrainTopAlignedTo(row2);
       parentBoneButton->ConstrainHeightTo(row2);
@@ -452,7 +452,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          {
             const Stance& stance = GetCurrentStance();
             const Bone& original = stance.bones[mBone];
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
                original.position,
                keyframe.rotations[original.name],
                keyframe.scales[original.name]);
@@ -477,7 +477,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
                prev.positions.at(original.name) :
                original.position;
 
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
                pos,
                keyframe.rotations[original.name],
                keyframe.scales[original.name]);
@@ -495,7 +495,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          {
             const Stance& stance = GetCurrentStance();
             const Bone& original = stance.bones[mBone];
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
                keyframe.positions[original.name],
                original.rotation,
                keyframe.scales[original.name]);
@@ -520,7 +520,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
                prev.rotations.at(original.name) :
                original.rotation;
 
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mBone,
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
                keyframe.positions[original.name],
                rot,
                keyframe.scales[original.name]);
