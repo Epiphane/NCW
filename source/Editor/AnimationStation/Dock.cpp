@@ -1039,6 +1039,11 @@ void Dock::SetTime(double time)
       mController->time = time;
    }
 
+   if (mSelectedKeyframe < state.keyframes.size())
+   {
+      mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
+   }
+
    Receive(ResumeEditingEvent{});
 }
 
