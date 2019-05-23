@@ -7,7 +7,7 @@ endif()
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/${VERSION}/zlib")
 list(APPEND CW_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/${VERSION})
 list(APPEND CW_LIBS zlibstatic)
-set_target_properties(zlib example minigzip PROPERTIES FOLDER "_")
+set_target_properties(zlib PROPERTIES FOLDER "_")
 
 # Propagate variables back up
 set(CW_INCLUDES ${CW_INCLUDES} PARENT_SCOPE)

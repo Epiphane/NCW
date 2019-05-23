@@ -2,6 +2,7 @@
 
 #if CUBEWORLD_PLATFORM_WINDOWS
 #include <initguid.h>
+#include <Knownfolders.h>
 #include <Shlobj.h>
 #endif
 

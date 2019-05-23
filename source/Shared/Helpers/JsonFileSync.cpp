@@ -4,6 +4,8 @@
 // This file created by the ELLIOT FISKE gang
 //
 
+#include <functional>
+
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/JSONSerializer.h>
 

@@ -21,7 +21,7 @@ WNDPROC prevWndProc;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
    char msss[128];
-   sprintf(msss, "Message: %04x (%u) %x %x", message, message, wParam, lParam);
+   sprintf(msss, "Message: %04x (%u) %x %x", (int)message, (unsigned)message, (int)wParam, (int)lParam);
 
    LOG_INFO(msss);
 
@@ -29,7 +29,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
@@ -70,9 +70,9 @@ int main(int argc, char** argv)
    }
 
 
-   HWND h = glfwGetWin32Window(window->get());
+   HWND h = glfwGetWin32Window(window.get());
 
-   prevWndProc = (WNDPROC) SetWindowLongPtr(h, GWL_WNDPROC, (LONG_PTR)&WndProc);
+   prevWndProc = (WNDPROC) SetWindowLongPtr(h, GWLP_WNDPROC, (LONG_PTR)&WndProc);
 #endif
    long progress = 0;
 
