@@ -19,7 +19,7 @@ namespace Engine
 CollapsibleContentVC::CollapsibleContentVC(UIRoot* root, UIElement* parent, const std::string &name)
       : UIElement(root, parent, name)
 {
-   mIsExpanded = std::make_shared<Observable<bool>>();
+//   mIsExpanded = std::make_shared<Observable<bool>>();
    
 //   Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
 //   Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
@@ -29,7 +29,7 @@ CollapsibleContentVC::CollapsibleContentVC(UIRoot* root, UIElement* parent, cons
    mCollapseContent = mContent->ConstrainHeight(0);
    mpRoot->RemoveConstraint(mCollapseContent.GetName());
 
-   mIsExpanded->AddCallback(std::bind(&CollapsibleContentVC::ExpandedStateChanged, this, std::placeholders::_1));
+//   mIsExpanded->AddCallback(std::bind(&CollapsibleContentVC::ExpandedStateChanged, this, std::placeholders::_1));
 }
    
 void CollapsibleContentVC::ExpandedStateChanged(bool bIsExpanded)

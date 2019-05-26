@@ -26,9 +26,6 @@ private:
    // Constraint that sets mContent.height = 0. Disabled if content is expanded.
    UIConstraint mCollapseContent;
 
-   // If true, the content is shown.
-   std::shared_ptr<Observable<bool>> mIsExpanded;
-
    ToggleButtonVC* mToggle;
    UIElement* mContent;
 };

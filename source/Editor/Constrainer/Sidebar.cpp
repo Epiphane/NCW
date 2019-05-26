@@ -29,15 +29,13 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent, "ConstrainerSidebar")
    , mFilename(Paths::Normalize(Asset::Model("untitled-ui.json")))
 {
+   
 //   RectFilled* bg = Add<RectFilled>(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 //   bg->SetName("ConstraintSidebarBackground");
    RectFilled* fg = Add<RectFilled>("ConstrainerSidebarFG", glm::vec4(0.4f, 0.4f, 0.4f, 1.0f));
    fg->SetName("ConstraintSidebarForeground");
    
-//   bg->ConstrainEqualBounds(this);
    fg->ConstrainEqualBounds(this, 2.0, 2.0, 2.0, 2.0);
-   
-//   fg->ConstrainInFrontOf(bg);
 
    Engine::UIStackView* buttonParent = Add<Engine::UIStackView>("ConstrainerSidebarStackView");
    buttonParent->SetOffset(8.0);
@@ -89,7 +87,6 @@ Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
       buttonParent->ConstrainLeftAlignedTo(this, 8.0);
       
       buttonParent->ConstrainInFrontOf(fg);
-//      buttonParent->ConstrainInFrontOf(bg);
       discard->ConstrainInFrontOf(fg);
    }
 }
