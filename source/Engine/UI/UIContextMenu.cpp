@@ -34,11 +34,11 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
    std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
    ObservableInternal<int> testObservable;
    
-   testObservable.OnChanged()
-//   .Map<bool>([](int test) -> bool {
-//      return test % 2;
-//   })
-   .Subscribe([](int test) {
+   (testObservable.OnChanged()
+   << Map<int, bool>([](int test) -> bool {
+      return test % 2;
+   }))
+   .Subscribe([](bool test) {
       std::cout << "OH yeAH BABY" << test;
    }, myBag);
    
@@ -46,6 +46,14 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
    testObservable.SendMessage(4);
    testObservable.SendMessage(5);
    testObservable.SendMessage(-1);
+   
+//   testObservable
+//   >> Observable::Map([](int test) -> bool {
+//      return test % 2;
+//   }) >>
+//   Observable::OnMessage([](bool test) {
+//         
+//   });
    
    Engine::UISerializationHelper serializer;
    Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("context_menu.json")), mpRoot, this);
