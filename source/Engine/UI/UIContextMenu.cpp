@@ -34,12 +34,12 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
    std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
    ObservableInternal<int> testObservable;
    
-   (testObservable.OnChanged()
-   << Map<int, bool>([](int test) -> bool {
-      return test % 2;
-   }))
-   .Subscribe([](bool test) {
-      std::cout << "OH yeAH BABY" << test;
+   testObservable.OnChanged() >>
+   Map<int, int>([](int test) -> int {
+      return test + 2;
+   }) >> 
+   OnMessage<int>([](int test) {
+      std::cout << "OH yeAH BABY" << test << std::endl;
    }, myBag);
    
    testObservable.SendMessage(3);

@@ -22,29 +22,13 @@ namespace CubeWorld
       T value;
    };
    
-   /*
-    Example usage I wanna see:
-    
-    SomeUIElement::SomeUIElement() {
-      myTap.OnTap().Subscribe([&](Message_TapGesture tap) {
-         // do something with tap
-         this->SetBackgroundColor(red);
-      }, mDisposer);
-    
-      // When either the gesture recognizer dies (obv not gonna happen here but whatever)
-      //   or the SomeUIElement dies, we want no remnant of the subscription to stick around. 
-    
-    */
-   
-//   template<typename T>
-//   class Observable; // Forward declare
-   
    /**
     * A DisposeBag holds onto some callbacks, and when it dies, it calls all the
     *    callbacks. The idea is that you can toss some "disposables" into the bag,
     *    and they will all get correctly dealloced when the bag deallocs.
     *
-    * Also, if the object dies before the bag, it is removed from the bag.
+    * Also, if the object dies before the bag, it should be removed from the bag
+    *    with RemoveOnDispose().
     *
     * See DisposeBag pattern here: http://adamborek.com/memory-managment-rxswift/
     */
@@ -52,7 +36,7 @@ namespace CubeWorld
    public:
       void AddOnDispose(std::function<void(void)> newCallback, void* callbackOwner) 
       {
-         mDisposalCallbacks.emplace(callbackOwner, newCallback);
+         mDisposalCallbacks.insert(std::pair(callbackOwner, newCallback));
       }
       
       void RemoveOnDispose(void* callbackOwner) 
@@ -76,20 +60,25 @@ namespace CubeWorld
    };
    
    template<typename T>
-   class ObservableInternal;
+   class ObservableInternal; // Forward declare
    
-   // IDK if this is a good idea
-   class BaseObservable {
-   };
-   
+   /**
+    * An Observable is something that spits out messages. You can set a
+    *    callback to react to these messages, and set up mapping functions
+    *    to turn these messages into different messages.
+    *
+    * Generally you would declare an ObservableInternal as a private/protected
+    *    class field, and expose the corresponding Observable through a public
+    *    method.
+    */
    template<typename T>
-   class Observable : public DisposeBag, public BaseObservable
+   class Observable final : public DisposeBag
    {
    public:
       friend class ObservableInternal<T>;
       
       ~Observable() {
-         for (const auto& [weakBag, _] : mListeners) {
+         for (const auto& [weakBag, _] : mBaggedObservers) {
             auto strongBag = weakBag.lock();
             if (strongBag) {
                strongBag->RemoveOnDispose(this);  
@@ -97,39 +86,27 @@ namespace CubeWorld
          }
       }
       
-      // notes: You can specify weakOwner as nullptr; in that case, the only time this subscription
-      //          will be disposed is if the Observable itself dies. Useful if you can guarentee
-      //          the subscriber will outlive the Observable.
-      void Subscribe(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakOwner) {
-         auto strongOwner = weakOwner.lock();
-         mListeners.emplace(weakOwner, onMessage);
+      //
+      // Add an observer callback that will be called for every message sent by this observer.
+      //    With this method you specify a DisposeBag. When the DisposeBag dies, the link
+      //    between this observer and the callback will be cleaned up.
+      //
+      void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) {
+         auto strongBag = weakBag.lock();
+         mBaggedObservers.insert(std::pair(weakBag, onMessage));
          
-         // When the owner is deinitted, it will also erase the callbacks that it owns.
-         if (strongOwner != nullptr) {
-            strongOwner->AddOnDispose([&]() {
-               mListeners.erase(weakOwner);
-            }, this);
-         }
+         strongBag->AddOnDispose([&]() {
+            mBaggedObservers.erase(weakBag);
+         }, this);
       }
       
-   public:
-      template<typename U>
-      Observable<U>& Map(std::function<U(T)> mapper) {
-         std::shared_ptr<ObservableInternal<U>> result = std::make_shared<ObservableInternal<U>>();
-         
-         mOwnedObservables.push_back(result);
-         
-         Subscribe([&](T message) {
-            U newMessage = mapper(message);
-            result->Emit(newMessage);
-         }, std::shared_ptr<DisposeBag>(nullptr));
-         
-         return *result.get();
-      }
-      
-      Observable Filter(std::function<bool(T)> filterer) {
-         
-         return this;
+      //
+      // By using this function, you're promising that whatever is subscribing will outlive this
+      //    Observable. That is, without specifying an owner, the only way the observer will
+      //    be cleaned up is when this Observable dies.
+      //
+      void AddObserverWithoutDisposer(std::function<void(T)> onMessage) {
+         mUnbaggedObservers.push_back(onMessage);
       }
       
       void AddOwnedObservable(std::shared_ptr<void> observable) {
@@ -137,17 +114,22 @@ namespace CubeWorld
       }
       
    private:                     
-      void Emit(T message) {
-         // Make a copy of mListeners in case a listener is deleted by this event
+      void SendMessageToObservers(T message) {
+         // Make a copy of mBaggedListeners in case a listener is deleted by this event
          //    being emitted.
-//         auto listenersCopy = mListeners;
+         auto observersCopy = mBaggedObservers;
          
-         for (const auto& [weakBag, subscriptionCallback] : mListeners) {
-            // If a listener was deleted, don't send it a message
-//            if (!weakBag.expired()) {
-               subscriptionCallback(message);
-//            }
+         for (const auto& [weakBag, onMessageCallback] : observersCopy) {
+            // If a listener was deleted while iterating, don't send it a message
+            if (!weakBag.expired()) {
+               onMessageCallback(message);
+            }
          };
+         
+         auto unbaggedObserversCopy = mUnbaggedObservers;
+         for (const auto& onMessageCallback : unbaggedObserversCopy) {
+            onMessageCallback(message);
+         }
       }
       
       // std::map needs to know how to compare weak_ptrs, we use the built-in owner_less function.
@@ -155,29 +137,69 @@ namespace CubeWorld
       
       // Key is a weak_ptr to a dispose bag, value is a message-receiving callback that is
       //    owned by that bag.
-      std::multimap<std::weak_ptr<DisposeBag>, std::function<void(T)>, weak_less> mListeners;
+      std::multimap<std::weak_ptr<DisposeBag>, std::function<void(T)>, weak_less> mBaggedObservers;
       
-      // When you call Observable.Map<U>, it creates a new observable of type U.
-      //    The new baby observables' lifecycles are managed here.
+      // Observer callbacks that do not have a corresponding bag.
+      std::vector<std::function<void(T)>> mUnbaggedObservers;
+      
+      // When you call Observable.Map<U> or any other operator, it creates a new observable.
+      //    The new baby observable's lifecycle is managed here.
       std::vector<std::shared_ptr<void>> mOwnedObservables;
    };
    
+   /**
+    * ObservableInternal is the class that lets you actually emit messages.
+    *    Generally you would have an ObservableInternal as a private class member
+    *    and expose the OnChanged() method so other classes can observe
+    *    your messages.
+    */
    template<typename T>
-   class ObservableInternal
+   class ObservableInternal final
    {
    public:
       void SendMessage(T message) {
-         mp.Emit(message);
+         observableExternal.SendMessageToObservers(message);
       };
       
       Observable<T>& OnChanged() {
-         return mp;
+         return observableExternal;
       }
       
    private:
-      Observable<T> mp;
+      Observable<T> observableExternal;
    };
    
+   //
+   // Simple callback when a message is sent.
+   //
+   // Example usage:
+   //    mButton.OnTap() >> OnMessage([]() { printf("Nice tap"); };
+   //
+   template<typename T>
+   struct OnMessage {
+      explicit OnMessage(std::function<void(T)> callback, std::weak_ptr<DisposeBag> owner)
+      : callback(callback)
+      , owner(owner)
+      {}
+      
+      std::function<void(T)> callback;
+      std::shared_ptr<DisposeBag> owner;
+   };
+   
+   template<typename T>
+   Observable<T>& operator>>(Observable<T>& inObservable, const OnMessage<T>& onMessage) 
+   {
+      inObservable.AddObserver(onMessage.callback, onMessage.owner);
+      return inObservable;
+   }
+   
+   //
+   // Transform an Observable with a function, returning a new Observable. 
+   //
+   // Example usage:
+   //    mButton.OnPan() >> 
+   //       Map<Point, bool>([](Point dragPoint) { return someElement.contains(dragPoint); };
+   //
    template<typename T, typename U>
    struct Map {
       explicit Map(std::function<U(T)> mapper)
@@ -188,15 +210,15 @@ namespace CubeWorld
    };
    
    template<typename T, typename U>
-   Observable<U>& operator<<(Observable<T>& inObservable, const Map<T, U>& mapper) 
+   Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper) 
    {
       std::shared_ptr<ObservableInternal<U>> newObservable = std::make_shared<ObservableInternal<U>>();
       inObservable.AddOwnedObservable(newObservable);
       
-      inObservable.Subscribe([=](T message) {
+      inObservable.AddObserverWithoutDisposer([=](T message) {
          U newMessage = mapper.mMapper(message);
          newObservable->SendMessage(newMessage);
-      }, std::shared_ptr<DisposeBag>(nullptr));
+      });
       
       return newObservable->OnChanged();
    }
