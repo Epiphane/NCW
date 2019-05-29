@@ -64,5 +64,4 @@ Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper)
    return newObservable->OnChanged();
 }
 
-
 } // namespace CubeWorld

@@ -8,7 +8,8 @@
 
 namespace CubeWorld
 {
-   
+
+   // TODO-EF: Example message struct. Will be moved... outta here. Soon.
    // e.g. when the user mousedowns a scrubber, state is STARTING.
    //    As they mousemove, state is CHANGING.
    //    When they mouseup, state is ENDING.

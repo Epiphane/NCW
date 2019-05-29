@@ -14,8 +14,6 @@
 
 #include "UISerializationHelper.h"
 
-#include <RGBBinding/Observable.h>
-
 namespace CubeWorld
 {
 
@@ -31,30 +29,6 @@ using UI::RectFilled;
 UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string &name, const std::list<Choice> &choices)
       : UIElement(root, parent, name)
 {
-   std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
-   ObservableInternal<int> testObservable;
-   
-   testObservable.OnChanged() >>
-   Map<int, int>([](int test) -> int {
-      return test + 2;
-   }) >> 
-   OnMessage<int>([](int test) {
-      std::cout << "OH yeAH BABY" << test << std::endl;
-   }, myBag);
-   
-   testObservable.SendMessage(3);
-   testObservable.SendMessage(4);
-   testObservable.SendMessage(5);
-   testObservable.SendMessage(-1);
-   
-//   testObservable
-//   >> Observable::Map([](int test) -> bool {
-//      return test % 2;
-//   }) >>
-//   Observable::OnMessage([](bool test) {
-//         
-//   });
-   
    Engine::UISerializationHelper serializer;
    Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("context_menu.json")), mpRoot, this);
 

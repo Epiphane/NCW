@@ -19,6 +19,7 @@ add_subdirectory(Shared)
 add_subdirectory(DataCLI)
 add_subdirectory(Editor)
 add_subdirectory(Game)
+add_subdirectory(Tests)
 
 # Nobody cares what you do here
 add_subdirectory(Sandbox EXCLUDE_FROM_DEFAULT_BUILD)

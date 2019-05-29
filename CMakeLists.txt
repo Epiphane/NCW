@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(CubeWorld)
 
+if (APPLE)
+    set(CMAKE_OSX_SYSROOT macosx)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
+endif()
+
 # Require C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
