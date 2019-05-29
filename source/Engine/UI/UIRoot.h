@@ -16,6 +16,7 @@
 #include "UIConstraint.h"
 #include "UIContextMenu.h"
 #include "UIElement.h"
+#include "UIRoot_ConstraintDebugging.h"
 
 namespace CubeWorld
 {
@@ -27,6 +28,9 @@ class UIContextMenuParent; ///< Forward declare
 
 class UIRoot : public UIElement, public EventManager
 {
+
+friend class UIRoot_ConstraintDebugging;
+
 public:
    UIRoot(Input* input);
    ~UIRoot();
@@ -178,6 +182,9 @@ public:
    UIElement* AddChild(std::unique_ptr<UIElement> &&element) override;
 
 private:
+   // Helper function that gives a shallow copy of just the active elements
+   void GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>& outElementList);
+   
    // On ^D, turn on constraint debugging mode
    void ToggleDebugConstraints(int key, int action, int mods);
    
@@ -198,22 +205,19 @@ private:
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;
 
+   // The element, if any, that has captured the current click-and-drag of the mouse.
+   UIElement* mActivelyCapturingElement;
+
+   // UIElement that will capture mouse events if active and show you constraint information.
+   UIRoot_ConstraintDebugging* mConstraintDebugger;
+   
    // Parents any UIContextMenu we want to show. Lets us place it in front of all other content.
    UIContextMenuParent* mContextMenuLayer;
 
-   // Pink rectangle that will highlight elements when you debug constraints
-   UIElement* mConstraintDebugHighlight;
-   // Label that goes over mConstraintDebugHighlight and tells you how many UIElements are under your mouses
-   UIElement* mConstraintDebugLabel;
-   UIElement* mConstraintDebugLabelBG;
-   
    std::unique_ptr<Input::KeyCallbackLink> mDebugKeycallback;
 
    // Tracks whether something has rebalanced in the last frame.
    bool mDirty;
-   
-   // If true, ignore normal input events and instead help debug constraints.
-   bool mConstraintDebuggingEnabled;
 };
 
 }; // namespace Engine

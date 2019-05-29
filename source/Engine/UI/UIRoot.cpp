@@ -26,11 +26,11 @@ using UI::Text;
 UIRoot::UIRoot(Input* input)
    : UIElement(this, nullptr, "Root")
    , mBoundConstraints{}
-   , mInput(input)
    , mContentLayer(nullptr)
+   , mInput(input)
+   , mActivelyCapturingElement(nullptr)
    , mContextMenuLayer(nullptr)
    , mDirty(false)
-   , mConstraintDebuggingEnabled(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
    mSolver.set_autosolve(false);
@@ -42,6 +42,16 @@ UIRoot::UIRoot(Input* input)
       mDirty = true;
    };
 
+
+// #ifdef DEBUG
+   mConstraintDebugger = Add<UIRoot_ConstraintDebugging>("ConstraintDebuggingLayer");
+   mConstraintDebugger->SetActive(false);
+   mConstraintDebugger->ConstrainEqualBounds(this);
+   mElements.push_back(mConstraintDebugger);
+
+   mDebugKeycallback = mInput->AddCallback(Window::CtrlKey(GLFW_KEY_D), std::bind(&UIRoot::ToggleDebugConstraints, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+// #endif
+
    mContextMenuLayer = Add<UIContextMenuParent>("ContextMenuLayer");
    mContextMenuLayer->ConstrainEqualBounds(this);
    mElements.push_back(mContextMenuLayer);
@@ -51,6 +61,10 @@ UIRoot::UIRoot(Input* input)
    mContentLayer->ConstrainEqualBounds(this);
 
    mContextMenuLayer->ConstrainInFrontOfAllDescendants(mContentLayer);
+   
+// #ifdef DEBUG
+   mConstraintDebugger->ConstrainInFrontOfAllDescendants(mContextMenuLayer);
+// #endif
 
    AddConstraintsForElement(mFrame);
    Subscribe<ElementAddedEvent>(*this);
@@ -59,22 +73,6 @@ UIRoot::UIRoot(Input* input)
    Subscribe<MouseUpEvent>(*this);
    Subscribe<MouseClickEvent>(*this);
    
-// #ifdef DEBUG
-   mDebugKeycallback = mInput->AddCallback(Window::CtrlKey(GLFW_KEY_D), std::bind(&UIRoot::ToggleDebugConstraints, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-   mConstraintDebugHighlight = Add<RectFilled>("ConstraintDebugHighlighter", glm::vec4(1.0f, 0.41f, 0.71f, 1));
-
-   mConstraintDebugLabelBG = Add<RectFilled>("ConstraintDebugLabelBG", glm::vec4(0, 0, 0, 1));
-   mConstraintDebugLabel = mConstraintDebugLabelBG->Add<Text>(Text::Options{"X Elements Possible"});
-   mConstraintDebugLabel->ConstrainWidthToContent();
-   mConstraintDebugLabel->ConstrainHeightToContent();
-   mConstraintDebugLabelBG->ConstrainTopAlignedTo(this);
-   mConstraintDebugLabelBG->ConstrainLeftAlignedTo(this);
-   
-   mConstraintDebugLabel->ConstrainEqualBounds(mConstraintDebugLabelBG);
-   
-   mConstraintDebugHighlight->SetActive(false);
-   mConstraintDebugLabelBG->SetActive(false);
-   mConstraintDebugLabel->SetActive(false);
 // #endif
 }
 
@@ -86,39 +84,9 @@ UIRoot::~UIRoot()
 }
    
 void UIRoot::ToggleDebugConstraints(int /*key*/, int /*action*/, int /*mods*/) {
-   mConstraintDebuggingEnabled = !mConstraintDebuggingEnabled;
-   
-   mConstraintDebugLabel->SetActive(mConstraintDebuggingEnabled);
-   mConstraintDebugHighlight->SetActive(mConstraintDebuggingEnabled);
-   mConstraintDebugLabelBG->SetActive(mConstraintDebuggingEnabled);
+   mConstraintDebugger->SetActive(!mConstraintDebugger->IsActive());
 }
 
-void UIRoot::HandleMouseMoveDebugConstraints(const MouseMoveEvent &evt)
-{
-   bool foundFrontmostElement = false;
-   int numElementsUnderCursor = 0;
-
-   // Find the frontmost UIElement under the mouse
-   for (long ndx = 0; ndx < mElements.size(); ndx++) {
-      UIElement* elem = mElements[ndx];
-
-      if (elem == mContextMenuLayer || elem == mConstraintDebugHighlight) {
-         continue;
-      }
-
-      if (!foundFrontmostElement && elem->ContainsPoint(evt.x, evt.y)) {
-         RemoveConstraintsForElement(mConstraintDebugHighlight);
-         mConstraintDebugHighlight->ConstrainEqualBounds(elem);
-         foundFrontmostElement = true;
-      }
-
-      if (elem->ContainsPoint(evt.x, evt.y)) {
-         numElementsUnderCursor++;
-      }
-   }
-
-   ((Text*) mConstraintDebugLabel)->SetText(Format::FormatString("%1 Possible Elements", numElementsUnderCursor));
-}
 
 UIElement* UIRoot::AddChild(std::unique_ptr<UIElement> &&element)
 {
@@ -281,22 +249,21 @@ void UIRoot::RemoveConstraintsForElement(const UIElement* element)
       RemoveConstraint(keyToMurder);
    }
 }
+   
+void UIRoot::GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>& outElementList)
+{
+   std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(outElementList),
+                [](UIElement* el) -> bool {
+                   return el->IsActive();
+                });
+}
 
 void UIRoot::Receive(const MouseDownEvent& evt)
 {
-   if (mConstraintDebuggingEnabled) {
-      for (long ndx = 0; ndx < mElements.size(); ndx++) {
-         UIElement* elem = mElements[ndx];
-         if (elem->ContainsPoint(evt.x, evt.y)) {
-            elem->LogDebugInfo();
-         }
-      }
-      return;
-   }
-   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
-   std::vector<UIElement*> elements{mElements};
+   std::vector<UIElement*> elements;
+   GetActiveElements(mElements, elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseDown(evt) == Handled)
@@ -308,14 +275,10 @@ void UIRoot::Receive(const MouseDownEvent& evt)
    
 void UIRoot::Receive(const MouseMoveEvent& evt)
 {
-   if (mConstraintDebuggingEnabled) {
-      HandleMouseMoveDebugConstraints(evt);
-      return;
-   }
-   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
-   std::vector<UIElement*> elements{mElements};
+   std::vector<UIElement*> elements;
+   GetActiveElements(mElements, elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseMove(evt) == Handled)
@@ -327,13 +290,10 @@ void UIRoot::Receive(const MouseMoveEvent& evt)
 
 void UIRoot::Receive(const MouseUpEvent& evt)
 {
-   if (mConstraintDebuggingEnabled) {
-      return;
-   }
-
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
-   std::vector<UIElement*> elements{mElements};
+   std::vector<UIElement*> elements;
+   GetActiveElements(mElements, elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseUp(evt) == Handled)
@@ -345,15 +305,12 @@ void UIRoot::Receive(const MouseUpEvent& evt)
 
 void UIRoot::Receive(const MouseClickEvent& evt)
 {
-   if (mConstraintDebuggingEnabled) {
-      return;
-   }
-   
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
-   std::vector<UIElement*> elements{mElements};
+   std::vector<UIElement*> elements;
+   GetActiveElements(mElements, elements);
    for (UIElement* elem : elements)
-   {
+   {  
       if (elem->MouseClick(evt) == Handled)
       {
          return;

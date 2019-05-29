@@ -210,9 +210,11 @@ public:
    // further.
    //
    // Return Handled in order to prevent this event from propagating down, and
-   // Unhandled if you don't care.
+   // Unhandled if you don't care. Return Capture if you want to be the only
+   // element that gets to handle the current mouse click+drag – this will
+   // forward all Mouse events to you until the next MouseUpEvent.
    //
-   enum Action { Handled, Unhandled };
+   enum Action { Handled, Unhandled, Capture };
    virtual Action MouseDown(const MouseDownEvent& evt);
    virtual Action MouseMove(const MouseMoveEvent& evt);
    virtual Action MouseUp(const MouseUpEvent& evt);
