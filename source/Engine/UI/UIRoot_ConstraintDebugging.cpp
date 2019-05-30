@@ -44,7 +44,7 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &ev
    int numElementsUnderCursor = 0;
 
    // Find the frontmost UIElement under the mouse
-   for (long ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
+   for (size_t ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
       UIElement* elem = mpRoot->mElements[ndx];
 
       if (elem == mpRoot->mContextMenuLayer || elem == mConstraintDebugHighlight || elem == this) {
@@ -67,7 +67,7 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &ev
 
 UIElement::Action UIRoot_ConstraintDebugging::MouseDown(const MouseDownEvent &evt)
 {
-   for (long ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
+   for (size_t ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
       UIElement* elem = mpRoot->mElements[ndx];
       if (elem->ContainsPoint(evt.x, evt.y)) {
          elem->LogDebugInfo();
