@@ -183,14 +183,11 @@ public:
 
 private:
    // Helper function that gives a shallow copy of just the active elements
-   void GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>& outElementList);
+   void GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>* outElementList);
    
    // On ^D, turn on constraint debugging mode
    void ToggleDebugConstraints(int key, int action, int mods);
-   
-   // On mouse move, highlight the frontmost element with a cute pink rectangle
-   void HandleMouseMoveDebugConstraints(const MouseMoveEvent& evt);
-   
+
    // Input manager.
    Input* mInput;
 

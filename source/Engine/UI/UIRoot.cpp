@@ -250,9 +250,9 @@ void UIRoot::RemoveConstraintsForElement(const UIElement* element)
    }
 }
    
-void UIRoot::GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>& outElementList)
+void UIRoot::GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>* outElementList)
 {
-   std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(outElementList),
+   std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(*outElementList),
                 [](UIElement* el) -> bool {
                    return el->IsActive();
                 });
@@ -263,7 +263,7 @@ void UIRoot::Receive(const MouseDownEvent& evt)
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, elements);
+   GetActiveElements(mElements, &elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseDown(evt) == Handled)
@@ -278,7 +278,7 @@ void UIRoot::Receive(const MouseMoveEvent& evt)
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, elements);
+   GetActiveElements(mElements, &elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseMove(evt) == Handled)
@@ -293,7 +293,7 @@ void UIRoot::Receive(const MouseUpEvent& evt)
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, elements);
+   GetActiveElements(mElements, &elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseUp(evt) == Handled)
@@ -308,7 +308,7 @@ void UIRoot::Receive(const MouseClickEvent& evt)
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, elements);
+   GetActiveElements(mElements, &elements);
    for (UIElement* elem : elements)
    {  
       if (elem->MouseClick(evt) == Handled)
