@@ -15,7 +15,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-class CommandStack : public Engine::Singleton<CommandStack>
+class CommandStack : public Singleton<CommandStack>
 {
 public:
    CommandStack() 

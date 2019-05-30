@@ -16,12 +16,12 @@ std::unique_ptr<DebugLogger> DebugLogger::sInstance = nullptr;
 
 DebugLogger::DebugLogger()
 {
-   LogManager::Instance()->RegisterLogger(this);
+   LogManager::Instance().RegisterLogger(this);
 }
 
 DebugLogger::~DebugLogger()
 {
-   LogManager::Instance()->DeregisterLogger(this);
+   LogManager::Instance().DeregisterLogger(this);
 }
 
 void DebugLogger::OnRegister()

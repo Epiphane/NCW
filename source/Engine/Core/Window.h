@@ -67,7 +67,7 @@ public:
    };
 
 protected:
-   // Instantiate this by calling Window::Instance()->Initialize(...);
+   // Instantiate this by calling Window::Instance().Initialize(...);
    Window();
    ~Window();
    friend class Singleton<Window>;
@@ -96,6 +96,8 @@ public:
    void SetShouldClose(bool close);
    bool ShouldClose();
    void Focus();
+
+   GLFWwindow* get() { return mGLFW; }
 
 private:
    GLFWwindow* mGLFW;

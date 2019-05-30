@@ -52,7 +52,7 @@ Engine::UIElement::Action BaseScrubber::MouseUp(const MouseUpEvent& evt)
    // and then again when it gets placed on the stack to go back to the new
    // state.
    mScrubbing->Do();
-   CommandStack::Instance()->Do(std::move(mScrubbing));
+   CommandStack::Instance().Do(std::move(mScrubbing));
 
    return Handled;
 }

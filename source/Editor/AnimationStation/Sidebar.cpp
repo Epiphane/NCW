@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <RGBFileSystem/File.h>
+#include <RGBNetworking/YAMLSerializer.h>
+#include <RGBSettings/SettingsProvider.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -25,9 +27,14 @@ using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mFilename(Paths::Normalize(Asset::Model("wood-greatmace02.json")))
    , mModified(true)
 {
+   mFilename = SettingsProvider::Instance().Get("animation_station", "filename").GetStringValue();
+   if (mFilename.empty())
+   {
+      mFilename = Asset::Skeleton("greatmace.yaml");
+   }
+
    RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainCenterTo(this);
@@ -68,11 +75,11 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mSkeleton = evt.component;
 
@@ -100,7 +107,7 @@ void Sidebar::SetModified(bool modified)
       title += "*";
    }
    title += Paths::GetFilename(mFilename);
-   Engine::Window::Instance()->SetTitle(title);
+   Engine::Window::Instance().SetTitle(title);
 
    mSave->SetText(modified ? "*Save" : "Save");
    mQuit->SetText("Quit");
@@ -112,39 +119,40 @@ void Sidebar::LoadNewFile()
    if (!file.empty())
    {
       mFilename = file;
+      SettingsProvider::Instance().Set("animation_station", "filename", file);
       LoadFile(file);
    }
 }
 
 void Sidebar::LoadFile(const std::string& filename)
 {
+   mpRoot->Emit<SuspendEditingEvent>();
    mpRoot->Emit<SkeletonClearedEvent>();
-   mSkeletonFiles.clear();
 
    std::stack<std::string> parts;
    std::string currentFile = filename;
    do
    {
       std::string name = Paths::GetFilename(currentFile);
-      if (mSkeletonFiles.find(name) != mSkeletonFiles.end())
+
+      Maybe<BindingProperty> maybeData = YAMLSerializer::DeserializeFile(currentFile);
+      if (!maybeData)
       {
-         LOG_ERROR("Duplicate file %1 found in skeleton. Ummmm..idk what to do", name);
+         LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
+         break;
       }
-      mSkeletonFiles.emplace(name, currentFile);
-      std::ifstream file(currentFile);
-      nlohmann::json data;
-      file >> data;
+      const BindingProperty data = std::move(*maybeData);
 
       parts.push(currentFile);
 
-      std::string parent = data.value("parent", "");
+      std::string parent = data["parent"];
       if (parent == "")
       {
          currentFile = "";
       }
       else
       {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent);
+         currentFile = Paths::Join(Paths::GetDirectory(filename), parent) + ".yaml";
       }
    } while (currentFile != "");
 
@@ -160,25 +168,26 @@ void Sidebar::LoadFile(const std::string& filename)
 
 void Sidebar::SaveFile()
 {
+   mpRoot->Emit<SuspendEditingEvent>();
    mSkeleton->UpdateSkeletonStates();
 
-   // Then, save each skeleton
-   for (size_t i = 0; i < mSkeleton->NumSkeletons(); ++i)
+   for (const Engine::ComponentHandle<SkeletonAnimations>& anims : mSkeleton->animations)
    {
-      Engine::ComponentHandle<AnimatedSkeleton> skeleton = mSkeleton->GetSkeleton(i);
-      std::string serialized = skeleton->Serialize();
+      BindingProperty serialized = anims->Serialize();
 
-      auto filenameIt = mSkeletonFiles.find(skeleton->name);
-      if (filenameIt == mSkeletonFiles.end())
+      for (const auto&[name, animation] : serialized.pairs())
       {
-         LOG_ERROR("Somehow the name of this skeleton changed, idk... (name %1 not found in mapping)", skeleton->name);
-         continue;
+         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".yaml"));
+         Maybe<void> result = YAMLSerializer::SerializeFile(path, animation);
+         if (!result)
+         {
+            LOG_ERROR("Failed saving file %1: %2", path, result.Failure().GetMessage());
+         }
       }
-      std::ofstream out(filenameIt->second);
-      out << serialized << std::endl;
    }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
+   mpRoot->Emit<ResumeEditingEvent>();
    SetModified(false);
 }
 
@@ -191,7 +200,7 @@ void Sidebar::Quit()
 {
    if (!mModified)
    {
-      Engine::Window::Instance()->SetShouldClose(true);
+      Engine::Window::Instance().SetShouldClose(true);
    }
    else
    {

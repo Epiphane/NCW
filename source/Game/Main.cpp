@@ -35,48 +35,48 @@ int main(int /* argc */, char ** /* argv */) {
    windowOptions.width = 1280;
    windowOptions.height = 760;
    windowOptions.b = 0.4f;
-   Window* window = Window::Instance();
-   if (auto result = window->Initialize(windowOptions); !result)
+   Window& window = Window::Instance();
+   if (auto result = window.Initialize(windowOptions); !result)
    {
       LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
       return 1;
    }
 
    std::unique_ptr<Engine::State> initialState = std::make_unique<StupidState>(window);
-   Engine::StateManager* stateManager = Engine::StateManager::Instance();
+   Engine::StateManager& stateManager = Engine::StateManager::Instance();
 
-   stateManager->SetState(std::move(initialState));
+   stateManager.SetState(std::move(initialState));
 
-   DebugHelper* debug = DebugHelper::Instance();
-   debug->SetBounds(window);
+   DebugHelper& debug = DebugHelper::Instance();
+   debug.SetBounds(&window);
    
-   std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>(window);
-   ui->SetBounds(*window);
+   std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>(&window);
+   ui->SetBounds(window);
 
    Timer<100> clock(SEC_PER_FRAME);
-   auto fps = debug->RegisterMetric("FPS", [&clock]() -> std::string {
+   auto fps = debug.RegisterMetric("FPS", [&clock]() -> std::string {
       return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
    });
 
    // Setup input
-   auto _ = window->AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
-      window->SetShouldClose(true);
+   auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+      window.SetShouldClose(true);
    });
 
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
       {
-         window->Clear();
-         window->Update();
+         window.Clear();
+         window.Update();
 
-         stateManager->Update(std::min(elapsed, SEC_PER_FRAME));
+         stateManager.Update(std::min(elapsed, SEC_PER_FRAME));
 
          GLenum error = glGetError();
          assert(error == 0);
 
-         debug->Update();
-         debug->Render();
+         debug.Update();
+         debug.Render();
          
          ui->UpdateRoot();
          ui->RenderRoot();
@@ -85,13 +85,13 @@ int main(int /* argc */, char ** /* argv */) {
          assert(error == 0);
 
          // Swap buffers
-         window->SwapBuffers();
+         window.SwapBuffers();
          glfwPollEvents();
       }
    } // Check if the ESC key was pressed or the window was closed
-   while (!window->ShouldClose());
+   while (!window.ShouldClose());
 
-   stateManager->Shutdown();
+   stateManager.Shutdown();
 
    return 0;
 }

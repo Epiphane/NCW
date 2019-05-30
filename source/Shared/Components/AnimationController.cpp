@@ -1,44 +1,33 @@
 // By Thomas Steinke
 
+#include <algorithm>
+#include <deque>
 #include <fstream>
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/Entity/EntityManager.h>
 
 #include "AnimationController.h"
 
 namespace CubeWorld
 {
 
+
+// For initializing and loading data
 AnimationController::AnimationController()
-   : skeletons{}
-   , skeletonRootId{}
-   , skeletonParents{}
-   , bones{}
-   , bonesByName{}
-   , states{}
-   , floatParams{}
-   , boolParams{}
-   , current{0}
-   , time{0}
-   , next{0}
-   , transitionCurrent{0}
-   , transitionStart{0}
-   , transitionEnd{0}
-{}
+{
+   Reset();
+}
 
 void AnimationController::Reset()
 {
    skeletons.clear();
    skeletonRootId.clear();
-   skeletonParents.clear();
    bones.clear();
-   bonesByName.clear();
+   boneLookup.clear();
    states.clear();
-   statesByName.clear();
-   floatParams.clear();
-   boolParams.clear();
+   stateLookup.clear();
+   stances.clear();
    current = 0;
    time = 0;
    next = 0;
@@ -47,364 +36,197 @@ void AnimationController::Reset()
    transitionEnd = 0;
 }
 
-void AnimationController::UpdateSkeletonStates()
-{
-   for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : skeletons)
-   {
-      skeleton->states.clear();
-      skeleton->statesByName.clear();
-      skeleton->transitions.clear();
-   }
-
-   std::vector<AnimatedSkeleton::State> stateData;
-
-   // For looking up later
-   std::vector<glm::vec3> originalPosition;
-   std::vector<glm::vec3> originalRotation;
-   std::vector<glm::vec3> originalScale;
-   for (Engine::ComponentHandle<AnimatedSkeleton>& skeleton : skeletons)
-   {
-      for (const AnimatedSkeleton::Bone& bone : skeleton->bones)
-      {
-         originalPosition.push_back(bone.originalPosition);
-         originalRotation.push_back(bone.originalRotation);
-         originalScale.push_back(bone.originalScale);
-      }
-   }
-
-   for (const State& state : states)
-   {
-      AnimatedSkeleton::State info;
-      info.name = state.name;
-      info.next = state.next;
-      info.length = state.length;
-
-      for (const Keyframe& keyframe : state.keyframes)
-      {
-         info.keyframes.push_back(AnimatedSkeleton::Keyframe{keyframe.time});
-      }
-
-      // Start at the skeleton that _created_ the state. This way we don't add
-      // state details for a sub-skeleton's state to it's parent, thus changing
-      // the ownership.
-      for (size_t s = state.skeletonId; s < skeletons.size(); ++s)
-      {
-         Engine::ComponentHandle<AnimatedSkeleton>& skeleton = skeletons[s];
-         for (AnimatedSkeleton::Keyframe& keyframeInfo : info.keyframes)
-         {
-            keyframeInfo.positions.clear();
-            keyframeInfo.rotations.clear();
-            keyframeInfo.scales.clear();
-         }
-
-         // Case 1: This is the skeleton creating the state - consider all bones.
-         // Case 2: This skeleton is extending the state - consider all of this skeleton's bones.
-         size_t first = state.skeletonId == s ? 0 : skeletonRootId[s];
-         size_t last = s == skeletons.size() - 1 ? bones.size() : skeletonRootId[s + 1];
-         
-         bool modified = (s == state.skeletonId);
-         for (size_t b = first; b < last; ++b)
-         {
-            std::string name = bones[b];
-            for (size_t i = 0; i < state.keyframes.size(); ++i)
-            {
-               const Keyframe& keyframe = state.keyframes[i];
-               AnimatedSkeleton::Keyframe& keyframeInfo = info.keyframes[i];
-
-               if (keyframe.positions[b] != originalPosition[b])
-               {
-                  keyframeInfo.positions[name] = keyframe.positions[b];
-                  modified = true;
-               }
-               if (keyframe.rotations[b] != originalRotation[b])
-               {
-                  keyframeInfo.rotations[name] = keyframe.rotations[b];
-                  modified = true;
-               }
-               if (keyframe.scales[b] != originalScale[b])
-               {
-                  keyframeInfo.scales[name] = keyframe.scales[b];
-                  modified = true;
-               }
-            }
-         }
-
-         if (modified)
-         {
-            skeleton->statesByName.emplace(info.name, skeleton->states.size());
-            skeleton->states.push_back(info);
-         }
-         
-         // Now, add transition information
-         for (const Transition& transition : state.transitions)
-         {
-            // Case 1: This is the skeleton creating the state - add if this is the dest skeleton too.
-            // Case 2: This skeleton is extending the state - add only if the destination is new.
-            const State& other = states[statesByName[transition.destination]];
-            if (other.skeletonId == s)
-            {
-               skeleton->transitions[state.name].push_back(transition);
-            }
-         }
-      }
-   }
-}
-
-AnimationController::State& AnimationController::GetCurrentState()
-{
-   return states[current];
-}
-
-void AnimationController::AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton)
+void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton)
 {
    // Could optimize this later
-   std::pair<size_t, size_t> parent = {0, 0};
-   for (size_t i = 0; i < skeletons.size(); i++)
+   Engine::ComponentHandle<Skeleton> parentSkeleton;
+   size_t parentRootId = 0;
+   for (size_t i = 0; i < skeletons.size(); ++i)
    {
-      if (skeletons[i]->name == Paths::GetFilename(skeleton->parentFilename))
+      if (skeletons[i]->name == skeleton->parent)
       {
-         parent.first = i;
-         
-         auto bone = skeletons[i]->bonesByName.find(skeleton->parentBone);
-         if (bone == skeletons[i]->bonesByName.end())
-         {
-            LOG_ERROR("Could not find bone '%1' in skeleton '%2'", skeletons[i]->name, skeleton->parentBone);
-         }
-         else {
-            parent.second = bone->second;
-         }
+         parentSkeleton = skeletons[i];
+         parentRootId = skeletonRootId[i];
          break;
       }
    }
 
    size_t rootId = bones.size();
-   
+
    skeletons.push_back(skeleton);
    skeletonRootId.push_back(rootId);
-   skeletonParents.push_back(parent);
 
+   // Add bones
    for (const auto& bone : skeleton->bones)
    {
       // If there's a collision, leave the first bone with that name (the parent-most)
-      const auto& existing = bonesByName.find(bone.name);
-      if (existing == bonesByName.end())
+      if (boneLookup.count(bone.name) == 0)
       {
-         bonesByName.emplace(bone.name, bones.size());
+         boneLookup.emplace(bone.name, bones.size());
       }
       bones.push_back(bone.name);
    }
 
-   for (State& state : states)
+   // Add stances
+   for (const Skeleton::Stance& stance : skeleton->stances)
    {
-      for (Keyframe& keyframe : state.keyframes)
+      auto it = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return stance.name == s.name; });
+      if (it == stances.end())
       {
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-         std::transform(skeleton->bones.begin(), skeleton->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
-      }
-   }
+         Stance newStance;
+         newStance.name = stance.name;
+         newStance.parent = stance.parent;
 
-   // Modify or add states
-   for (const AnimatedSkeleton::State& state : skeleton->states)
-   {
-      AddState(skeleton, state);
-   }
-
-   for (const auto&[stateName, transitions] : skeleton->transitions)
-   {
-      auto stateId = statesByName.find(stateName);
-      if (stateId == statesByName.end())
-      {
-         LOG_ERROR("Tried to add transitions for state '%1', but state does not exists", stateName);
-         continue;
-      }
-
-      // Append transition data
-      State& state = states[stateId->second];
-      std::transform(transitions.begin(), transitions.end(), std::back_inserter(state.transitions), [](const auto& t) { return t; });
-   }
-}
-
-void AnimationController::AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& definition)
-{
-   Engine::Entity::ID sID = skeleton.GetEntity().GetID();
-   size_t skeletonNdx = 0;
-   for (; skeletonNdx < skeletons.size(); ++skeletonNdx)
-   {
-      if (skeletons[skeletonNdx].GetEntity().GetID() == sID)
-      {
-         break;
-      }
-   }
-
-   if (skeletonNdx == skeletons.size())
-   {
-      LOG_ERROR("Attempt to add a state, using an origin skeleton that doesn't exist.");
-      return;
-   }
-
-   size_t rootBone = skeletonRootId[skeletonNdx];
-
-   size_t stateId = states.size();
-   auto existing = statesByName.find(definition.name);
-   if (existing != statesByName.end())
-   {
-      stateId = existing->second;
-   }
-   else
-   {
-      // Construct the new state
-      statesByName.emplace(definition.name, stateId);
-
-      State state;
-      state.name = definition.name;
-      state.next = definition.next;
-      state.skeletonId = skeletonNdx;
-      state.length = definition.length;
-      state.keyframes.resize(definition.keyframes.size());
-
-      for (size_t i = 0; i < definition.keyframes.size(); i++)
-      {
-         Keyframe& keyframe = state.keyframes[i];
-         keyframe.time = definition.keyframes[i].time;
-
-         for (const auto& s : skeletons)
+         if (stance.name == "base")
          {
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.positions), [](const AnimatedSkeleton::Bone& bone) { return bone.originalPosition; });
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.rotations), [](const AnimatedSkeleton::Bone& bone) { return bone.originalRotation; });
-            std::transform(s->bones.begin(), s->bones.end(), std::back_inserter(keyframe.scales), [](const AnimatedSkeleton::Bone& bone) { return bone.originalScale; });
-         }
-      }
-
-      states.push_back(std::move(state));
-   }
-
-   // Add this skeleton's info to the state
-   State& state = states[stateId];
-
-   if (definition.length != 0 && definition.length != state.length)
-   {
-      LOG_ERROR("New state data's length (%1) does not match actual state length (%2). Skipping...", definition.length, state.length);
-      return;
-   }
-
-   size_t j = 0;
-   for (const AnimatedSkeleton::Keyframe& newKeyframe : definition.keyframes)
-   {
-      // Find the existing keyframe at this time or after
-      while (j < state.keyframes.size() && state.keyframes[j].time < newKeyframe.time)
-      {
-         j++;
-      }
-
-      if (j >= state.keyframes.size() || state.keyframes[j].time > newKeyframe.time)
-      {
-         LOG_ERROR("No available keyframe at time %1 in the parent animation. Skipping data...");
-      }
-      else // if (keyframe.time == newKeyframe.time)
-      {
-         // Found a match! Apply modifications
-         Keyframe& keyframe = state.keyframes[j];
-         for (const auto&[bone, pos] : newKeyframe.positions)
-         {
-            if (skeleton->bonesByName.find(bone) != skeleton->bonesByName.end())
-            {
-               keyframe.positions[rootBone + skeleton->bonesByName[bone]] = pos;
-            }
-            else
-            {
-               keyframe.positions[bonesByName[bone]] = pos;
-            }
-         }
-         for (const auto&[bone, rot] : newKeyframe.rotations)
-         {
-            if (skeleton->bonesByName.find(bone) != skeleton->bonesByName.end())
-            {
-               keyframe.rotations[rootBone + skeleton->bonesByName[bone]] = rot;
-            }
-            else
-            {
-               keyframe.rotations[bonesByName[bone]] = rot;
-            }
-         }
-         for (const auto&[bone, scl] : newKeyframe.scales)
-         {
-            if (skeleton->bonesByName.find(bone) != skeleton->bonesByName.end())
-            {
-               keyframe.scales[rootBone + skeleton->bonesByName[bone]] = scl;
-            }
-            else
-            {
-               keyframe.scales[bonesByName[bone]] = scl;
-            }
-         }
-      }
-   }
-}
-
-Engine::ComponentHandle<AnimatedSkeleton> AnimationController::GetSkeletonForBone(BoneID id)
-{
-   for (auto& skeleton : skeletons)
-   {
-      if (skeleton->bones.size() > id)
-      {
-         return skeleton;
-      }
-      id -= skeleton->bones.size();
-   }
-   return {};
-}
-
-AnimatedSkeleton::Bone* AnimationController::GetBone(BoneID id)
-{
-   for (auto& skeleton : skeletons)
-   {
-      if (skeleton->bones.size() > id)
-      {
-         return &skeleton->bones[id];
-      }
-      id -= skeleton->bones.size();
-   }
-   return nullptr;
-}
-
-AnimationController::BoneID AnimationController::NextBone(BoneID id)
-{
-   return (id < bones.size()) ? id + 1 : 0;
-}
-
-AnimationController::BoneID AnimationController::PrevBone(BoneID id)
-{
-   return (id == 0) ? bones.size() - 1 : id - 1;
-}
-
-AnimationController::BoneID AnimationController::ParentBone(BoneID id)
-{
-   for (size_t i = 0; i < skeletons.size(); ++i)
-   {
-      const auto& skeleton = skeletons[i];
-      if (skeleton->bones.size() > id)
-      {
-         if (id == 0)
-         {
-            const auto& parent = skeletonParents[i];
-            return skeletonRootId[parent.first] + parent.second;
+            assert(rootId == 0 && "The base stance must be defined by the very first skeleton");
          }
          else
          {
-            return skeletonRootId[i] + skeleton->bones[id].parent;
+            auto parent = std::find_if(stances.rbegin(), stances.rend(), [&](const Stance& s) { return s.name == stance.parent; });
+            assert(parent != stances.rend());
+            newStance.parents = parent->parents;
+            newStance.positions = parent->positions;
+            newStance.rotations = parent->rotations;
+            newStance.scales = parent->scales;
+         }
+
+         stances.push_back(std::move(newStance));
+      }
+   }
+
+   // Prepare existing stances
+   for (Stance& stance : stances)
+   {
+      if (stance.name == "base")
+      {
+         for (const Skeleton::Bone& original : skeleton->original)
+         {
+            stance.parents.push_back(boneLookup.at(original.parent));
+            stance.positions.push_back(original.position);
+            stance.rotations.push_back(original.rotation);
+            stance.scales.push_back(original.scale);
          }
       }
-      id -= skeleton->bones.size();
+      else
+      {
+         std::vector<Stance>::iterator parent = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance.parent; });
+
+         stance.parents.insert(stance.parents.end(), parent->parents.begin() + rootId, parent->parents.end());
+         stance.positions.insert(stance.positions.end(), parent->positions.begin() + rootId, parent->positions.end());
+         stance.rotations.insert(stance.rotations.end(), parent->rotations.begin() + rootId, parent->rotations.end());
+         stance.scales.insert(stance.scales.end(), parent->scales.begin() + rootId, parent->scales.end());
+      }
+
+      if (skeleton->stanceLookup.count(stance.name) == 0)
+      {
+         continue;
+      }
+
+      const Skeleton::Stance& mod = skeleton->stances[skeleton->stanceLookup.at(stance.name)];
+
+      for (const auto&[bone, parent] : mod.parents)
+      {
+         stance.parents[boneLookup.at(bone)] = boneLookup.at(parent);
+      }
+      for (const auto&[bone, pos] : mod.positions)
+      {
+         stance.positions[boneLookup.at(bone)] = pos;
+      }
+      for (const auto&[bone, rot] : mod.rotations)
+      {
+         stance.rotations[boneLookup.at(bone)] = rot;
+      }
+      for (const auto&[bone, scl] : mod.scales)
+      {
+         stance.scales[boneLookup.at(bone)] = scl;
+      }
    }
-   return 0;
+
+   // Modify existing states with default bone properties
+   for (State& state : states)
+   {
+      const Stance& stance = stances[state.stance];
+
+      for (Keyframe& keyframe : state.keyframes)
+      {
+         keyframe.positions.insert(keyframe.positions.end(), stance.positions.begin() + rootId, stance.positions.end());
+         keyframe.rotations.insert(keyframe.rotations.end(), stance.rotations.begin() + rootId, stance.rotations.end());
+         keyframe.scales.insert(keyframe.scales.end(), stance.scales.begin() + rootId, stance.scales.end());
+      }
+   }
+}
+
+void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimations> animations)
+{
+   for (const auto&[name, mods] : animations->states)
+   {
+      if (stateLookup.count(name) == 0)
+      {
+         State newState;
+         newState.name = name;
+         newState.next = mods.next;
+
+         std::string stance = mods.stance;
+         const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });
+         assert(stanceIt != stances.end());
+         newState.stance = stanceIt - stances.begin();
+         newState.length = mods.length;
+         newState.keyframes.resize(mods.keyframes.size());
+
+         for (size_t i = 0; i < mods.keyframes.size(); i++)
+         {
+            Keyframe& keyframe = newState.keyframes[i];
+            keyframe.time = mods.keyframes[i].time;
+            keyframe.positions.assign(stanceIt->positions.begin(), stanceIt->positions.end());
+            keyframe.rotations.assign(stanceIt->rotations.begin(), stanceIt->rotations.end());
+            keyframe.scales.assign(stanceIt->scales.begin(), stanceIt->scales.end());
+         }
+
+         stateLookup.emplace(name, states.size());
+         states.push_back(std::move(newState));
+      }
+
+      State& state = states[stateLookup.at(name)];
+
+      for (const SkeletonAnimations::Keyframe& kframe : mods.keyframes)
+      {
+         const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time; });
+         if (keyframeIt == state.keyframes.end())
+         {
+            LOG_ERROR("Unable to find a keyframe with time %1 in the original skeleton", kframe.time);
+            continue;
+         }
+
+         for (const auto&[bone, pos] : kframe.positions)
+         {
+            keyframeIt->positions[boneLookup.at(bone)] = pos;
+         }
+         for (const auto&[bone, rot] : kframe.rotations)
+         {
+            keyframeIt->rotations[boneLookup.at(bone)] = rot;
+         }
+         for (const auto&[bone, scl] : kframe.scales)
+         {
+            keyframeIt->scales[boneLookup.at(bone)] = scl;
+         }
+      }
+   }
+
+   // Add transitions
+   for (const auto&[name, transitions] : animations->transitions)
+   {
+      State& state = states[stateLookup.at(name)];
+
+      // Append transition data
+      state.transitions.insert(state.transitions.end(), transitions.begin(), transitions.end());
+   }
 }
 
 void AnimationController::Play(const std::string& state, double startTime)
 {
-   // TODO this and transitions lol
-   auto it = statesByName.find(state);
-   assert(it != statesByName.end());
+   auto it = stateLookup.find(state);
+   assert(it != stateLookup.end());
 
    if (current == it->second)
    {
@@ -419,13 +241,13 @@ void AnimationController::TransitionTo(const std::string& state, double transiti
 {
    // If a transition is in flight, skip to the end of it.
    if (current != next)
-   { 
+   {
       current = next;
       time = transitionCurrent;
    }
 
-   auto it = statesByName.find(state);
-   assert(it != statesByName.end());
+   auto it = stateLookup.find(state);
+   assert(it != stateLookup.end());
 
    if (current == it->second && next == it->second)
    {

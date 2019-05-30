@@ -9,6 +9,7 @@
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
+#include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -45,14 +46,14 @@ private:
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
-   void Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt);
+   void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
+   void Receive(const Engine::ComponentAddedEvent<Skeleton>& evt);
    void Receive(const SkeletonModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<AnimatedSkeleton> mSkeleton;
+   Engine::ComponentHandle<Skeleton> mSkeleton;
    bool mModified;
 };
 

@@ -24,7 +24,7 @@ DebugHelper::DebugHelper()
    mMetrics = std::make_unique<MetricLink>(this, "None", nullptr);
    mMetrics->next = mMetrics->prev = mMetrics.get();
 
-   auto maybeFont = Engine::Graphics::FontManager::Instance()->GetFont(Asset::Font("debug"));
+   auto maybeFont = Engine::Graphics::FontManager::Instance().GetFont(Asset::Font("debug"));
    assert(maybeFont);
    mFont = *maybeFont;
 
@@ -152,7 +152,7 @@ void DebugHelper::Render()
    glActiveTexture(GL_TEXTURE0);
    glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
    program->Uniform1i("uTexture", 0);
-   program->Uniform2f("uWindowSize", static_cast<GLfloat>(Engine::Window::Instance()->GetWidth()), static_cast<GLfloat>(Engine::Window::Instance()->GetHeight()));
+   program->Uniform2f("uWindowSize", static_cast<GLfloat>(Engine::Window::Instance().GetWidth()), static_cast<GLfloat>(Engine::Window::Instance().GetHeight()));
 
    mMetricsTextVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
    mMetricsTextVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));

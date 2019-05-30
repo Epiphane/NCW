@@ -61,7 +61,7 @@ UIRoot::UIRoot(Input* input)
    mContentLayer->ConstrainEqualBounds(this);
 
    mContextMenuLayer->ConstrainInFrontOfAllDescendants(mContentLayer);
-   
+
 // #ifdef DEBUG
    mConstraintDebugger->ConstrainInFrontOfAllDescendants(mContextMenuLayer);
 // #endif
@@ -72,7 +72,7 @@ UIRoot::UIRoot(Input* input)
    Subscribe<MouseDownEvent>(*this);
    Subscribe<MouseUpEvent>(*this);
    Subscribe<MouseClickEvent>(*this);
-   
+
 // #endif
 }
 
@@ -249,7 +249,7 @@ void UIRoot::RemoveConstraintsForElement(const UIElement* element)
       RemoveConstraint(keyToMurder);
    }
 }
-   
+
 void UIRoot::GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>* outElementList)
 {
    std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(*outElementList),
@@ -310,7 +310,7 @@ void UIRoot::Receive(const MouseClickEvent& evt)
    std::vector<UIElement*> elements;
    GetActiveElements(mElements, &elements);
    for (UIElement* elem : elements)
-   {  
+   {
       if (elem->MouseClick(evt) == Handled)
       {
          return;
@@ -324,9 +324,9 @@ void UIRoot::UpdateRoot()
 
    for (int64_t ndx = mElements.size() - 1; ndx >= 0; ndx--)
    {
-      if (mElements[ndx]->IsMarkedForDeletion()) {
-         UIElement* toErase = mElements[ndx];
-         toErase->GetParent()->DestroyChild(toErase);
+      UIElement* elem = mElements[size_t(ndx)];
+      if (elem->IsMarkedForDeletion()) {
+         elem->GetParent()->DestroyChild(elem);
       }
    }
 

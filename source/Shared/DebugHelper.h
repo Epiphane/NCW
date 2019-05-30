@@ -23,7 +23,7 @@
 namespace CubeWorld
 {
 
-class DebugHelper : public Engine::Singleton<DebugHelper> {
+class DebugHelper : public Singleton<DebugHelper> {
 public:
    // Metrics are stored as a doubly-linked list, to allow for easy insertion and removal.
    struct MetricLink {
@@ -62,7 +62,7 @@ public:
    //template <typename T> struct identity { typedef T type; };
 
    // Register a debug line.
-   // Ex: DebugHelper::Instance()->RegisterMetric("FPS", []() { return "Unimplemented"; })
+   // Ex: DebugHelper::Instance().RegisterMetric("FPS", []() { return "Unimplemented"; })
    std::unique_ptr<MetricLink> RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn);
    void DeregisterMetric(std::unique_ptr<MetricLink> metric);
 

@@ -40,7 +40,7 @@ SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    mUIRoot.TransformParentEvents<MouseClickEvent>(this);
    mUIRoot.TransformParentEvents<Engine::ElementAddedEvent>(this);
 
-   metric = DebugHelper::Instance()->RegisterMetric("Update Sub UI", [&]() -> std::string {
+   metric = DebugHelper::Instance().RegisterMetric("Update Sub UI", [&]() -> std::string {
       return Format::FormatString("%.3f", mUpdateTimer.Average());
    });
 }

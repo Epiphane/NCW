@@ -4,20 +4,41 @@
 
 #include <unordered_map>
 
-#include <Engine/Entity/Component.h>
-#include "AnimatedSkeleton.h"
-#include "VoxModel.h"
+#include "SkeletonAnimations.h"
+#include "Skeleton.h"
 
 namespace CubeWorld
 {
 
 //
-// AnimationController contains potentially multiple AnimatedSkeletons and is attached to an entity.
+// AnimationControllerBase has the common parts in an AnimationController, like
+// transition parameters.
 //
-struct AnimationController : public Engine::Component<AnimationController> {
-public:
-   using BoneID = size_t;
+struct AnimationControllerBase {
+   // Interface
+   virtual void Play(const std::string& state, double startTime = 0.0) = 0;
+   virtual void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) = 0;
 
+   // Common implementation
+   float GetFloatParameter(const std::string& name) { return floatParams[name]; }
+   void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
+   
+   bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
+   void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
+
+   // Animation FSM parameters
+   std::unordered_map<std::string, float> floatParams;
+   std::unordered_map<std::string, bool> boolParams;
+};
+
+//
+// AnimationController combined the data from Skeleton and SkeletonAnimations components into
+// a more efficient structure. For this reason it's also a lot harder to modify during runtime.
+//
+// If you desire that functionality, the SimpleAnimationController and associated SimpleAnimationSystem
+// in AnimationStation is much more useful.
+//
+struct AnimationController : public AnimationControllerBase, public Engine::Component<AnimationController> {
 public:
    struct Keyframe {
       double time;
@@ -26,16 +47,25 @@ public:
       std::vector<glm::vec3> scales;
    };
 
-   using Transition = AnimatedSkeleton::Transition;
+   using Transition = SkeletonAnimations::Transition;
 
    struct State {
       std::string name;
       std::string next;
-      size_t skeletonId;
+      size_t stance;
 
       double length;
       std::vector<Keyframe> keyframes;
       std::vector<Transition> transitions;
+   };
+
+   struct Stance {
+      std::string name;
+      std::string parent;
+      std::vector<size_t> parents;
+      std::vector<glm::vec3> positions;
+      std::vector<glm::vec3> rotations;
+      std::vector<glm::vec3> scales;
    };
 
 public:
@@ -44,58 +74,33 @@ public:
 
    void Reset();
 
-   // Ensure that skeletons reflect the state of the animation controller.
-   void UpdateSkeletonStates();
-
 public:
    // Info and manipulation
-   State& GetCurrentState();
-
-   void AddSkeleton(Engine::ComponentHandle<AnimatedSkeleton> skeleton);
-   size_t NumSkeletons() { return skeletons.size(); }
-
-   void AddState(Engine::ComponentHandle<AnimatedSkeleton> skeleton, const AnimatedSkeleton::State& state);
+   void AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton);
+   void AddAnimations(Engine::ComponentHandle<SkeletonAnimations> animations);
 
 public:
-   // Bone and skeleton lookup
-   Engine::ComponentHandle<AnimatedSkeleton> GetSkeleton(size_t ndx) { return skeletons[ndx]; }
-   Engine::ComponentHandle<AnimatedSkeleton> GetSkeletonForBone(BoneID id);
-   AnimatedSkeleton::Bone* GetBone(BoneID id);
-   BoneID NextBone(BoneID id);
-   BoneID PrevBone(BoneID id);
-   BoneID ParentBone(BoneID id);
-
-public:
-   float GetFloatParameter(const std::string& name) { return floatParams[name]; }
-   void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
-   
-   bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
-   void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
-
-public:
-   void Play(const std::string& state, double startTime = 0.0);
-   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0);
+   void Play(const std::string& state, double startTime = 0.0) override;
+   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) override;
 
 private:
    // Skeleton and model objects
-   friend class BaseAnimationSystem;
-   std::vector<Engine::ComponentHandle<AnimatedSkeleton>> skeletons;
+   friend class AnimationSystem;
+   std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
+
    // Pair of skeleton ID and bone ID
    std::vector<size_t> skeletonRootId;
-   std::vector<std::pair<size_t, size_t>> skeletonParents;
 
 public:
    std::vector<std::string> bones;
-   std::unordered_map<std::string, size_t> bonesByName;
+   std::unordered_map<std::string, size_t> boneLookup;
 
 public:
    // Combined skeleton data.
    std::vector<State> states;
-   std::unordered_map<std::string, size_t> statesByName;
+   std::unordered_map<std::string, size_t> stateLookup;
 
-   // Animation FSM parameters
-   std::unordered_map<std::string, float> floatParams;
-   std::unordered_map<std::string, bool> boolParams;
+   std::vector<Stance> stances;
 
 public:
    // Animation State

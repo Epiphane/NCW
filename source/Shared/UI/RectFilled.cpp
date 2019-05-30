@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 
-#include <RGBBinding/JsonHelper.h>
 #include <RGBLogger/Logger.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIRoot.h>
@@ -55,11 +54,11 @@ void RectFilled::SetColor(glm::vec4 color)
    Redraw();
 }
 
-void RectFilled::InitFromJSON(nlohmann::json data)
+void RectFilled::InitFromJSON(const BindingProperty& data)
 {
    UIElement::InitFromJSON(data);
 
-   mColor = Shared::JsonToVec4(data["backgroundColor"]);
+   mColor = data["backgroundColor"].GetVec4();
 }
 
 }; // namespace UI

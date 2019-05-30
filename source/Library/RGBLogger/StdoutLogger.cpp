@@ -14,12 +14,12 @@ std::unique_ptr<StdoutLogger> StdoutLogger::sInstance = nullptr;
 
 StdoutLogger::StdoutLogger() 
 {
-   LogManager::Instance()->RegisterLogger(this);
+   LogManager::Instance().RegisterLogger(this);
 }
 
 StdoutLogger::~StdoutLogger()
 {
-   LogManager::Instance()->DeregisterLogger(this);
+   LogManager::Instance().DeregisterLogger(this);
 }
 
 StdoutLogger* StdoutLogger::Instance()

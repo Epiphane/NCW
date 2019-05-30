@@ -19,7 +19,7 @@ namespace Game
 
 class StupidState : public Engine::State, public Engine::Receiver<StupidState> {
 public:
-   StupidState(Engine::Window* window);
+   StupidState(Engine::Window& window);
    ~StupidState();
 
    void Initialize() override;
@@ -29,7 +29,7 @@ public:
 private:
    Engine::Graphics::CameraHandle mCamera;
 
-   Engine::Window* mWindow;
+   Engine::Window& mWindow;
    int mSkip = 0;
    std::vector<int32_t> heights;
 };

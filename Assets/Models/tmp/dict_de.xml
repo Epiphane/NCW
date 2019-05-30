@@ -1321,7 +1321,7 @@
     <plural>Faustwaffen</plural>  
   </name>
 
-  <name key="Mace" tags="m">
+  <name key="greatmace.Mace" tags="m">
     <singular>Streitkolben</singular>
     <plural>Streitkolben</plural>    
   </name>
@@ -1811,7 +1811,7 @@
     <plural>Spinnweben</plural>
   </name>
 
-  <name key="Hair">
+  <name key="character.Hair">
     <singular>Haar</singular>
     <plural>Haare</plural>
   </name>

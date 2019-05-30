@@ -1,0 +1,36 @@
+---
+name: sword_right
+parent: character
+default_model: iron-sword1-random2.vox
+stances:
+- name: base
+  inherit: 
+  bones:
+    sword_right.root:
+      parent: character.Attachment
+- name: resting
+  inherit: base
+  bones:
+    sword_right.root:
+      position: [0, 2.510623, 2.196013]
+      rotation: [0, 0, -135]
+    sword_right.Sword:
+      rotation: [0, 89.980057, 0]
+- name: wield_twohands
+  inherit: resting
+  bones:
+    sword_right.root:
+      position: [-0.237891, 10.892889, 2.196013]
+      rotation: [0, 0, 0]
+      parent: character.Shoulders
+    sword_right.Sword:
+      rotation: [0, 0.002265, 0]
+- name: wield_right
+  inherit: resting
+  bones:
+    sword_right.root:
+      position: [0.00625, 9.044372, 0.685544]
+      rotation: [0, 0, 0]
+      parent: character.Right Hand
+    sword_right.Sword:
+      rotation: [0, 0.002265, 0]

@@ -107,7 +107,7 @@ void Sidebar::SetModified(bool modified)
       title += "*";
    }
    title += Paths::GetFilename(mFilename);
-   Engine::Window::Instance()->SetTitle(title);
+   Engine::Window::Instance().SetTitle(title);
 
    mSave->SetText(modified ? "*Save" : "Save");
    mQuit->SetText("Quit");
@@ -154,7 +154,7 @@ void Sidebar::Quit()
 {
    if (!mModified)
    {
-      Engine::Window::Instance()->SetShouldClose(true);
+      Engine::Window::Instance().SetShouldClose(true);
    }
    else
    {

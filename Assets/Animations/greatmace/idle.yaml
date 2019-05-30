@@ -1,0 +1,16 @@
+---
+name: idle
+next: 
+stance: resting
+length: 5.02
+keyframes:
+- time: 0
+- time: 0.79
+- time: 2.64
+- time: 3.23
+transitions:
+- to: swing 1
+  time: 0.1
+  triggers:
+  - parameter: attack
+    bool: true

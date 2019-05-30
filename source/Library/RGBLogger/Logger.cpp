@@ -10,8 +10,6 @@ namespace CubeWorld
 namespace Logger
 {
 
-std::unique_ptr<LogManager> LogManager::sInstance = nullptr;
-
 LogManager::LogManager()
 {
    loggers.clear();
@@ -24,16 +22,6 @@ LogManager::~LogManager()
       (*logger)->OnDeregister();
    }
    loggers.clear();
-}
-
-LogManager* LogManager::Instance()
-{
-   if (!sInstance)
-   {
-      sInstance = std::make_unique<LogManager>();
-   }
-
-   return sInstance.get();
 }
 
 void LogManager::Log(LogLevel level, const char* message)

@@ -230,7 +230,7 @@ void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, T
 ```c++
 StupidState::StupidState(Engine::Window* window) : mWindow(window)
 {
-   DebugHelper::Instance()->SetSystemManager(&mSystems);
+   DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(Engine::Input::InputManager::Instance());
    mSystems.Add<AnimationSystem>(Engine::Input::InputManager::Instance());
    mSystems.Add<FlySystem>(Engine::Input::InputManager::Instance());

@@ -46,7 +46,7 @@ SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    for (size_t i = 0; i < 8; ++i)
    {
       buttonOptions.onClick = std::bind([this, i] {
-         CommandStack::Instance()->Do<SelectSkeletonCommand>(this, i);
+         CommandStack::Instance().Do<SelectSkeletonCommand>(this, i);
       });
       TextButton* btn = buttons->Add<TextButton>(buttonOptions);
       btn->SetActive(false);
@@ -69,17 +69,17 @@ SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    buttons->ConstrainHorizontalCenterTo(foreground);
    buttons->ConstrainWidthTo(foreground, -12);
 
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimatedSkeleton>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<SkeletonClearedEvent>(*this);
 }
 
-void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
+void SkeletonList::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mController = evt.component;
 }
 
-void SkeletonList::Receive(const Engine::ComponentAddedEvent<AnimatedSkeleton>& evt)
+void SkeletonList::Receive(const Engine::ComponentAddedEvent<Skeleton>& evt)
 {
    if (mSkeletons.size() >= mButtons.size())
    {

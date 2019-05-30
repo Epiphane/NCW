@@ -9,6 +9,7 @@
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
+#include "SimpleAnimationSystem.h"
 #include "Events.h"
 #include "State.h"
 
@@ -44,16 +45,14 @@ private:
 
 public:
    // Event handlers
-   void Receive(const Engine::ComponentAddedEvent<AnimationController>& evt);
+   void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
    void Receive(const SkeletonModifiedEvent& evt);
 
 private:
    // State
    std::string mFilename;
-   Engine::ComponentHandle<AnimationController> mSkeleton;
+   Engine::ComponentHandle<SimpleAnimationController> mSkeleton;
    bool mModified;
-
-   std::unordered_map<std::string, std::string> mSkeletonFiles;
 };
 
 }; // namespace AnimationStation

@@ -1,6 +1,8 @@
 // By Thomas Steinke
 
 #include <algorithm>
+
+#include <RGBText/StringHelper.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -20,9 +22,10 @@ namespace Editor
 namespace AnimationStation
 {
 
-using State = AnimationController::State;
-using Keyframe = AnimationController::Keyframe;
-using Bone = AnimatedSkeleton::Bone;
+using Bone = Skeleton::Bone;
+using Keyframe = SkeletonAnimations::Keyframe;
+using Stance = SimpleAnimationController::Stance;
+using State = SimpleAnimationController::State;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
@@ -96,7 +99,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       stateNameLabel->ConstrainHeightTo(stateName);
 
       mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
-         CommandStack::Instance()->Do<SetStateNameCommand>(this, value);
+         CommandStack::Instance().Do<SetStateNameCommand>(this, value);
       }});
       mStateName->ConstrainTopAlignedTo(stateName);
       mStateName->ConstrainHeightTo(stateName);
@@ -106,7 +109,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevStateCommand>(this); };
       prevStateButton = stateName->Add<Button>(buttonOptions);
       prevStateButton->ConstrainTopAlignedTo(stateName);
       prevStateButton->ConstrainHeightTo(stateName);
@@ -114,7 +117,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextStateCommand>(this); };
       Button* nextStateButton = stateName->Add<Button>(buttonOptions);
       nextStateButton->ConstrainTopAlignedTo(stateName);
       nextStateButton->ConstrainHeightTo(stateName);
@@ -122,7 +125,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_add";
       buttonOptions.hoverImage = "hover_button_add";
       buttonOptions.pressImage = "press_button_add";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<AddStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<AddStateCommand>(this); };
       Button* addStateButton = stateName->Add<Button>(buttonOptions);
       addStateButton->ConstrainTopAlignedTo(stateName);
       addStateButton->ConstrainHeightTo(stateName);
@@ -133,7 +136,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.onClick = [&]() {
          State newState = GetCurrentState();
          newState.name += " Copy";
-         CommandStack::Instance()->Do<AddStateCommand>(this, newState);
+         CommandStack::Instance().Do<AddStateCommand>(this, newState);
       };
       Button* dupStateButton = stateName->Add<Button>(buttonOptions);
       dupStateButton->ConstrainTopAlignedTo(stateName);
@@ -142,7 +145,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_remove";
       buttonOptions.hoverImage = "hover_button_remove";
       buttonOptions.pressImage = "press_button_remove";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<RemoveStateCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<RemoveStateCommand>(this); };
       Button* removeStateButton = stateName->Add<Button>(buttonOptions);
       removeStateButton->ConstrainTopAlignedTo(stateName);
       removeStateButton->ConstrainHeightTo(stateName);
@@ -224,7 +227,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time != keyframe.time)
          {
-            CommandStack::Instance()->Do<AddKeyframeCommand>(this);
+            CommandStack::Instance().Do<AddKeyframeCommand>(this);
          }
       };
       Button* addFrameButton = keyframe->Add<Button>(buttonOptions);
@@ -239,7 +242,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          size_t index = GetKeyframeIndex(state, mController->time);
          if (mController->time == state.keyframes[index].time)
          {
-            CommandStack::Instance()->Do<RemoveKeyframeCommand>(this, index);
+            CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
          }
       };
       Button* removeFrameButton = keyframe->Add<Button>(buttonOptions);
@@ -368,7 +371,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_left";
       buttonOptions.hoverImage = "hover_button_left";
       buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<PrevBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevBoneCommand>(this); };
       Button* prevBoneButton = row1->Add<Button>(buttonOptions);
       prevBoneButton->ConstrainTopAlignedTo(row1);
       prevBoneButton->ConstrainHeightTo(row1);
@@ -380,7 +383,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_right";
       buttonOptions.hoverImage = "hover_button_right";
       buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<NextBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextBoneCommand>(this); };
       Button* nextBoneButton = row1->Add<Button>(buttonOptions);
       nextBoneButton->ConstrainTopAlignedTo(row1);
       nextBoneButton->ConstrainHeightTo(row1);
@@ -405,7 +408,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       buttonOptions.image = "button_up";
       buttonOptions.hoverImage = "hover_button_up";
       buttonOptions.pressImage = "press_button_up";
-      buttonOptions.onClick = [&]() { CommandStack::Instance()->Do<ParentBoneCommand>(this); };
+      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<ParentBoneCommand>(this); };
       Button* parentBoneButton = row2->Add<Button>(buttonOptions);
       parentBoneButton->ConstrainTopAlignedTo(row2);
       parentBoneButton->ConstrainHeightTo(row2);
@@ -444,10 +447,15 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 
       // Reset position
       buttonOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
+         Keyframe& keyframe = GetCurrentKeyframe();
          if (mController->time == keyframe.time)
          {
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, mController->GetBone(mBone)->originalPosition, keyframe.rotations[mBone]);
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+               original.position,
+               keyframe.rotations[original.name],
+               keyframe.scales[original.name]);
          }
       };
       Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -462,8 +470,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
             Keyframe& prev = state.keyframes[index - 1];
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, prev.positions[mBone], keyframe.rotations[mBone]);
+            glm::vec3 pos = prev.positions.count(original.name) != 0 ?
+               prev.positions.at(original.name) :
+               original.position;
+
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+               pos,
+               keyframe.rotations[original.name],
+               keyframe.scales[original.name]);
          }
       };
       Button* setPrevPositionButton = bonePosition->Add<Button>(buttonOptions);
@@ -476,7 +493,12 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
          if (mController->time == keyframe.time)
          {
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], mController->GetBone(mBone)->originalRotation);
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+               keyframe.positions[original.name],
+               original.rotation,
+               keyframe.scales[original.name]);
          }
       };
       Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
@@ -491,8 +513,17 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          Keyframe& keyframe = state.keyframes[index];
          if (mController->time == keyframe.time && index > 0)
          {
+            const Stance& stance = GetCurrentStance();
+            const Bone& original = stance.bones[mBone];
             Keyframe& prev = state.keyframes[index - 1];
-            CommandStack::Instance()->Do<ResetBoneCommand>(this, keyframe.positions[mBone], prev.rotations[mBone]);
+            glm::vec3 rot = prev.rotations.count(original.name) != 0 ?
+               prev.rotations.at(original.name) :
+               original.rotation;
+
+            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+               keyframe.positions[original.name],
+               rot,
+               keyframe.scales[original.name]);
          }
       };
       Button* setPrevRotationButton = bonePosition->Add<Button>(buttonOptions);
@@ -548,10 +579,95 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       AddKeyframeIcon();
    }
 
+   root->Subscribe<SuspendEditingEvent>(*this);
+   root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
    root->Subscribe<SkeletonSelectedEvent>(*this);
-   root->Subscribe<Engine::ComponentAddedEvent<AnimationController>>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
+}
+
+///
+///
+///
+void Dock::Receive(const SuspendEditingEvent&)
+{
+   if (!mController)
+   {
+      return;
+   }
+
+   if (!mBonePos[0].scrubber->IsBound())
+   {
+      return;
+   }
+
+   State& state = GetCurrentState();
+   if (mSelectedKeyframe >= state.keyframes.size() - 1)
+   {
+      return;
+   }
+
+   // Revert any pending edits so that they are not persisted.
+   const Stance& stance = GetCurrentStance();
+   const Bone& original = stance.bones[mBone];
+
+   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
+   if (keyframe.positions[original.name] == original.position)
+   {
+      keyframe.positions.erase(original.name);
+   }
+   if (keyframe.rotations[original.name] == original.rotation)
+   {
+      keyframe.rotations.erase(original.name);
+   }
+   if (keyframe.scales[original.name] == original.scale)
+   {
+      keyframe.scales.erase(original.name);
+   }
+
+   mBonePos[0].scrubber->Bind(nullptr);
+   mBonePos[1].scrubber->Bind(nullptr);
+   mBonePos[2].scrubber->Bind(nullptr);
+   mBoneRot[0].scrubber->Bind(nullptr);
+   mBoneRot[1].scrubber->Bind(nullptr);
+   mBoneRot[2].scrubber->Bind(nullptr);
+}
+
+///
+///
+///
+void Dock::Receive(const ResumeEditingEvent&)
+{
+   State& state = GetCurrentState();
+   if (mSelectedKeyframe >= state.keyframes.size())
+   {
+      return;
+   }
+
+   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
+
+   const Stance& stance = GetCurrentStance();
+   const Bone& original = stance.bones[mBone];
+   if (keyframe.positions.count(original.name) == 0)
+   {
+      keyframe.positions.emplace(original.name, original.position);
+   }
+   if (keyframe.rotations.count(original.name) == 0)
+   {
+      keyframe.rotations.emplace(original.name, original.rotation);
+   }
+   if (keyframe.scales.count(original.name) == 0)
+   {
+      keyframe.scales.emplace(original.name, original.scale);
+   }
+
+   mBonePos[0].scrubber->Bind(&keyframe.positions[original.name].x);
+   mBonePos[1].scrubber->Bind(&keyframe.positions[original.name].y);
+   mBonePos[2].scrubber->Bind(&keyframe.positions[original.name].z);
+   mBoneRot[0].scrubber->Bind(&keyframe.rotations[original.name].x);
+   mBoneRot[1].scrubber->Bind(&keyframe.rotations[original.name].y);
+   mBoneRot[2].scrubber->Bind(&keyframe.rotations[original.name].z);
 }
 
 ///
@@ -560,7 +676,15 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
 void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mController = evt.component;
-   SetState(0);
+
+   mStates.clear();
+   for (const auto&[name, _] : mController->states)
+   {
+      mStates.push_back(name);
+   }
+   std::sort(mStates.begin(), mStates.end());
+
+   SetState(mStates[0]);
    SetTime(0);
    SetBone(0);
 }
@@ -570,13 +694,13 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 void Dock::Receive(const SkeletonSelectedEvent& evt)
 {
-   mSkeleton = evt.index;
+   mSkeleton = evt.component->name;
 }
 
 ///
 ///
 ///
-void Dock::Receive(const Engine::ComponentAddedEvent<AnimationController>& evt)
+void Dock::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mController = evt.component;
    mScrubber->Bind(&mController->time);
@@ -596,7 +720,15 @@ void Dock::Receive(const Engine::ComponentAddedEvent<AnimationSystemController>&
 ///
 State& Dock::GetCurrentState()
 {
-   return mController->GetCurrentState();
+   return mController->states[mController->current];
+}
+
+///
+///
+///
+Stance& Dock::GetCurrentStance()
+{
+   return mController->stances[GetCurrentState().stance];
 }
 
 ///
@@ -676,9 +808,16 @@ void Dock::UpdateKeyframeIcons()
 ///
 ///
 ///
-void Dock::SetState(const size_t& index)
+void Dock::SetState(const std::string& name)
 {
-   mController->current = index;
+   if (mController->current == name)
+   {
+      return;
+   }
+
+   Receive(SuspendEditingEvent{});
+
+   mController->current = name;
 
    State& state = GetCurrentState();
    mStateName->SetText(state.name);
@@ -687,39 +826,45 @@ void Dock::SetState(const size_t& index)
    mScrubber->SetBounds(0, state.length);
 
    UpdateKeyframeIcons();
+
+   SetTime(mController->time);
+   Receive(ResumeEditingEvent{});
 }
 
 ///
 ///
 ///
-void Dock::SetBone(const AnimationController::BoneID& boneId)
+void Dock::SetBone(const size_t& boneId)
 {
+   if (mBone == boneId)
+   {
+      return;
+   }
+
+   Receive(SuspendEditingEvent{});
+
    mBone = boneId;
 
    // Update bone info
-   Bone* bone = mController->GetBone(mBone);
-   Bone* parent = mController->GetBone(mController->ParentBone(mBone));
-   mBoneName->SetText(bone->name);
-   mBoneParent->SetText(parent->name);
+   Stance& stance = GetCurrentStance();
+   Bone& info = stance.bones[mBone];
 
-   mBonePos[0].text->Bind(&bone->position.x);
-   mBonePos[1].text->Bind(&bone->position.y);
-   mBonePos[2].text->Bind(&bone->position.z);
-   mBoneRot[0].text->Bind(&bone->rotation.x);
-   mBoneRot[1].text->Bind(&bone->rotation.y);
-   mBoneRot[2].text->Bind(&bone->rotation.z);
+   std::vector<std::string> parts = StringHelper::Split(info.name, '.');
+   mBoneName->SetText(parts[1]);
+   mBoneParent->SetText(info.parent);
 
-   State& state = GetCurrentState();
-   Engine::ComponentHandle<AnimatedSkeleton> skeleton = mController->GetSkeletonForBone(mBone);
-   if (mSelectedKeyframe <= state.keyframes.size())
-   {
-      mBonePos[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].x);
-      mBonePos[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].y);
-      mBonePos[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].z);
-      mBoneRot[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].x);
-      mBoneRot[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].y);
-      mBoneRot[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].z);
-   }
+   const auto it = std::find_if(mController->skeletons.begin(), mController->skeletons.end(), [&](const auto& s) { return s->name == parts[0]; });
+   assert(it != mController->skeletons.end() && "Couldn't find skeleton");
+   Bone& bone = (*it)->bones[(*it)->boneLookup[info.name]];
+
+   mBonePos[0].text->Bind(&bone.position.x);
+   mBonePos[1].text->Bind(&bone.position.y);
+   mBonePos[2].text->Bind(&bone.position.z);
+   mBoneRot[0].text->Bind(&bone.rotation.x);
+   mBoneRot[1].text->Bind(&bone.rotation.y);
+   mBoneRot[2].text->Bind(&bone.rotation.z);
+
+   Receive(ResumeEditingEvent{});
 }
 
 ///
@@ -727,29 +872,27 @@ void Dock::SetBone(const AnimationController::BoneID& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
+   if (state.entity.empty())
+   {
+      state.entity = dock->mSkeleton;
+   }
+
+   if (state.stance.empty())
+   {
+      state.stance = "base";
+   }
+
    if (state.keyframes.size() == 0)
    {
       Keyframe keyframe;
-      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
-      {
-         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
-         std::vector<Bone>& bones = skeleton->bones;
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.originalPosition; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.originalRotation; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.originalScale; });
-      }
-
       keyframe.time = 0;
       state.keyframes.push_back(keyframe);
-
-      state.skeletonId = dock->mSkeleton;
    }
 
-   dock->mController->states.insert(dock->mController->states.begin() + dock->mController->current + (afterCurrent ? 1 : 0), state);
-   if (afterCurrent)
-   {
-      dock->SetState(dock->mController->current + 1);
-   }
+   dock->mController->states.emplace(state.name, state);
+   dock->mStates.push_back(state.name);
+   std::sort(dock->mStates.begin(), dock->mStates.end());
+   dock->SetState(state.name);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -758,15 +901,14 @@ void Dock::AddStateCommand::Do()
 ///
 void Dock::AddStateCommand::Undo()
 {
-   afterCurrent = dock->mController->current > 0;
    // Get current state as a copy not a reference
    state = dock->GetCurrentState();
 
-   dock->mController->states.erase(dock->mController->states.begin() + dock->mController->current);
-   if (afterCurrent)
-   {
-      dock->SetState(dock->mController->current - 1);
-   }
+   dock->mController->states.erase(state.name);
+   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), state.name) - dock->mStates.begin();
+   if (index > 0) { --index; }
+   dock->mStates.erase(dock->mStates.begin() + index);
+   dock->SetState(dock->mStates[index]);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -795,10 +937,16 @@ void Dock::SetStateLength(double newValue, double oldValue)
 void Dock::SetStateNameCommand::Do()
 {
    State& state = dock->GetCurrentState();
+
    std::string last = state.name;
    state.name = name;
+
+   dock->mController->states.emplace(state.name, dock->mController->states.at(last));
+   dock->SetState(name);
+   dock->mController->states.erase(last);
+
    name = last;
-   dock->mStateName->SetText(state.name);
+
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -808,21 +956,31 @@ void Dock::SetStateNameCommand::Do()
 void Dock::AddKeyframeCommand::Do()
 {
    State& state = dock->GetCurrentState();
+   Stance& stance = dock->mController->stances[state.stance];
 
-   if (keyframe.positions.size() != dock->mController->bones.size())
+   // If this keyframe did not already exist, populate it with the current values.
+   if (keyframe.positions.empty() && keyframe.rotations.empty() && keyframe.scales.empty())
    {
-      keyframe.positions.clear();
-      keyframe.rotations.clear();
-
-      // Insert the CURRENT values of position and rotation at this timestamp.
-      for (size_t i = 0; i < dock->mController->NumSkeletons(); i++)
+      // Insert the CURRENT transform values at this timestamp.
+      size_t boneId = 0;
+      for (const Engine::ComponentHandle<Skeleton>& skeleton : dock->mController->skeletons)
       {
-         Engine::ComponentHandle<AnimatedSkeleton> skeleton = dock->mController->GetSkeleton(i);
-
-         std::vector<Bone>& bones = skeleton->bones;
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.positions), [](const Bone& b) { return b.position; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.rotations), [](const Bone& b) { return b.rotation; });
-         std::transform(bones.begin(), bones.end(), std::back_inserter(keyframe.scales), [](const Bone& b) { return b.scale; });
+         for (const Skeleton::Bone& bone : skeleton->bones)
+         {
+            if (bone.position != stance.bones[boneId].position)
+            {
+               keyframe.positions[bone.name] = bone.position;
+            }
+            if (bone.rotation != stance.bones[boneId].rotation)
+            {
+               keyframe.rotations[bone.name] = bone.rotation;
+            }
+            if (bone.scale != stance.bones[boneId].scale)
+            {
+               keyframe.scales[bone.name] = bone.scale;
+            }
+            ++boneId;
+         }
       }
    }
 
@@ -853,6 +1011,8 @@ void Dock::SetTime(double time)
 {
    State& state = GetCurrentState();
 
+   Receive(SuspendEditingEvent{});
+
    size_t keyframeIndex = GetKeyframeIndex(state, time);
    Keyframe& prev = state.keyframes[keyframeIndex];
    mSelectedKeyframe = std::numeric_limits<size_t>::max();
@@ -879,26 +1039,12 @@ void Dock::SetTime(double time)
       mController->time = time;
    }
 
-   if (mSelectedKeyframe >= state.keyframes.size())
-   {
-      mKeyframeTime->Bind(nullptr);
-      mBonePos[0].scrubber->Bind(nullptr);
-      mBonePos[1].scrubber->Bind(nullptr);
-      mBonePos[2].scrubber->Bind(nullptr);
-      mBoneRot[0].scrubber->Bind(nullptr);
-      mBoneRot[1].scrubber->Bind(nullptr);
-      mBoneRot[2].scrubber->Bind(nullptr);
-   }
-   else
+   if (mSelectedKeyframe < state.keyframes.size())
    {
       mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
-      mBonePos[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].x);
-      mBonePos[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].y);
-      mBonePos[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].positions[mBone].z);
-      mBoneRot[0].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].x);
-      mBoneRot[1].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].y);
-      mBoneRot[2].scrubber->Bind(&state.keyframes[mSelectedKeyframe].rotations[mBone].z);
    }
+
+   Receive(ResumeEditingEvent{});
 }
 
 ///
@@ -906,13 +1052,14 @@ void Dock::SetTime(double time)
 ///
 void Dock::NextStateCommand::Do()
 {
-   if (dock->mController->current >= dock->mController->states.size() - 1)
+   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin();
+   if (index >= dock->mStates.size() - 1)
    {
-      dock->SetState(0);
+      dock->SetState(dock->mStates[0]);
    }
    else
    {
-      dock->SetState(dock->mController->current + 1);
+      dock->SetState(dock->mStates[index + 1]);
    }
 }
 
@@ -921,13 +1068,14 @@ void Dock::NextStateCommand::Do()
 ///
 void Dock::NextStateCommand::Undo()
 {
-   if (dock->mController->current == 0)
+   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin();
+   if (index == 0)
    {
-      dock->SetState(dock->mController->states.size() - 1);
+      dock->SetState(dock->mStates[dock->mStates.size() - 1]);
    }
    else
    {
-      dock->SetState(dock->mController->current - 1);
+      dock->SetState(dock->mStates[index - 1]);
    }
 }
 
@@ -956,7 +1104,15 @@ void Dock::SetKeyframeTimeCommand::Do()
 ///
 void Dock::NextBoneCommand::Do()
 {
-   dock->SetBone(dock->mController->NextBone(dock->mBone));
+   size_t numBones = dock->mController->stances["base"].bones.size();
+   if (dock->mBone + 1 >= numBones)
+   {
+      dock->SetBone(0);
+   }
+   else
+   {
+      dock->SetBone(dock->mBone + 1);
+   }
 }
 
 ///
@@ -964,7 +1120,15 @@ void Dock::NextBoneCommand::Do()
 ///
 void Dock::NextBoneCommand::Undo()
 {
-   dock->SetBone(dock->mController->PrevBone(dock->mBone));
+   size_t numBones = dock->mController->stances["base"].bones.size();
+   if (dock->mBone == 0)
+   {
+      dock->SetBone(numBones - 1);
+   }
+   else
+   {
+      dock->SetBone(dock->mBone - 1);
+   }
 }
 
 ///
@@ -973,7 +1137,12 @@ void Dock::NextBoneCommand::Undo()
 void Dock::ParentBoneCommand::Do()
 {
    last = dock->mBone;
-   dock->SetBone(dock->mController->ParentBone(dock->mBone));
+   Stance& stance = dock->GetCurrentStance();
+
+   const std::string& parent = stance.bones[last].parent;
+   size_t index = std::find_if(stance.bones.begin(), stance.bones.end(), [&](const Bone& b) { return b.name == parent; }) - stance.bones.begin();
+
+   dock->SetBone(index);
 }
 
 ///
@@ -989,20 +1158,28 @@ void Dock::ParentBoneCommand::Undo()
 ///
 void Dock::ResetBoneCommand::Do()
 {
-   State& state = dock->GetCurrentState();
-   Keyframe& keyframe = GetKeyframe(state, dock->mController->time);
+   Keyframe& keyframe = dock->GetCurrentKeyframe();
    if (dock->mController->time != keyframe.time)
    {
       return;
    }
    
-   size_t bone = dock->mBone;
-   glm::vec3 pos = keyframe.positions[bone];
-   glm::vec3 rot = keyframe.rotations[bone];
-   keyframe.positions[bone] = position;
-   keyframe.rotations[bone] = rotation;
+   const Stance& stance = dock->GetCurrentStance();
+   const Bone& bone = stance.bones[dock->mBone];
+
+   assert(keyframe.positions.count(bone.name) > 0 && "Not editing a bone");
+   assert(keyframe.rotations.count(bone.name) > 0 && "Not editing a bone");
+   assert(keyframe.scales.count(bone.name) > 0 && "Not editing a bone");
+
+   glm::vec3 pos = keyframe.positions[bone.name];
+   glm::vec3 rot = keyframe.rotations[bone.name];
+   glm::vec3 scl = keyframe.scales[bone.name];
+   keyframe.positions[bone.name] = position;
+   keyframe.rotations[bone.name] = rotation;
+   keyframe.scales[bone.name] = scl;
    position = pos;
    rotation = rot;
+   scale = scl;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }

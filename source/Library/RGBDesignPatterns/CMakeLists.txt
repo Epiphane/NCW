@@ -7,9 +7,9 @@ file(GLOB_RECURSE SOURCES
    "*.mm"
 )
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Library")
-target_link_libraries(${PROJECT_NAME} ${CW_LIBS})
+# add_library(${PROJECT_NAME} STATIC ${SOURCES})
+# set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Library")
+# target_link_libraries(${PROJECT_NAME} ${CW_LIBS})
 
 # Nice-looking separation for VS2017
 foreach(source IN LISTS SOURCES)

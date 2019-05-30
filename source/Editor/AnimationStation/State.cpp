@@ -10,8 +10,9 @@
 #pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
-#include <Engine/Core/StateManager.h>
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
+#include <Engine/Core/StateManager.h>
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
 #include <Shared/Components/VoxModel.h>
@@ -24,7 +25,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include "../Systems/AnimationSystem.h"
+#include "SimpleAnimationSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -48,7 +49,7 @@ MainState::MainState(Engine::Input* input, Bounded& parent)
 
 MainState::~MainState()
 {
-   DebugHelper::Instance()->SetSystemManager(nullptr);
+   DebugHelper::Instance().SetSystemManager(nullptr);
 }
 
 namespace
@@ -71,9 +72,9 @@ void MainState::Initialize()
    mEvents.Subscribe<AddSkeletonPartEvent>(*this);
 
    // Create systems and configure
-   DebugHelper::Instance()->SetSystemManager(&mSystems);
+   DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
-   mSystems.Add<Editor::AnimationSystem>();
+   mSystems.Add<SimpleAnimationSystem>();
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
@@ -89,7 +90,7 @@ void MainState::Initialize()
    mPlayer = mEntities.Create();
    mPlayer.Add<Transform>(glm::vec3(0, 1.3, 0));
    mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   mPlayer.Add<AnimationController>();
+   mPlayer.Add<SimpleAnimationController>();
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 2, 0);
@@ -173,7 +174,7 @@ void MainState::Receive(const SkeletonClearedEvent&)
       mEntities.Destroy(part.GetID());
    }
 
-   auto controller = mPlayer.Get<AnimationController>();
+   auto controller = mPlayer.Get<SimpleAnimationController>();
    controller->Reset();
 
    mPlayerParts.clear();
@@ -181,13 +182,24 @@ void MainState::Receive(const SkeletonClearedEvent&)
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
+   LOG_DEBUG("Adding skeleton %1", evt.filename);
+   Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
+   if (!data)
+   {
+      LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());
+      return;
+   }
+
    Engine::Entity part = mEntities.Create(0, 0, 0);
    part.Get<Transform>()->SetParent(mPlayer);
-   auto model = part.Add<VoxModel>();
-   auto skeleton = part.Add<AnimatedSkeleton>(evt.filename, model);
+   auto skeleton = part.Add<Skeleton>(*data);
+   part.Add<VoxModel>(Asset::Model(skeleton->defaultModel));
 
-   auto controller = mPlayer.Get<AnimationController>();
+   auto anims = part.Add<SkeletonAnimations>(skeleton->name);
+
+   auto controller = mPlayer.Get<SimpleAnimationController>();
    controller->AddSkeleton(skeleton);
+   controller->AddAnimations(anims);
 
    mPlayerParts.push_back(part);
 }

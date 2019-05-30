@@ -1,0 +1,88 @@
+---
+name: slash
+next: 
+stance: wield_right
+length: 1
+keyframes:
+- time: 0
+- time: 0.027
+  bones:
+    character.Right Hand:
+      position: [-8.051759, 2.150725, -1.240696]
+      rotation: [1.917061, -2.898841, 25.130194]
+    character.Torso:
+      rotation: [0, -11.908991, 0]
+- time: 0.06
+  bones:
+    character.Right Hand:
+      position: [-8.051759, 1.340568, -1.240696]
+      rotation: [-9.718487, -11.375794, 35.093086]
+    character.Torso:
+      rotation: [0, -16.883568, 0]
+- time: 0.075
+  bones:
+    character.Right Hand:
+      position: [-7.884887, 0.049915, -0.892685]
+      rotation: [-5.096268, -18.179573, 57.768787]
+    character.Torso:
+      rotation: [0, -15.377798, 0]
+- time: 0.1
+  bones:
+    character.Right Hand:
+      position: [-7.884887, 0.049915, -0.892685]
+      rotation: [-5.096268, -18.179573, 57.768787]
+    character.Torso:
+      rotation: [0, -15.377798, 0]
+- time: 0.122246
+  bones:
+    character.Right Hand:
+      position: [-7.884887, -0.410555, -0.892685]
+      rotation: [-5.096268, -9.614245, 64.897644]
+    character.Shoulders:
+      rotation: [3.903903, 8.171332, 0]
+    character.Torso:
+      rotation: [0, -4.918799, 0]
+- time: 0.2
+  bones:
+    character.Left Leg:
+      position: [3.646484, -1, -1.469141]
+      rotation: [0, -14.66992, 0]
+    character.Right Leg:
+      position: [-3.892578, -1, 2.739061]
+      rotation: [0, -14.088284, 0]
+    character.Right Hand:
+      position: [-7.884887, -2.020006, -0.892685]
+      rotation: [-5.096268, 20.323568, 89.814651]
+    character.Torso:
+      rotation: [0, 31.637838, 0]
+    character.Hips:
+      rotation: [0, 18.940233, 0]
+    character.Shoulders:
+      rotation: [3.903903, 36.73204, 0]
+- time: 0.23
+  bones:
+    character.Left Leg:
+      position: [3.646484, -1, -1.469141]
+      rotation: [0, -14.66992, 0]
+    character.Right Leg:
+      position: [-3.892578, -1, 2.739061]
+      rotation: [0, -14.088284, 0]
+    character.Right Hand:
+      position: [-7.884887, -2.020006, -0.892685]
+      rotation: [-5.096268, 20.323568, 89.814651]
+    character.Torso:
+      rotation: [0, 51.039009, 0]
+    character.Hips:
+      rotation: [0, 18.940233, 0]
+    character.Shoulders:
+      rotation: [3.903903, 51.08712, 0]
+- time: 0.68079
+  bones:
+    character.root:
+      position: [0, -0.5, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+    character.Right Hand:
+      position: [-6.180703, 0, 2.661406]
+      rotation: [0, 0, 11.580857]
+      scale: [1, 1, 1]

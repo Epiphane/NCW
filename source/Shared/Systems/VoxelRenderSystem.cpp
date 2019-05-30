@@ -52,7 +52,7 @@ std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;
 
 VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
 {
-   metric = DebugHelper::Instance()->RegisterMetric("Voxel Render Time", [this]() -> std::string {
+   metric = DebugHelper::Instance().RegisterMetric("Voxel Render Time", [this]() -> std::string {
       return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }
