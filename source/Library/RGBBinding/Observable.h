@@ -6,7 +6,12 @@
 
 #pragma once
 
+#include <map>
+
 namespace CubeWorld
+{
+   
+namespace Observables
 {
 
    // TODO-EF: Example message struct. Will be moved... outta here. Soon.
@@ -169,4 +174,7 @@ namespace CubeWorld
    private:
       Observable<T> observableExternal;
    };
+   
+} // namespace Observables
+   
 } // namespace CubeWorld

@@ -10,6 +10,9 @@
 namespace CubeWorld
 {
 
+namespace Observables
+{
+ 
 //
 // Simple callback when a message is sent.
 //
@@ -39,7 +42,7 @@ Observable<T>& operator>>(Observable<T>& inObservable, const OnMessage<T>& onMes
 //
 // Example usage:
 //    mButton.OnPan() >>
-//       Map<Point, bool>([](Point dragPoint) { return someElement.contains(dragPoint); };
+//       Map<Point, bool>([](Point dragPoint) { return someElement.contains(dragPoint); });
 //
 template<typename T, typename U>
 struct Map {
@@ -63,5 +66,37 @@ Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper)
 
    return newObservable->OnChanged();
 }
+   
+//
+// Send an Observable's messages into a container that has a push_back function
+//
+// Example usage:
+//    std::vector<Point> points;
+//    mButton.OnTap() >>
+//       ToContainer(points};
+//
+template<typename ContainerType>
+struct ToContainer {
+   explicit ToContainer(ContainerType& newContainer, std::shared_ptr<DisposeBag> newOwner)
+      : container(newContainer)
+      , owner(newOwner)
+   {}
+   
+   ContainerType& container;
+   std::shared_ptr<DisposeBag> owner;
+};
 
+template<typename T, typename ContainerType>
+Observable<T>& operator>>(Observable<T>& inObservable, const ToContainer<ContainerType>& containerOwner)
+{
+   inObservable >> 
+      OnMessage<T>([&](T message) {
+         containerOwner.container.push_back(message);
+      }, containerOwner.owner);
+   
+   return inObservable;
+}
+
+} // namespace Observables
+   
 } // namespace CubeWorld

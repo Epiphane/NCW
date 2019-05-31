@@ -20,6 +20,7 @@
 #include <RGBDesignPatterns/DereferenceIterator.h>
 #include <RGBLogger/Logger.h>
 #include <RGBBinding/BindingProperty.h>
+#include <RGBBinding/Observable.h>
 
 #include "UIConstrainable.h"
 #include "UIGestureRecognizer.h"
@@ -223,6 +224,9 @@ public:
    UIGestureRecognizer* AddGestureRecognizer(std::shared_ptr<UIGestureRecognizer> recognizer);
 
 protected:
+
+   // Convenience DisposeBag for subclasses to use
+   std::shared_ptr<Observables::DisposeBag> mBag;
 
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.

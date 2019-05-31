@@ -26,6 +26,8 @@ UIElement::UIElement(UIRoot *root, UIElement* parent, const std::string& name)
 {
    if (parent != nullptr)
       mpRoot->Subscribe<UIRebalancedEvent>(*this);
+
+   mBag = std::make_shared<Observables::DisposeBag>();
 }
 
 UIElement::~UIElement()
