@@ -203,7 +203,6 @@ public:
    //
    void LogDebugInfo(bool bRecursive = true, uint32_t indentLevel = 0);
 
-public:
    //
    // Called by the UIRoot when mouse events happen.
    // These functions are performed from the front-most element to the furthest back,
@@ -227,9 +226,13 @@ public:
       mGestureRecognizers.push_back(recognizer);
       return recognizer;
    }
+   
+   Observables::Observable<bool>& OnActiveStateChanged();
 
 protected:
-
+   // Sends a message when you become active or inactive
+   Observables::ObservableInternal<bool> mActiveObservable;
+   
    // Convenience DisposeBag for subclasses to use
    std::shared_ptr<Observables::DisposeBag> mBag;
 

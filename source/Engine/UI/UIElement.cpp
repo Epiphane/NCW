@@ -50,7 +50,7 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
    element->ConstrainInFrontOf(this, constraintOptions);
 
    mpRoot->AddConstraints({mFrame.biggestDescendantZ >= element->GetFrame().biggestDescendantZ});
-
+   
    return element;
 }
 
@@ -78,6 +78,8 @@ void UIElement::SetActive(bool active)
    {
       return;
    }
+   
+   mActiveObservable.SendMessage(active);
 
    mActive = active;
    for (auto& child : mChildren)
@@ -170,6 +172,11 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
          logger.Log(Logger::LogLevel::kDebug, "%1]", indentation);
       }
    }
+}
+   
+Observables::Observable<bool>& UIElement::OnActiveStateChanged()
+{
+   return mActiveObservable.OnChanged();
 }
 
 void UIElement::InitFromJSON(const BindingProperty& /*data*/)

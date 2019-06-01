@@ -9,6 +9,8 @@
 
 #include "UIStackView.h"
 
+#include <RGBBinding/ObservableBasicOperations.h>
+
 #include <Engine/UI/UIElement.h>
 #include <Engine/UI/UIRoot.h>
 
@@ -33,12 +35,16 @@ UIStackView::UIStackView(UIRoot *root, UIElement *parent, const std::string& nam
 {
 }
 
-
 UIElement *UIStackView::AddChild(std::unique_ptr<UIElement> &&element)
 {
    UIElement* result = UIElement::AddChild(std::move(element));
 
    RemakeConstraints();
+   
+   result->OnActiveStateChanged() >>
+      Observables::OnMessage<bool>([&](bool active) {
+         this->RemakeConstraints();
+      }, mBag);
 
    return result;
 }
@@ -87,7 +93,11 @@ void UIStackView::DestroyOldConstraints() {
    
    if (mpRoot->GetConstraint(mBottomConstraint.GetName())) {
       mpRoot->RemoveConstraint(mBottomConstraint.GetName());
-   } 
+   }
+   
+   if (mpRoot->GetConstraint(mEmptyConstraint.GetName())) {
+      mpRoot->RemoveConstraint(mEmptyConstraint.GetName());
+   }
    
    for (UIConstraint constraint : mConstraintsBetweenChildren) {
       if (mpRoot->GetConstraint(constraint.GetName())) {
@@ -116,39 +126,56 @@ void UIStackView::RemakeConstraints()
 {
    DestroyOldConstraints();
 
-   if (mChildren.size() == 0) {
-      return;
-   }
-
-   if (mbVertical) {
-      UIConstraint::Options topOptions;
-      topOptions.customNameConnector = "_topAlignedWithStackView_";
-      mTopConstraint    = mChildren.front()->ConstrainTopAlignedTo(this, 0.0, topOptions);
-
-      UIConstraint::Options bottomOptions;
-      bottomOptions.customNameConnector = "_bottomAlignedWithStackView_";
-      mBottomConstraint = mChildren.back()->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
-
-      for (size_t ndx = 1; ndx < mChildren.size(); ndx++) {
-         UIConstraint::Options options;
-         options.customNameConnector = "_belowInStackView_";
-         UIConstraint newConstraint = mChildren[ndx]->ConstrainBelow(mChildren[ndx-1].get(), mOffset, options);
-         mConstraintsBetweenChildren.push_back(newConstraint);
+   std::vector<UIElement*> activeChildren;
+   for (size_t ndx = 0; ndx < mChildren.size(); ndx++) {
+      UIElement* el = mChildren[ndx].get();
+      if (el->IsActive()) {
+         activeChildren.push_back(el);
       }
    }
-   else {
-      mTopConstraint    = mChildren.front()->ConstrainLeftAlignedTo(this);
-      mBottomConstraint = mChildren.back()->ConstrainRightAlignedTo(this);
-
-      for (size_t ndx = 1; ndx < mChildren.size(); ndx++) {
-         UIConstraint::Options options;
-         options.customNameConnector = "_rightOfInStackView_";
-         UIConstraint newConstraint = mChildren[ndx]->ConstrainToRightOf(mChildren[ndx-1].get(), mOffset, options);
-         mConstraintsBetweenChildren.push_back(newConstraint);
+    
+   if (activeChildren.size() == 0) {
+      UIConstraint::Options emptyOptions;
+      emptyOptions.customNameConnector = "_emptyStackView";
+      if (mbVertical) {
+         mEmptyConstraint = this->ConstrainHeight(0, emptyOptions);
+      } else {
+         mEmptyConstraint = this->ConstrainWidth(0, emptyOptions);
       }
+   } else {
+      CreateChildConstraints(activeChildren);
    }
    
    CreateConstraintsForItemAlignment();
+}
+   
+void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeChildren) {
+   if (mbVertical) {
+      UIConstraint::Options topOptions;
+      topOptions.customNameConnector = "_topAlignedWithStackView_";
+      mTopConstraint    = activeChildren.front()->ConstrainTopAlignedTo(this, 0.0, topOptions);
+      
+      UIConstraint::Options bottomOptions;
+      bottomOptions.customNameConnector = "_bottomAlignedWithStackView_";
+      mBottomConstraint = activeChildren.back()->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
+      
+      for (size_t ndx = 1; ndx < activeChildren.size(); ndx++) {
+         UIConstraint::Options options;
+         options.customNameConnector = "_belowInStackView_";
+         UIConstraint newConstraint = activeChildren[ndx]->ConstrainBelow(activeChildren[ndx-1], mOffset, options);
+         mConstraintsBetweenChildren.push_back(newConstraint);
+      }
+   } else {
+      mTopConstraint    = activeChildren.front()->ConstrainLeftAlignedTo(this);
+      mBottomConstraint = activeChildren.back()->ConstrainRightAlignedTo(this);
+      
+      for (size_t ndx = 1; ndx < activeChildren.size(); ndx++) {
+         UIConstraint::Options options;
+         options.customNameConnector = "_rightOfInStackView_";
+         UIConstraint newConstraint = activeChildren[ndx]->ConstrainToRightOf(activeChildren[ndx-1], mOffset, options);
+         mConstraintsBetweenChildren.push_back(newConstraint);
+      }
+   }
 }
 
 void UIStackView::CreateConstraintsForItemAlignment() {

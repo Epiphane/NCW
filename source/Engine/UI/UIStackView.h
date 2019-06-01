@@ -56,6 +56,8 @@ public:
 
 private:
    void DestroyOldConstraints();
+   void CreateChildConstraints(const std::vector<UIElement*>& activeChildren);
+   
    void RemakeConstraints();
    
    // Helper function that creates constraints to honor SetAlignItemsBy
@@ -71,6 +73,7 @@ private:
 
    UIConstraint mTopConstraint;     ///< Constrain the first child to my top
    UIConstraint mBottomConstraint;  ///< Constrain the last child to my butt
+   UIConstraint mEmptyConstraint;   ///< If the StackView is empty, constrain its main axis to 0
 
    double mOffset = 0.0;     ///< Spacing between elements
    bool mbVertical = true;   ///< Are elements arranged vertically or horizontally?
