@@ -7,10 +7,11 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
-   .AdditionalCompilerOptions = ' /DYAML_VERSION_MAJOR=0'
-                              + ' /DYAML_VERSION_MINOR=2'
-                              + ' /DYAML_VERSION_PATCH=2'
-                              + ' /DYAML_VERSION_STRING=\"0.2.2\"'
+   .AdditionalCompilerOptions = ' -DYAML_VERSION_MAJOR=0'
+                              + ' -DYAML_VERSION_MINOR=2'
+                              + ' -DYAML_VERSION_PATCH=2'
+                              + ' -DYAML_VERSION_STRING="0.2.2"'
+                           #if __WINDOWS__
                               + ' /wd4100' // '%s': unreferenced formal parameter
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
                               + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
@@ -26,6 +27,7 @@
                               + ' /wd6011' // Dereferencing NULL pointer
                               + ' /wd6246' // Local declaration of '%s' hides declaration of the same name in outer scope.
                               + ' /wd28182' // Dereferencing NULL pointer.
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  =  {
@@ -40,6 +42,7 @@
                            }
                            
    #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    #include "../dependency.bff"
 
    ^LibYamlIncludePaths = ' -I$LibraryIncludePaths$'

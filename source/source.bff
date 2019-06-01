@@ -13,7 +13,8 @@
 
 // Include paths
 //------------------------------------------------------------------------------
-.SourceIncludePaths  = ' -I"source"'
+.SourceIncludePaths  = ' "-Isource"'
+                     + ' "-Isource/Library"'
                      + .FreeTypeIncludePaths
                      + .GladIncludePaths
                      + .GlfwIncludePaths

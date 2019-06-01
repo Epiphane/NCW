@@ -7,6 +7,7 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
+                           #if __WINDOWS__
    .AdditionalCompilerOptions = ' /wd4005' // '%s': macro redefinition
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
                               + ' /wd4996' // '%s': The POSIX name for this item is deprecated.
@@ -24,11 +25,18 @@
                               + ' /wd6387'
                               + ' /wd28182'
                               + ' /wd28251'
+                           #endif
+                           #if __OSX__
+   .AdditionalCompilerOptions = ' -Wno-reserved-user-defined-literal'
+                              + ' -Wno-writable-strings'
+                              - ' -std=c++17'
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    .LibrarySourceFiles  =  { 'sqlite3.c', 'shell.c' }
 
    #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    .UnityOutputPattern  = 'Unity*.c'
    #include "../dependency.bff"
 

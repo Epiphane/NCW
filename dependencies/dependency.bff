@@ -26,9 +26,16 @@ ForEach( .Config in .Configs )
    Using( .Config )
    .OutputPath + '$Platform$-$Config$/$LibraryName$'
    .CompilerOutputPath = .OutputPath
-   .CompilerOptions     = .CompilerOptions
-                        + ' -I"$LibraryIncludePaths$"'
-                        + .AdditionalCompilerOptions
+
+#if !C_BUILD_ONCE
+   .CompilerOptions  = .CompilerOptions
+#endif
+#if C_BUILD_ONCE
+   .CompilerOptions  = .CompilerOptionsC
+   #undef C_BUILD_ONCE
+#endif
+   .CompilerOptions  + ' -I"$LibraryIncludePaths$"'
+                     + .AdditionalCompilerOptions
 
    Unity('$LibraryName$-Unity-$Platform$-$Config$')
    {

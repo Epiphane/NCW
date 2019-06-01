@@ -62,7 +62,8 @@
                         #endif
 
    .UnityOutputPattern  = 'Unity*.c'
-   #define UNITY_BUILD_ONCE
+   #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    #include "../dependency.bff"
 
    ^GlfwIncludePaths = ' -I$LibraryIncludePaths$'

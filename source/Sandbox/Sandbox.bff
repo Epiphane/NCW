@@ -10,8 +10,10 @@
       .OutputPath          + '$Platform$-$Config$/$ProjectName$'
       .CompilerOutputPath  = .OutputPath
       .CompilerOptions     + .SourceIncludePaths
+                        #if __WINDOWS__
                            + ' /wd6031'
                            + ' /wd6001'
+                        #endif
 
       // Unity
       // --------------------------------------------------------------------------

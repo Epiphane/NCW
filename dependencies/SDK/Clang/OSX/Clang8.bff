@@ -14,7 +14,7 @@ Compiler( 'Compiler-Clang8' )
 //------------------------------------------------------------------------------
 .ToolChain_Clang_OSX =
 [
-    .Platform                       = 'x64OSX'
+    .Platform                       = 'OSX'
 
     // Compiler Options
     .Compiler                       = 'Compiler-Clang8'
@@ -38,7 +38,7 @@ Compiler( 'Compiler-Clang8' )
                                     + ' -Wno-implicit-exception-spec-mismatch' // Fires on our new/delete operator (Clang bug?)
 
 
-    .CompilerOptions                = ' -std=c++11 $CommonCompilerOptions$'
+    .CompilerOptions                = ' -x c++ -std=c++1z $CommonCompilerOptions$'
     .CompilerOptionsC               = ' -x c $CommonCompilerOptions$'
 
     // Librarian

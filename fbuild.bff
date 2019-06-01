@@ -35,8 +35,7 @@ Settings
 //------------------------------------------------------------------------------
 // Config Defines
 //------------------------------------------------------------------------------
-.CommonOptions = ' -I"source/Library"'
-               + ' /std:c++17'
+.CommonOptions = ' -Isource/Library'
                + ' -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING'
                + ' -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING'
                + ' -D_CRT_SECURE_NO_WARNINGS'
@@ -132,15 +131,12 @@ Settings
 // OSX
 //------------------------------------------------------------------------------
 #if __OSX__
-   .X64DebugConfig_OSX     = .ToolChain_Clang_OSX
+   .X64DebugConfig         = .ToolChain_Clang_OSX
                            + .Debug_Config
                            + .Debug_Optimizations
-   .X64ReleaseConfig_OSX   = .ToolChain_Clang_OSX
+   .X64ReleaseConfig       = .ToolChain_Clang_OSX
                            + .Release_Config
                            + .Release_Optimizations
-   .X64ProfileConfig_OSX   = .ToolChain_Clang_OSX
-                           + .Profile_Config
-                           + .Profile_Optimizations
 #endif
 
 // Configurations
@@ -149,6 +145,8 @@ Settings
 
 .Targets_x64_Debug = {}
 .Targets_x64_Release = {}
+.Targets_OSX_Debug = {}
+.Targets_OSX_Release = {}
 
 //------------------------------------------------------------------------------
 // VisualStudio Project Generation
@@ -268,6 +266,7 @@ VSSolution('CubeWorld-sln')
                         }
 }
 
+#if __WINDOWS__
 Alias('All-x64-Debug')
 {
    .Targets = .Targets_x64_Debug
@@ -278,12 +277,25 @@ Alias('All-x64-Release')
    .Targets = .Targets_x64_Release
 }
 
-// All
-//------------------------------------------------------------------------------
 Alias( 'All' )
 {
-   .Targets  = {
-                  'All-x64-Debug'
-                  'All-x64-Release'
-               }
+   .Targets  = { 'All-x64-Debug', 'All-x64-Release' }
 }
+#endif
+
+#if __OSX__
+Alias('All-OSX-Debug')
+{
+   .Targets = .Targets_OSX_Debug
+}
+
+Alias('All-OSX-Release')
+{
+   .Targets = .Targets_OSX_Release
+}
+
+Alias( 'All' )
+{
+   .Targets  = { 'All-OSX-Debug', 'All-OSX-Release' }
+}
+#endif
