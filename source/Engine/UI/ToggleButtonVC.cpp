@@ -6,6 +6,7 @@
 
 #include "ToggleButtonVC.h"
 
+#include <RGBBinding/ObservableBasicOperations.h>
 
 namespace CubeWorld
 {
@@ -18,19 +19,40 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
 {
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
+
+   OnClick() >>
+     Observables::OnMessage<UIGestureRecognizer::Message_GestureState>([&](UIGestureRecognizer::Message_GestureState m) {
+        mToggleState = !mToggleState;
+        mUserToggledObservable.SendMessage(mToggleState);
+     }, mBag);
    
-   
+   mUserToggledObservable.OnChanged() >>
+     Observables::OnMessage<bool>(std::bind(&ToggleButtonVC::Toggled, this, std::placeholders::_1), mBag);
 }
 
-void ToggleButtonVC::OnClick()
+void ToggleButtonVC::Toggled(bool newToggle)
 {
-   ButtonVC::OnClick();
+   mOnImage->SetActive(newToggle);
+   mOffImage->SetActive(!newToggle);
 }
-   
-void ToggleButtonVC::Toggled(bool isOn)
+
+Observables::Observable<bool>& ToggleButtonVC::OnUserToggled()
 {
-   mOffImage->SetActive(!isOn);
-   mOnImage->SetActive(isOn);
+   return mUserToggledObservable.OnChanged();
+}
+
+void ToggleButtonVC::ProvideToggler(Observables::Observable<bool>& toggler)
+{
+   toggler >>
+      Observables::OnMessage<bool>([&](bool toggled) {
+         mProgrammaticToggleObservable.SendMessage(toggled);
+      }, mBag) >>
+      Observables::OnMessage<bool>(std::bind(&ToggleButtonVC::Toggled, this, std::placeholders::_1), mBag);
+}
+
+Observables::Observable<bool>& ToggleButtonVC::OnToggleValueChanged()
+{
+   return mProgrammaticToggleObservable.OnChanged();
 }
 
 }; // namespace Engine

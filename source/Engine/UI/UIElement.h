@@ -106,11 +106,11 @@ public:
    // Returns a shared_pointer to the element, for referencing, configuring, etc.
    //
    template <typename G, typename ...Args>
-   G* CreateAndAddGestureRecognizer(Args ...args)
+   std::shared_ptr<G> CreateAndAddGestureRecognizer(Args ...args)
    {
       static_assert(std::is_base_of<UIGestureRecognizer, G>::value, "Only subclasses of UIGestureRecognizer should be added through here");
       
-      return static_cast<G*>(AddGestureRecognizer(std::make_unique<G>(this, std::forward<Args>(args)...)));
+      return AddGestureRecognizer(std::make_shared<G>(this, std::forward<Args>(args)...));
    }
 
    //
@@ -221,7 +221,12 @@ public:
    virtual Action MouseUp(const MouseUpEvent& evt);
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
    
-   UIGestureRecognizer* AddGestureRecognizer(std::shared_ptr<UIGestureRecognizer> recognizer);
+   template<typename G>
+   std::shared_ptr<G> AddGestureRecognizer(std::shared_ptr<G> recognizer)
+   {
+      mGestureRecognizers.push_back(recognizer);
+      return recognizer;
+   }
 
 protected:
 

@@ -14,25 +14,18 @@ namespace CubeWorld
 namespace Engine
 {
 
+class UITapGestureRecognizer; // Forward declare
+
 class ButtonVC : public UIElement
 {
 public:
    ButtonVC(UIRoot* root, UIElement* parent, const std::string &name);
-   
-   void SetCallback(std::function<void(void)> callback);
-   
+
+   // Sends a message whenever the user completes a tap on this button
+   Observables::Observable<UIGestureRecognizer::Message_GestureState>& OnClick();
+
 protected:
-   virtual void OnClick();
-   
-private:
-   enum State { NORMAL, HOVER, PRESS };
-   void SetState(State state);
-
-   void TapHandler(const Engine::UIGestureRecognizer& rec);
-   
-   std::function<void(void)> mClickCallback;
-
-   State mState;
+   std::shared_ptr<UITapGestureRecognizer> mTapGestureRecognizer;
 };
 
 }; // namespace Engine

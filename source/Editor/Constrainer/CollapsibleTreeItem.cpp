@@ -62,20 +62,6 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, Engine::UIElement
    UIConstraint::Options weakSauce;
    weakSauce.priority = UIConstraint::HIGH_PRIORITY;
    mSubElementStackView->ConstrainBottomAlignedTo(this, 0.0, weakSauce);
-   
-   mStackViewHeightConstraint = mSubElementStackView->ConstrainHeight(0);
-   mpRoot->RemoveConstraint(mStackViewHeightConstraint.GetName());
-   
-   Engine::GestureCallback expandCallback = std::bind(&CollapsibleTreeItem::TapMeDaddy, this, std::placeholders::_1);
-   mArrow->CreateAndAddGestureRecognizer<Engine::UITapGestureRecognizer>(expandCallback);
-   
-   Engine::GestureCallback selectCallback = std::bind(&CollapsibleTreeItem::SelectItem, this, std::placeholders::_1);
-   mLabel->CreateAndAddGestureRecognizer<Engine::UITapGestureRecognizer>(selectCallback);
-   
-   // Arrow starts hidden, unhides if this element gains children
-   mArrow->SetActive(false);
-   
-   mSelectedHighlight->SetActive(false);
 }
 
 void CollapsibleTreeItem::AddSubElement(std::unique_ptr<CollapsibleTreeItem> newSubElement)
@@ -111,33 +97,6 @@ void CollapsibleTreeItem::SetHighlighted(bool bHighlighted)
    mbSelected = bHighlighted;
    
    mSelectedHighlight->SetActive(bHighlighted);
-}
-
-void CollapsibleTreeItem::TapMeDaddy(const Engine::UIGestureRecognizer& rec) {
-   if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
-      mbExpanded = !mbExpanded;
-      if (mbExpanded) {
-         mArrow->SetImage("button_down");
-         for (auto sub : mSubElements) {
-            sub->SetActive(true);
-         }
-         mpRoot->RemoveConstraint(mStackViewHeightConstraint.GetName());
-      }
-      else
-      {
-         mArrow->SetImage("button_right");
-         for (auto sub : mSubElements) {
-            sub->SetActive(false);
-         }
-         mpRoot->AddConstraint(mStackViewHeightConstraint);
-      }
-   }
-}
-   
-void CollapsibleTreeItem::SelectItem(const Engine::UIGestureRecognizer& rec) {
-   if (rec.GetState() == Engine::UIGestureRecognizer::Ending) {
-      
-   }
 }
 
 }; // namespace Constrainer

@@ -182,8 +182,8 @@ public:
    UIElement* AddChild(std::unique_ptr<UIElement> &&element) override;
 
 private:
-   // Helper function that gives a shallow copy of just the active elements
-   void GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>* outElementList);
+   // Helper function that gives a shallow copy of just the active elements that contain the given point
+   void GetActiveElementsContainingPoint(const std::vector<UIElement*> &elementList, double pointX, double pointY, std::vector<UIElement*>* outElementList);
    
    // On ^D, turn on constraint debugging mode
    void ToggleDebugConstraints(int key, int action, int mods);

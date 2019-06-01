@@ -16,15 +16,18 @@ namespace Engine
     
 class UITapGestureRecognizer : public UIGestureRecognizer {
 public:
-   UITapGestureRecognizer(UIElement* element, GestureCallback callback);
-   
-   virtual void MouseMove(const MouseMoveEvent& evt);
-   virtual void MouseDown(const MouseDownEvent& evt);
+   UITapGestureRecognizer(UIElement* element);
+
+   virtual bool MouseMove(const MouseMoveEvent& evt);
+   virtual bool MouseDown(const MouseDownEvent& evt);
    virtual void MouseUp(const MouseUpEvent& evt);
-   
+
+   // This lets you observe JUST when the there has been a successful
+   //    mouse click on this element.
+   Observables::Observable<Message_GestureState>& OnTap();
+
 protected:
    bool mbStartedInsideMe; ///< oh my
-   
 };
 
 } // namespace Engine

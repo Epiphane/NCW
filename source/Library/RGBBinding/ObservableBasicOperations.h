@@ -41,8 +41,8 @@ Observable<T>& operator>>(Observable<T>& inObservable, const OnMessage<T>& onMes
 // Transform an Observable with a function, returning a new Observable.
 //
 // Example usage:
-//    mButton.OnPan() >>
-//       Map<Point, bool>([](Point dragPoint) { return someElement.contains(dragPoint); });
+//    ObservableFromVector({1, 2, 3}) >>
+//       Map<int, double>([](int inputInt) { return inputInt / 2.0; });
 //
 template<typename T, typename U>
 struct Map {
@@ -66,7 +66,39 @@ Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper)
 
    return newObservable->OnChanged();
 }
-   
+
+//
+// Filter an Observable with a function, returning a new Observable that only
+//    lets through messages that pass a conditional
+//
+// Example usage:
+//    ObservableFromVector({1, 2, 3}) >>
+//       Filter<int>([](int someInt) { return someInt % 2 == 0; )
+//
+template<typename T>
+struct Filter {
+   explicit Filter(std::function<bool(T)> filterer)
+         : filterer(filterer)
+   {}
+
+   std::function<bool(T)> filterer;
+};
+
+template<typename T>
+Observable<T>& operator>>(Observable<T>& inObservable, const Filter<T>& filter)
+{
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   inObservable.AddOwnedObservable(newObservable);
+
+   inObservable.AddObserverWithoutDisposer([=](T message) {
+      if (filter.filterer(message)) {
+         newObservable->SendMessage(message);
+      }
+   });
+
+   return newObservable->OnChanged();
+}
+
 //
 // Send an Observable's messages into a container that has a push_back function
 //
@@ -81,7 +113,7 @@ struct ToContainer {
       : container(newContainer)
       , owner(newOwner)
    {}
-   
+
    ContainerType& container;
    std::shared_ptr<DisposeBag> owner;
 };
@@ -93,10 +125,10 @@ Observable<T>& operator>>(Observable<T>& inObservable, const ToContainer<Contain
       OnMessage<T>([&](T message) {
          containerOwner.container.push_back(message);
       }, containerOwner.owner);
-   
+
    return inObservable;
 }
 
 } // namespace Observables
-   
+
 } // namespace CubeWorld

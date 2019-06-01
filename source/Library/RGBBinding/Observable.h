@@ -7,6 +7,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
 namespace CubeWorld
 {

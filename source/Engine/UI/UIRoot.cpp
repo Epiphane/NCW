@@ -142,9 +142,6 @@ void UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
    mSolver.add_constraint(constraintToAdd.GetInternalConstraint());
 }
 
-//
-// Remove a constraint from the system.
-//
 void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
    auto it = mConstraintMap.find(constraintNameToRemove);
 
@@ -234,7 +231,6 @@ void UIRoot::ElementDestructing(UIElement* element)
 
 void UIRoot::RemoveConstraintsForElement(const UIElement* element)
 {
-   // Remove constraints that were attached to this element
    std::vector<std::string> constraintKeysToMurder;
 
    for (const auto& constraint_pair : mConstraintMap) {
@@ -249,50 +245,80 @@ void UIRoot::RemoveConstraintsForElement(const UIElement* element)
    }
 }
 
-void UIRoot::GetActiveElements(const std::vector<UIElement*>& elementList, std::vector<UIElement*>* outElementList)
+void UIRoot::GetActiveElementsContainingPoint(const std::vector<UIElement*> &elementList, double pointX, double pointY, std::vector<UIElement*>* outElementList)
 {
    std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(*outElementList),
-                [](UIElement* el) -> bool {
-                   return el->IsActive();
+                [&](UIElement* el) -> bool {
+                   return el->IsActive() && el->ContainsPoint(pointX, pointY);
                 });
 }
 
 void UIRoot::Receive(const MouseDownEvent& evt)
 {
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseDown(evt);
+      return;
+   }
+
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, &elements);
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
    for (UIElement* elem : elements)
    {
-      if (elem->MouseDown(evt) == Handled)
-      {
-         return;
+      switch(elem->MouseDown(evt)) {
+         case Handled:
+            return;
+         case Capture:
+            mActivelyCapturingElement = elem;
+            return;
+         case Unhandled:
+         default:
+            // Do nothing
+            break;
       }
    }
 }
    
 void UIRoot::Receive(const MouseMoveEvent& evt)
 {
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseMove(evt);
+      return;
+   }
+
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, &elements);
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
    for (UIElement* elem : elements)
    {
-      if (elem->MouseMove(evt) == Handled)
-      {
-         return;
+      switch(elem->MouseMove(evt)) {
+         case Handled:
+            return;
+         case Capture:
+            mActivelyCapturingElement = elem;
+            return;
+         case Unhandled:
+         default:
+            // Do nothing
+            break;
       }
    }
 }
 
 void UIRoot::Receive(const MouseUpEvent& evt)
 {
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseUp(evt);
+      mActivelyCapturingElement = nullptr;
+      return;
+   }
+
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, &elements);
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseUp(evt) == Handled)
@@ -307,7 +333,7 @@ void UIRoot::Receive(const MouseClickEvent& evt)
    // Make a shallow-copy of my elements, so that if the event
    // triggers additions/changes the iterator is not invalidated.
    std::vector<UIElement*> elements;
-   GetActiveElements(mElements, &elements);
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
    for (UIElement* elem : elements)
    {
       if (elem->MouseClick(evt) == Handled)

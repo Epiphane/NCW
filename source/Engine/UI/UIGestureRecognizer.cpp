@@ -13,15 +13,21 @@ namespace CubeWorld
 namespace Engine
 {
 
-UIGestureRecognizer::UIGestureRecognizer(UIElement* element, GestureCallback callback)
-   : mState(Possible)
-   , mpElement(element)
-   , mCallback(callback)
+UIGestureRecognizer::UIGestureRecognizer(UIElement* element)
+      : mpElement(element)
+      , mState(Possible)
 {
 }
 
-UIGestureRecognizer::~UIGestureRecognizer()
+Observables::Observable<UIGestureRecognizer::Message_GestureState> &UIGestureRecognizer::OnStateChanged()
 {
+   return mStateObservable.OnChanged();
+}
+
+void UIGestureRecognizer::ChangeStateAndBroadcastMessage(UIGestureRecognizer::State newState, double mouseX, double mouseY)
+{
+   mState = newState;
+   mStateObservable.SendMessage({newState, mouseX, mouseY});
 }
 
 } // namespace Engine

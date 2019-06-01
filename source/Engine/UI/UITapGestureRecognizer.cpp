@@ -6,6 +6,7 @@
 //
 
 #include "UITapGestureRecognizer.h"
+#include <RGBBinding/ObservableBasicOperations.h>
 
 #include <Engine/UI/UIElement.h>
 
@@ -15,49 +16,54 @@ namespace CubeWorld
 namespace Engine
 {
    
-UITapGestureRecognizer::UITapGestureRecognizer(UIElement* element, GestureCallback callback)
-   : UIGestureRecognizer(element, callback)
+UITapGestureRecognizer::UITapGestureRecognizer(UIElement* element)
+   : UIGestureRecognizer(element)
    , mbStartedInsideMe(false)
 {
 }
 
-void UITapGestureRecognizer::MouseMove(const MouseMoveEvent& evt)
+bool UITapGestureRecognizer::MouseMove(const MouseMoveEvent& evt)
 {
    if (mpElement->ContainsPoint(evt.x, evt.y)) {
-      if (mbStartedInsideMe && mState == Possible) {  // Mouse clicked button, dragged off then dragged back on
-         mState = Happening;
-         mCallback(*this);
+      if (mbStartedInsideMe && mState == Possible) {  // Mouse clicked inside element, dragged off then dragged back on
+         ChangeStateAndBroadcastMessage(Happening, evt.x, evt.y);
       }
    }
-   else 
+   else
    {
       if (mState == Happening) {
-         mState = Possible;
-         mCallback(*this);
+         ChangeStateAndBroadcastMessage(Possible, evt.x, evt.y);
       }
    }
+
+   return false;
 }
 
-void UITapGestureRecognizer::MouseDown(const MouseDownEvent& evt)
+bool UITapGestureRecognizer::MouseDown(const MouseDownEvent& evt)
 {
-   if (mpElement->ContainsPoint(evt.x, evt.y)) {
-      mState = Happening;
-      mbStartedInsideMe = true;
-      mCallback(*this);
-   }
+   ChangeStateAndBroadcastMessage(Happening, evt.x, evt.y);
+   mbStartedInsideMe = true;
+   return true;
 }
 
-void UITapGestureRecognizer::MouseUp(const MouseUpEvent& /*evt*/)
+void UITapGestureRecognizer::MouseUp(const MouseUpEvent& evt)
 {
    if (mState == Happening) {
-      mState = Ending;
-      mCallback(*this);
-      mState = Possible;
+      ChangeStateAndBroadcastMessage(Ending, evt.x, evt.y);
+      ChangeStateAndBroadcastMessage(Possible, evt.x, evt.y);
    }
    
    mbStartedInsideMe = false;
 }
-   
+
+Observables::Observable<UIGestureRecognizer::Message_GestureState> &UITapGestureRecognizer::OnTap()
+{
+   return mStateChangedObservable.OnChanged() >>
+      Observables::Filter<Message_GestureState>([](Message_GestureState m) {
+         return m.state == Ending;
+      });
+}
+
 } // namespace Engine
 
 } // namespace CubeWorld

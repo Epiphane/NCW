@@ -8,6 +8,8 @@
 
 #include <functional>
 
+#include <RGBBinding/Observable.h>
+
 #include "../Event/InputEvent.h"
 
 namespace CubeWorld
@@ -16,17 +18,15 @@ namespace CubeWorld
 namespace Engine
 {
    
-   class UIGestureRecognizerDelegate; ///< Forward declare
-   class UIGestureRecognizer;
+   using Observables::ObservableInternal;
+   
+   class UIGestureRecognizer; // Forward declare
    class UIElement;
-   
-   typedef std::function<void(const UIGestureRecognizer&)> GestureCallback;
-   
+
    class UIGestureRecognizer {
    public:
-      UIGestureRecognizer(UIElement* element, GestureCallback callback);
-      virtual ~UIGestureRecognizer();
-      
+      UIGestureRecognizer(UIElement* element);
+
       //
       // What part of the gesture's lifecycle is this recognizer on?
       //
@@ -41,34 +41,38 @@ namespace Engine
          Ending,
          Cancelled    ///< Usually triggered externally (i.e. if a Scrollview becomes hidden while scrolling)
       };
-      
-      State GetState() const { return mState; }
-      
-      virtual void MouseMove(const MouseMoveEvent& evt) = 0;
-      virtual void MouseDown(const MouseDownEvent& evt) = 0;
+
+      // Messages emitted that describe the gesture recognizer's state
+      struct Message_GestureState {
+         State state;
+         double gestureX;
+         double gestureY;
+      };
+
+      // If this returns true, this recognizer will Capture the current mouse click.
+      virtual bool MouseMove(const MouseMoveEvent& evt) = 0;
+
+      // If this returns true, this recognizer will Capture the current mouse click.
+      virtual bool MouseDown(const MouseDownEvent& evt) = 0;
+
+      // You can't capture a mouse click as it's ending.
       virtual void MouseUp(const MouseUpEvent& evt) = 0;
+
+      // Observable that sends a message whenever the state of this recognizer changes
+      Observables::Observable<Message_GestureState>& OnStateChanged();
       
    protected:
-      State mState;
-      
+      // Helper function to change mState and send a message about it
+      void ChangeStateAndBroadcastMessage(State newState, double mouseX, double mouseY);
+
+      ObservableInternal<Message_GestureState> mStateChangedObservable;
+
       // Which UIElement is this recognizer looking for clicks on?
       UIElement* mpElement;
-      
-      UIGestureRecognizerDelegate* mpDelegate;
-      
-      // The gesture recognizer calls this whenever relevant changes happen.
-      //    i.e. when a UITapGestureRecognizer receives a mouse down, or when 
-      //    a UIPanGestureRecognizer receives a mouse drag.
-      GestureCallback mCallback;
+
+      State mState;
    };
-   
-   //
-   // Lets you fine-tune the behavior of a gesture recognizer.
-   //
-   class UIGestureRecognizerDelegate {
-      
-   };
-   
+
 } // namespace Engine
    
 } // namespace CubeWorld

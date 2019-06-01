@@ -171,12 +171,6 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
       }
    }
 }
-   
-UIGestureRecognizer* UIElement::AddGestureRecognizer(std::shared_ptr<UIGestureRecognizer> recognizer)
-{
-   mGestureRecognizers.push_back(std::move(recognizer));
-   return recognizer.get();
-}
 
 void UIElement::InitFromJSON(const BindingProperty& /*data*/)
 {
@@ -227,8 +221,13 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 
 UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt) 
 {
+   bool wantsToCapture = false;
    for (auto& g : mGestureRecognizers) {
-      g->MouseDown(evt);
+      wantsToCapture = g->MouseDown(evt) || wantsToCapture;
+   }
+
+   if (wantsToCapture) {
+      return Capture;
    }
    
    return mbAbsorbsMouseEvents ? Handled : Unhandled;
@@ -236,10 +235,15 @@ UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt)
 
 UIElement::Action UIElement::MouseMove(const MouseMoveEvent& evt)
 {
+   bool wantsToCapture = false;
    for (auto& g : mGestureRecognizers) {
-      g->MouseMove(evt);
+      wantsToCapture = g->MouseMove(evt) || wantsToCapture;
    }
-   
+
+   if (wantsToCapture) {
+      return Capture;
+   }
+
    return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 

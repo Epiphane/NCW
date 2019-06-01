@@ -14,37 +14,16 @@ namespace CubeWorld
 namespace Engine
 {
 
+
 ButtonVC::ButtonVC(UIRoot* root, UIElement* parent, const std::string &name)
    : UIElement(root, parent, name)
 {
-   Engine::GestureCallback tapCallback = std::bind(&ButtonVC::TapHandler, this, std::placeholders::_1);
-   CreateAndAddGestureRecognizer<UITapGestureRecognizer>(tapCallback);
+   mTapGestureRecognizer = CreateAndAddGestureRecognizer<UITapGestureRecognizer>();
 }
-   
-void ButtonVC::TapHandler(const Engine::UIGestureRecognizer& rec)
+
+Observables::Observable<UIGestureRecognizer::Message_GestureState>& ButtonVC::OnClick()
 {
-   switch (rec.GetState()) {
-      case Engine::UIGestureRecognizer::Starting:
-         break;
-      case Engine::UIGestureRecognizer::Possible:
-      case Engine::UIGestureRecognizer::Cancelled:
-         break;
-      case Engine::UIGestureRecognizer::Ending:
-         OnClick();
-         break;
-      case Engine::UIGestureRecognizer::Happening:
-         // Do nothing, we're already depressed
-         break;
-   }
-}
-   
-void ButtonVC::SetCallback(std::function<void(void)> callback) {
-   mClickCallback = callback;
-}
-   
-void ButtonVC::OnClick()
-{
-   mClickCallback();
+   return mTapGestureRecognizer->OnTap();
 }
 
 }; // namespace Engine

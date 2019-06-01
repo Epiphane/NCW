@@ -14,11 +14,6 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIHoverGestureRecognizer : UIGestureRecognizer
-{
-
-};
-
 } // namespace Engine
 
 } // namespace CubeWorld

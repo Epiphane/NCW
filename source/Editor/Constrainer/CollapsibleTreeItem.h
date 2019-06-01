@@ -40,9 +40,6 @@ public:
    void SetHighlighted(bool bHighlighted);
 
 private:
-   void TapMeDaddy(const Engine::UIGestureRecognizer& rec);
-   void SelectItem(const Engine::UIGestureRecognizer& rec);
-   
    Engine::UIConstraint mStackViewHeightConstraint;
    
    UI::Image* mArrow;
