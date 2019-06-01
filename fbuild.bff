@@ -238,9 +238,11 @@ VSSolution('CubeWorld-sln')
 {
    .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
    .SolutionProjects    =  {
+                              'Editor-proj'
                               'Engine-proj'
                               'Shared-proj'
                               'DataCLI-proj'
+                              'Tests-proj'
                               'All-proj'
                               'UpdateSolution-proj'
                            }

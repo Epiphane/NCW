@@ -36,3 +36,4 @@
 #include "Editor/Editor.bff"
 #include "Game/Game.bff"
 #include "Sandbox/Sandbox.bff"
+#include "Tests/Tests.bff"
