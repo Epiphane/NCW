@@ -21,13 +21,13 @@ UIGestureRecognizer::UIGestureRecognizer(UIElement* element)
 
 Observables::Observable<UIGestureRecognizer::Message_GestureState> &UIGestureRecognizer::OnStateChanged()
 {
-   return mStateObservable.OnChanged();
+   return mStateChangedObservable.OnChanged();
 }
 
 void UIGestureRecognizer::ChangeStateAndBroadcastMessage(UIGestureRecognizer::State newState, double mouseX, double mouseY)
 {
    mState = newState;
-   mStateObservable.SendMessage({newState, mouseX, mouseY});
+   mStateChangedObservable.SendMessage({newState, mouseX, mouseY});
 }
 
 } // namespace Engine

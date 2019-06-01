@@ -41,18 +41,18 @@ Observables::Observable<bool>& ToggleButtonVC::OnUserToggled()
    return mUserToggledObservable.OnChanged();
 }
 
-void ToggleButtonVC::ProvideToggler(Observables::Observable<bool>& toggler)
+void ToggleButtonVC::ProvideToggleForcer(Observables::Observable<bool>& toggler)
 {
    toggler >>
       Observables::OnMessage<bool>([&](bool toggled) {
-         mProgrammaticToggleObservable.SendMessage(toggled);
+         mForcedToggleObservable.SendMessage(toggled);
       }, mBag) >>
       Observables::OnMessage<bool>(std::bind(&ToggleButtonVC::Toggled, this, std::placeholders::_1), mBag);
 }
 
-Observables::Observable<bool>& ToggleButtonVC::OnToggleValueChanged()
+Observables::Observable<bool>& ToggleButtonVC::OnToggleForciblyChanged()
 {
-   return mProgrammaticToggleObservable.OnChanged();
+   return mForcedToggleObservable.OnChanged();
 }
 
 }; // namespace Engine

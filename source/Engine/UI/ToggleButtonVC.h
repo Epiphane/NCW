@@ -28,17 +28,17 @@ public:
    Observables::Observable<bool>& OnUserToggled();
 
    // Here you can pass in an observable that will force the toggle state to whatever you want
-   void ProvideToggler(Observables::Observable<bool>& toggler);
+   void ProvideToggleForcer(Observables::Observable<bool>& toggler);
 
    // Observable for when the toggle is forced to another value by the toggler above
-   Observables::Observable<bool>& OnToggleValueChanged();
+   Observables::Observable<bool>& OnToggleForciblyChanged();
 
 private:
    // Internal helper function called whenever mToggled is changed
    void Toggled(bool newToggle);
 
    Observables::ObservableInternal<bool> mUserToggledObservable;
-   Observables::ObservableInternal<bool> mProgrammaticToggleObservable;
+   Observables::ObservableInternal<bool> mForcedToggleObservable;
 
    // Images that appear for their respective toggled states
    Image* mOffImage;

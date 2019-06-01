@@ -1,7 +1,7 @@
 #cmake_minimum_required(VERSION 3.1)
 project(Tests)
 
-file(GLOB SOURCES
+file(GLOB_RECURSE SOURCES
    "*.h"
    "*.cpp"
    "**/*.h"
