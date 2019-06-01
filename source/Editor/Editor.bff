@@ -1,0 +1,107 @@
+// Editor Project
+//------------------------------------------------------------------------------
+{
+   .ProjectName = 'Editor'
+   .ProjectPath = '$_CURRENT_BFF_DIR_$'
+
+   ForEach( .Config in .Configs )
+   {
+      Using( .Config )
+      .OutputPath          + '$Platform$-$Config$/$ProjectName$'
+      .CompilerOutputPath  = .OutputPath
+      .CompilerOptions     + .SourceIncludePaths
+
+      // Unity
+      // --------------------------------------------------------------------------
+      Unity( '$ProjectName$-Unity-$Platform$-$Config$' )
+      {
+         .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
+         .UnityOutputPath            = .OutputPath
+      }
+
+      ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
+      {
+#if UNITY_BUILD
+         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
+#else
+         .CompilerInputPath             = '$_CURRENT_BFF_DIR_$'
+#endif
+      }
+
+      // Library
+      //--------------------------------------------------------------------------
+      Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+      {
+         // Input
+#if UNITY_BUILD
+         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
+#else
+         .LibrarianAdditionalInputs = { '$ProjectName$-Obj-$Platform$-$Config$' }
+#endif
+
+         // Output
+         .CompilerOutputPath  = '$OutputPath$'
+         .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
+      }
+
+      // Executable
+      //--------------------------------------------------------------------------
+      Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
+      {
+         // Input
+         .Libraries         = {
+                                 '$ProjectName$-Obj-$Platform$-$Config$'
+                                 'Engine-Lib-$Platform$-$Config$'
+                                 'Shared-Lib-$Platform$-$Config$'
+
+                                 'RGBBinding-Lib-$Platform$-$Config$'
+                                 'RGBFileSystem-Lib-$Platform$-$Config$'
+                                 'RGBLogger-Lib-$Platform$-$Config$'
+                                 'RGBNetworking-Lib-$Platform$-$Config$'
+                                 'RGBSettings-Lib-$Platform$-$Config$'
+                                 'RGBText-Lib-$Platform$-$Config$'
+
+                                 'freetype-Lib-$Platform$-$Config$'
+                                 'glad-Lib-$Platform$-$Config$'
+                                 'glfw-Lib-$Platform$-$Config$'
+                                 'libnoise-Lib-$Platform$-$Config$'
+                                 'libyaml-Lib-$Platform$-$Config$'
+                                 'lodepng-Lib-$Platform$-$Config$'
+                                 'noiseutils-Lib-$Platform$-$Config$'
+                                 'rhea-Lib-$Platform$-$Config$'
+                                 'sqlite-Lib-$Platform$-$Config$'
+                                 'zlib-Lib-$Platform$-$Config$'
+                              }
+
+         // Output
+         .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
+         .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
+                              + ' libcmt.lib'      // Std Lib (Multi-Threaded, Static, Release)
+                              + ' Comdlg32.lib'
+                              + ' libcmtd.lib'
+                              + ' Gdi32.lib'       // Bitmap functions
+                              + ' kernel32.lib'    // Kernel functions
+                              + ' msvcprtd.lib'
+                              + ' Ole32.lib'
+                              + ' ucrtd.lib'        // CRT libs
+                              + ' Shell32.lib'     // Shell API
+                              + ' Shlwapi.lib'
+                              + ' User32.lib'
+                              + ' vcruntime.lib'
+      }
+
+      Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+      ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
+   }
+
+   VCXProject('$ProjectName$-proj')
+   {
+      .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$ProjectName$.vcxproj'
+      .ProjectInputPaths = '$ProjectPath$'
+      .ProjectBasePath = '$ProjectPath$'
+      .Target = '$ProjectName$-Exe'
+
+      .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$ProjectName$-X64-Debug' ]
+      .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$ProjectName$-X64-Release' ]
+   }
+}

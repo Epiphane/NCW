@@ -912,9 +912,9 @@ void Dock::AddStateCommand::Undo()
    state = dock->GetCurrentState();
 
    dock->mController->states.erase(state.name);
-   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), state.name) - dock->mStates.begin();
+   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), state.name) - dock->mStates.begin());
    if (index > 0) { --index; }
-   dock->mStates.erase(dock->mStates.begin() + index);
+   dock->mStates.erase(dock->mStates.begin() + (int64_t)index);
    dock->SetState(dock->mStates[index]);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -1000,7 +1000,7 @@ void Dock::AddKeyframeCommand::Do()
    }
 
    keyframeIndex = GetKeyframeIndex(state, dock->mController->time) + 1;
-   state.keyframes.insert(state.keyframes.begin() + keyframeIndex, keyframe);
+   state.keyframes.insert(state.keyframes.begin() + (int64_t)keyframeIndex, keyframe);
    dock->UpdateKeyframeIcons();
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -1014,7 +1014,7 @@ void Dock::AddKeyframeCommand::Undo()
 
    // Copy by value not reference
    keyframe = state.keyframes[keyframeIndex];
-   state.keyframes.erase(state.keyframes.begin() + keyframeIndex);
+   state.keyframes.erase(state.keyframes.begin() + (int64_t)keyframeIndex);
    dock->UpdateKeyframeIcons();
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -1067,7 +1067,7 @@ void Dock::SetTime(double time)
 ///
 void Dock::NextStateCommand::Do()
 {
-   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin();
+   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin());
    if (index >= dock->mStates.size() - 1)
    {
       dock->SetState(dock->mStates[0]);
@@ -1083,7 +1083,7 @@ void Dock::NextStateCommand::Do()
 ///
 void Dock::NextStateCommand::Undo()
 {
-   size_t index = std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin();
+   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin());
    if (index == 0)
    {
       dock->SetState(dock->mStates[dock->mStates.size() - 1]);
@@ -1155,7 +1155,7 @@ void Dock::ParentBoneCommand::Do()
    Stance& stance = dock->GetCurrentStance();
 
    const std::string& parent = stance.bones[last].parent;
-   size_t index = std::find_if(stance.bones.begin(), stance.bones.end(), [&](const Bone& b) { return b.name == parent; }) - stance.bones.begin();
+   size_t index = size_t(std::find_if(stance.bones.begin(), stance.bones.end(), [&](const Bone& b) { return b.name == parent; }) - stance.bones.begin());
 
    dock->SetBone(index);
 }

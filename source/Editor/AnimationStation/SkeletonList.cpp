@@ -27,8 +27,8 @@ using UI::TextButton;
 SkeletonList::SkeletonList(UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationSkeletonList", glm::vec4(0.2, 0.2, 0.2, 1))
    , mButtons{}
-   , mSkeletons{}
    , mActive{0}
+   , mSkeletons{}
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationSkeletonListFG", glm::vec4(0, 0, 0, 1));
 

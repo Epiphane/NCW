@@ -55,15 +55,6 @@ namespace Game
    {
       DebugHelper::Instance().SetSystemManager(nullptr);
    }
-   
-   namespace {
-
-   int index(int size, int i, int j)
-   {
-      return i * (2 * size + 1) + j;
-   }
-
-   }; // anonymous namespace
 
    bool StupidState::BuildFloorCollision(int32_t size)
    {
@@ -72,7 +63,7 @@ namespace Game
       int blocksCreated = 0;
 
       auto index = [&](int i, int j) {
-         return i * (2 * size + 1) + j;
+         return size_t(i * (2 * size + 1) + j);
       };
 
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
@@ -262,7 +253,7 @@ namespace Game
             glm::vec4 color = dest * perc + source * (1 - perc);
             carpet.push_back(Voxel::Data(position, color, Voxel::All));
 
-            heights[rowIndex + j + size] = int32_t(position.y);
+            heights[uint64_t(rowIndex + j + size)] = int32_t(position.y);
          }
       }
 

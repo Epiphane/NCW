@@ -21,6 +21,7 @@
                 "${workspaceFolder}/dependencies/noiseutils/0.9.0.1",
                 "${workspaceFolder}/dependencies/rapidjson/1.1.0",
                 "${workspaceFolder}/dependencies/rhea/0.2.4",
+                "${workspaceFolder}/dependencies/sqlite/3.22.0",
                 "${workspaceFolder}/source",
                 "${workspaceFolder}/source/Library"
             ],

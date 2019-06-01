@@ -8,26 +8,31 @@
 #include "Library/RGBFileSystem/RGBFileSystem.bff"
 #include "Library/RGBLogger/RGBLogger.bff"
 #include "Library/RGBNetworking/RGBNetworking.bff"
+#include "Library/RGBSettings/RGBSettings.bff"
 #include "Library/RGBText/RGBText.bff"
 
 // Include paths
 //------------------------------------------------------------------------------
+.SourceIncludePaths  = ' -I"source"'
+                     + .FreeTypeIncludePaths
+                     + .GladIncludePaths
+                     + .GlfwIncludePaths
+                     + .GlmIncludePaths
+                  #if !__WINDOWS__
+                     + .LibFSWatchIncludePaths
+                  #endif
+                     + .LibNoiseIncludePaths
+                     + .LibYamlIncludePaths
+                     + .LodePNGIncludePaths
+                     + .NoiseUtilsIncludePaths
+                     + .RapidJsonIncludePaths
+                     + .RheaIncludePaths
+                     + .SqliteIncludePaths
+                     + .ZlibIncludePaths
+
 #include "Engine/Engine.bff"
 #include "Shared/Shared.bff"
 #include "DataCLI/DataCLI.bff"
-// .CompilerOptions  + ' -I"./source"'
-//                   + .GladIncludePaths
-//                   + .GlfwIncludePaths
-//                   + .GlmIncludePaths
-//                #if !__WINDOWS__
-//                   + .LibFSWatchIncludePaths
-//                #endif
-//                   + .LibNoiseIncludePaths
-//                   + .LibYamlIncludePaths
-//                   + .LodePNGIncludePaths
-//                   + .NoiseUtilsIncludePaths
-//                   + .RapidJsonIncludePaths
-//                   + .RheaIncludePaths
-//                   + .SqliteIncludePaths
-//                   + .ZlibIncludePaths
-
+#include "Editor/Editor.bff"
+#include "Game/Game.bff"
+#include "Sandbox/Sandbox.bff"

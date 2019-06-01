@@ -7,11 +7,10 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
-   .AdditionalCompilerOptions = ' -DYAML_DECLARE_STATIC'
-                              + ' -DYAML_VERSION_MAJOR=0'
-                              + ' -DYAML_VERSION_MINOR=2'
-                              + ' -DYAML_VERSION_PATCH=2'
-                              + ' -DYAML_VERSION_STRING=\"0.2.2\"'
+   .AdditionalCompilerOptions = ' /DYAML_VERSION_MAJOR=0'
+                              + ' /DYAML_VERSION_MINOR=2'
+                              + ' /DYAML_VERSION_PATCH=2'
+                              + ' /DYAML_VERSION_STRING=\"0.2.2\"'
                               + ' /wd4100' // '%s': unreferenced formal parameter
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
                               + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data

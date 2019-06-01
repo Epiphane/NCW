@@ -19,6 +19,7 @@
                               + ' /wd4267' // 'return': conversion from '%s' to '%s', possible loss of data
                               + ' /wd6297' // Arithmetic overflow
                               + ' /wd6326' // Potential comparison of a constant with another constant.
+                              + ' /wd6340' // Mismatch on sign
                               + ' /wd6385' // Reading invalid data from '%s'
                               + ' /wd28278' // Function '%s' appears with no prototype in scope.
 

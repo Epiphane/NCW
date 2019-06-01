@@ -8,6 +8,21 @@
 #include "dependencies/SDK/Clang/Clang.bff"
 #include "dependencies/SDK/Windows/Windows.bff"
 
+Settings
+{
+	// Use clean environment to prevent rebuilds caused by changes in it.
+	// All important variables are imported exclicitly.
+#if __WINDOWS__
+   #import SystemRoot
+	.Environment =
+	{
+      "PATH=^"$VS_PATH$^""
+		'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
+		'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
+	}
+#endif
+}
+
 // Unity compilation is faster for full rebuilds but slower for iteration
 // Example benchmark:
 //   Engine rebuild (Unity) - 10s
@@ -15,7 +30,7 @@
 //
 //   Engine build 1 change (Unity) - 10s
 //   Engine build 1 change (Obj)   - 2s
-// #define UNITY_BUILD
+#define UNITY_BUILD
 
 //------------------------------------------------------------------------------
 // Config Defines
@@ -26,9 +41,13 @@
                + ' -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING'
                + ' -D_CRT_SECURE_NO_WARNINGS'
                + ' -DNOMINMAX'
+               + ' -DYAML_DECLARE_STATIC'
             #if __WINDOWS__
                + ' -DCUBEWORLD_PLATFORM_WINDOWS'
                + ' -D_WIN32_WINNT=0x0601' // Windows 7
+               + ' -Dstrdup=_strdup'
+               + ' -Dchmod=_chmod'
+               + ' -Dunlink=_unlink'
             #endif
             #if __OSX__
                + ' -DCUBEWORLD_PLATFORM_MACOSX'
@@ -42,11 +61,14 @@
                         #endif
 .Debug_Config =
 [
-   .CompilerOptions              = ' -DDEBUG -DPROFILING_ENABLED'
+   .CompilerOptions              = ' -DDEBUG'
+                                 + ' -DPROFILING_ENABLED'
+                                 + ' -DZLIB_DEBUG'
                                  + .CommonOptions
    .CompilerOptionsC             = .CompilerOptions
 
    .Config                       = 'Debug'
+   .LinkerOptions                = ' msvcprtd.lib'
 ]
 .Release_Config =
 [
@@ -56,6 +78,7 @@
    .CompilerOptionsDeoptimized   = .CompilerOptions
 
    .Config                       = 'Release'
+   .LinkerOptions                = ' msvcprt.lib'
 ]
 
 //------------------------------------------------------------------------------
@@ -132,8 +155,8 @@
 //------------------------------------------------------------------------------
 .ProjectCommon =
 [
-   .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel ^$(ProjectName)-^$(Configuration)'
-   .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -clean ^$(ProjectName)-^$(Configuration)'
+   .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel ^$(ProjectName)-^$(Platform)-^$(Configuration)'
+   .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -clean ^$(ProjectName)-^$(Platform)-^$(Configuration)'
    .OutputDirectory            = '^$(SolutionDir)\Temp'
    .IntermediateDirectory      = '^$(SolutionDir)\Temp'
    .BuildLogFile               = '^$(SolutionDir)\Temp\^$(ProjectName)-^$(Configuration).log'
@@ -141,10 +164,10 @@
    .PlatformToolset            = '$VS_PlatformToolset$'
 ]
 
-.ProjectX64Debug        = [ Using( .ProjectCommon ) .Config = 'x64-Debug' ]
-.ProjectX64Release      = [ Using( .ProjectCommon ) .Config = 'x64-Release' ]
-.ProjectX64ClangDebug   = [ Using( .ProjectCommon ) .Config = 'x64Clang-Debug' ]
-.ProjectX64ClangRelease = [ Using( .ProjectCommon ) .Config = 'x64Clang-Release' ]
+.ProjectX64Debug        = [ Using( .ProjectCommon ) .Config = 'Debug' ]
+.ProjectX64Release      = [ Using( .ProjectCommon ) .Config = 'Release' ]
+.ProjectX64ClangDebug   = [ Using( .ProjectCommon ) .Config = 'Clang-Debug' ]
+.ProjectX64ClangRelease = [ Using( .ProjectCommon ) .Config = 'Clang-Release' ]
 
 .ProjectConfigs = { .ProjectX64Debug, .ProjectX64Release }
 

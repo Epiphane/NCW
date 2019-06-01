@@ -6,7 +6,7 @@
 
 #pragma once
 
-#pragma warning(disable : 4365)
+#pragma warning(disable : 4365 4701 6001)
 
 #include "glm.hpp"
 
@@ -102,4 +102,4 @@
 #endif
 #endif//GLM_ENABLE_EXPERIMENTAL
 
-#pragma warning(default : 4365)
+#pragma warning(default : 4365 4701 6001)

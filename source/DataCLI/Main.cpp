@@ -27,7 +27,10 @@ int main(int argc, char **argv)
 
    if (argc < 2)
    {
-      Console::Log("Usage: datacli COMMAND");
+      Console::Log("Usage: datacli COMMAND\n");
+      Console::Log("Commands:      convert-model\n");
+      Console::Log("               convert-document\n");
+      Console::Log("               dump");
       return 1;
    }
 

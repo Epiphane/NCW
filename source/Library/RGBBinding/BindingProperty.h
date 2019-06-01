@@ -640,7 +640,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
             return result.Failure().WithContext("Failed to write value for %1", kv.key);
          }
       }
-      HANDLE_ERROR(handler.EndObject(data.objectVal.size()), "Failed to end object");
+      HANDLE_ERROR(handler.EndObject((rapidjson::SizeType)data.objectVal.size()), "Failed to end object");
       break;
    case kArrayType:
       HANDLE_ERROR(handler.StartArray(), "Failed to start array");
@@ -652,7 +652,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
             return result.Failure().WithContext("Failed to write index %1", it.mIndex);
          }
       }
-      HANDLE_ERROR(handler.EndArray(data.arrayVal.size()), "Failed to end array");
+      HANDLE_ERROR(handler.EndArray((rapidjson::SizeType)data.arrayVal.size()), "Failed to end array");
       break;
    default:
       return Failure{"Unhandled type flag: %1", flags & kTypeMask};

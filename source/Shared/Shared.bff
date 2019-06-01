@@ -9,16 +9,7 @@
       Using( .Config )
       .OutputPath          + '/$Platform$-$Config$/$ProjectName$'
       .CompilerOutputPath  = .OutputPath
-
-      .CompilerOptions     + ' -I"source/Project"'
-                           + ' -I"source"'
-                           + .GladIncludePaths
-                           + .GlfwIncludePaths
-                           + .GlmIncludePaths
-                           + .FreeTypeIncludePaths
-						         + .LodePNGIncludePaths
-                           + .RapidJsonIncludePaths
-                           + .RheaIncludePaths
+      .CompilerOptions     + .SourceIncludePaths
 
       // Unity
       // --------------------------------------------------------------------------

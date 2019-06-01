@@ -28,6 +28,7 @@
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    .LibrarySourceFiles  =  { 'sqlite3.c', 'shell.c' }
 
+   #define NO_UNITY_BUILD_ONCE
    .UnityOutputPattern  = 'Unity*.c'
    #include "../dependency.bff"
 

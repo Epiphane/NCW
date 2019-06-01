@@ -174,7 +174,7 @@ void SimpleAnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> sk
          else
          {
             const Stance& parent = stances[stance.parent];
-            stance.bones.insert(stance.bones.end(), parent.bones.begin() + firstBone, parent.bones.end());
+            stance.bones.insert(stance.bones.end(), parent.bones.begin() + int64_t(firstBone), parent.bones.end());
          }
       }
 

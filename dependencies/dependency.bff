@@ -52,11 +52,11 @@ ForEach( .Config in .Configs )
 
    Library('$LibraryName$-Lib-$Platform$-$Config$')
    {
-// #if UNITY_BUILD
-//       .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
-// #else
+#if UNITY_BUILD
+      .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
+#else
       .LibrarianAdditionalInputs = { '$LibraryName$-Obj-$Platform$-$Config$' }
-// #endif
+#endif
       .LibrarianOutput = '$OutputPath$/$LibraryName$$LibExtension$'
    }
 

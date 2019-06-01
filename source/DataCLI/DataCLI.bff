@@ -81,11 +81,10 @@
          .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
          .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
                               + ' libcmt.lib'      // Std Lib (Multi-Threaded, Static, Release)
-                              // + ' libcmtd.lib'
+                              + ' Comdlg32.lib'
+                              + ' libcmtd.lib'
                               + ' Gdi32.lib'       // Bitmap functions
                               + ' kernel32.lib'    // Kernel functions
-                              // + ' libucrt.lib'
-                              // + ' libucrtd.lib'
                               + ' msvcprtd.lib'
                               + ' Ole32.lib'
                               + ' ucrtd.lib'        // CRT libs

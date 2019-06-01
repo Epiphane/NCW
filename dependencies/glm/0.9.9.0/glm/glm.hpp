@@ -82,6 +82,8 @@
 
 #pragma once
 
+#pragma warning(disable : 4701 6001)
+
 #include <cmath>
 #include <climits>
 #include <cfloat>
@@ -115,3 +117,5 @@
 #include "matrix.hpp"
 #include "vector_relational.hpp"
 #include "integer.hpp"
+
+#pragma warning(default : 4701 6001)
