@@ -73,7 +73,9 @@
         "thread": "cpp",
         "unordered_set": "cpp",
         "sqlite3.c": "cpp",
-        "ft2build.h": "c"
+        "ft2build.h": "c",
+        "infutil.h": "c",
+        "infcodes.h": "c"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false

@@ -8,6 +8,7 @@
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = .LibNoiseIncludePaths
+                           #if __WINDOWS__
                               + ' /EHsc'
                               + ' /Wv:18'
                               + ' /wd4100' // '%s': unreferenced formal parameter
@@ -16,6 +17,12 @@
                               + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
                               + ' /wd4365' // '=': conversion from '%s' to '%s', signed/unsigned mismatch
                               + ' /wd4464' // relative include path contains '..'
+                           #endif
+                           #if __OSX__
+                              + ' -Wno-unused-parameter'
+                              + ' -Wno-unused-variable'
+                              + ' -Wno-reorder'
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/noiseutils'
    .LibrarySourceFiles  = { 'noiseutils.cpp' }

@@ -34,7 +34,7 @@ void Input::Reset()
    mMouseClickCallback = nullptr;
 }
 
-void Input::RemoveCallback(std::unique_ptr<KeyCallbackLink> link)
+void Input::RemoveCallback(std::unique_ptr<KeyCallbackLink> /*link*/)
 {
    // link will be deconstructed at the end of this function, which is now the owner.
 }

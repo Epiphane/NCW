@@ -8,6 +8,8 @@
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ' -DFT2_BUILD_LIBRARY'
+                              + ' -DFT_CONFIG_OPTION_SYSTEM_ZLIB'
+                           #if __WINDOWS__
                               + ' /wd4005'
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
                               + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
@@ -28,6 +30,11 @@
                               + ' /wd6385' // Reading invalid data
                               + ' /wd6386' // Buffer overrun
                               + ' /wd28182' // Dereferencing NULL pointer.
+                           #endif
+                           #if __OSX__
+                              + ' -Wno-uninitialized'
+                              + ' -Wno-writable-strings'
+                           #endif
 
    .LibrarySourcePath = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = {
@@ -78,6 +85,7 @@
                      #endif
 
    #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    #include "../dependency.bff"
 
    ^FreeTypeIncludePaths = ' -I$LibraryIncludePaths$'

@@ -21,11 +21,18 @@
                               'path_utils.cpp'
                               'poll_monitor.cpp'
                               'string_utils.cpp'
+                              'kqueue_monitor.cpp'
+                              'fsevents_monitor.cpp'
                            }
    .AdditionalCompilerOptions = ' -D_NOEXCEPT=noexcept'
+                              + ' -DHAVE_CONFIG_H'
                               + ' -I$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/libfswatch'
+                           #if __OSX__
+                              + ' -Wno-unused-parameter'
+                           #endif
+                           
 
-   #define UNITY_BUILD_ONCE
+   #define NO_UNITY_BUILD_ONCE
    #include "../dependency.bff"
 
    ^LibFSWatchIncludePaths = ' -I$LibraryIncludePaths$'

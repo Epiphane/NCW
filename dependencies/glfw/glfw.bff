@@ -26,6 +26,9 @@
                            #endif
                            #if __OSX__
                               + ' -D_GLFW_COCOA'
+                              + ' -Wno-unused-parameter'
+                              + ' -Wno-deprecated-declarations'
+                              + ' -Wno-sign-compare'
                            #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'

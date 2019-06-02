@@ -330,7 +330,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
    return Success;
 #elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    ssize_t numRead = read(handle, data, size);
-   if (numRead != size)
+   if ((size_t)numRead != size)
    {
       return Failure{"Tried to read %1 bytes, but only got %2", size, numRead};
    }
@@ -433,7 +433,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
    return Success;
 #elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
    ssize_t numWritten = write(handle, data, size);
-   if (numWritten != size)
+   if ((size_t)numWritten != size)
    {
       return Failure{"Tried to write %1 bytes, but only wrote %2", size, numWritten};
    }

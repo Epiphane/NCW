@@ -121,7 +121,7 @@ std::string FormatDouble(T value, const impl::format_specs& specs)
 
    // TODO snprintf_s or _snprintf_s by platform
    int written = snprintf(buffer, BUFFER_SIZE, fmt, value);
-   if (written <= BUFFER_SIZE)
+   if (written <= (int)BUFFER_SIZE)
    {
       return std::string(buffer);
    }

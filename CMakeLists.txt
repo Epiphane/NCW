@@ -3,7 +3,7 @@ project(CubeWorld)
 
 if (APPLE)
     set(CMAKE_OSX_SYSROOT macosx)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 
 # Require C++17

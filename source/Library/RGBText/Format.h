@@ -94,7 +94,7 @@ public:
 private:
    // Formats a custom argument, such as a user-defined class.
    template <typename T>
-   static void format_custom_arg(const void *arg)
+   static void format_custom_arg(const void */* arg */)
    {
       // TODO
       /*static_assert(false, "Unimplemented");*/

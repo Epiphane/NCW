@@ -5,8 +5,11 @@
 #include <fstream>
 #include <functional>
 #pragma warning(push, 0)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "unused-paramter"
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
+#pragma clang diagnostic pop
 #pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
@@ -68,9 +71,6 @@ void MainState::Initialize()
 
    // Unlock the mouse
    mInput->SetMouseLock(false);
-
-   // Add a shell entity for controlling animation state
-   Entity controls = mEntities.Create();
 
    // Create a player component
    mPlayer = mEntities.Create();

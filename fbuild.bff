@@ -1,7 +1,7 @@
 // Not Cube World
 //------------------------------------------------------------------------------
 
-.OutputPath = "$_CURRENT_BFF_DIR_$/tmp/"
+.OutputPath = "tmp/"
 
 #include "dependencies/SDK/GCC/GCC.bff"
 #include "dependencies/SDK/VisualStudio/VisualStudio.bff"
@@ -58,6 +58,17 @@ Settings
                         #if __OSX__
                            + ';CUBEWORLD_PLATFORM_MACOSX'
                         #endif
+.CommonLinkerOptions = ''
+                  #if __OSX__
+                     + ' -framework Cocoa'
+                     + ' -framework Security'
+                     + ' -framework CFNetwork'
+                     + ' -framework ScriptingBridge'
+                     + ' -framework IOKit'
+                     + ' -framework CoreVideo'
+                     + ' -framework OpenGL'
+                     + ' -framework DiskArbitration'
+                  #endif
 .Debug_Config =
 [
    .CompilerOptions              = ' -DDEBUG'
@@ -67,7 +78,10 @@ Settings
    .CompilerOptionsC             = .CompilerOptions
 
    .Config                       = 'Debug'
-   .LinkerOptions                = ' msvcprtd.lib'
+   .LinkerOptions                = .CommonLinkerOptions
+                              #if __WINDOWS__
+                                 + ' msvcprtd.lib'
+                              #endif
 ]
 .Release_Config =
 [
@@ -77,7 +91,10 @@ Settings
    .CompilerOptionsDeoptimized   = .CompilerOptions
 
    .Config                       = 'Release'
-   .LinkerOptions                = ' msvcprt.lib'
+   .LinkerOptions                = .CommonLinkerOptions
+                              #if __WINDOWS__
+                                 + ' msvcprt.lib'
+                              #endif
 ]
 
 //------------------------------------------------------------------------------
@@ -139,6 +156,29 @@ Settings
                            + .Release_Optimizations
 #endif
 
+// OS-Specific file inclusion
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .UnityInputExcludePattern           = { '*/Linux/*'
+                                            '*/Unix/*'
+                                            '*/OSX/*'
+                                            '*/MacOSX/*'
+                                            '*/POSIX/*'
+                                          }
+#endif
+#if __OSX__
+    .UnityInputExcludePattern           = { '*/Linux/*'
+                                            '*/Unix/*'
+                                            '*/Windows/*'
+                                          }
+#endif
+#if __LINUX__
+    .UnityInputExcludePattern           = { '*/OSX/*'
+                                            '*/MacOSX/*'
+                                            '*/Windows/*'
+                                          }
+#endif
+
 // Configurations
 //------------------------------------------------------------------------------
 .Configs = { .X64DebugConfig, .X64ReleaseConfig }
@@ -158,22 +198,25 @@ Settings
    .OutputDirectory            = '^$(SolutionDir)\Temp'
    .IntermediateDirectory      = '^$(SolutionDir)\Temp'
    .BuildLogFile               = '^$(SolutionDir)\Temp\^$(ProjectName)-^$(Configuration).log'
+#if __WINDOWS__
    .Platform                   = 'x64'
+#endif
+#if __OSX__
+   .Platform                   = 'OSX'
+#endif
    .PlatformToolset            = '$VS_PlatformToolset$'
 ]
 
-.ProjectX64Debug        = [ Using( .ProjectCommon ) .Config = 'Debug' ]
-.ProjectX64Release      = [ Using( .ProjectCommon ) .Config = 'Release' ]
-.ProjectX64ClangDebug   = [ Using( .ProjectCommon ) .Config = 'Clang-Debug' ]
-.ProjectX64ClangRelease = [ Using( .ProjectCommon ) .Config = 'Clang-Release' ]
-
-.ProjectConfigs = { .ProjectX64Debug, .ProjectX64Release }
+.ProjectDebug     = [ Using( .ProjectCommon ) .Config = 'Debug' ]
+.ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
+.ProjectConfigs   = { .ProjectDebug, .ProjectRelease }
 
 //------------------------------------------------------------------------------
 // External Dependencies
 //------------------------------------------------------------------------------
 .Dependencies = {}
-.DependencyProjects = {}
+.VSDependencyProjects = {}
+.XCodeDependencyProjects = {}
 .IncludeSearchPath = ''
 #include "dependencies/freetype/freetype.bff"
 #include "dependencies/glad/glad.bff"
@@ -199,73 +242,13 @@ Alias('All-Dependencies')
 //------------------------------------------------------------------------------
 // Source code
 //------------------------------------------------------------------------------
-.CoreLibraries = {}
+.VSCoreLibraries = {}
+.XCodeCoreLibraries = {}
 #include "source/source.bff"
 
 //------------------------------------------------------------------------------
 // Aliases
 //------------------------------------------------------------------------------
-VCXProject( 'All-proj' )
-{
-   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/All.vcxproj'
-   .ProjectFiles               = { '.\fbuild.bff' }
-   .ProjectBasePath            = '.\'
-   .PlatformToolset            = .VS_PlatformToolset
-}
-
-// Project to regenerate projects/solutions
-VCXProject( 'UpdateSolution-proj' )
-{
-   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/UpdateSolution.vcxproj'
-   .ProjectFiles               = { '.\fbuild.bff' }
-   .ProjectBasePath            = '.\'
-   .PlatformToolset            = .VS_PlatformToolset
-
-   .GenerateProjectsCommands =
-   [
-      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln -vs'
-      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln -vs -clean'
-   ]
-
-   .ProjectX64Debug        = [ Using( .ProjectX64Debug )       Using( .GenerateProjectsCommands ) ]
-   .ProjectX64Release      = [ Using( .ProjectX64Release )     Using( .GenerateProjectsCommands ) ]
-   .ProjectConfigs = { .ProjectX64Debug, .ProjectX64Release }
-}
-
-VSSolution('CubeWorld-sln')
-{
-   .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
-   .SolutionProjects    =  {
-                              'Editor-proj'
-                              'Engine-proj'
-                              'Shared-proj'
-                              'DataCLI-proj'
-                              'Tests-proj'
-                              'All-proj'
-                              'UpdateSolution-proj'
-                           }
-   .SolutionBuildProject   = 'All-proj'
-   .SolutionConfigs        = .ProjectConfigs
-   .SolutionVisualStudioVersion = .VS_Version
-   
-   .Folder_Dependencies =
-   [
-      .Path           = 'Dependencies'
-      .Projects       = .DependencyProjects
-   ]
-
-   .Folder_Library =
-   [
-      .Path           = 'Library'
-      .Projects       = .CoreLibraries
-   ]
-
-   .SolutionFolders   = {
-                           .Folder_Dependencies
-                           .Folder_Library
-                        }
-}
-
 #if __WINDOWS__
 Alias('All-x64-Debug')
 {
@@ -297,5 +280,127 @@ Alias('All-OSX-Release')
 Alias( 'All' )
 {
    .Targets  = { 'All-OSX-Debug', 'All-OSX-Release' }
+}
+#endif
+
+//------------------------------------------------------------------------------
+// Solutions
+//------------------------------------------------------------------------------
+VCXProject( 'All-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/All.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+}
+
+// Project to regenerate projects/solutions
+VCXProject( 'UpdateSolution-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/UpdateSolution.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+
+   .GenerateProjectsCommands =
+   [
+      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-vs -vs'
+      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-vs -vs -clean'
+   ]
+
+   .ProjectDebug        = [ Using( .ProjectDebug )       Using( .GenerateProjectsCommands ) ]
+   .ProjectRelease      = [ Using( .ProjectRelease )     Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs = { .ProjectDebug, .ProjectRelease }
+}
+
+VSSolution('CubeWorld-sln-vs')
+{
+   .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
+   .SolutionProjects    =  {
+                              'Editor-proj'
+                              'Engine-proj'
+                              'Shared-proj'
+                              'DataCLI-proj'
+                              'Tests-proj'
+                              'All-proj'
+                              'UpdateSolution-proj'
+                           }
+   .SolutionBuildProject   = 'All-proj'
+   .SolutionConfigs        = .ProjectConfigs
+   .SolutionVisualStudioVersion = .VS_Version
+   
+   .Folder_Dependencies =
+   [
+      .Path           = 'Dependencies'
+      .Projects       = .VSDependencyProjects
+   ]
+
+   .Folder_Library =
+   [
+      .Path           = 'Library'
+      .Projects       = .VSCoreLibraries
+   ]
+
+   .SolutionFolders   = {
+                           .Folder_Dependencies
+                           .Folder_Library
+                        }
+}
+
+// Project to regenerate projects/solutions
+XCodeProject( 'UpdateSolution-xcode' )
+{
+   .ProjectOutput    = '$OutputPath$/XCode/Projects/UpdateSolution.xcodeproj/project.pbxproj'
+   .ProjectBasePath  = '$OutputPath$/../'
+   .ProjectFiles     = { './fbuild.bff' }
+   .XCodeBuildWorkingDir   = '../../..'
+   .XCodeBuildToolArgs     = '-ide CubeWorld-sln-xcode'
+
+   .GenerateProjectsCommands =
+   [
+      .Config                 = 'Debug'
+      .Platform               = 'OSX'
+   ]
+
+   .ProjectConfigs = { .GenerateProjectsCommands }
+}
+
+XCodeProject('CubeWorld-sln-xcode')
+{
+   .ProjectOutput          = '$OutputPath$/XCode/CubeWorld.xcodeproj/project.pbxproj'
+   .ProjectBasePath        = '$OutputPath$/XCode/Projects'
+   .XCodeBuildWorkingDir   = '../..'
+
+   .XCodeDebugConfig       = [ .Config = 'Debug'       .Target = 'All-OSX-Debug' ]
+   .XCodeReleaseConfig     = [ .Config = 'Release'     .Target = 'All-OSX-Release' ]
+
+   .ProjectFiles   = {
+                        'Editor-xcode'
+                        'Engine-xcode'
+                        'Shared-xcode'
+                        'DataCLI-xcode'
+                        'Tests-xcode'
+                        'UpdateSolution-xcode'
+                     }
+                     + .XCodeCoreLibraries 
+                     + .XCodeDependencyProjects
+
+   .ProjectConfigs =
+   {
+      .XCodeDebugConfig
+      .XCodeReleaseConfig
+   }
+}
+
+#if __WINDOWS__
+Alias( 'CubeWorld-sln' )
+{
+   .Targets = 'CubeWorld-sln-visualstudio'
+}
+#endif
+#if __OSX__
+Alias( 'CubeWorld-sln' )
+{
+   .Targets = 'CubeWorld-sln-xcode'
 }
 #endif

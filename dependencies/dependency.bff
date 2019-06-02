@@ -32,9 +32,8 @@ ForEach( .Config in .Configs )
 #endif
 #if C_BUILD_ONCE
    .CompilerOptions  = .CompilerOptionsC
-   #undef C_BUILD_ONCE
 #endif
-   .CompilerOptions  + ' -I"$LibraryIncludePaths$"'
+   .CompilerOptions  + ' "-I$LibraryIncludePaths$"'
                      + .AdditionalCompilerOptions
 
    Unity('$LibraryName$-Unity-$Platform$-$Config$')
@@ -49,7 +48,7 @@ ForEach( .Config in .Configs )
    ObjectList('$LibraryName$-Obj-$Platform$-$Config$')
    {
       .CompilerOptions     = .CompilerOptions
-                           + ' -I"$LibraryIncludePaths$"'
+                           + ' "-I$LibraryIncludePaths$"'
                            + .AdditionalCompilerOptions
 
       .CompilerInputPath    = .LibrarySourcePath
@@ -80,11 +79,23 @@ VCXProject('$LibraryName$-proj')
    .ProjectFiles        = { '$_CURRENT_BFF_DIR_$/$LibraryName$/$LibraryName$.bff' }
    .Target              = '$LibraryName$-Lib'
 
-   .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$LibraryName$-X64-Debug' ]
-   .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$LibraryName$-X64-Release' ]
+   .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
 }
-^DependencyProjects + { '$LibraryName$-proj' }
-   
+^VSDependencyProjects + { '$LibraryName$-proj' }
+
+XCodeProject( '$LibraryName$-xcode' )
+{
+   .ProjectOutput          = '$OutputPath$/XCode/Projects/Dependencies/$LibraryName$.xcodeproj/project.pbxproj'
+   .ProjectBasePath        = '$LibrarySourcePath$'
+   .ProjectInputPaths      = '$LibrarySourcePath$'
+   .XCodeBuildWorkingDir   = '../../../..'
+
+   .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
+}
+^XCodeDependencyProjects + { '$LibraryName$-xcode' }
+
 #if _UNITY_BUILD
    #define UNITY_BUILD
    #undef _UNITY_BUILD
@@ -92,4 +103,7 @@ VCXProject('$LibraryName$-proj')
 #if _NO_UNITY_BUILD
    #undef UNITY_BUILD
    #undef _NO_UNITY_BUILD
+#endif
+#if C_BUILD_ONCE
+   #undef C_BUILD_ONCE
 #endif

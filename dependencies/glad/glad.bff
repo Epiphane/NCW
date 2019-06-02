@@ -7,12 +7,16 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
-   .AdditionalCompilerOptions = ' /wd6308'
+   .AdditionalCompilerOptions = ''
+#if __WINDOWS__
+   .AdditionalCompilerOptions + ' /wd6308'
+#endif
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = { 'glad.c' }
 
    .UnityOutputPattern  = 'Unity*.c'
    #define UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    #include "../dependency.bff"
 
    ^GladIncludePaths = ' -I$LibraryIncludePaths$'

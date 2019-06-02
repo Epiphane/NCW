@@ -7,15 +7,24 @@
 ForEach( .Config in .Configs )
 {
    Using( .Config )
-   .OutputPath + '/$Platform$-$Config$/$LibraryName$'
+   .OutputPath + '$Platform$-$Config$/$LibraryName$'
    .CompilerOutputPath   = .OutputPath
 
    // Unity
    // --------------------------------------------------------------------------
    Unity( '$LibraryName$-Unity-$Platform$-$Config$' )
    {
-      .UnityInputPath             = '$LibraryPath$/'
-      .UnityOutputPath            = .OutputPath
+      .UnityInputPath         = '$LibraryPath$/'
+      .UnityOutputPath        = .OutputPath
+   }
+
+   // Unity (Objective-C)
+   Unity( '$LibraryName$-UnityObjC-$Platform$-$Config$' )
+   {
+      .UnityInputPath         = '$LibraryPath$/'
+      .UnityInputPattern      = '*.mm'
+      .UnityOutputPath        = .OutputPath
+      .UnityOutputPattern     = 'UnityObjC*.mm'
    }
 
    // Library
@@ -23,7 +32,10 @@ ForEach( .Config in .Configs )
    Library( '$LibraryName$-Lib-$Platform$-$Config$' )
    {
       // Input
-      .CompilerInputUnity        = '$LibraryName$-Unity-$Platform$-$Config$'
+      .CompilerInputUnity        = {
+                                    '$LibraryName$-Unity-$Platform$-$Config$'
+                                    '$LibraryName$-UnityObjC-$Platform$-$Config$'
+                                 }
       .CompilerOptions           + .AdditionalCompilerOptions
 
       // Output
@@ -35,14 +47,27 @@ ForEach( .Config in .Configs )
    ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
 }
 
-VCXProject('$LibraryName$-proj')
+VCXProject( '$LibraryName$-proj' )
 {
    .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$LibraryName$.vcxproj'
    .ProjectInputPaths = '$LibraryPath$\'
    .ProjectBasePath = '$LibraryPath$\'
    .Target = '$LibraryName$-Lib'
 
-   .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$LibraryName$-X64-Debug' ]
-   .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$LibraryName$-X64-Release' ]
+   .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
 }
-^CoreLibraries + { '$LibraryName$-proj' }
+^VSCoreLibraries + { '$LibraryName$-proj' }
+
+
+XCodeProject( '$LibraryName$-xcode' )
+{
+   .ProjectOutput          = '$OutputPath$/XCode/Projects/Library/$LibraryName$.xcodeproj/project.pbxproj'
+   .ProjectBasePath        = '$LibraryPath$'
+   .ProjectInputPaths      = '$LibraryPath$'
+   .XCodeBuildWorkingDir   = '../../../..'
+
+   .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
+}
+^XCodeCoreLibraries + { '$LibraryName$-xcode' }

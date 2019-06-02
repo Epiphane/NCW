@@ -7,11 +7,18 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
    
-   .AdditionalCompilerOptions = ' -I"$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/noise"'
+   .AdditionalCompilerOptions = ' "-I$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/noise"'
+                           #if __WINDOWS__
                               + ' /wd4100' // '%s': unreferenced formal parameter
                               + ' /wd4365' // signed/unsigned mismatch
                               + ' /wd4464' // relative include path contains '..'
-							  + ' /wd6011' // Dereferencing NULL pointer
+							         + ' /wd6011' // Dereferencing NULL pointer
+                           #endif
+                           #if __OSX__
+                              + ' -Wno-unused-parameter'
+                              + ' -Wno-bitwise-op-parentheses'
+                              + ' -Wno-ignored-qualifiers'
+                           #endif
    
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  =  {

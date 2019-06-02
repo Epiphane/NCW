@@ -8,6 +8,7 @@
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ' -I"$_CURRENT_BFF_DIR_$/$LibraryVersion$/zlib"'
+                           #if __WINDOWS__
                               + ' -D_CRT_SECURE_NO_DEPRECATE'
                               + ' -D_CRT_NONSTDC_NO_DEPRECATE'
                               + ' /wd4005' // macro redefinition
@@ -22,6 +23,7 @@
                               + ' /wd6340' // Mismatch on sign
                               + ' /wd6385' // Reading invalid data from '%s'
                               + ' /wd28278' // Function '%s' appears with no prototype in scope.
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    .LibrarySourceFiles  =  {
@@ -43,6 +45,7 @@
                            }
 
    #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
    #include "../dependency.bff"
 
    ^ZlibIncludePaths = ' -I$LibraryIncludePaths$'

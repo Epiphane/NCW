@@ -7,7 +7,9 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
-   .AdditionalCompilerOptions = ' /EHsc'
+   .AdditionalCompilerOptions = ''
+                           #if __WINDOWS__
+                              + ' /EHsc'
                               + ' -D_CRT_SECURE_NO_WARNINGS'
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data
                               + ' /wd4244' // '=': conversion from '%s' to '%s', possible loss of data
@@ -21,6 +23,7 @@
                               + ' /wd6293'
                               + ' /wd6297'
                               + ' /wd6326'
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/lodepng'
    .LibrarySourceFiles  = { 'lodepng.cpp' }

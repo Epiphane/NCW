@@ -23,7 +23,7 @@ std::string OpenFileDialog(
    if (fileTypes.size() > 0)
    {
       NSMutableArray* fileTypesArray = [NSMutableArray array];
-      for (int i = 0; i < fileTypes.size(); i++)
+      for (size_t i = 0; i < fileTypes.size(); i++)
       {
          [fileTypesArray addObject:[NSString stringWithUTF8String:fileTypes[i].c_str()]];
       }
@@ -40,7 +40,7 @@ std::string OpenFileDialog(
    if ([openDlg runModal] == NSModalResponseOK)
    {
       NSArray* files = [openDlg URLs];
-      for(int i = 0; i < [files count]; i++)
+      for(size_t i = 0; i < [files count]; i++)
       {
          return std::string([[[files objectAtIndex:i] path] UTF8String]);
       }

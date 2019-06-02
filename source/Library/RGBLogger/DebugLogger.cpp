@@ -4,6 +4,7 @@
 #include <Windows.h>
 #endif
 
+#include <RGBDesignPatterns/Macros.h>
 #include "DebugLogger.h"
 
 namespace CubeWorld
@@ -48,6 +49,8 @@ void DebugLogger::Log(const char* message, Color)
 {
 #if CUBEWORLD_PLATFORM_WINDOWS
    OutputDebugString(message);
+#else
+   CUBEWORLD_UNREFERENCED_PARAMETER(message);
 #endif
 }
 

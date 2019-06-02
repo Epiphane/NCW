@@ -72,36 +72,31 @@
                                  'sqlite-Lib-$Platform$-$Config$'
                                  'zlib-Lib-$Platform$-$Config$'
                               }
+                           #if __OSX__
+                              + { 'libfswatch-Lib-$Platform$-$Config$' }
+                           #endif
 
          // Output
          .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
+      #if __WINDOWS__
          .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
                               + ' libcmt.lib'      // Std Lib (Multi-Threaded, Static, Release)
                               + ' Comdlg32.lib'
                               + ' libcmtd.lib'
                               + ' Gdi32.lib'       // Bitmap functions
                               + ' kernel32.lib'    // Kernel functions
-                              + ' msvcprtd.lib'
                               + ' Ole32.lib'
                               + ' ucrtd.lib'        // CRT libs
                               + ' Shell32.lib'     // Shell API
                               + ' Shlwapi.lib'
                               + ' User32.lib'
                               + ' vcruntime.lib'
+      #endif
       }
 
       Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
       ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
    }
 
-   VCXProject('$ProjectName$-proj')
-   {
-      .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$ProjectName$.vcxproj'
-      .ProjectInputPaths = '$ProjectPath$'
-      .ProjectBasePath = '$ProjectPath$'
-      .Target = '$ProjectName$-Exe'
-
-      .ProjectX64Debug        = [ Using( .ProjectX64Debug )   .Target = '$ProjectName$-X64-Debug' ]
-      .ProjectX64Release      = [ Using( .ProjectX64Release ) .Target = '$ProjectName$-X64-Release' ]
-   }
+   #include "../../Helpers/Project.bff"
 }

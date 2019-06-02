@@ -1,0 +1,23 @@
+{
+   VCXProject('$ProjectName$-proj')
+   {
+      .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$ProjectName$.vcxproj'
+      .ProjectInputPaths = '$ProjectPath$'
+      .ProjectBasePath = '$ProjectPath$'
+      .Target = '$ProjectName$-Exe'
+
+      .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$ProjectName$-$Platform$-$Config$' ]
+      .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$ProjectName$-$Platform$-$Config$' ]
+   }
+
+   XCodeProject( '$ProjectName$-xcode' )
+   {
+      .ProjectOutput          = '$OutputPath$/XCode/Projects/$ProjectName$.xcodeproj/project.pbxproj'
+      .ProjectBasePath        = '$ProjectPath$'
+      .ProjectInputPaths      = '$ProjectPath$'
+      .XCodeBuildWorkingDir   = '../../..'
+
+      .ProjectDebug        = [ Using( .ProjectDebug )   .Target = '$ProjectName$-$Platform$-$Config$' ]
+      .ProjectRelease      = [ Using( .ProjectRelease ) .Target = '$ProjectName$-$Platform$-$Config$' ]
+   }
+}

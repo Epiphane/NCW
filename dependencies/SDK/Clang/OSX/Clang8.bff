@@ -7,7 +7,7 @@
 Compiler( 'Compiler-Clang8' )
 {
     .Root                           = '$Clang8_BasePath$'
-    .Executable                     = '$Root$/clang++'
+    .Executable                     = '$Root$/clang'
 }
 
 // ToolChain
@@ -34,12 +34,16 @@ Compiler( 'Compiler-Clang8' )
 
                                     // Disabled warnings
                                     + ' -Wno-#pragma-messages'
+                                    + ' -Wno-unknown-pragmas'
+                                    + ' -Wno-overloaded-virtual'
+                                    + ' -Wno-ignored-qualifiers'
+                                    + ' -Wno-unused-private-field'
                                     + ' -Wno-invalid-offsetof'      // we get the offset of members in non-POD types
                                     + ' -Wno-implicit-exception-spec-mismatch' // Fires on our new/delete operator (Clang bug?)
 
 
-    .CompilerOptions                = ' -x c++ -std=c++1z $CommonCompilerOptions$'
-    .CompilerOptionsC               = ' -x c $CommonCompilerOptions$'
+    .CompilerOptions                = ' -std=c++1z $CommonCompilerOptions$'
+    .CompilerOptionsC               = ' $CommonCompilerOptions$'
 
     // Librarian
     .Librarian                      = '$Clang8_BasePath$/ar'

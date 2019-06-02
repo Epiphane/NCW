@@ -7,11 +7,17 @@
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
-   .AdditionalCompilerOptions = ' /EHsc'
+   .AdditionalCompilerOptions = ''
+                           #if __WINDOWS__
+                              + ' /EHsc'
                               + ' /wd4265' // '%s': class has virtual functions, but destructor is not virtual
                               + ' /wd4541' // 'dynamic_cast' used on polymorphic type
                               + ' /wd4623' // '%s': default constructor was implicitly defined as deleted
                               + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
+                           #endif
+                           #if __OSX__
+                              + ' -Wno-ignored-qualifiers'
+                           #endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/rhea'
    .LibrarySourceFiles  = { '*.cpp' }
