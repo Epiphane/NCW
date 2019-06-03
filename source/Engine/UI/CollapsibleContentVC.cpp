@@ -26,8 +26,8 @@ CollapsibleContentVC::CollapsibleContentVC(UIRoot* root, UIElement* parent, cons
 //   mToggle = Add<ToggleButtonVC>(mIsExpanded, offImage, onImage, name + "Toggle");
    
    mContent = Add<UIElement>(name + "Content");
-   mCollapseContent = mContent->ConstrainHeight(0);
-   mpRoot->RemoveConstraint(mCollapseContent.GetName());
+//   mCollapseContent = mContent->ConstrainHeight(0);
+//   mpRoot->RemoveConstraint(mCollapseContent.GetName());
 
 //   mIsExpanded->AddCallback(std::bind(&CollapsibleContentVC::ExpandedStateChanged, this, std::placeholders::_1));
 }
@@ -35,11 +35,11 @@ CollapsibleContentVC::CollapsibleContentVC(UIRoot* root, UIElement* parent, cons
 void CollapsibleContentVC::ExpandedStateChanged(bool bIsExpanded)
 {
    if (bIsExpanded) {
-      mpRoot->RemoveConstraint(mCollapseContent.GetName());
+//      mpRoot->RemoveConstraint(mCollapseContent.GetName());
    }
    else
    {
-      mpRoot->AddConstraint(mCollapseContent);
+//      mpRoot->AddConstraint(mCollapseContent);
    }
 }
 

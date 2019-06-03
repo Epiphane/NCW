@@ -21,38 +21,26 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOnImage = Add<Image>(onImage);
 
    OnClick() >>
-     Observables::OnMessage<UIGestureRecognizer::Message_GestureState>([&](UIGestureRecognizer::Message_GestureState m) {
-        mToggleState = !mToggleState;
-        mUserToggledObservable.SendMessage(mToggleState);
+     Observables::OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
+        SetToggled(!mToggleState);
+        mToggled.SendMessage(mToggleState);
      }, mBag);
-   
-   mUserToggledObservable.OnChanged() >>
-     Observables::OnMessage<bool>(std::bind(&ToggleButtonVC::Toggled, this, std::placeholders::_1), mBag);
 }
 
-void ToggleButtonVC::Toggled(bool newToggle)
+void ToggleButtonVC::SetToggled(bool newToggle)
 {
+   mToggleState = newToggle;
    mOnImage->SetActive(newToggle);
    mOffImage->SetActive(!newToggle);
+   mToggleStateChanged.SendMessage(newToggle);
 }
 
-Observables::Observable<bool>& ToggleButtonVC::OnUserToggled()
-{
-   return mUserToggledObservable.OnChanged();
-}
-
-void ToggleButtonVC::ProvideToggleForcer(Observables::Observable<bool>& toggler)
+void ToggleButtonVC::ProvideToggleSetter(Observables::Observable<bool>& toggler)
 {
    toggler >>
       Observables::OnMessage<bool>([&](bool toggled) {
-         mForcedToggleObservable.SendMessage(toggled);
-      }, mBag) >>
-      Observables::OnMessage<bool>(std::bind(&ToggleButtonVC::Toggled, this, std::placeholders::_1), mBag);
-}
-
-Observables::Observable<bool>& ToggleButtonVC::OnToggleForciblyChanged()
-{
-   return mForcedToggleObservable.OnChanged();
+         SetToggled(toggled);
+      }, mBag);
 }
 
 }; // namespace Engine

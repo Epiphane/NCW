@@ -22,9 +22,6 @@ public:
 
 private:
    void ExpandedStateChanged(bool bIsExpanded);
-   
-   // Constraint that sets mContent.height = 0. Disabled if content is expanded.
-   UIConstraint mCollapseContent;
 
    ToggleButtonVC* mToggle;
    UIElement* mContent;

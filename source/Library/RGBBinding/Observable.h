@@ -9,6 +9,31 @@
 #include <map>
 #include <vector>
 
+// Convenience macro to declare an Observable.
+//    !!! MUST BE USED IN THE 'PRIVATE' SECTION OF CLASSES !!!
+//
+// Example:
+//
+// DECLARE_OBSERVABLE(bool, Active, OnActiveChanged)   expands into ->
+// 
+//    Observables::ObservableInternal<bool> mActive;
+// public:
+//    Observable::Observable<bool>& OnActiveChanged() 
+//    {
+//       return mActive.OnChanged();
+//    }
+// private:
+//    ...Class members continue here
+//
+#define DECLARE_OBSERVABLE(TYPE, NAME, GETTER_NAME)  \
+   Observables::ObservableInternal<TYPE> NAME;\
+public:\
+   Observables::Observable<TYPE>& GETTER_NAME() {\
+      return NAME.OnChanged();\
+   }\
+private:
+
+
 namespace CubeWorld
 {
    

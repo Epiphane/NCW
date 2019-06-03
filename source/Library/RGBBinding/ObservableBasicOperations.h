@@ -100,6 +100,34 @@ Observable<T>& operator>>(Observable<T>& inObservable, const Filter<T>& filter)
 }
 
 //
+// Combine two Observables' messages together. Both Observables should be the
+//    same type.
+//
+// Example usage:
+//    Merge(mButtonA.OnClick(), mButtonB.OnClick()) >>
+//       OnMessage(handleEitherButtonClicked)
+//
+// TODO-EF: Someday, make this use variadic args so it can merge any # of Observables.
+//
+template<typename T>
+Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs) 
+{
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   firstObs.AddOwnedObservable(newObservable);
+   secondObs.AddOwnedObservable(newObservable);
+   
+   firstObs.AddObserverWithoutDisposer([=](T message) {
+      newObservable->SendMessage(message);
+   });
+   
+   secondObs.AddObserverWithoutDisposer([=](T message) {
+      newObservable->SendMessage(message);
+   });
+   
+   return newObservable->OnChanged();
+}
+
+//
 // Send an Observable's messages into a container that has a push_back function
 //
 // Example usage:
@@ -122,7 +150,7 @@ template<typename T, typename ContainerType>
 Observable<T>& operator>>(Observable<T>& inObservable, const ToContainer<ContainerType>& containerOwner)
 {
    inObservable >> 
-      OnMessage<T>([&](T message) {
+      OnMessage<T>([=](T message) {
          containerOwner.container.push_back(message);
       }, containerOwner.owner);
 
