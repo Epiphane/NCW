@@ -17,6 +17,11 @@ namespace Engine
 ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
    : ButtonVC(root, parent, name)
 {
+   // TODO-EF: The ContentSize of a ToggleButton (and a Button in general) should be
+   //             equal to the size of its background image.
+   //
+   //          And/or if there is a text label on the button, that should also inform
+   //             the content size somehow. I dunno I'll cross that bridge when I get to it.
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
 

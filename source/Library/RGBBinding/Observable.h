@@ -39,21 +39,6 @@ namespace CubeWorld
    
 namespace Observables
 {
-
-   // TODO-EF: Example message struct. Will be moved... outta here. Soon.
-   // e.g. when the user mousedowns a scrubber, state is STARTING.
-   //    As they mousemove, state is CHANGING.
-   //    When they mouseup, state is ENDING.
-   enum InputState {
-      STARTING, CHANGING, ENDING
-   };
-   
-   template<typename T>
-   struct Message_InputChanged {
-      InputState state;
-      T value;
-   };
-   
    /**
     * A DisposeBag holds onto some callbacks, and when it dies, it calls all the
     *    callbacks. The idea is that you can toss some "disposables" into the bag,

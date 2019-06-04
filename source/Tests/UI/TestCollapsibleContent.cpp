@@ -1,9 +1,7 @@
 #include "../catch.h"
 
-//#include "Mocks/Mocks_UIElement.h"
+#include "Mocks/Mocks_UIElement.h"
 
-#include <Engine/Core/Window.h>
-#include <Engine/UI/UIRoot.h>
 #include <Engine/UI/CollapsibleContentVC.h>
 
 #include <RGBBinding/Observable.h>

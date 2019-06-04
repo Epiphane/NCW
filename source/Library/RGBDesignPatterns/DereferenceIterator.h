@@ -30,6 +30,7 @@ public:
 
    reference operator*() const { return *(BaseIterator::operator*()); }
    pointer operator->() const { return this->BaseIterator::operator*().get(); }
+   pointer GetPointer() const { return this->BaseIterator::operator*().get(); }
    reference operator[](size_t n) const {
       return *(BaseIterator::operator[](n));
    }

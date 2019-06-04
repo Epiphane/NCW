@@ -8,32 +8,23 @@
 
 #pragma once
 
-#include <Engine/UI/UIElement.h>
+#include <string>
 
-#include <Engine/Core/Window.h>
 #include <Engine/UI/UIRoot.h>
-
-using namespace CubeWorld;
-using Engine::UIRoot;
 
 namespace CubeWorld
 {
    
 // Fake a click on the given element.
-void MockClick(Engine::UIElement* victim, double fakeX = 0, double fakeY = 0) {
-   MouseDownEvent down(0, fakeX, fakeY);
-   MouseUpEvent up(0, fakeX, fakeY);
-   
-   victim->MouseDown(down);
-   victim->MouseUp(up);
-}
+void MockClick(Engine::UIElement* victim, double fakeX = 0, double fakeY = 0);
    
 // Create a dummy UIRoot.
-std::unique_ptr<UIRoot> CreateDummyUIRoot() {
-   Engine::Window::Options windowOptions;
-   Engine::Window& dummyWindow = Engine::Window::Instance();
-   dummyWindow.Initialize(windowOptions);
-   return std::make_unique<UIRoot>(&dummyWindow);
-}
+std::unique_ptr<Engine::UIRoot> CreateDummyUIRoot();
+   
+// Get a reference to a UIElement by name. To go deeper into the 
+//    hierarchy, chain names with a period.
+//
+// This function asserts if it can't find the element.
+Engine::UIElement* FindChildByName(Engine::UIElement* baseElement, const std::string& name);
    
 } // namespace CubeWorld
