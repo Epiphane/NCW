@@ -365,7 +365,7 @@ XCodeProject( 'UpdateSolution-xcode' )
    .ProjectConfigs = { .GenerateProjectsCommands }
 }
 
-XCodeProject('CubeWorld-sln-xcode')
+XCodeProject( 'CubeWorld-sln-xcode' )
 {
    .ProjectOutput          = '$OutputPath$/XCode/CubeWorld.xcodeproj/project.pbxproj'
    .ProjectBasePath        = '$OutputPath$/XCode/Projects'
@@ -377,6 +377,8 @@ XCodeProject('CubeWorld-sln-xcode')
    .ProjectFiles   = {
                         'Editor-xcode'
                         'Engine-xcode'
+                        'Game-xcode'
+                        'Sandbox-xcode'
                         'Shared-xcode'
                         'DataCLI-xcode'
                         'Tests-xcode'
@@ -392,6 +394,18 @@ XCodeProject('CubeWorld-sln-xcode')
    }
 }
 
+Exec('CubeWorld-sln-xcode-schemes')
+{
+   .PreBuildDependencies = { 'CubeWorld-sln-xcode' }
+
+   .ExecExecutable   = '/usr/local/bin/python3'
+   .ExecInput        = { 'Helpers/make_xcode_targets.py' }
+   .ExecArguments    = '%1'
+                     + ' tmp/XCode'
+                     + ' DataCLI Editor Sandbox Game'
+   .ExecOutput       = 'tmp/XCode/Projects/DataCLI.xcodeproj/xcshareddata/xcschemes/DataCLI.xcscheme'
+}
+
 #if __WINDOWS__
 Alias( 'CubeWorld-sln' )
 {
@@ -401,6 +415,6 @@ Alias( 'CubeWorld-sln' )
 #if __OSX__
 Alias( 'CubeWorld-sln' )
 {
-   .Targets = 'CubeWorld-sln-xcode'
+   .Targets = 'CubeWorld-sln-xcode-schemes'
 }
 #endif
