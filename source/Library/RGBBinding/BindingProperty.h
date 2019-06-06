@@ -76,7 +76,6 @@ public:
    BindingProperty(int32_t i);
    BindingProperty(int64_t i64);
    BindingProperty(uint32_t u);
-   BindingProperty(size_t u);
    BindingProperty(uint64_t u64);
    BindingProperty(double d);
    BindingProperty(float f);

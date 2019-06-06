@@ -102,8 +102,6 @@ BindingProperty::BindingProperty(uint32_t u)
    flags = uint16_t((u & 0x80000000) ? kNumberUintFlag : (kNumberUintFlag | kIntFlag | kInt64Flag));
 }
 
-BindingProperty::BindingProperty(size_t u) : BindingProperty(uint32_t(u)) {}
-
 BindingProperty::BindingProperty(uint64_t u64)
 {
    data.numVal.u64 = u64;

@@ -9,6 +9,7 @@
 
    .AdditionalCompilerOptions = ' -DFT2_BUILD_LIBRARY'
                               + ' -DFT_CONFIG_OPTION_SYSTEM_ZLIB'
+                              + ' -Idependencies/zlib/1.2.11/zlib'
                            #if __WINDOWS__
                               + ' /wd4005'
                               + ' /wd4242' // conversion from '%s' to '%s', possible loss of data

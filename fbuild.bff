@@ -304,8 +304,8 @@ VCXProject( 'UpdateSolution-proj' )
 
    .GenerateProjectsCommands =
    [
-      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-vs -vs'
-      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-vs -vs -clean'
+      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs'
+      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs -clean'
    ]
 
    .ProjectDebug        = [ Using( .ProjectDebug )       Using( .GenerateProjectsCommands ) ]
@@ -313,12 +313,13 @@ VCXProject( 'UpdateSolution-proj' )
    .ProjectConfigs = { .ProjectDebug, .ProjectRelease }
 }
 
-VSSolution('CubeWorld-sln-vs')
+VSSolution('CubeWorld-sln-visualstudio')
 {
    .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
    .SolutionProjects    =  {
                               'Editor-proj'
                               'Engine-proj'
+                              'Game-proj'
                               'Shared-proj'
                               'DataCLI-proj'
                               'Tests-proj'
@@ -365,6 +366,7 @@ XCodeProject( 'UpdateSolution-xcode' )
    .ProjectConfigs = { .GenerateProjectsCommands }
 }
 
+#if __OSX__
 XCodeProject( 'CubeWorld-sln-xcode' )
 {
    .ProjectOutput          = '$OutputPath$/XCode/CubeWorld.xcodeproj/project.pbxproj'
@@ -405,6 +407,7 @@ Exec('CubeWorld-sln-xcode-schemes')
                      + ' DataCLI Editor Sandbox Game'
    .ExecOutput       = 'tmp/XCode/Projects/DataCLI.xcodeproj/xcshareddata/xcschemes/DataCLI.xcscheme'
 }
+#endif
 
 #if __WINDOWS__
 Alias( 'CubeWorld-sln' )
