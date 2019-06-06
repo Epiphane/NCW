@@ -14,7 +14,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          ObservableInternal<int> testObservable;
          std::vector<int> results;
 
-         testObservable.OnChanged() >>
+         testObservable.MessageProducer() >>
             Map<int, int>([](int test) -> int {
                return test + 2;
             }) >>
@@ -35,7 +35,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          ObservableInternal<int> testObservable;
          std::vector<int> results;
 
-         testObservable.OnChanged() >>
+         testObservable.MessageProducer() >>
             Filter<int>([](int test) -> bool {
                return test % 2 == 0;
             }) >>
@@ -57,7 +57,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          ObservableInternal<int> obsB;
          std::vector<int> results;
 
-         Merge(obsA.OnChanged(), obsB.OnChanged()) >>
+         Merge(obsA.MessageProducer(), obsB.MessageProducer()) >>
             ToContainer(results, myBag);
 
          obsA.SendMessage(1);
@@ -71,6 +71,29 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
 
          THEN( "the results should be the combination of both Observables' messages" ) {
             std::vector<int> expected{ 1, 5, 5, 10, -1, 700 };
+            CHECK( results == expected );
+         }
+      }
+      
+      WHEN( "An Observable sends its messages through Distinct()" ) {
+         ObservableInternal<int> testObservable;
+         std::vector<bool> results;
+         
+         testObservable.MessageProducer() >>
+            Distinct() >>
+            ToContainer(results, myBag);
+         
+         testObservable.SendMessage(true);
+         testObservable.SendMessage(true);
+         testObservable.SendMessage(false);
+         testObservable.SendMessage(true);
+         testObservable.SendMessage(false);
+         testObservable.SendMessage(false);
+         testObservable.SendMessage(false);
+         testObservable.SendMessage(true);
+         
+         THEN( "only the new distinct values should come through" ) {
+            std::vector<bool> expected{ true, false, true, false, true };
             CHECK( results == expected );
          }
       }

@@ -17,7 +17,7 @@ TEST_CASE( "Basic text entry behavior" ) {
    
    std::string enteredText;
    
-   text->ProvideKeystrokeObservable(fakeKeystrokes.OnChanged());
+   text->ProvideKeystrokeObservable(fakeKeystrokes.MessageProducer());
    text->OnInputChanging() >>
       OnMessage<std::string>([&](std::string newString) {
          enteredText = newString;

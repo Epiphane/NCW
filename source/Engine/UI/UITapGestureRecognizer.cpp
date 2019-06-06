@@ -58,7 +58,7 @@ void UITapGestureRecognizer::MouseUp(const MouseUpEvent& evt)
 
 Observables::Observable<UIGestureRecognizer::Message_GestureState> &UITapGestureRecognizer::OnTap()
 {
-   return mStateChangedObservable.OnChanged() >>
+   return mStateChangedObservable.MessageProducer() >>
       Observables::Filter<Message_GestureState>([](Message_GestureState m) {
          return m.state == Ending;
       });

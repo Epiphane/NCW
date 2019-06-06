@@ -20,7 +20,7 @@
 // public:
 //    Observable::Observable<bool>& OnActiveChanged() 
 //    {
-//       return mActive.OnChanged();
+//       return mActive.MessageProducer();
 //    }
 // private:
 //    ...Class members continue here
@@ -29,7 +29,7 @@
    Observables::ObservableInternal<TYPE> NAME;\
 public:\
    Observables::Observable<TYPE>& GETTER_NAME() {\
-      return NAME.OnChanged();\
+      return NAME.MessageProducer();\
    }\
 private:
 
@@ -167,7 +167,7 @@ namespace Observables
    /**
     * ObservableInternal is the class that lets you actually emit messages.
     *    Generally you would have an ObservableInternal as a private class member
-    *    and expose the OnChanged() method so other classes can observe
+    *    and expose the MessageProducer() method so other classes can observe
     *    your messages.
     */
    template<typename T>
@@ -178,7 +178,7 @@ namespace Observables
          observableExternal.SendMessageToObservers(message);
       };
       
-      Observable<T>& OnChanged() {
+      Observable<T>& MessageProducer() {
          return observableExternal;
       }
       

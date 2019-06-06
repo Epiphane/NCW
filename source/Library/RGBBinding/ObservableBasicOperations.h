@@ -64,7 +64,7 @@ Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper)
       newObservable->SendMessage(newMessage);
    });
 
-   return newObservable->OnChanged();
+   return newObservable->MessageProducer();
 }
 
 //
@@ -96,7 +96,7 @@ Observable<T>& operator>>(Observable<T>& inObservable, const Filter<T>& filter)
       }
    });
 
-   return newObservable->OnChanged();
+   return newObservable->MessageProducer();
 }
 
 //
@@ -124,7 +124,34 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
       newObservable->SendMessage(message);
    });
    
-   return newObservable->OnChanged();
+   return newObservable->MessageProducer();
+}
+   
+//
+// Only get messages when the Observable value changes (includes the first message sent)
+//
+// Example usage:
+//    mToggleButton.OnToggleStateChanged() >> 
+//       Distinct();
+//
+struct Distinct {
+   bool seenFirstEvent = false;
+};
+   
+template<typename T>
+Observable<T>& operator>>(Observable<T>& inObservable, Distinct distincter)
+{
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   
+   inObservable.AddOwnedObservable(newObservable);
+   
+   inObservable.AddObserverWithoutDisposer([=](T message) {
+      // if distinct lololol
+      
+      newObservable->SendMessage(message);
+   });
+   
+   return newObservable;
 }
 
 //

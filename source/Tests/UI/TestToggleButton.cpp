@@ -50,7 +50,7 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
       
       AND_WHEN( "the toggle button is set programmatically" ) {
          ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.OnChanged());
+         button->ProvideToggleSetter(toggleMeister.MessageProducer());
          
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(false);
@@ -67,7 +67,7 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
       
       AND_WHEN( "programmatic setting is combined with mouse events" ) {
          ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.OnChanged());
+         button->ProvideToggleSetter(toggleMeister.MessageProducer());
          
          toggleMeister.SendMessage(false);
          MockClick(button);

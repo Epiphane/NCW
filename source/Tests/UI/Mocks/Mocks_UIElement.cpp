@@ -1,7 +1,5 @@
 //
-// Mocks_UIElement.h
-//
-// Some functions useful to mess around with UIElements during testing
+// Mocks_UIElement.cpp
 //
 // This file created by the ELLIOT FISKE gang
 //

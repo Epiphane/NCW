@@ -15,16 +15,26 @@ namespace CubeWorld
 namespace Engine
 {
 
+class UIStackView; // Forward declare
+
 class CollapsibleContentVC : public UIElement
 {
 public:
    CollapsibleContentVC(UIRoot* root, UIElement* parent, const std::string &name);
-
+   
+   // Give the VC content to collapse. Content should have its width and height constrained.
+   void SetContent(std::unique_ptr<UIElement> element);
+   
+   void ProvideCollapseStateSetter(Observables::Observable<bool>& collapser);
+   
 private:
-   void ExpandedStateChanged(bool bIsExpanded);
-
+   DECLARE_OBSERVABLE(bool, mCollapsed, OnCollapsedStateChange)
+   
    ToggleButtonVC* mToggle;
-   UIElement* mContent;
+   UIStackView* mContentParent;  // UIStackView that we will use to show/hide the content.
+                                 // Note that UIStackViews do not reserve space for elements with IsActive() == false.
+                                 //    We use this to set the size of the content to 0.
+   UIElement* mContent = nullptr;
 };
 
 } // namespace Engine

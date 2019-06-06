@@ -10,12 +10,25 @@
 using namespace CubeWorld::Observables;
 using namespace CubeWorld;
 using Engine::UIRoot;
+using Engine::UIElement;
 
 using Engine::CollapsibleContentVC;
 
 SCENARIO( "CollapsibleContent should hide its content view when its toggle button is toggled" ) {
    
-//   GIVEN( "A CollapsibleContent element" ) {
+   GIVEN( "A CollapsibleContent element" ) {
+      std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
+      
+      CollapsibleContentVC collapsible(dummyRoot.get(), dummyRoot.get(), "TestCollapsibleContent");
+      uint32_t normalHeight = collapsible.GetHeight();
+      
+      WHEN( "the element gets children, its height expands appropriately" ) {
+         UIElement* dummyContent = collapsible.Add<UIElement>("DummyContent");
+         dummyContent->ConstrainHeight(50);
+         
+         CHECK( collapsible.GetHeight() == normalHeight + 50 );
+      }
+   }
 //      Engine::Window::Options windowOptions;
 //      windowOptions.fullscreen = false;
 //      windowOptions.width = 1000;
@@ -67,7 +80,7 @@ SCENARIO( "CollapsibleContent should hide its content view when its toggle butto
 //         ObservableInternal<bool> toggleMeister;
 //         
 //         THEN ( "the toggle button should send messages only from its OnToggleForced observable." ) {
-//            button->ProvideToggleSetter(toggleMeister.OnChanged());
+//            button->ProvideToggleSetter(toggleMeister.MessageProducer());
 //            
 //            toggleMeister.SendMessage(false);
 //            toggleMeister.SendMessage(false);

@@ -176,7 +176,7 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
    
 Observables::Observable<bool>& UIElement::OnActiveStateChanged()
 {
-   return mActiveObservable.OnChanged();
+   return mActiveObservable.MessageProducer();
 }
 
 void UIElement::InitFromJSON(const BindingProperty& /*data*/)

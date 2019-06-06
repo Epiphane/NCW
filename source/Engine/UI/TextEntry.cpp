@@ -30,7 +30,7 @@ void TextEntry::ProvideKeystrokeObservable(Observables::Observable<Keystroke>& k
 
 Observables::Observable<std::string>& TextEntry::OnInputChanging()
 {
-   return mEnteredTextObservable.OnChanged();
+   return mEnteredTextObservable.MessageProducer();
 }
 
 
