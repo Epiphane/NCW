@@ -171,10 +171,10 @@ namespace Observables
     *    your messages.
     */
    template<typename T>
-   class ObservableInternal final
+   class ObservableInternal
    {
    public:
-      void SendMessage(T message) {
+      virtual void SendMessage(T message) {
          observableExternal.SendMessageToObservers(message);
       };
       
@@ -184,6 +184,34 @@ namespace Observables
       
    private:
       Observable<T> observableExternal;
+   };
+   
+   /**
+    * Subclass that can remember the last message it sent, as well as if it has
+    *    ever sent a message before.
+    *
+    * Will only emit messages DIFFERENT from the most recent message. Will also emit
+    *    if this is the first message it's asked to emit. 
+    */
+   template<typename T>
+   class ObservableInternal_Distinct : public ObservableInternal<T>
+   {
+   public:
+      void SendMessage(T message) override {
+         if (!mDidSendFirstMessage) {
+            mDidSendFirstMessage = true;
+            
+            ObservableInternal<T>::SendMessage(message);
+            mMostRecentMessage = message;
+         } else if (mMostRecentMessage != message) {
+            ObservableInternal<T>::SendMessage(message);
+            mMostRecentMessage = message;
+         }
+      }
+      
+   private:
+      T mMostRecentMessage;
+      bool mDidSendFirstMessage = false;
    };
    
 } // namespace Observables

@@ -134,24 +134,20 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
 //    mToggleButton.OnToggleStateChanged() >> 
 //       Distinct();
 //
-struct Distinct {
-   bool seenFirstEvent = false;
-};
+struct Distinct {};
    
 template<typename T>
 Observable<T>& operator>>(Observable<T>& inObservable, Distinct distincter)
 {
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   std::shared_ptr<ObservableInternal_Distinct<T>> newObservable = std::make_shared<ObservableInternal_Distinct<T>>();
    
    inObservable.AddOwnedObservable(newObservable);
    
    inObservable.AddObserverWithoutDisposer([=](T message) {
-      // if distinct lololol
-      
       newObservable->SendMessage(message);
    });
    
-   return newObservable;
+   return newObservable->MessageProducer();
 }
 
 //
