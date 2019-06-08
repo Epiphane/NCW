@@ -89,7 +89,7 @@ namespace Observables
     *    method.
     */
    template<typename T>
-   class Observable final : public DisposeBag
+   class Observable : public DisposeBag
    {
    public:
       friend class ObservableInternal<T>;
@@ -108,7 +108,7 @@ namespace Observables
       //    With this method you specify a DisposeBag. When the DisposeBag dies, the link
       //    between this observer and the callback will be cleaned up.
       //
-      void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) {
+      virtual void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) {
          auto strongBag = weakBag.lock();
          mBaggedObservers.insert(std::pair(weakBag, onMessage));
          
@@ -122,7 +122,7 @@ namespace Observables
       //    Observable. That is, without specifying an owner, the only way the observer will
       //    be cleaned up is when this Observable dies.
       //
-      void AddObserverWithoutDisposer(std::function<void(T)> onMessage) {
+      virtual void AddObserverWithoutDisposer(std::function<void(T)> onMessage) {
          mUnbaggedObservers.push_back(onMessage);
       }
       
@@ -130,8 +130,8 @@ namespace Observables
          mOwnedObservables.push_back(observable);
       }
       
-   private:                     
-      void SendMessageToObservers(T message) {
+   protected:                     
+      virtual void SendMessageToObservers(T message) {
          // Make a copy of mBaggedListeners in case a listener is deleted by this event
          //    being emitted.
          auto observersCopy = mBaggedObservers;
@@ -174,16 +174,24 @@ namespace Observables
    class ObservableInternal
    {
    public:
+      ObservableInternal()
+         : observableExternal(std::make_unique<Observable<T>>())
+      {}
+      
+      ObservableInternal(std::unique_ptr<Observable<T>> providedObservable)
+         : observableExternal(std::move(providedObservable))
+      {}
+      
       virtual void SendMessage(T message) {
-         observableExternal.SendMessageToObservers(message);
+         observableExternal->SendMessageToObservers(message);
       };
       
       Observable<T>& MessageProducer() {
-         return observableExternal;
+         return *(observableExternal.get());
       }
       
    private:
-      Observable<T> observableExternal;
+      std::unique_ptr<Observable<T>> observableExternal;
    };
    
    /**
@@ -192,19 +200,22 @@ namespace Observables
     *
     * Will only emit messages DIFFERENT from the most recent message. Will also emit
     *    if this is the first message it's asked to emit. 
+    *
+    * NOTE: You probably shouldn't make a instance of this class yourself. Use
+    *          ObservableBasicOperations::Distinct()
     */
    template<typename T>
-   class ObservableInternal_Distinct : public ObservableInternal<T>
+   class Observable_Distinct : public Observable<T>
    {
    public:
-      void SendMessage(T message) override {
+      virtual void SendMessageToObservers(T message) override {
          if (!mDidSendFirstMessage) {
             mDidSendFirstMessage = true;
             
-            ObservableInternal<T>::SendMessage(message);
+            Observable<T>::SendMessageToObservers(message);
             mMostRecentMessage = message;
          } else if (mMostRecentMessage != message) {
-            ObservableInternal<T>::SendMessage(message);
+            Observable<T>::SendMessageToObservers(message);
             mMostRecentMessage = message;
          }
       }
@@ -212,6 +223,35 @@ namespace Observables
    private:
       T mMostRecentMessage;
       bool mDidSendFirstMessage = false;
+   };
+   
+   /**
+    * Subclass that can store a message that all new listeners should immediately
+    *    receive when they start listening. 
+    *
+    * NOTE: You probably shouldn't make a instance of this class yourself. Use
+    *          ObservableBasicOperations::StartWith()
+    */
+   template<typename T>
+   class Observable_StartWith : public Observable<T>
+   {
+   public:
+      virtual void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) override {
+         Observable<T>::AddObserver(onMessage, weakBag);
+         this->SendMessageToObservers(mStarterMessage);
+      }
+      
+      virtual void AddObserverWithoutDisposer(std::function<void(T)> onMessage) override {
+         Observable<T>::AddObserverWithoutDisposer(onMessage);
+         this->SendMessageToObservers(mStarterMessage);
+      }
+      
+      void SetStarterMessage(T starterMessage) {
+         mStarterMessage = starterMessage;
+      }
+      
+   private:
+      T mStarterMessage;
    };
    
 } // namespace Observables

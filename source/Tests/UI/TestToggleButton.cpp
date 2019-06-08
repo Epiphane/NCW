@@ -16,19 +16,16 @@ using Engine::UIRoot;
 
 SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggled" ) {
    
-   GIVEN( "A toggle button with Observers attached" ) {
+   GIVEN( "A toggle button with an Observer attached" ) {
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
       
       ToggleButtonVC* button = new ToggleButtonVC(dummyRoot.get(), dummyRoot.get(), Image::Options(), Image::Options(), "ToggleButtonDummy");
       
-      std::vector<bool> clickToggles;
-      std::vector<bool> allToggles;
+      std::vector<bool> toggles;
       
       button->OnToggled() >>
-         ToContainer(clickToggles, myBag);
-      button->OnToggleStateSet() >>
-         ToContainer(allToggles, myBag);
+         ToContainer(toggles, myBag);
       
       WHEN( "The toggle button receives mouse events" ) {
          THEN ( "the toggle button should send messages from its OnToggled observable." ) {
@@ -36,15 +33,14 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
             
             // ToggleButton defaults to false, so toggling once should give us one true
             std::vector<bool> expected = { true };
-            CHECK( expected == clickToggles );
+            CHECK( expected == toggles );
             
             MockClick(button);
             MockClick(button);
             MockClick(button);
             
             expected = { true, false, true, false };
-            CHECK( expected == clickToggles );
-            CHECK( expected == allToggles );
+            CHECK( expected == toggles );
          }
       }
       
@@ -56,12 +52,9 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(true);
          
-         THEN( "only the 'OnToggleStateSet' Observable should send messages." ) {            
-            std::vector<bool> expectedClickToggles = { };
-            std::vector<bool> expectedAllToggles   = { false, false, true };
-            
-            CHECK( expectedClickToggles == clickToggles );
-            CHECK( expectedAllToggles == allToggles );
+         THEN( "it should also send messages from its OnToggled observable." ) {            
+            std::vector<bool> expectedToggles = { false, false, true };
+            CHECK( expectedToggles == toggles );
          }
       }
       
@@ -79,12 +72,9 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(false);
          
-         THEN("allToggles will receive all messages while clickToggles will only receive click-based messages." ) {
-            std::vector<bool> expectedClickToggles = { true, false, true, false };
-            std::vector<bool> expectedAllToggles   = { false, true, false, true, false, true, false, false, false };
-            
-            CHECK( expectedClickToggles == clickToggles );
-            CHECK( expectedAllToggles == allToggles );
+         THEN("the OnToggled observable sends all the toggles out." ) {
+            std::vector<bool> expectedToggles = { false, true, false, true, false, true, false, false, false };
+            CHECK( expectedToggles == toggles );
          }
       }
    }

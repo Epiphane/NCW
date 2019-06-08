@@ -28,14 +28,8 @@ public:
    void ProvideToggleSetter(Observables::Observable<bool>& toggler);
 
 private:
-   // Internal helper function called whenever mToggled is changed
-   void SetToggled(bool newToggle);
-   
-   // Observable but ONLY for when it is toggled via a click
+   // Observable the 'toggled' state of this button
    DECLARE_OBSERVABLE(bool, mToggled, OnToggled);
-   
-   // Observable for ALL toggle state changes
-   DECLARE_OBSERVABLE(bool, mToggleStateChanged, OnToggleStateSet);
 
    // Images that appear for their respective toggled states
    Image* mOffImage;

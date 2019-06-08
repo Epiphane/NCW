@@ -44,10 +44,12 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          testObservable.SendMessage(3);
          testObservable.SendMessage(4);
          testObservable.SendMessage(5);
+         testObservable.SendMessage(6);
+         testObservable.SendMessage(0);
          testObservable.SendMessage(-1);
 
          THEN( "the results should only contain even numbers" ) {
-            std::vector<int> expected{ 4 };
+            std::vector<int> expected{ 4, 6, 0 };
             CHECK( results == expected );
          }
       }
@@ -92,9 +94,32 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          testObservable.SendMessage(false);
          testObservable.SendMessage(true);
          
-         THEN( "only the new distinct values should come through" ) {
+         THEN( "only non-duplicate values should come through" ) {
             std::vector<bool> expected{ true, false, true, false, true };
             CHECK( results == expected );
+         }
+      }
+      
+      WHEN( "An Observable is modified by StartWith()" ) {
+         ObservableInternal<int> testObservable;
+         std::vector<int> results;
+         
+         testObservable.MessageProducer() >>
+            StartWith(11) >>
+            ToContainer(results, myBag);
+         
+         THEN( "it should immediately have the passed-in message at the beginning of its output message stream") {
+            std::vector<int> expected { 11 };
+            CHECK( results == expected );
+            
+            AND_THEN( "it should continue passing the rest of its messages through normally" ) {
+               testObservable.SendMessage(37);
+               testObservable.SendMessage(-1);
+               testObservable.SendMessage(22);
+               
+               std::vector<int> expected { 11, 37, -1, 22 };
+               CHECK( results == expected );
+            }
          }
       }
 

@@ -17,7 +17,7 @@ namespace Observables
 // Simple callback when a message is sent.
 //
 // Example usage:
-//    mButton.OnTap() >> OnMessage([]() { printf("Nice tap"); };
+//    mButton.OnTap() >> OnMessage([]() { printf("Tap received!"); };
 //
 template<typename T>
 struct OnMessage {
@@ -139,10 +139,44 @@ struct Distinct {};
 template<typename T>
 Observable<T>& operator>>(Observable<T>& inObservable, Distinct distincter)
 {
-   std::shared_ptr<ObservableInternal_Distinct<T>> newObservable = std::make_shared<ObservableInternal_Distinct<T>>();
+   std::unique_ptr<Observable_Distinct<T>> newDistinctObservable = std::make_unique<Observable_Distinct<T>>();
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newDistinctObservable));
    
    inObservable.AddOwnedObservable(newObservable);
    
+   inObservable.AddObserverWithoutDisposer([=](T message) {
+      newObservable->SendMessage(message);
+   });
+   
+   return newObservable->MessageProducer();
+}
+ 
+//
+// Immediately emits a message to any listeners, then passes the rest of
+//    its messages through.
+//
+// Example usage:
+//    mButton.OnTap() >>
+//       StartWith(someTap);
+//
+template<typename T>
+struct StartWith {
+   explicit StartWith(T message)
+   : startingMessage(message) 
+   {}
+   
+   T startingMessage;
+};
+   
+template<typename T>
+Observable<T>& operator>>(Observable<T>& inObservable, StartWith<T> starter)
+{
+   std::unique_ptr<Observable_StartWith<T>> newStartWithObservable = std::make_unique<Observable_StartWith<T>>();
+   newStartWithObservable->SetStarterMessage(starter.startingMessage);
+   
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newStartWithObservable));
+   
+   inObservable.AddOwnedObservable(newObservable);
    inObservable.AddObserverWithoutDisposer([=](T message) {
       newObservable->SendMessage(message);
    });

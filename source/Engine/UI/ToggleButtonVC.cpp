@@ -13,6 +13,8 @@ namespace CubeWorld
 
 namespace Engine
 {
+   
+using namespace Observables;
 
 ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
    : ButtonVC(root, parent, name)
@@ -25,26 +27,35 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
 
+   mToggled.MessageProducer() >>
+      StartWith(false) >>
+      Distinct() >>
+      OnMessage<bool>([&](bool isOn) {
+         mToggleState = isOn;
+         
+         mOnImage->SetActive(isOn);
+         mOffImage->SetActive(!isOn);
+      }, mBag);
+   
    OnClick() >>
-     Observables::OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
-        SetToggled(!mToggleState);
-        mToggled.SendMessage(mToggleState);
+     OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
+        mToggled.SendMessage(!mToggleState);
      }, mBag);
 }
 
-void ToggleButtonVC::SetToggled(bool newToggle)
+void ToggleButtonVC::ProvideToggleSetter(Observable<bool>& toggler)
 {
-   mToggleState = newToggle;
-   mOnImage->SetActive(newToggle);
-   mOffImage->SetActive(!newToggle);
-   mToggleStateChanged.SendMessage(newToggle);
-}
-
-void ToggleButtonVC::ProvideToggleSetter(Observables::Observable<bool>& toggler)
-{
+   // TODO-EF: It might be cool to syntactically sugar this into something like:
+   //             public MessageSink ToggleStateSink() { 
+   //                return mToggled.GetMessageSink();
+   //             }
+   //
+   //             ...
+   //
+   //             SomeOtherObservable >> mToggleButton.ToggleStateSink();
    toggler >>
-      Observables::OnMessage<bool>([&](bool toggled) {
-         SetToggled(toggled);
+      OnMessage<bool>([&](bool toggled) {
+         mToggled.SendMessage(toggled);
       }, mBag);
 }
 
