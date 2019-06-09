@@ -37,7 +37,7 @@ std::string OpenFileDialog(
    ofn.hwndOwner = hwnd;
    ofn.lpstrFile = szFile;
    ofn.nMaxFile = sizeof(szFile);
-   ofn.lpstrFilter = "JSON\0*.json\0All\0*.*\0";
+   ofn.lpstrFilter = "YAML\0*.yaml\0JSON\0*.json\0All\0*.*\0";
    ofn.nFilterIndex = 1;
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;
@@ -73,7 +73,7 @@ std::string SaveFileDialog(
    ofn.hwndOwner = hwnd;
    ofn.lpstrFile = szFile;
    ofn.nMaxFile = sizeof(szFile);
-   ofn.lpstrFilter = "JSON\0*.json\0All\0*.*\0";
+   ofn.lpstrFilter = "YAML\0*.yaml\0JSON\0*.json\0All\0*.*\0";
    ofn.nFilterIndex = 1;
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;

@@ -26,6 +26,8 @@ stances:
       parent: character.Shoulders
     sword_left.Sword:
       rotation: [0, 0.002265, 0]
+- name: wield_right
+  inherit: resting
 - name: wield_left
   inherit: wield_right
   bones:
