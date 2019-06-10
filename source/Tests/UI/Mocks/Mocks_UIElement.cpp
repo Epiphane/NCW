@@ -29,6 +29,21 @@ void MockClick(UIElement* victim, double fakeX, double fakeY) {
    victim->MouseUp(up);
 }
 
+void MockMouseDown(UIElement* victim, double fakeX, double fakeY) {
+   MouseDownEvent down(0, fakeX, fakeY);
+   victim->MouseDown(down);
+}
+
+void MockMouseUp(UIElement* victim, double fakeX, double fakeY) {
+   MouseUpEvent up(0, fakeX, fakeY);
+   victim->MouseUp(up);
+}
+
+void MockMouseMove(UIElement* victim, double fakeX, double fakeY) {
+   MouseMoveEvent move(fakeX, fakeY);
+   victim->MouseMove(move);
+}
+
 std::unique_ptr<UIRoot> CreateDummyUIRoot() {
    Engine::Window::Options windowOptions;
    Engine::Window& dummyWindow = Engine::Window::Instance();

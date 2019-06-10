@@ -2,80 +2,66 @@
 
 #include "Mocks/Mocks_UIElement.h"
 
-#include <Engine/UI/ToggleButtonVC.h>
+#include <Engine/UI/ButtonVC.h>
+#include <Engine/UI/UIGestureRecognizer.h>
 
 #include <RGBBinding/Observable.h>
 #include <RGBBinding/ObservableBasicOperations.h>
 
 using namespace CubeWorld;
-using namespace CubeWorld::Observables;
+using namespace Observables;
 
-using CubeWorld::Engine::ToggleButtonVC;
-using UI::Image;
+using Engine::ButtonVC;
 using Engine::UIRoot;
 
-SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggled" ) {
+SCENARIO( "Buttons respond correctly to mouse moves and clicks" ) {
    
-   GIVEN( "A toggle button with an Observer attached" ) {
+   GIVEN( "A button with an Observable attached to it" ) {
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
+      std::vector<Engine::UIGestureRecognizer::Message_GestureState> clicks;
       
-      ToggleButtonVC* button = new ToggleButtonVC(dummyRoot.get(), dummyRoot.get(), Image::Options(), Image::Options(), "ToggleButtonDummy");
+      ButtonVC* button = dummyRoot->Add<ButtonVC>("ButtonDummy");
+      button->ConstrainHeight(50);
+      button->ConstrainWidth(50);
+      button->OnClick() >>
+         ToContainer(clicks, myBag);
       
-      std::vector<bool> toggles;
+      // Solve constraints
+      dummyRoot->UpdateRoot();
       
-      button->OnToggled() >>
-         ToContainer(toggles, myBag);
+      auto button_center = (button->GetFrame().GetTopRight() + button->GetFrame().GetBottomLeft()) / 2.0f;
       
-      WHEN( "The toggle button receives mouse events" ) {
-         THEN ( "the toggle button should send messages from its OnToggled observable." ) {
-            MockClick(button);
-            
-            // ToggleButton defaults to false, so toggling once should give us one true
-            std::vector<bool> expected = { true };
-            CHECK( expected == toggles );
-            
-            MockClick(button);
-            MockClick(button);
-            MockClick(button);
-            
-            expected = { true, false, true, false };
-            CHECK( expected == toggles );
+      WHEN( "The button receives a click" ) {
+         MockClick(button);
+         THEN ( "the button should send a message from its OnClick observable." ) {
+            CHECK( clicks.size() == 1 );
          }
       }
       
-      AND_WHEN( "the toggle button is set programmatically" ) {
-         ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.MessageProducer());
-         
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(true);
-         
-         THEN( "it should also send messages from its OnToggled observable." ) {            
-            std::vector<bool> expectedToggles = { false, false, true };
-            CHECK( expectedToggles == toggles );
+      WHEN( "the button receives a MouseDown, the mouse moves OFF the button, then back on, then MouseUps" ) {
+         MockMouseDown(button, button_center.x, button_center.y);
+         MockMouseMove(button, 1000, 1000);
+         MockMouseMove(button, button_center.x, button_center.y);
+         MockMouseUp  (button, button_center.x, button_center.y);
+
+         THEN ( "the button should send a message from its OnClick observable." ) {
+            CHECK( clicks.size() == 1 );
          }
       }
       
-      AND_WHEN( "programmatic setting is combined with mouse events" ) {
-         ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.MessageProducer());
+      WHEN( "MouseDown ON the button, drags off, MouseUps, MouseDown and drags back ON, MouseUp" ) {
+         MockMouseDown(button, button_center.x, button_center.y);
+         MockMouseMove(button, 1000, 1000);
+         MockMouseUp  (button, 1000, 1000);
+         MockMouseDown(dummyRoot.get(), 1000, 1000);
+         MockMouseMove(button, button_center.x, button_center.y);
+         MockMouseUp  (button, button_center.x, button_center.y);
          
-         toggleMeister.SendMessage(false);
-         MockClick(button);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(true);
-         MockClick(button);
-         MockClick(button);
-         MockClick(button);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(false);
-         
-         THEN("the OnToggled observable sends all the toggles out." ) {
-            std::vector<bool> expectedToggles = { false, true, false, true, false, true, false, false, false };
-            CHECK( expectedToggles == toggles );
+         THEN( "the button should NOT send a message from its OnClick observable." ) {
+            CHECK( clicks.size() == 0 );
          }
       }
-   }
-}
+
+   } // GIVEN
+} // SCENARIO

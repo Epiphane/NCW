@@ -1,5 +1,5 @@
 //
-//  UITapGestureRecognizer.h
+//  UIClickGestureRecognizer.h
 //
 //  Created by Elliot Fiske on 10/18/18.
 //
@@ -14,9 +14,9 @@ namespace CubeWorld
 namespace Engine
 {
     
-class UITapGestureRecognizer : public UIGestureRecognizer {
+class UIClickGestureRecognizer : public UIGestureRecognizer {
 public:
-   UITapGestureRecognizer(UIElement* element);
+   UIClickGestureRecognizer(UIElement* element);
 
    virtual bool MouseMove(const MouseMoveEvent& evt);
    virtual bool MouseDown(const MouseDownEvent& evt);
@@ -24,7 +24,7 @@ public:
 
    // This lets you observe JUST when the there has been a successful
    //    mouse click on this element.
-   Observables::Observable<Message_GestureState>& OnTap();
+   Observables::Observable<Message_GestureState>& OnClick();
 
 protected:
    bool mbStartedInsideMe; ///< oh my

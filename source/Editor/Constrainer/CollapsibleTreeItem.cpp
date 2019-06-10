@@ -8,7 +8,7 @@
 
 #include "CollapsibleTreeVC.h"
 
-#include <Engine/UI/UITapGestureRecognizer.h>
+#include <Engine/UI/UIClickGestureRecognizer.h>
 #include <Shared/Helpers/Asset.h>
 
 namespace CubeWorld

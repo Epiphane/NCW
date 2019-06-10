@@ -15,9 +15,12 @@
 namespace CubeWorld
 {
    
-// Fake a click on the given element.
+// Fake various mouse events on a given element.
 void MockClick(Engine::UIElement* victim, double fakeX = 0, double fakeY = 0);
-   
+void MockMouseDown(Engine::UIElement* victim, double fakeX, double fakeY);
+void MockMouseUp(Engine::UIElement* victim, double fakeX, double fakeY);
+void MockMouseMove(Engine::UIElement* victim, double fakeX, double fakeY);
+
 // Create a dummy UIRoot.
 std::unique_ptr<Engine::UIRoot> CreateDummyUIRoot();
    

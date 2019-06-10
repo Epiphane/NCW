@@ -8,9 +8,9 @@
 #include <RGBBinding/ObservableBasicOperations.h>
 
 using namespace CubeWorld;
-using namespace CubeWorld::Observables;
+using namespace Observables;
 
-using CubeWorld::Engine::ToggleButtonVC;
+using Engine::ToggleButtonVC;
 using UI::Image;
 using Engine::UIRoot;
 
@@ -19,9 +19,9 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
    GIVEN( "A toggle button with an Observer attached" ) {
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
-      
-      ToggleButtonVC* button = new ToggleButtonVC(dummyRoot.get(), dummyRoot.get(), Image::Options(), Image::Options(), "ToggleButtonDummy");
-      
+
+      ToggleButtonVC* button = dummyRoot->Add<ToggleButtonVC>(Image::Options(), Image::Options(), "ToggleButtonDummy");
+
       std::vector<bool> toggles;
       
       button->OnToggled() >>

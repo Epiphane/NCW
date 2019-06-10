@@ -17,7 +17,7 @@ namespace Observables
 // Simple callback when a message is sent.
 //
 // Example usage:
-//    mButton.OnTap() >> OnMessage([]() { printf("Tap received!"); };
+//    mButton.OnClick() >> OnMessage([]() { printf("Tap received!"); };
 //
 template<typename T>
 struct OnMessage {
@@ -152,12 +152,12 @@ Observable<T>& operator>>(Observable<T>& inObservable, Distinct distincter)
 }
  
 //
-// Immediately emits a message to any listeners, then passes the rest of
-//    its messages through.
+// New listeners will receive a given message first, then continue with the rest
+//    of the messages as normal.
 //
 // Example usage:
-//    mButton.OnTap() >>
-//       StartWith(someTap);
+//    mButton.OnClick() >>
+//       StartWith(someClick);
 //
 template<typename T>
 struct StartWith {
@@ -189,7 +189,7 @@ Observable<T>& operator>>(Observable<T>& inObservable, StartWith<T> starter)
 //
 // Example usage:
 //    std::vector<Point> points;
-//    mButton.OnTap() >>
+//    mButton.OnClick() >>
 //       ToContainer(points};
 //
 template<typename ContainerType>

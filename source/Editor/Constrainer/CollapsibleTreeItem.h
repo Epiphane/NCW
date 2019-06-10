@@ -11,7 +11,7 @@
 
 #include <Engine/UI/UIRoot.h>
 #include <Engine/UI/UIStackView.h>
-#include <Engine/UI/UITapGestureRecognizer.h>
+#include <Engine/UI/UIClickGestureRecognizer.h>
 
 #include <Shared/UI/RectFilled.h>
 #include <Shared/UI/Image.h>
