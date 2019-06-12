@@ -132,15 +132,15 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
 //
 // Example usage:
 //    mToggleButton.OnToggleStateChanged() >> 
-//       Distinct();
+//       RemoveDuplicates();
 //
-struct Distinct {};
+struct RemoveDuplicates {};
    
 template<typename T>
-Observable<T>& operator>>(Observable<T>& inObservable, Distinct distincter)
+Observable<T>& operator>>(Observable<T>& inObservable, RemoveDuplicates distincter)
 {
-   std::unique_ptr<Observable_Distinct<T>> newDistinctObservable = std::make_unique<Observable_Distinct<T>>();
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newDistinctObservable));
+   std::unique_ptr<Observable_RemoveDuplicates<T>> newRemoveDuplicatesObservable = std::make_unique<Observable_RemoveDuplicates<T>>();
+   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newRemoveDuplicatesObservable));
    
    inObservable.AddOwnedObservable(newObservable);
    

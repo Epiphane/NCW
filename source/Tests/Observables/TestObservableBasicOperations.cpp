@@ -77,12 +77,12 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          }
       }
       
-      WHEN( "An Observable sends its messages through Distinct()" ) {
+      WHEN( "An Observable sends its messages through RemoveDuplicates()" ) {
          ObservableInternal<int> testObservable;
          std::vector<bool> results;
          
          testObservable.MessageProducer() >>
-            Distinct() >>
+            RemoveDuplicates() >>
             ToContainer(results, myBag);
          
          testObservable.SendMessage(true);

@@ -29,7 +29,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
 
    mToggled.MessageProducer() >>
       StartWith(false) >>
-      Distinct() >>
+      RemoveDuplicates() >>
       OnMessage<bool>([&](bool isOn) {
          mToggleState = isOn;
          

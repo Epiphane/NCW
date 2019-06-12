@@ -202,10 +202,10 @@ namespace Observables
     *    if this is the first message it's asked to emit. 
     *
     * NOTE: You probably shouldn't make a instance of this class yourself. Use
-    *          ObservableBasicOperations::Distinct()
+    *          ObservableBasicOperations::RemoveDuplicates()
     */
    template<typename T>
-   class Observable_Distinct : public Observable<T>
+   class Observable_RemoveDuplicates : public Observable<T>
    {
    public:
       virtual void SendMessageToObservers(T message) override {

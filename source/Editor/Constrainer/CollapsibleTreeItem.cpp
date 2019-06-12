@@ -31,37 +31,29 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, Engine::UIElement
    , mbExpanded(true)
    , mbSelected(false)
 {
-   mArrow = Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "button_down"});
-   mLabel = Add<Text>(Text::Options{title});
-   mSelectableArea = Add<UIElement>();
+   mLabel = Add<Text>(Text::Options{title}, name + "Label");
+   mSelectableArea = Add<UIElement>(name + "SelectableArea");
    mSubElementStackView = Add<UIStackView>();
-   mSelectedHighlight = Add<UI::RectFilled>("TreeItemHighlighter", glm::vec4(0.3, 0.3, 0.3, 1));
+   mSelectedHighlight = Add<UI::RectFilled>(name + "Highlighter", glm::vec4(0.3, 0.3, 0.3, 1));
    
    mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
-
-   mArrow->ConstrainWidthToContent();
-   mArrow->ConstrainHeightToContent();
    
-   mLabel->ConstrainToRightOf(mArrow, 5.0);
-   mLabel->ConstrainVerticalCenterTo(mArrow);
+   mLabel->ConstrainToRightOf(mToggle, 5.0);
+   mLabel->ConstrainVerticalCenterTo(mToggle);
    
    mSelectableArea->Contains(mLabel);
-   mSelectableArea->Contains(mArrow);
+   mSelectableArea->Contains(mToggle);
    mSelectableArea->ConstrainLeftAlignedTo(this);
    mSelectableArea->ConstrainTopAlignedTo(this);
    
    mSelectedHighlight->ConstrainEqualBounds(mSelectableArea);
-   mSelectedHighlight->ConstrainBehind(mArrow);
+   mSelectedHighlight->ConstrainBehind(mToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    
    mSubElementStackView->SetAlignItemsBy(UIStackView::Left);
    mSubElementStackView->ConstrainLeftAlignedTo(mLabel, 0.0);
    mSubElementStackView->ConstrainBelow(mSelectableArea);
-   
-   UIConstraint::Options weakSauce;
-   weakSauce.priority = UIConstraint::HIGH_PRIORITY;
-   mSubElementStackView->ConstrainBottomAlignedTo(this, 0.0, weakSauce);
 }
 
 void CollapsibleTreeItem::AddSubElement(std::unique_ptr<CollapsibleTreeItem> newSubElement)
@@ -70,16 +62,16 @@ void CollapsibleTreeItem::AddSubElement(std::unique_ptr<CollapsibleTreeItem> new
    
    mSubElementStackView->AddChild(std::move(newSubElement));
    
-   mArrow->SetActive(true);
+   mToggle->SetActive(true);
 }
-
+ 
 void CollapsibleTreeItem::SetActive(bool active)
 {
    UIElement::SetActive(active);
 
    if (mActive) {
       if (mSubElements.empty()) {
-         mArrow->SetActive(false);
+         mToggle->SetActive(false);
       }
 
       if (!mbExpanded) {
