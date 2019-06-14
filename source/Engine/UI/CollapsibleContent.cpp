@@ -16,6 +16,8 @@ namespace CubeWorld
 
 namespace Engine
 {
+   
+using namespace Observables;
 
 CollapsibleContent::CollapsibleContent(UIRoot* root, UIElement* parent, const std::string &name)
       : UIElement(root, parent, name)
@@ -25,10 +27,18 @@ CollapsibleContent::CollapsibleContent(UIRoot* root, UIElement* parent, const st
    mToggle = Add<ToggleButtonVC>(offImage, onImage, name + "Toggle");
    
    mContentParent = Add<UIStackView>(name + "Content");
-   mContentParent->ConstrainEqualBounds(this);
    
    mToggle->OnToggled() >>
-      Observables::OnMessage<bool>([=](bool newToggleState) {
+      Observables::OnMessage<bool>([&](bool newToggleState) {
+         if (mContent) {
+            mContent->SetActive(newToggleState);
+         }
+      }, mBag);
+   
+   mExpanded.MessageProducer() >>
+      StartWith(true) >>
+      RemoveDuplicates() >>
+      OnMessage<bool>([&](bool newToggleState) {
          if (mContent) {
             mContent->SetActive(newToggleState);
          }
@@ -38,18 +48,9 @@ CollapsibleContent::CollapsibleContent(UIRoot* root, UIElement* parent, const st
 void CollapsibleContent::ProvideCollapseStateSetter(Observables::Observable<bool>& collapser) 
 {
    collapser >>
-      Observables::OnMessage<bool>([=](bool newToggleState) {
-         
+      OnMessage<bool>([&](bool newState) {
+         mExpanded.SendMessage(newState);
       }, mBag);
-}
-   
-void CollapsibleContent::SetContent(std::unique_ptr<UIElement> element)
-{
-   if (mContent) {
-      mContent->MarkForDeletion();
-   }
-   
-   mContent = mContentParent->AddChild(std::move(element));
 }
 
 } // namespace Engine

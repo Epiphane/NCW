@@ -21,27 +21,39 @@ using Engine::UIElement;
 namespace CubeWorld
 {
    
-void MockClick(UIElement* victim, double fakeX, double fakeY) {
-   MouseDownEvent down(0, fakeX, fakeY);
-   MouseUpEvent up(0, fakeX, fakeY);
+glm::vec3 ElementCenter(UIElement* element) {
+   return (element->GetFrame().GetTopRight() + element->GetFrame().GetBottomLeft()) / 2.0f;
+}
    
-   victim->MouseDown(down);
-   victim->MouseUp(up);
+void MockClick(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
+   glm::vec3 center = ElementCenter(victim);
+   
+   MouseDownEvent down(0, center.x + fakeX, center.y + fakeX);
+   MouseUpEvent     up(0, center.x + fakeX, center.y + fakeX);
+   
+   root->Receive(down);
+   root->Receive(up);
 }
 
-void MockMouseDown(UIElement* victim, double fakeX, double fakeY) {
-   MouseDownEvent down(0, fakeX, fakeY);
-   victim->MouseDown(down);
+void MockMouseDown(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
+   glm::vec3 center = ElementCenter(victim);
+   
+   MouseDownEvent down(0, center.x + fakeX, center.y + fakeX);
+   root->Receive(down);
 }
 
-void MockMouseUp(UIElement* victim, double fakeX, double fakeY) {
-   MouseUpEvent up(0, fakeX, fakeY);
-   victim->MouseUp(up);
+void MockMouseUp(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
+   glm::vec3 center = ElementCenter(victim);
+   
+   MouseUpEvent up(0, center.x + fakeX, center.y + fakeX);
+   root->Receive(up);
 }
 
-void MockMouseMove(UIElement* victim, double fakeX, double fakeY) {
-   MouseMoveEvent move(fakeX, fakeY);
-   victim->MouseMove(move);
+void MockMouseMove(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
+   glm::vec3 center = ElementCenter(victim);
+   
+   MouseMoveEvent move(center.x + fakeX, center.y + fakeX);
+   root->Receive(move);
 }
 
 std::unique_ptr<UIRoot> CreateDummyUIRoot() {
@@ -63,6 +75,7 @@ UIElement* FindChildByName(UIElement* baseElement, const std::string& name) {
          if (it->GetName() == token) {
             currElement = it.GetPointer();
             foundElementForName = true;
+            break;
          }
       }
       

@@ -29,7 +29,7 @@ using Engine::UIElement;
 class CollapsibleTreeVC : public UIElement
 {
 public:
-   CollapsibleTreeVC(Engine::UIRoot* root, UIElement* parent);
+   CollapsibleTreeVC(Engine::UIRoot* root, UIElement* parent, const std::string& name);
 
 private:
    UIStackView *mStackView;

@@ -94,7 +94,7 @@ namespace Observables
    public:
       friend class ObservableInternal<T>;
       
-      ~Observable() {
+      virtual ~Observable() {
          for (const auto& [weakBag, _] : mBaggedObservers) {
             auto strongBag = weakBag.lock();
             if (strongBag) {

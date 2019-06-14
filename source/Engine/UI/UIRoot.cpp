@@ -71,8 +71,6 @@ UIRoot::UIRoot(Input* input)
    Subscribe<MouseDownEvent>(*this);
    Subscribe<MouseUpEvent>(*this);
    Subscribe<MouseClickEvent>(*this);
-
-// #endif
 }
 
 UIRoot::~UIRoot()

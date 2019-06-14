@@ -18,6 +18,7 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
    
    GIVEN( "A toggle button with an Observer attached" ) {
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
+      UIRoot* root = dummyRoot.get();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
       ToggleButtonVC* button = dummyRoot->Add<ToggleButtonVC>(Image::Options(), Image::Options(), "ToggleButtonDummy");
@@ -29,15 +30,15 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
       
       WHEN( "The toggle button receives mouse events" ) {
          THEN ( "the toggle button should send messages from its OnToggled observable." ) {
-            MockClick(button);
+            MockClick(root, button);
             
             // ToggleButton defaults to false, so toggling once should give us one true
             std::vector<bool> expected = { true };
             CHECK( expected == toggles );
             
-            MockClick(button);
-            MockClick(button);
-            MockClick(button);
+            MockClick(root, button);
+            MockClick(root, button);
+            MockClick(root, button);
             
             expected = { true, false, true, false };
             CHECK( expected == toggles );
@@ -63,12 +64,12 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
          button->ProvideToggleSetter(toggleMeister.MessageProducer());
          
          toggleMeister.SendMessage(false);
-         MockClick(button);
+         MockClick(root, button);
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(true);
-         MockClick(button);
-         MockClick(button);
-         MockClick(button);
+         MockClick(root, button);
+         MockClick(root, button);
+         MockClick(root, button);
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(false);
          

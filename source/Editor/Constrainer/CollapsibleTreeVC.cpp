@@ -6,8 +6,6 @@
 
 #include "CollapsibleTreeVC.h"
 
-#include "CollapsibleTreeItem.h"
-
 namespace CubeWorld
 {
 
@@ -18,10 +16,8 @@ namespace Constrainer
 {
 
 CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* parent, 
-                                         CollapsibleTreeViewDelegate* delegate, CollapsibleTreeViewDatasource* datasource)
-   : UIElement(root, parent, "ConstrainerElementList")
-   , mDelegate(delegate)
-   , mDatasource(datasource)
+                                     const std::string& name)
+   : UIElement(root, parent, name)
 {
    mStackView = Add<UIStackView>("ElementListView");
    mStackView->SetAlignItemsBy(UIStackView::Left);
