@@ -35,6 +35,9 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
       item->OnSelected() >>
          ToContainer(selections, myBag);
       
+      // solve constraints
+      dummyRoot->UpdateRoot();
+      
       WHEN( "the item is clicked" ) {
          dummyRoot->UpdateRoot();
          UIElement* hilite = FindChildByName(item, "DummyItemHighlight");

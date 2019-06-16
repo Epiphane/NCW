@@ -10,9 +10,8 @@
 #include "UIClickGestureRecognizer.h"
 #include "UIStackView.h"
 
-#include "UIRoot.h"
-
 #include <RGBBinding/ObservableBasicOperations.h>
+#include <Shared/Helpers/Asset.h>
 
 namespace CubeWorld
 {
@@ -23,13 +22,25 @@ namespace Engine
 using namespace Observables;
    
 CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent, const std::string &title, const std::string &name)
-   : CollapsibleContent(root, parent, name)
+   : UIElement(root, parent, name)
    , mbExpanded(true)
    , mbSelected(false)
 {
    mLabel = Add<Text>(Text::Options{title}, name + "Label");
-   mSubElementStackView = AddContent<UIStackView>(name + "SubItemParent");
+   mSubElementStackView = Add<UIStackView>(name + "SubItemParent");
    mSelectedHighlight = Add<UI::RectFilled>(name + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
+   
+   Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
+   Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
+   mToggle = Add<ToggleButtonVC>(offImage, onImage, name + "Toggle");
+   
+   mToggle->OnToggled() >>
+      OnMessage<bool>([&](bool expanded) {
+         for (UIElement* sub : mSubElements) {
+            sub->SetActive(expanded);
+            mbExpanded = expanded;
+         }
+      }, mBag);
    
    auto clickToSelect = mSelectedHighlight->CreateAndAddGestureRecognizer<UIClickGestureRecognizer>();
    clickToSelect->OnClick() >>
@@ -39,7 +50,6 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    
    mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
-   
    mLabel->ConstrainToRightOf(mToggle, 5.0);
    mLabel->ConstrainVerticalCenterTo(mToggle);
    
@@ -51,10 +61,9 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mSelectedHighlight->ConstrainBehind(mToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    
-   mContentParent->ConstrainBelow(mSelectedHighlight);
-   mContentParent->ConstrainLeftAlignedTo(this);
-   mContentParent->ConstrainRightAlignedTo(this);
-   mContentParent->ConstrainBottomAlignedTo(this);
+   mSubElementStackView->ConstrainBelow(mSelectedHighlight);
+   mSubElementStackView->ConstrainWidthTo(this);
+   mSubElementStackView->ConstrainBottomAlignedTo(this);
 }
  
 void CollapsibleTreeItem::SetActive(bool active)
@@ -67,18 +76,13 @@ void CollapsibleTreeItem::SetActive(bool active)
       }
 
       if (!mbExpanded) {
-         
+         for (UIElement* sub : mSubElements) {
+            sub->SetActive(false);
+         }
       }
       
       mSelectedHighlight->SetActive(mbSelected);
    }
-}
-   
-void CollapsibleTreeItem::SetHighlighted(bool bHighlighted)
-{
-   mbSelected = bHighlighted;
-   
-   mSelectedHighlight->SetActive(bHighlighted);
 }
 
 }; // namespace Engine
