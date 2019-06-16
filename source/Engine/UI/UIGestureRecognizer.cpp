@@ -21,7 +21,7 @@ UIGestureRecognizer::UIGestureRecognizer(UIElement* element)
 
 Observables::Observable<UIGestureRecognizer::Message_GestureState> &UIGestureRecognizer::OnStateChanged()
 {
-   return mStateChangedObservable.MessageProducer();
+   return mStateChangedObservable;
 }
 
 void UIGestureRecognizer::ChangeStateAndBroadcastMessage(UIGestureRecognizer::State newState, double mouseX, double mouseY)

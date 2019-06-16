@@ -56,10 +56,10 @@ void UIClickGestureRecognizer::MouseUp(const MouseUpEvent& evt)
    mbStartedInsideMe = false;
 }
 
-Observables::Observable<UIGestureRecognizer::Message_GestureState> &UIClickGestureRecognizer::OnClick()
+Observables::Observable<UIGestureRecognizer::Message_GestureState>& UIClickGestureRecognizer::OnClick()
 {
-   return mStateChangedObservable.MessageProducer() >>
-      Observables::Filter<Message_GestureState>([](Message_GestureState m) {
+   return mStateChangedObservable >>
+      Observables::Filter<Message_GestureState>([](auto m) {
          return m.state == Ending;
       });
 }

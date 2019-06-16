@@ -28,11 +28,11 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
       UIRoot* root = dummyRoot.get();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
-      std::vector<UIGestureRecognizer::Message_GestureState> selections;
+      std::vector<bool> selections;
       
       CollapsibleTreeItem* item = dummyRoot->Add<CollapsibleTreeItem>("Test Title", "DummyItem");
       
-      item->OnSelected() >>
+      item->GetSelectionObservable() >>
          ToContainer(selections, myBag);
       
       // solve constraints
@@ -60,7 +60,7 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
       WHEN( "the item is provided with some new children" ) {
          StringVector dummyChildren = {"Test 1", "Test 2", "Test 3"};
          
-         ObservableInternal<StringVector*> childrenObservable;
+         Observable<StringVector*> childrenObservable;
          
 //         item->ProvideChildrenObservable(childrenObservable.MessageProducer());
          

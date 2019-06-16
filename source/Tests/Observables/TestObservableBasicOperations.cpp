@@ -11,10 +11,10 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
       WHEN( "A Map is attached to an Observable emitting messages" ) {
-         ObservableInternal<int> testObservable;
+         Observable<int> testObservable;
          std::vector<int> results;
 
-         testObservable.MessageProducer() >>
+         testObservable >>
             Map<int, int>([](int test) -> int {
                return test + 2;
             }) >>
@@ -32,10 +32,10 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       }
 
       WHEN( "A Filter for only even numbers is attached to an Observable emitting messages" ) {
-         ObservableInternal<int> testObservable;
+         Observable<int> testObservable;
          std::vector<int> results;
 
-         testObservable.MessageProducer() >>
+         testObservable >>
             Filter<int>([](int test) -> bool {
                return test % 2 == 0;
             }) >>
@@ -55,11 +55,11 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       }
 
       WHEN( "Two Observables are combined into a new one with Merge" ) {
-         ObservableInternal<int> obsA;
-         ObservableInternal<int> obsB;
+         Observable<int> obsA;
+         Observable<int> obsB;
          std::vector<int> results;
 
-         Merge(obsA.MessageProducer(), obsB.MessageProducer()) >>
+         Merge(obsA, obsB) >>
             ToContainer(results, myBag);
 
          obsA.SendMessage(1);
@@ -78,10 +78,10 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       }
       
       WHEN( "An Observable sends its messages through RemoveDuplicates()" ) {
-         ObservableInternal<int> testObservable;
+         Observable<int> testObservable;
          std::vector<bool> results;
          
-         testObservable.MessageProducer() >>
+         testObservable >>
             RemoveDuplicates() >>
             ToContainer(results, myBag);
          
@@ -101,10 +101,10 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       }
       
       WHEN( "An Observable is modified by StartWith()" ) {
-         ObservableInternal<int> testObservable;
+         Observable<int> testObservable;
          std::vector<int> results;
          
-         testObservable.MessageProducer() >>
+         testObservable >>
             StartWith(11) >>
             ToContainer(results, myBag);
          
@@ -120,6 +120,27 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
                std::vector<int> expected { 11, 37, -1, 22 };
                CHECK( results == expected );
             }
+         }
+      }
+      
+      WHEN( "An Observable gets messages piped into it" ) {
+         Observable<int> testObservableAccepter;
+         Observable<int> testObservableProducer;
+         std::vector<int> results; 
+         
+         testObservableProducer >> testObservableAccepter;
+         
+         testObservableAccepter >>
+            ToContainer(results, myBag);
+         
+         testObservableProducer.SendMessage(3);
+         testObservableProducer.SendMessage(100);
+         testObservableProducer.SendMessage(-37);
+         testObservableProducer.SendMessage(11);
+         
+         THEN ( "All messages sent by the producer are forwarded through the accepter" ) {
+            std::vector<int> expected { 3, 100, -37, 11 };
+            CHECK( results == expected );
          }
       }
 

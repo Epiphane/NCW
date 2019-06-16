@@ -17,22 +17,12 @@ namespace Engine
 TextEntry::TextEntry(UIRoot* root, UIElement* parent, const std::string &name) 
    : UIElement(root, parent, name)
 {
-}
-
-void TextEntry::ProvideKeystrokeObservable(Observables::Observable<Keystroke>& keystrokes)
-{
-   keystrokes >>
+   mKeystrokeObservable >>
       Observables::OnMessage<Keystroke>([&](Keystroke key) {
          mEnteredText += (char) key.keyCode;
          mEnteredTextObservable.SendMessage(mEnteredText);
       }, mBag);
 }
-
-Observables::Observable<std::string>& TextEntry::OnInputChanging()
-{
-   return mEnteredTextObservable.MessageProducer();
-}
-
 
 } // namespace Engine
 

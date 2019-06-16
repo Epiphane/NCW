@@ -25,7 +25,7 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
 
       std::vector<bool> toggles;
       
-      button->OnToggled() >>
+      button->GetToggleObservable() >>
          ToContainer(toggles, myBag);
       
       WHEN( "The toggle button receives mouse events" ) {
@@ -45,9 +45,9 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
          }
       }
       
-      AND_WHEN( "the toggle button is set programmatically" ) {
-         ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.MessageProducer());
+      AND_WHEN( "the toggle button receives piped messages" ) {
+         Observable<bool> toggleMeister;
+         toggleMeister >> button->GetToggleObservable();
          
          toggleMeister.SendMessage(false);
          toggleMeister.SendMessage(false);
@@ -59,9 +59,9 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
          }
       }
       
-      AND_WHEN( "programmatic setting is combined with mouse events" ) {
-         ObservableInternal<bool> toggleMeister;
-         button->ProvideToggleSetter(toggleMeister.MessageProducer());
+      AND_WHEN( "piped messages are combined with mouse events" ) {
+         Observable<bool> toggleMeister;
+         toggleMeister >> button->GetToggleObservable();
          
          toggleMeister.SendMessage(false);
          MockClick(root, button);

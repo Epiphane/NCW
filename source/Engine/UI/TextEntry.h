@@ -27,10 +27,12 @@ public:
    TextEntry(UIRoot* root, UIElement* parent, const std::string &name);
    void ProvideKeystrokeObservable(Observables::Observable<Keystroke>& keystrokes);
 
-   Observables::Observable<std::string>& OnInputChanging();
+   Observables::Observable<std::string>& GetEnteredTextObservable() { return mEnteredTextObservable; }
+   Observables::Observable<Keystroke>& GetKeystrokeObserver() { return mKeystrokeObservable; }
 
 private:
-   Observables::ObservableInternal<std::string> mEnteredTextObservable;
+   Observables::Observable<std::string> mEnteredTextObservable;
+   Observables::Observable<Keystroke> mKeystrokeObservable;
    std::string mEnteredText;
 };
 

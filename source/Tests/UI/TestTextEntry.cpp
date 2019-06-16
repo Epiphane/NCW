@@ -13,12 +13,13 @@ TEST_CASE( "Basic text entry behavior" ) {
    TextEntry* text = new TextEntry(nullptr, nullptr, "TextEntryTestDummy");
 
    std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
-   ObservableInternal<Keystroke> fakeKeystrokes;
+   Observable<Keystroke> fakeKeystrokes;
    
    std::string enteredText;
    
-   text->ProvideKeystrokeObservable(fakeKeystrokes.MessageProducer());
-   text->OnInputChanging() >>
+   fakeKeystrokes >> text->GetKeystrokeObserver();
+   
+   text->GetEnteredTextObservable() >>
       OnMessage<std::string>([&](std::string newString) {
          enteredText = newString;
       }, myBag);

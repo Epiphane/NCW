@@ -29,11 +29,13 @@ public:
    
    void SetActive(bool active) override;
    
+   Observables::Observable<bool>& GetSelectionObservable() { return mSelectionObservable; }
+   
 private:
-   DECLARE_OBSERVABLE(UIGestureRecognizer::Message_GestureState, mSelections, OnSelected);
+   Observables::Observable<bool> mSelectionObservable;
    
    Text* mLabel;
-   ToggleButtonVC* mToggle;
+   ToggleButtonVC* mExpandToggle;
    RectFilled* mSelectedHighlight;
    
    // Parent to the collapsible items beneath me

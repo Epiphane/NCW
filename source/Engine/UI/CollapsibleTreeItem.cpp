@@ -32,9 +32,9 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    
    Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
    Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
-   mToggle = Add<ToggleButtonVC>(offImage, onImage, name + "Toggle");
+   mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, name + "Toggle");
    
-   mToggle->OnToggled() >>
+   mExpandToggle->GetToggleObservable() >>
       OnMessage<bool>([&](bool expanded) {
          for (UIElement* sub : mSubElements) {
             sub->SetActive(expanded);
@@ -42,23 +42,33 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          }
       }, mBag);
    
+   // TODO-EF: I could really just turn mSelectedHighlight into a ToggleButton. That might be neat.
    auto clickToSelect = mSelectedHighlight->CreateAndAddGestureRecognizer<UIClickGestureRecognizer>();
    clickToSelect->OnClick() >>
-      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
-         mSelections.SendMessage(m);
+      Map<UIGestureRecognizer::Message_GestureState, bool>([&](auto gesture) -> bool {
+         return !mbSelected;
+      }) >> 
+      mSelectionObservable;
+   
+   mSelectionObservable >>
+      StartWith(false) >>
+      RemoveDuplicates() >>
+      OnMessage<bool>([&](bool selected) {
+         mSelectedHighlight->SetActive(selected);
+         mbSelected = selected;
       }, mBag);
    
    mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
-   mLabel->ConstrainToRightOf(mToggle, 5.0);
-   mLabel->ConstrainVerticalCenterTo(mToggle);
+   mLabel->ConstrainToRightOf(mExpandToggle, 5.0);
+   mLabel->ConstrainVerticalCenterTo(mExpandToggle);
    
    mSelectedHighlight->Contains(mLabel);
-   mSelectedHighlight->Contains(mToggle);
+   mSelectedHighlight->Contains(mExpandToggle);
    mSelectedHighlight->ConstrainLeftAlignedTo(this);
    mSelectedHighlight->ConstrainTopAlignedTo(this);
    mSelectedHighlight->ConstrainRightAlignedTo(this);
-   mSelectedHighlight->ConstrainBehind(mToggle);
+   mSelectedHighlight->ConstrainBehind(mExpandToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    
    mSubElementStackView->ConstrainBelow(mSelectedHighlight);
@@ -71,8 +81,9 @@ void CollapsibleTreeItem::SetActive(bool active)
    UIElement::SetActive(active);
 
    if (mActive) {
+      // If no children, hide expansion toggle
       if (mSubElements.empty()) {
-         mToggle->SetActive(false);
+         mExpandToggle->SetActive(false);
       }
 
       if (!mbExpanded) {

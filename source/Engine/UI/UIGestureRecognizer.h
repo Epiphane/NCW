@@ -16,10 +16,7 @@ namespace CubeWorld
 {
    
 namespace Engine
-{
-   
-   using Observables::ObservableInternal;
-   
+{  
    class UIGestureRecognizer; // Forward declare
    class UIElement;
 
@@ -66,7 +63,7 @@ namespace Engine
       // Helper function to change mState and send a message about it
       void ChangeStateAndBroadcastMessage(State newState, double mouseX, double mouseY);
 
-      ObservableInternal<Message_GestureState> mStateChangedObservable;
+      Observables::Observable<Message_GestureState> mStateChangedObservable;
 
       // Which UIElement is this recognizer looking for clicks on?
       UIElement* mpElement;

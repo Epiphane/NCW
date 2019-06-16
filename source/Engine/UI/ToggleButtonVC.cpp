@@ -27,7 +27,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
 
-   mToggled.MessageProducer() >>
+   mToggleObservable >>
       StartWith(false) >>
       RemoveDuplicates() >>
       OnMessage<bool>([&](bool isOn) {
@@ -39,24 +39,8 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    
    OnClick() >>
      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
-        mToggled.SendMessage(!mToggleState);
+        mToggleObservable.SendMessage(!mToggleState);
      }, mBag);
-}
-
-void ToggleButtonVC::ProvideToggleSetter(Observable<bool>& toggler)
-{
-   // TODO-EF: It might be cool to syntactically sugar this into something like:
-   //             public MessageSink ToggleStateSink() { 
-   //                return mToggled.GetMessageSink();
-   //             }
-   //
-   //             ...
-   //
-   //             SomeOtherObservable >> mToggleButton.ToggleStateSink();
-   toggler >>
-      OnMessage<bool>([&](bool toggled) {
-         mToggled.SendMessage(toggled);
-      }, mBag);
 }
 
 }; // namespace Engine

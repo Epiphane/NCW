@@ -24,12 +24,11 @@ class ToggleButtonVC : public ButtonVC
 public:
    ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name = "");
 
-   // Here you can pass in an observable that will force the toggle state to whatever you want
-   void ProvideToggleSetter(Observables::Observable<bool>& toggler);
+   Observables::Observable<bool>& GetToggleObservable() { return mToggleObservable; }
 
 private:
    // Observable the 'toggled' state of this button
-   DECLARE_OBSERVABLE(bool, mToggled, OnToggled);
+   Observables::Observable<bool> mToggleObservable;
 
    // Images that appear for their respective toggled states
    Image* mOffImage;

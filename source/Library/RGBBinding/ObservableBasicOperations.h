@@ -56,15 +56,15 @@ struct Map {
 template<typename T, typename U>
 Observable<U>& operator>>(Observable<T>& inObservable, const Map<T, U>& mapper)
 {
-   std::shared_ptr<ObservableInternal<U>> newObservable = std::make_shared<ObservableInternal<U>>();
+   std::shared_ptr<Observable<U>> newObservable = std::make_shared<Observable<U>>();
    inObservable.AddOwnedObservable(newObservable);
 
-   inObservable.AddObserverWithoutDisposer([=](T message) {
+   inObservable.AddObserver([=](T message) {
       U newMessage = mapper.mMapper(message);
       newObservable->SendMessage(newMessage);
-   });
+   }, newObservable);
 
-   return newObservable->MessageProducer();
+   return *newObservable;
 }
 
 //
@@ -87,16 +87,16 @@ struct Filter {
 template<typename T>
 Observable<T>& operator>>(Observable<T>& inObservable, const Filter<T>& filter)
 {
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   std::shared_ptr<Observable<T>> newObservable = std::make_shared<Observable<T>>();
    inObservable.AddOwnedObservable(newObservable);
 
-   inObservable.AddObserverWithoutDisposer([=](T message) {
+   inObservable.AddObserver([=](T message) {
       if (filter.filterer(message)) {
          newObservable->SendMessage(message);
       }
-   });
+   }, newObservable);
 
-   return newObservable->MessageProducer();
+   return *newObservable;
 }
 
 //
@@ -112,19 +112,19 @@ Observable<T>& operator>>(Observable<T>& inObservable, const Filter<T>& filter)
 template<typename T>
 Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs) 
 {
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>();
+   std::shared_ptr<Observable<T>> newObservable = std::make_shared<Observable<T>>();
    firstObs.AddOwnedObservable(newObservable);
    secondObs.AddOwnedObservable(newObservable);
    
-   firstObs.AddObserverWithoutDisposer([=](T message) {
+   firstObs.AddObserver([=](T message) {
       newObservable->SendMessage(message);
-   });
+   }, newObservable);
    
-   secondObs.AddObserverWithoutDisposer([=](T message) {
+   secondObs.AddObserver([=](T message) {
       newObservable->SendMessage(message);
-   });
+   }, newObservable);
    
-   return newObservable->MessageProducer();
+   return *newObservable;
 }
    
 //
@@ -139,16 +139,15 @@ struct RemoveDuplicates {};
 template<typename T>
 Observable<T>& operator>>(Observable<T>& inObservable, RemoveDuplicates distincter)
 {
-   std::unique_ptr<Observable_RemoveDuplicates<T>> newRemoveDuplicatesObservable = std::make_unique<Observable_RemoveDuplicates<T>>();
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newRemoveDuplicatesObservable));
+   std::shared_ptr<Observable_RemoveDuplicates<T>> newObservable = std::make_shared<Observable_RemoveDuplicates<T>>();
    
    inObservable.AddOwnedObservable(newObservable);
    
-   inObservable.AddObserverWithoutDisposer([=](T message) {
+   inObservable.AddObserver([=](T message) {
       newObservable->SendMessage(message);
-   });
+   }, newObservable);
    
-   return newObservable->MessageProducer();
+   return *newObservable;
 }
  
 //
@@ -171,17 +170,16 @@ struct StartWith {
 template<typename T>
 Observable<T>& operator>>(Observable<T>& inObservable, StartWith<T> starter)
 {
-   std::unique_ptr<Observable_StartWith<T>> newStartWithObservable = std::make_unique<Observable_StartWith<T>>();
-   newStartWithObservable->SetStarterMessage(starter.startingMessage);
-   
-   std::shared_ptr<ObservableInternal<T>> newObservable = std::make_shared<ObservableInternal<T>>(std::move(newStartWithObservable));
+   std::shared_ptr<Observable_StartWith<T>> newObservable = std::make_shared<Observable_StartWith<T>>();
+   newObservable->SetStarterMessage(starter.startingMessage);
    
    inObservable.AddOwnedObservable(newObservable);
-   inObservable.AddObserverWithoutDisposer([=](T message) {
-      newObservable->SendMessage(message);
-   });
    
-   return newObservable->MessageProducer();
+   inObservable.AddObserver([=](T message) {
+      newObservable->SendMessage(message);
+   }, newObservable);
+   
+   return *newObservable;
 }
 
 //

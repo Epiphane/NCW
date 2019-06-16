@@ -227,11 +227,11 @@ public:
       return recognizer;
    }
    
-   Observables::Observable<bool>& OnActiveStateChanged();
+   Observables::Observable<bool>& OnActiveStateChanged() { return mActiveObservable; }
 
 protected:
    // Sends a message when you become active or inactive
-   Observables::ObservableInternal<bool> mActiveObservable;
+   Observables::Observable<bool> mActiveObservable;
    
    // Convenience DisposeBag for subclasses to use
    std::shared_ptr<Observables::DisposeBag> mBag;
