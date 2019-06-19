@@ -78,14 +78,15 @@ void UIElement::SetActive(bool active)
    {
       return;
    }
-   
-   mActiveObservable.SendMessage(active);
 
    mActive = active;
    for (auto& child : mChildren)
    {
       child->SetActive(active);
    }
+   
+   mActiveObservable.SendMessage(active);
+   
    Redraw();
 }
 

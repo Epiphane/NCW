@@ -41,6 +41,7 @@ UIElement *UIStackView::AddChild(std::unique_ptr<UIElement> &&element)
 
    RemakeConstraints();
    
+   // TODO: This won't go away if the element is removed from this stack view...
    result->OnActiveStateChanged() >>
       Observables::OnMessage<bool>([&](bool active) {
          this->RemakeConstraints();
@@ -146,7 +147,7 @@ void UIStackView::RemakeConstraints()
       CreateChildConstraints(activeChildren);
    }
    
-   CreateConstraintsForItemAlignment();
+   CreateConstraintsForItemAlignment(activeChildren);
 }
    
 void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeChildren) {
@@ -178,7 +179,7 @@ void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeCh
    }
 }
 
-void UIStackView::CreateConstraintsForItemAlignment() {
+void UIStackView::CreateConstraintsForItemAlignment(const std::vector<UIElement*>& activeChildren) {
    for (size_t ndx = 0; ndx < AlignItemsBy::Count; ndx++) {
       AlignItemsBy axisToAlignItems = (AlignItemsBy)ndx;
       if (mAlignItemsBy.test(axisToAlignItems)) {
@@ -188,11 +189,11 @@ void UIStackView::CreateConstraintsForItemAlignment() {
          }
          
          UIConstraint::Target target = CONSTRAINT_MAPPING.at(axisToAlignItems);
-         for (size_t child = 0; child < mChildren.size(); child++) {
+         for (size_t child = 0; child < activeChildren.size(); child++) {
             UIConstraint::Options options;
             options.customNameConnector = "_aligned" + UIConstraint::StringFromConstraintTarget(target) + "ToStackView_";
             
-            UIConstraint newConstraint(this, mChildren[child].get(), target, target, options);
+            UIConstraint newConstraint(this, activeChildren[child], target, target, options);
             mpRoot->AddConstraint(newConstraint);
             mAlignmentConstraints.push_back(newConstraint);
          }

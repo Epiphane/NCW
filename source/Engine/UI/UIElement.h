@@ -148,15 +148,10 @@ public:
    //
    UIElement* GetParent() const;
 
-   typedef Shared::DereferenceIterator<std::vector<std::unique_ptr<UIElement>>::iterator> ChildIterator;
-   
-   ChildIterator BeginChildren() {
-      return Shared::MakeDereferenceIterator(mChildren.begin());
-   }
-   
-   ChildIterator EndChildren() {
-      return Shared::MakeDereferenceIterator(mChildren.end());
-   }
+   //
+   // Get a const vector& of this element's children
+   //
+   const std::vector<std::unique_ptr<UIElement>>& GetChildren() { return mChildren; }
 
    //
    // Update the element, called once per frame with the time elapsed.

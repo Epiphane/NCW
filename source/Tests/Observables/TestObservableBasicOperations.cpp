@@ -77,6 +77,31 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          }
       }
       
+      WHEN( "Two Observables are combined with CombineLatest()" ) {
+         Observable<int> obsA;
+         Observable<bool> obsB;
+         std::vector<std::tuple<int, bool>> results;
+         
+         CombineLatest(obsA, obsB) >>
+            ToContainer(results, myBag);
+         
+         THEN( "CombineLatest does not emit until both Observables emit a message" ) {
+            obsA.SendMessage(5);
+            
+            CHECK( results.empty() );
+         }
+         
+         AND_THEN( "CombineLatest returns the most recent two messages sent from either Observable " ) {
+            obsA.SendMessage(3);
+            obsB.SendMessage(false);
+            obsB.SendMessage(true);
+            obsA.SendMessage(-10);
+            
+            std::vector<std::tuple<int, bool>> expected = { {3, false}, {3, true}, {-10, true} };
+            CHECK( results == expected );
+         }
+      }
+      
       WHEN( "An Observable sends its messages through RemoveDuplicates()" ) {
          Observable<int> testObservable;
          std::vector<bool> results;

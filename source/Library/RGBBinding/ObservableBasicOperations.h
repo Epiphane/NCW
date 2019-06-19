@@ -128,6 +128,38 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
 }
    
 //
+// Combine two Observables' messages together. Both Observables can be any type,
+//    and the result will be a tuple of their combined types.
+//
+// CombineLatest will only emit when both Observables have sent a message, and
+//    each message will be a combination of the 2 latest messages of each
+//    Observable.
+//
+// Example usage:
+//    CombineLatest(mToggle.GetToggleObservable(), someIntegerObservable) >>
+//       OnMessage(handleMostRecentDataFromToggleAndIntegers)
+//
+// TODO-EF: Someday, make this use variadic args so it can combine any # of Observables.
+//
+template<typename T, typename U>
+Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<U>& secondObs) 
+{
+   std::shared_ptr<Observable_CombineLatest<T, U>> newObservable = std::make_shared<Observable_CombineLatest<T, U>>();
+   firstObs.AddOwnedObservable(newObservable);
+   secondObs.AddOwnedObservable(newObservable);
+   
+   firstObs.AddObserver([=](T message) {
+      newObservable->SendType1Message(message);
+   }, newObservable);
+   
+   secondObs.AddObserver([=](U message) {
+      newObservable->SendType2Message(message);
+   }, newObservable);
+   
+   return *newObservable;
+}
+   
+//
 // Only get messages when the Observable value changes (includes the first message sent)
 //
 // Example usage:

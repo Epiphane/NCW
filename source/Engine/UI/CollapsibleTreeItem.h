@@ -30,19 +30,22 @@ public:
    void SetActive(bool active) override;
    
    Observables::Observable<bool>& GetSelectionObservable() { return mSelectionObservable; }
+   Observables::Observable<std::vector<std::string>*>& GetChildDataObservable() { return mChildDataObservable; }
    
 private:
    Observables::Observable<bool> mSelectionObservable;
+   Observables::Observable<std::vector<std::string>*> mChildDataObservable;
+   Observables::Observable<UIElement*> mChildItemObservable;
    
    Text* mLabel;
    ToggleButtonVC* mExpandToggle;
    RectFilled* mSelectedHighlight;
    
    // Parent to the collapsible items beneath me
-   Engine::UIElement* mSubElementStackView;
+   Engine::UIElement* mSubItemStackView;
    
    // List of elements beneath this one in the heirarchy
-   std::vector<CollapsibleTreeItem*> mSubElements;
+   std::vector<CollapsibleTreeItem*> mSubItems;
    
    // If true, show the elements beneath this in the heirarchy
    bool mbExpanded;

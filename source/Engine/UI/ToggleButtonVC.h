@@ -35,7 +35,7 @@ private:
    Image* mOnImage;
 
    // Internal toggled state
-   bool mToggleState = false;
+   bool mToggleState;
 };
 
 }; // namespace Engine

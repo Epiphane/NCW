@@ -26,19 +26,19 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    , mbExpanded(true)
    , mbSelected(false)
 {
-   mLabel = Add<Text>(Text::Options{title}, name + "Label");
-   mSubElementStackView = Add<UIStackView>(name + "SubItemParent");
-   mSelectedHighlight = Add<UI::RectFilled>(name + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
+   mLabel = Add<Text>(Text::Options{title}, mName + "Label");
+   mSubItemStackView = Add<UIStackView>(mName + "SubItemParent");
+   mSelectedHighlight = Add<UI::RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
    
    Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
    Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
-   mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, name + "Toggle");
+   mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, mName + "Toggle");
    
    mExpandToggle->GetToggleObservable() >>
       OnMessage<bool>([&](bool expanded) {
-         for (UIElement* sub : mSubElements) {
-            sub->SetActive(expanded);
-            mbExpanded = expanded;
+         mbExpanded = expanded;
+         for (UIElement* subItem : mSubItems) {
+            subItem->SetActive(expanded);
          }
       }, mBag);
    
@@ -58,6 +58,21 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          mbSelected = selected;
       }, mBag);
    
+   mChildDataObservable >>
+      OnMessage<std::vector<std::string>*>([&](std::vector<std::string>* childTitles) {
+         for (UIElement* subItem : mSubItems) {
+            subItem->MarkForDeletion();
+         }
+         
+         mSubItems.clear();
+         
+         for (const std::string& newTitle : *childTitles) {
+            auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>(newTitle);
+            mSubItems.push_back(newItem);
+         }
+      }, mBag);
+   
+   mLabel->SetText(title);
    mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
    mLabel->ConstrainToRightOf(mExpandToggle, 5.0);
@@ -71,9 +86,9 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mSelectedHighlight->ConstrainBehind(mExpandToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    
-   mSubElementStackView->ConstrainBelow(mSelectedHighlight);
-   mSubElementStackView->ConstrainWidthTo(this);
-   mSubElementStackView->ConstrainBottomAlignedTo(this);
+   mSubItemStackView->ConstrainBelow(mSelectedHighlight);
+   mSubItemStackView->ConstrainWidthTo(this);
+   mSubItemStackView->ConstrainBottomAlignedTo(this);
 }
  
 void CollapsibleTreeItem::SetActive(bool active)
@@ -82,12 +97,12 @@ void CollapsibleTreeItem::SetActive(bool active)
 
    if (mActive) {
       // If no children, hide expansion toggle
-      if (mSubElements.empty()) {
+      if (mSubItems.empty()) {
          mExpandToggle->SetActive(false);
       }
 
       if (!mbExpanded) {
-         for (UIElement* sub : mSubElements) {
+         for (UIElement* sub : mSubItems) {
             sub->SetActive(false);
          }
       }

@@ -3,6 +3,7 @@
 #include "Mocks/Mocks_UIElement.h"
 
 #include <Engine/UI/CollapsibleTreeItem.h>
+#include <Shared/UI/Text.h>
 
 #include <RGBBinding/Observable.h>
 #include <RGBBinding/ObservableBasicOperations.h>
@@ -14,6 +15,8 @@ using CubeWorld::Engine::UIElement;
 using CubeWorld::Engine::UIRoot;
 using CubeWorld::Engine::UIGestureRecognizer;
 using CubeWorld::Engine::CollapsibleTreeItem;
+
+using CubeWorld::UI::Text;
 
 struct TestStringItem {
    std::string title;
@@ -59,13 +62,33 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
       
       WHEN( "the item is provided with some new children" ) {
          StringVector dummyChildren = {"Test 1", "Test 2", "Test 3"};
+         item->GetChildDataObservable().SendMessage(&dummyChildren);
          
-         Observable<StringVector*> childrenObservable;
+         UIElement* itemStackView = FindChildByName(item, "DummyItemSubItemParent");
+         const auto& subItems = itemStackView->GetChildren();
          
-//         item->ProvideChildrenObservable(childrenObservable.MessageProducer());
+         THEN( "the item adds children with the correct names" ) { 
+            for (size_t ndx = 0; ndx < subItems.size(); ndx++) {
+               const std::string& childName = subItems[ndx]->GetName();
+               Text* childLabel = (Text*) FindChildByName(itemStackView, childName + "." + childName + "Label");
+               CHECK( dummyChildren[ndx] == childLabel->GetText() );
+            }
+         }
          
-         THEN( "the item grows to the appropriate size" ) {
+         AND_WHEN( "the item is collapsed" ) {
+            UIElement* toggleBoy = FindChildByName(item, "DummyItemToggle");
+            MockClick(root, toggleBoy); // expand
+            dummyRoot->UpdateRoot();    // solve constraints
             
+            float fullHeight = item->GetHeight();
+            float subItemHeight = subItems[0].get()->GetHeight();
+            
+            MockClick(root, toggleBoy); // unexpand
+            dummyRoot->UpdateRoot();    // solve constraints
+            
+            THEN( "the item's height goes down by the total height of all its children" ) {
+               CHECK( fullHeight - subItemHeight * 3 == Approx(item->GetHeight()) );
+            }
          }
       }
       

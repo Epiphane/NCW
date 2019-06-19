@@ -45,6 +45,7 @@ public:
    // Render the text on this label
    //
    void SetText(const std::string& text);
+   std::string GetText() const { return mText; }
 
    void SetAlignment(Engine::Graphics::Font::Alignment newAlignment);
    Engine::Graphics::Font::Alignment GetAlignment();

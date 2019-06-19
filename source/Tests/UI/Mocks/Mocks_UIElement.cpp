@@ -71,9 +71,9 @@ UIElement* FindChildByName(UIElement* baseElement, const std::string& name) {
    
    while (std::getline(nameStream, token, '.')) {
       bool foundElementForName = false;
-      for (auto it = currElement->BeginChildren(); it != currElement->EndChildren(); it++) {
-         if (it->GetName() == token) {
-            currElement = it.GetPointer();
+      for (auto& child : currElement->GetChildren()) {
+         if (child->GetName() == token) {
+            currElement = child.get();
             foundElementForName = true;
             break;
          }

@@ -145,6 +145,50 @@ Observable<T>& operator>>(Observable<T>& producer, Observable<T>& sink)
    
    return sink;
 }
+   
+/**
+ * Subclass that takes the last 2 messages it received and combines them
+ *    into a new message.
+ *
+ * If it hasn't received both a T and a U message yet, it won't send any
+ *    messages.
+ *
+ * NOTE: You probably shouldn't make a instance of this class yourself. Use
+ *          ObservableBasicOperations::CombineLatest(...)
+ */
+template<typename T, typename U>
+class Observable_CombineLatest : public Observable<std::tuple<T, U>>
+{
+public:
+   void SendType1Message(T message) {
+      mMostRecentTMessage = message;
+      mbHasReceivedTMessage = true;
+      
+      if (!mbHasReceivedUMessage) {
+         return;
+      }
+      
+      this->SendMessage(std::make_tuple(message, mMostRecentUMessage));
+   }
+   
+   void SendType2Message(U message) {
+      mMostRecentUMessage = message;
+      mbHasReceivedUMessage = true;
+      
+      if (!mbHasReceivedTMessage) {
+         return;
+      }
+      
+      this->SendMessage(std::make_tuple(mMostRecentTMessage, message));
+   }
+   
+protected:
+   bool mbHasReceivedTMessage = false;
+   T mMostRecentTMessage;
+   
+   bool mbHasReceivedUMessage = false;
+   U mMostRecentUMessage;
+};
 
 /**
  * Subclass that can remember the last message it sent, as well as if it has
