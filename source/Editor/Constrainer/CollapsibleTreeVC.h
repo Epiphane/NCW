@@ -21,8 +21,6 @@ namespace Editor
 namespace Constrainer
 {
 
-class CollapsibleTreeItem; ///< Forward declare
-   
 using Engine::UIStackView;
 using Engine::UIElement;
 
@@ -35,7 +33,7 @@ private:
    UIStackView *mStackView;
 
    // List of items in the tree view. All of these items are direct children of mStackView.
-   std::vector<CollapsibleTreeItem*> mItems;
+//   std::vector<CollapsibleTreeItem*> mItems;
 };
 
 }; // namespace Constrainer

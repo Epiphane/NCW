@@ -26,30 +26,7 @@ CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* pa
    mStackView->ConstrainHorizontalCenterTo(this);
    mStackView->ConstrainWidthTo(this);
    
-   DataChanged();
-}
-
-void CollapsibleTreeVC::DataChanged()
-{
-   for (auto it = mStackView->BeginChildren(); it != mStackView->EndChildren(); it++) {
-      it->MarkForDeletion();
-   }
-   
-   if (!mDatasource) {
-      return;
-   }
-   
-   for (uint32_t ndx = 0; ndx < mDatasource->NumberOfCellsInTableView(); ndx++) {
-      std::unique_ptr<CollapsibleTreeItem> newItem = mDatasource->GetTreeItemAtIndex(ndx);
-      mStackView->AddChild(std::move(newItem));
-   }
-}
-
-void CollapsibleTreeVC::ItemWasClicked(CollapsibleTreeItem* item)
-{
-   if (mDelegate) {
-      mDelegate->ItemSelected(item);
-   }
+//   DataChanged();
 }
 
 }; // namespace Constrainer

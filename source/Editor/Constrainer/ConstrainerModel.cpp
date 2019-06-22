@@ -43,9 +43,9 @@ size_t ConstrainerModel::TotalNumberOfElementsInSubtree(UIElement& subtreeRoot)
 {
    size_t result = 1;
    
-   for (auto it = subtreeRoot.BeginChildren(); it != subtreeRoot.EndChildren(); it++) {
-      result += TotalNumberOfElementsInSubtree(*it);
-   }
+//   for (auto it = subtreeRoot.BeginChildren(); it != subtreeRoot.EndChildren(); it++) {
+//      result += TotalNumberOfElementsInSubtree(*it);
+//   }
    
    return result;
 }
