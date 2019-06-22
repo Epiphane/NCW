@@ -45,7 +45,7 @@ namespace Game
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
-      mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
+      mSystems.Add<SimplePhysics::Debug>(true, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       
       mSystems.Configure();
@@ -181,9 +181,15 @@ namespace Game
 
       part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
-      part.Add<VoxModel>(Asset::Model("wood-greatmace02.vox"));
-      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("greatmace.yaml")));
-      controller->AddAnimations(part.Add<SkeletonAnimations>("greatmace"));
+      part.Add<VoxModel>(Asset::Model("iron-sword1-random2.vox"));
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_right.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("sword_right"));
+
+      part = mEntities.Create(0, 0, 0);
+      part.Get<Transform>()->SetParent(player);
+      part.Add<VoxModel>(Asset::Model("iron-sword1-random1.vox"));
+      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_left.yaml")));
+      controller->AddAnimations(part.Add<SkeletonAnimations>("sword_left"));
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;
@@ -209,7 +215,7 @@ namespace Game
       noise::utils::NoiseMapBuilderPlane builder;
       builder.SetSourceModule(heightmodule);
       builder.SetDestNoiseMap(heightmap);
-      const int size = 150;
+      const int size = 50;
       builder.SetDestSize(2 * size + 1, 2 * size + 1);
       builder.SetBounds(6, 10, 1, 5);
       builder.Build();

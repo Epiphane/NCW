@@ -12,6 +12,14 @@
 namespace CubeWorld
 {
 
+void AnimationSystem::Configure(Engine::EntityManager& entities, Engine::EventManager& events)
+{
+   mMetric = DebugHelper::Instance().RegisterMetric("[AS] Current", [this] { return mCurrent; });
+   mMetric2 = DebugHelper::Instance().RegisterMetric("[AS] Time   ", [this] { return Format::FormatString("%1", mTime); });
+   mMetric3 = DebugHelper::Instance().RegisterMetric("[AS] Next   ", [this] { return mNext; });
+   mMetric4 = DebugHelper::Instance().RegisterMetric("[AS] T Time ", [this] { return Format::FormatString("%1", mTransitionCurrent); });
+}
+
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
    using Keyframe = AnimationController::Keyframe;
@@ -19,19 +27,30 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
    using Transition = AnimationController::Transition;
 
    // First, update skeletons.
-   entities.Each<AnimationController>([&](Engine::Entity /*entity*/, AnimationController& controller) {
+   entities.Each<AnimationController>([&](Engine::Entity entity, AnimationController& controller) {
       // Check for an un-loaded skeleton
       if (controller.skeletons.empty())
       {
          return;
       }
 
+      Engine::Transform& transform = *entity.Get<Engine::Transform>();
+      glm::vec3 translateRoot{0, 0, 0};
+
       // Advance basic animation
       {
          State* state = &controller.states[controller.current];
          controller.time += dt;
-         while (controller.time >= state->length)
+         while (controller.time > state->length)
          {
+            // Looping!
+            {
+               // Move based on root's final state
+               glm::vec3 finalPosition = state->keyframes[state->keyframes.size() - 1].positions[0];
+               translateRoot += finalPosition - controller.lastBasePosition;
+               controller.lastBasePosition = {0, 0, 0};
+            }
+
             controller.time -= state->length;
             if (state->next != "")
             {
@@ -71,6 +90,13 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                bone.position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
                bone.rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
                bone.scale = progress * dst.scales[boneId] + (1 - progress) * src.scales[boneId];
+
+               if (boneId == 0)
+               {
+                  translateRoot += bone.position - controller.lastBasePosition;
+                  controller.lastBasePosition = bone.position;
+               }
+
                boneId++;
             }
          }
@@ -81,7 +107,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          if (controller.current != controller.next)
          {
             State& state = controller.states[controller.next];
-            controller.transitionCurrent = controller.transitionCurrent + dt;
+            controller.transitionCurrent += dt;
             float transitionProgress;
             if (controller.transitionCurrent < controller.transitionEnd)
             {
@@ -124,6 +150,19 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                   bone.position = transitionProgress * position + (1 - transitionProgress) * bone.position;
                   bone.rotation = transitionProgress * rotation + (1 - transitionProgress) * bone.rotation;
                   bone.scale = transitionProgress * scale + (1 - transitionProgress) * bone.scale;
+
+                  if (boneId == 0)
+                  {
+                     translateRoot =
+                        transitionProgress * (position - controller.lastTransitionPosition) +
+                        (1 - transitionProgress) * translateRoot;
+                     controller.lastTransitionPosition = position;
+                     if (transitionProgress == 1)
+                     {
+                        controller.lastBasePosition = position;
+                     }
+                  }
+
                   boneId++;
                }
             }
@@ -162,13 +201,24 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             }
          }
       }
-   
+
+      // Move the actual transform based on movement in the root bone.
+      translateRoot.y = 0;
+      translateRoot = glm::normalize(transform.GetFlatDirection()) * glm::length(translateRoot);
+      translateRoot *= transform.GetLocalScale();
+      transform.SetLocalPosition(transform.GetLocalPosition() + translateRoot);
+
       // IMPORTANT: This is where the actual matrix transformation gets done, after all the
       // transitioning and looping work. Don't early out before here! If you do, nothing will
       // animate ever.
       size_t boneId = 0;
       std::vector<glm::mat4> matrixes;
       matrixes.resize(controller.bones.size(), glm::mat4(1));
+
+      mCurrent = controller.states[controller.current].name;
+      mNext = controller.states[controller.next].name;
+      mTime = controller.time;
+      mTransitionCurrent = controller.transitionCurrent;
 
       AnimationController::Stance& stance = controller.stances[controller.states[controller.current].stance];
       for (const Engine::ComponentHandle<Skeleton>& skeleton : controller.skeletons)
@@ -194,9 +244,9 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                // we can cross that bridge when we come to it.
                assert(boneId > stance.parents[boneId]);
                matrix = matrixes[stance.parents[boneId]];
+               matrix = glm::translate(matrix, bone.position);
             }
 
-            matrix = glm::translate(matrix, bone.position);
             matrix = glm::rotate(matrix, RADIANS(bone.rotation.y), glm::vec3(0, 1, 0));
             matrix = glm::rotate(matrix, RADIANS(bone.rotation.x), glm::vec3(1, 0, 0));
             matrix = glm::rotate(matrix, RADIANS(bone.rotation.z), glm::vec3(0, 0, 1));

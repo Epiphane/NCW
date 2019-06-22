@@ -31,6 +31,8 @@ void AnimationController::Reset()
    current = 0;
    time = 0;
    next = 0;
+   lastBasePosition = {0, 0, 0};
+   lastTransitionPosition = {0, 0, 0};
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
@@ -235,6 +237,7 @@ void AnimationController::Play(const std::string& state, double startTime)
 
    current = next = it->second;
    time = startTime;
+   lastBasePosition = {0, 0, 0};
 }
 
 void AnimationController::TransitionTo(const std::string& state, double transitionTime, double startTime)
@@ -244,6 +247,7 @@ void AnimationController::TransitionTo(const std::string& state, double transiti
    {
       current = next;
       time = transitionCurrent;
+      lastBasePosition = lastTransitionPosition;
    }
 
    auto it = stateLookup.find(state);
@@ -258,6 +262,7 @@ void AnimationController::TransitionTo(const std::string& state, double transiti
    transitionStart = startTime;
    transitionCurrent = startTime;
    transitionEnd = startTime + transitionTime;
+   lastTransitionPosition = {0, 0, 0};
 }
 
 }; // namespace CubeWorld

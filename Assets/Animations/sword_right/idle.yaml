@@ -9,7 +9,7 @@ keyframes:
 - time: 2.64
 - time: 3.23
 transitions:
-- to: swing 1
+- to: slash 1
   time: 0.1
   triggers:
   - parameter: attack

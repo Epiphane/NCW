@@ -4,6 +4,7 @@
 #include <stack>
 #include <unordered_set>
 #include <RGBLogger/Logger.h>
+#include <RGBText/StringHelper.h>
 
 #include "SkeletonSystem.h"
 
@@ -110,22 +111,27 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
                {
                   bone.matrix = glm::mat4(1);
                }
-               else if (bone.name == skeleton->name + ".root")
+               else
                {
-                  auto it = std::find_if(collection.skeletons.begin(), collection.skeletons.end(), [&](const auto& other) { return skeleton->parent == other->name; });
-                  if (it == collection.skeletons.end())
+                  std::vector<std::string> components = StringHelper::Split(bone.parent, '.');
+
+                  if (components[0] == skeleton->name)
                   {
-                     LOG_WARNING("Skeleton '%1' claims to have parent '%2', which is not in the collection", skeleton->name, skeleton->parent);
-                     bone.matrix = glm::mat4(1);
+                     bone.matrix = skeleton->bones[skeleton->boneLookup[bone.parent]].matrix;
                   }
                   else
                   {
-                     bone.matrix = (*it)->bones[(*it)->boneLookup[bone.parent]].matrix;
+                     auto it = std::find_if(collection.skeletons.begin(), collection.skeletons.end(), [&](const auto & other) { return other->name == components[0]; });
+                     if (it == collection.skeletons.end())
+                     {
+                        LOG_WARNING("Skeleton '%1' claims to have parent '%2', which is not in the collection", skeleton->name, skeleton->parent);
+                        bone.matrix = glm::mat4(1);
+                     }
+                     else
+                     {
+                        bone.matrix = (*it)->bones[(*it)->boneLookup[bone.parent]].matrix;
+                     }
                   }
-               }
-               else
-               {
-                  bone.matrix = skeleton->bones[skeleton->boneLookup[bone.parent]].matrix;
                }
 
                Skeleton::Transform(bone.matrix, bone.position, bone.rotation, bone.scale);
