@@ -6,15 +6,15 @@ length: 0.9
 keyframes:
 - time: 0
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
@@ -22,15 +22,15 @@ keyframes:
       rotation: [0, 46.09, 0]
 - time: 0.45
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
@@ -38,15 +38,15 @@ keyframes:
       rotation: [0, 46.09, 0]
 - time: 0.6
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-12.19, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
     character.Spine:
       position: [0, 0, 2.82]
       rotation: [12.02, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-12.19, 0, 0]
     character.Shoulders:
       position: [-8.38, 0.38, 0.4]
       rotation: [70.779999, -24.309999, 0]
@@ -73,21 +73,28 @@ keyframes:
     character.Shoulders:
       position: [-8.38, -1.02, -0.3]
       rotation: [85.980003, 4.29, 0]
+    character.root:
+      position: [0, 0, 0]
+      rotation: [0, 0, 0]
     character.Torso:
       rotation: [0, -6.6, 0]
-- time: 0.89
+- time: 0.9
   bones:
+    character.Head:
+      position: [0, 4.29, -0.28]
+      rotation: [-7.13, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
     character.Spine:
       position: [0, 0, 3.57]
       rotation: [11.09, 0, 0]
-    character.Head:
-      position: [0, 4.29, -0.28]
-      rotation: [-7.13, 0, 0]
     character.Shoulders:
       position: [-8.38, 0.06, 7.95]
       rotation: [79.339996, -15.69, 0]
+    character.root:
+      position: [0, -0.5, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
     character.Torso:
       rotation: [0, 16.41, 0]

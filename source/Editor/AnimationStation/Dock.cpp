@@ -278,6 +278,11 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       scrubberOptions.onChange = [&](double, double) {
          State& state = GetCurrentState();
          size_t index = mSelectedKeyframe;
+         if (index >= state.keyframes.size())
+         {
+            return;
+         }
+
          Keyframe& keyframe = state.keyframes[index];
 
          if (index == 0)
