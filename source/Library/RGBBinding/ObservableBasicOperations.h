@@ -6,6 +6,7 @@
 
 #pragma once
 
+#undef SendMessage
 
 namespace CubeWorld
 {

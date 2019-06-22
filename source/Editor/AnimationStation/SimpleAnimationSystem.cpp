@@ -16,6 +16,11 @@ namespace AnimationStation
 
 SimpleAnimationController::SimpleAnimationController()
    : current("")
+   , time(0)
+   , next("")
+   , transitionCurrent(0)
+   , transitionStart(0)
+   , transitionEnd(0)
 {
 }
 

@@ -63,6 +63,8 @@ Keyframe& GetKeyframe(State& state, double time)
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
    , mBone(0)
+   , mTick(nullptr)
+   , mSelectedKeyframe(0)
 {
    RectFilled* foreground = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
 

@@ -16,7 +16,7 @@ namespace CubeWorld
 
 class Failure {
 public:
-   Failure() {};
+   Failure() : failureCode(0) {};
    Failure(const Failure& other) : message(other.message), failureCode(other.failureCode) {};
    Failure(const std::string& message, int failureCode = NO_FAILURE_CODE_SPECIFIED) : message(message), failureCode(failureCode) {};
 

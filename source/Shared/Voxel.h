@@ -49,7 +49,7 @@ public:
       , mMetadata(other.mMetadata)
       , mIsTintable(other.mIsTintable)
    {};
-   ModelData(ModelData&& other)
+   ModelData(ModelData&& other) noexcept
       : mVoxelData(std::move(other.mVoxelData))
       , mMetadata(other.mMetadata)
       , mIsTintable(other.mIsTintable)

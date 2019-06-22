@@ -12,7 +12,7 @@ namespace Engine
 
 class BaseEvent {
 public:
-   typedef uint32_t Family;
+   typedef size_t Family;
 
 protected:
    // This gets incremented with each different Event class
