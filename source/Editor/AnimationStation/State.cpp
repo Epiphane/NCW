@@ -118,8 +118,8 @@ void MainState::Initialize()
    const int size = 150;
    for (int i = -size; i <= size; ++i) {
       for (int j = -size; j <= size; ++j) {
-         double x = (double)i / (2 * size);
-         double y = (double)j / (2 * size);
+         double x = i / (2 * (double)size);
+         double y = j / (2 * (double)size);
          double expectedX = 1.0 - 4.0 * std::pow(y - 0.5, 2);
          double dist = 5.0 * std::abs(x - expectedX);
          dist += (rand() % 500) / 1000.0 - 0.25;
@@ -127,11 +127,18 @@ void MainState::Initialize()
          dist = 1.0 / (1 + std::pow(2, dist));
          dist = std::sin(x * 20);// -std::floor(x * 20);
 
-         glm::vec4 color(
+         glm::vec4 color = {
             std::floor((1 - dist) * BASE.r + dist * LINE.r),
             std::floor((1 - dist) * BASE.g + dist * LINE.g),
             std::floor((1 - dist) * BASE.b + dist * LINE.b),
-            1);
+            1
+         };
+         
+         if ((i + j) % 2 == 0)
+         {
+            color.g += 50;
+            color.r += 50;
+         }
 
          glm::vec3 position = glm::vec3(i, CalculateHeight(i, j), j);
          uint8_t sides = Voxel::Top;

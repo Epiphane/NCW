@@ -11,6 +11,7 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
 #include <Shared/DebugHelper.h>
+#include <Shared/Helpers/Asset.h>
 
 #include "States/StupidState.h"
 #include "UI/UIMainScreen.h"
@@ -22,8 +23,20 @@ using namespace Game;
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
-int main(int /* argc */, char ** /* argv */) {
+int main(int argc, char **argv)
+{
    using namespace Engine;
+
+   // Parse arguments
+   int argi = 0;
+   while (argi < argc)
+   {
+      std::string arg(argv[argi++]);
+      if (arg == "--asset-root")
+      {
+         Asset::SetAssetRoot(argv[argi++]);
+      }
+   }
 
    // Initialize and register loggers to VS debugger and stdout
    Logger::StdoutLogger::Instance();

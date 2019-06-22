@@ -290,9 +290,9 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
          {
             keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
          }
-         else if (keyframe.time >= state.length * 0.99f)
+         else if (keyframe.time > state.length)
          {
-            keyframe.time = state.length * 0.99f;
+            keyframe.time = state.length;
          }
 
          mController->time = keyframe.time;
@@ -942,6 +942,14 @@ void Dock::SetStateNameCommand::Do()
    state.name = name;
 
    dock->mController->states.emplace(state.name, dock->mController->states.at(last));
+   for (std::string& entry : dock->mStates)
+   {
+      if (entry == last)
+      {
+         entry = name;
+         break;
+      }
+   }
    dock->SetState(name);
    dock->mController->states.erase(last);
 

@@ -259,7 +259,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
 
       // Progress animation
       controller.time += dt;
-      while (controller.time >= state.length)
+      while (controller.time > state.length)
       {
          controller.time -= state.length;
       }
@@ -275,7 +275,11 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       const Keyframe& src = keyframes[keyframeIndex];
       const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
       const double dstTime = isLastFrame ? state.length : dst.time;
-      const float progress = float(controller.time - src.time) / float(dstTime - src.time);
+      float progress = 0.0f;
+      if (dstTime > src.time)
+      {
+         progress = float(controller.time - src.time) / float(dstTime - src.time);
+      }
 
       size_t boneId = 0;
       for (const auto& skeleton : controller.skeletons)

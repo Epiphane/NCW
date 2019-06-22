@@ -107,6 +107,9 @@ public:
    size_t current;
    double time;
 
+   glm::vec3 lastBasePosition;
+   glm::vec3 lastTransitionPosition;
+
    // If transition > 0, this defines the state we're transitioning to,
    // as well as the amount of time remaining in that transition.
    size_t next;
