@@ -170,7 +170,7 @@ Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<
 struct RemoveDuplicates {};
    
 template<typename T>
-Observable<T>& operator>>(Observable<T>& inObservable, RemoveDuplicates distincter)
+Observable<T>& operator>>(Observable<T>& inObservable, RemoveDuplicates /*distincter*/)
 {
    std::shared_ptr<Observable_RemoveDuplicates<T>> newObservable = std::make_shared<Observable_RemoveDuplicates<T>>();
    

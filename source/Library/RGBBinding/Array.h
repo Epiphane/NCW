@@ -162,7 +162,7 @@ public:
 
    void resize(uint32_t size)
    {
-      if (mSize >= size)
+      if (mSize > size)
       {
          for (uint32_t i = mSize - 1; i >= size; --i)
          {

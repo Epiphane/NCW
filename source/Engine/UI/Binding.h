@@ -43,7 +43,11 @@ public:
    ///
    ///
    ///
-   void Bind(T* location) { mBinding = location; }
+   void Bind(T* location)
+   {
+      mBinding = location;
+      mInternalValue = *location;
+   }
 
    ///
    ///

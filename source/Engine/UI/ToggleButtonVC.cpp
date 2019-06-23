@@ -38,7 +38,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
       }, mBag);
    
    OnClick() >>
-     OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
+     OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto /*m*/) {
         mToggleObservable.SendMessage(!mToggleState);
      }, mBag);
 }

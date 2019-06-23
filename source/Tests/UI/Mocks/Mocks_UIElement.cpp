@@ -28,8 +28,8 @@ glm::vec3 ElementCenter(UIElement* element) {
 void MockClick(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
    
-   MouseDownEvent down(0, center.x + fakeX, center.y + fakeX);
-   MouseUpEvent     up(0, center.x + fakeX, center.y + fakeX);
+   MouseDownEvent down(0, center.x + fakeX, center.y + fakeY);
+   MouseUpEvent     up(0, center.x + fakeX, center.y + fakeY);
    
    root->Receive(down);
    root->Receive(up);
@@ -38,21 +38,21 @@ void MockClick(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
 void MockMouseDown(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
    
-   MouseDownEvent down(0, center.x + fakeX, center.y + fakeX);
+   MouseDownEvent down(0, center.x + fakeX, center.y + fakeY);
    root->Receive(down);
 }
 
 void MockMouseUp(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
    
-   MouseUpEvent up(0, center.x + fakeX, center.y + fakeX);
+   MouseUpEvent up(0, center.x + fakeX, center.y + fakeY);
    root->Receive(up);
 }
 
 void MockMouseMove(UIRoot* root, UIElement* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
    
-   MouseMoveEvent move(center.x + fakeX, center.y + fakeX);
+   MouseMoveEvent move(center.x + fakeX, center.y + fakeY);
    root->Receive(move);
 }
 

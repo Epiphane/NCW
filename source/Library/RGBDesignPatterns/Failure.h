@@ -21,7 +21,10 @@ public:
    Failure(const std::string& message, int failureCode = NO_FAILURE_CODE_SPECIFIED) : message(message), failureCode(failureCode) {};
 
    template <typename ...Args>
-   Failure(const std::string& fmt, const Args& ... args) : message(Format::FormatString(fmt, args...)) {};
+   Failure(const std::string& fmt, const Args& ... args)
+      : message(Format::FormatString(fmt, args...))
+      , failureCode(0)
+   {};
    
    template <typename ...Args>
    Failure(int failureCode, const std::string& fmt, const Args& ... args) 

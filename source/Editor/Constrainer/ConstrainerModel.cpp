@@ -39,7 +39,7 @@ void ConstrainerModel::SetModelUpdatedCallback(const std::function<void()> &mode
    mModelUpdatedCallback = modelUpdatedCallback;
 }
    
-size_t ConstrainerModel::TotalNumberOfElementsInSubtree(UIElement& subtreeRoot)
+size_t ConstrainerModel::TotalNumberOfElementsInSubtree(UIElement& /*subtreeRoot*/)
 {
    size_t result = 1;
    

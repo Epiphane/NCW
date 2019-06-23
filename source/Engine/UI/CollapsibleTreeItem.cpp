@@ -45,7 +45,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    // TODO-EF: I could really just turn mSelectedHighlight into a ToggleButton. That might be neat.
    auto clickToSelect = mSelectedHighlight->CreateAndAddGestureRecognizer<UIClickGestureRecognizer>();
    clickToSelect->OnClick() >>
-      Map<UIGestureRecognizer::Message_GestureState, bool>([&](auto gesture) -> bool {
+      Map<UIGestureRecognizer::Message_GestureState, bool>([&](auto /*gesture*/) -> bool {
          return !mbSelected;
       }) >> 
       mSelectionObservable;

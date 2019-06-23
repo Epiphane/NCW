@@ -61,7 +61,7 @@ bool YAMLWriter::Int64(int64_t i)
    else
    {
       std::string formatted = Format::FormatString("%1", i);
-      return String(formatted.c_str(), formatted.size(), true);
+      return String(formatted.c_str(), (rapidjson::SizeType)formatted.size(), true);
    }
 }
 
@@ -82,7 +82,7 @@ bool YAMLWriter::Uint64(uint64_t i)
    else
    {
       std::string formatted = Format::FormatString("%1", i);
-      return String(formatted.c_str(), formatted.size(), true);
+      return String(formatted.c_str(), (rapidjson::SizeType)formatted.size(), true);
    }
 }
 
@@ -108,11 +108,11 @@ bool YAMLWriter::Double(double d)
       {
          --lastNonZero;
       }
-      return String(formatted.c_str(), lastNonZero + 1, true);
+      return String(formatted.c_str(), (rapidjson::SizeType)lastNonZero + 1, true);
    }
 }
 
-bool YAMLWriter::String(const Ch* str, SizeType length, bool copy)
+bool YAMLWriter::String(const Ch* str, SizeType length, bool /*copy*/)
 {
    if (mHolding.IsArray() && !FlushArray(false))
    {
@@ -141,7 +141,7 @@ bool YAMLWriter::Key(const Ch* str, SizeType length, bool copy)
    return String(str, length, copy);
 }
 
-bool YAMLWriter::EndObject(SizeType memberCount)
+bool YAMLWriter::EndObject(SizeType)
 {
    yaml_event_t event;
    yaml_mapping_end_event_initialize(&event);
@@ -175,7 +175,7 @@ bool YAMLWriter::FlushArray(bool condensed)
    return true;
 }
 
-bool YAMLWriter::EndArray(SizeType elementCount)
+bool YAMLWriter::EndArray(SizeType)
 {
    if (mHolding.IsArray())
    {

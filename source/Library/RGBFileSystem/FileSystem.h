@@ -15,8 +15,8 @@ class FileSystem
 public:
    struct FileEntry {
       std::string name;
-      bool isDirectory;
-      uint64_t size;
+      bool isDirectory = false;
+      uint64_t size = 0;
    };
 
 #if defined CUBEWORLD_PLATFORM_WINDOWS

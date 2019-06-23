@@ -80,8 +80,8 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
             MockClick(root, toggleBoy); // expand
             dummyRoot->UpdateRoot();    // solve constraints
             
-            float fullHeight = item->GetHeight();
-            float subItemHeight = subItems[0].get()->GetHeight();
+            uint32_t fullHeight = item->GetHeight();
+            uint32_t subItemHeight = subItems[0].get()->GetHeight();
             
             MockClick(root, toggleBoy); // unexpand
             dummyRoot->UpdateRoot();    // solve constraints
