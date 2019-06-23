@@ -10,13 +10,13 @@ using namespace CubeWorld::Observables;
 SCENARIO( "Basic Observable operations should properly manipulate messages streams" ) {
 
    GIVEN( "A DisposeBag" ) {
-      std::cout << type_name(1, "hello", 5.0) << std::endl;
-      
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
       WHEN( "A Map is attached to an Observable emitting messages" ) {
          Observable<int> testObservable;
          std::vector<int> results;
+         
+         CombineLatest(testObservable, testObservable, testObservable);
 
          testObservable >>
             Map<int, int>([](int test) -> int {
@@ -86,8 +86,8 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          Observable<bool> obsB;
          std::vector<std::tuple<int, bool>> results;
          
-         CombineLatest(obsA, obsB) >>
-            ToContainer(results, myBag);
+//         CombineLatest(obsA, obsB) >>
+//            ToContainer(results, myBag);
          
          THEN( "CombineLatest does not emit until both Observables emit a message" ) {
             obsA.SendMessage(5);

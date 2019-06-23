@@ -141,22 +141,73 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
 //
 // TODO-EF: Someday, make this use variadic args so it can combine any # of Observables.
 //
-template<typename T, typename U>
-Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<U>& secondObs) 
-{
-   std::shared_ptr<Observable_CombineLatest<T, U>> newObservable = std::make_shared<Observable_CombineLatest<T, U>>();
-   firstObs.AddOwnedObservable(newObservable);
-   secondObs.AddOwnedObservable(newObservable);
+//template<typename T, typename U>
+//Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<U>& secondObs) 
+//{
+//   std::shared_ptr<Observable_CombineLatest<T, U>> newObservable = std::make_shared<Observable_CombineLatest<T, U>>();
+//   firstObs.AddOwnedObservable(newObservable);
+//   secondObs.AddOwnedObservable(newObservable);
+//   
+//   firstObs.AddObserver([=](T message) {
+////      newObservable->SendType1Message(message);
+//   }, newObservable);
+//   
+//   secondObs.AddObserver([=](U message) {
+////      newObservable->SendType2Message(message);
+//   }, newObservable);
+//   
+//   return *newObservable;
+//}
    
-   firstObs.AddObserver([=](T message) {
-//      newObservable->SendType1Message(message);
-   }, newObservable);
+/**
+ * Operator that takes the latest messages it received and combines them
+ *    into a new message.
+ *
+ * If it hasn't received both a T and a U message yet, it won't send any
+ *    messages.
+ */
+template <typename Last>
+std::string type_name (Last l) {
+   return std::string(typeid(Last).name());
+}
+
+template <typename First, typename Second, typename ...Rest>
+std::string type_name (First f, Second s, Rest... r) {
+   return std::string(typeid(First).name()) + " " + type_name<Second, Rest...>(s, r...);
+}
+
+template <typename Last>
+Observable<std::tuple<Last>>* CombineLatest(Observable<Last>& l) {
+   std::shared_ptr<Observable<std::tuple<Last>>> result = std::make_shared<Observable<std::tuple<Last>>>();
    
-   secondObs.AddObserver([=](U message) {
-//      newObservable->SendType2Message(message);
-   }, newObservable);
+   l.AddObserver([=](Last message) {
+      result->SendMessage(std::make_tuple(message));
+   }, result);
    
-   return *newObservable;
+   return result.get();
+}
+
+template <typename First, typename Second, typename ...Rest>
+Observable<std::tuple<First, Second, Rest...>>* CombineLatest(Observable<First>& f, Observable<Second>& s, Observable<Rest>&... r) {
+   typedef Observable<std::tuple<First, Second, Rest...>> CombinedObservable;
+   std::shared_ptr<CombinedObservable> result = std::make_shared<CombinedObservable>();
+   
+   Observable<std::tuple<Second, Rest...>> *restResult = CombineLatest(s, r...);
+   Observable<std::tuple<First>> *singleResult = CombineLatest(f);
+   
+   restResult->AddObserver([=](std::tuple<Second, Rest...> message) {
+      if (singleResult->HasEmittedOnce()) {
+         result->SendMessage(std::tuple_cat(singleResult->GetMostRecentMessage(), message));
+      }
+   }, result);
+   
+   singleResult->AddObserver([=](std::tuple<First> message) {
+      if (restResult->HasEmittedOnce()) {
+         result->SendMessage(std::tuple_cat(message, restResult->GetMostRecentMessage()));
+      }
+   }, result);
+   
+   return result.get();
 }
    
 //

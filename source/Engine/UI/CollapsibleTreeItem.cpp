@@ -66,7 +66,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          auto [newChild, bActive] = activeAndNewChild;
          newChild->SetActive(bActive);
       }, mBag);
-   
+
    CombineLatest(mChildItemObservable, mExpandToggle->GetToggleObservable()) >>
       OnMessage<std::tuple<UIElement*, bool>>([&](auto newChildAndExpanded) {
          auto [newChild, bExpanded] = newChildAndExpanded;

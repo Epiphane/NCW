@@ -17,17 +17,6 @@ namespace CubeWorld
 namespace Observables
 {
    
-   
-template <typename Last>
-std::string type_name (Last l) {
-   return std::string(typeid(Last).name());
-}
-
-template <typename First, typename Second, typename ...Rest>
-std::string type_name (First f, Second s, Rest... r) {
-   return std::string(typeid(First).name()) + " " + type_name<Second, Rest...>(s, r...);
-}
-   
 /**
  * A DisposeBag holds onto some callbacks, and when it dies, it calls all the
  *    callbacks. The idea is that you can toss some "disposables" into the bag,
@@ -111,6 +100,9 @@ public:
    }
                 
    virtual void SendMessage(T message) {
+      mbHasEmittedOnce = true;
+      mMostRecentMessage = message;
+      
       // Make a copy of mBaggedListeners in case a listener is deleted by this event
       //    being emitted.
       auto observersCopy = mBaggedObservers;
@@ -126,6 +118,13 @@ public:
       for (const auto& onMessageCallback : unbaggedObserversCopy) {
          onMessageCallback(message);
       }
+   }
+   
+   bool HasEmittedOnce() const { return mbHasEmittedOnce; }
+   
+   T GetMostRecentMessage() const {
+      assert(mbHasEmittedOnce && "Asking for the most recent message before there is one!!");
+      return mMostRecentMessage; 
    }
    
 protected:        
@@ -145,11 +144,9 @@ protected:
    
    // When a new Observer is attached, we send it the most recent message
    T mMostRecentMessage;
-   // ...or not, if you set this to false
-   bool mbNewObserversShouldReceiveLatestMessage;
    
-   // Tracks whether we should 
-   bool mbSentFirstMessage;
+   // Tracks whether this Observable has ever emitted a message 
+   bool mbHasEmittedOnce = false;
 };
 
 /**
@@ -166,21 +163,11 @@ Observable<T>& operator>>(Observable<T>& producer, Observable<T>& sink)
    
    return sink;
 }
-   
-/**
- * Subclass that takes the last 2 messages it received and combines them
- *    into a new message.
- *
- * If it hasn't received both a T and a U message yet, it won't send any
- *    messages.
- *
- * NOTE: You probably shouldn't make a instance of this class yourself. Use
- *          ObservableBasicOperations::CombineLatest(...)
- */
-template<typename ...T>
-class Observable_CombineLatest : public Observable<std::tuple<T...>>
-{
-public:
+
+//template<typename Last>
+//class Observable_CombineLatest : public Observable<std::tuple<Last>>
+//{
+//public:
 //   Observable_CombineLatest(Observable<T> cool, T... args)
 //   {
 //      cool >>
@@ -189,12 +176,12 @@ public:
 //         });
 //   }
    
-protected:
+//protected:
+//   
+//};
    
-};
-   
-//template<typename First, typename Second, typename ...Q>
-//class Observable_CombineLatest : public Observable<std::tuple<First, Second, Q...>>
+//template<typename First, typename Second, typename ...Rest>
+//class Observable_CombineLatest : public Observable<std::tuple<First, Second, Rest...>>
 //{
 //   
 //};
@@ -214,20 +201,10 @@ class Observable_RemoveDuplicates : public Observable<T>
 {
 public:
    virtual void SendMessage(T message) override {
-      if (!mDidSendFirstMessage) {
-         mDidSendFirstMessage = true;
-         
+      if (!this->mbHasEmittedOnce || this->mMostRecentMessage != message) {
          Observable<T>::SendMessage(message);
-         mMostRecentMessage = message;
-      } else if (mMostRecentMessage != message) {
-         Observable<T>::SendMessage(message);
-         mMostRecentMessage = message;
       }
    }
-   
-private:
-   T mMostRecentMessage;
-   bool mDidSendFirstMessage = false;
 };
 
 /**
