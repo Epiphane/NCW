@@ -149,11 +149,11 @@ Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<
    secondObs.AddOwnedObservable(newObservable);
    
    firstObs.AddObserver([=](T message) {
-      newObservable->SendType1Message(message);
+//      newObservable->SendType1Message(message);
    }, newObservable);
    
    secondObs.AddObserver([=](U message) {
-      newObservable->SendType2Message(message);
+//      newObservable->SendType2Message(message);
    }, newObservable);
    
    return *newObservable;

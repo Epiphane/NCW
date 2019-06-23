@@ -23,42 +23,24 @@ using namespace Observables;
    
 CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent, const std::string &title, const std::string &name)
    : UIElement(root, parent, name)
-   , mbExpanded(true)
-   , mbSelected(false)
 {
    mLabel = Add<Text>(Text::Options{title}, mName + "Label");
    mSubItemStackView = Add<UIStackView>(mName + "SubItemParent");
-   mSelectedHighlight = Add<UI::RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
    
    Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
    Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
    mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, mName + "Toggle");
    
-   mExpandToggle->GetToggleObservable() >>
-      OnMessage<bool>([&](bool expanded) {
-         mbExpanded = expanded;
-         for (UIElement* subItem : mSubItems) {
-            subItem->SetActive(expanded);
-         }
+   mSelectionToggle = Add<ToggleButtonVC>(mName + "SelectionToggle");
+   mSelectedHighlight = Add<UI::RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
+   
+   CombineLatest(mActiveObservable, GetSelectionObservable()) >>
+      OnMessage<std::tuple<bool, bool>>([&](auto activeAndSelected) {
+         auto [bActive, bSelected] = activeAndSelected;
+         mSelectedHighlight->SetActive(bActive && bSelected);
       }, mBag);
    
-   // TODO-EF: I could really just turn mSelectedHighlight into a ToggleButton. That might be neat.
-   auto clickToSelect = mSelectedHighlight->CreateAndAddGestureRecognizer<UIClickGestureRecognizer>();
-   clickToSelect->OnClick() >>
-      Map<UIGestureRecognizer::Message_GestureState, bool>([&](auto gesture) -> bool {
-         return !mbSelected;
-      }) >> 
-      mSelectionObservable;
-   
-   mSelectionObservable >>
-      StartWith(false) >>
-      RemoveDuplicates() >>
-      OnMessage<bool>([&](bool selected) {
-         mSelectedHighlight->SetActive(selected);
-         mbSelected = selected;
-      }, mBag);
-   
-   mChildDataObservable >>
+   auto childrenChanged = mChildDataObservable >>
       OnMessage<std::vector<std::string>*>([&](std::vector<std::string>* childTitles) {
          for (UIElement* subItem : mSubItems) {
             subItem->MarkForDeletion();
@@ -69,8 +51,28 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          for (const std::string& newTitle : *childTitles) {
             auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>(newTitle);
             mSubItems.push_back(newItem);
+            mChildItemObservable.SendMessage(newItem);
          }
       }, mBag);
+   
+//   CombineLatest(childrenChanged, mActiveObservable, mExpandToggle->GetToggleObservable()) >>
+   
+   
+   // This code covers the case where you add a new subItem to me when I'm collapsed,
+   //    AND hiding items when I get collapsed.
+   // TODO-EF: jk it doesn't. Fix me plz.
+   CombineLatest(mChildItemObservable, mActiveObservable) >>
+      OnMessage<std::tuple<UIElement*, bool>>([&](auto activeAndNewChild) {
+         auto [newChild, bActive] = activeAndNewChild;
+         newChild->SetActive(bActive);
+      }, mBag);
+   
+   CombineLatest(mChildItemObservable, mExpandToggle->GetToggleObservable()) >>
+      OnMessage<std::tuple<UIElement*, bool>>([&](auto newChildAndExpanded) {
+         auto [newChild, bExpanded] = newChildAndExpanded;
+         newChild->SetActive(bExpanded);
+      }, mBag);
+   
    
    mLabel->SetText(title);
    mLabel->ConstrainWidthToContent();
@@ -100,14 +102,6 @@ void CollapsibleTreeItem::SetActive(bool active)
       if (mSubItems.empty()) {
          mExpandToggle->SetActive(false);
       }
-
-      if (!mbExpanded) {
-         for (UIElement* sub : mSubItems) {
-            sub->SetActive(false);
-         }
-      }
-      
-      mSelectedHighlight->SetActive(mbSelected);
    }
 }
 

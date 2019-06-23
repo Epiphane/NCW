@@ -15,6 +15,11 @@ namespace Engine
 {
    
 using namespace Observables;
+   
+ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, const std::string& name)
+   : ToggleButtonVC(root, parent, Image::Options(), Image::Options(), name)
+{
+}
 
 ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
    : ButtonVC(root, parent, name)

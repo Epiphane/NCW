@@ -22,6 +22,8 @@ using UI::Image;
 class ToggleButtonVC : public ButtonVC
 {
 public:
+   // Constructor with no images. Lets you handle your own toggle state changes.
+   ToggleButtonVC(UIRoot* root, UIElement* parent, const std::string& name = "");
    ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name = "");
 
    Observables::Observable<bool>& GetToggleObservable() { return mToggleObservable; }

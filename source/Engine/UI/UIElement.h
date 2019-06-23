@@ -233,7 +233,7 @@ protected:
 
    // Whether or not this element is considered active.
    // Adhering to this is up to the element itself.
-   bool mActive;
+   bool mActive = true;
 
    // If true, this element is MARKED FOR DEATH
    bool mbDeleteAfterThisFrame = false;

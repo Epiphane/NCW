@@ -8,12 +8,25 @@
 
 #include <map>
 #include <vector>
+#include <typeinfo> // TODO-EF: deletarino
+#include <string>
 
 namespace CubeWorld
 {
    
 namespace Observables
 {
+   
+   
+template <typename Last>
+std::string type_name (Last l) {
+   return std::string(typeid(Last).name());
+}
+
+template <typename First, typename Second, typename ...Rest>
+std::string type_name (First f, Second s, Rest... r) {
+   return std::string(typeid(First).name()) + " " + type_name<Second, Rest...>(s, r...);
+}
    
 /**
  * A DisposeBag holds onto some callbacks, and when it dies, it calls all the
@@ -129,6 +142,14 @@ protected:
    // When you call Observable.Map<U> or any other operator, it creates a new observable.
    //    The new baby observable's lifecycle is managed here.
    std::vector<std::shared_ptr<void>> mOwnedObservables;
+   
+   // When a new Observer is attached, we send it the most recent message
+   T mMostRecentMessage;
+   // ...or not, if you set this to false
+   bool mbNewObserversShouldReceiveLatestMessage;
+   
+   // Tracks whether we should 
+   bool mbSentFirstMessage;
 };
 
 /**
@@ -156,39 +177,27 @@ Observable<T>& operator>>(Observable<T>& producer, Observable<T>& sink)
  * NOTE: You probably shouldn't make a instance of this class yourself. Use
  *          ObservableBasicOperations::CombineLatest(...)
  */
-template<typename T, typename U>
-class Observable_CombineLatest : public Observable<std::tuple<T, U>>
+template<typename ...T>
+class Observable_CombineLatest : public Observable<std::tuple<T...>>
 {
 public:
-   void SendType1Message(T message) {
-      mMostRecentTMessage = message;
-      mbHasReceivedTMessage = true;
-      
-      if (!mbHasReceivedUMessage) {
-         return;
-      }
-      
-      this->SendMessage(std::make_tuple(message, mMostRecentUMessage));
-   }
-   
-   void SendType2Message(U message) {
-      mMostRecentUMessage = message;
-      mbHasReceivedUMessage = true;
-      
-      if (!mbHasReceivedTMessage) {
-         return;
-      }
-      
-      this->SendMessage(std::make_tuple(mMostRecentTMessage, message));
-   }
+//   Observable_CombineLatest(Observable<T> cool, T... args)
+//   {
+//      cool >>
+//         OnMessage([&](T message) {
+//            
+//         });
+//   }
    
 protected:
-   bool mbHasReceivedTMessage = false;
-   T mMostRecentTMessage;
    
-   bool mbHasReceivedUMessage = false;
-   U mMostRecentUMessage;
 };
+   
+//template<typename First, typename Second, typename ...Q>
+//class Observable_CombineLatest : public Observable<std::tuple<First, Second, Q...>>
+//{
+//   
+//};
 
 /**
  * Subclass that can remember the last message it sent, as well as if it has

@@ -29,16 +29,20 @@ public:
    
    void SetActive(bool active) override;
    
-   Observables::Observable<bool>& GetSelectionObservable() { return mSelectionObservable; }
+   Observables::Observable<bool>& GetSelectionObservable() { return mSelectionToggle->GetToggleObservable(); }
    Observables::Observable<std::vector<std::string>*>& GetChildDataObservable() { return mChildDataObservable; }
    
 private:
-   Observables::Observable<bool> mSelectionObservable;
+   // Send string vectors in through here, and this element will react by remaking its subItems
+   //    with the given strings as titles.
    Observables::Observable<std::vector<std::string>*> mChildDataObservable;
+   
+   // Newly created subItems will pop out through here.
    Observables::Observable<UIElement*> mChildItemObservable;
    
    Text* mLabel;
    ToggleButtonVC* mExpandToggle;
+   ToggleButtonVC* mSelectionToggle;
    RectFilled* mSelectedHighlight;
    
    // Parent to the collapsible items beneath me
@@ -46,12 +50,6 @@ private:
    
    // List of elements beneath this one in the heirarchy
    std::vector<CollapsibleTreeItem*> mSubItems;
-   
-   // If true, show the elements beneath this in the heirarchy
-   bool mbExpanded;
-   
-   // If true, show element highlight
-   bool mbSelected;
 };
    
 }; // namespace Engine

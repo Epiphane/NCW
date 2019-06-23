@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "../catch.h"
 
 #include <RGBBinding/Observable.h>
@@ -8,6 +10,8 @@ using namespace CubeWorld::Observables;
 SCENARIO( "Basic Observable operations should properly manipulate messages streams" ) {
 
    GIVEN( "A DisposeBag" ) {
+      std::cout << type_name(1, "hello", 5.0) << std::endl;
+      
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
       WHEN( "A Map is attached to an Observable emitting messages" ) {
