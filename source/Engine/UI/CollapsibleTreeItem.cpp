@@ -41,7 +41,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
       }, mBag);
    
    auto childrenChanged = mChildDataObservable >>
-      OnMessage<std::vector<std::string>*>([&](std::vector<std::string>* childTitles) {
+      OnMessage<std::vector<std::string>*>([&](auto* childTitles) {
          for (UIElement* subItem : mSubItems) {
             subItem->MarkForDeletion();
          }
@@ -61,17 +61,17 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    // This code covers the case where you add a new subItem to me when I'm collapsed,
    //    AND hiding items when I get collapsed.
    // TODO-EF: jk it doesn't. Fix me plz.
-   CombineLatest(mChildItemObservable, mActiveObservable) >>
-      OnMessage<std::tuple<UIElement*, bool>>([&](auto activeAndNewChild) {
-         auto [newChild, bActive] = activeAndNewChild;
-         newChild->SetActive(bActive);
-      }, mBag);
-
-   CombineLatest(mChildItemObservable, mExpandToggle->GetToggleObservable()) >>
-      OnMessage<std::tuple<UIElement*, bool>>([&](auto newChildAndExpanded) {
-         auto [newChild, bExpanded] = newChildAndExpanded;
-         newChild->SetActive(bExpanded);
-      }, mBag);
+//   CombineLatest(mChildItemObservable, mActiveObservable) >>
+//      OnMessage<std::tuple<UIElement*, bool>>([&](auto activeAndNewChild) {
+//         auto [newChild, bActive] = activeAndNewChild;
+//         newChild->SetActive(bActive);
+//      }, mBag);
+//
+//   CombineLatest(mChildItemObservable, mExpandToggle->GetToggleObservable()) >>
+//      OnMessage<std::tuple<UIElement*, bool>>([&](auto newChildAndExpanded) {
+//         auto [newChild, bExpanded] = newChildAndExpanded;
+//         newChild->SetActive(bExpanded);
+//      }, mBag);
    
    
    mLabel->SetText(title);

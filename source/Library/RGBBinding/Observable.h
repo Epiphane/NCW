@@ -53,7 +53,7 @@ private:
    // We use this to ensure we never call a callback to a dead object.
    std::multimap<void*, std::function<void(void)>> mDisposalCallbacks;
 };
-
+   
 /**
  * An Observable is something that spits out messages. You can set a
  *    callback to react to these messages, and set up mapping functions
@@ -64,14 +64,23 @@ class Observable : public DisposeBag
 {
 public:
    virtual ~Observable() {
-      for (const auto& [weakBag, _] : mBaggedObservers) {
-         auto strongBag = weakBag.lock();
-         if (strongBag) {
-            strongBag->RemoveOnDispose(this);  
-         }
-      }
+      // elliot: wait this doesn't make any sense :(((
+      //          mBaggedObservers contains all the people subscribed TO ME.
+      //          why would I be looking at people subscribed to me and remove them from
+      //          myself...
+      //
+      //       uhhhh
+//      for (const auto& [weakBag, _] : mBaggedObservers) {
+//         auto strongBag = weakBag.lock();
+//         if (strongBag) {
+//            strongBag->RemoveOnDispose(this);  
+//         }
+//      }
+      mBaggedObservers.clear();
+//      RemoveOnDispose(this);
+      mDisposalCallbacks.clear();
    }
-   
+
    //
    // Add an observer callback that will be called for every message sent by this observer.
    //    With this method you specify a DisposeBag. When the DisposeBag dies, the link
@@ -82,7 +91,13 @@ public:
       mBaggedObservers.insert(std::pair(weakBag, onMessage));
       
       strongBag->AddOnDispose([&]() {
-         mBaggedObservers.erase(weakBag);
+//         if (mBaggedObservers.count(weakBag) == 0) {
+////            assert(false && "What's all this then???");
+//            // meh
+//         }
+//         else {
+//            mBaggedObservers.erase(weakBag);
+//         }
       }, this);
    }
    

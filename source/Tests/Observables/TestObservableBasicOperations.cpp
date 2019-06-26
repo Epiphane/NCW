@@ -15,8 +15,6 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       WHEN( "A Map is attached to an Observable emitting messages" ) {
          Observable<int> testObservable;
          std::vector<int> results;
-         
-         CombineLatest(testObservable, testObservable, testObservable);
 
          testObservable >>
             Map<int, int>([](int test) -> int {
@@ -86,11 +84,13 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          Observable<bool> obsB;
          std::vector<std::tuple<int, bool>> results;
          
-//         CombineLatest(obsA, obsB) >>
-//            ToContainer(results, myBag);
+         CombineLatest(obsA, obsB) >>
+            ToContainer(results, myBag);
          
          THEN( "CombineLatest does not emit until both Observables emit a message" ) {
             obsA.SendMessage(5);
+            obsA.SendMessage(3);
+            obsA.SendMessage(37);
             
             CHECK( results.empty() );
          }
@@ -115,12 +115,12 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
             ToContainer(results, myBag);
          
          testObservable.SendMessage(true);
-         testObservable.SendMessage(true);
          testObservable.SendMessage(false);
          testObservable.SendMessage(true);
          testObservable.SendMessage(false);
          testObservable.SendMessage(false);
          testObservable.SendMessage(false);
+         testObservable.SendMessage(true);
          testObservable.SendMessage(true);
          
          THEN( "only non-duplicate values should come through" ) {

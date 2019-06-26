@@ -167,47 +167,48 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
  *    messages.
  */
 template <typename Last>
-std::string type_name (Last l) {
-   return std::string(typeid(Last).name());
-}
-
-template <typename First, typename Second, typename ...Rest>
-std::string type_name (First f, Second s, Rest... r) {
-   return std::string(typeid(First).name()) + " " + type_name<Second, Rest...>(s, r...);
-}
-
-template <typename Last>
-Observable<std::tuple<Last>>* CombineLatest(Observable<Last>& l) {
+Observable<std::tuple<Last>>& CombineLatest(Observable<Last>& l) {
    std::shared_ptr<Observable<std::tuple<Last>>> result = std::make_shared<Observable<std::tuple<Last>>>();
    
+   l.AddOwnedObservable(result);
    l.AddObserver([=](Last message) {
       result->SendMessage(std::make_tuple(message));
    }, result);
    
-   return result.get();
+   return *result;
 }
 
 template <typename First, typename Second, typename ...Rest>
-Observable<std::tuple<First, Second, Rest...>>* CombineLatest(Observable<First>& f, Observable<Second>& s, Observable<Rest>&... r) {
+Observable<std::tuple<First, Second, Rest...>>& CombineLatest(Observable<First>& f, Observable<Second>& s, Observable<Rest>&... r) {
    typedef Observable<std::tuple<First, Second, Rest...>> CombinedObservable;
    std::shared_ptr<CombinedObservable> result = std::make_shared<CombinedObservable>();
+   std::weak_ptr<CombinedObservable> weakResult = result;
    
-   Observable<std::tuple<Second, Rest...>> *restResult = CombineLatest(s, r...);
-   Observable<std::tuple<First>> *singleResult = CombineLatest(f);
+   Observable<std::tuple<Second, Rest...>>& restResult = CombineLatest(s, r...);
+   Observable<std::tuple<First>>& singleResult = CombineLatest(f);
    
-   restResult->AddObserver([=](std::tuple<Second, Rest...> message) {
-      if (singleResult->HasEmittedOnce()) {
-         result->SendMessage(std::tuple_cat(singleResult->GetMostRecentMessage(), message));
+   restResult.AddOwnedObservable(result);
+   singleResult.AddOwnedObservable(result);
+   
+   restResult.AddObserver([&, result](std::tuple<Second, Rest...> message) {
+      if (singleResult.HasEmittedOnce()) {
+//         if (!weakResult.expired()) {
+//            weakResult.lock()->SendMessage(std::tuple_cat(singleResult.GetMostRecentMessage(), message));
+//         }
+         result->SendMessage(std::tuple_cat(singleResult.GetMostRecentMessage(), message));
       }
    }, result);
    
-   singleResult->AddObserver([=](std::tuple<First> message) {
-      if (restResult->HasEmittedOnce()) {
-         result->SendMessage(std::tuple_cat(message, restResult->GetMostRecentMessage()));
+   singleResult.AddObserver([&, result](std::tuple<First> message) {
+      if (restResult.HasEmittedOnce()) {
+//         if (!weakResult.expired()) {
+//            weakResult.lock()->SendMessage(std::tuple_cat(message, restResult.GetMostRecentMessage()));
+//         }
+         result->SendMessage(std::tuple_cat(message, restResult.GetMostRecentMessage()));
       }
    }, result);
    
-   return result.get();
+   return *result;
 }
    
 //

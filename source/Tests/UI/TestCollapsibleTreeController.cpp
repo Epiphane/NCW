@@ -25,7 +25,7 @@ struct TestStringItem {
 
 typedef std::vector<std::string> StringVector;
 
-SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input correctly" ) {
+SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input correctly", "[!hide]" ) {
    
    GIVEN( "a CollapsibleTreeItem" ) {
       std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
