@@ -317,7 +317,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
 {
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    DWORD numRead;
-   if (::ReadFile(handle, data, size, &numRead, nullptr) == 0)
+   if (::ReadFile(handle, data, DWORD(size), &numRead, nullptr) == 0)
    {
       return TransformPlatformError("Failed reading file");
    }
@@ -420,7 +420,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
 {
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    DWORD numWritten;
-   if (::WriteFile(handle, data, size, &numWritten, nullptr) == 0)
+   if (::WriteFile(handle, data, DWORD(size), &numWritten, nullptr) == 0)
    {
       return TransformPlatformError("Failed writing to file");
    }

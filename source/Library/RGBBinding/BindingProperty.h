@@ -617,13 +617,13 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       else { return Failure{"Unhandled number type: %1", flags}; }
       break;
    case kStringType:
-      HANDLE_ERROR(handler.String(data.stringVal.c_str(), data.stringVal.size(), false), "Failed to write string value");
+      HANDLE_ERROR(handler.String(data.stringVal.c_str(), (rapidjson::SizeType)data.stringVal.size(), false), "Failed to write string value");
       break;
    case kObjectType:
       HANDLE_ERROR(handler.StartObject(), "Failed to start object");
       for (const KeyVal& kv : data.objectVal)
       {
-         if (!handler.Key(kv.key.c_str(), kv.key.size(), false))
+         if (!handler.Key(kv.key.c_str(), (rapidjson::SizeType)kv.key.size(), false))
          {
             return Failure{"Failed to write key %1", kv.key};
          }

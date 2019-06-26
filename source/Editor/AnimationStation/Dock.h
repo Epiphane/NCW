@@ -194,7 +194,7 @@ private:
    class AddKeyframeCommand : public DockCommand
    {
    public:
-      AddKeyframeCommand(Dock* dock) : DockCommand(dock)
+      AddKeyframeCommand(Dock* dock) : DockCommand(dock), keyframeIndex(0)
       {
          keyframe.time = dock->mController->time;
       };

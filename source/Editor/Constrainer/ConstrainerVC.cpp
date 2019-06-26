@@ -25,11 +25,13 @@ using UI::RectFilled;
 
 ConstrainerVC::ConstrainerVC(Engine::Input* input, const Controls::Options& options)
    : UIRoot(input)
+   , mElementList(nullptr)
 {
 //   mElementList = Add<CollapsibleTreeVC>(this, this);
 
 //   Sidebar* sidebar = Add<Sidebar>();
    Controls* controls = Add<Controls>(options);
+   *(controls); // Avoids unreferenced local variable error
 //
 //   sidebar->ConstrainLeftAlignedTo(this);
 //   sidebar->ConstrainTopAlignedTo(this);

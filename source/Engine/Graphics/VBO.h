@@ -58,7 +58,7 @@ protected:
 
 public:
    // CAUTION: When using the default constructor, you must either call vbo.Init() or assign it another VBO before it is usable.
-   VBO() : mBuffer(0) {};
+   VBO() : mBuffer(0), mBufferType(0) {};
 
    VBO(const DataType type);
    VBO(const DataType type, const GLuint buffer);

@@ -11,6 +11,7 @@
 #undef near
 #undef far
 #undef GetObject
+#undef SendMessage
 #endif
 
 #ifdef NDEBUG

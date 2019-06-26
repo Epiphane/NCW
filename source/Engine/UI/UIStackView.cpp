@@ -43,7 +43,7 @@ UIElement *UIStackView::AddChild(std::unique_ptr<UIElement> &&element)
    
    // TODO: This won't go away if the element is removed from this stack view...
    result->OnActiveStateChanged() >>
-      Observables::OnMessage<bool>([&](bool active) {
+      Observables::OnMessage<bool>([&](bool /*active*/) {
          this->RemakeConstraints();
       }, mBag);
 

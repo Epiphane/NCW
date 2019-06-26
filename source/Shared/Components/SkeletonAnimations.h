@@ -17,7 +17,7 @@ namespace CubeWorld
 struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
    // Types
    struct Keyframe {
-      double time;
+      double time = 0.0;
       std::unordered_map<std::string, glm::vec3> positions;
       std::unordered_map<std::string, glm::vec3> rotations;
       std::unordered_map<std::string, glm::vec3> scales;

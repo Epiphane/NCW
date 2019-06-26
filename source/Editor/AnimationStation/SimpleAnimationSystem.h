@@ -43,7 +43,7 @@ public:
       std::string next;
       std::string stance;
 
-      double length;
+      double length = 0.0;
       std::vector<SkeletonAnimations::Keyframe> keyframes;
    };
 

@@ -52,27 +52,27 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
             auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>(newTitle);
             mSubItems.push_back(newItem);
          }
-         
+
          mSubItemObservable.SendMessage(mSubItems);
       }, mBag);
-   
+
    CombineLatest(mSubItemObservable, mActiveObservable >> StartWith(true), mExpandToggle->GetToggleObservable()) >>
       OnMessage<std::tuple<std::vector<CollapsibleTreeItem*>, bool, bool>>([&](auto newState) {
          const auto& [subItems, bActive, bExpanded] = newState;
-         
+
          for (CollapsibleTreeItem* subItem : subItems) {
             subItem->SetActive(bActive && bExpanded);
          }
       }, mBag);
-   
+
    CombineLatest(mSubItemObservable, mActiveObservable) >>
       OnMessage<std::tuple<std::vector<CollapsibleTreeItem*>, bool>>([&](auto newState) {
          const auto& [subItems, bActive] = newState;
-         
+
          // If we have no subItems, there's no need to show the expansion toggle
          mExpandToggle->SetActive(!subItems.empty());
       }, mBag);
-   
+
    CombineLatest(mSelectionToggle->GetToggleObservable(), mActiveObservable) >>
       OnMessage<std::tuple<bool, bool>>([&](auto newState) {
          const auto& [bSelected, bActive] = newState;
@@ -93,7 +93,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mSelectedHighlight->ConstrainBehind(mExpandToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    mSelectionToggle->ConstrainEqualBounds(mSelectedHighlight);
-   
+
    mSubItemStackView->ConstrainBelow(mSelectedHighlight);
    mSubItemStackView->ConstrainWidthTo(this);
    mSubItemStackView->ConstrainBottomAlignedTo(this);

@@ -48,7 +48,7 @@ inline double FastPath(double significand, int exp) {
 }
 
 // Returns true if a number was successfully parsed.
-bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t len)
+bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, size_t /*len*/)
 {
    yaml_char_t* start = str;
 
@@ -336,7 +336,7 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
       case YAML_SCALAR_EVENT:
          if (reader.CurrentIsObject())
          {
-            if (!reader.Key((char*)event.data.scalar.value, event.data.scalar.length, true))
+            if (!reader.Key((char*)event.data.scalar.value, (rapidjson::SizeType)event.data.scalar.length, true))
             {
                return Failure{"Failed writing key"};
             }
@@ -361,7 +361,7 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
                   }
                }
                else 
-               if (!reader.String((char*)event.data.scalar.value, event.data.scalar.length, true))
+               if (!reader.String((char*)event.data.scalar.value, (rapidjson::SizeType)event.data.scalar.length, true))
                {
                   return Failure{"Failed writing string"};
                }

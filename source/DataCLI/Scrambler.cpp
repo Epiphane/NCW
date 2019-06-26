@@ -22,7 +22,7 @@ void Scrambler::Scramble(char* data, size_t size)
 
    for (size_t currOff = 0; currOff < size; currOff++)
    {
-      int offset = (currOff + offsets[currOff % 44]) % size;
+      size_t offset = (currOff + offsets[currOff % 44]) % size;
 
       char temp = data[currOff];
       data[currOff] = data[offset];

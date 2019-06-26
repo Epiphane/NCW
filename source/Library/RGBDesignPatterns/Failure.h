@@ -16,12 +16,15 @@ namespace CubeWorld
 
 class Failure {
 public:
-   Failure() {};
+   Failure() : failureCode(0) {};
    Failure(const Failure& other) : message(other.message), failureCode(other.failureCode) {};
    Failure(const std::string& message, int failureCode = NO_FAILURE_CODE_SPECIFIED) : message(message), failureCode(failureCode) {};
 
    template <typename ...Args>
-   Failure(const std::string& fmt, const Args& ... args) : message(Format::FormatString(fmt, args...)) {};
+   Failure(const std::string& fmt, const Args& ... args)
+      : message(Format::FormatString(fmt, args...))
+      , failureCode(0)
+   {};
    
    template <typename ...Args>
    Failure(int failureCode, const std::string& fmt, const Args& ... args) 

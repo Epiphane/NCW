@@ -6,15 +6,15 @@ length: 0.8
 keyframes:
 - time: 0
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
@@ -25,20 +25,20 @@ keyframes:
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Right Foot:
-      position: [0, -5, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Hips:
       position: [0, 1.5, 2]
       rotation: [3.5, 0, 0]
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
+    character.Right Foot:
+      position: [0, -5, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
     character.Torso:
       rotation: [0, 46.09, 0]
-- time: 0.64
+- time: 0.49
   bones:
     character.Head:
       position: [0, 4.85, -0.93]
@@ -62,11 +62,15 @@ keyframes:
       rotation: [0.04, 49.380001, 0.02]
     character.Spine:
       rotation: [8.03, 0, 0]
-- time: 0.79
+- time: 0.8
   bones:
     character.Shoulders:
       position: [-6, 3.37, 2.77]
       rotation: [0, 0, 15.78]
+    character.root:
+      position: [0, -0.5, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
 transitions:
 - to: swing 2
   time: 0.1

@@ -186,9 +186,9 @@ BindingProperty& BindingProperty::operator[](const size_t& index)
    if (IsNull()) { SetArray(); }
    if (index >= data.arrayVal.size())
    {
-      data.arrayVal.resize(index + 1);
+      data.arrayVal.resize(uint32_t(index + 1));
    }
-   return data.arrayVal[index];
+   return data.arrayVal[uint32_t(index)];
 }
 
 BindingProperty& BindingProperty::operator[](const std::string& key)
@@ -219,7 +219,7 @@ const BindingProperty& BindingProperty::operator[](const size_t& index) const
    assert((IsArray() || IsNull()) && "index operator only valid on null or arrays");
    if (index < data.arrayVal.size())
    {
-      return data.arrayVal[index];
+      return data.arrayVal[uint32_t(index)];
    }
    return Null;
 }

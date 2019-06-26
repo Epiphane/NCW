@@ -6,19 +6,19 @@ length: 0.4
 keyframes:
 - time: 0
   bones:
-    character.Head:
-      position: [0, 4.5, 0]
-      rotation: [-15, 0, 0]
     character.Hips:
       position: [0, 0.5, 1.2]
       rotation: [15, 0, 0]
+    character.Head:
+      position: [0, 4.5, 0]
+      rotation: [-15, 0, 0]
     character.Spine:
       position: [0, 0, 3]
       rotation: [15, 0, 0]
-    character.Torso:
-      position: [0, -6.5, 0]
     character.Right Hand:
       position: [-6.4, 0, 0]
+    character.Torso:
+      position: [0, -6.5, 0]
     character.Left Hand:
       position: [6.4, 0, 0]
 - time: 0.1
@@ -32,19 +32,19 @@ keyframes:
     character.Spine:
       position: [0, 0, 3]
       rotation: [15, 0, 0]
-    character.Right Hand:
-      position: [-6, 0, -3]
     character.Torso:
       position: [0, -5.5, 0]
       rotation: [0, -20, 0]
+    character.Right Hand:
+      position: [-6, 0, -3]
     character.Left Hand:
       position: [6, 0, 3]
     character.Left Leg:
       rotation: [-75, 0, 0]
-    character.Right Leg:
-      rotation: [75, 0, 0]
     character.Hips:
       rotation: [15, 0, 0]
+    character.Right Leg:
+      rotation: [75, 0, 0]
 - time: 0.2
   bones:
     character.Head:
@@ -52,10 +52,10 @@ keyframes:
       rotation: [-15, 0, 0]
     character.Left Hand:
       position: [6.4, 0, 0]
-    character.Torso:
-      position: [0, -6.5, 0]
     character.Right Hand:
       position: [-6.4, 0, 0]
+    character.Torso:
+      position: [0, -6.5, 0]
     character.Spine:
       position: [0, 0, 3]
       rotation: [15, 0, 0]
@@ -72,11 +72,11 @@ keyframes:
     character.Spine:
       position: [0, 0, 3]
       rotation: [15, 0, 0]
-    character.Right Hand:
-      position: [-6, 0, 3]
     character.Torso:
       position: [0, -5.5, 0]
       rotation: [0, 20, 0]
+    character.Right Hand:
+      position: [-6, 0, 3]
     character.Left Hand:
       position: [6, 0, -3]
     character.root:
@@ -85,10 +85,10 @@ keyframes:
       scale: [1, 1, 1]
     character.Left Leg:
       rotation: [75, 0, 0]
-    character.Right Leg:
-      rotation: [-75, 0, 0]
     character.Hips:
       rotation: [15, 0, 0]
+    character.Right Leg:
+      rotation: [-75, 0, 0]
 transitions:
 - to: idle
   time: 0.2

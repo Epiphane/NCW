@@ -146,8 +146,8 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
                testObservable.SendMessage(-1);
                testObservable.SendMessage(22);
                
-               std::vector<int> expected { 11, 37, -1, 22 };
-               CHECK( results == expected );
+               std::vector<int> expectedResults { 11, 37, -1, 22 };
+               CHECK( results == expectedResults);
             }
          }
       }

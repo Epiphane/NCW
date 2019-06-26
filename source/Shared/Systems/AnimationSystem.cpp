@@ -12,13 +12,8 @@
 namespace CubeWorld
 {
 
-void AnimationSystem::Configure(Engine::EntityManager& entities, Engine::EventManager& events)
-{
-   mMetric = DebugHelper::Instance().RegisterMetric("[AS] Current", [this] { return mCurrent; });
-   mMetric2 = DebugHelper::Instance().RegisterMetric("[AS] Time   ", [this] { return Format::FormatString("%1", mTime); });
-   mMetric3 = DebugHelper::Instance().RegisterMetric("[AS] Next   ", [this] { return mNext; });
-   mMetric4 = DebugHelper::Instance().RegisterMetric("[AS] T Time ", [this] { return Format::FormatString("%1", mTransitionCurrent); });
-}
+void AnimationSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
+{}
 
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
@@ -214,11 +209,6 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       size_t boneId = 0;
       std::vector<glm::mat4> matrixes;
       matrixes.resize(controller.bones.size(), glm::mat4(1));
-
-      mCurrent = controller.states[controller.current].name;
-      mNext = controller.states[controller.next].name;
-      mTime = controller.time;
-      mTransitionCurrent = controller.transitionCurrent;
 
       AnimationController::Stance& stance = controller.stances[controller.states[controller.current].stance];
       for (const Engine::ComponentHandle<Skeleton>& skeleton : controller.skeletons)
