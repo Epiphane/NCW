@@ -33,7 +33,6 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOnImage = Add<Image>(onImage);
 
    mToggleObservable >>
-      StartWith(false) >>
       RemoveDuplicates() >>
       OnMessage<bool>([&](bool isOn) {
          mToggleState = isOn;
@@ -46,6 +45,9 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto m) {
         mToggleObservable.SendMessage(!mToggleState);
      }, mBag);
+   
+   // Start untoggled by default
+   mToggleObservable.SendMessage(false);
 }
 
 }; // namespace Engine

@@ -78,7 +78,7 @@ public:
 //      }
       mBaggedObservers.clear();
 //      RemoveOnDispose(this);
-      mDisposalCallbacks.clear();
+//      mDisposalCallbacks.clear();
    }
 
    //

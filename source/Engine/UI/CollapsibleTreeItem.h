@@ -27,8 +27,6 @@ public:
    CollapsibleTreeItem(UIRoot* root, UIElement* parent, const std::string& title, const std::string& name = "");
    virtual ~CollapsibleTreeItem() {}
    
-   void SetActive(bool active) override;
-   
    Observables::Observable<bool>& GetSelectionObservable() { return mSelectionToggle->GetToggleObservable(); }
    Observables::Observable<std::vector<std::string>*>& GetChildDataObservable() { return mChildDataObservable; }
    
@@ -38,7 +36,7 @@ private:
    Observables::Observable<std::vector<std::string>*> mChildDataObservable;
    
    // Newly created subItems will pop out through here.
-   Observables::Observable<UIElement*> mChildItemObservable;
+   Observables::Observable<std::vector<CollapsibleTreeItem*>> mSubItemObservable;
    
    Text* mLabel;
    ToggleButtonVC* mExpandToggle;
