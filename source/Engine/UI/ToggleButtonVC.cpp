@@ -28,7 +28,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOnImage = Add<Image>(onImage);
 
    mToggleObservable >>
-      StartWith(false) >>
+      StartWith<bool>(false) >>
       RemoveDuplicates() >>
       OnMessage<bool>([&](bool isOn) {
          mToggleState = isOn;

@@ -18,7 +18,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
             Map<int, int>([](int test) -> int {
                return test + 2;
             }) >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<int>>(results, myBag);
 
          testObservable.SendMessage(3);
          testObservable.SendMessage(4);
@@ -39,7 +39,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
             Filter<int>([](int test) -> bool {
                return test % 2 == 0;
             }) >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<int>>(results, myBag);
 
          testObservable.SendMessage(3);
          testObservable.SendMessage(4);
@@ -60,7 +60,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          std::vector<int> results;
 
          Merge(obsA, obsB) >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<int>>(results, myBag);
 
          obsA.SendMessage(1);
 
@@ -83,7 +83,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          std::vector<std::tuple<int, bool>> results;
          
          CombineLatest(obsA, obsB) >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<std::tuple<int, bool>>>(results, myBag);
          
          THEN( "CombineLatest does not emit until both Observables emit a message" ) {
             obsA.SendMessage(5);
@@ -108,7 +108,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          
          testObservable >>
             RemoveDuplicates() >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<bool>>(results, myBag);
          
          testObservable.SendMessage(true);
          testObservable.SendMessage(true);
@@ -130,8 +130,8 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          std::vector<int> results;
          
          testObservable >>
-            StartWith(11) >>
-            ToContainer(results, myBag);
+            StartWith<int>(11) >>
+            ToContainer<std::vector<int>>(results, myBag);
          
          THEN( "it should immediately have the passed-in message at the beginning of its output message stream") {
             std::vector<int> expected { 11 };
@@ -156,7 +156,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
          testObservableProducer >> testObservableAccepter;
          
          testObservableAccepter >>
-            ToContainer(results, myBag);
+            ToContainer<std::vector<int>>(results, myBag);
          
          testObservableProducer.SendMessage(3);
          testObservableProducer.SendMessage(100);

@@ -36,7 +36,7 @@ SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input co
       CollapsibleTreeItem* item = dummyRoot->Add<CollapsibleTreeItem>("Test Title", "DummyItem");
       
       item->GetSelectionObservable() >>
-         ToContainer(selections, myBag);
+         ToContainer<std::vector<bool>>(selections, myBag);
       
       // solve constraints
       dummyRoot->UpdateRoot();

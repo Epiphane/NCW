@@ -75,7 +75,12 @@
         "sqlite3.c": "cpp",
         "ft2build.h": "c",
         "infutil.h": "c",
-        "infcodes.h": "c"
+        "infcodes.h": "c",
+        "optional": "cpp",
+        "iomanip": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "regex": "cpp"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false

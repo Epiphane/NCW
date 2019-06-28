@@ -29,7 +29,7 @@ class DisposeBag {
 public:
    void AddOnDispose(std::function<void(void)> newCallback, void* callbackOwner) 
    {
-      mDisposalCallbacks.insert(std::pair(callbackOwner, newCallback));
+      mDisposalCallbacks.insert(std::make_pair(callbackOwner, newCallback));
    }
    
    void RemoveOnDispose(void* callbackOwner) 
@@ -62,8 +62,8 @@ class Observable : public DisposeBag
 {
 public:
    virtual ~Observable() {
-      for (const auto& [weakBag, _] : mBaggedObservers) {
-         auto strongBag = weakBag.lock();
+      for (const auto& weakBag : mBaggedObservers) {
+         auto strongBag = weakBag.first.lock();
          if (strongBag) {
             strongBag->RemoveOnDispose(this);  
          }
@@ -77,7 +77,7 @@ public:
    //
    virtual void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) {
       auto strongBag = weakBag.lock();
-      mBaggedObservers.insert(std::pair(weakBag, onMessage));
+      mBaggedObservers.insert(std::make_pair(weakBag, onMessage));
       
       strongBag->AddOnDispose([&]() {
          mBaggedObservers.erase(weakBag);
@@ -102,10 +102,10 @@ public:
       //    being emitted.
       auto observersCopy = mBaggedObservers;
       
-      for (const auto& [weakBag, onMessageCallback] : observersCopy) {
+      for (const auto& observer : observersCopy) {
          // If a listener was deleted while iterating, don't send it a message
-         if (!weakBag.expired()) {
-            onMessageCallback(message);
+         if (!observer.first.expired()) {
+            observer.second(message);
          }
       };
       

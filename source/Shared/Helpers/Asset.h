@@ -12,6 +12,7 @@ namespace CubeWorld
 namespace Asset
 {
 
+void SetAssetRootDefault();
 void SetAssetRoot(std::string root);
 
 std::string Animation(const std::string& animation);

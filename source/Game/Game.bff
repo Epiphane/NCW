@@ -44,12 +44,6 @@
          .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
       }
 
-      CopyDir( '$ProjectName$-Assets-$Platform$-$Config$' )
-      {
-         .SourcePaths   = '$ProjectPath$/../../Assets'
-         .Dest          = '$OutputPath$/Assets'
-      }
-
       CopyDir( '$ProjectName$-Shaders-$Platform$-$Config$' )
       {
          .SourcePaths   = '$ProjectPath$/../Shared/Shaders'
@@ -61,7 +55,6 @@
       Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
       {
          .PreBuildDependencies = {
-                                    '$ProjectName$-Assets-$Platform$-$Config$'
                                     '$ProjectName$-Shaders-$Platform$-$Config$'
                                  }
 

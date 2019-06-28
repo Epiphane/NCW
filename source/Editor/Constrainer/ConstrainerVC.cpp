@@ -30,8 +30,11 @@ ConstrainerVC::ConstrainerVC(Engine::Input* input, const Controls::Options& opti
 //   mElementList = Add<CollapsibleTreeVC>(this, this);
 
 //   Sidebar* sidebar = Add<Sidebar>();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
    Controls* controls = Add<Controls>(options);
    *(controls); // Avoids unreferenced local variable error
+#pragma clang diagnostic pop
 //
 //   sidebar->ConstrainLeftAlignedTo(this);
 //   sidebar->ConstrainTopAlignedTo(this);

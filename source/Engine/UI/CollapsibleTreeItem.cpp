@@ -51,7 +51,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
       mSelectionObservable;
    
    mSelectionObservable >>
-      StartWith(false) >>
+      StartWith<bool>(false) >>
       RemoveDuplicates() >>
       OnMessage<bool>([&](bool selected) {
          mSelectedHighlight->SetActive(selected);

@@ -26,7 +26,7 @@ SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggle
       std::vector<bool> toggles;
       
       button->GetToggleObservable() >>
-         ToContainer(toggles, myBag);
+         ToContainer<std::vector<bool>>(toggles, myBag);
       
       WHEN( "The toggle button receives mouse events" ) {
          THEN ( "the toggle button should send messages from its OnToggled observable." ) {

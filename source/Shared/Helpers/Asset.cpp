@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <RGBFileSystem/FileSystem.h>
+
 #include "Asset.h"
 
 namespace CubeWorld
@@ -9,6 +11,21 @@ namespace Asset
 {
 
 std::string gAssetRoot = "./Assets";
+
+void SetAssetRootDefault()
+{
+   DiskFileSystem fs;
+   // Account for / (relative to repo)
+   if (auto [_, exists] = fs.Exists("./Assets"); exists)
+   {
+      gAssetRoot = "./Assets";
+   }
+   // Account for running from /tmp/{config}/{target}
+   else if (auto [_, exists] = fs.Exists("../../../Assets"); exists)
+   {
+      gAssetRoot = "../../../Assets";
+   }
+}
 
 void SetAssetRoot(std::string root)
 {

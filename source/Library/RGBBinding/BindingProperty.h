@@ -321,7 +321,7 @@ public:
          if (mObject->IsArray())
          {
             return {
-               BindingProperty(mIndex),
+               BindingProperty((uint32_t)mIndex),
                mObject->data.arrayVal[mIndex]
             };
          }

@@ -46,7 +46,10 @@ public:
    void Bind(T* location)
    {
       mBinding = location;
-      mInternalValue = *location;
+      if (location != nullptr)
+      {
+         mInternalValue = *location;
+      }
    }
 
    ///

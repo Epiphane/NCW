@@ -44,6 +44,8 @@ const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
 int main(int argc, char** argv)
 {
+   Asset::SetAssetRootDefault();
+
    // Parse arguments
    int argi = 0;
    while (argi < argc)

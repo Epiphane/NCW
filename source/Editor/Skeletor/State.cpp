@@ -6,7 +6,8 @@
 #include <functional>
 #pragma warning(push, 0)
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "unused-paramter"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wreorder"
 #include <noise/noise.h>
 #include <noiseutils/noiseutils.h>
 #pragma clang diagnostic pop
