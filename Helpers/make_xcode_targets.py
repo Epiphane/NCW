@@ -16,6 +16,34 @@ with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'NoTargets.p
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ExecutableTarget.xcscheme')) as template_file:
    SCHEME_TEMPLATE = template_file.read()
 
+BUILD_SETTINGS = [
+   '				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;',
+   '				CLANG_WARN_BOOL_CONVERSION = YES;',
+   '				CLANG_WARN_COMMA = YES;',
+   '				CLANG_WARN_CONSTANT_CONVERSION = YES;',
+   '				CLANG_WARN_EMPTY_BODY = YES;',
+   '				CLANG_WARN_ENUM_CONVERSION = YES;',
+   '				CLANG_WARN_INFINITE_RECURSION = YES;',
+   '				CLANG_WARN_INT_CONVERSION = YES;',
+   '				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;',
+   '				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;',
+   '				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;',
+   '				CLANG_WARN_STRICT_PROTOTYPES = YES;',
+   '				CLANG_WARN_SUSPICIOUS_MOVE = YES;',
+   '				CLANG_WARN_UNREACHABLE_CODE = YES;',
+   '				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;',
+   '				ENABLE_STRICT_OBJC_MSGSEND = YES;',
+   '				ENABLE_TESTABILITY = YES;',
+   '				GCC_NO_COMMON_BLOCKS = YES;',
+   '				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;',
+   '				GCC_WARN_ABOUT_RETURN_TYPE = YES;',
+   '				GCC_WARN_UNDECLARED_SELECTOR = YES;',
+   '				GCC_WARN_UNINITIALIZED_AUTOS = YES;',
+   '				GCC_WARN_UNUSED_FUNCTION = YES;',
+   '				GCC_WARN_UNUSED_VARIABLE = YES;',
+   '				ONLY_ACTIVE_ARCH = YES;',
+]
+
 def remove_schemes(project: str):
    pass
 
@@ -29,21 +57,41 @@ def make_xcode_targets(project: str, executables: List[str]):
          fbuild_uuid = None
          native_uuid = None
 
+         project_lines = []
          with open(os.path.join(project, subdir, 'project.pbxproj')) as proj_file:
             lines = proj_file.readlines()
 
             state = ''
-            for line in lines:
+            i = 0
+            while i < len(lines):
+               line = lines[i].strip('\n')
+               # Protect strings
+               line = re.sub(r'= ([A-Za-z0-9\/\+\_\.]+)([\s;])', r'= "\1"\2', line)
+               project_lines.append(line.strip('\n'))
+
                if state == 'PBXLegacyTarget':
                   fbuild_uuid = re.match(r'\s*([0-9]{24}) /\*.*\*/ = \{', line).groups()[0]
                   state = ''
                elif state == 'PBXNativeTarget':
                   native_uuid = re.match(r'\s*([0-9]{24}) /\*.*\*/ = \{', line).groups()[0]
                   state = ''
+               elif state == 'XCBuildConfiguration Debug' and 'buildSettings' in line:
+                  project_lines += BUILD_SETTINGS
+                  state = 'XCBuildConfiguration Release'
+               elif state == 'XCBuildConfiguration Release' and 'buildSettings' in line:
+                  project_lines += BUILD_SETTINGS
+                  state = ''
                elif 'Begin PBXLegacyTarget section' in line:
                   state = 'PBXLegacyTarget'
                elif 'Begin PBXNativeTarget section' in line:
                   state = 'PBXNativeTarget'
+               elif 'Begin XCBuildConfiguration section' in line:
+                  state = 'XCBuildConfiguration Debug'
+
+               i += 1
+
+         with open(os.path.join(project, subdir, 'project.pbxproj'), 'w') as new_proj_file:
+            new_proj_file.write('\n'.join(project_lines))
 
          path = os.path.join(project, subdir, SCHEMES)
          with open(path, 'w') as schemes_file:
