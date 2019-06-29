@@ -1,0 +1,14 @@
+//
+// Machine-specific configuration. Useful for being lazy, and
+// not vendoring tools like Node, Python, and Windows or OSX
+// SDKs and compiling tools.
+//
+// Needs to be configured per machine to account for differences.
+//
+
+.MachineConfig =
+[
+   .PythonExe              = '/usr/local/bin/python3'
+   .Windows10_SDKBasePath  = 'C:\Program Files (x86)\Windows Kits\10'
+   .Windows10_SDKVersion   = '10.0.17763.0'
+]

@@ -7,5 +7,6 @@ xcode_build/*
 *.fdb
 
 Assets/cache
+Config.bff
 
 # source/.config
