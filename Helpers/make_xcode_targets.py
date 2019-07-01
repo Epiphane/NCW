@@ -66,7 +66,7 @@ def make_xcode_targets(project: str, executables: List[str]):
             while i < len(lines):
                line = lines[i].strip('\n')
                # Protect strings
-               line = re.sub(r'= ([A-Za-z0-9\/\+\_\.]+)([\s;])', r'= "\1"\2', line)
+               line = re.sub(r'= ([A-Za-z0-9\/\+\_\.-]+)([\s;])', r'= "\1"\2', line)
                project_lines.append(line.strip('\n'))
 
                if state == 'PBXLegacyTarget':
