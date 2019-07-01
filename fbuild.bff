@@ -415,7 +415,7 @@ Exec('CubeWorld-sln-xcode-schemes')
    .ExecInput        = { 'Helpers/make_xcode_targets.py' }
    .ExecArguments    = '%1'
                      + ' tmp/XCode'
-                     + ' DataCLI Editor Sandbox Game'
+                     + ' DataCLI Editor Sandbox Game Tests'
    .ExecOutput       = 'tmp/XCode/Projects/DataCLI.xcodeproj/xcshareddata/xcschemes/DataCLI.xcscheme'
 }
 #endif
