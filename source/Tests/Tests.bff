@@ -16,21 +16,11 @@
                            + ' /wd6330'
                         #endif
 
-      // Unity
+      // No Unity build here; tests are weird
       // --------------------------------------------------------------------------
-      Unity( '$ProjectName$-Unity-$Platform$-$Config$' )
-      {
-         .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
-         .UnityOutputPath            = .OutputPath
-      }
-
       ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
       {
-#if UNITY_BUILD
-         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
-#else
          .CompilerInputPath             = '$_CURRENT_BFF_DIR_$'
-#endif
       }
 
       // Library
@@ -38,11 +28,7 @@
       Library( '$ProjectName$-Lib-$Platform$-$Config$' )
       {
          // Input
-#if UNITY_BUILD
-         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
-#else
          .LibrarianAdditionalInputs = { '$ProjectName$-Obj-$Platform$-$Config$' }
-#endif
 
          // Output
          .CompilerOutputPath  = '$OutputPath$'

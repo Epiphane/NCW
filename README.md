@@ -40,7 +40,7 @@ If you're going to change up things such as the UI, it's good to know what to ex
 
 ### Mac-Specific
 
-1. Get `clang v9.0.0`. This can be checked by running `clang -v`. If you can't upgrade, I have no idea if it'll work. #YOLO
+1. Get `clang v10.0.0`. This can be checked by running `clang -v`. If you can't upgrade, I have no idea if it'll work. #YOLO
 2. Building from command line: run `FBuild All`.
 3. (VS Code) Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
 4. (XCode) Use `fbuild` to create the XCode solution: `FBuild CubeWorld-sln`. The solution can be found at `tmp/XCode/CubeWorld.xcodeproj`

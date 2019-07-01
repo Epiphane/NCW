@@ -1,12 +1,12 @@
-// Clang 8.0.1
+// Clang 10.0.1
 //------------------------------------------------------------------------------
-.Clang8_BasePath = '/usr/bin'
+.Clang10_BasePath = '/usr/bin'
 
 // Compiler
 //------------------------------------------------------------------------------
-Compiler( 'Compiler-Clang8' )
+Compiler( 'Compiler-Clang10' )
 {
-    .Root                           = '$Clang8_BasePath$'
+    .Root                           = '$Clang10_BasePath$'
     .Executable                     = '$Root$/clang'
 }
 
@@ -17,13 +17,14 @@ Compiler( 'Compiler-Clang8' )
     .Platform                       = 'OSX'
 
     // Compiler Options
-    .Compiler                       = 'Compiler-Clang8'
+    .Compiler                       = 'Compiler-Clang10'
     .CommonCompilerOptions          = ' -o "%2" "%1"'   // Input/Output
                                     + ' -c'             // Compile only
                                     + ' -g'             // Generate debug info
                                     + ' -m64'           // x86_64
                                     + ' -D__OSX__'      // Platform define
                                     + ' -D__APPLE__'    // Platform define
+                                    + ' -D__clang__'
 
                                     // Include paths
                                     + ' -I./'
@@ -40,17 +41,18 @@ Compiler( 'Compiler-Clang8' )
                                     + ' -Wno-unused-private-field'
                                     + ' -Wno-invalid-offsetof'      // we get the offset of members in non-POD types
                                     + ' -Wno-implicit-exception-spec-mismatch' // Fires on our new/delete operator (Clang bug?)
+                                    + ' -Wno-delete-non-virtual-dtor' // Comes up in rhea a lot
 
 
     .CompilerOptions                = ' -std=c++1z $CommonCompilerOptions$'
     .CompilerOptionsC               = ' $CommonCompilerOptions$'
 
     // Librarian
-    .Librarian                      = '$Clang8_BasePath$/ar'
+    .Librarian                      = '$Clang10_BasePath$/ar'
     .LibrarianOptions               = 'rcs "%2" "%1"'
 
     // Linker
-    .Linker                         = '$Clang8_BasePath$/clang++'
+    .Linker                         = '$Clang10_BasePath$/clang++'
     .LinkerOptions                  = '"%1" -o "%2" -g'
 
     // File Extensions
