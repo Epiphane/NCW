@@ -21,6 +21,7 @@ namespace Engine
 
 UIElement::UIElement(UIRoot *root, UIElement* parent, const std::string& name)
    : UIConstrainable(root, name)
+   , mActiveObservable(true)
    , mActive(true)
    , mpParent(parent)
 {

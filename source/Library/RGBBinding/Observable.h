@@ -63,6 +63,14 @@ template<typename T>
 class Observable : public DisposeBag
 {
 public:
+   Observable() {}
+   
+   // This constructor lets you start with a default message that new subscribers will receive
+   explicit Observable(T defaultMessage) {
+      mMostRecentMessage = defaultMessage;
+      mbHasEmittedOnce = true;
+   }
+   
    virtual ~Observable() {
       // elliot: wait this doesn't make any sense :(((
       //          mBaggedObservers contains all the people subscribed TO ME.
@@ -79,6 +87,7 @@ public:
       mBaggedObservers.clear();
 //      RemoveOnDispose(this);
 //      mDisposalCallbacks.clear();
+      // harley davidson
    }
 
    //
@@ -89,6 +98,10 @@ public:
    virtual void AddObserver(std::function<void(T)> onMessage, std::weak_ptr<DisposeBag> weakBag) {
       auto strongBag = weakBag.lock();
       mBaggedObservers.insert(std::pair(weakBag, onMessage));
+      
+      if (mbHasEmittedOnce) {
+         onMessage(mMostRecentMessage);
+      }
       
       strongBag->AddOnDispose([&]() {
 //         if (mBaggedObservers.count(weakBag) == 0) {
@@ -108,6 +121,10 @@ public:
    //
    virtual void AddObserverWithoutDisposer(std::function<void(T)> onMessage) {
       mUnbaggedObservers.push_back(onMessage);
+      
+      if (mbHasEmittedOnce) {
+         onMessage(mMostRecentMessage);
+      }
    }
    
    void AddOwnedObservable(std::shared_ptr<void> observable) {

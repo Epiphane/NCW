@@ -23,6 +23,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, const std::strin
 
 ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
    : ButtonVC(root, parent, name)
+   , mToggleObservable(false)
 {
    // TODO-EF: The ContentSize of a ToggleButton (and a Button in general) should be
    //             equal to the size of its background image.
@@ -45,9 +46,6 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto /*m*/) {
         mToggleObservable.SendMessage(!mToggleState);
      }, mBag);
-   
-   // Start untoggled by default
-   mToggleObservable.SendMessage(false);
 }
 
 }; // namespace Engine

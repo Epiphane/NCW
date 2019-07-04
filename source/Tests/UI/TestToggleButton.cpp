@@ -32,15 +32,15 @@ GIVEN( "A toggle button with an Observer attached" ) {
       THEN ( "the toggle button should send messages from its OnToggled observable." ) {
          MockClick(root, button);
 
-         // ToggleButton defaults to false, so toggling once should give us one true
-         std::vector<bool> expected = { true };
+         // ToggleButton defaults to false, so toggling once should go from false -> true
+         std::vector<bool> expected = { false, true };
          CHECK( expected == toggles );
 
          MockClick(root, button);
          MockClick(root, button);
          MockClick(root, button);
 
-         expected = { true, false, true, false };
+         expected = { false, true, false, true, false };
          CHECK( expected == toggles );
       }
    }
@@ -54,7 +54,7 @@ GIVEN( "A toggle button with an Observer attached" ) {
       toggleMeister.SendMessage(true);
 
       THEN( "it should also send messages from its OnToggled observable." ) {
-         std::vector<bool> expectedToggles = { false, false, true };
+         std::vector<bool> expectedToggles = { false, false, false, true };
          CHECK( expectedToggles == toggles );
       }
    }
@@ -74,7 +74,7 @@ GIVEN( "A toggle button with an Observer attached" ) {
       toggleMeister.SendMessage(false);
 
       THEN("the OnToggled observable sends all the toggles out." ) {
-         std::vector<bool> expectedToggles = { false, true, false, true, false, true, false, false, false };
+         std::vector<bool> expectedToggles = { false, false, true, false, true, false, true, false, false, false };
          CHECK( expectedToggles == toggles );
       }
    }

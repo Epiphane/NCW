@@ -225,7 +225,7 @@ public:
    Observables::Observable<bool>& OnActiveStateChanged() { return mActiveObservable; }
 
 protected:
-   // Sends a message when you become active or inactive
+   // Sends a message when I become active or inactive
    Observables::Observable<bool> mActiveObservable;
    
    // Convenience DisposeBag for subclasses to use

@@ -24,16 +24,24 @@ using UI::RectFilled;
 class CollapsibleTreeItem : public UIElement
 {
 public:
-   CollapsibleTreeItem(UIRoot* root, UIElement* parent, const std::string& title, const std::string& name = "");
+   struct Data {
+      std::string title;
+      std::vector<Data> children;
+   };
+   
+   CollapsibleTreeItem(UIRoot* root, UIElement* parent, const std::string& name = "");
    virtual ~CollapsibleTreeItem() {}
    
    Observables::Observable<bool>& GetSelectionObservable() { return mSelectionToggle->GetToggleObservable(); }
-   Observables::Observable<std::vector<std::string>*>& GetChildDataObservable() { return mChildDataObservable; }
+   Observables::Observable<Data>& GetDataSink() { return mDataSink; }
+   
+   const std::vector<CollapsibleTreeItem*>& GetSubItems() const { return mSubItems; }
+   const std::string& GetTitle() const { return mLabel->GetText(); }
    
 private:
-   // Send string vectors in through here, and this element will react by remaking its subItems
-   //    with the given strings as titles.
-   Observables::Observable<std::vector<std::string>*> mChildDataObservable;
+   // Send collapsible item data in through here, and this element will react by remaking its subItems
+   //    with the given strings as titles, and setting its own title to the appropriate string.
+   Observables::Observable<Data> mDataSink;
    
    // Newly created subItems will pop out through here.
    Observables::Observable<std::vector<CollapsibleTreeItem*>> mSubItemObservable;
