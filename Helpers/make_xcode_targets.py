@@ -7,6 +7,8 @@ from typing import List
 USERNAME = getpass.getuser()
 SCHEMES = os.path.join('xcuserdata', f'{USERNAME}.xcuserdatad', 'xcschemes', 'xcschememanagement.plist')
 
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'SingleTarget.plist')) as template_file:
    SINGLE_TARGET_TEMPLATE = template_file.read()
 
@@ -110,7 +112,7 @@ def make_xcode_targets(project: str, executables: List[str]):
             schemes_dir = os.path.join(project, subdir, 'xcshareddata', 'xcschemes')
             os.makedirs(schemes_dir, exist_ok=True)
             with open(os.path.join(schemes_dir, f'{name}.xcscheme'), 'w') as scheme_file:
-               scheme_file.write(SCHEME_TEMPLATE.replace('{target}', name))
+               scheme_file.write(SCHEME_TEMPLATE.replace('{target}', name).replace('{root}', REPO_ROOT))
       elif os.path.isdir(os.path.join(project, subdir)): # Recurse
          make_xcode_targets(os.path.join(project, subdir), executables)
 

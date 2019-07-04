@@ -33,17 +33,6 @@ Settings
 }
 
 //------------------------------------------------------------------------------
-// Unity compilation is faster for full rebuilds but slower for iteration
-// Example benchmark:
-//   Engine rebuild (Unity) - 10s
-//   Engine rebuild (Obj)   - 17s
-//
-//   Engine build 1 change (Unity) - 10s
-//   Engine build 1 change (Obj)   - 2s
-//------------------------------------------------------------------------------
-#define UNITY_BUILD
-
-//------------------------------------------------------------------------------
 // Config Defines
 //------------------------------------------------------------------------------
 .CommonOptions = ' -Isource/Library'
@@ -80,6 +69,7 @@ Settings
                      + ' -framework OpenGL'
                      + ' -framework DiskArbitration'
                   #endif
+
 .Debug_Config =
 [
    .CompilerOptions              = ' -DDEBUG'
@@ -192,12 +182,17 @@ Settings
 
 // Configurations
 //------------------------------------------------------------------------------
+#if !DEBUG_BUILD_ONLY
 .Configs = { .X64DebugConfig, .X64ReleaseConfig }
+.Targets_x64_Release = {}
+.Targets_OSX_Release = {}
+#endif
+#if DEBUG_BUILD_ONLY
+.Configs = { .X64DebugConfig }
+#endif
 
 .Targets_x64_Debug = {}
-.Targets_x64_Release = {}
 .Targets_OSX_Debug = {}
-.Targets_OSX_Release = {}
 
 //------------------------------------------------------------------------------
 // VisualStudio Project Generation
@@ -266,14 +261,19 @@ Alias('All-x64-Debug')
    .Targets = .Targets_x64_Debug
 }
 
+#if !DEBUG_BUILD_ONLY
 Alias('All-x64-Release')
 {
    .Targets = .Targets_x64_Release
 }
+#endif
 
 Alias( 'All' )
 {
-   .Targets  = { 'All-x64-Debug', 'All-x64-Release' }
+   .Targets  = { 'All-x64-Debug' }
+               #if !DEBUG_BUILD_ONLY
+               + { 'All-x64-Release' }
+               #endif
 }
 #endif
 
@@ -283,14 +283,19 @@ Alias('All-OSX-Debug')
    .Targets = .Targets_OSX_Debug
 }
 
+#if !DEBUG_BUILD_ONLY
 Alias('All-OSX-Release')
 {
    .Targets = .Targets_OSX_Release
 }
+#endif
 
 Alias( 'All' )
 {
-   .Targets  = { 'All-OSX-Debug', 'All-OSX-Release' }
+   .Targets  = { 'All-OSX-Debug' }
+               #if !DEBUG_BUILD_ONLY
+               + { 'All-OSX-Release' }
+               #endif
 }
 #endif
 
@@ -385,7 +390,9 @@ XCodeProject( 'CubeWorld-sln-xcode' )
    .XCodeBuildWorkingDir   = '../..'
 
    .XCodeDebugConfig       = [ .Config = 'Debug'       .Target = 'All-OSX-Debug' ]
+#if !DEBUG_BUILD_ONLY
    .XCodeReleaseConfig     = [ .Config = 'Release'     .Target = 'All-OSX-Release' ]
+#endif
 
    .ProjectFiles   = {
                         'Editor-xcode'
@@ -400,11 +407,10 @@ XCodeProject( 'CubeWorld-sln-xcode' )
                      + .XCodeCoreLibraries 
                      + .XCodeDependencyProjects
 
-   .ProjectConfigs =
-   {
-      .XCodeDebugConfig
-      .XCodeReleaseConfig
-   }
+   .ProjectConfigs   = { .XCodeDebugConfig }
+                  #if !DEBUG_BUILD_ONLY
+                     + { .XCodeReleaseConfig }
+                  #endif
 }
 
 Exec('CubeWorld-sln-xcode-schemes')

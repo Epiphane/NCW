@@ -46,7 +46,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Users/tsteinke/CubeWorld/tmp/OSX-Debug/{target}/{target}">
+         FilePath = "{root}/tmp/OSX-Debug/{target}/{target}">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
