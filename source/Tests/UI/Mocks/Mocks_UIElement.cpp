@@ -10,9 +10,10 @@
 #include <iostream>
 
 #include <Engine/UI/UIElement.h>
-
-#include <Engine/Core/Window.h>
 #include <Engine/UI/UIRoot.h>
+#include <Engine/Core/Window.h>
+
+#include <Shared/Helpers/Asset.h>
 
 using namespace CubeWorld;
 using Engine::UIRoot;
@@ -59,6 +60,7 @@ void MockMouseMove(UIRoot* root, UIElement* victim, double fakeX, double fakeY) 
 std::unique_ptr<UIRoot> CreateDummyUIRoot() {
    Engine::Window::Options windowOptions;
    Engine::Window& dummyWindow = Engine::Window::Instance();
+   Asset::SetAssetRootDefault();
    dummyWindow.Initialize(windowOptions);
    return std::make_unique<UIRoot>(&dummyWindow);
 }
