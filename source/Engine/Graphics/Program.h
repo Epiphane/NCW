@@ -28,14 +28,23 @@ public:
    static Maybe<std::unique_ptr<Program>> Load(
       const std::string& vertexShaderPath,
       const std::string& geometryShaderPath,
-      const std::string& fragmentShaderPath
+      const std::string& fragmentShaderPath,
+      const std::vector<std::string>& interleavedAttributes
    );
+
+   inline static Maybe<std::unique_ptr<Program>> Load(
+      const std::string& vertexShaderPath,
+      const std::string& geometryShaderPath,
+      const std::string& fragmentShaderPath
+   ) {
+      return Load(vertexShaderPath, geometryShaderPath, fragmentShaderPath, {});
+   }
 
    inline static Maybe<std::unique_ptr<Program>> Load(
       const std::string& vertexShaderPath,
       const std::string& fragmentShaderPath
    ) {
-      return Load(vertexShaderPath, "", fragmentShaderPath);
+      return Load(vertexShaderPath, "", fragmentShaderPath, {});
    }
 
    void Bind();

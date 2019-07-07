@@ -1,13 +1,12 @@
 // By Thomas Steinke
 
-#include <cassert>
-#include <fstream>
-#include <glad/glad.h>
+#include <GL/includes.h>
 #include <glm/ext.hpp>
 
-#include <RGBLogger/Logger.h>
 #include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
 
+#include "../Core/FileSystemProvider.h"
 #include "Program.h"
 
 namespace CubeWorld
@@ -59,24 +58,18 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    std::unique_ptr<Shader> shader = std::make_unique<Shader>(glCreateShader(shaderType));
 
    // Read the Shader code from the file
-   std::ifstream file(filePath);
-   std::string code;
-
-   assert(file.good() && "Error loading shader!");
-
-   file.seekg(0, std::ios::end);
-   code.reserve(static_cast<size_t>(file.tellg()));
-   file.seekg(0, std::ios::beg);
-
-   code.assign((std::istreambuf_iterator<char>(file)),
-      std::istreambuf_iterator<char>());
+   Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(filePath);
+   if (!maybeCode)
+   {
+      return maybeCode.Failure().WithContext("Failed reading shader file");
+   }
 
 #if !NDEBUG
    LOG_DEBUG("Compiling shader %1", filePath);
    LOG_DEBUG("----------------------------------------------");
 #endif
 
-   const char *code_cstr = code.c_str();
+   const char *code_cstr = maybeCode->c_str();
    glShaderSource(shader->id, 1, &code_cstr, nullptr);
    glCompileShader(shader->id);
 
@@ -97,8 +90,7 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
       }
    }
 
-   GLenum error = glGetError();
-   assert(error == 0);
+   CHECK_GL_ERRORS();
 
    return std::move(shader);
 }
@@ -106,7 +98,8 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
 Maybe<std::unique_ptr<Program>> Program::Load(
    const std::string& vertexShaderPath,
    const std::string& geometryShaderPath,
-   const std::string& fragmentShaderPath
+   const std::string& fragmentShaderPath,
+   const std::vector<std::string>& interleavedAttributes
 )
 {
    // Another instance of the unique_ptr magic: if we return a failure, then this
@@ -141,6 +134,18 @@ Maybe<std::unique_ptr<Program>> Program::Load(
       return fragShader.Failure().WithContext("Failed loading vertex shader");
    }
    fragShader.Result()->Attach(program->id);
+
+   if (!interleavedAttributes.empty())
+   {
+      std::unique_ptr<GLchar*> data{new GLchar*[interleavedAttributes.size()]};
+      for (size_t i = 0; i < interleavedAttributes.size(); ++i)
+      {
+         data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
+      }
+
+      glTransformFeedbackVaryings(program->id, interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
+      CHECK_GL_ERRORS();
+   }
 
    // Link the program
    glLinkProgram(program->id);

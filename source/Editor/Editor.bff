@@ -46,7 +46,10 @@
 
       CopyDir( '$ProjectName$-Shaders-$Platform$-$Config$' )
       {
-         .SourcePaths   = '$ProjectPath$/../Shared/Shaders'
+         .SourcePaths    = {
+                              '$ProjectPath$/../Engine/Shaders'
+                              '$ProjectPath$/../Shared/Shaders'
+                           }
          .Dest          = '$OutputPath$/Shaders'
       }
 

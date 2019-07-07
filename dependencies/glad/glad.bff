@@ -3,7 +3,7 @@
 .GladIncludePaths = ''
 {
    .LibraryName         = 'glad'
-   .LibraryVersion      = '09072018'
+   .LibraryVersion      = '07052019'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
