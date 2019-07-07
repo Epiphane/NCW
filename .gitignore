@@ -1,7 +1,4 @@
-build/*
-Build2/*
 tmp
-xcode_build/*
 .DS_Store
 .vscode/ipch
 *.fdb
