@@ -349,7 +349,7 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
    Maybe<FileHandle> maybeHandle = OpenFileRead(path);
    if (!maybeHandle)
    {
-      return maybeHandle.Failure().WithContext("Failed opening file for read");
+      return maybeHandle.Failure();
    }
 
    CUBEWORLD_SCOPE_EXIT([&] { CloseFile(*maybeHandle); });

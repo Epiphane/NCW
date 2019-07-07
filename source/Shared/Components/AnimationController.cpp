@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <deque>
-#include <fstream>
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>

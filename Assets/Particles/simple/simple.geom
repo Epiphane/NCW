@@ -10,8 +10,10 @@ uniform vec3 uCameraPos;
 uniform float uBillboardSize;
 
 in float gType[];
+in float gAge[];
 
 out vec2 fTexCoord;
+out float fParticleAge;
 
 #define PARTICLE_TYPE_LAUNCHER 0.0f
 #define PARTICLE_TYPE_SHELL 1.0f
@@ -19,7 +21,8 @@ out vec2 fTexCoord;
 
 void main()
 {
-   if (Type0[0] != PARTICLE_TYPE_LAUNCHER) {
+   if (gType[0] != PARTICLE_TYPE_LAUNCHER) {
+      fParticleAge = gAge[0];
       vec3 Pos = gl_in[0].gl_Position.xyz; // position of the particle in world space
       
       vec3 look = normalize(uCameraPos - Pos);

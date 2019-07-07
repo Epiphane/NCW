@@ -110,7 +110,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    Maybe<std::unique_ptr<Shader>> vertexShader = LoadShader(vertexShaderPath, GL_VERTEX_SHADER);
    if (!vertexShader)
    {
-      return vertexShader.Failure().WithContext("Failed loading vertex shader");
+      return vertexShader.Failure().WithContext("Failed loading vertex shader at %1", vertexShaderPath);
    }
    vertexShader.Result()->Attach(program->id);
 
@@ -121,7 +121,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
       Maybe<std::unique_ptr<Shader>> maybeGeomShader = LoadShader(geometryShaderPath, GL_GEOMETRY_SHADER);
       if (!maybeGeomShader)
       {
-         return maybeGeomShader.Failure().WithContext("Failed loading geometry shader");
+         return maybeGeomShader.Failure().WithContext("Failed loading geometry shader at %1", geometryShaderPath);
       }
       geomShader = std::move(*maybeGeomShader);
       geomShader->Attach(program->id);
@@ -131,7 +131,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    Maybe<std::unique_ptr<Shader>> fragShader = LoadShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
    if (!fragShader)
    {
-      return fragShader.Failure().WithContext("Failed loading vertex shader");
+      return fragShader.Failure().WithContext("Failed loading fragment shader at %1", fragmentShaderPath);
    }
    fragShader.Result()->Attach(program->id);
 

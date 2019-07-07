@@ -2,20 +2,13 @@
 
 #include <cassert>
 #include <functional>
-#pragma warning(push, 0)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wreorder"
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma clang diagnostic pop
-#pragma warning(pop)
 
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>

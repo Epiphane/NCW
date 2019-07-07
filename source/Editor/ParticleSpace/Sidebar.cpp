@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <RGBFileSystem/File.h>
+#include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <RGBSettings/SettingsProvider.h>
 #include <Engine/Core/Window.h>
@@ -17,7 +18,7 @@ namespace CubeWorld
 namespace Editor
 {
 
-namespace AnimationStation
+namespace ParticleSpace
 {
 
 using Engine::UIRoot;
@@ -25,22 +26,22 @@ using UI::RectFilled;
 using UI::TextButton;
 
 Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
+   : RectFilled(root, parent, "ParticleSpaceSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
    , mModified(true)
 {
-   mFilename = SettingsProvider::Instance().Get("animation_station", "filename").GetStringValue();
+   mFilename = SettingsProvider::Instance().Get("particle_space", "filename").GetStringValue();
    if (mFilename.empty())
    {
-      mFilename = Asset::Skeleton("greatmace.yaml");
+      mFilename = Asset::Particle("simple");
    }
 
-   RectFilled* foreground = Add<RectFilled>("AnimationStationSidebarFG", glm::vec4(0, 0, 0, 1));
+   RectFilled* foreground = Add<RectFilled>("ParticleSpaceSidebarFG", glm::vec4(0, 0, 0, 1));
 
    foreground->ConstrainCenterTo(this);
    foreground->ConstrainDimensionsTo(this, -4);
 
    // Labels
-   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("AnimationStationSidebarStackView");
+   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ParticleSpaceSidebarStackView");
    buttons->SetOffset(8.0);
 
    TextButton::Options buttonOptions;
@@ -51,6 +52,10 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    buttonOptions.text = "Save";
    buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
    mSave = buttons->Add<TextButton>(buttonOptions);
+
+   buttonOptions.text = "Save As...";
+   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
+   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
 
    buttonOptions.text = "Discard Changes";
    buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
@@ -69,23 +74,31 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    load->ConstrainHeight(32);
    mSave->ConstrainDimensionsTo(load);
    mSave->ConstrainLeftAlignedTo(load);
-   discard->ConstrainDimensionsTo(mSave);
-   discard->ConstrainLeftAlignedTo(mSave);
+   saveAs->ConstrainDimensionsTo(mSave);
+   saveAs->ConstrainLeftAlignedTo(mSave);
+   discard->ConstrainDimensionsTo(saveAs);
+   discard->ConstrainLeftAlignedTo(saveAs);
    mQuit->ConstrainDimensionsTo(discard);
    mQuit->ConstrainLeftAlignedTo(discard);
       
-   root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
-   root->Subscribe<SkeletonModifiedEvent>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<ParticleEmitter>>(*this);
+   root->Subscribe<ParticleEmitterReadyEvent>(*this);
+   root->Subscribe<ParticleEmitterModifiedEvent>(*this);
+
+   SetModified(false);
 }
 
-void Sidebar::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
+void Sidebar::Receive(const Engine::ComponentAddedEvent<ParticleEmitter>& evt)
 {
-   mSkeleton = evt.component;
+   mParticleSystem = evt.component;
+}
 
+void Sidebar::Receive(const ParticleEmitterReadyEvent&)
+{
    LoadFile(mFilename);
 }
 
-void Sidebar::Receive(const SkeletonModifiedEvent&)
+void Sidebar::Receive(const ParticleEmitterModifiedEvent&)
 {
    SetModified(true);
 }
@@ -100,7 +113,7 @@ void Sidebar::SetModified(bool modified)
 
    mModified = modified;
 
-   std::string title = "NCW - Animation Station - ";
+   std::string title = "NCW - ParticleSpace - ";
    if (mModified)
    {
       title += "*";
@@ -118,75 +131,39 @@ void Sidebar::LoadNewFile()
    if (!file.empty())
    {
       mFilename = file;
-      SettingsProvider::Instance().Set("animation_station", "filename", file);
+      SettingsProvider::Instance().Set("particle_space", "filename", file);
       LoadFile(file);
    }
 }
 
 void Sidebar::LoadFile(const std::string& filename)
 {
-   mpRoot->Emit<SuspendEditingEvent>();
-   mpRoot->Emit<SkeletonClearedEvent>();
-
-   std::stack<std::string> parts;
-   std::string currentFile = filename;
-   do
-   {
-      std::string name = Paths::GetFilename(currentFile);
-
-      Maybe<BindingProperty> maybeData = YAMLSerializer::DeserializeFile(currentFile);
-      if (!maybeData)
-      {
-         LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
-         break;
-      }
-      const BindingProperty data = std::move(*maybeData);
-
-      parts.push(currentFile);
-
-      std::string parent = data["parent"];
-      if (parent == "")
-      {
-         currentFile = "";
-      }
-      else
-      {
-         currentFile = Paths::Join(Paths::GetDirectory(filename), parent) + ".yaml";
-      }
-   } while (currentFile != "");
-
-   while (!parts.empty())
-   {
-      mpRoot->Emit<AddSkeletonPartEvent>(parts.top());
-      parts.pop();
-   }
-
-   mpRoot->Emit<SkeletonLoadedEvent>(mSkeleton);
+   mpRoot->Emit<ClearParticleEmitterEvent>();
+   mpRoot->Emit<LoadParticleEmitterEvent>(filename);
+   mpRoot->Emit<ParticleEmitterLoadedEvent>(mParticleSystem);
    SetModified(false);
+}
+
+void Sidebar::SaveNewFile()
+{
+   std::string file = SaveFileDialog(mFilename);
+   if (!file.empty())
+   {
+      mFilename = file;
+      SaveFile();
+   }
 }
 
 void Sidebar::SaveFile()
 {
-   mpRoot->Emit<SuspendEditingEvent>();
-   mSkeleton->UpdateSkeletonStates();
-
-   for (const Engine::ComponentHandle<SkeletonAnimations>& anims : mSkeleton->animations)
+   BindingProperty serialized = mParticleSystem->Serialize();
+   Maybe<void> written = YAMLSerializer{}.SerializeFile(mFilename, serialized);
+   if (!written)
    {
-      BindingProperty serialized = anims->Serialize();
-
-      for (const auto&[name, animation] : serialized.pairs())
-      {
-         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".yaml"));
-         Maybe<void> result = YAMLSerializer::SerializeFile(path, animation);
-         if (!result)
-         {
-            LOG_ERROR("Failed saving file %1: %2", path, result.Failure().GetMessage());
-         }
-      }
+      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
    }
 
-   mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
-   mpRoot->Emit<ResumeEditingEvent>();
+   mpRoot->Emit<ParticleEmitterSavedEvent>(mParticleSystem);
    SetModified(false);
 }
 
@@ -207,7 +184,7 @@ void Sidebar::Quit()
    }
 }
 
-}; // namespace AnimationStation
+}; // namespace ParticleSpace
 
 }; // namespace Editor
 

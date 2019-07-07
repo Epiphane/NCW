@@ -1,15 +1,10 @@
 // By Thomas Steinke
 
-#include <iostream>
-#include <cassert>
-#include <functional>
-
 #include <glad/glad.h>
 #include <glm/ext.hpp>
 
 #include <RGBDesignPatterns/Scope.h>
-#include <Engine/Core/Timer.h>
-#include <Engine/Graphics/Program.h>
+#include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 
 #include "SimpleParticleSystem.h"
@@ -17,10 +12,15 @@
 namespace CubeWorld
 {
 
+// ------------------------------------------------------------------------------------------------
+// |                                                                                              |
+// |                                     ParticleEmitter                                          |
+// |                                                                                              |
+// ------------------------------------------------------------------------------------------------
 std::unordered_map<std::string, std::unique_ptr<Engine::Graphics::Program>> ParticleEmitter::programs;
 
-ParticleEmitter::ParticleEmitter(const Options& options)
-   : name(options.name)
+ParticleEmitter::ParticleEmitter()
+   : name("")
    , program(nullptr)
    , firstRender(true)
    , buffer(0)
@@ -32,9 +32,14 @@ ParticleEmitter::ParticleEmitter(const Options& options)
    for (size_t i = 0; i < 2; ++i)
    {
       glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffers[i]);
-      // particleBuffers[i].Bind();
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, particleBuffers[i].GetBuffer());
+      // particleBuffers[i].Bind();
    }
+}
+
+void ParticleEmitter::Initialize(const Options& options)
+{
+   name = options.name;
 
    auto it = programs.find(options.name);
    if (it == programs.end())
@@ -46,12 +51,12 @@ ParticleEmitter::ParticleEmitter(const Options& options)
       );
       if (!maybeProgram)
       {
-         LOG_ERROR("%1", maybeProgram.Failure().WithContext("Failed loading particle shader").GetMessage());
+         maybeProgram.Failure().WithContext("Failed loading particle shader").Log();
       }
       else
       {
-         programs.emplace(name, std::move(*maybeProgram));
-         program = programs.at(name).get();
+         programs[name] = std::move(*maybeProgram);
+         program = programs[name].get();
       }
    }
    else
@@ -60,9 +65,26 @@ ParticleEmitter::ParticleEmitter(const Options& options)
    }
 }
 
-ParticleEmitter::ParticleEmitter(const ParticleEmitter& other)
-   : ParticleEmitter(Options{other.name})
+ParticleEmitter::ParticleEmitter(const Options& options) : ParticleEmitter()
 {
+   Initialize(options);
+}
+
+ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& serialized) : ParticleEmitter()
+{
+   Options options;
+   options.name = serialized["name"];
+
+   options.vertexShader = Paths::Join(dir, options.name + ".vert");
+   options.geometryShader = Paths::Join(dir, options.name + ".geom");
+   options.fragmentShader = Paths::Join(dir, options.name + ".frag");
+
+   Initialize(options);
+}
+
+ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) : ParticleEmitter()
+{
+   program = other.program;
 }
 
 ParticleEmitter::~ParticleEmitter()
@@ -70,6 +92,22 @@ ParticleEmitter::~ParticleEmitter()
    glDeleteTransformFeedbacks(2, feedbackBuffers);
 }
 
+BindingProperty ParticleEmitter::Serialize()
+{
+   BindingProperty result;
+
+   result["name"] = name;
+   result["launcher"]["lifetime"] = launcherLifetime;
+   result["particle"]["lifetime"] = particleLifetime;
+
+   return result;
+}
+
+// ------------------------------------------------------------------------------------------------
+// |                                                                                              |
+// |                                  SimpleParticleSystem                                        |
+// |                                                                                              |
+// ------------------------------------------------------------------------------------------------
 std::unique_ptr<Engine::Graphics::Program> SimpleParticleSystem::updater = nullptr;
 
 SimpleParticleSystem::SimpleParticleSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
@@ -148,16 +186,22 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    {
       BIND_PROGRAM_IN_SCOPE(updater);
       entities.Each<ParticleEmitter>([&](Engine::Entity /*entity*/, ParticleEmitter& emitter) {
+         CHECK_GL_ERRORS();
          glEnable(GL_RASTERIZER_DISCARD);
          CUBEWORLD_SCOPE_EXIT([&]{ glDisable(GL_RASTERIZER_DISCARD); });
+         CHECK_GL_ERRORS();
 
          if (mRandom)
          {
+            CHECK_GL_ERRORS();
             glActiveTexture(GL_TEXTURE0);
+            CHECK_GL_ERRORS();
             glBindTexture(GL_TEXTURE_2D, mRandom->GetTexture());
+            CHECK_GL_ERRORS();
             updater->Uniform1i("uRandomTexture", 0);
          }
 
+         CHECK_GL_ERRORS();
          updater->Uniform1f("uLauncherLifetime", 8.0f);
          updater->Uniform1f("uShellLifetime", 8.0f);
          updater->Uniform1f("uDeltaTimeMillis", (float)dt);

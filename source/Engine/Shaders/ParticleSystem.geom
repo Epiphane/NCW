@@ -35,9 +35,9 @@ vec3 GetRandomDir(float TexCoord)
 
 void main()
 {
-    float Age = Age0[0] + uDeltaTimeMillis;
+    float Age = gAge[0] + uDeltaTimeMillis;
     
-    if (Type0[0] == PARTICLE_TYPE_LAUNCHER) {
+    if (gType[0] == PARTICLE_TYPE_LAUNCHER) {
         if (Age >= uLauncherLifetime /*- (uLauncherLifetime - uDeltaTimeMillis * uPlayerSpeed / 1000)*/) {
             fType = PARTICLE_TYPE_SHELL;
             fAge = 0.0;
@@ -47,7 +47,7 @@ void main()
             randomVec.z = 0.0;
             randomVec.x = randomVec.x / 20;
             randomVec.y = randomVec.y / 15;
-            fPosition = Position0[0] + randomVec;
+            fPosition = gPosition[0] + randomVec;
             vec3 Dir = GetRandomDir(uTick/1000.0);
             Dir.y = max(Dir.y, 0.5);
             Dir.x = min(Dir.x, -0.3);
@@ -59,7 +59,7 @@ void main()
             randomVec.z = 0.0;
             randomVec.x = randomVec.x / 20;
             randomVec.y = randomVec.y / 15;
-            fPosition = Position0[0] + randomVec;
+            fPosition = gPosition[0] + randomVec;
              Dir = GetRandomDir(uTick/1000.0);
             Dir.y = max(Dir.y, 0.5);
             Dir.x = min(Dir.x, -0.3);
@@ -70,25 +70,25 @@ void main()
         }
         
         fType = PARTICLE_TYPE_LAUNCHER;
-        fPosition = Position0[0];
-        fVelocity = Velocity0[0];
+        fPosition = gPosition[0];
+        fVelocity = gVelocity[0];
         fAge = Age;
         EmitVertex();
         EndPrimitive();
     }
     else {
         float DeltaTimeSecs = uDeltaTimeMillis / 1000.0f;
-        float t1 = Age0[0] / 1000.0;
+        float t1 = gAge[0] / 1000.0;
         float t2 = Age / 1000.0;
-        vec3 DeltaP = DeltaTimeSecs * Velocity0[0];
+        vec3 DeltaP = DeltaTimeSecs * gVelocity[0];
         vec3 DeltaV = vec3(DeltaTimeSecs) * vec3(0.0, 3.0, 0.0);
         
-        if (Type0[0] == PARTICLE_TYPE_SHELL)  {
+        if (gType[0] == PARTICLE_TYPE_SHELL)  {
             if (Age < uShellLifetime) {
                 
                 fType = PARTICLE_TYPE_SHELL;
-                fPosition = Position0[0] + DeltaP;
-                fVelocity = Velocity0[0] + DeltaV;
+                fPosition = gPosition[0] + DeltaP;
+                fVelocity = gVelocity[0] + DeltaV;
                 fAge = Age;
                 EmitVertex();
                 EndPrimitive();

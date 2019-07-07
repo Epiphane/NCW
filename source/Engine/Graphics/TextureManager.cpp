@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <fstream>
 #include <glad/glad.h>
 #include <lodepng/lodepng.h>
 #include <random>

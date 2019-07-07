@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <glad/glad.h>
 #include <memory>
 #include <vector>
 
+#include <RGBBinding/BindingProperty.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Graphics/Camera.h>
@@ -43,16 +43,26 @@ public:
       std::string fragmentShader = "";
    };
 
+private:
+   ParticleEmitter();
+
+   void Initialize(const Options& options);
+
 public:
    // Methods
    ParticleEmitter(const Options& options);
+   ParticleEmitter(const std::string& dir, const BindingProperty& serialized);
    ParticleEmitter(const ParticleEmitter& other);
    ~ParticleEmitter();
+
+   BindingProperty Serialize();
 
 public:
    // Configuration
    double launcherLifetime;
    double particleLifetime;
+
+   const std::string& GetName() const { return name; }
 
 private:
    // Map of particle name to GL program
