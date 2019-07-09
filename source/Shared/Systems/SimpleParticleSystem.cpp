@@ -160,8 +160,8 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
 
          updater->Uniform1f("uLauncherLifetime", 8.0f);
          updater->Uniform1f("uShellLifetime", 8.0f);
-         updater->Uniform1f("uDeltaTimeMillis", dt);
-         updater->Uniform1f("uTick", mTick);
+         updater->Uniform1f("uDeltaTimeMillis", (float)dt);
+         updater->Uniform1f("uTick", (float)mTick);
 
          emitter.particleBuffers[emitter.buffer].Bind();
          glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
@@ -190,7 +190,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          }
 
          // Flip buffers
-         emitter.buffer = 1 - emitter.buffer;
+         emitter.buffer = uint8_t(1 - emitter.buffer);
 
          glEndTransformFeedback();
 

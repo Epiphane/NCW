@@ -143,7 +143,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
          data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
       }
 
-      glTransformFeedbackVaryings(program->id, interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
+      glTransformFeedbackVaryings(program->id, (GLsizei)interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
       CHECK_GL_ERRORS();
    }
 

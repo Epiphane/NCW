@@ -73,6 +73,7 @@ Settings
 .Debug_Config =
 [
    .CompilerOptions              = ' -DDEBUG'
+                                 + ' -D_DEBUG'
                                  + ' -DPROFILING_ENABLED'
                                  + ' -DZLIB_DEBUG'
                                  + .CommonOptions
@@ -81,6 +82,9 @@ Settings
    .Config                       = 'Debug'
    .LinkerOptions                = .CommonLinkerOptions
                               #if __WINDOWS__
+                                 + ' ucrtd.lib'
+                                 + ' vcruntimed.lib'
+                                 + ' msvcrtd.lib'
                                  + ' msvcprtd.lib'
                               #endif
 ]
@@ -94,6 +98,9 @@ Settings
    .Config                       = 'Release'
    .LinkerOptions                = .CommonLinkerOptions
                               #if __WINDOWS__
+                                 + ' ucrt.lib'
+                                 + ' vcruntime.lib'
+                                 + ' msvcrt.lib'
                                  + ' msvcprt.lib'
                               #endif
 ]
@@ -103,7 +110,7 @@ Settings
 //------------------------------------------------------------------------------
 .Debug_Optimizations_MSVC =
 [
-    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /GR- /analyze'
+    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /analyze'
     .CompilerOptionsC   = .CompilerOptions
 ]
 .Release_Optimizations_MSVC =

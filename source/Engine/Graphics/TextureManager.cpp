@@ -77,7 +77,7 @@ Maybe<void> Texture::LoadRandom(uint32_t size)
    }
    
    glBindTexture(GL_TEXTURE_1D, mTexture);
-   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, size, 0, GL_RGB, GL_FLOAT, data.data());
+   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, (GLsizei)size, 0, GL_RGB, GL_FLOAT, data.data());
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
