@@ -33,4 +33,16 @@
 //   Engine build 1 change (Obj)   - 2s
 //------------------------------------------------------------------------------
 // Comment out for high iteration on single small files
-// #define UNITY_BUILD
+#define UNITY_BUILD
+
+//------------------------------------------------------------------------------
+// If you _really_ want to improve compilation times, you can uncomment this
+// after building everything once. It replaces the dependency build step with
+// just using the dependencies that have already been built (which prevents
+// a more costly rebuild when doing the whole solution.
+//
+// If you make any changes to dependencies, however, you'll need to comment
+// this again. Each change to this line also triggers a rebuild of the whole
+// thing.
+//------------------------------------------------------------------------------
+#define SKIP_DEPENDENCY_BUILD

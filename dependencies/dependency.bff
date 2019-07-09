@@ -53,18 +53,25 @@ ForEach( .Config in .Configs )
 
       .CompilerInputPath    = .LibrarySourcePath
       .CompilerInputPattern = .LibrarySourceFiles
-   
    }
 
+#if !SKIP_DEPENDENCY_BUILD
    Library('$LibraryName$-Lib-$Platform$-$Config$')
    {
-#if UNITY_BUILD
+   #if UNITY_BUILD
       .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
-#else
+   #else
       .LibrarianAdditionalInputs = { '$LibraryName$-Obj-$Platform$-$Config$' }
-#endif
+   #endif
       .LibrarianOutput = '$OutputPath$/$LibraryName$$LibExtension$'
    }
+#endif
+#if SKIP_DEPENDENCY_BUILD
+   Alias('$LibraryName$-Lib-$Platform$-$Config$')
+   {
+      .Targets = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+#endif
 
    Alias( '$LibraryName$-$Platform$-$Config$' ) { .Targets = '$LibraryName$-Lib-$Platform$-$Config$' }
    ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
