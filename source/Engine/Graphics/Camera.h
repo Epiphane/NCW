@@ -21,6 +21,7 @@ namespace Graphics
       
       virtual glm::mat4 GetPerspective() const = 0;
       virtual glm::mat4 GetView() const = 0;
+      virtual glm::vec3 GetPosition() const = 0;
    };
 
    //
@@ -34,6 +35,7 @@ namespace Graphics
 
       glm::mat4 GetPerspective() const override { return mCamera->GetPerspective(); }
       glm::mat4 GetView() const override { return mCamera->GetView(); }
+      glm::vec3 GetPosition() const override { return mCamera->GetPosition(); }
    
       void Set(Camera *camera) { mCamera = camera; }
       Camera* Get() { return mCamera; }

@@ -33,7 +33,6 @@ ParticleEmitter::ParticleEmitter()
    {
       glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffers[i]);
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, particleBuffers[i].GetBuffer());
-      // particleBuffers[i].Bind();
    }
 }
 
@@ -63,6 +62,17 @@ void ParticleEmitter::Initialize(const Options& options)
    {
       program = it->second.get();
    }
+
+   // Initialize emitter particle
+   std::vector<Particle> data;
+   data.resize(options.maxParticles);
+   data[0].type = 0; // Emitter
+   data[0].pos = {0, 0, 0};
+   data[0].vel = {0, 0, 0};
+   data[0].age = 0;
+
+   particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+   particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
 }
 
 ParticleEmitter::ParticleEmitter(const Options& options) : ParticleEmitter()
@@ -80,6 +90,9 @@ ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& 
    options.fragmentShader = Paths::Join(dir, options.name + ".frag");
 
    Initialize(options);
+
+   launcherLifetime = serialized["launcher"]["lifetime"].GetDoubleValue();
+   particleLifetime = serialized["particle"]["lifetime"].GetDoubleValue();
 }
 
 ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) : ParticleEmitter()
@@ -185,31 +198,24 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    mUpdateClock.Reset();
    {
       BIND_PROGRAM_IN_SCOPE(updater);
-      entities.Each<ParticleEmitter>([&](Engine::Entity /*entity*/, ParticleEmitter& emitter) {
-         CHECK_GL_ERRORS();
-         glEnable(GL_RASTERIZER_DISCARD);
-         CUBEWORLD_SCOPE_EXIT([&]{ glDisable(GL_RASTERIZER_DISCARD); });
-         CHECK_GL_ERRORS();
-
+      glEnable(GL_RASTERIZER_DISCARD);
+      CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
+      entities.Each<ParticleEmitter>([&](Engine::Entity, ParticleEmitter& emitter) {
          if (mRandom)
          {
-            CHECK_GL_ERRORS();
-            glActiveTexture(GL_TEXTURE0);
-            CHECK_GL_ERRORS();
-            glBindTexture(GL_TEXTURE_2D, mRandom->GetTexture());
-            CHECK_GL_ERRORS();
-            updater->Uniform1i("uRandomTexture", 0);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
+            updater->Uniform1i("uRandomTexture", 3);
          }
 
-         CHECK_GL_ERRORS();
-         updater->Uniform1f("uLauncherLifetime", 8.0f);
-         updater->Uniform1f("uShellLifetime", 8.0f);
+         updater->Uniform1f("uLauncherLifetime", (float)emitter.launcherLifetime);
+         updater->Uniform1f("uShellLifetime", (float)emitter.particleLifetime);
          updater->Uniform1f("uDeltaTimeMillis", (float)dt);
          updater->Uniform1f("uTick", (float)mTick);
 
          emitter.particleBuffers[emitter.buffer].Bind();
          glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
-         
+
          // We enable the attribute pointers individually since a normal VBO only
          // expects to be attached to one.
          glEnableVertexAttribArray(0);
@@ -242,26 +248,30 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glDisableVertexAttribArray(1);
          glDisableVertexAttribArray(2);
          glDisableVertexAttribArray(3);
-
          CHECK_GL_ERRORS();
       });
    }
    mUpdateClock.Elapsed();
 
+   glFlush();
+
    mRenderClock.Reset();
+   glm::mat4 perspective = mCamera->GetPerspective();
+   glm::mat4 view = mCamera->GetView();
+   glm::vec3 position = mCamera->GetPosition();
    entities.Each<ParticleEmitter>([&](Engine::Entity /*entity*/, ParticleEmitter& emitter) {
       // Render
       if (emitter.program != nullptr)
       {
          BIND_PROGRAM_IN_SCOPE(emitter.program);
 
-         glm::mat4 perspective = mCamera->GetPerspective();
-         glm::mat4 view = mCamera->GetView();
          emitter.program->UniformMatrix4f("uProjMatrix", perspective);
          emitter.program->UniformMatrix4f("uViewMatrix", view);
+         emitter.program->UniformVector3f("uCameraPos", position);
+         emitter.program->Uniform1f("uBillboardSize", 10.0f);
 
          emitter.particleBuffers[emitter.buffer].Bind();
-         
+
          // We enable the attribute pointers individually since a normal VBO only
          // expects to be attached to one.
          glEnableVertexAttribArray(0);
@@ -273,7 +283,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
          // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);   // velocity
          // glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // lifetime
-         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // lifetime
+         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // age
 
          glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
 

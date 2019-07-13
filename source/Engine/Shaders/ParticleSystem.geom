@@ -47,23 +47,24 @@ void main()
             randomVec.z = 0.0;
             randomVec.x = randomVec.x / 20;
             randomVec.y = randomVec.y / 15;
-            fPosition = gPosition[0] + randomVec;
+            fPosition = gPosition[0];// + randomVec;
             vec3 Dir = GetRandomDir(uTick/1000.0);
-            Dir.y = max(Dir.y, 0.5);
-            Dir.x = min(Dir.x, -0.3);
-            Dir.z = min(Dir.z, -0.5);
-            fVelocity = normalize(Dir) / 5;
+            // Dir.y = max(Dir.y, 0.5);
+            // Dir.x = min(Dir.x, -0.3);
+            // Dir.z = min(Dir.z, -0.5);
+            fVelocity = 100 * normalize(Dir);
             EmitVertex();
             
             randomVec = GetRandomDir(uTick / 1000.0);
             randomVec.z = 0.0;
             randomVec.x = randomVec.x / 20;
             randomVec.y = randomVec.y / 15;
-            fPosition = gPosition[0] + randomVec;
-             Dir = GetRandomDir(uTick/1000.0);
-            Dir.y = max(Dir.y, 0.5);
-            Dir.x = min(Dir.x, -0.3);
-            Dir.z = min(Dir.z, -0.5);
+            fPosition = gPosition[0];// + randomVec;
+             Dir = GetRandomDir(uTick + 50/1000.0);
+            // Dir.y = max(Dir.y, 0.5);
+            // Dir.x = min(Dir.x, -0.3);
+            // Dir.z = min(Dir.z, -0.5);
+            fVelocity = 100 * normalize(Dir);
             
             EmitVertex();
             Age = 0.0;
@@ -81,7 +82,11 @@ void main()
         float t1 = gAge[0] / 1000.0;
         float t2 = Age / 1000.0;
         vec3 DeltaP = DeltaTimeSecs * gVelocity[0];
-        vec3 DeltaV = vec3(DeltaTimeSecs) * vec3(0.0, 3.0, 0.0);
+        vec3 Dir = GetRandomDir(uTick/1000.0);
+        // Dir.y = max(Dir.y, 0.5);
+        // Dir.x = min(Dir.x, -0.3);
+        // Dir.z = min(Dir.z, -0.5);
+        vec3 DeltaV = vec3(DeltaTimeSecs) * vec3(0.0, 3.0, 0.0) + vec3(0, 10, 0);
         
         if (gType[0] == PARTICLE_TYPE_SHELL)  {
             if (Age < uShellLifetime) {

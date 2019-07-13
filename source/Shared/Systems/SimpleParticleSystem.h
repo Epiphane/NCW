@@ -32,12 +32,13 @@ public:
       float type;
       glm::vec3 pos;
       glm::vec3 vel;
-      float lifetime;
+      float age;
    };
 
    struct Options
    {
       std::string name;
+      uint64_t maxParticles = 1000;
       std::string vertexShader = "";
       std::string geometryShader = "";
       std::string fragmentShader = "";

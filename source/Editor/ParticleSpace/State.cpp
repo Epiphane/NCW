@@ -107,7 +107,7 @@ void MainState::Initialize()
 
    assert(carpet.size() > 0);
 
-   Engine::Entity voxels = mEntities.Create(0, 0, 0);
+   Engine::Entity voxels = mEntities.Create(0, -2, 0);
    voxels.Add<VoxelRender>(std::move(carpet));
 
    mEvents.Emit<ParticleEmitterReadyEvent>();

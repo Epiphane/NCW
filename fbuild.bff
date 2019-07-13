@@ -221,8 +221,11 @@ Settings
 ]
 
 .ProjectDebug     = [ Using( .ProjectCommon ) .Config = 'Debug' ]
-.ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
-.ProjectConfigs   = { .ProjectDebug, .ProjectRelease }
+.ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
 
 //------------------------------------------------------------------------------
 // External Dependencies
@@ -331,9 +334,12 @@ VCXProject( 'UpdateSolution-proj' )
       .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs -clean'
    ]
 
-   .ProjectDebug        = [ Using( .ProjectDebug )       Using( .GenerateProjectsCommands ) ]
-   .ProjectRelease      = [ Using( .ProjectRelease )     Using( .GenerateProjectsCommands ) ]
-   .ProjectConfigs = { .ProjectDebug, .ProjectRelease }
+   .ProjectDebug     = [ Using( .ProjectDebug )    Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease )  Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
 }
 
 VSSolution('CubeWorld-sln-visualstudio')

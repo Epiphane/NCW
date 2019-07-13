@@ -66,7 +66,6 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
 
 #if !NDEBUG
    LOG_DEBUG("Compiling shader %1", filePath);
-   LOG_DEBUG("----------------------------------------------");
 #endif
 
    const char *code_cstr = maybeCode->c_str();
@@ -143,6 +142,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
          data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
       }
 
+      LOG_DEBUG("Attaching transform feedback varyings starting with %1", (char*)data.get()[0]);
       glTransformFeedbackVaryings(program->id, (GLsizei)interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
       CHECK_GL_ERRORS();
    }
