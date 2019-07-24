@@ -31,6 +31,7 @@ public:
    {
       float type;
       glm::vec3 pos;
+      glm::vec4 rot;
       glm::vec3 vel;
       float age;
    };
@@ -60,7 +61,7 @@ public:
 
 public:
    // Configuration
-   double launcherLifetime;
+   double launcherCooldown;
    double particleLifetime;
 
    const std::string& GetName() const { return name; }

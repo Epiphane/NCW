@@ -58,8 +58,7 @@ void MainState::Initialize()
    mInput->SetMouseLock(false);
 
    // Create a player component
-   mParticleSpawner = mEntities.Create();
-   mParticleSpawner.Add<Engine::Transform>(glm::vec3(0, 0, 0));
+   mParticleSpawner = mEntities.Create(0, 0, 0);
 
    // Create a camera
    Engine::Entity playerCamera = mEntities.Create(0, 0, 0);
@@ -69,6 +68,7 @@ void MainState::Initialize()
    cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
+   cameraOptions.minDistance = 1;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Engine::Transform>(), cameraOptions);
    playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT);
    playerCamera.Add<MouseControlledCameraArm>();
@@ -137,7 +137,10 @@ void MainState::Receive(const LoadParticleEmitterEvent& evt)
    }
 
    Receive(ClearParticleEmitterEvent{});
-   mParticleSpawner.Add<ParticleEmitter>(Paths::GetDirectory(evt.filename), *data);
+   mParticleSpawner.Add<ParticleEmitter>(
+      Paths::Join(Paths::GetDirectory(evt.filename), "shaders"),
+      *data
+   );
 }
 
 }; // namespace ParticleSpace

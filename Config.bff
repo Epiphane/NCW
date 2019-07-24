@@ -33,7 +33,7 @@
 //   Engine build 1 change (Obj)   - 2s
 //------------------------------------------------------------------------------
 // Comment out for high iteration on single small files
-#define UNITY_BUILD
+// #define UNITY_BUILD
 
 //------------------------------------------------------------------------------
 // If you _really_ want to improve compilation times, you can uncomment this

@@ -1,6 +1,0 @@
----
-name: simple
-launcher:
-  lifetime: 0.2
-particle:
-  lifetime: 10.0

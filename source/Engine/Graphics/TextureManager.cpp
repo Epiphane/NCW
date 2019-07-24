@@ -68,7 +68,7 @@ Maybe<void> Texture::LoadRandom(uint32_t size)
    data.resize(size);
 
    std::default_random_engine generator;
-   std::uniform_real_distribution<float> distribution(-1, 1);
+   std::uniform_real_distribution<float> distribution(0, 1);
    for (unsigned int i = 0 ; i < size ; i++) {
       data[i].x = distribution(generator);
       data[i].y = distribution(generator);

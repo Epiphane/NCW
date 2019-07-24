@@ -55,7 +55,7 @@ std::string Font(const std::string& fontName)
 
 std::string Particle(const std::string& particle)
 {
-   return Paths::Join(gAssetRoot, "Particles", particle, particle + ".yaml");
+   return Paths::Join(gAssetRoot, "Particles", particle + ".yaml");
 }
 
 std::string Skeleton(const std::string& skeleton)

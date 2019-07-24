@@ -68,6 +68,7 @@ void ParticleEmitter::Initialize(const Options& options)
    data.resize(options.maxParticles);
    data[0].type = 0; // Emitter
    data[0].pos = {0, 0, 0};
+   data[0].rot = {0, 0, 1, 0};
    data[0].vel = {0, 0, 0};
    data[0].age = 0;
 
@@ -85,13 +86,14 @@ ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& 
    Options options;
    options.name = serialized["name"];
 
-   options.vertexShader = Paths::Join(dir, options.name + ".vert");
-   options.geometryShader = Paths::Join(dir, options.name + ".geom");
-   options.fragmentShader = Paths::Join(dir, options.name + ".frag");
+   std::string shader = serialized["shader"];
+   options.vertexShader = Paths::Join(dir, shader + ".vert");
+   options.geometryShader = Paths::Join(dir, shader + ".geom");
+   options.fragmentShader = Paths::Join(dir, shader + ".frag");
 
    Initialize(options);
 
-   launcherLifetime = serialized["launcher"]["lifetime"].GetDoubleValue();
+   launcherCooldown = 1.0 / serialized["launcher"]["particles-per-second"].GetDoubleValue(1);
    particleLifetime = serialized["particle"]["lifetime"].GetDoubleValue();
 }
 
@@ -110,7 +112,7 @@ BindingProperty ParticleEmitter::Serialize()
    BindingProperty result;
 
    result["name"] = name;
-   result["launcher"]["lifetime"] = launcherLifetime;
+   result["launcher"]["particles-per-second"] = 1.0 / launcherCooldown;
    result["particle"]["lifetime"] = particleLifetime;
 
    return result;
@@ -146,7 +148,7 @@ void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManage
          "Shaders/ParticleSystem.vert",
          "Shaders/ParticleSystem.geom",
          "Shaders/ParticleSystem.frag",
-         {"fType", "fPosition", "fVelocity", "fAge"}
+         {"fType", "fPosition", "fRotation", "fVelocity", "fAge"}
       );
       if (!maybeUpdater)
       {
@@ -156,6 +158,7 @@ void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManage
       {
          updater = std::move(*maybeUpdater);
          updater->Attrib("aPosition");
+         updater->Attrib("aRotation");
          updater->Attrib("aColor");
          updater->Uniform("uRandomTexture");
          updater->Uniform("uViewMatrix");
@@ -200,7 +203,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
       BIND_PROGRAM_IN_SCOPE(updater);
       glEnable(GL_RASTERIZER_DISCARD);
       CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
-      entities.Each<ParticleEmitter>([&](Engine::Entity, ParticleEmitter& emitter) {
+      entities.Each<Transform, ParticleEmitter>([&](Engine::Entity, Transform& transform, ParticleEmitter& emitter) {
          if (mRandom)
          {
             glActiveTexture(GL_TEXTURE3);
@@ -208,7 +211,8 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
             updater->Uniform1i("uRandomTexture", 3);
          }
 
-         updater->Uniform1f("uLauncherLifetime", (float)emitter.launcherLifetime);
+         updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
+         updater->Uniform1f("uLauncherCooldown", (float)emitter.launcherCooldown);
          updater->Uniform1f("uShellLifetime", (float)emitter.particleLifetime);
          updater->Uniform1f("uDeltaTimeMillis", (float)dt);
          updater->Uniform1f("uTick", (float)mTick);
@@ -222,11 +226,13 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glEnableVertexAttribArray(1);
          glEnableVertexAttribArray(2);
          glEnableVertexAttribArray(3);
+         glEnableVertexAttribArray(4);
 
          glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
          glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);   // velocity
-         glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // lifetime
+         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
          // Begin rendering
          glBeginTransformFeedback(GL_POINTS);
@@ -253,13 +259,11 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    }
    mUpdateClock.Elapsed();
 
-   glFlush();
-
    mRenderClock.Reset();
    glm::mat4 perspective = mCamera->GetPerspective();
    glm::mat4 view = mCamera->GetView();
    glm::vec3 position = mCamera->GetPosition();
-   entities.Each<ParticleEmitter>([&](Engine::Entity /*entity*/, ParticleEmitter& emitter) {
+   entities.Each<Transform, ParticleEmitter>([&](Engine::Entity /*entity*/, Transform& transform, ParticleEmitter& emitter) {
       // Render
       if (emitter.program != nullptr)
       {
@@ -267,6 +271,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
 
          emitter.program->UniformMatrix4f("uProjMatrix", perspective);
          emitter.program->UniformMatrix4f("uViewMatrix", view);
+         emitter.program->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
          emitter.program->UniformVector3f("uCameraPos", position);
          emitter.program->Uniform1f("uBillboardSize", 10.0f);
 
@@ -277,20 +282,22 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glEnableVertexAttribArray(0);
          glEnableVertexAttribArray(1);
          glEnableVertexAttribArray(2);
-         // glEnableVertexAttribArray(3);
+         glEnableVertexAttribArray(3);
+         glEnableVertexAttribArray(4);
 
          glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
          glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-         // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);   // velocity
-         // glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // lifetime
-         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)28);   // age
+         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
          glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
 
          glDisableVertexAttribArray(0);
          glDisableVertexAttribArray(1);
          glDisableVertexAttribArray(2);
-         // glDisableVertexAttribArray(3);
+         glDisableVertexAttribArray(3);
+         glDisableVertexAttribArray(4);
 
          CHECK_GL_ERRORS();
 
