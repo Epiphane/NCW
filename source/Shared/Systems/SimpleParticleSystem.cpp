@@ -218,7 +218,6 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          updater->Uniform1f("uTick", (float)mTick);
 
          emitter.particleBuffers[emitter.buffer].Bind();
-         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
 
          // We enable the attribute pointers individually since a normal VBO only
          // expects to be attached to one.
@@ -235,20 +234,28 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
          // Begin rendering
-         glBeginTransformFeedback(GL_POINTS);
-
          if (emitter.firstRender) {
+            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
+            glBeginTransformFeedback(GL_POINTS);
             glDrawArrays(GL_POINTS, 0, 1);
+            glEndTransformFeedback();
+
+            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
+            glBeginTransformFeedback(GL_POINTS);
+            glDrawArrays(GL_POINTS, 0, 1);
+            glEndTransformFeedback();
+
             emitter.firstRender = false;
          }
          else {
+            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
+            glBeginTransformFeedback(GL_POINTS);
             glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
+            glEndTransformFeedback();
          }
 
          // Flip buffers
          emitter.buffer = uint8_t(1 - emitter.buffer);
-
-         glEndTransformFeedback();
 
          glDisableVertexAttribArray(0);
          glDisableVertexAttribArray(1);

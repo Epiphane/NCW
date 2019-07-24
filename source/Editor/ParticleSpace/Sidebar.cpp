@@ -30,9 +30,10 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    , mModified(true)
 {
    mFilename = SettingsProvider::Instance().Get("particle_space", "filename").GetStringValue();
-   if (mFilename.empty())
+
+   if (auto[_, exists] = DiskFileSystem{}.Exists(mFilename); !exists)
    {
-      mFilename = Asset::Particle("simple");
+      mFilename = Asset::Particle("fire");
    }
 
    RectFilled* foreground = Add<RectFilled>("ParticleSpaceSidebarFG", glm::vec4(0, 0, 0, 1));
