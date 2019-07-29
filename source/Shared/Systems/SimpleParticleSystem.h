@@ -26,14 +26,20 @@ namespace CubeWorld
 //
 struct ParticleEmitter : public Engine::Component<ParticleEmitter> {
 public:
+   enum class Shape : uint32_t
+   {
+      Point = 0,
+      Cone = 1,
+   };
+
    // Types
    struct Particle
    {
-      float type;
-      glm::vec3 pos;
-      glm::vec4 rot;
-      glm::vec3 vel;
-      float age;
+      float type = 0;
+      glm::vec3 pos = {0, 0, 0};
+      glm::vec4 rot = {0, 0, 1, 0};
+      glm::vec3 vel = {0, 0, 0};
+      float age = 0;
    };
 
    struct Options
@@ -61,8 +67,16 @@ public:
 
 public:
    // Configuration
-   double launcherCooldown;
-   double particleLifetime;
+   float emitterCooldown;
+   float spawnAge[2];
+   float particleLifetime;
+
+   // Shape configuration
+   Shape shape;
+   glm::vec3 shapeParam0;
+   float shapeParam1;
+   float shapeParam2;
+   float shapeParam3;
 
    const std::string& GetName() const { return name; }
 
@@ -96,6 +110,9 @@ public:
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
    void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
+
+   bool IsPaused() { return mPause; }
+   void SetPaused(bool paused) { mPause = paused; }
    
 private:
    Engine::Graphics::Camera* mCamera;
@@ -107,6 +124,7 @@ private:
 
    static constexpr uint16_t RANDOM_SIZE = 1000;
    uint32_t mTick;
+   bool mPause;
    std::unique_ptr<Engine::Graphics::Texture> mRandom;
 
    std::unique_ptr<DebugHelper::MetricLink> mUpdateMetric;

@@ -20,11 +20,11 @@ uniform mat4 uModelMatrix;
 uniform float uDeltaTimeMillis;
 uniform float uTick;
 uniform sampler1D uRandomTexture;
-uniform float uLauncherCooldown;
+uniform float uEmitterCooldown;
 uniform float uShellLifetime;
 
-#define EMITTER 0.0f
-#define PARTICLE 1.0f
+#define EMITTER 1.0f
+#define PARTICLE 2.0f
 
 vec3 GetRandomDir(float TexCoord)
 {
@@ -42,13 +42,13 @@ void main()
     if (gType[0] == EMITTER) {
 		// Send emitter first so it's always the front
 		// and can't get cut off by max vertices restrictions
-		float nEmit = floor(Age / uLauncherCooldown);
+		float nEmit = floor(Age / uEmitterCooldown);
 
         fType = EMITTER;
         fPosition = gPosition[0];
 		fRotation = gRotation[0];
         fVelocity = gVelocity[0];
-        fAge = mod(Age, uLauncherCooldown);
+        fAge = mod(Age, uEmitterCooldown);
         EmitVertex();
         EndPrimitive();
 

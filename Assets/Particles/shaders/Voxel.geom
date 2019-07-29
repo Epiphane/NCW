@@ -18,8 +18,8 @@ in float gAge[];
 flat out vec3 fNormal;
 flat out vec3 fColor;
 
-#define TYPE_EMITTER 0.0f
-#define TYPE_PARTICLE 1.0f
+#define TYPE_EMITTER 1.0f
+#define TYPE_PARTICLE 2.0f
 
 #define LIFE 0.5f
 #define VOXEL_SIZE 0.05f

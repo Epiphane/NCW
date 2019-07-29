@@ -66,11 +66,7 @@ void ParticleEmitter::Initialize(const Options& options)
    // Initialize emitter particle
    std::vector<Particle> data;
    data.resize(options.maxParticles);
-   data[0].type = 0; // Emitter
-   data[0].pos = {0, 0, 0};
-   data[0].rot = {0, 0, 1, 0};
-   data[0].vel = {0, 0, 0};
-   data[0].age = 0;
+   data[0].type = 1.0f; // Emitter
 
    particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
    particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
@@ -93,8 +89,38 @@ ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& 
 
    Initialize(options);
 
-   launcherCooldown = 1.0 / serialized["launcher"]["particles-per-second"].GetDoubleValue(1);
-   particleLifetime = serialized["particle"]["lifetime"].GetDoubleValue();
+   emitterCooldown = 1.0f / serialized["launcher"]["particles-per-second"].GetFloatValue(1.0f);
+   particleLifetime = serialized["particle"]["lifetime"].GetFloatValue();
+   emitterCooldown = 1.0f / serialized["launcher"]["particles-per-second"].GetFloatValue(1);
+   particleLifetime = serialized["particle"]["lifetime"].GetFloatValue();
+   spawnAge[0] = serialized["particle"]["spawn-age"]["min"].GetFloatValue();
+   spawnAge[1] = serialized["particle"]["spawn-age"]["max"].GetFloatValue();
+
+   std::string shapeVal = serialized["shape"].GetStringValue("point");
+   if (shapeVal == "point")
+   {
+      shape = Shape::Point;
+      shapeParam0 = {0, 0, 0};
+      shapeParam1 = 0;
+      shapeParam2 = 0;
+   }
+   else if (shapeVal == "cone")
+   {
+      const BindingProperty& cone = serialized["cone"];
+      shape = Shape::Cone;
+      shapeParam0 = cone["direction"].GetVec3({0, 1, 0});
+      shapeParam1 = cone["radius"].GetFloatValue(1.0f);
+      shapeParam2 = cone["height"]["min"].GetFloatValue(1.0f);
+      shapeParam3 = cone["height"]["max"].GetFloatValue(1.0f);
+   }
+   else
+   {
+      LOG_ERROR("Unknown shape value %1. Defaulting to point", shapeVal);
+      shape = Shape::Point;
+      shapeParam0 = {0, 0, 0};
+      shapeParam1 = 0;
+      shapeParam2 = 0;
+   }
 }
 
 ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) : ParticleEmitter()
@@ -112,8 +138,30 @@ BindingProperty ParticleEmitter::Serialize()
    BindingProperty result;
 
    result["name"] = name;
-   result["launcher"]["particles-per-second"] = 1.0 / launcherCooldown;
+   result["launcher"]["particles-per-second"] = 1.0 / emitterCooldown;
    result["particle"]["lifetime"] = particleLifetime;
+   result["particle"]["spawn-age"]["min"] = spawnAge[0];
+   result["particle"]["spawn-age"]["max"] = spawnAge[1];
+
+   switch (shape)
+   {
+   case Shape::Cone:
+   {
+      BindingProperty& cone = result["cone"];
+      result["shape"] = "cone";
+      cone["direction"] = shapeParam0;
+      cone["radius"] = shapeParam1;
+      cone["height"] = shapeParam2;
+      break;
+   }
+
+   case Shape::Point:
+   default:
+   {
+      result["shape"] = "point";
+      break;
+   }
+   }
 
    return result;
 }
@@ -160,9 +208,18 @@ void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManage
          updater->Attrib("aPosition");
          updater->Attrib("aRotation");
          updater->Attrib("aColor");
-         updater->Uniform("uRandomTexture");
-         updater->Uniform("uViewMatrix");
          updater->Uniform("uModelMatrix");
+         updater->Uniform("uEmitterCooldown");
+         updater->Uniform("uParticleLifetime");
+         updater->Uniform("uDeltaTimeMillis");
+         updater->Uniform("uTick");
+         updater->Uniform("uShape");
+         updater->Uniform("uSpawnAge");
+         updater->Uniform("uShapeParam0");
+         updater->Uniform("uShapeParam1");
+         updater->Uniform("uShapeParam2");
+         updater->Uniform("uShapeParam3");
+         CHECK_GL_ERRORS();
       }
    }
 
@@ -192,79 +249,84 @@ using Transform = Engine::Transform;
 
 void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
-   if (++mTick >= RANDOM_SIZE)
+   // TODO [Mac] Ghost particles?
+
+   if (!mPause)
    {
-      mTick = 0;
+      if (++mTick >= RANDOM_SIZE)
+      {
+         mTick = 0;
+      }
+
+      // Update and render can be in one loop but this helps with performance measurements
+      mUpdateClock.Reset();
+      {
+         BIND_PROGRAM_IN_SCOPE(updater);
+         glEnable(GL_RASTERIZER_DISCARD);
+         CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
+         entities.Each<Transform, ParticleEmitter>([&](Engine::Entity, Transform& transform, ParticleEmitter& emitter) {
+            if (mRandom)
+            {
+               glActiveTexture(GL_TEXTURE3);
+               glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
+               updater->Uniform1i("uRandomTexture", 3);
+            }
+
+            updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
+            updater->Uniform1f("uEmitterCooldown", emitter.emitterCooldown);
+            updater->Uniform1f("uShellLifetime", emitter.particleLifetime);
+            updater->Uniform1f("uDeltaTimeMillis", (float)dt);
+            updater->Uniform1f("uTick", (float)mTick);
+
+            emitter.particleBuffers[emitter.buffer].Bind();
+
+            // We enable the attribute pointers individually since a normal VBO only
+            // expects to be attached to one.
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
+            glEnableVertexAttribArray(2);
+            glEnableVertexAttribArray(3);
+            glEnableVertexAttribArray(4);
+
+            glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
+            glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+            glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
+
+            // Begin rendering
+            if (emitter.firstRender) {
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
+               glBeginTransformFeedback(GL_POINTS);
+               glDrawArrays(GL_POINTS, 0, 1);
+               glEndTransformFeedback();
+
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
+               glBeginTransformFeedback(GL_POINTS);
+               glDrawArrays(GL_POINTS, 0, 1);
+               glEndTransformFeedback();
+
+               emitter.firstRender = false;
+            }
+            else {
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
+               glBeginTransformFeedback(GL_POINTS);
+               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
+               glEndTransformFeedback();
+            }
+
+            // Flip buffers
+            emitter.buffer = uint8_t(1 - emitter.buffer);
+
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+            glDisableVertexAttribArray(2);
+            glDisableVertexAttribArray(3);
+            CHECK_GL_ERRORS();
+         });
+      }
+      mUpdateClock.Elapsed();
    }
-
-   // Update and render can be in one loop but this helps with performance measurements
-   mUpdateClock.Reset();
-   {
-      BIND_PROGRAM_IN_SCOPE(updater);
-      glEnable(GL_RASTERIZER_DISCARD);
-      CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
-      entities.Each<Transform, ParticleEmitter>([&](Engine::Entity, Transform& transform, ParticleEmitter& emitter) {
-         if (mRandom)
-         {
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
-            updater->Uniform1i("uRandomTexture", 3);
-         }
-
-         updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-         updater->Uniform1f("uLauncherCooldown", (float)emitter.launcherCooldown);
-         updater->Uniform1f("uShellLifetime", (float)emitter.particleLifetime);
-         updater->Uniform1f("uDeltaTimeMillis", (float)dt);
-         updater->Uniform1f("uTick", (float)mTick);
-
-         emitter.particleBuffers[emitter.buffer].Bind();
-
-         // We enable the attribute pointers individually since a normal VBO only
-         // expects to be attached to one.
-         glEnableVertexAttribArray(0);
-         glEnableVertexAttribArray(1);
-         glEnableVertexAttribArray(2);
-         glEnableVertexAttribArray(3);
-         glEnableVertexAttribArray(4);
-
-         glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
-         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
-         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
-         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-
-         // Begin rendering
-         if (emitter.firstRender) {
-            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
-            glBeginTransformFeedback(GL_POINTS);
-            glDrawArrays(GL_POINTS, 0, 1);
-            glEndTransformFeedback();
-
-            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
-            glBeginTransformFeedback(GL_POINTS);
-            glDrawArrays(GL_POINTS, 0, 1);
-            glEndTransformFeedback();
-
-            emitter.firstRender = false;
-         }
-         else {
-            glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
-            glBeginTransformFeedback(GL_POINTS);
-            glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
-            glEndTransformFeedback();
-         }
-
-         // Flip buffers
-         emitter.buffer = uint8_t(1 - emitter.buffer);
-
-         glDisableVertexAttribArray(0);
-         glDisableVertexAttribArray(1);
-         glDisableVertexAttribArray(2);
-         glDisableVertexAttribArray(3);
-         CHECK_GL_ERRORS();
-      });
-   }
-   mUpdateClock.Elapsed();
 
    mRenderClock.Reset();
    glm::mat4 perspective = mCamera->GetPerspective();
