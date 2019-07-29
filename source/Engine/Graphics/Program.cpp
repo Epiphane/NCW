@@ -65,10 +65,6 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
       return maybeCode.Failure().WithContext("Failed reading shader file");
    }
 
-#if !NDEBUG
-   LOG_DEBUG("Compiling shader %1", filePath);
-#endif
-
    const char *code_cstr = maybeCode->c_str();
    glShaderSource(shader->id, 1, &code_cstr, nullptr);
    glCompileShader(shader->id);
@@ -143,7 +139,6 @@ Maybe<std::unique_ptr<Program>> Program::Load(
          data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
       }
 
-      LOG_DEBUG("Attaching transform feedback varyings: %1", StringHelper::Join(interleavedAttributes, ", "));
       glTransformFeedbackVaryings(program->id, (GLsizei)interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
       CHECK_GL_ERRORS();
    }

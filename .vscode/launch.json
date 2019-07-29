@@ -25,29 +25,13 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tmp/OSX-Debug/Game/Game",
-            "args": [],
+            "args": ["--asset-root", "${workspaceFolder}/Assets"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/tmp/OSX-Debug/Game",
             "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Game"}],
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "make game",
-            "logging": {
-                "moduleLoad": false
-            }
-        },
-        {
-            "name": "(lldb) DataCLI",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/tmp/OSX-Debug/DataCLI/DataCLI",
-            "args": ["convert", "itself.vox", "itself.cub"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [{"name": "PWD", "value": "${workspaceFolder}"}],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "make datacli",
             "logging": {
                 "moduleLoad": false
             }

@@ -62,11 +62,13 @@ public:
 private:
    ParticleEmitter();
 
+   void Initialize(const std::string& dir, const BindingProperty& path);
    void Initialize(const Options& options);
 
 public:
    // Methods
    ParticleEmitter(const Options& options);
+   ParticleEmitter(const std::string& dir, const std::string& path);
    ParticleEmitter(const std::string& dir, const BindingProperty& serialized);
    ParticleEmitter(const ParticleEmitter& other);
    ~ParticleEmitter();
@@ -110,7 +112,7 @@ private:
 //
 class SimpleParticleSystem : public Engine::System<SimpleParticleSystem> {
 public:
-   SimpleParticleSystem(Engine::Graphics::Camera* camera = nullptr);
+   SimpleParticleSystem(Engine::Graphics::Camera* camera);
    ~SimpleParticleSystem();
 
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;

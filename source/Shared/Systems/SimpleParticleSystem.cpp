@@ -6,6 +6,7 @@
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 
 #include "SimpleParticleSystem.h"
 
@@ -27,7 +28,6 @@ ParticleEmitter::ParticleEmitter()
    , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
 {
    glGenTransformFeedbacks(2, feedbackBuffers);
-   LOG_DEBUG("Created transform feedbacks %1 and %2", feedbackBuffers[0], feedbackBuffers[1]);
 
    // Set up feedback buffers
    for (size_t i = 0; i < 2; ++i)
@@ -37,49 +37,30 @@ ParticleEmitter::ParticleEmitter()
    }
 }
 
-void ParticleEmitter::Initialize(const Options& options)
-{
-   name = options.name;
-
-   auto it = programs.find(options.name);
-   if (it == programs.end())
-   {
-      auto maybeProgram = Engine::Graphics::Program::Load(
-         options.vertexShader,
-         options.geometryShader,
-         options.fragmentShader
-      );
-      if (!maybeProgram)
-      {
-         maybeProgram.Failure().WithContext("Failed loading particle shader").Log();
-      }
-      else
-      {
-         programs[name] = std::move(*maybeProgram);
-         program = programs[name].get();
-      }
-   }
-   else
-   {
-      program = it->second.get();
-   }
-
-   // Initialize emitter particle
-   std::vector<Particle> data;
-   data.resize(options.maxParticles);
-   // data[0].type = Particle::Type::Emitter; // Emitter
-   data[0].type = 1.0f; // Emitter
-
-   particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
-   particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
-}
-
 ParticleEmitter::ParticleEmitter(const Options& options) : ParticleEmitter()
 {
    Initialize(options);
 }
 
-ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& serialized) : ParticleEmitter()
+ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& data) : ParticleEmitter()
+{
+   Initialize(dir, data);
+}
+
+ParticleEmitter::ParticleEmitter(const std::string& dir, const std::string& path) : ParticleEmitter()
+{
+   Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(path);
+   assert(data.Succeeded());
+   if (!data)
+   {
+      data.Failure().WithContext("Failed loading %1", path).Log();
+      return;
+   }
+
+   Initialize(dir, *data);
+}
+
+void ParticleEmitter::Initialize(const std::string& dir, const BindingProperty& serialized)
 {
    Options options;
    options.name = serialized["name"];
@@ -123,6 +104,43 @@ ParticleEmitter::ParticleEmitter(const std::string& dir, const BindingProperty& 
       shapeParam1 = 0;
       shapeParam2 = 0;
    }
+}
+
+void ParticleEmitter::Initialize(const Options& options)
+{
+   name = options.name;
+
+   auto it = programs.find(options.name);
+   if (it == programs.end())
+   {
+      auto maybeProgram = Engine::Graphics::Program::Load(
+         options.vertexShader,
+         options.geometryShader,
+         options.fragmentShader
+      );
+      if (!maybeProgram)
+      {
+         maybeProgram.Failure().WithContext("Failed loading particle shader").Log();
+      }
+      else
+      {
+         programs[name] = std::move(*maybeProgram);
+         program = programs[name].get();
+      }
+   }
+   else
+   {
+      program = it->second.get();
+   }
+
+   // Initialize emitter particle
+   std::vector<Particle> data;
+   data.resize(options.maxParticles);
+   // data[0].type = Particle::Type::Emitter; // Emitter
+   data[0].type = 1.0f; // Emitter
+
+   particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+   particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
 }
 
 ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) : ParticleEmitter()

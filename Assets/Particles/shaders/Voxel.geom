@@ -22,7 +22,7 @@ flat out vec3 fColor;
 #define TYPE_EMITTER 1.0f
 #define TYPE_PARTICLE 2.0f
 
-#define VOXEL_SIZE 0.05f
+#define VOXEL_SIZE 0.1f
 
 mat4 Rotate(vec3 axis, float angle)
 {

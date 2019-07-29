@@ -15,6 +15,7 @@
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Systems/WalkSystem.h>
@@ -41,6 +42,7 @@ namespace Game
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
+      mSystems.Add<SimpleParticleSystem>(&mCamera);
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
@@ -190,6 +192,16 @@ namespace Game
       playerCamera.Add<Follower>(player.Get<Transform>());
       player.Add<WalkDirector>(playerCamera.Get<Transform>(), false);
 
+      // Create a campfire
+      Engine::Entity campfire = mEntities.Create(0, 0, 0);
+      campfire.Get<Transform>()->SetLocalScale(glm::vec3(0.05f));
+      campfire.Add<VoxModel>(Asset::Model("campfire.vox"));
+
+      Entity fire = mEntities.Create(0, 1, 0);
+      fire.Get<Transform>()->SetLocalScale(glm::vec3(20.0f));
+      fire.Get<Transform>()->SetParent(campfire);
+      fire.Add<ParticleEmitter>(Asset::ParticleShaders(), Asset::Particle("fire"));
+
       mCamera.Set(handle.get());
 
       // Add some voxels.
@@ -246,7 +258,7 @@ namespace Game
             else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
             float perc = (elevation - start) / (end - start);
 
-            glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
+            glm::vec3 position = glm::vec3(i, std::round(elevation * 10) - 4, j);
             glm::vec4 color = dest * perc + source * (1 - perc);
             carpet.push_back(Voxel::Data(position, color, Voxel::All));
 

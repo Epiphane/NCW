@@ -53,6 +53,11 @@ std::string Font(const std::string& fontName)
    return Paths::Join(gAssetRoot, "Fonts", fontName + ".ttf");
 }
 
+std::string ParticleShaders()
+{
+   return Paths::Join(gAssetRoot, "Particles", "shaders");
+}
+
 std::string Particle(const std::string& particle)
 {
    return Paths::Join(gAssetRoot, "Particles", particle + ".yaml");

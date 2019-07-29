@@ -82,8 +82,8 @@ void MainState::Initialize()
 
    // Colors
    const glm::vec4 BASE(18, 18, 18, 1);
-   const glm::vec4 LINE(157, 3, 3, 1);
-   const int size = 150;
+   const glm::vec4 LINE(157, 157, 157, 1);
+   const int size = 20;
    for (int i = -size; i <= size; ++i) {
       for (int j = -size; j <= size; ++j) {
          double x = (double)i / (2 * size);
@@ -107,7 +107,7 @@ void MainState::Initialize()
 
    assert(carpet.size() > 0);
 
-   Engine::Entity voxels = mEntities.Create(0, -2, 0);
+   Engine::Entity voxels = mEntities.Create(0, -0.5f, 0);
    voxels.Add<VoxelRender>(std::move(carpet));
 
    mEvents.Emit<ParticleEmitterReadyEvent>();
