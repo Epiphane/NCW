@@ -17,6 +17,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#include "../Systems/EditorBackdropSystem.h"
 #include "State.h"
 
 namespace CubeWorld
@@ -50,6 +51,7 @@ void MainState::Initialize()
    DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<MakeshiftSystem>();
+   mSystems.Add<EditorBackdropSystem>(&mCamera);
    mSystems.Add<SimpleParticleSystem>(&mCamera);
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
@@ -75,40 +77,9 @@ void MainState::Initialize()
 
    mCamera.Set(mPlayerCam.get());
 
-   // Add some voxels.
-   std::vector<Voxel::Data> carpet;
-   std::vector<glm::vec3> points;
-   std::vector<glm::vec3> colors;
-
-   // Colors
-   const glm::vec4 BASE(18, 18, 18, 1);
-   const glm::vec4 LINE(157, 157, 157, 1);
-   const int size = 20;
-   for (int i = -size; i <= size; ++i) {
-      for (int j = -size; j <= size; ++j) {
-         double x = (double)i / (2 * size);
-         double y = (double)j / (2 * size);
-         double expectedX = 1.0 - 4.0 * std::pow(y - 0.5, 2);
-         double dist = 5.0 * std::abs(x - expectedX);
-         dist += (rand() % 500) / 1000.0 - 0.25;
-         // Curve it from (0, 1)
-         dist = 1.0 / (1 + std::pow(2, dist));
-
-         glm::vec4 color(
-            std::floor((1 - dist) * BASE.r + dist * LINE.r),
-            std::floor((1 - dist) * BASE.g + dist * LINE.g),
-            std::floor((1 - dist) * BASE.b + dist * LINE.b),
-            1);
-
-         glm::vec3 position = glm::vec3(i, 0, j);
-         carpet.push_back(Voxel::Data(position, color, Voxel::Top));
-      }
-   }
-
-   assert(carpet.size() > 0);
-
-   Engine::Entity voxels = mEntities.Create(0, -0.5f, 0);
-   voxels.Add<VoxelRender>(std::move(carpet));
+   // Add floor and wireframe
+   Engine::Entity entity = mEntities.Create(0, 0, 0);
+   entity.Add<EditorWireframe>();
 
    mEvents.Emit<ParticleEmitterReadyEvent>();
 }

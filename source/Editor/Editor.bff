@@ -49,6 +49,7 @@
          .SourcePaths    = {
                               '$ProjectPath$/../Engine/Shaders'
                               '$ProjectPath$/../Shared/Shaders'
+                              '$ProjectPath$/../Editor/Shaders'
                            }
          .Dest          = '$OutputPath$/Shaders'
       }
