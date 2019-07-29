@@ -35,6 +35,14 @@ public:
    // Types
    struct Particle
    {
+      enum class Type : uint32_t
+      {
+         None = 0,
+         Emitter = 1,
+         Particle = 2,
+      };
+
+      // Type type = Type::None;
       float type = 0;
       glm::vec3 pos = {0, 0, 0};
       glm::vec4 rot = {0, 0, 1, 0};
@@ -124,7 +132,7 @@ private:
 
    static constexpr uint16_t RANDOM_SIZE = 1000;
    uint32_t mTick;
-   bool mPause;
+   bool mPause = false;
    std::unique_ptr<Engine::Graphics::Texture> mRandom;
 
    std::unique_ptr<DebugHelper::MetricLink> mUpdateMetric;

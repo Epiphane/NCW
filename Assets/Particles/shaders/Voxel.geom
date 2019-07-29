@@ -10,6 +10,7 @@ uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 uniform vec3 uCameraPos;
 uniform float uBillboardSize;
+uniform float uParticleLifetime;
 
 in float gType[];
 in vec4 gRotation[];
@@ -21,7 +22,6 @@ flat out vec3 fColor;
 #define TYPE_EMITTER 1.0f
 #define TYPE_PARTICLE 2.0f
 
-#define LIFE 0.5f
 #define VOXEL_SIZE 0.05f
 
 mat4 Rotate(vec3 axis, float angle)
@@ -71,7 +71,7 @@ void main()
    vec3 RED = vec3(134, 2, 0) / 255.0f;
    vec3 ORANGE = vec3(255, 119, 1) / 255.0f;
    vec3 YELLOW = vec3(255, 239, 36) / 255.0f;
-   vec3 WHITE = vec3(255, 255, 255) / 255.0f;
+   vec3 WHITE = vec3(255, 240, 100) / 255.0f;
 
    vec3 color = WHITE;
 
@@ -90,21 +90,21 @@ void main()
       mvp = mvp * model;
    }
 
-   float stageLength = LIFE / 3;
+   float stageLength = uParticleLifetime / 3;
    if (age < stageLength) {
       float progress = age / stageLength;
-      color = ORANGE * progress + RED * (1 - progress);
+      color = YELLOW * progress + WHITE * (1 - progress);
    }
    else if (age < 2 * stageLength) {
       float progress = (age - stageLength) / stageLength;
-      color = YELLOW * progress + ORANGE * (1 - progress);
+      color = ORANGE * progress + YELLOW * (1 - progress);
    }
-   else if (age < LIFE) {
+   else if (age < uParticleLifetime) {
       float progress = (age - 2 * stageLength) / stageLength;
-      color = WHITE * progress + YELLOW * (1 - progress);
+      color = RED * progress + ORANGE * (1 - progress);
    }
 
-   float uVoxelSize = VOXEL_SIZE * (1 - age / (2 * LIFE));
+   float uVoxelSize = VOXEL_SIZE * (1 - age / (2 * uParticleLifetime));
 
    // vec4 directions, in camera space, for computing the other corners
    // mat4 mvp = uProjMatrix * uViewMatrix;

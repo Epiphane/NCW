@@ -27,6 +27,7 @@ ParticleEmitter::ParticleEmitter()
    , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
 {
    glGenTransformFeedbacks(2, feedbackBuffers);
+   LOG_DEBUG("Created transform feedbacks %1 and %2", feedbackBuffers[0], feedbackBuffers[1]);
 
    // Set up feedback buffers
    for (size_t i = 0; i < 2; ++i)
@@ -66,6 +67,7 @@ void ParticleEmitter::Initialize(const Options& options)
    // Initialize emitter particle
    std::vector<Particle> data;
    data.resize(options.maxParticles);
+   // data[0].type = Particle::Type::Emitter; // Emitter
    data[0].type = 1.0f; // Emitter
 
    particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
@@ -274,9 +276,16 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
 
             updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
             updater->Uniform1f("uEmitterCooldown", emitter.emitterCooldown);
-            updater->Uniform1f("uShellLifetime", emitter.particleLifetime);
+            updater->Uniform1f("uParticleLifetime", emitter.particleLifetime);
             updater->Uniform1f("uDeltaTimeMillis", (float)dt);
             updater->Uniform1f("uTick", (float)mTick);
+
+            updater->Uniform1u("uShape", (uint32_t)emitter.shape);
+            updater->Uniform2f("uSpawnAge", emitter.spawnAge[0], emitter.spawnAge[1]);
+            updater->UniformVector3f("uShapeParam0", emitter.shapeParam0);
+            updater->Uniform1f("uShapeParam1", emitter.shapeParam1);
+            updater->Uniform1f("uShapeParam2", emitter.shapeParam2);
+            updater->Uniform1f("uShapeParam3", emitter.shapeParam3);
 
             emitter.particleBuffers[emitter.buffer].Bind();
 
@@ -343,6 +352,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          emitter.program->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
          emitter.program->UniformVector3f("uCameraPos", position);
          emitter.program->Uniform1f("uBillboardSize", 10.0f);
+         emitter.program->Uniform1f("uParticleLifetime", emitter.particleLifetime);
 
          emitter.particleBuffers[emitter.buffer].Bind();
 
@@ -369,7 +379,6 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          glDisableVertexAttribArray(4);
 
          CHECK_GL_ERRORS();
-
       }
    });
    mRenderClock.Elapsed();
