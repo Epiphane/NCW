@@ -136,7 +136,6 @@ void ParticleEmitter::Initialize(const Options& options)
    // Initialize emitter particle
    std::vector<Particle> data;
    data.resize(options.maxParticles);
-   // data[0].type = Particle::Type::Emitter; // Emitter
    data[0].type = 1.0f; // Emitter
 
    particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);

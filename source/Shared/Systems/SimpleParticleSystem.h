@@ -35,14 +35,6 @@ public:
    // Types
    struct Particle
    {
-      enum class Type : uint32_t
-      {
-         None = 0,
-         Emitter = 1,
-         Particle = 2,
-      };
-
-      // Type type = Type::None;
       float type = 0;
       glm::vec3 pos = {0, 0, 0};
       glm::vec4 rot = {0, 0, 1, 0};
