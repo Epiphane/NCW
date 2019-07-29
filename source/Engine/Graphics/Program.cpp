@@ -5,6 +5,7 @@
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
+#include <RGBText/StringHelper.h>
 
 #include "../Core/FileSystemProvider.h"
 #include "Program.h"
@@ -142,7 +143,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
          data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
       }
 
-      LOG_DEBUG("Attaching transform feedback varyings starting with %1", (char*)data.get()[0]);
+      LOG_DEBUG("Attaching transform feedback varyings: %1", StringHelper::Join(interleavedAttributes, ", "));
       glTransformFeedbackVaryings(program->id, (GLsizei)interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
       CHECK_GL_ERRORS();
    }
@@ -197,17 +198,22 @@ void Program::Unbind()
    glUseProgram(0);
 }
 
-void Program::Uniform1i(const std::string& name, const int value)
+void Program::Uniform1u(const std::string& name, const uint32_t value)
+{
+   glUniform1ui(Uniform(name), value);
+}
+
+void Program::Uniform1i(const std::string& name, const int32_t value)
 {
    glUniform1i(Uniform(name), value);
 }
 
-void Program::Uniform2i(const std::string& name, const int value1, const int value2)
+void Program::Uniform2i(const std::string& name, const int32_t value1, const int32_t value2)
 {
    glUniform2i(Uniform(name), value1, value2);
 }
 
-void Program::Uniform3i(const std::string& name, const int value1, const int value2, const int value3)
+void Program::Uniform3i(const std::string& name, const int32_t value1, const int32_t value2, const int32_t value3)
 {
    glUniform3i(Uniform(name), value1, value2, value3);
 }

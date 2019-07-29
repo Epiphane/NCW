@@ -18,8 +18,9 @@ in float gAge[];
 flat out vec3 fNormal;
 flat out vec3 fColor;
 
-#define EMITTER 0.0f
-#define PARTICLE 1.0f
+#define TYPE_EMITTER 0.0f
+#define TYPE_PARTICLE 1.0f
+
 #define LIFE 0.5f
 #define VOXEL_SIZE 0.05f
 
@@ -63,7 +64,7 @@ void EmitQuad(vec4 origin, vec4 dy, vec4 dx, vec4 normal, vec3 color)
 
 void main()
 {
-   if (gType[0] == EMITTER) {
+   if (gType[0] == TYPE_EMITTER) {
       return;
    }
 
@@ -77,11 +78,16 @@ void main()
    vec4 center = gl_in[0].gl_Position;
    float age = gAge[0];
    mat4 mvp = uProjMatrix * uViewMatrix;
+   mat4 model = mat4(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1);
 
    float angle = gRotation[0][3];
    if (angle != 0)
    {
-      mvp = mvp * Rotate(gRotation[0].xyz, angle);
+      model = Rotate(gRotation[0].xyz, angle);
+      mvp = mvp * model;
    }
 
    float stageLength = LIFE / 3;
@@ -107,9 +113,9 @@ void main()
    vec4 dz = mvp[2] / 2.0f * uVoxelSize;
    
    // Normals are computed from just the model matrix
-   vec4 nx = normalize(mvp[0] / 2.0f * uVoxelSize);
-   vec4 ny = normalize(mvp[1] / 2.0f * uVoxelSize);
-   vec4 nz = normalize(mvp[2] / 2.0f * uVoxelSize);
+   vec4 nx = normalize(model[0] / 2.0f * uVoxelSize);
+   vec4 ny = normalize(model[1] / 2.0f * uVoxelSize);
+   vec4 nz = normalize(model[2] / 2.0f * uVoxelSize);
 
    EmitQuad(center - dz, dy, dx, -nz, color);   // Back
    EmitQuad(center - dy, dx, dz, -ny, color);   // Bottom

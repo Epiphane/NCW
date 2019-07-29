@@ -3,12 +3,16 @@ name: fire
 shader: Voxel
 launcher:
   particles-per-second: 250
-  shape: disc
-  direction: [0, 1, 0]
-  speed:
-    type: range
+  spawn-age: 
     min: 0
-    max: 3
+    max: 0.25
+shape: cone
+cone:
+  direction: [0, 1, 0]
+  radius: 0.5
+  height: 
+    min: 800
+    max: 1500
 particle:
   lifetime: 0.5
   size: 0.5

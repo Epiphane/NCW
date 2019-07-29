@@ -15,7 +15,10 @@
             "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Editor"}],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make editor"
+            "preLaunchTask": "make editor",
+            "logging": {
+                "moduleLoad": false
+            }
         },
         {
             "name": "(lldb) Game",
@@ -28,7 +31,10 @@
             "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Game"}],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make game"
+            "preLaunchTask": "make game",
+            "logging": {
+                "moduleLoad": false
+            }
         },
         {
             "name": "(lldb) DataCLI",
@@ -41,7 +47,10 @@
             "environment": [{"name": "PWD", "value": "${workspaceFolder}"}],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make datacli"
+            "preLaunchTask": "make datacli",
+            "logging": {
+                "moduleLoad": false
+            }
         }
     ]
 }
