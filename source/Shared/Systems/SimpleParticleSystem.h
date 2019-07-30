@@ -69,7 +69,7 @@ public:
 
 public:
    // Configuration
-   float emitterCooldown;
+   float emitterCooldown = 0.0f;
    float spawnAge[2];
    float particleLifetime;
 
@@ -79,6 +79,9 @@ public:
    float shapeParam1;
    float shapeParam2;
    float shapeParam3;
+
+   Engine::Graphics::Texture* texture = nullptr;
+   BindingProperty uniforms;
 
    const std::string& GetName() const { return name; }
 

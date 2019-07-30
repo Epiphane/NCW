@@ -3,6 +3,7 @@
 layout(points) in;
 layout(points) out;
 layout(max_vertices = 40) out;
+#define MAX_VERTICES 40
 
 in float gType[];
 in vec3 gPosition[];
@@ -67,7 +68,8 @@ void main()
         float spawnAgeRange = uSpawnAge[1] - uSpawnAge[0];
         float spawnAgeMin = uSpawnAge[0];
  
-        for (int emit = 0; emit < nEmit; ++emit) {
+        int emit = 0;
+        for (int emit = 0; emit < nEmit && emit < MAX_VERTICES; ++emit) {
             fType = TYPE_PARTICLE;
  
             // NOTE rand1 can be reused, but the x value may
@@ -76,12 +78,13 @@ void main()
             vec3 rand1 = GetRandomVec3(uTick + emit * 200);
             fAge = spawnAgeMin + spawnAgeRange * (rand1.x + 0.5);
             
-            fPosition = gPosition[0];
+            fPosition = vec3(gPosition[0]);
             fVelocity = vec3(0, 0, 0);
             fRotation = vec4(0, 0, 1, 0);
  
             if (uShape == SHAPE_POINT) {
                 // Spawn particles at the emitter point, unmoving.
+                // fVelocity.z = 1;
             }
             else if (uShape == SHAPE_CONE) {
                 vec3 direction = uShapeParam0;
@@ -118,6 +121,7 @@ void main()
             fPosition = (uModelMatrix * vec4(fPosition, 1)).xyz;
 
             EmitVertex();
+            EndPrimitive();
         }
     }
     else if (gType[0] == TYPE_PARTICLE) {
@@ -125,10 +129,9 @@ void main()
         vec3 DeltaP = uDeltaTimeMillis * gVelocity[0];
         
         if (Age < uParticleLifetime) {
-            
             fType = TYPE_PARTICLE;
             fPosition = gPosition[0] + DeltaP;
-            fRotation = gRotation[0] + vec4(0, 0, 0, 1);
+            fRotation = gRotation[0];// + vec4(0, 0, 0, 0.1);
             fVelocity = gVelocity[0];// + DeltaV;
             fAge = Age;
             EmitVertex();

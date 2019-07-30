@@ -19,7 +19,7 @@ namespace UI
 Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options, const std::string& name)
    : Engine::UIElement(root, parent, name)
    , mRegion(root->Reserve<Aggregator::Image>(2))
-{   
+{
    Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(options.filename);
    if (!maybeTexture)
    {

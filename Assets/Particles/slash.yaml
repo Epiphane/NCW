@@ -1,0 +1,14 @@
+---
+name: slash
+shader: Texture2D
+shader-texture: swing.png
+shader-uniforms:
+  uSize: 1
+  uSheetWidth: 4
+  uSheetHeight: 1
+launcher:
+  particles-per-second: 1
+shape: point
+particle:
+  lifetime: 0.1
+    

@@ -8,6 +8,7 @@
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 
+#include "../Helpers/Asset.h"
 #include "SimpleParticleSystem.h"
 
 namespace CubeWorld
@@ -70,14 +71,25 @@ void ParticleEmitter::Initialize(const std::string& dir, const BindingProperty& 
    options.geometryShader = Paths::Join(dir, shader + ".geom");
    options.fragmentShader = Paths::Join(dir, shader + ".frag");
 
-   Initialize(options);
-
    emitterCooldown = 1.0f / serialized["launcher"]["particles-per-second"].GetFloatValue(1.0f);
-   particleLifetime = serialized["particle"]["lifetime"].GetFloatValue();
-   emitterCooldown = 1.0f / serialized["launcher"]["particles-per-second"].GetFloatValue(1);
-   particleLifetime = serialized["particle"]["lifetime"].GetFloatValue();
-   spawnAge[0] = serialized["particle"]["spawn-age"]["min"].GetFloatValue();
-   spawnAge[1] = serialized["particle"]["spawn-age"]["max"].GetFloatValue();
+   particleLifetime = serialized["particle"]["lifetime"].GetFloatValue(0.0f);
+   spawnAge[0] = serialized["particle"]["spawn-age"]["min"].GetFloatValue(0.0f);
+   spawnAge[1] = serialized["particle"]["spawn-age"]["max"].GetFloatValue(0.0f);
+   uniforms = serialized["shader-uniforms"];
+
+   std::string textureName = serialized["shader-texture"];
+   if (!textureName.empty())
+   {
+      Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Asset::Image(textureName));
+      if (!maybeTexture)
+      {
+         maybeTexture.Failure().WithContext("Failed loading %1", textureName).Log();
+      }
+      else
+      {
+         texture = *maybeTexture;
+      }
+   }
 
    std::string shapeVal = serialized["shape"].GetStringValue("point");
    if (shapeVal == "point")
@@ -104,6 +116,8 @@ void ParticleEmitter::Initialize(const std::string& dir, const BindingProperty& 
       shapeParam1 = 0;
       shapeParam2 = 0;
    }
+
+   Initialize(options);
 }
 
 void ParticleEmitter::Initialize(const Options& options)
@@ -137,6 +151,7 @@ void ParticleEmitter::Initialize(const Options& options)
    std::vector<Particle> data;
    data.resize(options.maxParticles);
    data[0].type = 1.0f; // Emitter
+   data[0].age = emitterCooldown; // Emit immediately
 
    particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
    particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
@@ -161,6 +176,7 @@ BindingProperty ParticleEmitter::Serialize()
    result["particle"]["lifetime"] = particleLifetime;
    result["particle"]["spawn-age"]["min"] = spawnAge[0];
    result["particle"]["spawn-age"]["max"] = spawnAge[1];
+   result["shader-uniforms"] = uniforms;
 
    switch (shape)
    {
@@ -320,6 +336,10 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
             glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
             glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
+            // GLuint drawnQuery;
+            // int result = 0;
+            // glGenQueries(1, &drawnQuery);
+            // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
             // Begin rendering
             if (emitter.firstRender) {
                glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
@@ -335,14 +355,21 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
                emitter.firstRender = false;
             }
             else {
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[emitter.buffer]);
                glBeginTransformFeedback(GL_POINTS);
-               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
+               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[1 - emitter.buffer]);
                glEndTransformFeedback();
             }
+               
+            // glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+            // while (result == 0)
+            //    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+            
+            // glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
+            // glDeleteQueries(1, &drawnQuery);
 
             // Flip buffers
-            emitter.buffer = uint8_t(1 - emitter.buffer);
+            // emitter.buffer = uint8_t(1 - emitter.buffer);
 
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
@@ -368,8 +395,36 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          emitter.program->UniformMatrix4f("uViewMatrix", view);
          emitter.program->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
          emitter.program->UniformVector3f("uCameraPos", position);
-         emitter.program->Uniform1f("uBillboardSize", 10.0f);
          emitter.program->Uniform1f("uParticleLifetime", emitter.particleLifetime);
+
+         for (const auto& [key, value] : emitter.uniforms.pairs())
+         {
+            if (value.IsNumber())
+            {
+               emitter.program->Uniform1f(key.GetStringValue(), value.GetFloatValue());
+            }
+            else if (value.IsVec3())
+            {
+               emitter.program->UniformVector3f(key.GetStringValue(), value.GetVec3());
+            }
+            else if (value.IsVec4())
+            {
+               emitter.program->UniformVector4f(key.GetStringValue(), value.GetVec4());
+            }
+            else
+            {
+               LOG_ERROR("Unknown shader value for %1", key.GetStringValue());
+               assert(false);
+            }
+            CHECK_GL_ERRORS();
+         }
+
+         if (emitter.texture != nullptr)
+         {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, emitter.texture->GetTexture());
+            emitter.program->Uniform1i("uTexture", 0);
+         }
 
          emitter.particleBuffers[emitter.buffer].Bind();
 

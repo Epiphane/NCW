@@ -1,29 +1,23 @@
 #version 330
 
-// Lots of this is stolen from Shared/Shaders/Voxel.geom, enjoy
-
 layout(points) in;
-layout(triangle_strip, max_vertices=24) out;
+layout(triangle_strip, max_vertices=16) out;
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
-uniform vec3 uCameraPos;
 uniform float uParticleLifetime;
 
 // Custom parameters
-uniform float uVoxelSize;
-uniform vec4 uColor0;
-uniform vec4 uColor1;
-uniform vec4 uColor2;
-uniform vec4 uColor3;
+uniform float uSize;
+uniform float uSheetWidth;
+uniform float uSheetHeight;
 
 in float gType[];
 in vec4 gRotation[];
 in float gAge[];
 
-flat out vec3 fNormal;
-flat out vec3 fColor;
+out vec2 fUV;
 
 #define TYPE_EMITTER 1.0f
 #define TYPE_PARTICLE 2.0f
@@ -41,26 +35,22 @@ mat4 Rotate(vec3 axis, float angle)
                0.0,                                0.0,                                0.0,                                1.0);
 }
 
-void EmitQuad(vec4 origin, vec4 dy, vec4 dx, vec4 normal, vec3 color)
+void EmitQuad(vec4 origin, vec4 dy, vec4 dx, vec2 bottomLeft, vec2 topRight)
 {
-   fColor = color;
-   fNormal = normal.xyz;
    gl_Position = origin - dx - dy;
+   fUV = bottomLeft;
    EmitVertex();
 
-   fColor = color;
-   fNormal = normal.xyz;
    gl_Position = origin - dx + dy;
+   fUV = vec2(topRight.x, bottomLeft.y);
    EmitVertex();
 
-   fColor = color;
-   fNormal = normal.xyz;
    gl_Position = origin + dx - dy;
+   fUV = vec2(bottomLeft.x, topRight.y);
    EmitVertex();
 
-   fColor = color;
-   fNormal = normal.xyz;
    gl_Position = origin + dx + dy;
+   fUV = topRight;
    EmitVertex();
 
    EndPrimitive();
@@ -87,37 +77,25 @@ void main()
       mvp = mvp * model;
    }
 
-   vec3 color = uColor3.xyz;
    float agePercent = age / uParticleLifetime;
-   if (agePercent < uColor1[3]) {
-      float progress = agePercent / uColor1[3];
-      color = uColor1.xyz * progress + uColor0.xyz * (1 - progress);
-   }
-   else if (agePercent < uColor2[3]) {
-      float progress = (agePercent - uColor1[3]) / (uColor2[3] - uColor1[3]);
-      color = uColor2.xyz * progress + uColor1.xyz * (1 - progress);
-   }
-   else if (agePercent < 1) {
-      float progress = (agePercent - uColor2[3]) / (uColor3[3] - uColor2[3]);
-      color = uColor3.xyz * progress + uColor2.xyz * (1 - progress);
-   }
-
-   float size = uVoxelSize * (1 - age / (2 * uParticleLifetime));
+   float size = uSize;
 
    // vec4 directions, in camera space, for computing the other corners
+   // mat4 mvp = uProjMatrix * uViewMatrix;
    vec4 dx = mvp[0] / 2.0f * size;
    vec4 dy = mvp[1] / 2.0f * size;
    vec4 dz = mvp[2] / 2.0f * size;
-   
-   // Normals are computed from just the model matrix
-   vec4 nx = normalize(model[0] / 2.0f * size);
-   vec4 ny = normalize(model[1] / 2.0f * size);
-   vec4 nz = normalize(model[2] / 2.0f * size);
 
-   EmitQuad(center - dz, dy, dx, -nz, color);   // Back
-   EmitQuad(center - dy, dx, dz, -ny, color);   // Bottom
-   EmitQuad(center - dx, dz, dy, -nx, color);   // Left
-   EmitQuad(center + dz, dx, dy, nz, color);    // Front
-   EmitQuad(center + dy, dz, dx, ny, color);    // Top
-   EmitQuad(center + dx, dy, dz, nx, color);    // Right
+   float nFrames = uSheetWidth * uSheetHeight;
+   float frame = floor(nFrames * age / uParticleLifetime);
+
+   float frameX = mod(frame, uSheetWidth);
+   float frameY = floor(frame / uSheetHeight);
+   float frameW = 1.0f / uSheetWidth;
+   float frameH = 1.0f / uSheetHeight;
+   vec2 baseUV = vec2(frameX * frameW, frameY * frameH);
+   vec2 nextUV = baseUV + vec2(frameW, frameH);
+
+   EmitQuad(center, dx, dy, vec2(baseUV.x, nextUV.y), vec2(nextUV.x, baseUV.y)); // Front
+   EmitQuad(center, -dx, dy, baseUV, nextUV); // Back
 }
