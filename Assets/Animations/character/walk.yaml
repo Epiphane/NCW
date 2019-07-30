@@ -6,62 +6,54 @@ length: 0.8
 keyframes:
 - time: 0
   bones:
+    character.Torso:
+      position: [0, -6.5, 0]
     character.Head:
       position: [0, 4.5, 0]
       rotation: [-5, 0, 0]
-    character.Torso:
-      position: [0, -6.5, 0]
-    character.Hips:
-      rotation: [5, 0, 0]
     character.Spine:
+      rotation: [5, 0, 0]
+    character.Hips:
       rotation: [5, 0, 0]
 - time: 0.2
   bones:
-    character.Head:
-      position: [0, 5.49, 0]
-      rotation: [-5, 0, 0]
     character.Torso:
       position: [0, -4.47, 0]
       rotation: [0, -10, 0]
-    character.Right Hand:
-      position: [-5.65, 0, -2]
-    character.Attachment:
-      position: [-1.5, 0, -10.1]
-      rotation: [0, 10, 0]
-    character.Left Hand:
-      position: [5.59, 0, 2]
     character.root:
       position: [0, 0, 0]
       rotation: [0, 0, 0]
-    character.Hips:
-      rotation: [5, 0, 0]
+    character.Right Hand:
+      position: [-5.65, 0, -2]
+    character.Left Hand:
+      position: [5.59, 0, 2]
+    character.Attachment:
+      position: [-1.5, 0, -10.1]
+      rotation: [0, 10, 0]
+    character.Head:
+      position: [0, 5.49, 0]
+      rotation: [-5, 0, 0]
     character.Right Leg:
       rotation: [45, 0, 0]
-    character.Left Leg:
-      rotation: [-45, 0, 0]
+    character.Hips:
+      rotation: [5, 0, 0]
     character.Spine:
       rotation: [5, 0, 0]
+    character.Left Leg:
+      rotation: [-45, 0, 0]
 - time: 0.4
   bones:
+    character.Torso:
+      position: [0, -6.52, 0]
     character.Head:
       position: [0, 4.52, 0]
       rotation: [-5, 0, 0]
-    character.Torso:
-      position: [0, -6.52, 0]
-    character.Hips:
-      rotation: [5, 0, 0]
     character.Spine:
+      rotation: [5, 0, 0]
+    character.Hips:
       rotation: [5, 0, 0]
 - time: 0.6
   bones:
-    character.Attachment:
-      position: [1.5, 0, -10.1]
-      rotation: [0, -10, 0]
-    character.Head:
-      position: [0, 5.53, 0]
-      rotation: [-5, 0, 0]
-    character.Right Hand:
-      position: [-5.58, 0, 2]
     character.Torso:
       position: [0, -4.52, 0]
       rotation: [0, 10, 0]
@@ -71,13 +63,21 @@ keyframes:
       scale: [1, 1, 1]
     character.Left Hand:
       position: [5.61, 0, -2]
-    character.Left Leg:
-      rotation: [45, 0, 0]
+    character.Right Hand:
+      position: [-5.58, 0, 2]
+    character.Head:
+      position: [0, 5.53, 0]
+      rotation: [-5, 0, 0]
+    character.Attachment:
+      position: [1.5, 0, -10.1]
+      rotation: [0, -10, 0]
     character.Right Leg:
       rotation: [-45, 0, 0]
-    character.Hips:
-      rotation: [5, 0, 0]
     character.Spine:
+      rotation: [5, 0, 0]
+    character.Left Leg:
+      rotation: [45, 0, 0]
+    character.Hips:
       rotation: [5, 0, 0]
 transitions:
 - to: idle

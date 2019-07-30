@@ -68,7 +68,11 @@ public:
    BindingProperty Serialize();
 
 public:
-   // Configuration
+   // Runtime configuration
+   bool update = true;
+   bool render = true;
+
+   // Particle configuration
    float emitterCooldown = 0.0f;
    float spawnAge[2];
    float particleLifetime;

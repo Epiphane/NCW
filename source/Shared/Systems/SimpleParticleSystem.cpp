@@ -299,19 +299,24 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
          BIND_PROGRAM_IN_SCOPE(updater);
          glEnable(GL_RASTERIZER_DISCARD);
          CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
+         if (mRandom)
+         {
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
+            updater->Uniform1i("uRandomTexture", 3);
+         }
+         updater->Uniform1f("uDeltaTimeMillis", (float)dt);
+         updater->Uniform1f("uTick", (float)mTick);
+
          entities.Each<Transform, ParticleEmitter>([&](Engine::Entity, Transform& transform, ParticleEmitter& emitter) {
-            if (mRandom)
+            if (!emitter.update)
             {
-               glActiveTexture(GL_TEXTURE3);
-               glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
-               updater->Uniform1i("uRandomTexture", 3);
+               return;
             }
 
             updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
             updater->Uniform1f("uEmitterCooldown", emitter.emitterCooldown);
             updater->Uniform1f("uParticleLifetime", emitter.particleLifetime);
-            updater->Uniform1f("uDeltaTimeMillis", (float)dt);
-            updater->Uniform1f("uTick", (float)mTick);
 
             updater->Uniform1u("uShape", (uint32_t)emitter.shape);
             updater->Uniform2f("uSpawnAge", emitter.spawnAge[0], emitter.spawnAge[1]);
@@ -387,7 +392,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    glm::vec3 position = mCamera->GetPosition();
    entities.Each<Transform, ParticleEmitter>([&](Engine::Entity /*entity*/, Transform& transform, ParticleEmitter& emitter) {
       // Render
-      if (emitter.program != nullptr)
+      if (emitter.render && emitter.program != nullptr)
       {
          BIND_PROGRAM_IN_SCOPE(emitter.program);
 

@@ -10,6 +10,7 @@ uniform float uParticleLifetime;
 
 // Custom parameters
 uniform float uSize;
+uniform float uSprites;
 uniform float uSheetWidth;
 uniform float uSheetHeight;
 
@@ -86,11 +87,9 @@ void main()
    vec4 dy = mvp[1] / 2.0f * size;
    vec4 dz = mvp[2] / 2.0f * size;
 
-   float nFrames = uSheetWidth * uSheetHeight;
-   float frame = floor(nFrames * age / uParticleLifetime);
-
+   float frame = floor(uSprites * age / uParticleLifetime);
    float frameX = mod(frame, uSheetWidth);
-   float frameY = floor(frame / uSheetHeight);
+   float frameY = floor(frame / uSheetWidth);
    float frameW = 1.0f / uSheetWidth;
    float frameH = 1.0f / uSheetHeight;
    vec2 baseUV = vec2(frameX * frameW, frameY * frameH);
