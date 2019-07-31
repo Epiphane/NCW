@@ -99,19 +99,8 @@ void MainState::Receive(const ClearParticleEmitterEvent&)
 
 void MainState::Receive(const LoadParticleEmitterEvent& evt)
 {
-   LOG_DEBUG("Loading emitter %1", evt.filename);
-   Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
-   if (!data)
-   {
-      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
-      return;
-   }
-
    Receive(ClearParticleEmitterEvent{});
-   mParticleSpawner.Add<ParticleEmitter>(
-      Paths::Join(Paths::GetDirectory(evt.filename), "shaders"),
-      *data
-   );
+   mParticleSpawner.Add<ParticleEmitter>(evt.filename);
 }
 
 }; // namespace ParticleSpace

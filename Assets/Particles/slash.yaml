@@ -1,6 +1,7 @@
 ---
 name: slash
 shader: Texture2D
+max-particles: 10
 shader-texture: swing.png
 shader-uniforms:
   uSize: 1

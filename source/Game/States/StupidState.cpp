@@ -200,7 +200,7 @@ namespace Game
       Entity fire = mEntities.Create(0, 1, 0);
       fire.Get<Transform>()->SetLocalScale(glm::vec3(20.0f));
       fire.Get<Transform>()->SetParent(campfire);
-      fire.Add<ParticleEmitter>(Asset::ParticleShaders(), Asset::Particle("fire"));
+      fire.Add<ParticleEmitter>(Asset::Particle("fire"));
 
       mCamera.Set(handle.get());
 

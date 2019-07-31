@@ -9,6 +9,7 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/Graphics/Camera.h>
+#include <Engine/Graphics/ParticleSystem.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/TextureManager.h>
 #include <Engine/Graphics/VBO.h>
@@ -20,89 +21,22 @@ namespace CubeWorld
 {
 
 //
-// ParticleEmitter is a container for an entire particle system.
-// It  has all the configuration properties for the particle system,
-// including emission and particle properties.
+// ParticleEmitter is a simple wrapper for an Engine::ParticleSystem
+// as a component.
 //
-struct ParticleEmitter : public Engine::Component<ParticleEmitter> {
+struct ParticleEmitter : public Engine::Component<ParticleEmitter>, public Engine::ParticleSystem {
 public:
-   enum class Shape : uint32_t
-   {
-      Point = 0,
-      Cone = 1,
-   };
-
-   // Types
-   struct Particle
-   {
-      float type = 0;
-      glm::vec3 pos = {0, 0, 0};
-      glm::vec4 rot = {0, 0, 1, 0};
-      glm::vec3 vel = {0, 0, 0};
-      float age = 0;
-   };
-
-   struct Options
-   {
-      std::string name;
-      uint64_t maxParticles = 1000;
-      std::string vertexShader = "";
-      std::string geometryShader = "";
-      std::string fragmentShader = "";
-   };
-
-private:
-   ParticleEmitter();
-
-   void Initialize(const std::string& dir, const BindingProperty& path);
-   void Initialize(const Options& options);
-
-public:
-   // Methods
-   ParticleEmitter(const Options& options);
-   ParticleEmitter(const std::string& dir, const std::string& path);
-   ParticleEmitter(const std::string& dir, const BindingProperty& serialized);
-   ParticleEmitter(const ParticleEmitter& other);
-   ~ParticleEmitter();
-
-   BindingProperty Serialize();
+   //
+   // Construction
+   //
+   ParticleEmitter(const std::string& path);
 
 public:
    // Runtime configuration
    bool update = true;
    bool render = true;
 
-   // Particle configuration
-   float emitterCooldown = 0.0f;
-   float spawnAge[2];
-   float particleLifetime;
-
-   // Shape configuration
-   Shape shape;
-   glm::vec3 shapeParam0;
-   float shapeParam1;
-   float shapeParam2;
-   float shapeParam3;
-
-   Engine::Graphics::Texture* texture = nullptr;
-   BindingProperty uniforms;
-
-   const std::string& GetName() const { return name; }
-
-private:
-   // Map of particle name to GL program
-   static std::unordered_map<std::string, std::unique_ptr<Engine::Graphics::Program>> programs;
-
-   std::string name;
-   Engine::Graphics::Program* program;
-   
-private:
-   // Particle system state
    friend class SimpleParticleSystem;
-   bool firstRender;
-   uint8_t buffer;
-   Engine::Graphics::VBO particleBuffers[2];
-   GLuint feedbackBuffers[2];
 };
 
 //
