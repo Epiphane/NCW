@@ -24,8 +24,8 @@ namespace Engine
 std::unordered_map<std::string, std::unique_ptr<Engine::Graphics::Program>> ParticleSystem::programs;
 
 ParticleSystem::ParticleSystem()
-   : name("")
-   , program(nullptr)
+   : program(nullptr)
+   , name("")
    , firstRender(true)
    , buffer(0)
    , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
@@ -40,9 +40,34 @@ ParticleSystem::ParticleSystem()
    }
 }
 
+ParticleSystem::ParticleSystem(ParticleSystem&& other)
+   : maxParticles(other.maxParticles)
+   , emitterCooldown(other.emitterCooldown)
+   , spawnAge{other.spawnAge[0], other.spawnAge[1]}
+   , particleLifetime(other.particleLifetime)
+   , shape(other.shape)
+   , shapeParam0(other.shapeParam0)
+   , shapeParam1(other.shapeParam1)
+   , shapeParam2(other.shapeParam2)
+   , shapeParam3(other.shapeParam3)
+   , texture(other.texture)
+   , program(other.program)
+   , uniforms(std::move(other.uniforms))
+   , name(std::move(other.name))
+   , firstRender(other.firstRender)
+   , buffer(other.buffer)
+   , particleBuffers{std::move(other.particleBuffers[0]), std::move(other.particleBuffers[1])}
+   , feedbackBuffers{other.feedbackBuffers[0], other.feedbackBuffers[1]}
+{
+   other.feedbackBuffers[0] = other.feedbackBuffers[1] = 0;
+}
+
 ParticleSystem::~ParticleSystem()
 {
-   glDeleteTransformFeedbacks(2, feedbackBuffers);
+   if (feedbackBuffers[0] != 0 || feedbackBuffers[1] != 0)
+   {
+      glDeleteTransformFeedbacks(2, feedbackBuffers);
+   }
 }
 
 ParticleSystem::ParticleSystem(
@@ -95,6 +120,7 @@ void ParticleSystem::Initialize(
       if (!maybeProgram)
       {
          maybeProgram.Failure().WithContext("Failed loading particle shader for %1", name).Log();
+         return;
       }
       else
       {
@@ -108,63 +134,28 @@ void ParticleSystem::Initialize(
    }
 
    //
-   // Initialize emitter particle
+   // Set up initial particle.
+   //
+   maxParticles = config["max-particles"].GetUintValue(1000);
+   Reset();
+
+   //
+   // Read particle system configuration.
+   //
+   ApplyConfiguration(textureDir, config);
+}
+
+void ParticleSystem::Reset()
+{
+   //
+   // Initialize one emitter particle
    //
    std::vector<Particle> data;
-   data.resize(config["max-particles"].GetUintValue(1000));
+   data.resize(maxParticles);
    data[0].type = 1.0f; // Emitter
    data[0].age = emitterCooldown; // Emit immediately
    particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
    particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
-
-   //
-   // Read particle system configuration
-   //
-   emitterCooldown = 1.0f / config["launcher"]["particles-per-second"].GetFloatValue(1.0f);
-   particleLifetime = config["particle"]["lifetime"].GetFloatValue(0.0f);
-   spawnAge[0] = config["particle"]["spawn-age"]["min"].GetFloatValue(0.0f);
-   spawnAge[1] = config["particle"]["spawn-age"]["max"].GetFloatValue(0.0f);
-   uniforms = config["shader-uniforms"];
-
-   std::string textureName = config["shader-texture"];
-   if (!textureName.empty())
-   {
-      Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDir, textureName));
-      if (!maybeTexture)
-      {
-         maybeTexture.Failure().WithContext("Failed loading %1", textureName).Log();
-      }
-      else
-      {
-         texture = *maybeTexture;
-      }
-   }
-
-   std::string shapeVal = config["shape"].GetStringValue("point");
-   if (shapeVal == "point")
-   {
-      shape = Shape::Point;
-      shapeParam0 = {0, 0, 0};
-      shapeParam1 = 0;
-      shapeParam2 = 0;
-   }
-   else if (shapeVal == "cone")
-   {
-      const BindingProperty& cone = config["cone"];
-      shape = Shape::Cone;
-      shapeParam0 = cone["direction"].GetVec3({0, 1, 0});
-      shapeParam1 = cone["radius"].GetFloatValue(1.0f);
-      shapeParam2 = cone["height"]["min"].GetFloatValue(1.0f);
-      shapeParam3 = cone["height"]["max"].GetFloatValue(1.0f);
-   }
-   else
-   {
-      LOG_ERROR("Unknown shape value %1. Defaulting to point", shapeVal);
-      shape = Shape::Point;
-      shapeParam0 = {0, 0, 0};
-      shapeParam1 = 0;
-      shapeParam2 = 0;
-   }
 }
 
 BindingProperty ParticleSystem::Serialize()
@@ -199,6 +190,69 @@ BindingProperty ParticleSystem::Serialize()
    }
 
    return result;
+}
+
+void ParticleSystem::ApplyConfiguration(
+   const std::string& textureDir,
+   const BindingProperty& config
+)
+{
+   emitterCooldown = 1.0f / config["launcher"]["particles-per-second"].GetFloatValue(emitterCooldown);
+   particleLifetime = config["particle"]["lifetime"].GetFloatValue(particleLifetime);
+   spawnAge[0] = config["particle"]["spawn-age"]["min"].GetFloatValue(spawnAge[0]);
+   spawnAge[1] = config["particle"]["spawn-age"]["max"].GetFloatValue(spawnAge[1]);
+
+   if (config.Has("shader-uniforms"))
+   {
+      uniforms = config["shader-uniforms"];
+   }
+
+   std::string textureName = config["shader-texture"];
+   if (!textureName.empty())
+   {
+      Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDir, textureName));
+      if (!maybeTexture)
+      {
+         maybeTexture.Failure().WithContext("Failed loading %1", textureName).Log();
+      }
+      else
+      {
+         texture = *maybeTexture;
+      }
+   }
+
+   if (config.Has("shape"))
+   {
+      std::string shapeVal = config["shape"];
+      if (shapeVal == "point")
+      {
+         shape = Shape::Point;
+      }
+      else if (shapeVal == "cone")
+      {
+         shape = Shape::Cone;
+      }
+      else
+      {
+         LOG_ERROR("Unknown shape value %1. Defaulting to point", shapeVal);
+         shape = Shape::Point;
+      }
+   }
+
+   if (shape == Shape::Point)
+   {
+      shapeParam0 = {0, 0, 0};
+      shapeParam1 = 0;
+      shapeParam2 = 0;
+   }
+   else if (shape == Shape::Cone)
+   {
+      const BindingProperty& cone = config["cone"];
+      shapeParam0 = cone["direction"].GetVec3(shapeParam0);
+      shapeParam1 = cone["radius"].GetFloatValue(shapeParam1);
+      shapeParam2 = cone["height"]["min"].GetFloatValue(shapeParam2);
+      shapeParam3 = cone["height"]["max"].GetFloatValue(shapeParam3);
+   }
 }
 
 }; // namespace Engine

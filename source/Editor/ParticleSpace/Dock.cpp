@@ -76,7 +76,7 @@ void Dock::Receive(const ParticleEmitterLoadedEvent& evt)
 
    if (mParticleName != nullptr)
    {
-      mParticleName->SetText(mParticleSystem->GetName());
+      // mParticleName->SetText(mParticleSystem->GetName());
    }
 
    // Clear all bindings

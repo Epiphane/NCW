@@ -9,7 +9,7 @@ namespace CubeWorld
 
 void MakeshiftSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
 {
-   entities.Each<Makeshift>([&](Engine::Entity /*entity*/, Makeshift& custom) {
+   entities.Each<Makeshift>([&](Makeshift& custom) {
       custom.callback(entities, events, dt);
    });
 }

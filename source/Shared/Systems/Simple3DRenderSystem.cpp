@@ -77,7 +77,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
    program->UniformMatrix4f("uViewMatrix", view);
 
    mClock.Reset();
-   entities.Each<Transform, Simple3DRender>([&](Engine::Entity /*entity*/, Transform& transform, Simple3DRender& render) {
+   entities.Each<Transform, Simple3DRender>([&](Transform& transform, Simple3DRender& render) {
       render.mVertices.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
       render.mColors.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, 0, 0);
 

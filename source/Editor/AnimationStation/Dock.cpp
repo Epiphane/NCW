@@ -543,11 +543,13 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       textOptions.text = "0.0";
       textOptions.precision = 1;
 
-      Scrubber<float>::Options scrubberOptions;
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mController); };
-      scrubberOptions.sensitivity = 0.1;
+      Scrubber<float>::Options posScrubberOptions;
+      posScrubberOptions.filename = Asset::Image("EditorIcons.png");
+      posScrubberOptions.image = "drag_number";
+      posScrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mController); };
+      posScrubberOptions.sensitivity = 0.1;
+      Scrubber<float>::Options rotScrubberOptions = posScrubberOptions;
+      rotScrubberOptions.sensitivity = 2.0;
 
       UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
       UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
@@ -563,9 +565,9 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       for (int i = 0; i < 3; i++)
       {
          mBonePos[i].text = positionScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(posScrubberOptions);
          mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(scrubberOptions);
+         mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(rotScrubberOptions);
 
          mBonePos[i].text->ConstrainHeight(32);
          mBonePos[i].text->ConstrainLeftAlignedTo(positionScrubbers);

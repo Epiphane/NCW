@@ -5,7 +5,6 @@ layout(triangle_strip, max_vertices=16) out;
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
-uniform mat4 uModelMatrix;
 uniform float uParticleLifetime;
 
 // Custom parameters
@@ -34,6 +33,13 @@ mat4 Rotate(vec3 axis, float angle)
                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+mat4 RotateEuler(vec3 eulerAngles)
+{
+   return Rotate(vec3(1, 0, 0), eulerAngles.x) * 
+      Rotate(vec3(0, 1, 0), eulerAngles.y) * 
+      Rotate(vec3(0, 0, 1), eulerAngles.z);
 }
 
 void EmitQuad(vec4 origin, vec4 dy, vec4 dx, vec2 bottomLeft, vec2 topRight)
@@ -74,7 +80,8 @@ void main()
    float angle = gRotation[0][3];
    if (angle != 0)
    {
-      model = Rotate(gRotation[0].xyz, angle);
+      model = RotateEuler(gRotation[0].xyz);//, angle);
+      model = RotateEuler(vec3(0, 180, 0));//, angle);
       mvp = mvp * model;
    }
 
@@ -96,5 +103,5 @@ void main()
    vec2 nextUV = baseUV + vec2(frameW, frameH);
 
    EmitQuad(center, dx, dy, vec2(baseUV.x, nextUV.y), vec2(nextUV.x, baseUV.y)); // Front
-   EmitQuad(center, -dx, dy, baseUV, nextUV); // Back
+   EmitQuad(center, dx, -dy, baseUV, nextUV); // Back
 }

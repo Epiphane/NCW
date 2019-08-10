@@ -1,7 +1,9 @@
 // By Thomas Steinke
 
+#include <glm/ext.hpp>
 #include <RGBLogger/Logger.h>
 #include <RGBText/StringHelper.h>
+#include <Shared/Helpers/Asset.h>
 
 #include "SimpleAnimationSystem.h"
 
@@ -15,17 +17,26 @@ namespace AnimationStation
 {
 
 SimpleAnimationController::SimpleAnimationController()
+   : SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters>{})
+{}
+
+SimpleAnimationController::SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
    : current("")
    , time(0)
    , next("")
    , transitionCurrent(0)
    , transitionStart(0)
    , transitionEnd(0)
+   , emitters(emitters)
 {
 }
 
 void SimpleAnimationController::Reset()
 {
+   if (emitters)
+   {
+      emitters->systems.clear();
+   }
    skeletons.clear();
    animations.clear();
    stances.clear();
@@ -234,11 +245,45 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          }
       }
    }
+
+   for (const auto& [name, effects] : anims->effects)
+   {
+      State& state = states[name];
+
+      if (state.name.empty())
+      {
+         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
+         assert(false);
+      }
+
+      for (const auto& effectDef : effects)
+      {
+         MultipleParticleEmitters::Emitter effect(
+            Asset::Particle(effectDef.name),
+            Asset::ParticleShaders(),
+            Asset::Image("")
+         );
+
+         effect.useEntityTransform = false;
+         effect.update = false;
+         effect.render = false;
+         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+
+         EmitterRef ref;
+         ref.emitter = emitters->systems.size();
+         ref.bone = effectDef.bone;
+         ref.start = effectDef.start;
+         ref.end = effectDef.end;
+
+         emitters->systems.push_back(std::move(effect));
+         state.emitters.push_back(std::move(ref));
+      }
+   }
 }
 
 void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
-   entities.Each<AnimationSystemController>([&](Engine::Entity /*entity*/, AnimationSystemController& controller) {
+   entities.Each<AnimationSystemController>([&](AnimationSystemController& controller) {
       if (controller.paused)
       {
          dt = controller.nextTick;
@@ -252,7 +297,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
    using Stance = SimpleAnimationController::Stance;
 
    // First, update skeletons.
-   entities.Each<SimpleAnimationController>([&](Engine::Entity /*entity*/, SimpleAnimationController& controller) {
+   entities.Each<SimpleAnimationController>([&](SimpleAnimationController& controller) {
       // Check for an un-loaded skeleton
       if (controller.skeletons.empty())
       {
@@ -350,6 +395,42 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
             bone.matrix = matrix;
 
             ++boneId;
+         }
+      }
+   });
+
+   // Update particle systems
+   entities.Each<Engine::Transform, SimpleAnimationController>([&](Engine::Transform& transform, SimpleAnimationController& controller) {
+      const State& state = controller.states[controller.current];
+
+      if (controller.emitters)
+      {
+         for (MultipleParticleEmitters::Emitter& system : controller.emitters->systems)
+         {
+            system.update = false;
+            system.render = false;
+         }
+
+         for (const SimpleAnimationController::EmitterRef& ref : state.emitters)
+         {
+            if (controller.time >= ref.start && controller.time <= ref.end)
+            {
+               MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
+               system.update = true;
+               system.render = true;
+
+               for (const auto& s : controller.skeletons)
+               {
+                  if (s->boneLookup.count(ref.bone) != 0)
+                  {
+                     system.transform =
+                        transform.GetMatrix() *
+                        s->bones[s->boneLookup.at(ref.bone)].matrix *
+                        glm::rotate(glm::mat4(1), RADIANS(180), glm::vec3{0, 1, 0});
+                     break;
+                  }
+               }
+            }
          }
       }
    });

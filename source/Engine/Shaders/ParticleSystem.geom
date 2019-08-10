@@ -47,6 +47,102 @@ vec3 GetRandomVec3(float TexCoord)
     return 2.0 * GetRandomPositiveVec3(TexCoord) - vec3(1.0, 1.0, 1.0);
 }
 
+vec4 GetRotationFromMatrix(mat4 matrix)
+{
+    // Logic taken in part from glm/ext/matrix_decompose.inl
+
+    mat3 local = mat3(
+        matrix[0].xyz,
+        matrix[1].xyz,
+        matrix[2].xyz
+    );
+
+    // Prune out scale and shear
+    local[0] = normalize(matrix[0].xyz);
+
+    float zSkew = dot(local[0], matrix[1].xyz);
+    local[1] = matrix[1].xyz - local[0] * zSkew;
+    local[1] = normalize(local[1]);
+
+    float ySkew = dot(local[0], matrix[2].xyz);
+    local[2] = matrix[2].xyz - local[0] * ySkew;
+    float xSkew = dot(local[1], matrix[2].xyz);
+    local[2] -= local[1] * xSkew;
+    local[2] = normalize(local[2]);
+
+    vec4 result = vec4(0, 0, 0, 0);
+    float trace = local[0].x + local[1].y + local[2].z;
+    if (trace > 0)
+    {
+        float root = sqrt(trace + 1);
+
+        result.w = 0.5 * root;
+        root = 0.5 / root;
+
+        result.x = root * (local[1].z - local[2].y);
+        result.y = root * (local[2].x - local[0].z);
+        result.z = root * (local[0].y - local[1].x);
+    }
+    else
+    {
+        int i = 0;
+        int j = 1;
+        int k = 2;
+        if (local[1].y > local[0].x)
+        {
+            i = 1;
+            j = 2;
+            k = 0;
+        }
+        if (local[2].z > local[i][i])
+        {
+            i = 2;
+            j = 0;
+            k = 1;
+        }
+
+        float root = sqrt(local[i][i] - local[j][j] - local[k][k] + 1);
+
+        result[i] = 0.5 * root;
+        root = 0.5 / root;
+
+        result[j] = root * (local[i][j] + local[j][i]);
+        result[k] = root * (local[i][k] + local[k][i]);
+        result.w = root * (local[j][k] - local[k][j]);
+    }
+
+    
+	// 	return vec<3, T, Q>(pitch(x), yaw(x), roll(x));
+	// }
+
+	// GLM_FUNC_QUALIFIER T roll(tquat<T, Q> const& q)
+	// 	return static_cast<T>(atan(static_cast<T>(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
+	// }
+
+	// GLM_FUNC_QUALIFIER T pitch(tquat<T, Q> const& q)
+	// 	//return T(atan(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z));
+	// 	const T y = static_cast<T>(2) * (q.y * q.z + q.w * q.x);
+	// 	const T x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+
+	// 	if(detail::compute_equal<T>::call(y, static_cast<T>(0)) && detail::compute_equal<T>::call(x, static_cast<T>(0))) //avoid atan2(0,0) - handle singularity - Matiis
+	// 		return static_cast<T>(static_cast<T>(2) * atan(q.x,q.w));
+
+	// 	return static_cast<T>(atan(y,x));
+	// }
+
+	// GLM_FUNC_QUALIFIER T yaw(tquat<T, Q> const& q)
+	// 	return asin(clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
+
+    float tmp1 = 1.0 - result.w * result.w;
+    if (tmp1 <= 0)
+    {
+        return vec4(0, 0, 1, acos(result.w) * 2.0);
+    }
+
+    float tmp2 = 1.0 / sqrt(tmp1);
+    return vec4(result.x * tmp2, result.y * tmp2, result.x * tmp2, acos(result.w) * 2.0);
+}
+
 void main()
 {
     // float DeltaTimeSecs = uDeltaTimeMillis;// / 1000.0f;
@@ -80,11 +176,12 @@ void main()
             
             fPosition = vec3(gPosition[0]);
             fVelocity = vec3(0, 0, 0);
-            fRotation = vec4(0, 0, 1, 0);
+            fRotation = GetRotationFromMatrix(uModelMatrix);//vec4(0, 0, 1, 0);
  
             if (uShape == SHAPE_POINT) {
                 // Spawn particles at the emitter point, unmoving.
                 // fVelocity.z = 1;
+                fPosition.y += 20;
             }
             else if (uShape == SHAPE_CONE) {
                 vec3 direction = uShapeParam0;

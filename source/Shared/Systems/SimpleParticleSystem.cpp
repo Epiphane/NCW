@@ -109,190 +109,246 @@ using Transform = Engine::Transform;
 
 void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
-   if (!mPause)
+   if (++mTick >= RANDOM_SIZE)
    {
-      if (++mTick >= RANDOM_SIZE)
+      mTick = 0;
+   }
+
+   // Update and render can be in one loop but this helps with performance measurements
+   mUpdateClock.Reset();
+   {
+      BIND_PROGRAM_IN_SCOPE(updater);
+      glEnable(GL_RASTERIZER_DISCARD);
+      CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
+      if (mRandom)
       {
-         mTick = 0;
+         glActiveTexture(GL_TEXTURE3);
+         glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
+         updater->Uniform1i("uRandomTexture", 3);
       }
+      updater->Uniform1f("uDeltaTimeMillis", (float)dt);
+      updater->Uniform1f("uTick", (float)mTick);
 
-      // Update and render can be in one loop but this helps with performance measurements
-      mUpdateClock.Reset();
-      {
-         BIND_PROGRAM_IN_SCOPE(updater);
-         glEnable(GL_RASTERIZER_DISCARD);
-         CUBEWORLD_SCOPE_EXIT([&] { glDisable(GL_RASTERIZER_DISCARD); });
-         if (mRandom)
+      entities.Each<Transform, ParticleEmitter>([&](Transform& transform, ParticleEmitter& emitter) {
+         if (!emitter.update)
          {
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_1D, mRandom->GetTexture());
-            updater->Uniform1i("uRandomTexture", 3);
+            return;
          }
-         updater->Uniform1f("uDeltaTimeMillis", (float)dt);
-         updater->Uniform1f("uTick", (float)mTick);
 
-         entities.Each<Transform, ParticleEmitter>([&](Engine::Entity, Transform& transform, ParticleEmitter& emitter) {
-            if (!emitter.update)
+         updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
+         UpdateParticleSystem(emitter);
+      });
+
+      entities.Each<Transform, MultipleParticleEmitters>([&](Transform& transform, MultipleParticleEmitters& group) {
+         for (auto& system : group.systems)
+         {
+            if (!system.update)
             {
                return;
             }
 
-            updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-            updater->Uniform1f("uEmitterCooldown", emitter.emitterCooldown);
-            updater->Uniform1f("uParticleLifetime", emitter.particleLifetime);
-
-            updater->Uniform1u("uShape", (uint32_t)emitter.shape);
-            updater->Uniform2f("uSpawnAge", emitter.spawnAge[0], emitter.spawnAge[1]);
-            updater->UniformVector3f("uShapeParam0", emitter.shapeParam0);
-            updater->Uniform1f("uShapeParam1", emitter.shapeParam1);
-            updater->Uniform1f("uShapeParam2", emitter.shapeParam2);
-            updater->Uniform1f("uShapeParam3", emitter.shapeParam3);
-
-            emitter.particleBuffers[emitter.buffer].Bind();
-
-            // We enable the attribute pointers individually since a normal VBO only
-            // expects to be attached to one.
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
-            glEnableVertexAttribArray(2);
-            glEnableVertexAttribArray(3);
-            glEnableVertexAttribArray(4);
-
-            glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-            glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
-            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
-            glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-
-            // GLuint drawnQuery;
-            // int result = 0;
-            // glGenQueries(1, &drawnQuery);
-            // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
-            // Begin rendering
-            if (emitter.firstRender) {
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
-               glBeginTransformFeedback(GL_POINTS);
-               glDrawArrays(GL_POINTS, 0, 1);
-               glEndTransformFeedback();
-
-               // [Mac] Initialize both feedback buffers by rendering initial data into them
-               // TODO is this even necessary?
-               emitter.particleBuffers[1 - emitter.buffer].Bind();
-               glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
-               glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-               glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
-               glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
-               glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
-               glBeginTransformFeedback(GL_POINTS);
-               glDrawArrays(GL_POINTS, 0, 1);
-               glEndTransformFeedback();
-
-               emitter.firstRender = false;
+            if (system.useEntityTransform)
+            {
+               updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
             }
-            else {
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
-               glBeginTransformFeedback(GL_POINTS);
-               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
-               glEndTransformFeedback();
+            else
+            {
+               updater->UniformMatrix4f("uModelMatrix", system.transform);
             }
-               
-            // glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-            // while (result == 0)
-            //    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
-            
-            // glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
-            // glDeleteQueries(1, &drawnQuery);
-
-            // Flip buffers
-#if CUBEWORLD_PLATFORM_WINDOWS
-            // TODO ????
-            emitter.buffer = uint8_t(1 - emitter.buffer);
-#endif
-
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-            glDisableVertexAttribArray(2);
-            glDisableVertexAttribArray(3);
-            CHECK_GL_ERRORS();
-         });
-      }
-      mUpdateClock.Elapsed();
+            UpdateParticleSystem(system);
+         }
+      });
    }
+   mUpdateClock.Elapsed();
 
    mRenderClock.Reset();
    glm::mat4 perspective = mCamera->GetPerspective();
    glm::mat4 view = mCamera->GetView();
    glm::vec3 position = mCamera->GetPosition();
-   entities.Each<Transform, ParticleEmitter>([&](Engine::Entity /*entity*/, Transform& transform, ParticleEmitter& emitter) {
+   entities.Each<ParticleEmitter>([&](ParticleEmitter& emitter) {
       // Render
-      if (emitter.render && emitter.program != nullptr)
+      if (emitter.render)
       {
-         BIND_PROGRAM_IN_SCOPE(emitter.program);
+         RenderParticleSystem(
+            perspective,
+            view,
+            position,
+            emitter
+         );
+      }
+   });
 
-         emitter.program->UniformMatrix4f("uProjMatrix", perspective);
-         emitter.program->UniformMatrix4f("uViewMatrix", view);
-         emitter.program->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-         emitter.program->UniformVector3f("uCameraPos", position);
-         emitter.program->Uniform1f("uParticleLifetime", emitter.particleLifetime);
-
-         for (const auto& [key, value] : emitter.uniforms.pairs())
+   entities.Each<MultipleParticleEmitters>([&](MultipleParticleEmitters& group) {
+      for (auto& system : group.systems)
+      {
+         if (system.render)
          {
-            if (value.IsNumber())
-            {
-               emitter.program->Uniform1f(key.GetStringValue(), value.GetFloatValue());
-            }
-            else if (value.IsVec3())
-            {
-               emitter.program->UniformVector3f(key.GetStringValue(), value.GetVec3());
-            }
-            else if (value.IsVec4())
-            {
-               emitter.program->UniformVector4f(key.GetStringValue(), value.GetVec4());
-            }
-            else
-            {
-               LOG_ERROR("Unknown shader value for %1", key.GetStringValue());
-               assert(false);
-            }
-            CHECK_GL_ERRORS();
+            RenderParticleSystem(
+               perspective,
+               view,
+               position,
+               system
+            );
          }
-
-         if (emitter.texture != nullptr)
-         {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, emitter.texture->GetTexture());
-            emitter.program->Uniform1i("uTexture", 0);
-         }
-
-         emitter.particleBuffers[emitter.buffer].Bind();
-
-         // We enable the attribute pointers individually since a normal VBO only
-         // expects to be attached to one.
-         glEnableVertexAttribArray(0);
-         glEnableVertexAttribArray(1);
-         glEnableVertexAttribArray(2);
-         glEnableVertexAttribArray(3);
-         glEnableVertexAttribArray(4);
-
-         glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
-         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
-         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
-         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-
-         glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
-
-         glDisableVertexAttribArray(0);
-         glDisableVertexAttribArray(1);
-         glDisableVertexAttribArray(2);
-         glDisableVertexAttribArray(3);
-         glDisableVertexAttribArray(4);
-
-         CHECK_GL_ERRORS();
       }
    });
    mRenderClock.Elapsed();
+}
+
+void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) const
+{
+   updater->Uniform1f("uEmitterCooldown", system.emitterCooldown);
+   updater->Uniform1f("uParticleLifetime", system.particleLifetime);
+
+   updater->Uniform1u("uShape", (uint32_t)system.shape);
+   updater->Uniform2f("uSpawnAge", system.spawnAge[0], system.spawnAge[1]);
+   updater->UniformVector3f("uShapeParam0", system.shapeParam0);
+   updater->Uniform1f("uShapeParam1", system.shapeParam1);
+   updater->Uniform1f("uShapeParam2", system.shapeParam2);
+   updater->Uniform1f("uShapeParam3", system.shapeParam3);
+
+   system.particleBuffers[system.buffer].Bind();
+
+   // We enable the attribute pointers individually since a normal VBO only
+   // expects to be attached to one.
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+   glEnableVertexAttribArray(3);
+   glEnableVertexAttribArray(4);
+
+   glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+   glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
+
+   // GLuint drawnQuery;
+   // int result = 0;
+   // glGenQueries(1, &drawnQuery);
+   // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
+   // Begin rendering
+   if (system.firstRender) {
+      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1]);
+      glBeginTransformFeedback(GL_POINTS);
+      glDrawArrays(GL_POINTS, 0, 1);
+      glEndTransformFeedback();
+
+      // [Mac] Initialize both feedback buffers by rendering initial data into them
+      // TODO is this even necessary?
+      system.particleBuffers[1 - system.buffer].Bind();
+      glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
+      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+      glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
+      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[0]);
+      glBeginTransformFeedback(GL_POINTS);
+      glDrawArrays(GL_POINTS, 0, 1);
+      glEndTransformFeedback();
+
+      system.firstRender = false;
+   }
+   else {
+      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1 - system.buffer]);
+      glBeginTransformFeedback(GL_POINTS);
+      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+      glEndTransformFeedback();
+   }
+      
+   // glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+   // while (result == 0)
+   //    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+   
+   // glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
+   // glDeleteQueries(1, &drawnQuery);
+
+   // Flip buffers
+#if CUBEWORLD_PLATFORM_WINDOWS
+   // TODO ????
+   system.buffer = uint8_t(1 - system.buffer);
+#endif
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   CHECK_GL_ERRORS();
+}
+
+void SimpleParticleSystem::RenderParticleSystem(
+   const glm::mat4& perspective,
+   const glm::mat4& view,
+   const glm::vec3& cameraPos,
+   Engine::ParticleSystem& system
+) const
+{
+   if (system.program == nullptr)
+   {
+      return;
+   }
+
+   BIND_PROGRAM_IN_SCOPE(system.program);
+
+   system.program->UniformMatrix4f("uProjMatrix", perspective);
+   system.program->UniformMatrix4f("uViewMatrix", view);
+   system.program->UniformVector3f("uCameraPos", cameraPos);
+   system.program->Uniform1f("uParticleLifetime", system.particleLifetime);
+
+   for (const auto& [key, value] : system.uniforms.pairs())
+   {
+      if (value.IsNumber())
+      {
+         system.program->Uniform1f(key.GetStringValue(), value.GetFloatValue());
+      }
+      else if (value.IsVec3())
+      {
+         system.program->UniformVector3f(key.GetStringValue(), value.GetVec3());
+      }
+      else if (value.IsVec4())
+      {
+         system.program->UniformVector4f(key.GetStringValue(), value.GetVec4());
+      }
+      else
+      {
+         LOG_ERROR("Unknown shader value for %1", key.GetStringValue());
+         assert(false);
+      }
+      CHECK_GL_ERRORS();
+   }
+
+   if (system.texture != nullptr)
+   {
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, system.texture->GetTexture());
+      system.program->Uniform1i("uTexture", 0);
+   }
+
+   system.particleBuffers[system.buffer].Bind();
+
+   // We enable the attribute pointers individually since a normal VBO only
+   // expects to be attached to one.
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+   glEnableVertexAttribArray(3);
+   glEnableVertexAttribArray(4);
+
+   glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), 0);                   // type
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)4);    // position
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)16);    // rotation
+   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)32);   // velocity
+   glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)44);   // lifetime
+
+   glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+
+   CHECK_GL_ERRORS();
 }
 
 }; // namespace CubeWorld

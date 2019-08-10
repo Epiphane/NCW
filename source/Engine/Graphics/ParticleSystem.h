@@ -66,49 +66,80 @@ public:
       const std::string& shaderDir,
       const std::string& textureDir
    );
+   ParticleSystem(ParticleSystem&& other);
    ~ParticleSystem();
 
+   //
+   // Reset the particle system to an initial state,
+   // with just one emitter.
+   //
+   void Reset();
+
+   //
+   // Apply configurations to the system. Will only
+   // override provided configs, not changing anything
+   // that is not explicitly specified.
+   //
+   void ApplyConfiguration(
+      const std::string& textureDir,
+      const BindingProperty& config
+   );
+
+   //
+   // Serialize all configuration into a BindingProperty.
+   //
    BindingProperty Serialize();
 
    const std::string& GetName() const { return name; }
 
 public:
    //
+   // Maximum amount of particles supported. Changes 
+   // will not take effect until the next Reset().
+   //
+   uint32_t maxParticles = 1000;
+
+   //
    // Amount of time between particle spawns.
    // Equal to 1 / {particles per second}
    //
-   float emitterCooldown = 0.0f;
+   float emitterCooldown = 1.0f;
 
    //
    // Min/max age to spawn particles at, for
    // variability.
    //
-   float spawnAge[2];
+   float spawnAge[2] = {0, 0};
 
    //
    // Lifetime of each particle. Use spawnAge
    // to configure variable lifetimes.
    //
-   float particleLifetime;
+   float particleLifetime = 0.0f;
 
    //
    // Shape in which to emit particles.
    //
-   Shape shape;
+   Shape shape = Shape::Point;
 
    //
    // Variable params, applied differently to
    // each shape and thus not given names.
    //
-   glm::vec3 shapeParam0;
-   float shapeParam1;
-   float shapeParam2;
-   float shapeParam3;
+   glm::vec3 shapeParam0 = {0, 0, 0};
+   float shapeParam1 = 0;
+   float shapeParam2 = 0;
+   float shapeParam3 = 0;
 
    //
    // Provided texture for the renderer.
    //
    Graphics::Texture* texture = nullptr;
+   
+   //
+   // Renderer.
+   //
+   Graphics::Program* program;
    
    //
    // Custom uniforms to apply to the renderer.
@@ -126,16 +157,10 @@ protected:
    //
    std::string name;
    
-   //
-   // Renderer.
-   //
-   Graphics::Program* program;
-   
-protected:
+public:
    //
    // Internal state.
    //
-   friend class SimpleParticleSystem;
    bool firstRender = true;
    uint8_t buffer = 0;
    Graphics::VBO particleBuffers[2];

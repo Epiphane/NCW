@@ -7,7 +7,6 @@ layout(triangle_strip, max_vertices=24) out;
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
-uniform mat4 uModelMatrix;
 uniform vec3 uCameraPos;
 uniform float uParticleLifetime;
 

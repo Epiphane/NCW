@@ -283,6 +283,16 @@ public:
       }
    }
 
+   template<typename ...Components>
+   void Each(const typename identity<std::function<void(Components&...)>>::type fn)
+   {
+      auto iter = EntitiesWithComponents<Components...>();
+      for (auto entity : iter)
+      {
+         fn(*(entity.template Get<Components>())...);
+      }
+   }
+
 public:
    // Entity lifecycle management.
    Entity Create();

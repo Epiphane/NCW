@@ -1,7 +1,7 @@
 ---
 name: slash
 shader: Texture2D
-max-particles: 10
+max-particles: 100
 shader-texture: swing.png
 shader-uniforms:
   uSize: 1
@@ -13,4 +13,4 @@ launcher:
   lifetime: 0.1
 shape: point
 particle:
-  lifetime: 0.1
+  lifetime: 1
