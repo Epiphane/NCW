@@ -21,6 +21,7 @@ uniform mat4 uModelMatrix;
 uniform float uDeltaTimeMillis;
 uniform float uTick;
 uniform sampler1D uRandomTexture;
+uniform bool uEmit;
 uniform float uEmitterCooldown;
 uniform float uParticleLifetime;
 
@@ -36,6 +37,7 @@ uniform float uShapeParam3;
 
 #define SHAPE_POINT 0u
 #define SHAPE_CONE 1u
+#define SHAPE_TRAIL 2u
 
 vec3 GetRandomPositiveVec3(float TexCoord)
 {
@@ -148,7 +150,7 @@ void main()
     // float DeltaTimeSecs = uDeltaTimeMillis;// / 1000.0f;
     float Age = gAge[0] + uDeltaTimeMillis;
     
-    if (gType[0] == TYPE_EMITTER) {
+    if (gType[0] == TYPE_EMITTER && uEmit) {
 		// Send emitter first so it's always the front
 		// and can't get cut off by max vertices restrictions
 		float nEmit = floor(Age / uEmitterCooldown);
@@ -177,7 +179,7 @@ void main()
             fVelocity = vec3(0, 0, 0);
             fRotation = GetRotationFromMatrix(uModelMatrix);//vec4(0, 0, 1, 0);
  
-            if (uShape == SHAPE_POINT) {
+            if (uShape == SHAPE_POINT || uShape == SHAPE_TRAIL) {
                 // Spawn particles at the emitter point, unmoving.
                 // fVelocity.z = 1;
                 //fPosition.y += 20;

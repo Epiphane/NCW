@@ -147,6 +147,10 @@ void ParticleSystem::Initialize(
 
 void ParticleSystem::Reset()
 {
+   age = 0;
+   buffer = 0;
+   firstRender = true;
+
    //
    // Initialize one emitter particle
    //
@@ -164,6 +168,7 @@ BindingProperty ParticleSystem::Serialize()
 
    result["name"] = name;
    result["launcher"]["particles-per-second"] = 1.0 / emitterCooldown;
+   result["launcher"]["lifetime"] = emitterLifetime;
    result["particle"]["lifetime"] = particleLifetime;
    result["particle"]["spawn-age"]["min"] = spawnAge[0];
    result["particle"]["spawn-age"]["max"] = spawnAge[1];
@@ -197,7 +202,8 @@ void ParticleSystem::ApplyConfiguration(
    const BindingProperty& config
 )
 {
-   emitterCooldown = 1.0f / config["launcher"]["particles-per-second"].GetFloatValue(emitterCooldown);
+   emitterCooldown = 1.0f / config["launcher"]["particles-per-second"].GetFloatValue(1.0f / emitterCooldown);
+   emitterLifetime = config["launcher"]["lifetime"].GetFloatValue(emitterLifetime);
    particleLifetime = config["particle"]["lifetime"].GetFloatValue(particleLifetime);
    spawnAge[0] = config["particle"]["spawn-age"]["min"].GetFloatValue(spawnAge[0]);
    spawnAge[1] = config["particle"]["spawn-age"]["max"].GetFloatValue(spawnAge[1]);
@@ -232,6 +238,10 @@ void ParticleSystem::ApplyConfiguration(
       {
          shape = Shape::Cone;
       }
+      else if (shapeVal == "trail")
+      {
+         shape = Shape::Trail;
+      }
       else
       {
          LOG_ERROR("Unknown shape value %1. Defaulting to point", shapeVal);
@@ -239,7 +249,7 @@ void ParticleSystem::ApplyConfiguration(
       }
    }
 
-   if (shape == Shape::Point)
+   if (shape == Shape::Point || shape == Shape::Trail)
    {
       shapeParam0 = {0, 0, 0};
       shapeParam1 = 0;

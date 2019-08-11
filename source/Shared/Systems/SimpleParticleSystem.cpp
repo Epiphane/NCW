@@ -69,6 +69,7 @@ void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManage
          updater->Attrib("aRotation");
          updater->Attrib("aColor");
          updater->Uniform("uModelMatrix");
+         updater->Uniform("uEmit");
          updater->Uniform("uEmitterCooldown");
          updater->Uniform("uParticleLifetime");
          updater->Uniform("uDeltaTimeMillis");
@@ -135,6 +136,7 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
             return;
          }
 
+         emitter.age += (float)dt;
          updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
          UpdateParticleSystem(emitter);
       });
@@ -197,6 +199,14 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
 
 void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) const
 {
+   if (system.emitterLifetime == 0.0f || system.age < system.emitterLifetime)
+   {
+      updater->Uniform1i("uEmit", 1);
+   }
+   else
+   {
+      updater->Uniform1i("uEmit", 0);
+   }
    updater->Uniform1f("uEmitterCooldown", system.emitterCooldown);
    updater->Uniform1f("uParticleLifetime", system.particleLifetime);
 

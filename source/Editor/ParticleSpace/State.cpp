@@ -61,10 +61,35 @@ void MainState::Initialize()
 
    // Create a player component
    mParticleSpawner = mEntities.Create(0, 0, 0);
+   mParticleSpawner.Add<Makeshift>([&](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+      Engine::ComponentHandle<ParticleEmitter> emitter = mParticleSpawner.Get<ParticleEmitter>();
+      if (!emitter)
+      {
+         mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({0, 0, 0});
+         return;
+      }
+
+      // Reset emitter
+      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
+      {
+         emitter->Reset();
+      }
+
+      if (emitter->shape != ParticleEmitter::Shape::Trail || emitter->emitterLifetime == 0.0f)
+      {
+         mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({0, 0, 0});
+         return;
+      }
+
+      mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({
+         std::fmodf(emitter->age, emitter->emitterLifetime) / emitter->emitterLifetime,
+         0,
+         0,
+      });
+   });
 
    // Create a camera
    Engine::Entity playerCamera = mEntities.Create(0, 0, 0);
-   playerCamera.Get<Engine::Transform>()->SetParent(mParticleSpawner);
    playerCamera.Get<Engine::Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
    cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();

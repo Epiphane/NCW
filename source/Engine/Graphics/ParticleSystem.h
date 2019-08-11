@@ -35,6 +35,7 @@ public:
    {
       Point = 0,
       Cone = 1,
+      Trail = 2,
    };
 
    struct Particle
@@ -104,6 +105,18 @@ public:
    // Equal to 1 / {particles per second}
    //
    float emitterCooldown = 1.0f;
+
+   //
+   // Lifetime of the entire system.
+   // 0 means run indefinitely.
+   //
+   float emitterLifetime = 0.0f;
+
+   //
+   // Useful for tracking (without referencing the VBO)
+   // the current state of the emitter
+   //
+   float age = 0.0f;
 
    //
    // Min/max age to spawn particles at, for

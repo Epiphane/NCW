@@ -2,15 +2,15 @@
 name: slash
 shader: Texture2D
 max-particles: 100
-shader-texture: swing.png
+shader-texture: trail.png
 shader-uniforms:
   uSize: 1
-  uSprites: 8
-  uSheetWidth: 4
-  uSheetHeight: 2
+  uSprites: 1
+  uSheetWidth: 1
+  uSheetHeight: 1
 launcher:
-  particles-per-second: 1
+  particles-per-second: 50
   lifetime: 0.1
-shape: point
+shape: trail
 particle:
-  lifetime: 1
+  lifetime: 0.1
