@@ -70,6 +70,7 @@ void main()
    }
 
    vec4 center = gl_in[0].gl_Position;
+
    float age = gAge[0];
    mat4 mvp = uProjMatrix * uViewMatrix;
    mat4 model = mat4(1, 0, 0, 0,

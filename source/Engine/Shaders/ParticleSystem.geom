@@ -163,8 +163,7 @@ void main()
 
         float spawnAgeRange = uSpawnAge[1] - uSpawnAge[0];
         float spawnAgeMin = uSpawnAge[0];
- 
-        int emit = 0;
+
         for (int emit = 0; emit < nEmit && emit < MAX_VERTICES; ++emit) {
             fType = TYPE_PARTICLE;
  
@@ -181,7 +180,7 @@ void main()
             if (uShape == SHAPE_POINT) {
                 // Spawn particles at the emitter point, unmoving.
                 // fVelocity.z = 1;
-                fPosition.y += 20;
+                //fPosition.y += 20;
             }
             else if (uShape == SHAPE_CONE) {
                 vec3 direction = uShapeParam0;

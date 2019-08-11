@@ -61,7 +61,6 @@ void MainState::Initialize()
 
    // Create a player component
    mParticleSpawner = mEntities.Create(0, 0, 0);
-   mParticleSpawner.Get<Engine::Transform>()->SetLocalDirection(glm::vec3(1, 1, 1));
 
    // Create a camera
    Engine::Entity playerCamera = mEntities.Create(0, 0, 0);

@@ -133,11 +133,11 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
 
    if (metadata["width"] != texture->mWidth)
    {
-      LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
+      LOG_WARNING("File %1's width of %2 didn't match its metadata's width of %3", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
    }
    if (metadata["height"] != texture->mHeight)
    {
-      LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
+      LOG_WARNING("File %1's height of %2 didn't match its metadata's height of %3", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
    }
 
    for (const auto [name, info] : metadata["images"].pairs())
