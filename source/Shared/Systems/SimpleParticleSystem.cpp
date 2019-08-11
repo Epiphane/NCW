@@ -170,12 +170,20 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
             // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
             // Begin rendering
             if (emitter.firstRender) {
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
                glBeginTransformFeedback(GL_POINTS);
                glDrawArrays(GL_POINTS, 0, 1);
                glEndTransformFeedback();
 
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1]);
+               // [Mac] Initialize both feedback buffers by rendering initial data into them
+               // TODO is this even necessary?
+               emitter.particleBuffers[1 - emitter.buffer].Bind();
+               glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
+               glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
+               glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+               glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
+               glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[0]);
                glBeginTransformFeedback(GL_POINTS);
                glDrawArrays(GL_POINTS, 0, 1);
                glEndTransformFeedback();
@@ -183,9 +191,9 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
                emitter.firstRender = false;
             }
             else {
-               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[emitter.buffer]);
+               glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, emitter.feedbackBuffers[1 - emitter.buffer]);
                glBeginTransformFeedback(GL_POINTS);
-               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[1 - emitter.buffer]);
+               glDrawTransformFeedback(GL_POINTS, emitter.feedbackBuffers[emitter.buffer]);
                glEndTransformFeedback();
             }
                
@@ -197,7 +205,10 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
             // glDeleteQueries(1, &drawnQuery);
 
             // Flip buffers
-            // emitter.buffer = uint8_t(1 - emitter.buffer);
+#if CUBEWORLD_PLATFORM_WINDOWS
+            // TODO ????
+            emitter.buffer = uint8_t(1 - emitter.buffer);
+#endif
 
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
