@@ -69,16 +69,16 @@ void MainState::Initialize()
          return;
       }
 
-      // Reset emitter
-      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
-      {
-         emitter->Reset();
-      }
-
       if (emitter->shape != ParticleEmitter::Shape::Trail || emitter->emitterLifetime == 0.0f)
       {
          mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({0, 0, 0});
          return;
+      }
+
+      // Reset emitter
+      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
+      {
+         emitter->Reset();
       }
 
       mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({

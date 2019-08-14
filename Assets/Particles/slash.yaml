@@ -13,4 +13,4 @@ launcher:
   lifetime: 0.1
 shape: trail
 particle:
-  lifetime: 0.1
+  lifetime: 0.5

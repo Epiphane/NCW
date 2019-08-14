@@ -233,10 +233,13 @@ void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) 
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
-   // GLuint drawnQuery;
-   // int result = 0;
-   // glGenQueries(1, &drawnQuery);
-   // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
+   /*
+   GLuint drawnQuery;
+   int result = 0;
+   glGenQueries(1, &drawnQuery);
+   glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
+   */
+
    // Begin rendering
    if (system.firstRender) {
       glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1]);
@@ -265,13 +268,15 @@ void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) 
       glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
       glEndTransformFeedback();
    }
-      
-   // glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-   // while (result == 0)
-   //    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+     
+   /*
+   glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+   while (result == 0)
+      glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
    
-   // glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
-   // glDeleteQueries(1, &drawnQuery);
+   glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
+   glDeleteQueries(1, &drawnQuery);
+   */
 
    // Flip buffers
 #if CUBEWORLD_PLATFORM_WINDOWS
