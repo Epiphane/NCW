@@ -129,6 +129,7 @@ UIElement::DebugInfo UIElement::GetDebugInfo(bool bRecursive)
    result.size.y = GetHeight();
    result.z = GetFrame().z.value();
    result.maxZ = GetFrame().biggestDescendantZ.value();
+   result.active = IsActive();
 
    if (bRecursive) {
       for (const auto& child : mChildren)
@@ -157,6 +158,7 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
 
    // The rest is pretty simple.
    logger.Log(Logger::LogLevel::kDebug, "%1Origin: (%2, %3) Size: (%4, %5)", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
+   logger.Log(Logger::LogLevel::kDebug, "%1Active: %2", indentation, my.active ? "YEAH" : "NAH");
    logger.Log(Logger::LogLevel::kDebug, "%1Z: %2 Biggest Child Z: %3", indentation, my.z, my.maxZ);
 
    if (bRecursive) {

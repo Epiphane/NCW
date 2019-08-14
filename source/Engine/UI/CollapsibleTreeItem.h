@@ -4,6 +4,8 @@
 // This file created by the ELLIOT FISKE gang
 //
 
+#pragma once
+
 #include "UIElement.h"
 #include "ToggleButtonVC.h"
 
@@ -11,6 +13,7 @@
 
 #include <Shared/UI/Text.h>
 #include <Shared/UI/RectFilled.h>
+#include <Engine/UI/UIStackView.h>
 
 namespace CubeWorld
 {
@@ -52,7 +55,7 @@ private:
    RectFilled* mSelectedHighlight;
    
    // Parent to the collapsible items beneath me
-   Engine::UIElement* mSubItemStackView;
+   UIStackView* mSubItemStackView;
    
    // List of elements beneath this one in the heirarchy
    std::vector<CollapsibleTreeItem*> mSubItems;

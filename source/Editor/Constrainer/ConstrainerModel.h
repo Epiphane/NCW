@@ -12,6 +12,8 @@
 #include <Engine/UI/UIElement.h>
 #include <Shared/Helpers/JsonFileSync.h>
 
+#include <RGBBinding/Observable.h>
+
 namespace CubeWorld
 {
 
@@ -29,19 +31,10 @@ class ConstrainerModel
 public:
    ConstrainerModel();
 
-   UIElement* GetBaseElement() const;
-   void SetBaseElement(UIElement* mpBaseElement);
-
-   void SetModelUpdatedCallback(const std::function<void()> &mModelUpdatedCallback);
+   Observables::Observable<UIElement*>& GetBaseElementObservable() { return mBaseElementObservable; }
    
-   size_t GetTotalNumElements();
-
 private:
-   // Helper function that returns how many elements are in my hierarchy
-   //    (plus one for me)
-   size_t TotalNumberOfElementsInSubtree(UIElement& subtreeRoot);
-   
-   std::function<void(void)> mModelUpdatedCallback;
+   Observables::Observable<UIElement*> mBaseElementObservable;
 
    // All the constraints created for the UI we're editing
    std::vector<UIConstraint> constraints;

@@ -30,7 +30,7 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
    {
       size = options.DefaultSize();
    }
-   mRegion = root->Reserve<Aggregator::Text>(2 * size);
+   mRegion = root->Reserve<Aggregator::Text>(32 * 2); // TODO-EF: Being able to change the size of aggregators. Until then 32 chars should be fine.
 
    // Suggest a size based on what we reserved.
    root->AddConstraints({

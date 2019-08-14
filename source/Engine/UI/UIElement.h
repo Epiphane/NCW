@@ -184,6 +184,7 @@ public:
       glm::tvec2<uint32_t> origin;
       glm::tvec2<uint32_t> size;
       double z, maxZ;
+      bool active;
       std::vector<DebugInfo> children;
    };
 

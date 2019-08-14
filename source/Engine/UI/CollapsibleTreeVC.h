@@ -19,9 +19,8 @@ namespace CubeWorld
 
 namespace Engine
 {
-
-namespace UI
-{
+   
+using Engine::CollapsibleTreeItem;
 
 class CollapsibleTreeVC : public UIElement
 {
@@ -35,12 +34,12 @@ private:
    // The root-level items for this tree
    std::vector<CollapsibleTreeItem*> mRootItems;
    
+   UIStackView* mRootItemStackView;
+   
    // Send a message into this and I will react by making a new set of CollapsibleTreeItems to match the message's heirarchy
    Observables::Observable<std::vector<CollapsibleTreeItem::Data>> mDataInputObserver;
 };
 
 }; // namespace Engine
-
-}; // namespace UI
 
 }; // namespace CubeWorld

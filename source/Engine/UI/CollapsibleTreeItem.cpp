@@ -28,13 +28,19 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mLabel = Add<Text>(Text::Options{}, mName + "Label");
    mSubItemStackView = Add<UIStackView>(mName + "SubItemParent");
    
-   Image::Options offImage{Asset::Image("EditorIcons.png"), "button_right"};
-   Image::Options onImage{Asset::Image("EditorIcons.png"), "button_down"};
-   mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, mName + "Toggle");
-   
    mSelectionToggle = Add<ToggleButtonVC>(mName + "SelectionToggle");
-   mSelectedHighlight = Add<UI::RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
+   mSelectedHighlight = Add<RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
    
+   Image::Options offImage;
+   offImage.filename = Asset::Image("EditorIcons.png");
+   offImage.image = "button_right";
+   
+   Image::Options onImage;
+   onImage.filename = Asset::Image("EditorIcons.png");
+   onImage.image = "button_down";
+
+   mExpandToggle = Add<ToggleButtonVC>(offImage, onImage, mName + "Toggle");
+
    CombineLatest(mActiveObservable, GetSelectionObservable()) >>
       OnMessage<std::tuple<bool, bool>>([&](auto activeAndSelected) {
          auto [bActive, bSelected] = activeAndSelected;
@@ -82,19 +88,28 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mLabel->ConstrainHeightToContent();
    mLabel->ConstrainToRightOf(mExpandToggle, 5.0);
    mLabel->ConstrainVerticalCenterTo(mExpandToggle);
+   mLabel->ConstrainRightAlignedTo(this);
+   mExpandToggle->ConstrainInFrontOf(mSelectedHighlight);
+   mExpandToggle->ConstrainInFrontOf(mSelectionToggle);
+   mExpandToggle->ConstrainWidth(20);
+   mExpandToggle->ConstrainHeight(20);
+   mExpandToggle->ConstrainLeftAlignedTo(this);
+   mExpandToggle->ConstrainTopAlignedTo(this);
    
-   mSelectedHighlight->Contains(mLabel);
-   mSelectedHighlight->Contains(mExpandToggle);
    mSelectedHighlight->ConstrainLeftAlignedTo(this);
    mSelectedHighlight->ConstrainTopAlignedTo(this);
    mSelectedHighlight->ConstrainRightAlignedTo(this);
+   mSelectedHighlight->ConstrainHeight(30);
    mSelectedHighlight->ConstrainBehind(mExpandToggle);
    mSelectedHighlight->ConstrainBehind(mLabel);
    mSelectionToggle->ConstrainEqualBounds(mSelectedHighlight);
 
+   mSubItemStackView->SetAlignItemsBy(UIStackView::Left);
    mSubItemStackView->ConstrainBelow(mSelectedHighlight);
    mSubItemStackView->ConstrainWidthTo(this);
    mSubItemStackView->ConstrainBottomAlignedTo(this);
+   mSubItemStackView->ConstrainLeftAlignedTo(this);
+   mSubItemStackView->ConstrainRightAlignedTo(this);
 }
 
 }; // namespace Engine

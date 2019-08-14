@@ -32,6 +32,9 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    //             the content size somehow. I dunno I'll cross that bridge when I get to it.
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
+   
+   mOffImage->ConstrainEqualBounds(this);
+   mOnImage->ConstrainEqualBounds(this);
 
    mToggleObservable >>
       RemoveDuplicates() >>

@@ -13,15 +13,18 @@ namespace CubeWorld
 
 namespace Engine
 {
-
-namespace UI
-{
    
 using namespace Observables;
 
 CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* parent, const std::string& name)
    : UIElement(root, parent, name)
 {
+   mRootItemStackView = Add<UIStackView>(name + "ItemStackView");
+   
+   mRootItemStackView->SetVertical(true);
+   mRootItemStackView->ConstrainEqualBounds(this);
+   mRootItemStackView->SetAlignItemsBy(UIStackView::Left);
+   
    mDataInputObserver >>
       OnMessage<std::vector<CollapsibleTreeItem::Data>>([&](std::vector<CollapsibleTreeItem::Data> newData) {
          for (auto oldRootItem : mRootItems) {
@@ -31,7 +34,7 @@ CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* pa
          mRootItems.clear();
          
          for (CollapsibleTreeItem::Data itemData : newData) {
-            auto newItem = Add<CollapsibleTreeItem>();
+            auto newItem = mRootItemStackView->Add<CollapsibleTreeItem>();
             newItem->GetDataSink().SendMessage(itemData);
             mRootItems.push_back(newItem);
          }
@@ -39,7 +42,5 @@ CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* pa
 }
 
 }; // namespace Engine
-
-}; // namespace UI
 
 }; // namespace CubeWorld

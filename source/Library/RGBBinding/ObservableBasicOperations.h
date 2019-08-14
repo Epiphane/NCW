@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "Observable.h"
+
 #undef SendMessage
 
 namespace CubeWorld

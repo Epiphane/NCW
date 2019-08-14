@@ -11,7 +11,7 @@
 
 #include "ConstrainerModel.h"
 
-#include "CollapsibleTreeVC.h"
+#include <Engine/UI/CollapsibleTreeVC.h>
 
 #include "../Controls.h"
 
@@ -24,6 +24,8 @@ namespace Editor
 namespace Constrainer
 {
 
+using Engine::CollapsibleTreeVC;
+   
 class ConstrainerVC : public Engine::UIRoot
 {
 public:
@@ -35,11 +37,7 @@ public:
    void Start();
 
 private:
-   // Called when the Model has updates (i.e. if the user edits UI, or if the underlying JSON changes)
-   void ModelUpdated();
-//   std::unique_ptr<CollapsibleTreeItem> ParseUIElementTitles(UIElement& baseElement);
-
-   Engine::EventManager mEvents;
+   void ParseUIElementTitles(UIElement& baseElement);
 
    ConstrainerModel mModel;
    
