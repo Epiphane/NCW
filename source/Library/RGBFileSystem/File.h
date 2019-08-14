@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
-#include <GL/includes.h>
+#include <vector>
 
 namespace CubeWorld
 {

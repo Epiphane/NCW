@@ -1,0 +1,10 @@
+// RGBLogger library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBLogger'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = ''
+   
+   #include "../LibraryHelper.bff"
+}

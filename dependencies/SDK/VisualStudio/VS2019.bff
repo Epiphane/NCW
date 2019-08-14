@@ -1,0 +1,119 @@
+// Visual Studio 2019
+//------------------------------------------------------------------------------
+// .VS2019_BasePath         = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community'
+// .VS2019_Version          = '14.20.27508'
+
+// X64 Compiler
+//------------------------------------------------------------------------------
+Compiler( 'Compiler-VS2019-x64' )
+{
+    .Root       = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64'
+    .Executable = '$Root$/cl.exe'
+    .ExtraFiles = { '$Root$/c1.dll'
+                    '$Root$/c1xx.dll',
+                    '$Root$/c2.dll',
+                    '$Root$/msobj140.dll'
+                    '$Root$/mspdb140.dll'
+                    '$Root$/mspdbcore.dll'
+                    '$Root$/mspdbsrv.exe'
+                    '$Root$/mspft140.dll'
+                    '$Root$/msvcp140.dll'
+                    '$Root$/vcruntime140.dll'
+                    '$Root$/1033/clui.dll'
+                  }
+}
+
+// X64 ToolChain for Windows
+//------------------------------------------------------------------------------
+.ToolChain_VS2019_Windows_X64 =
+[
+    .Platform                       = 'x64'
+
+    // Paths
+    .VSIncludePaths                 = ' -I"$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/include/"'
+    .VSLibPaths                     = ' /LIBPATH:"$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/lib/x64"'
+
+    // Compiler
+    .Compiler                       = 'Compiler-VS2019-X64'
+    .CommonCompilerOptions          = ' /Z7 /nologo /c'
+                                    + ' /Zc:inline'         // Remove unreferenced COMDATs at compile time (VS2013.2+)
+                                    + ' /Zc:strictStrings'  // Require const only usage of string literals (VS2013+)
+                                    + ' /fp:fast'
+                                    + ' /diagnostics:caret' // Use improved warning/error messages
+                                    + ' /EHsc'              // tells the compiler to assume that functions declared as extern "C" never throw a C++ exception.
+
+                                    // Warnings
+                                    + ' /Wall'              // Enable all warnings (we'll disable those that are not useful)
+                                    + ' /WX'                // Warnings as errors
+
+                                    // These warnings are useful, but fire in system headers (Windows SDK or MSVC CRT)
+                                    + ' /wd4623' // '%s': default constructor was implicitly defined as deleted
+                                    + ' /wd4625' // '%s': copy constructor was implicitly defined as deleted
+                                    + ' /wd4626' // '%s': assignment operator was implicitly defined as deleted
+                                    + ' /wd4668' // '%s' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
+                                    + ' /wd4774' // 'swprintf_s' : format string expected in argument 3 is not a string literal
+                                    + ' /wd5026' // '%s': move constructor was implicitly defined as deleted
+                                    + ' /wd5027' // '%s': move assignment operator was implicitly defined as deleted
+                                    + ' /wd28301' // No annotations for first declaration of '%s'
+
+                                    // These warnings are not useful
+                                    + ' /wd4061' // enumerator '%s' in switch of enum '%s' is not explicitly handled by a case label
+                                    + ' /wd4068' // unknown pragma
+                                    + ' /wd4201' // nonstandard extension used: nameless struct/union
+                                    + ' /wd4255' // '%s': no function prototype given: converting '()' to '(void)''
+                                    + ' /wd4371' // layout of class may have changed from a previous version of the compiler
+                                    + ' /wd4464' // relative include path contains '..'
+                                    + ' /wd4514' // '%s': unreferenced inline function has been removed
+                                    + ' /wd4555' // result of expression not used
+                                    + ' /wd4571' // Informational: catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught
+                                    + ' /wd4577' // 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+                                    + ' /wd4710' // '%s': function not inlined
+                                    + ' /wd4711' // function '%s' selected for automatic inline expansion
+                                    + ' /wd4820' // '%s': '%u' bytes padding added after data member '%s'
+                                    + ' /wd4866' // compiler may not enforce left-to-right evaluation order for call to %s
+                                    + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
+                                    + ' /wd5039' // '%s': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
+                                    + ' /wd5045' // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+
+                                    // Include Paths
+                                    + ' /I"./"'
+                                    + ' /std:c++17'
+                                    + .VSIncludePaths
+
+                                    + ' /wd4266' // hides parent function
+
+    .CompilerOptions                = ' $CommonCompilerOptions$ "%1" /Fo"%2"'
+    .CompilerOptionsC               = ' $CommonCompilerOptions$ "%1" /Fo"%2"'
+    .CompilerOptionsDeoptimized     = ' $CommonCompilerOptions$ "%1" /Fo"%2"'
+    .PCHOptions                     = ' $CommonCompilerOptions$ "%1" /Fo"%3" /Fp"%2" /Yc"PrecompiledHeader.h"'
+
+    // Librarian
+    .Librarian                      = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64/lib.exe'
+    .LibrarianOptions               = '/NODEFAULTLIB /WX /NOLOGO /OUT:"%2" "%1"'
+
+    // Linker
+    .Linker                         = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64/link.exe'
+    .LinkerOptions                  = '/NODEFAULTLIB /WX /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
+                                    + .VSLibPaths
+
+    // File Extensions
+    .LibExtension                   = '.lib'
+    .ExeExtension                   = '.exe'
+
+    // Exception Control
+    .UseExceptions                  = ' /EHsc'
+]
+
+// PATH environment variable
+//------------------------------------------------------------------------------
+.VS_2019_PATH                       = '$VS2019_BasePath$/Common7/IDE/;$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64'
+
+// Platform Toolset for Project Generation
+//------------------------------------------------------------------------------
+.VS_2019_PlatformToolset            = 'v142'
+
+// _MSC_VER
+//------------------------------------------------------------------------------
+.VS2019_MSC_VER                     = '1920'
+
+//------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ public:
    void AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid *pointer);
 
    GLuint GetBuffer() { return mBuffer; }
-   void BufferData(GLsizei size, void *data, GLuint type);
+   void BufferData(size_t size, void *data, GLuint type);
 };
 
 class AttributeVBO : public VBO

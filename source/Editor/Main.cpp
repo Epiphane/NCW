@@ -28,6 +28,7 @@
 #include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "Constrainer/ConstrainerVC.h"
+#include "ParticleSpace/Editor.h"
 #include "Skeletor/Editor.h"
 
 #include "Controls.h"
@@ -44,6 +45,8 @@ const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);
 
 int main(int argc, char** argv)
 {
+   Asset::SetAssetRootDefault();
+
    // Parse arguments
    int argi = 0;
    while (argi < argc)
@@ -92,6 +95,7 @@ int main(int argc, char** argv)
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
    Editor::Constrainer::ConstrainerVC* constrainer = nullptr;
+   Editor::ParticleSpace::Editor* particleSpace = nullptr;
    Editor::Skeletor::Editor* skeletor = nullptr;
    Editor::Controls::Options controlsOptions{
       {
@@ -111,6 +115,14 @@ int main(int argc, char** argv)
          }
       },
       {
+         "Particle Space",
+         [&]() {
+            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            SettingsProvider::Instance().Set("main", "editor", "particle_space");
+            particleSpace->Start();
+         }
+      },
+      {
          "Constrainer",
          [&]() {
             Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
@@ -127,6 +139,10 @@ int main(int argc, char** argv)
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(&window, controlsOptions);
    animationStation->SetBounds(window);
    animationStation->SetName("Animation Station");
+
+   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(&window, controlsOptions);
+   particleSpace->SetBounds(window);
+   particleSpace->SetName("Particle Space");
 
    skeletor = windowContent.Add<Editor::Skeletor::Editor>(&window, controlsOptions);
    skeletor->SetBounds(window);
@@ -190,6 +206,12 @@ int main(int argc, char** argv)
    else if (firstState == "animation_station")
    {
       auto state = animationStation;
+      state->Start();
+      windowContent.Swap(state);
+   }
+   else if (firstState == "particle_space")
+   {
+      auto state = particleSpace;
       state->Start();
       windowContent.Swap(state);
    }

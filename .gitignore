@@ -1,9 +1,9 @@
-build/*
-Build2/*
-xcode_build/*
+tmp
 .DS_Store
 .vscode/ipch
+*.fdb
 
 Assets/cache
+Config.bff
 
 # source/.config

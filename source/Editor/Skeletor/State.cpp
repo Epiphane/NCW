@@ -2,12 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <functional>
-#pragma warning(push, 0)
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -16,6 +11,7 @@
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
@@ -41,9 +37,9 @@ using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mInput(input)
+   : mPlayer(&mEntities, Engine::Entity::ID(0))
+   , mInput(input)
    , mParent(parent)
-   , mPlayer(&mEntities, Engine::Entity::ID(0))
 {
 }
 
@@ -68,9 +64,6 @@ void MainState::Initialize()
 
    // Unlock the mouse
    mInput->SetMouseLock(false);
-
-   // Add a shell entity for controlling animation state
-   Entity controls = mEntities.Create();
 
    // Create a player component
    mPlayer = mEntities.Create();
@@ -151,7 +144,7 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
-      LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());
+      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
       return;
    }
 

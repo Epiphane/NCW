@@ -27,6 +27,8 @@ int main(int argc, char **argv)
 {
    using namespace Engine;
 
+   Asset::SetAssetRootDefault();
+
    // Parse arguments
    int argi = 0;
    while (argi < argc)

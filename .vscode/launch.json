@@ -8,40 +8,33 @@
             "name": "(lldb) Editor",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/make/source/Editor/Editor",
+            "program": "${workspaceFolder}/tmp/OSX-Debug/Editor/Editor",
             "args": ["--asset-root", "${workspaceFolder}/Assets"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/make/source/Editor",
-            "environment": [{"name": "PWD", "value": "${workspaceFolder}/build/make/source/Editor"}],
+            "cwd": "${workspaceFolder}/tmp/OSX-Debug/Editor",
+            "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Editor"}],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make editor"
+            "preLaunchTask": "make editor",
+            "logging": {
+                "moduleLoad": false
+            }
         },
         {
             "name": "(lldb) Game",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/make/source/Game/Game",
-            "args": [],
+            "program": "${workspaceFolder}/tmp/OSX-Debug/Game/Game",
+            "args": ["--asset-root", "${workspaceFolder}/Assets"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/make/source/Game",
-            "environment": [{"name": "PWD", "value": "${workspaceFolder}/build/make/source/Game"}],
+            "cwd": "${workspaceFolder}/tmp/OSX-Debug/Game",
+            "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Game"}],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "make game"
-        },
-        {
-            "name": "(lldb) DataCLI",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/make/source/DataCLI/DataCLI",
-            "args": ["convert", "itself.vox", "itself.cub"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [{"name": "PWD", "value": "${workspaceFolder}"}],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "make datacli"
+            "preLaunchTask": "make game",
+            "logging": {
+                "moduleLoad": false
+            }
         }
     ]
 }

@@ -1,0 +1,48 @@
+// Engine Project
+//------------------------------------------------------------------------------
+{
+   .ProjectName = 'Engine'
+   .ProjectPath = '$_CURRENT_BFF_DIR_$'
+
+   ForEach( .Config in .Configs )
+   {
+      Using( .Config )
+      .OutputPath          + '$Platform$-$Config$/$ProjectName$'
+      .CompilerOutputPath  = .OutputPath
+      .CompilerOptions     + .SourceIncludePaths
+
+      // Unity
+      // --------------------------------------------------------------------------
+      Unity( '$ProjectName$-Unity-$Platform$-$Config$' )
+      {
+         .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
+         .UnityOutputPath            = .OutputPath
+      }
+
+      ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
+      {
+         .CompilerInputPath   = '$_CURRENT_BFF_DIR_$'
+      }
+
+      // Library
+      //--------------------------------------------------------------------------
+      Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+      {
+         // Input
+#if UNITY_BUILD
+         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
+#else
+         .LibrarianAdditionalInputs = { '$ProjectName$-Obj-$Platform$-$Config$' }
+#endif
+
+         // Output
+         .CompilerOutputPath  = '$OutputPath$'
+         .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
+      }
+
+      Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
+      ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
+   }
+
+   #include "../../Helpers/Project.bff"
+}

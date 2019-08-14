@@ -7,7 +7,9 @@
 #include <tuple>
 #include <vector>
 #include <glm/glm.hpp>
+#pragma warning(disable : 4365 6313 6319 6385 6386)
 #include <rapidjson/document.h>
+#pragma warning(default : 4365 6313 6319 6385 6386)
 
 #include <RGBDesignPatterns/Maybe.h>
 
@@ -136,7 +138,7 @@ public:
    Object AsObject();
    ConstObject AsObject() const;
 
-   bool Has(const std::string& key);
+   bool Has(const std::string& key) const;
    ObjectIterator Find(const std::string& key);
    ConstObjectIterator Find(const std::string& key) const;
 
@@ -151,6 +153,8 @@ public:
 
    template <typename Property, typename Iterator>
    struct PairMaker {
+      PairMaker(Property& obj_) : obj(obj_) {};
+
       Iterator begin() const { return obj.begin_pairs(); }
       Iterator end() const { return obj.end_pairs(); }
       Property& obj;
@@ -273,14 +277,14 @@ public:
 
    private:
       friend class BindingProperty;
-      IteratorType(Property* object, uint32_t index)
+      IteratorType(Property* object, size_t index)
          : mObject(object)
          , mIndex(index)
       {};
 
    private:
       Property* mObject;
-      uint32_t mIndex;
+      size_t mIndex;
    };
 
    template<typename Property>
@@ -317,7 +321,7 @@ public:
          if (mObject->IsArray())
          {
             return {
-               BindingProperty(mIndex),
+               BindingProperty((uint32_t)mIndex),
                mObject->data.arrayVal[mIndex]
             };
          }
@@ -342,14 +346,14 @@ public:
    private:
       friend class BindingProperty;
 
-      PairIteratorType(Property* object, uint32_t index)
+      PairIteratorType(Property* object, size_t index)
          : mObject(object)
          , mIndex(index)
       {}
 
    private:
       Property* mObject;
-      uint32_t mIndex;
+      size_t mIndex;
    };
 
    template <typename Property>
@@ -408,7 +412,7 @@ public:
       ArrayType(Property* object) : mObject(object) {};
 
       It begin() { return It(mObject, 0); }
-      It end() { return It(mObject, mObject->data.arrayVal.size()); }
+      It end() { return It(mObject, (rapidjson::SizeType)mObject->data.arrayVal.size()); }
 
    private:
       Property* mObject;
@@ -449,7 +453,7 @@ public:
    private:
       friend class BindingProperty;
 
-      ObjectIteratorType(Property* object, uint32_t index)
+      ObjectIteratorType(Property* object, size_t index)
          : mObject(object)
          , mIndex(index)
       {};
@@ -464,7 +468,7 @@ public:
 
    private:
       Property* mObject;
-      uint32_t mIndex;
+      size_t mIndex;
    };
 
    template<typename Property, typename It>
@@ -508,8 +512,12 @@ private:
    };  
 
    union Data {
+#pragma warning(disable : 4582) // '%s': constructor is not implicitly called
       Data() { numVal.i64 = 0; }
+#pragma warning(default : 4582) // '%s': constructor is not implicitly called
+#pragma warning(disable : 4583) // '%s': destructor is not implicitly called
       ~Data() { /* Handled manually */ }
+#pragma warning(default : 4583) // '%s': destructor is not implicitly called
 
       Number numVal;
       std::string stringVal;
@@ -632,7 +640,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
             return result.Failure().WithContext("Failed to write value for %1", kv.key);
          }
       }
-      HANDLE_ERROR(handler.EndObject(data.objectVal.size()), "Failed to end object");
+      HANDLE_ERROR(handler.EndObject((rapidjson::SizeType)data.objectVal.size()), "Failed to end object");
       break;
    case kArrayType:
       HANDLE_ERROR(handler.StartArray(), "Failed to start array");
@@ -644,7 +652,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
             return result.Failure().WithContext("Failed to write index %1", it.mIndex);
          }
       }
-      HANDLE_ERROR(handler.EndArray(data.arrayVal.size()), "Failed to end array");
+      HANDLE_ERROR(handler.EndArray((rapidjson::SizeType)data.arrayVal.size()), "Failed to end array");
       break;
    default:
       return Failure{"Unhandled type flag: %1", flags & kTypeMask};

@@ -2,22 +2,20 @@
 
 #include <cassert>
 #include <functional>
-#pragma warning(push, 0)
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma warning(pop)
 
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Systems/WalkSystem.h>
@@ -44,6 +42,7 @@ namespace Game
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
+      mSystems.Add<SimpleParticleSystem>(&mCamera);
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
@@ -55,15 +54,6 @@ namespace Game
    {
       DebugHelper::Instance().SetSystemManager(nullptr);
    }
-   
-   namespace {
-
-   int index(int size, int i, int j)
-   {
-      return i * (2 * size + 1) + j;
-   }
-
-   }; // anonymous namespace
 
    bool StupidState::BuildFloorCollision(int32_t size)
    {
@@ -72,7 +62,7 @@ namespace Game
       int blocksCreated = 0;
 
       auto index = [&](int i, int j) {
-         return i * (2 * size + 1) + j;
+         return size_t(i * (2 * size + 1) + j);
       };
 
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
@@ -202,6 +192,16 @@ namespace Game
       playerCamera.Add<Follower>(player.Get<Transform>());
       player.Add<WalkDirector>(playerCamera.Get<Transform>(), false);
 
+      // Create a campfire
+      Engine::Entity campfire = mEntities.Create(0, 0, 0);
+      campfire.Get<Transform>()->SetLocalScale(glm::vec3(0.05f));
+      campfire.Add<VoxModel>(Asset::Model("campfire.vox"));
+
+      Entity fire = mEntities.Create(0, 1, 0);
+      fire.Get<Transform>()->SetLocalScale(glm::vec3(20.0f));
+      fire.Get<Transform>()->SetParent(campfire);
+      fire.Add<ParticleEmitter>(Asset::Particle("fire"));
+
       mCamera.Set(handle.get());
 
       // Add some voxels.
@@ -258,11 +258,11 @@ namespace Game
             else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
             float perc = (elevation - start) / (end - start);
 
-            glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
+            glm::vec3 position = glm::vec3(i, std::round(elevation * 10) - 4, j);
             glm::vec4 color = dest * perc + source * (1 - perc);
             carpet.push_back(Voxel::Data(position, color, Voxel::All));
 
-            heights[rowIndex + j + size] = int32_t(position.y);
+            heights[uint64_t(rowIndex + j + size)] = int32_t(position.y);
          }
       }
 

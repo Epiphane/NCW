@@ -27,7 +27,7 @@ struct Simple3DRender : public Engine::Component<Simple3DRender> {
    Simple3DRender(const Simple3DRender& other);
    
    Engine::Graphics::VBO mVertices, mColors;
-   GLsizei mCount;
+   size_t mCount;
 };
 
 class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {

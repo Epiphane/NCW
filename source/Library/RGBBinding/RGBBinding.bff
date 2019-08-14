@@ -1,0 +1,14 @@
+// RGBBinding library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBBinding'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = .RapidJsonIncludePaths
+                              + .GlmIncludePaths
+                              + ' -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING'
+                              + ' -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING'
+                              + ' "-Isource/Library"'
+
+   #include "../LibraryHelper.bff"
+}

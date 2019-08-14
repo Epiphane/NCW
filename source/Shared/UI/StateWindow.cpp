@@ -18,7 +18,7 @@ namespace UI
 StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
    : UIElement(root, parent)
    , mState(nullptr)
-   , mFramebuffer(root->GetWidth(), root->GetHeight())
+   , mFramebuffer((GLsizei)root->GetWidth(), (GLsizei)root->GetHeight())
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {
    if (state)
@@ -45,7 +45,7 @@ void StateWindow::Update(TIMEDELTA dt)
 
 void StateWindow::Redraw()
 {
-   mFramebuffer.Resize(GetWidth(), GetHeight());
+   mFramebuffer.Resize((GLsizei)GetWidth(), (GLsizei)GetHeight());
    std::vector<Aggregator::ImageData> vertices{
       { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
       { mFrame.GetTopRight(), glm::vec2(1, 1) },

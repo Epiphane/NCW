@@ -28,7 +28,7 @@ struct MouseControlledCamera : public Engine::Component<MouseControlledCamera> {
 };
 
 struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
-   MouseDragCamera(uint32_t button, double pitchSensitivity = 0.007, double yawSensitivity = 0.007)
+   MouseDragCamera(int button, double pitchSensitivity = 0.007, double yawSensitivity = 0.007)
       : button(button)
       , sensitivity{pitchSensitivity, yawSensitivity}
    {};
@@ -40,10 +40,10 @@ struct MouseDragCamera : public Engine::Component<MouseDragCamera> {
 
 struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
    KeyControlledCamera(
-      uint32_t up = GLFW_KEY_W,
-      uint32_t down = GLFW_KEY_S,
-      uint32_t left = GLFW_KEY_A,
-      uint32_t right = GLFW_KEY_D,
+      int up = GLFW_KEY_W,
+      int down = GLFW_KEY_S,
+      int left = GLFW_KEY_A,
+      int right = GLFW_KEY_D,
       double pitchSpeed = 2.0,
       double yawSpeed = 2.0
    ) 
@@ -51,7 +51,7 @@ struct KeyControlledCamera : public Engine::Component<KeyControlledCamera> {
       , sensitivity{pitchSpeed, yawSpeed}
    {};
    
-   uint32_t keys[4];
+   int keys[4];
    double sensitivity[2];
 };
 

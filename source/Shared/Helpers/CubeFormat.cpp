@@ -24,13 +24,13 @@ bool IsFilled(const std::vector<bool>& filled, int32_t index)
       return false;
    }
 
-   return filled[index];
+   return filled[size_t(index)];
 }
 
 int32_t Index(const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
 {
    if (x >= metadata.width || y >= metadata.height || z >= metadata.length) { return -1; }
-   return x + z * metadata.width + y * metadata.width * metadata.length;
+   return int32_t(x + z * metadata.width + y * metadata.width * metadata.length);
 }
 
 uint8_t GetExposedFaces(const std::vector<bool>& filled, const Model::Metadata& metadata, uint32_t x, uint32_t y, uint32_t z)
@@ -77,7 +77,7 @@ Model* CubeFormat::Load(const std::string& path, bool tintable)
    }
    std::unique_ptr<Model> model = std::make_unique<Model>(std::move(result.Result()));
 
-   model->mVBO.BufferData(sizeof(Data) * int(model->mVoxelData.size()), &model->mVoxelData[0], GL_STATIC_DRAW);
+   model->mVBO.BufferData(sizeof(Data) * model->mVoxelData.size(), &model->mVoxelData[0], GL_STATIC_DRAW);
    model->mIsTintable = tintable;
 
    auto emplaceResult = sModels.emplace(path, std::move(model));
@@ -145,7 +145,7 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
       {
          for (uint32_t x = 0; x < result->mMetadata.width; x++)
          {
-            int ndx = Index(result->mMetadata, x, y, z);
+            size_t ndx = (size_t)Index(result->mMetadata, x, y, z);
             if (filled[ndx])
             {
                // Active voxel
@@ -211,9 +211,9 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
             model.mMetadata.length);
       }
 
-      data[3 * ndx] = uint8_t(voxel.color.r);
-      data[3 * ndx + 1] = uint8_t(voxel.color.g);
-      data[3 * ndx + 2] = uint8_t(voxel.color.b);
+      data[3 * (size_t)ndx] = uint8_t(voxel.color.r);
+      data[3 * (size_t)ndx + 1] = uint8_t(voxel.color.g);
+      data[3 * (size_t)ndx + 2] = uint8_t(voxel.color.b);
    }
 
    if (Maybe<void> write = fs.WriteFile(handle, &data[0], sizeof(uint8_t) * data.size()); !write)

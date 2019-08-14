@@ -51,6 +51,14 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       std::vector<Trigger> triggers;
    };
 
+   struct ParticleEffect {
+      std::string name;
+      std::string bone;
+      double start;
+      double end;
+      BindingProperty modifications;
+   };
+
 public:
    SkeletonAnimations();
 
@@ -73,6 +81,7 @@ public:
    std::string entity;
    std::map<std::string, State> states;
    std::map<std::string, std::vector<Transition>> transitions;
+   std::map<std::string, std::vector<ParticleEffect>> effects;
 };
 
 }; // namespace CubeWorld

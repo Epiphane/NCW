@@ -2,12 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <functional>
-#pragma warning(push, 0)
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
@@ -16,10 +11,12 @@
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 
@@ -41,9 +38,9 @@ using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mInput(input)
+   : mPlayer(&mEntities, Engine::Entity::ID(0))
+   , mInput(input)
    , mParent(parent)
-   , mPlayer(&mEntities, Engine::Entity::ID(0))
 {
 }
 
@@ -75,6 +72,7 @@ void MainState::Initialize()
    DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<SimpleAnimationSystem>();
+   mSystems.Add<SimpleParticleSystem>(&mCamera);
    mSystems.Add<MakeshiftSystem>();
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
@@ -88,9 +86,11 @@ void MainState::Initialize()
 
    // Create a player component
    mPlayer = mEntities.Create();
-   mPlayer.Add<Transform>(glm::vec3(0, 1.3, 0));
+   mPlayer.Add<Transform>(glm::vec3(10, 1.3, 0));
    mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-   mPlayer.Add<SimpleAnimationController>();
+   mPlayer.Add<SimpleAnimationController>(
+      mPlayer.Add<MultipleParticleEmitters>()
+   );
 
    // Create a camera
    Entity playerCamera = mEntities.Create(0, 2, 0);
@@ -193,7 +193,7 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
-      LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());
+      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
       return;
    }
 

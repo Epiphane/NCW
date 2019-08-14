@@ -54,15 +54,16 @@ struct UIFrame : public Bounded
       return glm::vec3(left.value(), bottom.value(), z.value());
    }
    
-   uint32_t GetX() const override { return left.int_value(); }
-   uint32_t GetY() const override { return bottom.int_value(); }
-   uint32_t GetWidth() const override { return right.int_value() - left.int_value(); }
-   uint32_t GetHeight() const override { return top.int_value() - bottom.int_value(); }
+   uint32_t GetX() const override { return uint32_t(left.int_value()); }
+   uint32_t GetY() const override { return uint32_t(bottom.int_value()); }
+   uint32_t GetWidth() const override { return uint32_t(right.int_value() - left.int_value()); }
+   uint32_t GetHeight() const override { return uint32_t(top.int_value() - bottom.int_value()); }
 };
    
 class UIConstrainable : public Bounded {
 public:
    UIConstrainable(UIRoot* root, const std::string& name);
+   virtual ~UIConstrainable() = default;
    
    virtual rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target) const;
    

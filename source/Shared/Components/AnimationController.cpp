@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <deque>
-#include <fstream>
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
@@ -114,10 +113,10 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton
       {
          std::vector<Stance>::iterator parent = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance.parent; });
 
-         stance.parents.insert(stance.parents.end(), parent->parents.begin() + rootId, parent->parents.end());
-         stance.positions.insert(stance.positions.end(), parent->positions.begin() + rootId, parent->positions.end());
-         stance.rotations.insert(stance.rotations.end(), parent->rotations.begin() + rootId, parent->rotations.end());
-         stance.scales.insert(stance.scales.end(), parent->scales.begin() + rootId, parent->scales.end());
+         stance.parents.insert(stance.parents.end(), parent->parents.begin() + (int64_t)rootId, parent->parents.end());
+         stance.positions.insert(stance.positions.end(), parent->positions.begin() + (int64_t)rootId, parent->positions.end());
+         stance.rotations.insert(stance.rotations.end(), parent->rotations.begin() + (int64_t)rootId, parent->rotations.end());
+         stance.scales.insert(stance.scales.end(), parent->scales.begin() + (int64_t)rootId, parent->scales.end());
       }
 
       if (skeleton->stanceLookup.count(stance.name) == 0)
@@ -152,9 +151,9 @@ void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton
 
       for (Keyframe& keyframe : state.keyframes)
       {
-         keyframe.positions.insert(keyframe.positions.end(), stance.positions.begin() + rootId, stance.positions.end());
-         keyframe.rotations.insert(keyframe.rotations.end(), stance.rotations.begin() + rootId, stance.rotations.end());
-         keyframe.scales.insert(keyframe.scales.end(), stance.scales.begin() + rootId, stance.scales.end());
+         keyframe.positions.insert(keyframe.positions.end(), stance.positions.begin() + (int64_t)rootId, stance.positions.end());
+         keyframe.rotations.insert(keyframe.rotations.end(), stance.rotations.begin() + (int64_t)rootId, stance.rotations.end());
+         keyframe.scales.insert(keyframe.scales.end(), stance.scales.begin() + (int64_t)rootId, stance.scales.end());
       }
    }
 }
@@ -172,7 +171,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          std::string stance = mods.stance;
          const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });
          assert(stanceIt != stances.end());
-         newState.stance = stanceIt - stances.begin();
+         newState.stance = size_t(stanceIt - stances.begin());
          newState.length = mods.length;
          newState.keyframes.resize(mods.keyframes.size());
 

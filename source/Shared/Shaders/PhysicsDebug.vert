@@ -9,10 +9,7 @@ uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 
-out vec3 gColor;
-
 void main()
 {
    gl_Position = uProjMatrix * uViewMatrix * vec4(uPosition, 1);
-   gColor = vec3(0, 0, 1);
 }

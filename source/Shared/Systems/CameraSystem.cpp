@@ -57,7 +57,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
    {
       glm::tvec2<double> movement = mInput->GetMouseMovement();
       
-      entities.Each<Engine::Transform, MouseControlledCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseControlledCamera& opts) {
+      entities.Each<Engine::Transform, MouseControlledCamera>([&](Engine::Transform& transform, MouseControlledCamera& opts) {
          transform.SetYaw(transform.GetYaw() - float(opts.sensitivity[0] * movement.x));
 
          float newPitch = transform.GetPitch() - float(opts.sensitivity[1] * movement.y);
@@ -74,7 +74,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
    }
    else
    {
-      entities.Each<Engine::Transform, KeyControlledCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, KeyControlledCamera& opts) {
+      entities.Each<Engine::Transform, KeyControlledCamera>([&](Engine::Transform& transform, KeyControlledCamera& opts) {
          int yMove = mInput->IsKeyDown(opts.keys[1]) - mInput->IsKeyDown(opts.keys[0]);
          int xMove = mInput->IsKeyDown(opts.keys[3]) - mInput->IsKeyDown(opts.keys[2]);
 
@@ -93,7 +93,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
       });
    }
 
-   entities.Each<Engine::Transform, MouseDragCamera>([&](Engine::Entity /*entity*/, Engine::Transform& transform, MouseDragCamera& opts) {
+   entities.Each<Engine::Transform, MouseDragCamera>([&](Engine::Transform& transform, MouseDragCamera& opts) {
       if (opts.engaged)
       {
          glm::tvec2<double> movement = mInput->GetMouseMovement();
@@ -114,7 +114,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
 
    if (mouse.x >= 0 && mouse.x <= 1 && mouse.y >= 0 && mouse.y <= 1)
    {
-      entities.Each<ArmCamera, MouseControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, MouseControlledCameraArm& opts) {
+      entities.Each<ArmCamera, MouseControlledCameraArm>([&](ArmCamera& camera, MouseControlledCameraArm& opts) {
          camera.distance -= float(opts.sensitivity * scroll.y);
 
          if (camera.distance < camera.minDistance)
@@ -128,7 +128,7 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
       });
    }
 
-   entities.Each<ArmCamera, KeyControlledCameraArm>([&](Engine::Entity /*entity*/, ArmCamera& camera, KeyControlledCameraArm& opts) {
+   entities.Each<ArmCamera, KeyControlledCameraArm>([&](ArmCamera& camera, KeyControlledCameraArm& opts) {
       int move = mInput->IsKeyDown(opts.zoomOut) - mInput->IsKeyDown(opts.zoomIn);
       camera.distance += float(dt * opts.sensitivity * move);
 

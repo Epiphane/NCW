@@ -1,0 +1,10 @@
+// RGBFileSystem library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBFileSystem'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+   
+   .AdditionalCompilerOptions = ''
+
+   #include "../LibraryHelper.bff"
+}

@@ -26,7 +26,7 @@ SCENARIO( "Buttons respond correctly to mouse moves and clicks" ) {
       button->ConstrainHeight(50);
       button->ConstrainWidth(50);
       button->OnClick() >>
-         ToContainer(clicks, myBag);
+         ToContainer<std::vector<Engine::UIGestureRecognizer::Message_GestureState>>(clicks, myBag);
       
       // Solve constraints
       dummyRoot->UpdateRoot();

@@ -28,6 +28,7 @@ class Text : public Engine::UIElement
 public:
    struct Options {
       Options() = default;
+      virtual ~Options() = default;
       Options(const std::string& text) : text(text) {};
       Options(const Options& other) : text(other.text), font(other.font), size(other.size), alignment(other.alignment) {};
 

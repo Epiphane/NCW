@@ -17,7 +17,7 @@ bool YAMLWriter::Null()
 {
    yaml_event_t event;
    yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)kNull, 4, 1, 1, YAML_PLAIN_SCALAR_STYLE);
-   return yaml_emitter_emit(&mEmitter, &event);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 bool YAMLWriter::Bool(bool b)
@@ -31,7 +31,7 @@ bool YAMLWriter::Bool(bool b)
    {
       yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)kFalse, 5, 1, 1, YAML_PLAIN_SCALAR_STYLE);
    }
-   return yaml_emitter_emit(&mEmitter, &event);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 bool YAMLWriter::Int(int i)
@@ -56,7 +56,7 @@ bool YAMLWriter::Int64(int64_t i)
    {
       yaml_event_t event;
       yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)kZero, 1, 1, 1, YAML_PLAIN_SCALAR_STYLE);
-      return yaml_emitter_emit(&mEmitter, &event);
+      return yaml_emitter_emit(&mEmitter, &event) != 0;
    }
    else
    {
@@ -77,7 +77,7 @@ bool YAMLWriter::Uint64(uint64_t i)
    {
       yaml_event_t event;
       yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)kZero, 1, 1, 1, YAML_PLAIN_SCALAR_STYLE);
-      return yaml_emitter_emit(&mEmitter, &event);
+      return yaml_emitter_emit(&mEmitter, &event) != 0;
    }
    else
    {
@@ -98,7 +98,7 @@ bool YAMLWriter::Double(double d)
    {
       yaml_event_t event;
       yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)kZero, 1, 1, 1, YAML_PLAIN_SCALAR_STYLE);
-      return yaml_emitter_emit(&mEmitter, &event);
+      return yaml_emitter_emit(&mEmitter, &event) != 0;
    }
    else
    {
@@ -120,8 +120,8 @@ bool YAMLWriter::String(const Ch* str, SizeType length, bool /*copy*/)
    }
 
    yaml_event_t event;
-   yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)str, length, 1, 1, YAML_PLAIN_SCALAR_STYLE);
-   return yaml_emitter_emit(&mEmitter, &event);
+   yaml_scalar_event_initialize(&event, nullptr, nullptr, (yaml_char_t*)str, (int)length, 1, 1, YAML_PLAIN_SCALAR_STYLE);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 bool YAMLWriter::StartObject()
@@ -133,7 +133,7 @@ bool YAMLWriter::StartObject()
 
    yaml_event_t event;
    yaml_mapping_start_event_initialize(&event, nullptr, nullptr, 0, YAML_BLOCK_MAPPING_STYLE);
-   return yaml_emitter_emit(&mEmitter, &event);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 bool YAMLWriter::Key(const Ch* str, SizeType length, bool copy)
@@ -145,7 +145,7 @@ bool YAMLWriter::EndObject(SizeType)
 {
    yaml_event_t event;
    yaml_mapping_end_event_initialize(&event);
-   return yaml_emitter_emit(&mEmitter, &event);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 bool YAMLWriter::StartArray()
@@ -159,7 +159,7 @@ bool YAMLWriter::FlushArray(bool condensed)
    yaml_event_t event;
    yaml_sequence_start_event_initialize(&event, nullptr, nullptr, 0,
       condensed ? YAML_FLOW_SEQUENCE_STYLE : YAML_BLOCK_SEQUENCE_STYLE);
-   bool ret = yaml_emitter_emit(&mEmitter, &event);
+   bool ret = yaml_emitter_emit(&mEmitter, &event) != 0;
    if (!ret) { return false; }
 
    BindingProperty holding = std::move(mHolding);
@@ -184,7 +184,7 @@ bool YAMLWriter::EndArray(SizeType)
 
    yaml_event_t event;
    yaml_sequence_end_event_initialize(&event);
-   return yaml_emitter_emit(&mEmitter, &event);
+   return yaml_emitter_emit(&mEmitter, &event) != 0;
 }
 
 }; // namespace CubeWorld

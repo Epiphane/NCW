@@ -147,6 +147,19 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
 
          transitionData.push_back(std::move(transition));
       }
+
+      std::vector<ParticleEffect>& effectData = effects[state.name];
+      for(const BindingProperty& info : anim["particles"])
+      {
+         ParticleEffect effect;
+         effect.name = info["name"];
+         effect.bone = info["bone"];
+         effect.start = info["start"].GetDoubleValue(0.0);
+         effect.end = info["end"].GetDoubleValue(state.length);
+         effect.modifications = info["mods"];
+
+         effectData.push_back(std::move(effect));
+      }
    }
 }
 
@@ -213,6 +226,17 @@ BindingProperty SkeletonAnimations::Serialize()
          }
 
          data["transitions"].push_back(std::move(transitionData));
+      }
+
+      for (const ParticleEffect& effect : effects[state.name])
+      {
+         BindingProperty effectData;
+         effectData["name"] = effect.name;
+         effectData["bone"] = effect.bone;
+         effectData["start"] = effect.start;
+         effectData["end"] = effect.end;
+         effectData["mods"] = effect.modifications;
+         data["particles"].push_back(std::move(effectData));
       }
    }
 

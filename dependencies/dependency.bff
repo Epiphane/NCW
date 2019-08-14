@@ -1,0 +1,117 @@
+// External library helper
+// Required defines:
+//    .LibraryName
+//    .LibrarySourcePath
+//    .LibrarySourceFiles
+//    .LibraryIncludePaths
+//    .AdditionalCompilerOptions
+//------------------------------------------------------------------------------
+#if NO_UNITY_BUILD_ONCE
+   #if UNITY_BUILD
+      #define _UNITY_BUILD
+      #undef UNITY_BUILD
+   #endif
+   #undef NO_UNITY_BUILD_ONCE
+#endif
+#if UNITY_BUILD_ONCE
+   #if !UNITY_BUILD
+      #define _NO_UNITY_BUILD
+      #define UNITY_BUILD
+   #endif
+   #undef UNITY_BUILD_ONCE
+#endif
+
+ForEach( .Config in .Configs )
+{
+   Using( .Config )
+   .OutputPath + '$Platform$-$Config$/$LibraryName$'
+   .CompilerOutputPath = .OutputPath
+
+#if !C_BUILD_ONCE
+   .CompilerOptions  = .CompilerOptions
+#endif
+#if C_BUILD_ONCE
+   .CompilerOptions  = .CompilerOptionsC
+#endif
+   .CompilerOptions  + ' "-I$LibraryIncludePaths$"'
+                     + .AdditionalCompilerOptions
+
+   Unity('$LibraryName$-Unity-$Platform$-$Config$')
+   {
+      // .UnityInputPath      = .LibrarySourcePath
+      .UnityInputPattern         = .LibrarySourceFiles
+      .UnityInputPath            = '$LibrarySourcePath$'
+      .UnityOutputPath           = .OutputPath
+      
+   }
+
+   ObjectList('$LibraryName$-Obj-$Platform$-$Config$')
+   {
+      .CompilerOptions     = .CompilerOptions
+                           + ' "-I$LibraryIncludePaths$"'
+                           + .AdditionalCompilerOptions
+
+      .CompilerInputPath    = .LibrarySourcePath
+      .CompilerInputPattern = .LibrarySourceFiles
+   }
+
+#if !SKIP_DEPENDENCY_BUILD
+   Library('$LibraryName$-Lib-$Platform$-$Config$')
+   {
+   #if UNITY_BUILD
+      .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
+   #else
+      .LibrarianAdditionalInputs = { '$LibraryName$-Obj-$Platform$-$Config$' }
+   #endif
+      .LibrarianOutput = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+#endif
+#if SKIP_DEPENDENCY_BUILD
+   Alias('$LibraryName$-Lib-$Platform$-$Config$')
+   {
+      .Targets = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+#endif
+
+   Alias( '$LibraryName$-$Platform$-$Config$' ) { .Targets = '$LibraryName$-Lib-$Platform$-$Config$' }
+   ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
+   ^Dependencies + { '$LibraryName$-$Platform$-$Config$' }
+}
+
+{
+   .ProjectInputPaths   = '$LibrarySourcePath$'
+   .ProjectBasePath     = '$LibrarySourcePath$'
+
+   .ProjectDebug     = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectConfigs   + { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
+
+   VCXProject('$LibraryName$-proj')
+   {
+      .ProjectOutput       = '$OutputPath$/VisualStudio/Projects/Dependencies/$LibraryName$.vcxproj'
+      .ProjectFiles        = { '$_CURRENT_BFF_DIR_$/$LibraryName$/$LibraryName$.bff' }
+   }
+   ^VSDependencyProjects + { '$LibraryName$-proj' }
+
+   XCodeProject( '$LibraryName$-xcode' )
+   {
+      .ProjectOutput          = '$OutputPath$/XCode/Projects/Dependencies/$LibraryName$.xcodeproj/project.pbxproj'
+      .XCodeBuildWorkingDir   = '../../../..'
+   }
+   ^XCodeDependencyProjects + { '$LibraryName$-xcode' }
+}
+
+#if _UNITY_BUILD
+   #define UNITY_BUILD
+   #undef _UNITY_BUILD
+#endif
+#if _NO_UNITY_BUILD
+   #undef UNITY_BUILD
+   #undef _NO_UNITY_BUILD
+#endif
+#if C_BUILD_ONCE
+   #undef C_BUILD_ONCE
+#endif

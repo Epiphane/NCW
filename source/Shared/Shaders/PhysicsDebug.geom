@@ -3,8 +3,6 @@
 layout (points) in;
 layout (line_strip, max_vertices=19) out;
 
-in vec3 gColor[];
-
 out vec3 fColor;
 
 uniform vec3 uPosition;

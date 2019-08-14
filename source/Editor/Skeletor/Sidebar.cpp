@@ -1,6 +1,5 @@
 // By Thomas Steinke
 
-#include <fstream>
 #include <RGBFileSystem/File.h>
 #include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -42,7 +41,7 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
    foreground->ConstrainDimensionsTo(this, -4);
 
    // Labels
-   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ModelMakerSidebarStackView");
+   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("SkeletorSidebarStackView");
    buttons->SetOffset(8.0);
 
    TextButton::Options buttonOptions;

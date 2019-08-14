@@ -32,7 +32,7 @@ public:
 
    public:
       // Allow for, by default, ####.{precision}
-      virtual uint32_t DefaultSize() const override { return precision + 5; }
+      virtual uint32_t DefaultSize() const override { return uint32_t(precision + 5); }
    };
 
 public:

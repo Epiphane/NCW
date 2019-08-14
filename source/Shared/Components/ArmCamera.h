@@ -40,6 +40,7 @@ public:
 
    glm::mat4 GetPerspective() const override;
    glm::mat4 GetView() const override;
+   glm::vec3 GetPosition() const override;
 
    Engine::ComponentHandle<Engine::Transform> transform;
 
@@ -62,8 +63,8 @@ struct MouseControlledCameraArm : public Engine::Component<MouseControlledCamera
 
 struct KeyControlledCameraArm : public Engine::Component<KeyControlledCameraArm> {
    KeyControlledCameraArm(
-      uint32_t zoomInKey = GLFW_KEY_E,
-      uint32_t zoomOutKey = GLFW_KEY_Q,
+      int zoomInKey = GLFW_KEY_E,
+      int zoomOutKey = GLFW_KEY_Q,
       double sensitivity = 8.0
    )
       : zoomIn(zoomInKey)
@@ -71,7 +72,7 @@ struct KeyControlledCameraArm : public Engine::Component<KeyControlledCameraArm>
       , sensitivity(sensitivity)
    {};
 
-   uint32_t zoomIn, zoomOut;
+   int zoomIn, zoomOut;
    double sensitivity;
 };
 

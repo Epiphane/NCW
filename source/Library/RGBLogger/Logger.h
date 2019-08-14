@@ -49,7 +49,7 @@ public:
 
 public:
    LogManager();
-   ~LogManager();
+   virtual ~LogManager();
 
 public:
    void Log(const char* message, Color color = Default) override;

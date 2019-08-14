@@ -1,0 +1,73 @@
+// GLFW external library
+//------------------------------------------------------------------------------
+.GlfwIncludePaths = ''
+{
+   .LibraryName         = 'glfw'
+   .LibraryVersion      = '3.2.1'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .AdditionalCompilerOptions = ''
+                           #if __WINDOWS__
+                              + ' -D_GLFW_WIN32'
+                              + ' /wd4100' // '%s': unreferenced formal parameter
+                              + ' /wd4152'
+                              + ' /wd4204' 
+                              + ' /wd4242' // '%s': conversion from 'int' to 'short'
+                              + ' /wd4244' // '%s': conversion from 'int' to 'short'
+                              + ' /wd4464' // elative include path contains '..'
+                              + ' /wd4996'
+                              + ' /wd6011' // Dereferencing NULL pointer 'monitor'
+                              + ' /wd6308' // 'realloc' might return null pointer
+                              + ' /wd6385' // Reading invalid data from '%s'
+                              + ' /wd6387' // 'data.objects' could be '0'
+                              + ' /wd28182' // Dereferencing NULL pointer
+                              + ' /wd28251' // Inconsistent annotation for 'joyConfigChanged'
+                           #endif
+                           #if __OSX__
+                              + ' -D_GLFW_COCOA'
+                              + ' -Wno-unused-parameter'
+                              + ' -Wno-deprecated-declarations'
+                              + ' -Wno-sign-compare'
+                           #endif
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   .LibrarySourceFiles  = {
+                              'context.c' 
+                              'init.c' 
+                              'input.c' 
+                              'monitor.c' 
+                              'vulkan.c' 
+                              'window.c'
+                           }
+                        #if __WINDOWS__
+                           + {
+                              'win32_init.c'
+                              'win32_joystick.c'
+                              'win32_monitor.c'
+                              'win32_time.c'
+                              'win32_tls.c'
+                              'win32_window.c'
+                              'wgl_context.c'
+                              'egl_context.c'
+                           }
+                        #endif
+                        #if __OSX__
+                           + {
+                              'cocoa_init.m' 
+                              'cocoa_joystick.m'
+                              'cocoa_monitor.m' 
+                              'cocoa_window.m'
+                              'cocoa_time.c'
+                              'posix_tls.c'
+                              'nsgl_context.m'
+                           }
+                        #endif
+
+   .UnityOutputPattern  = 'Unity*.c'
+   #define NO_UNITY_BUILD_ONCE
+   #define C_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^GlfwIncludePaths = ' -I$LibraryIncludePaths$'
+}

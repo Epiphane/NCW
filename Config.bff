@@ -1,0 +1,48 @@
+//
+// Machine-specific configuration. Useful for being lazy, and
+// not vendoring tools like Node, Python, and Windows or OSX
+// SDKs and compiling tools.
+//
+// Needs to be configured per machine to account for differences.
+//
+
+.MachineConfig =
+[
+   .PythonExe              = '/usr/local/bin/python3'
+   .VS2019_BasePath        = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community'
+   .VS2019_Version         = '14.21.27702'
+   .Windows10_SDKBasePath  = 'C:\Program Files (x86)\Windows Kits\10'
+   .Windows10_SDKVersion   = '10.0.17763.0'
+]
+
+//------------------------------------------------------------------------------
+// Release and Debug are two entirely separate targets of the same set of
+// artifacts. Building them all (the FBuild default), therefore, takes twice
+// as long.
+//------------------------------------------------------------------------------
+// Uncomment for faster `FBuild All` builds
+#define DEBUG_BUILD_ONLY
+
+//------------------------------------------------------------------------------
+// Unity compilation is faster for full rebuilds but slower for iteration.
+// Example benchmark:
+//   Engine rebuild (Unity) - 10s
+//   Engine rebuild (Obj)   - 17s
+//
+//   Engine build 1 change (Unity) - 10s
+//   Engine build 1 change (Obj)   - 2s
+//------------------------------------------------------------------------------
+// Comment out for high iteration on single small files
+// #define UNITY_BUILD
+
+//------------------------------------------------------------------------------
+// If you _really_ want to improve compilation times, you can uncomment this
+// after building everything once. It replaces the dependency build step with
+// just using the dependencies that have already been built (which prevents
+// a more costly rebuild when doing the whole solution.
+//
+// If you make any changes to dependencies, however, you'll need to comment
+// this again. Each change to this line also triggers a rebuild of the whole
+// thing.
+//------------------------------------------------------------------------------
+#define SKIP_DEPENDENCY_BUILD

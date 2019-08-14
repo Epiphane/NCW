@@ -23,6 +23,8 @@
 #ifndef NOISE_H
 #define NOISE_H
 
+#pragma warning(disable : 6011)
+
 /// @mainpage libnoise
 ///
 /// @section intro Introduction
@@ -69,5 +71,7 @@
 #include "module/module.h"
 #include "model/model.h"
 #include "misc.h"
+
+#pragma warning(default : 6011)
 
 #endif

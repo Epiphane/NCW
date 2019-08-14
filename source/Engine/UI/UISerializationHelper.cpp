@@ -5,7 +5,6 @@
 //  Created by Elliot Fiske on 11/19/18.
 //
 
-#include <fstream>
 #include <RGBNetworking/JSONSerializer.h>
 #include <Shared/UI/RectFilled.h>
 

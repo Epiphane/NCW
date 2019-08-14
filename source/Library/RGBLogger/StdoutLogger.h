@@ -18,7 +18,7 @@ class StdoutLogger : public Logger
 {
 public:
    StdoutLogger();
-   ~StdoutLogger();
+   virtual ~StdoutLogger();
 
    NO_REGISTER_HOOKS
 

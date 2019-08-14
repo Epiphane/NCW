@@ -15,6 +15,8 @@ namespace CubeWorld
 // transition parameters.
 //
 struct AnimationControllerBase {
+   virtual ~AnimationControllerBase() = default;
+
    // Interface
    virtual void Play(const std::string& state, double startTime = 0.0) = 0;
    virtual void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) = 0;

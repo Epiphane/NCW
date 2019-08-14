@@ -1,0 +1,73 @@
+// Library generation helper
+// Required defines:
+//    .LibraryName
+//    .LibraryPath
+//    .AdditionalCompilerOptions
+//------------------------------------------------------------------------------
+ForEach( .Config in .Configs )
+{
+   Using( .Config )
+   .OutputPath + '$Platform$-$Config$/$LibraryName$'
+   .CompilerOutputPath   = .OutputPath
+
+   // Unity
+   // --------------------------------------------------------------------------
+   Unity( '$LibraryName$-Unity-$Platform$-$Config$' )
+   {
+      .UnityInputPath         = '$LibraryPath$/'
+      .UnityOutputPath        = .OutputPath
+   }
+
+   // Unity (Objective-C)
+   Unity( '$LibraryName$-UnityObjC-$Platform$-$Config$' )
+   {
+      .UnityInputPath         = '$LibraryPath$/'
+      .UnityInputPattern      = '*.mm'
+      .UnityOutputPath        = .OutputPath
+      .UnityOutputPattern     = 'UnityObjC*.mm'
+   }
+
+   // Library
+   //--------------------------------------------------------------------------
+   Library( '$LibraryName$-Lib-$Platform$-$Config$' )
+   {
+      // Input
+      .CompilerInputUnity        = {
+                                    '$LibraryName$-Unity-$Platform$-$Config$'
+                                    '$LibraryName$-UnityObjC-$Platform$-$Config$'
+                                 }
+      .CompilerOptions           + .AdditionalCompilerOptions
+
+      // Output
+      .CompilerOutputPath         = .OutputPath
+      .LibrarianOutput            = '$OutputPath$/$LibraryName$$LibExtension$'
+   }
+
+   Alias( '$LibraryName$-$Platform$-$Config$' ) { .Targets = '$LibraryName$-Lib-$Platform$-$Config$' }
+   ^'Targets_$Platform$_$Config$' + { '$LibraryName$-$Platform$-$Config$' }
+}
+
+{
+   .ProjectBasePath        = '$LibraryPath$'
+   .ProjectInputPaths      = '$LibraryPath$'
+
+   .ProjectDebug     = [ Using( .ProjectDebug )   .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectConfigs   + { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease ) .Target = '$LibraryName$-$Platform$-$Config$' ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
+
+   VCXProject( '$LibraryName$-proj' )
+   {
+      .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$LibraryName$.vcxproj'
+   }
+   ^VSCoreLibraries + { '$LibraryName$-proj' }
+
+   XCodeProject( '$LibraryName$-xcode' )
+   {
+      .ProjectOutput          = '$OutputPath$/XCode/Projects/Library/$LibraryName$.xcodeproj/project.pbxproj'
+      .XCodeBuildWorkingDir   = '../../../..'
+   }
+   ^XCodeCoreLibraries + { '$LibraryName$-xcode' }
+}

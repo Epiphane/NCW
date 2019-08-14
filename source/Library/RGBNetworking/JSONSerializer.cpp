@@ -1,8 +1,10 @@
 // By Thomas Steinke
 
+#pragma warning(disable : 4365 6313 6319 6385 6386)
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/writer.h>
+#pragma warning(default : 4365 6313 6319 6385 6386)
 
 #include <RGBBinding/BindingPropertyReader.h>
 #include "JSONSerializer.h"

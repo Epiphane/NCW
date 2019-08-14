@@ -1,0 +1,12 @@
+// RGBSettings library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBSettings'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = .RapidJsonIncludePaths
+                              + .GlmIncludePaths
+                              + .LibYamlIncludePaths
+
+   #include "../LibraryHelper.bff"
+}

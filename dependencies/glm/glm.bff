@@ -1,0 +1,13 @@
+// GLM external library
+//------------------------------------------------------------------------------
+.GlmIncludePaths = ''
+{
+   .LibraryName = 'glm'
+   .LibraryVersion = '0.9.9.0'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .CompilerOutputPath   = '$OutputPath$/$LibraryName$/'
+
+   ^GlmIncludePaths = ' -I$LibraryIncludePaths$'
+}

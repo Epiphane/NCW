@@ -24,7 +24,7 @@ class Binding
 {
 public:
    Binding() : mBinding(nullptr) {}
-   ~Binding() {}
+   virtual ~Binding() = default;
 
    //
    // Update the current state of the binding. Returns true if an update was performed.
@@ -46,7 +46,10 @@ public:
    void Bind(T* location)
    {
       mBinding = location;
-      mInternalValue = *location;
+      if (location != nullptr)
+      {
+         mInternalValue = *location;
+      }
    }
 
    ///

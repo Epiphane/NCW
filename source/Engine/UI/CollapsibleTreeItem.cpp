@@ -27,14 +27,14 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
 {
    mLabel = Add<Text>(Text::Options{}, mName + "Label");
    mSubItemStackView = Add<UIStackView>(mName + "SubItemParent");
-   
+
    mSelectionToggle = Add<ToggleButtonVC>(mName + "SelectionToggle");
    mSelectedHighlight = Add<RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
    
    Image::Options offImage;
    offImage.filename = Asset::Image("EditorIcons.png");
    offImage.image = "button_right";
-   
+
    Image::Options onImage;
    onImage.filename = Asset::Image("EditorIcons.png");
    onImage.image = "button_down";
@@ -56,7 +56,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          mSubItems.clear();
          
          mLabel->SetText(newData.title);
-         
+
          for (const Data& newSubItemData : newData.children) {
             auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>();
             newItem->GetDataSink().SendMessage(newSubItemData);
@@ -73,7 +73,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          for (CollapsibleTreeItem* subItem : subItems) {
             subItem->SetActive(bActive && bExpanded);
          }
-         
+
          // If we have no subItems, there's no need to show the expansion toggle
          mExpandToggle->SetActive(bActive && !subItems.empty());
       }, mBag);
@@ -83,7 +83,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          const auto& [bSelected, bActive] = newState;
          mSelectedHighlight->SetActive(bSelected && bActive);
       }, mBag);
-   
+
    mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
    mLabel->ConstrainToRightOf(mExpandToggle, 5.0);
@@ -95,7 +95,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mExpandToggle->ConstrainHeight(20);
    mExpandToggle->ConstrainLeftAlignedTo(this);
    mExpandToggle->ConstrainTopAlignedTo(this);
-   
+
    mSelectedHighlight->ConstrainLeftAlignedTo(this);
    mSelectedHighlight->ConstrainTopAlignedTo(this);
    mSelectedHighlight->ConstrainRightAlignedTo(this);

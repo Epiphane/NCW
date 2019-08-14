@@ -40,38 +40,6 @@ bool TestAABB(glm::vec3 positionA, glm::vec3 plusSizeA, glm::vec3 minusSizeA, gl
    return true;
 }
 
-bool Overlapping(const Engine::Entity& entityA, const Engine::Entity& entityB)
-{
-   TransformHandle transformA = entityA.Get<Engine::Transform>();
-   TransformHandle transformB = entityB.Get<Engine::Transform>();
-   ColliderHandle colliderA = entityA.Get<Collider>();
-   ColliderHandle colliderB = entityB.Get<Collider>();
-   if (!colliderA || !colliderB)
-   {
-      return false;
-   }
-
-   // First, radius test.
-   // TODO size is extended out from both sides of the center, so this check is overly sensitive.
-   /*double r1 = colliderA->size.length();
-   double r2 = colliderB->size.length();
-   double dist = (transformB->GetAbsolutePosition() - transformA->GetAbsolutePosition()).length();
-   if (dist > r1 + r2)
-   {
-      return false;
-   }*/
-
-   // Then, AABB test.
-   return TestAABB(
-      transformA->GetAbsolutePosition(),
-      colliderA->size / 2.0f,
-      colliderA->size / 2.0f,
-      transformB->GetAbsolutePosition(),
-      colliderB->size / 2.0f,
-      colliderB->size / 2.0f
-   );
-}
-
 //
 // Notes:
 // - entityA is always assumed to be movable.

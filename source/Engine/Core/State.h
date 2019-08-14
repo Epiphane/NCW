@@ -23,7 +23,7 @@ class GameObject;
 class State {
 public:
    State();
-   ~State();
+   virtual ~State();
 
    // Can be done in advance, so that it doesn't have to get done by the StateManager in realtime.
    void EnsureLoaded()

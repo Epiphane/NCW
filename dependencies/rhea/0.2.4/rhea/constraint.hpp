@@ -6,11 +6,13 @@
 //---------------------------------------------------------------------------
 #pragma once
 
-#include <list>
-#include <memory>
 #include "abstract_constraint.hpp"
 #include "linear_equation.hpp"
 #include "linear_inequality.hpp"
+#include <list>
+#include <memory>
+
+#pragma warning(disable : 4265)
 
 namespace rhea
 {
@@ -147,9 +149,10 @@ namespace std
 
 /** Hash function, required for std::unordered_map. */
 template <>
-struct hash<rhea::constraint> : public function<size_t(rhea::constraint)>
-{
+struct hash<rhea::constraint> : public function<size_t(rhea::constraint)> {
     size_t operator()(const rhea::constraint& c) const { return c.hash(); }
 };
+
+#pragma warning(default : 4265)
 
 } // namespace std

@@ -11,6 +11,8 @@ namespace CubeWorld
 class Bounded
 {
 public:
+   virtual ~Bounded() = default;
+
    virtual uint32_t GetX() const = 0;
    virtual uint32_t GetY() const = 0;
    virtual uint32_t GetWidth() const = 0;

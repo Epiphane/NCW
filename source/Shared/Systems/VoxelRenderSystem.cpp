@@ -39,13 +39,13 @@ VoxelRender::VoxelRender(const VoxelRender& other)
 void VoxelRender::Set(std::vector<Voxel::Data>&& voxels)
 {
    mSize = GLsizei(voxels.size());
-   mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), voxels.data(), GL_STATIC_DRAW);
+   mVoxelData.BufferData(sizeof(Voxel::Data) * voxels.size(), voxels.data(), GL_STATIC_DRAW);
 }
 
 void VoxelRender::Set(const std::vector<Voxel::Data>& voxels)
 {
    mSize = GLsizei(voxels.size());
-   mVoxelData.BufferData(sizeof(Voxel::Data) * int(voxels.size()), (void*)voxels.data(), GL_STATIC_DRAW);
+   mVoxelData.BufferData(sizeof(Voxel::Data) * voxels.size(), (void*)voxels.data(), GL_STATIC_DRAW);
 }
 
 std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;
@@ -95,7 +95,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
    program->UniformMatrix4f("uViewMatrix", view);
 
    mClock.Reset();
-   entities.Each<Transform, VoxelRender>([&](Engine::Entity /*entity*/, Transform& transform, VoxelRender& render) {
+   entities.Each<Transform, VoxelRender>([&](Transform& transform, VoxelRender& render) {
       render.mVoxelData.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
       render.mVoxelData.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
       render.mVoxelData.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
@@ -109,7 +109,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       CHECK_GL_ERRORS();
    });
 
-   entities.Each<Transform, VoxModel>([&](Engine::Entity /*entity*/, Transform& transform, VoxModel& voxModel) {
+   entities.Each<Transform, VoxModel>([&](Transform& transform, VoxModel& voxModel) {
       voxModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
       voxModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
       voxModel.mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));

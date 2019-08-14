@@ -1,0 +1,10 @@
+// RGBText library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBText'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = ' -Isource/Library'
+
+   #include "../LibraryHelper.bff"
+}

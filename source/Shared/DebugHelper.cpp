@@ -61,7 +61,7 @@ std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::
    return link;
 }
 
-void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> metric)
+void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> /*metric*/)
 {
    // metric will be deconstructed at the end of this function, which is now the owner
 }

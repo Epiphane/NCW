@@ -19,7 +19,7 @@ Cube World seemed like the perfect starting point for doing a game engine from s
 
 Right now there are two "things": the Game and the Editor. Editor, as the name implies, is intended to be the place for making content for the Game, which is what people will play.
 
-### Editor Windows
+### Editor Reference
 
 If you're going to change up things such as the UI, it's good to know what to expect. Since there are no tests, use this reference image as a handy-dandy "what should the Editor look like at all times?" guide:
 
@@ -28,22 +28,22 @@ If you're going to change up things such as the UI, it's good to know what to ex
 ## How to develop
 
 1. Make sure you can see [the Trello board](https://trello.com/b/X0QjsQet/not-cube-world).
-2. You need [CMake](https://cmake.org/).
-3. Use either Mac or Windows x64.
-4. (Editing models) Download [MagicaVoxel](https://ephtracy.github.io/). Refer to [Editing Models](#editing-models) for setup info.
+2. Use either Mac or 64-bit Windows.
+3. (Editing models) Download [MagicaVoxel](https://ephtracy.github.io/). Refer to [Editing Models](#editing-models) for setup info.
 
 ### Windows-Specific
 
-1. Install [Visual Studio 2017](https://visualstudio.microsoft.com/downloads/).
-2. Use cmake to build the solution: `cmake build`.
+1. Install [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/) for easier development (not required).
+2. Use `fbuild` to build the solution: `FBuild.exe CubeWorld-sln`.
+3. The solution can be found at `tmp/VisualStudio/CubeWorld.sln`
+4. Building from command line: run `FBuild.exe All`.
 
 ### Mac-Specific
 
-1. Get `clang v9.0.0`. This can be checked by running `clang -v`. If you can't upgrade, I have no idea if it'll work. #YOLO
-2. Ensure that the CMake executable exists at `/Applications/CMake.app/Contents/bin/cmake`
-3. `mkdir build && cd build`
-4. `/Applications/CMake.app/Contents/bin/cmake -G "Unix Makefiles" ..`
-5. Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
+1. Get `clang v10.0.0`. This can be checked by running `clang -v`. If you can't upgrade, I have no idea if it'll work. #YOLO
+2. Building from command line: run `FBuild All`.
+3. (VS Code) Install [Visual Studio Code](https://code.visualstudio.com/). The `.vscode` folder defines some useful macros for rebuilding cmake and running the game or editor.
+4. (XCode) Use `fbuild` to create the XCode solution: `FBuild CubeWorld-sln`. The solution can be found at `tmp/XCode/CubeWorld.xcodeproj`
 
 ### Running the game
 
@@ -59,7 +59,7 @@ To change what gets launched, modify `.vscode/launch.json`.
 
 #### Manually
 
-After building either the `Game` or `Editor` targets, navigate to `build/source/{target}` and run the executable from there.
+After building either the `Game` or `Editor` targets, navigate to `tmp/OSX-Debug/{target}` and run the executable from there.
 
 ```bash
 Game$ ./Game
@@ -132,6 +132,10 @@ Here are the important folders:
    - `Game`
 
       The game itself. Gets built into an executable that you'll use to actually play the game.
+
+   - `Library`
+
+      Common libraries, one step up above `Engine`.
 
    - `Sandbox`
 

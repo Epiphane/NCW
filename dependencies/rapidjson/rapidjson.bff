@@ -1,0 +1,13 @@
+// rapidjson external library
+//------------------------------------------------------------------------------
+.RapidJsonIncludePaths = ''
+{
+   .LibraryName = 'rapidjson'
+   .LibraryVersion = '1.1.0'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .CompilerOutputPath   = '$OutputPath$/$LibraryName$/'
+
+   ^RapidJsonIncludePaths = ' -I$LibraryIncludePaths$'
+}

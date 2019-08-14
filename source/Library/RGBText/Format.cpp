@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <stdio.h>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -72,7 +73,7 @@ public:
    explicit FormatInt(uint32_t value) : str(format_decimal(value)) {}
    explicit FormatInt(uint64_t value) : str(format_decimal(value)) {}
 
-   std::string result() const { return std::string(str, buffer - str + BUFFER_SIZE - 1); }
+   std::string result() const { return std::string(str, uint64_t(buffer - str + BUFFER_SIZE - 1)); }
 };
 
 std::string FormatBool(bool value)
@@ -120,7 +121,7 @@ std::string FormatDouble(T value, const impl::format_specs& specs)
 
    // TODO snprintf_s or _snprintf_s by platform
    int written = snprintf(buffer, BUFFER_SIZE, fmt, value);
-   if (written <= BUFFER_SIZE)
+   if (written <= (int)BUFFER_SIZE)
    {
       return std::string(buffer);
    }
@@ -183,7 +184,7 @@ uint32_t ParseNonnegativeInteger(std::string_view::iterator& it, std::string_vie
    assert('0' <= *it && *it <= '9');
    uint32_t value = 0;
 
-   uint32_t max_int = (std::numeric_limits<int32_t>::max)();
+   uint32_t max_int = (std::numeric_limits<uint32_t>::max)();
    uint32_t big = max_int / 10;
    do
    {
@@ -243,17 +244,22 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
       if (it != end)
       {
          // Parse format
+         auto newIt = it;
          // TODO
-         if (*it == '.')
+         if (*newIt == '.')
          {
-            ++it;
-            if ('0' <= *it && *it <= '9')
+            ++newIt;
+            if ('0' <= *newIt && *newIt <= '9')
             {
-               specs.precision = ParseNonnegativeInteger(it, end);
+               specs.precision = ParseNonnegativeInteger(newIt, end);
             }
 
-            // TODO there's a lot more to worry about here i think
-            assert(*it++ == 'f' && "Format type of f is the only one implemented with precision");
+            if (*newIt++ == 'f')
+            {
+               // valid format, move along
+               // TODO there's a lot more to worry about here i think
+               it = newIt;
+            }
          }
       }
 

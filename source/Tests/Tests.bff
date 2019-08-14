@@ -1,0 +1,97 @@
+// Tests Project
+//------------------------------------------------------------------------------
+{
+   .ProjectName = 'Tests'
+   .ProjectPath = '$_CURRENT_BFF_DIR_$'
+
+   ForEach( .Config in .Configs )
+   {
+      Using( .Config )
+      .OutputPath          + '$Platform$-$Config$/$ProjectName$'
+      .CompilerOutputPath  = .OutputPath
+      .CompilerOptions     + .SourceIncludePaths
+                        #if __WINDOWS__
+                           + ' /wd4365'
+                           + ' /wd4388'
+                           + ' /wd4583'
+                           + ' /wd4866'
+                           + ' /wd6330'
+                        #endif
+
+      // No Unity build here; tests are weird
+      // --------------------------------------------------------------------------
+      ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
+      {
+         .CompilerInputPath             = '$_CURRENT_BFF_DIR_$'
+      }
+
+      // Library
+      //--------------------------------------------------------------------------
+      Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+      {
+         // Input
+         .LibrarianAdditionalInputs = { '$ProjectName$-Obj-$Platform$-$Config$' }
+
+         // Output
+         .CompilerOutputPath  = '$OutputPath$'
+         .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
+      }
+
+      // Executable
+      //--------------------------------------------------------------------------
+      Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
+      {
+         // Input
+         .Libraries         = {
+                                 '$ProjectName$-Obj-$Platform$-$Config$'
+                                 'Engine-Lib-$Platform$-$Config$'
+                                 'Shared-Lib-$Platform$-$Config$'
+
+                                 'RGBBinding-Lib-$Platform$-$Config$'
+                                 'RGBFileSystem-Lib-$Platform$-$Config$'
+                                 'RGBLogger-Lib-$Platform$-$Config$'
+                                 'RGBNetworking-Lib-$Platform$-$Config$'
+                                 'RGBSettings-Lib-$Platform$-$Config$'
+                                 'RGBText-Lib-$Platform$-$Config$'
+
+                                 'freetype-Lib-$Platform$-$Config$'
+                                 'glad-Lib-$Platform$-$Config$'
+                                 'glfw-Lib-$Platform$-$Config$'
+                                 'libnoise-Lib-$Platform$-$Config$'
+                                 'libyaml-Lib-$Platform$-$Config$'
+                                 'lodepng-Lib-$Platform$-$Config$'
+                                 'noiseutils-Lib-$Platform$-$Config$'
+                                 'rhea-Lib-$Platform$-$Config$'
+                                 'sqlite-Lib-$Platform$-$Config$'
+                                 'zlib-Lib-$Platform$-$Config$'
+                              }
+                           #if __OSX__
+                              + { 'libfswatch-Lib-$Platform$-$Config$' }
+                           #endif
+
+         // Output
+         .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
+      #if __WINDOWS__
+         .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
+                              + ' Comdlg32.lib'
+                              + ' Gdi32.lib'       // Bitmap functions
+                              + ' kernel32.lib'    // Kernel functions
+                              + ' Ole32.lib'
+                              + ' Shell32.lib'     // Shell API
+                              + ' Shlwapi.lib'
+                              + ' User32.lib'
+      #endif
+      }
+
+      Test( '$ProjectName$-Run-$Platform$-$Config$' )
+      {
+         .TestExecutable = '$ProjectName$-Exe-$Platform$-$Config$'
+         .TestOutput = '$OutputPath$/Output.txt'
+      }
+
+      Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+      ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
+   }
+
+   #include "../../Helpers/Project.bff"
+}

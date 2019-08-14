@@ -22,7 +22,7 @@ void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, T
       flyDirection = glm::normalize(glm::vec3(isD - isA, 0, isW - isS));
    }
    
-   entities.Each<Engine::Transform, FlySpeed, SimplePhysics::Body>([&](Engine::Entity /*entity*/, Engine::Transform& transform, FlySpeed& fly, SimplePhysics::Body& body) {
+   entities.Each<Engine::Transform, FlySpeed, SimplePhysics::Body>([&](Engine::Transform& transform, FlySpeed& fly, SimplePhysics::Body& body) {
       glm::vec3 dir = float(fly.speed) * glm::normalize(transform.GetFlatDirection());
 
       glm::vec3 forward = glm::vec3(dir.x, 0, dir.z);

@@ -1,0 +1,453 @@
+//------------------------------------------------------------------------------
+// Not Cube World build specification
+//------------------------------------------------------------------------------
+.OutputPath = "tmp/"
+
+//------------------------------------------------------------------------------
+// Machine-specific configuration.
+//------------------------------------------------------------------------------
+#include "Config.bff"
+Using( .MachineConfig )
+
+//------------------------------------------------------------------------------
+// SDK and compiler includes.
+//------------------------------------------------------------------------------
+#include "dependencies/SDK/GCC/GCC.bff"
+#include "dependencies/SDK/VisualStudio/VisualStudio.bff"
+#include "dependencies/SDK/Clang/Clang.bff"
+#include "dependencies/SDK/Windows/Windows.bff"
+
+Settings
+{
+	// Use clean environment to prevent rebuilds caused by changes in it.
+	// All important variables are imported exclicitly.
+#if __WINDOWS__
+   #import SystemRoot
+	.Environment =
+	{
+      "PATH=^"$VS_PATH$^""
+		'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
+		'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
+	}
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Config Defines
+//------------------------------------------------------------------------------
+.CommonOptions = ' -Isource/Library'
+               + ' -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING'
+               + ' -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING'
+               + ' -D_CRT_SECURE_NO_WARNINGS'
+               + ' -DNOMINMAX'
+               + ' -DYAML_DECLARE_STATIC'
+            #if __WINDOWS__
+               + ' -DCUBEWORLD_PLATFORM_WINDOWS'
+               + ' -D_WIN32_WINNT=0x0601' // Windows 7
+               + ' -Dstrdup=_strdup'
+               + ' -Dchmod=_chmod'
+               + ' -Dunlink=_unlink'
+            #endif
+            #if __OSX__
+               + ' -DCUBEWORLD_PLATFORM_MACOSX'
+            #endif
+.PreprocessorDefinitions   = '_HAS_CXX17;_HAS_CXX20'
+                        #if __WINDOWS__
+                           + ';CUBEWORLD_PLATFORM_WINDOWS;_WIN32_WINNT=0x0601'
+                        #endif
+                        #if __OSX__
+                           + ';CUBEWORLD_PLATFORM_MACOSX'
+                        #endif
+.CommonLinkerOptions = ''
+                  #if __OSX__
+                     + ' -framework Cocoa'
+                     + ' -framework Security'
+                     + ' -framework CFNetwork'
+                     + ' -framework ScriptingBridge'
+                     + ' -framework IOKit'
+                     + ' -framework CoreVideo'
+                     + ' -framework OpenGL'
+                     + ' -framework DiskArbitration'
+                  #endif
+
+.Debug_Config =
+[
+   .CompilerOptions              = ' -DDEBUG'
+                                 + ' -D_DEBUG'
+                                 + ' -DPROFILING_ENABLED'
+                                 + ' -DZLIB_DEBUG'
+                                 + .CommonOptions
+   .CompilerOptionsC             = .CompilerOptions
+
+   .Config                       = 'Debug'
+   .LinkerOptions                = .CommonLinkerOptions
+                              #if __WINDOWS__
+                                 + ' ucrtd.lib'
+                                 + ' vcruntimed.lib'
+                                 + ' msvcrtd.lib'
+                                 + ' msvcprtd.lib'
+                              #endif
+]
+.Release_Config =
+[
+   .CompilerOptions              = ' -DRELEASE'
+                                 + .CommonOptions
+   .CompilerOptionsC             = .CompilerOptions
+   .CompilerOptionsDeoptimized   = .CompilerOptions
+
+   .Config                       = 'Release'
+   .LinkerOptions                = .CommonLinkerOptions
+                              #if __WINDOWS__
+                                 + ' ucrt.lib'
+                                 + ' vcruntime.lib'
+                                 + ' msvcrt.lib'
+                                 + ' msvcprt.lib'
+                              #endif
+]
+
+//------------------------------------------------------------------------------
+// Optimizations (MSVC)
+//------------------------------------------------------------------------------
+.Debug_Optimizations_MSVC =
+[
+    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /analyze'
+    .CompilerOptionsC   = .CompilerOptions
+]
+.Release_Optimizations_MSVC =
+[
+   .CompilerOptions              = ' /MD /Ox /Oy /Oi /GS- /GF /Gy /Gw /GR- /analyze /Zo'
+   .CompilerOptionsC             = .CompilerOptions
+   .LinkerOptions                = ' /OPT:REF,ICF'
+   .CompilerOptionsDeoptimized   = .CompilerOptions
+                                 - ' /Ox'
+                                 + ' /Od'
+]
+
+//------------------------------------------------------------------------------
+// Optimizations (Clang/GCC)
+//------------------------------------------------------------------------------
+.Debug_Optimizations =
+[
+   .CompilerOptions                = ' -O0'
+   .CompilerOptionsC               = .CompilerOptions
+]
+.Release_Optimizations =
+[
+   .CompilerOptions                = ' -O2'
+   .CompilerOptionsC               = .CompilerOptions
+   .CompilerOptionsDeoptimized     = ' -O0'
+]
+
+//------------------------------------------------------------------------------
+// X64
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .X64BaseConfig      = .ToolChain_VS_Windows_X64
+                        + .WindowsSDK_X64
+    .X64DebugConfig     = .X64BaseConfig
+                        + .Debug_Config
+                        + .Debug_Optimizations_MSVC
+    .X64ReleaseConfig   = .X64BaseConfig
+                        + .Release_Config
+                        + .Release_Optimizations_MSVC
+#endif
+
+//------------------------------------------------------------------------------
+// OSX
+//------------------------------------------------------------------------------
+#if __OSX__
+   .X64DebugConfig         = .ToolChain_Clang_OSX
+                           + .Debug_Config
+                           + .Debug_Optimizations
+   .X64ReleaseConfig       = .ToolChain_Clang_OSX
+                           + .Release_Config
+                           + .Release_Optimizations
+#endif
+
+// OS-Specific file inclusion
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .UnityInputExcludePattern           = { '*/Linux/*'
+                                            '*/Unix/*'
+                                            '*/OSX/*'
+                                            '*/MacOSX/*'
+                                            '*/POSIX/*'
+                                          }
+#endif
+#if __OSX__
+    .UnityInputExcludePattern           = { '*/Linux/*'
+                                            '*/Unix/*'
+                                            '*/Windows/*'
+                                          }
+#endif
+#if __LINUX__
+    .UnityInputExcludePattern           = { '*/OSX/*'
+                                            '*/MacOSX/*'
+                                            '*/Windows/*'
+                                          }
+#endif
+
+// Configurations
+//------------------------------------------------------------------------------
+#if !DEBUG_BUILD_ONLY
+.Configs = { .X64DebugConfig, .X64ReleaseConfig }
+.Targets_x64_Release = {}
+.Targets_OSX_Release = {}
+#endif
+#if DEBUG_BUILD_ONLY
+.Configs = { .X64DebugConfig }
+#endif
+
+.Targets_x64_Debug = {}
+.Targets_OSX_Debug = {}
+
+//------------------------------------------------------------------------------
+// VisualStudio Project Generation
+//------------------------------------------------------------------------------
+.ProjectCommon =
+[
+   .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel ^$(ProjectName)-^$(Platform)-^$(Configuration)'
+   .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -clean ^$(ProjectName)-^$(Platform)-^$(Configuration)'
+   .OutputDirectory            = '^$(SolutionDir)\Temp'
+   .IntermediateDirectory      = '^$(SolutionDir)\Temp'
+   .BuildLogFile               = '^$(SolutionDir)\Temp\^$(ProjectName)-^$(Configuration).log'
+#if __WINDOWS__
+   .Platform                   = 'x64'
+#endif
+#if __OSX__
+   .Platform                   = 'OSX'
+#endif
+   .PlatformToolset            = '$VS_PlatformToolset$'
+]
+
+.ProjectDebug     = [ Using( .ProjectCommon ) .Config = 'Debug' ]
+.ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
+
+//------------------------------------------------------------------------------
+// External Dependencies
+//------------------------------------------------------------------------------
+.Dependencies = {}
+.VSDependencyProjects = {}
+.XCodeDependencyProjects = {}
+.IncludeSearchPath = ''
+#include "dependencies/freetype/freetype.bff"
+#include "dependencies/glad/glad.bff"
+#include "dependencies/glfw/glfw.bff"
+#include "dependencies/glm/glm.bff"
+#if !__WINDOWS__
+    #include "dependencies/libfswatch/libfswatch.bff"
+#endif
+#include "dependencies/libnoise/libnoise.bff"
+#include "dependencies/libyaml/libyaml.bff"
+#include "dependencies/lodepng/lodepng.bff"
+#include "dependencies/noiseutils/noiseutils.bff"
+#include "dependencies/rapidjson/rapidjson.bff"
+#include "dependencies/rhea/rhea.bff"
+#include "dependencies/sqlite/sqlite.bff"
+#include "dependencies/zlib/zlib.bff"
+
+Alias('All-Dependencies')
+{
+   .Targets = .Dependencies
+}
+
+//------------------------------------------------------------------------------
+// Source code
+//------------------------------------------------------------------------------
+.VSCoreLibraries = {}
+.XCodeCoreLibraries = {}
+#include "source/source.bff"
+
+//------------------------------------------------------------------------------
+// Aliases
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+Alias('All-x64-Debug')
+{
+   .Targets = .Targets_x64_Debug
+}
+
+#if !DEBUG_BUILD_ONLY
+Alias('All-x64-Release')
+{
+   .Targets = .Targets_x64_Release
+}
+#endif
+
+Alias( 'All' )
+{
+   .Targets  = { 'All-x64-Debug' }
+               #if !DEBUG_BUILD_ONLY
+               + { 'All-x64-Release' }
+               #endif
+}
+#endif
+
+#if __OSX__
+Alias('All-OSX-Debug')
+{
+   .Targets = .Targets_OSX_Debug
+}
+
+#if !DEBUG_BUILD_ONLY
+Alias('All-OSX-Release')
+{
+   .Targets = .Targets_OSX_Release
+}
+#endif
+
+Alias( 'All' )
+{
+   .Targets  = { 'All-OSX-Debug' }
+               #if !DEBUG_BUILD_ONLY
+               + { 'All-OSX-Release' }
+               #endif
+}
+#endif
+
+//------------------------------------------------------------------------------
+// Solutions
+//------------------------------------------------------------------------------
+VCXProject( 'All-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/All.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+}
+
+// Project to regenerate projects/solutions
+VCXProject( 'UpdateSolution-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/UpdateSolution.vcxproj'
+   .ProjectFiles               = { '.\fbuild.bff' }
+   .ProjectBasePath            = '.\'
+   .PlatformToolset            = .VS_PlatformToolset
+
+   .GenerateProjectsCommands =
+   [
+      .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs'
+      .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs -clean'
+   ]
+
+   .ProjectDebug     = [ Using( .ProjectDebug )    Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease )  Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
+}
+
+VSSolution('CubeWorld-sln-visualstudio')
+{
+   .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
+   .SolutionProjects    =  {
+                              'Editor-proj'
+                              'Engine-proj'
+                              'Game-proj'
+                              'Shared-proj'
+                              'DataCLI-proj'
+                              'Tests-proj'
+                              'All-proj'
+                              'UpdateSolution-proj'
+                           }
+   .SolutionBuildProject   = 'All-proj'
+   .SolutionConfigs        = .ProjectConfigs
+   .SolutionVisualStudioVersion = .VS_Version
+   
+   .Folder_Dependencies =
+   [
+      .Path           = 'Dependencies'
+      .Projects       = .VSDependencyProjects
+   ]
+
+   .Folder_Library =
+   [
+      .Path           = 'Library'
+      .Projects       = .VSCoreLibraries
+   ]
+
+   .SolutionFolders   = {
+                           .Folder_Dependencies
+                           .Folder_Library
+                        }
+}
+
+// Project to regenerate projects/solutions
+XCodeProject( 'UpdateSolution-xcode' )
+{
+   .ProjectOutput    = '$OutputPath$/XCode/Projects/UpdateSolution.xcodeproj/project.pbxproj'
+   .ProjectBasePath  = '$OutputPath$/../'
+   .ProjectFiles     = { './fbuild.bff' }
+   .XCodeBuildWorkingDir   = '../../..'
+   .XCodeBuildToolArgs     = '-ide CubeWorld-sln-xcode'
+
+   .GenerateProjectsCommands =
+   [
+      .Config                 = 'Debug'
+      .Platform               = 'OSX'
+   ]
+
+   .ProjectConfigs = { .GenerateProjectsCommands }
+}
+
+#if __OSX__
+XCodeProject( 'CubeWorld-sln-xcode' )
+{
+   .ProjectOutput          = '$OutputPath$/XCode/CubeWorld.xcodeproj/project.pbxproj'
+   .ProjectBasePath        = '$OutputPath$/XCode/Projects'
+   .XCodeBuildWorkingDir   = '../..'
+
+   .XCodeDebugConfig       = [ .Config = 'Debug'       .Target = 'All-OSX-Debug' ]
+#if !DEBUG_BUILD_ONLY
+   .XCodeReleaseConfig     = [ .Config = 'Release'     .Target = 'All-OSX-Release' ]
+#endif
+
+   .ProjectFiles   = {
+                        'Editor-xcode'
+                        'Engine-xcode'
+                        'Game-xcode'
+                        'Sandbox-xcode'
+                        'Shared-xcode'
+                        'DataCLI-xcode'
+                        'Tests-xcode'
+                        'UpdateSolution-xcode'
+                     }
+                     + .XCodeCoreLibraries 
+                     + .XCodeDependencyProjects
+
+   .ProjectConfigs   = { .XCodeDebugConfig }
+                  #if !DEBUG_BUILD_ONLY
+                     + { .XCodeReleaseConfig }
+                  #endif
+}
+
+Exec('CubeWorld-sln-xcode-schemes')
+{
+   .PreBuildDependencies = { 'CubeWorld-sln-xcode' }
+
+   .ExecExecutable   = .PythonExe
+   .ExecInput        = { 'Helpers/make_xcode_targets.py' }
+   .ExecArguments    = '%1'
+                     + ' tmp/XCode'
+                     + ' DataCLI Editor Sandbox Game Tests'
+   .ExecOutput       = 'tmp/XCode/Projects/DataCLI.xcodeproj/xcshareddata/xcschemes/DataCLI.xcscheme'
+}
+#endif
+
+#if __WINDOWS__
+Alias( 'CubeWorld-sln' )
+{
+   .Targets = 'CubeWorld-sln-visualstudio'
+}
+#endif
+#if __OSX__
+Alias( 'CubeWorld-sln' )
+{
+   .Targets = 'CubeWorld-sln-xcode-schemes'
+}
+#endif
