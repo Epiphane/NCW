@@ -34,6 +34,7 @@ public:
 
 public:
    // Runtime configuration
+   bool active = true;
    bool update = true;
    bool render = true;
 };
@@ -53,6 +54,7 @@ struct MultipleParticleEmitters : public Engine::Component<MultipleParticleEmitt
       bool useEntityTransform = true;
 
       glm::mat4 transform{1};
+      bool active = true;
       bool update = true;
       bool render = true;
    };
@@ -85,7 +87,11 @@ private:
    // Bind system-specific uniforms and runs the update once.
    // Does not bind the program; do that before calling this.
    //
-   void UpdateParticleSystem(Engine::ParticleSystem& system) const;
+   void UpdateParticleSystem(
+      Engine::ParticleSystem& system,
+      const glm::mat4& model,
+      TIMEDELTA dt
+   ) const;
 
    //
    // Bind system-specific uniforms and runs the render once.

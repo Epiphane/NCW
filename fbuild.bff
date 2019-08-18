@@ -19,6 +19,8 @@ Using( .MachineConfig )
 
 Settings
 {
+   .AllowDBMigration_Experimental = true
+
 	// Use clean environment to prevent rebuilds caused by changes in it.
 	// All important variables are imported exclicitly.
 #if __WINDOWS__
@@ -352,6 +354,7 @@ VSSolution('CubeWorld-sln-visualstudio')
                               'Shared-proj'
                               'DataCLI-proj'
                               'Tests-proj'
+                              'Sandbox-proj'
                               'All-proj'
                               'UpdateSolution-proj'
                            }

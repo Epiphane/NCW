@@ -1,6 +1,6 @@
 ---
 name: slash
-shader: Texture2D
+shader: Trail2D
 max-particles: 100
 shader-texture: trail.png
 shader-uniforms:
@@ -13,4 +13,4 @@ launcher:
   lifetime: 0.1
 shape: trail
 particle:
-  lifetime: 0.5
+  lifetime: 0.3

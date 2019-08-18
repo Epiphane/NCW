@@ -246,6 +246,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
       }
    }
 
+   // Add particle effects
    for (const auto& [name, effects] : anims->effects)
    {
       State& state = states[name];
@@ -405,17 +406,16 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
 
       if (controller.emitters)
       {
-         for (MultipleParticleEmitters::Emitter& system : controller.emitters->systems)
-         {
-            system.update = false;
-            system.render = false;
-         }
-
          for (const SimpleAnimationController::EmitterRef& ref : state.emitters)
          {
             if (controller.time >= ref.start && controller.time <= ref.end)
             {
                MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
+               if (!system.active)
+               {
+                  system.Reset();
+                  system.active = true;
+               }
                system.update = true;
                system.render = true;
 
@@ -430,6 +430,10 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
                      break;
                   }
                }
+            }
+            else
+            {
+               controller.emitters->systems[ref.emitter].active = false;
             }
          }
       }

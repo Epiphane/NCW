@@ -5,6 +5,7 @@
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
+#include <Shared/Helpers/Asset.h>
 
 #include "AnimationController.h"
 
@@ -14,6 +15,12 @@ namespace CubeWorld
 
 // For initializing and loading data
 AnimationController::AnimationController()
+{
+   Reset();
+}
+
+AnimationController::AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
+   : emitters(emitters)
 {
    Reset();
 }
@@ -35,6 +42,11 @@ void AnimationController::Reset()
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
+
+   if (emitters)
+   {
+      emitters->systems.clear();
+   }
 }
 
 void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton)
@@ -221,6 +233,42 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
 
       // Append transition data
       state.transitions.insert(state.transitions.end(), transitions.begin(), transitions.end());
+   }
+
+   // Add particle effects
+   for (const auto& [name, effects] : animations->effects)
+   {
+      State& state = states[stateLookup.at(name)];
+
+      if (state.name.empty())
+      {
+         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
+         assert(false);
+      }
+
+      for (const auto& effectDef : effects)
+      {
+         MultipleParticleEmitters::Emitter effect(
+            Asset::Particle(effectDef.name),
+            Asset::ParticleShaders(),
+            Asset::Image("")
+         );
+
+         effect.useEntityTransform = false;
+         effect.update = false;
+         effect.render = false;
+         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+         effect.Reset();
+
+         EmitterRef ref;
+         ref.emitter = emitters->systems.size();
+         ref.bone = effectDef.bone;
+         ref.start = effectDef.start;
+         ref.end = effectDef.end;
+
+         emitters->systems.push_back(std::move(effect));
+         state.emitters.push_back(std::move(ref));
+      }
    }
 }
 

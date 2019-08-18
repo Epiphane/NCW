@@ -3,6 +3,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <Shared/Systems/SimpleParticleSystem.h>
 
 #include "SkeletonAnimations.h"
 #include "Skeleton.h"
@@ -51,6 +52,16 @@ public:
 
    using Transition = SkeletonAnimations::Transition;
 
+   //
+   // References an emitter in the MultipleParticleEmitters component.
+   //
+   struct EmitterRef {
+      std::string bone;
+      size_t emitter;
+      double start;
+      double end;
+   };
+
    struct State {
       std::string name;
       std::string next;
@@ -59,6 +70,7 @@ public:
       double length;
       std::vector<Keyframe> keyframes;
       std::vector<Transition> transitions;
+      std::vector<EmitterRef> emitters;
    };
 
    struct Stance {
@@ -73,6 +85,7 @@ public:
 public:
    // For initializing and loading data
    AnimationController();
+   AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters);
 
    void Reset();
 
@@ -117,6 +130,9 @@ public:
    size_t next;
    double transitionCurrent;
    double transitionStart, transitionEnd;
+
+   // Particle system emitters.
+   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
 };
 
 }; // namespace CubeWorld
