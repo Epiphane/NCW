@@ -31,21 +31,21 @@ namespace Engine
  * Example JSON structure:
  *
  * {
-		"class" : "UIElement",
-		"name" : "ExampleElement",
-		"children" : [
-			{
-				"class" : "UIRectFilled",
-				"name" : "TestRedRectangle",
-				"backgroundColor" : [1.0, 0, 0, 1.0]
-			},
-			{
-				"class" : "UIRectFilled",
-				"name" : "TestBlueRectangle",
-				"backgroundColor" : [0, 0, 1.0, 1.0]
-			},
-		]
-	}
+      "class" : "UIElement",
+      "name" : "ExampleElement",
+      "children" : [
+         {
+            "class" : "UIRectFilled",
+            "name" : "TestRedRectangle",
+            "backgroundColor" : [1.0, 0, 0, 1.0]
+         },
+         {
+            "class" : "UIRectFilled",
+            "name" : "TestBlueRectangle",
+            "backgroundColor" : [0, 0, 1.0, 1.0]
+         },
+      ]
+   }
  *
  * @param element        JSON data representing the element tree to parse
  * @param pRoot          Root element all the elements will belong to
@@ -84,12 +84,12 @@ Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element
 
    for (auto child : element["children"]) {
       Maybe<void> result = ParseUIElement(child, pRoot, reference, elementMapOut);
-      
+
       if (!result) {
          return result; // Return on Failure state
       }
    }
-   
+
    return Success;
 }
 
@@ -99,20 +99,20 @@ Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element
  * @param constraints Constraint data. Example structure:
 
  [
-		{
-			"primaryElement" : "TestRedRectangle",
-			"secondaryElement" : "TestBlueRectangle",
-			"primaryTarget" : "Right",
-			"secondaryTarget" : "Left",
-			"constant" : 8.0
-		},
-		{
-			"primaryElement" : "TestRedRectangle",
-			"secondaryElement" : "TestJSONStuff",
-			"primaryTarget" : "Width",
-			"secondaryTarget" : "Width",
-			"multiplier" : 0.5
-		}
+      {
+         "primaryElement" : "TestRedRectangle",
+         "secondaryElement" : "TestBlueRectangle",
+         "primaryTarget" : "Right",
+         "secondaryTarget" : "Left",
+         "constant" : 8.0
+      },
+      {
+         "primaryElement" : "TestRedRectangle",
+         "secondaryElement" : "TestJSONStuff",
+         "primaryTarget" : "Width",
+         "secondaryTarget" : "Width",
+         "multiplier" : 0.5
+      }
 ]
 
  * @param pRoot         UIRoot that will be receiving these constraints.
@@ -133,7 +133,7 @@ Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& const
       if (elementsMap.find(primaryElementName) == elementsMap.end()) {
          return Failure{"Unknown element name %1 when creating constraints.", primaryElementName};
       }
-      
+
       primaryElement = elementsMap.at(primaryElementName);
 
       if (!secondaryElementName.empty()) {
@@ -186,7 +186,7 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingP
 
    return elementMap;
 }
-   
+
 //
 // Helper function that parses the JSON at the given path then calls CreateUIFromJSONData.
 //
@@ -195,14 +195,14 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingP
 Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent)
 {
    Maybe<BindingProperty> data = JSONSerializer::DeserializeFile(filename);
-   
+
    if (!data) {
       return Failure(data.Failure()).WithContext("UI Creation Failed");
    }
-   
+
    return CreateUIFromJSONData(*data, pRoot, pParent);
 }
-   
+
 #pragma mark Going from UI to JSON
 
 //
@@ -210,10 +210,10 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::str
 //
 BindingProperty UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
    BindingProperty result;
-   
+
    result["baseElement"] = element->ConvertToJSON();
    result["constraints"] = SerializeConstraints(constraints);
-   
+
    return result;
 }
 
@@ -228,12 +228,12 @@ BindingProperty UISerializationHelper::SerializeConstraints(const std::vector<UI
       BindingProperty constraintJson = result.push_back(BindingProperty{});
       constraintJson["primaryElement"] = constraint.GetPrimaryElement()->GetName();
       constraintJson["primaryTarget"] = UIConstraint::StringFromConstraintTarget(constraint.GetPrimaryTarget());
-      
+
       if (constraint.GetSecondaryElement()) {
          constraintJson["secondaryElement"] = constraint.GetSecondaryElement()->GetName();
          constraintJson["secondaryTarget"] = UIConstraint::StringFromConstraintTarget(constraint.GetSecondaryTarget());
       }
-      
+
       const UIConstraint::Options& opts = constraint.GetOptions();
       constraintJson["constant"] = opts.constant;
       constraintJson["multiplier"] = opts.multiplier;
@@ -244,4 +244,3 @@ BindingProperty UISerializationHelper::SerializeConstraints(const std::vector<UI
 } // CubeWorld
 
 } // Engine
-

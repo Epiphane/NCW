@@ -52,7 +52,7 @@ void main()
    fAge = gAge[2];
    EmitVertex();
    EndPrimitive();
-   
+
    // Reverse side.
    gl_Position = gl_in[2].gl_Position;
    fUV = vec2(1, 1 - gRotation[2].x);

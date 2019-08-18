@@ -21,16 +21,16 @@ Settings
 {
    .AllowDBMigration_Experimental = true
 
-	// Use clean environment to prevent rebuilds caused by changes in it.
-	// All important variables are imported exclicitly.
+   // Use clean environment to prevent rebuilds caused by changes in it.
+   // All important variables are imported exclicitly.
 #if __WINDOWS__
    #import SystemRoot
-	.Environment =
-	{
+   .Environment =
+   {
       "PATH=^"$VS_PATH$^""
-		'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
-		'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
-	}
+      'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
+      'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
+   }
 #endif
 }
 
@@ -361,7 +361,7 @@ VSSolution('CubeWorld-sln-visualstudio')
    .SolutionBuildProject   = 'All-proj'
    .SolutionConfigs        = .ProjectConfigs
    .SolutionVisualStudioVersion = .VS_Version
-   
+
    .Folder_Dependencies =
    [
       .Path           = 'Dependencies'
@@ -420,7 +420,7 @@ XCodeProject( 'CubeWorld-sln-xcode' )
                         'Tests-xcode'
                         'UpdateSolution-xcode'
                      }
-                     + .XCodeCoreLibraries 
+                     + .XCodeCoreLibraries
                      + .XCodeDependencyProjects
 
    .ProjectConfigs   = { .XCodeDebugConfig }

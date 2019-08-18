@@ -13,10 +13,10 @@ uniform float uParticleLifetime;
 
 void main()
 {
-	fragColor = vec4(texture(uTexture, fUV));
-	fragColor.a *= min(2 * fAge / uParticleLifetime, 1);
-	if (fragColor == uTransparentColor)
-	{
-		discard;
-	}
+   fragColor = vec4(texture(uTexture, fUV));
+   fragColor.a *= min(2 * fAge / uParticleLifetime, 1);
+   if (fragColor == uTransparentColor)
+   {
+      discard;
+   }
 }

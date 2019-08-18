@@ -19,7 +19,7 @@ std::string OpenFileDialog(
    const std::vector<std::string>& /*fileTypes*/
 )
 {
-	// Inspiration: https://docs.microsoft.com/en-us/windows/desktop/dlgbox/using-common-dialog-boxes
+   // Inspiration: https://docs.microsoft.com/en-us/windows/desktop/dlgbox/using-common-dialog-boxes
    OPENFILENAMEW ofn;    // common dialog box structure
    wchar_t szFile[260];    // buffer for file name
    HWND hwnd = nullptr; // owner window
@@ -42,7 +42,7 @@ std::string OpenFileDialog(
    ofn.lpstrInitialDir = NULL; // Inherits from lpstrFile
    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-   // Display the Open dialog box. 
+   // Display the Open dialog box.
    if (GetOpenFileNameW(&ofn) == TRUE)
    {
 #pragma warning(disable : 6054)
@@ -57,7 +57,7 @@ std::string SaveFileDialog(
    const std::string& defaultFile
 )
 {
-	// Inspiration: https://docs.microsoft.com/en-us/windows/desktop/dlgbox/using-common-dialog-boxes
+   // Inspiration: https://docs.microsoft.com/en-us/windows/desktop/dlgbox/using-common-dialog-boxes
    OPENFILENAMEW ofn;    // common dialog box structure
    wchar_t szFile[260];    // buffer for file name
    HWND hwnd = nullptr; // owner window
@@ -80,11 +80,11 @@ std::string SaveFileDialog(
    ofn.lpstrInitialDir = NULL; // Inherits from lpstrFile
    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-   // Display the Open dialog box. 
+   // Display the Open dialog box.
    if (GetSaveFileNameW(&ofn) == TRUE)
    {
 #pragma warning(disable : 6054)
-	   return WideToUtf8(ofn.lpstrFile);
+      return WideToUtf8(ofn.lpstrFile);
 #pragma warning(default : 6054)
    }
 
@@ -92,4 +92,3 @@ std::string SaveFileDialog(
 }
 
 }; // namespace CubeWorld
-
