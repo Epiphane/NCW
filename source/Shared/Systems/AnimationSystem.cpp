@@ -32,6 +32,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       Engine::Transform& transform = *entity.Get<Engine::Transform>();
       glm::vec3 translateRoot{0, 0, 0};
 
+      size_t prevState = controller.current;
       // Advance basic animation
       {
          State* state = &controller.states[controller.current];
@@ -246,6 +247,15 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             ++boneId;
          }
       }
+
+      if (controller.emitters)
+      {
+         UpdateEmitters(transform, controller, controller.states[controller.current], false);
+         if (prevState != controller.current)
+         {
+            UpdateEmitters(transform, controller, controller.states[prevState], true);
+         }
+      }
    });
 
    entities.Each<Skeleton, VoxModel>([&](Engine::Entity, Skeleton& skeleton, VoxModel& model) {
@@ -261,6 +271,48 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          model.mParts[b].transform = skeleton.bones[b].matrix;
       }
    });
+}
+
+void AnimationSystem::UpdateEmitters(
+   const Engine::Transform& transform,
+   const AnimationController& controller,
+   const AnimationController::State& state,
+   bool updateAllTransforms
+) const
+{
+   for (const AnimationController::EmitterRef& ref : state.emitters)
+   {
+      bool updateTransform = updateAllTransforms;
+
+      MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
+      if (controller.time >= ref.start && controller.time <= ref.end)
+      {
+         if (!system.active)
+         {
+            system.Reset();
+            system.active = true;
+         }
+         system.update = true;
+         system.render = true;
+         updateTransform = true;
+      }
+      else
+      {
+         controller.emitters->systems[ref.emitter].active = false;
+      }
+
+      if (updateTransform)
+      {
+         for (const auto& s : controller.skeletons)
+         {
+            if (s->boneLookup.count(ref.bone) != 0)
+            {
+               system.transform = transform.GetMatrix() * s->bones[s->boneLookup.at(ref.bone)].matrix;
+               break;
+            }
+         }
+      }
+   }
 }
 
 }; // namespace CubeWorld

@@ -16,19 +16,19 @@
 #define __GLSL__
 
 namespace GLSL {
-	
-	int printError();
-	void printProgramInfoLog(GLuint program);
-	void printShaderInfoLog(GLuint shader);
-	GLint getUniLoc(GLuint program, const GLchar *name);
-	void checkVersion();
-	int textFileWrite(const char *filename, char *s);
-	char *textFileRead(const char *filename);
-	GLint getAttribLocation(const GLuint program, const char varname[]);
-	GLint getUniformLocation(const GLuint program, const char varname[]);
-	void enableVertexAttribArray(const GLint handle);
-	void disableVertexAttribArray(const GLint handle);
-	void vertexAttribPointer(const GLint handle, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
+
+   int printError();
+   void printProgramInfoLog(GLuint program);
+   void printShaderInfoLog(GLuint shader);
+   GLint getUniLoc(GLuint program, const GLchar *name);
+   void checkVersion();
+   int textFileWrite(const char *filename, char *s);
+   char *textFileRead(const char *filename);
+   GLint getAttribLocation(const GLuint program, const char varname[]);
+   GLint getUniformLocation(const GLuint program, const char varname[]);
+   void enableVertexAttribArray(const GLint handle);
+   void disableVertexAttribArray(const GLint handle);
+   void vertexAttribPointer(const GLint handle, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
 }
 
 #endif

@@ -26,9 +26,9 @@ UIRoot::UIRoot(Input* input)
 #pragma warning(disable : 4355) // 'this': used in base member initializer list
    : UIElement(this, nullptr, "Root")
 #pragma warning(default : 4355)
-	, mBoundConstraints{}
-	, mContentLayer(nullptr)
-	, mInput(input)
+   , mBoundConstraints{}
+   , mContentLayer(nullptr)
+   , mInput(input)
    , mActivelyCapturingElement(nullptr)
    , mContextMenuLayer(nullptr)
    , mDirty(false)
@@ -81,7 +81,7 @@ UIRoot::~UIRoot()
    mConstraintMap.clear();
    mChildren.clear();
 }
-   
+
 void UIRoot::ToggleDebugConstraints(int /*key*/, int /*action*/, int /*mods*/) {
    mConstraintDebugger->SetActive(!mConstraintDebugger->IsActive());
 }
@@ -165,7 +165,7 @@ UIConstraint *UIRoot::GetConstraint(std::string constraintName)
       return NULL;
    }
 }
-   
+
 void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
 {
    std::vector<UIConstraint> constraintsForElement;
@@ -176,13 +176,13 @@ void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
          constraintsForElement.push_back(constraint);
       }
    }
-   
+
    for (int targetVal = 0; targetVal < UIConstraint::NoTarget - 1; targetVal++) {
       std::ostringstream result;
       UIConstraint::Target target = UIConstraint::Target(targetVal);
       result << UIConstraint::StringFromConstraintTarget(target) << ": " << element->ConvertTargetToVariable(target).evaluate() << std::endl;
-      
-      for (UIConstraint constraint : constraintsForElement) {      
+
+      for (UIConstraint constraint : constraintsForElement) {
          if (constraint.GetPrimaryElement() == element && constraint.GetPrimaryTarget() == target) {
             result << "   " << constraint.ToString() << std::endl;
          }
@@ -190,7 +190,7 @@ void UIRoot::DebugLogConstraintsForElement(const UIElement* element)
             result << "   " << constraint.ToString() << std::endl;
          }
       }
-      
+
       LOG_DEBUG(result.str());
    }
 }
@@ -279,7 +279,7 @@ void UIRoot::Receive(const MouseDownEvent& evt)
       }
    }
 }
-   
+
 void UIRoot::Receive(const MouseMoveEvent& evt)
 {
    if (mActivelyCapturingElement) {

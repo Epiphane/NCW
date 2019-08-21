@@ -37,8 +37,8 @@ mat4 Rotate(vec3 axis, float angle)
 
 mat4 RotateEuler(vec3 eulerAngles)
 {
-   return Rotate(vec3(1, 0, 0), eulerAngles.x) * 
-      Rotate(vec3(0, 1, 0), eulerAngles.y) * 
+   return Rotate(vec3(1, 0, 0), eulerAngles.x) *
+      Rotate(vec3(0, 1, 0), eulerAngles.y) *
       Rotate(vec3(0, 0, 1), eulerAngles.z);
 }
 

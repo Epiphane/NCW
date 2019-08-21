@@ -227,7 +227,7 @@ void Program::Uniform3f(const std::string& name, const float value1, const float
 {
    glUniform3f(Uniform(name), value1, value2, value3);
 }
-   
+
 void Program::Uniform4f(const std::string& name, const float value1, const float value2, const float value3, const float value4)
 {
    glUniform4f(Uniform(name), value1, value2, value3, value4);
@@ -274,7 +274,7 @@ GLuint Program::Attrib(const std::string& name)
    GLint location = glGetAttribLocation(id, name.c_str());
    if (location >= 0)
    {
-	   attributes.push_back(std::make_pair(name, (GLuint)location));
+      attributes.push_back(std::make_pair(name, (GLuint)location));
    }
 
    CheckErrors();

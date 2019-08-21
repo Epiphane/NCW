@@ -178,6 +178,11 @@ public:
    uint8_t buffer = 0;
    Graphics::VBO particleBuffers[2];
    GLuint feedbackBuffers[2] = {0, 0};
+
+   //
+   // For particle systems that manage their data without the GPU (trails).
+   //
+   std::vector<Particle> particles;
 };
 
 }; // namespace Engine

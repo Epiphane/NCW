@@ -107,7 +107,7 @@ void main()
    vec4 dx = mvp[0] / 2.0f * size;
    vec4 dy = mvp[1] / 2.0f * size;
    vec4 dz = mvp[2] / 2.0f * size;
-   
+
    // Normals are computed from just the model matrix
    vec4 nx = normalize(model[0] / 2.0f * size);
    vec4 ny = normalize(model[1] / 2.0f * size);

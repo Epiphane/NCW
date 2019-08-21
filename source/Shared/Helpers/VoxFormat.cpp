@@ -70,7 +70,7 @@ struct VoxFormat::Chunk {
       , data(std::move(other.data))
       , children(std::move(other.children))
    {};
-   
+
    Header header;
    std::vector<uint8_t> data;
    std::vector<Chunk> children;
@@ -1125,13 +1125,13 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
 
       part.position = glm::vec3{node.translate[0],node.translate[2],-node.translate[1]};
       part.rotation.y = DEGREES(asin(-rotate[0][2]));
-		if (cos(part.rotation.y) != 0) {
+      if (cos(part.rotation.y) != 0) {
          part.rotation.x = DEGREES(atan2(rotate[1][2], rotate[2][2]));
          part.rotation.z = DEGREES(atan2(rotate[0][1], rotate[0][0]));
-		} else {
+      } else {
          part.rotation.x = DEGREES(atan2(-rotate[2][0], rotate[1][1]));
          part.rotation.z = 0;
-		}
+      }
 
       // To reconstruct part.transform, run the following:
       // part.transform = glm::translate(glm::mat4(1), part.position);
@@ -1218,12 +1218,12 @@ Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& pat
    {
       return read.Failure().WithContext("Failed reading file header");
    }
-   
+
    if (strncmp(header.id, "VOX ", 4) != 0)
    {
       return Failure("Header ID (%1) did not match expected (VOXV)", std::string(header.id, header.id + sizeof(header.id)));
    }
-   
+
    if (header.version != 150)
    {
       return Failure("Header version is %1. Only 150 is supported", header.version);
@@ -1406,9 +1406,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          }
          if (transform.translate[0] != 0 || transform.translate[1] != 0 || transform.translate[2] != 0)
          {
-            frame.push_back(std::make_pair("_t", 
-               std::to_string(transform.translate[0]) + " " + 
-               std::to_string(transform.translate[1]) + " " + 
+            frame.push_back(std::make_pair("_t",
+               std::to_string(transform.translate[0]) + " " +
+               std::to_string(transform.translate[1]) + " " +
                std::to_string(transform.translate[2])));
          }
 
@@ -1528,7 +1528,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       {
          return Failure("Could not find a node with ID %1", id);
       }
-      
+
       // Write the node.
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
@@ -1553,11 +1553,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       }
 
       // Layout
-      // int32	: layer id
-      // DICT	: layer atrribute
+      // int32   : layer id
+      // DICT   : layer atrribute
       //    (_name : string)
       //    (_hidden : 0/1)
-      // int32	: reserved id, must be -1
+      // int32   : reserved id, must be -1
 
       // Compute how big to make the chunk
       size_t chunkSize = 3 * sizeof(int32_t) /* DICT headers */;
@@ -1686,8 +1686,8 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       Maybe<size_t> result = WriteRenderObj(fs, handle, {
          { "_type", "_inf" },
          { "_i", ToShortString(voxModelData.sun.intensity) },
-         { "_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.sun.color[0],
               voxModelData.sun.color[1],
               voxModelData.sun.color[2]) },
@@ -1697,7 +1697,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1705,15 +1705,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_uni" },
          { "_i", ToShortString(voxModelData.sky.intensity) },
-         { "_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.sky.color[0],
               voxModelData.sky.color[1],
               voxModelData.sky.color[2]) },
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1721,28 +1721,28 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_atm" },
          { "_ray_d", ToShortString(voxModelData.atm.rayleighDensity) },
-         { "_ray_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_ray_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.atm.rayleighColor[0],
               voxModelData.atm.rayleighColor[1],
               voxModelData.atm.rayleighColor[2]) },
          { "_mie_d", ToShortString(voxModelData.atm.mieDensity) },
-         { "_mie_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_mie_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.atm.mieColor[0],
               voxModelData.atm.mieColor[1],
               voxModelData.atm.mieColor[2]) },
          { "_mie_g", ToShortString(voxModelData.atm.miePhase) },
          { "_o3_d", ToShortString(voxModelData.atm.ozoneDensity) },
-         { "_o3_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_o3_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.atm.ozoneColor[0],
               voxModelData.atm.ozoneColor[1],
               voxModelData.atm.ozoneColor[2]) },
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1750,15 +1750,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_fog_uni" },
          { "_d", ToShortString(voxModelData.fog.density) },
-         { "_k", 
-           Format::FormatString("%1 %2 %3", 
+         { "_k",
+           Format::FormatString("%1 %2 %3",
               voxModelData.fog.color[0],
               voxModelData.fog.color[1],
               voxModelData.fog.color[2]) },
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1775,7 +1775,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1789,7 +1789,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1801,15 +1801,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
       // Ground
       result = WriteRenderObj(fs, handle, {
          { "_type", "_ground" },
-         { "_color", 
-           Format::FormatString("%1 %2 %3", 
+         { "_color",
+           Format::FormatString("%1 %2 %3",
               voxModelData.ground.color[0],
               voxModelData.ground.color[1],
               voxModelData.ground.color[2]) },
@@ -1817,30 +1817,30 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
       // Background
       result = WriteRenderObj(fs, handle, {
          { "_type", "_bg" },
-         { "_color", 
-           Format::FormatString("%1 %2 %3", 
+         { "_color",
+           Format::FormatString("%1 %2 %3",
               voxModelData.bg.color[0],
               voxModelData.bg.color[1],
               voxModelData.bg.color[2]) },
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
       // Edge
       result = WriteRenderObj(fs, handle, {
          { "_type", "_edge" },
-         { "_color", 
-           Format::FormatString("%1 %2 %3", 
+         { "_color",
+           Format::FormatString("%1 %2 %3",
               voxModelData.edge.color[0],
               voxModelData.edge.color[1],
               voxModelData.edge.color[2]) },
@@ -1848,15 +1848,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
       // Grid
       result = WriteRenderObj(fs, handle, {
          { "_type", "_grid" },
-         { "_color", 
-           Format::FormatString("%1 %2 %3", 
+         { "_color",
+           Format::FormatString("%1 %2 %3",
               voxModelData.grid.color[0],
               voxModelData.grid.color[1],
               voxModelData.grid.color[2]) },
@@ -1866,7 +1866,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
 
@@ -1880,15 +1880,15 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_edge", voxModelData.settings.edge ? "1" : "0" },
          { "_bg_c", voxModelData.settings.background ? "1" : "0" },
          { "_bg_a", voxModelData.settings.bgTransparent ? "1" : "0" },
-         { "_scale", 
-           Format::FormatString("%1 %2 %3", 
+         { "_scale",
+           Format::FormatString("%1 %2 %3",
               voxModelData.settings.scale[0],
               voxModelData.settings.scale[1],
               voxModelData.settings.scale[2]) },
       });
       if (!result)
       {
-         return result.Failure(); 
+         return result.Failure();
       }
       chunkBytes += *result;
    }
@@ -1897,7 +1897,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
    {
       return seek.Failure().WithContext("Failed to seek to offset 0x10");
    }
-   
+
    if (Maybe<void> write = fs.WriteFile(handle, &chunkBytes, sizeof(chunkBytes)); !write)
    {
       return write.Failure().WithContext("Failed to write size of MAIN chunk");
@@ -1979,8 +1979,8 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
 
       uint32_t packed = uint32_t(
          uint8_t(x) |
-         (uint8_t(y) << 8) | 
-         (uint8_t(z) << 16) | 
+         (uint8_t(y) << 8) |
+         (uint8_t(z) << 16) |
          (colorIndex << 24)
       );
       model.voxels.push_back(packed);

@@ -78,6 +78,11 @@ int main(int argc, char **argv)
       window.SetShouldClose(true);
    });
 
+   double timemod = 1.0;
+   auto _2 = window.AddCallback(GLFW_KEY_P, [&](int, int, int) {
+      timemod = 11.0 - timemod;
+   });
+
    do {
       double elapsed = clock.Elapsed();
       if (elapsed > 0)
@@ -85,7 +90,7 @@ int main(int argc, char **argv)
          window.Clear();
          window.Update();
 
-         stateManager.Update(std::min(elapsed, SEC_PER_FRAME));
+         stateManager.Update(std::min(elapsed, SEC_PER_FRAME) / timemod);
 
          GLenum error = glGetError();
          assert(error == 0);
