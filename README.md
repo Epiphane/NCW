@@ -85,17 +85,17 @@ To exit the models, instead of using a handrolled editor I've moved to using [Ma
 ```
 workspace
 (
-	// notice :
-	// 1. use '$' for current directory, otherwise use full path
-	// 2. use single '/' or '\' in the path
-	// 3. don't have empty space at ends of the path
+   // notice :
+   // 1. use '$' for current directory, otherwise use full path
+   // 2. use single '/' or '\' in the path
+   // 3. don't have empty space at ends of the path
 
-	dir_model		= [[/path/to/CubeWorld/Assets/Models]]
-	dir_pattern		= [[/path/to/CubeWorld/Assets/Models]]
-	dir_palette		= [[/path/to/CubeWorld/Assets/palette]]
-	dir_export		= [[/path/to/CubeWorld/Assets/Models]]
-	dir_snapshot		= [[$/export]]
-	dir_xs_shader		= [[$/shader]]
+   dir_model      = [[/path/to/CubeWorld/Assets/Models]]
+   dir_pattern      = [[/path/to/CubeWorld/Assets/Models]]
+   dir_palette      = [[/path/to/CubeWorld/Assets/palette]]
+   dir_export      = [[/path/to/CubeWorld/Assets/Models]]
+   dir_snapshot      = [[$/export]]
+   dir_xs_shader      = [[$/shader]]
 )
 
 ...
@@ -105,7 +105,7 @@ workspace
 
 Here are the important folders:
 
-- `Assets` - 
+- `Assets` -
    just like in Unity, all of this folder is copied into the game's location and contains all the assets to be loaded at runtime.
 
 - `build`
@@ -201,7 +201,7 @@ which does the work of flying the player (or any entities containing the `FlySpe
 ```c++
 struct FlySpeed : public Engine::Component<FlySpeed> {
    FlySpeed(double speed) : speed(speed) {};
-   
+
    double speed;
 };
 
@@ -209,9 +209,9 @@ class FlySystem : public Engine::System<FlySystem> {
 public:
    FlySystem(Engine::Input::InputManager* input) : mInput(input) {}
    ~FlySystem() {}
-   
+
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-   
+
 private:
    Engine::Input::InputManager* mInput;
 };

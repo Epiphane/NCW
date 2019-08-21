@@ -72,9 +72,9 @@ void MainState::Initialize()
    DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<SimpleAnimationSystem>();
+   mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Add<SimpleParticleSystem>(&mCamera);
    mSystems.Add<MakeshiftSystem>();
-   mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Configure();
 
    // Unlock the mouse
@@ -86,7 +86,7 @@ void MainState::Initialize()
 
    // Create a player component
    mPlayer = mEntities.Create();
-   mPlayer.Add<Transform>(glm::vec3(10, 1.3, 0));
+   mPlayer.Add<Transform>(glm::vec3(0, 1.3, 0));
    mPlayer.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
    mPlayer.Add<SimpleAnimationController>(
       mPlayer.Add<MultipleParticleEmitters>()

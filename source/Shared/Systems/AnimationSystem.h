@@ -13,6 +13,14 @@ class AnimationSystem : public Engine::System<AnimationSystem> {
 public:
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
+
+private:
+   void UpdateEmitters(
+      const Engine::Transform& transform,
+      const AnimationController& controller,
+      const AnimationController::State& state,
+      bool updateAllTransforms
+   ) const;
 };
 
 }; // namespace CubeWorld

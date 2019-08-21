@@ -43,7 +43,7 @@ vec3 GetRandomPositiveVec3(float TexCoord)
 {
     return texture(uRandomTexture, mod(TexCoord, 1000) / 1000).xyz;
 }
- 
+
 vec3 GetRandomVec3(float TexCoord)
 {
     return 2.0 * GetRandomPositiveVec3(TexCoord) - vec3(1.0, 1.0, 1.0);
@@ -113,27 +113,27 @@ vec4 GetRotationFromMatrix(mat4 matrix)
         result.w = root * (local[j][k] - local[k][j]);
     }
 
-    
-	// 	return vec<3, T, Q>(pitch(x), yaw(x), roll(x));
-	// }
 
-	// GLM_FUNC_QUALIFIER T roll(tquat<T, Q> const& q)
-	// 	return static_cast<T>(atan(static_cast<T>(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
-	// }
+   //    return vec<3, T, Q>(pitch(x), yaw(x), roll(x));
+   // }
 
-	// GLM_FUNC_QUALIFIER T pitch(tquat<T, Q> const& q)
-	// 	//return T(atan(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z));
-	// 	const T y = static_cast<T>(2) * (q.y * q.z + q.w * q.x);
-	// 	const T x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+   // GLM_FUNC_QUALIFIER T roll(tquat<T, Q> const& q)
+   //    return static_cast<T>(atan(static_cast<T>(2) * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
+   // }
 
-	// 	if(detail::compute_equal<T>::call(y, static_cast<T>(0)) && detail::compute_equal<T>::call(x, static_cast<T>(0))) //avoid atan2(0,0) - handle singularity - Matiis
-	// 		return static_cast<T>(static_cast<T>(2) * atan(q.x,q.w));
+   // GLM_FUNC_QUALIFIER T pitch(tquat<T, Q> const& q)
+   //    //return T(atan(T(2) * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z));
+   //    const T y = static_cast<T>(2) * (q.y * q.z + q.w * q.x);
+   //    const T x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
 
-	// 	return static_cast<T>(atan(y,x));
-	// }
+   //    if(detail::compute_equal<T>::call(y, static_cast<T>(0)) && detail::compute_equal<T>::call(x, static_cast<T>(0))) //avoid atan2(0,0) - handle singularity - Matiis
+   //       return static_cast<T>(static_cast<T>(2) * atan(q.x,q.w));
 
-	// GLM_FUNC_QUALIFIER T yaw(tquat<T, Q> const& q)
-	// 	return asin(clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
+   //    return static_cast<T>(atan(y,x));
+   // }
+
+   // GLM_FUNC_QUALIFIER T yaw(tquat<T, Q> const& q)
+   //    return asin(clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
 
     float tmp1 = 1.0 - result.w * result.w;
     if (tmp1 <= 0)
@@ -149,15 +149,15 @@ void main()
 {
     // float DeltaTimeSecs = uDeltaTimeMillis;// / 1000.0f;
     float Age = gAge[0] + uDeltaTimeMillis;
-    
+
     if (gType[0] == TYPE_EMITTER && uEmit) {
-		// Send emitter first so it's always the front
-		// and can't get cut off by max vertices restrictions
-		float nEmit = floor(Age / uEmitterCooldown);
+      // Send emitter first so it's always the front
+      // and can't get cut off by max vertices restrictions
+      float nEmit = floor(Age / uEmitterCooldown);
 
         fType = TYPE_EMITTER;
         fPosition = gPosition[0];
-		fRotation = gRotation[0];
+      fRotation = gRotation[0];
         fVelocity = gVelocity[0];
         fAge = mod(Age, uEmitterCooldown);
         EmitVertex();
@@ -168,17 +168,17 @@ void main()
 
         for (int emit = 0; emit < nEmit && emit < MAX_VERTICES; ++emit) {
             fType = TYPE_PARTICLE;
- 
+
             // NOTE rand1 can be reused, but the x value may
             // show a _stunning_ correlation to the age with
             // which each particle is spawned.
             vec3 rand1 = GetRandomVec3(uTick + emit * 200);
             fAge = spawnAgeMin + spawnAgeRange * (rand1.x + 0.5);
-            
+
             fPosition = vec3(gPosition[0]);
             fVelocity = vec3(0, 0, 0);
             fRotation = GetRotationFromMatrix(uModelMatrix);//vec4(0, 0, 1, 0);
- 
+
             if (uShape == SHAPE_POINT || uShape == SHAPE_TRAIL) {
                 // Spawn particles at the emitter point, unmoving.
                 // fVelocity.z = 1;
@@ -214,7 +214,7 @@ void main()
                 vec3 rand3 = GetRandomVec3(uTick + emit * 200 + 72);
                 fRotation = vec4(rand3, 0);
             }
- 
+
             // Place in the world
             fPosition = (uModelMatrix * vec4(fPosition, 1)).xyz;
 
@@ -225,7 +225,7 @@ void main()
     else if (gType[0] == TYPE_PARTICLE) {
         float DeltaTimeSecs = uDeltaTimeMillis / 1000.0f;
         vec3 DeltaP = uDeltaTimeMillis * gVelocity[0];
-        
+
         if (Age < uParticleLifetime) {
             fType = TYPE_PARTICLE;
             fPosition = gPosition[0] + DeltaP;

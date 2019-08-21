@@ -23,6 +23,7 @@
 
       .LocalDebuggerCommand            = '^$(SolutionDir)\..\^$(Platform)-^$(Configuration)\$ProjectName$\$ProjectName$.exe'
       .LocalDebuggerWorkingDirectory   = '^$(SolutionDir)\..\^$(Platform)-^$(Configuration)\$ProjectName$'
+      .AdditionalOptions               = '/std:c++17'
    }
 
    XCodeProject( '$ProjectName$-xcode' )

@@ -131,33 +131,19 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
       updater->Uniform1f("uTick", (float)mTick);
 
       entities.Each<Transform, ParticleEmitter>([&](Transform& transform, ParticleEmitter& emitter) {
-         if (!emitter.update)
+         if (emitter.update)
          {
-            return;
+            UpdateParticleSystem(emitter, transform.GetMatrix(), dt);
          }
-
-         emitter.age += (float)dt;
-         updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-         UpdateParticleSystem(emitter);
       });
 
       entities.Each<Transform, MultipleParticleEmitters>([&](Transform& transform, MultipleParticleEmitters& group) {
          for (auto& system : group.systems)
          {
-            if (!system.update)
+            if (system.update)
             {
-               return;
+               UpdateParticleSystem(system, system.useEntityTransform ? transform.GetMatrix() : system.transform, dt);
             }
-
-            if (system.useEntityTransform)
-            {
-               updater->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-            }
-            else
-            {
-               updater->UniformMatrix4f("uModelMatrix", system.transform);
-            }
-            UpdateParticleSystem(system);
          }
       });
    }
@@ -197,8 +183,78 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    mRenderClock.Elapsed();
 }
 
-void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) const
+void SimpleParticleSystem::UpdateParticleSystem(
+   Engine::ParticleSystem& system,
+   const glm::mat4& matrix,
+   TIMEDELTA dt
+) const
 {
+   updater->UniformMatrix4f("uModelMatrix", matrix);
+
+   //float previousAge = system.age;
+   system.age += (float)dt;
+
+   //
+   // Special case: Trails! Trails aren't updated as part of a
+   // geometry shader because it's too weird and there aren't
+   // enough particles to really justify pushing it to the GPU.
+   //
+   if (system.shape == Engine::ParticleSystem::Shape::Trail)
+   {
+      // For all but the two lead particles (at the end of the buffer),
+      // move a small fraction towards the next trail point.
+      if (system.particles.size() > 2)
+      {
+         for (size_t i = 0; i < system.particles.size() - 3; i += 2)
+         {
+            Engine::ParticleSystem::Particle& top = system.particles[i];
+            Engine::ParticleSystem::Particle& bot = system.particles[i + 1];
+            const Engine::ParticleSystem::Particle& nt = system.particles[i + 2];
+            const Engine::ParticleSystem::Particle& nb = system.particles[i + 3];
+
+            // For now, just go 10% of the way each frame.
+            top.pos = 0.9f * top.pos + 0.1f * nt.pos;
+            bot.pos = 0.9f * bot.pos + 0.1f * nb.pos;
+
+            // Age the particles
+            top.age += (float)dt;
+            bot.age += (float)dt;
+         }
+      }
+
+      // Emit a new trail pair.
+      system.particles[system.particles.size() - 1].age += (float)dt;
+      if (
+         (system.emitterLifetime == 0 || system.age < system.emitterLifetime) &&
+         system.particles[system.particles.size() - 1].age > system.emitterCooldown
+      )
+      {
+         Engine::ParticleSystem::Particle newParticle;
+         newParticle.type = 2.0f; // Particle
+
+         newParticle.rot = {1,0,0,0}; // Top
+         system.particles.push_back(newParticle);
+         
+         newParticle.rot = {0,1,0,0}; // Bot
+         system.particles.push_back(newParticle);
+      }
+
+      // Update lead pair to always follow the model.
+      {
+         glm::vec4 translate = matrix * glm::vec4{0, 15, 0, 1};
+         system.particles[system.particles.size() - 2].pos = glm::vec3{translate};
+
+         translate = matrix * glm::vec4{0, -1, 0, 1};
+         system.particles[system.particles.size() - 1].pos = glm::vec3{translate};
+      }
+
+      system.particleBuffers[0].BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STATIC_DRAW);
+      return;
+   }
+
+   //
+   // Now update a normal particle system
+   //
    if (system.emitterLifetime == 0.0f || system.age < system.emitterLifetime)
    {
       updater->Uniform1i("uEmit", 1);
@@ -229,14 +285,17 @@ void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) 
 
    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);   // rotation
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
 
-   // GLuint drawnQuery;
-   // int result = 0;
-   // glGenQueries(1, &drawnQuery);
-   // glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
+#if CUBEWORLD_DIAGNOSE_PARTICLE_OUTPUT
+   GLuint drawnQuery;
+   int result = 0;
+   glGenQueries(1, &drawnQuery);
+   glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, drawnQuery);
+#endif
+
    // Begin rendering
    if (system.firstRender) {
       glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1]);
@@ -265,13 +324,15 @@ void SimpleParticleSystem::UpdateParticleSystem(Engine::ParticleSystem& system) 
       glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
       glEndTransformFeedback();
    }
-      
-   // glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-   // while (result == 0)
-   //    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+     
+#if CUBEWORLD_DIAGNOSE_PARTICLE_OUTPUT
+   glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+   while (result == 0)
+      glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
    
-   // glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
-   // glDeleteQueries(1, &drawnQuery);
+   glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
+   glDeleteQueries(1, &drawnQuery);
+#endif
 
    // Flip buffers
 #if CUBEWORLD_PLATFORM_WINDOWS
@@ -294,6 +355,11 @@ void SimpleParticleSystem::RenderParticleSystem(
 ) const
 {
    if (system.program == nullptr)
+   {
+      return;
+   }
+
+   if (system.shape == Engine::ParticleSystem::Shape::Trail && system.particles.size() < 3)
    {
       return;
    }
@@ -350,7 +416,14 @@ void SimpleParticleSystem::RenderParticleSystem(
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)32);   // velocity
    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Engine::ParticleSystem::Particle), (const GLvoid*)44);   // lifetime
 
-   glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+   if (system.shape == Engine::ParticleSystem::Shape::Trail)
+   {
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)system.particles.size());
+   }
+   else
+   {
+      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+   }
 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);

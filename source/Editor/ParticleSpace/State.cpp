@@ -69,24 +69,36 @@ void MainState::Initialize()
          return;
       }
 
-      // Reset emitter
-      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
-      {
-         emitter->Reset();
-      }
-
       if (emitter->shape != ParticleEmitter::Shape::Trail || emitter->emitterLifetime == 0.0f)
       {
          mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({0, 0, 0});
          return;
       }
 
-      mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({
-         std::fmodf(emitter->age, emitter->emitterLifetime) / emitter->emitterLifetime,
-         0,
-         0,
-      });
+      // Reset emitter
+      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
+      {
+         emitter->Reset();
+      }
+
+      if (emitter->age > emitter->emitterLifetime)
+      {
+         mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({1, 0, 0});
+      }
+      else
+      {
+         mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({
+            emitter->age / emitter->emitterLifetime,
+            0,
+            0,
+         });
+      }
    });
+
+   Engine::Entity tracker = mEntities.Create(0, 1, 0);
+   tracker.Get<Engine::Transform>()->SetParent(mParticleSpawner);
+   tracker.Get<Engine::Transform>()->SetLocalScale(glm::vec3{0.1});
+   tracker.Add<VoxelRender>(std::vector<Voxel::Data>{Voxel::Data({0,0,0}, {255,255,0,1})});
 
    // Create a camera
    Engine::Entity playerCamera = mEntities.Create(0, 0, 0);

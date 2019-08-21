@@ -58,6 +58,7 @@ ParticleSystem::ParticleSystem(ParticleSystem&& other)
    , buffer(other.buffer)
    , particleBuffers{std::move(other.particleBuffers[0]), std::move(other.particleBuffers[1])}
    , feedbackBuffers{other.feedbackBuffers[0], other.feedbackBuffers[1]}
+   , particles{std::move(other.particles)}
 {
    other.feedbackBuffers[0] = other.feedbackBuffers[1] = 0;
 }
@@ -134,15 +135,15 @@ void ParticleSystem::Initialize(
    }
 
    //
+   // Read particle system configuration.
+   //
+   ApplyConfiguration(textureDir, config);
+
+   //
    // Set up initial particle.
    //
    maxParticles = config["max-particles"].GetUintValue(1000);
    Reset();
-
-   //
-   // Read particle system configuration.
-   //
-   ApplyConfiguration(textureDir, config);
 }
 
 void ParticleSystem::Reset()
@@ -154,12 +155,27 @@ void ParticleSystem::Reset()
    //
    // Initialize one emitter particle
    //
-   std::vector<Particle> data;
-   data.resize(maxParticles);
-   data[0].type = 1.0f; // Emitter
-   data[0].age = emitterCooldown; // Emit immediately
-   particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
-   particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+   if (shape == Shape::Trail)
+   {
+      // Create lead particles
+      particles.resize(2);
+      particles[0].type = 2.0f; // Particle
+      particles[0].rot = {1,0,0,0}; // Top
+      particles[0].age = 0;
+      particles[1].type = 2.0f; // Particle
+      particles[1].rot = {0,1,0,0}; // Bottom
+      particles[1].age = 0;
+      particleBuffers[0].BufferData(sizeof(Particle) * particles.size(), particles.data(), GL_STATIC_DRAW);
+   }
+   else
+   {
+      std::vector<Particle> data;
+      data.resize(maxParticles);
+      data[0].type = 1.0f; // Emitter
+      data[0].age = emitterCooldown; // Emit immediately
+      particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+      particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+   }
 }
 
 BindingProperty ParticleSystem::Serialize()
