@@ -4,7 +4,7 @@ Language: C/C++
 Specification: OpenGL
 Profile: Compatibility
 API:
-  gl: Version 3.3
+  gl: Version 4.0
   gles1: None
   gles2: None
   glsc2: none

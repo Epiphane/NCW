@@ -5,6 +5,7 @@
 #include <string>
 
 #include <RGBText/Format.h>
+#include <RGBLogger/Logger.h>
 
 #if defined(_WIN32)
 #define NOMSG
@@ -18,12 +19,11 @@ class Failure {
 public:
    Failure() : failureCode(0) {};
    Failure(const Failure& other) : message(other.message), failureCode(other.failureCode) {};
-   Failure(const std::string& message, int failureCode = NO_FAILURE_CODE_SPECIFIED) : message(message), failureCode(failureCode) {};
 
    template <typename ...Args>
    Failure(const std::string& fmt, const Args& ... args)
       : message(Format::FormatString(fmt, args...))
-      , failureCode(0)
+      , failureCode(NO_FAILURE_CODE_SPECIFIED)
    {};
    
    template <typename ...Args>
@@ -33,6 +33,7 @@ public:
    {};
 
    const std::string GetMessage() const { return message; }
+   void Log() const { LOG_ERROR("%1", GetMessage()); }
    int GetFailureCode() const { return failureCode; }
 
 public:

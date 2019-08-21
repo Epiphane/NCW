@@ -1,7 +1,7 @@
 // Visual Studio 2019
 //------------------------------------------------------------------------------
-.VS2019_BasePath         = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community'
-.VS2019_Version          = '14.20.27508'
+// .VS2019_BasePath         = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community'
+// .VS2019_Version          = '14.20.27508'
 
 // X64 Compiler
 //------------------------------------------------------------------------------
@@ -70,6 +70,7 @@ Compiler( 'Compiler-VS2019-x64' )
                                     + ' /wd4710' // '%s': function not inlined
                                     + ' /wd4711' // function '%s' selected for automatic inline expansion
                                     + ' /wd4820' // '%s': '%u' bytes padding added after data member '%s'
+                                    + ' /wd4866' // compiler may not enforce left-to-right evaluation order for call to %s
                                     + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
                                     + ' /wd5039' // '%s': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
                                     + ' /wd5045' // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
@@ -94,11 +95,6 @@ Compiler( 'Compiler-VS2019-x64' )
     .Linker                         = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64/link.exe'
     .LinkerOptions                  = '/NODEFAULTLIB /WX /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
                                     + .VSLibPaths
-    //CRT
-    .CRTLibs_Static                 = ' LIBCMT.LIB'
-                                    + ' kernel32.lib'   // Kernel functions
-                                    + ' libvcruntime.lib'
-                                    + ' libucrt.lib'
 
     // File Extensions
     .LibExtension                   = '.lib'

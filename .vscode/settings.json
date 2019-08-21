@@ -80,8 +80,13 @@
         "iomanip": "cpp",
         "numeric": "cpp",
         "random": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "__errc": "cpp",
+        "__node_handle": "cpp",
+        "new": "cpp",
+        "variant": "cpp"
     },
     "editor.tabSize": 3,
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "git.ignoreLimitWarning": true
 }

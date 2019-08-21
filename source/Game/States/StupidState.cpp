@@ -2,26 +2,20 @@
 
 #include <cassert>
 #include <functional>
-#pragma warning(push, 0)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wreorder"
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma clang diagnostic pop
-#pragma warning(pop)
 
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
+#include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Systems/WalkSystem.h>
@@ -51,7 +45,8 @@ namespace Game
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
-      
+      mSystems.Add<SimpleParticleSystem>(&mCamera);
+
       mSystems.Configure();
    }
 
@@ -162,7 +157,7 @@ namespace Game
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-      auto controller = player.Add<AnimationController>();
+      auto controller = player.Add<AnimationController>(player.Add<MultipleParticleEmitters>());
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
          player.Get<AnimationController>()->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
@@ -174,17 +169,29 @@ namespace Game
       controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
       controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
-      part = mEntities.Create(0, 0, 0);
-      part.Get<Transform>()->SetParent(player);
-      part.Add<VoxModel>(Asset::Model("iron-sword1-random2.vox"));
-      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_right.yaml")));
-      controller->AddAnimations(part.Add<SkeletonAnimations>("sword_right"));
+#define HAMMER 1
+      if (HAMMER)
+      {
+         part = mEntities.Create(0, 0, 0);
+         part.Get<Transform>()->SetParent(player);
+         part.Add<VoxModel>(Asset::Model("wood-greatmace02.vox"));
+         controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("greatmace.yaml")));
+         controller->AddAnimations(part.Add<SkeletonAnimations>("greatmace"));
+      }
+      else
+      {
+         part = mEntities.Create(0, 0, 0);
+         part.Get<Transform>()->SetParent(player);
+         part.Add<VoxModel>(Asset::Model("iron-sword1-random2.vox"));
+         controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_right.yaml")));
+         controller->AddAnimations(part.Add<SkeletonAnimations>("sword_right"));
 
-      part = mEntities.Create(0, 0, 0);
-      part.Get<Transform>()->SetParent(player);
-      part.Add<VoxModel>(Asset::Model("iron-sword1-random1.vox"));
-      controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_left.yaml")));
-      controller->AddAnimations(part.Add<SkeletonAnimations>("sword_left"));
+         part = mEntities.Create(0, 0, 0);
+         part.Get<Transform>()->SetParent(player);
+         part.Add<VoxModel>(Asset::Model("iron-sword1-random1.vox"));
+         controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("sword_left.yaml")));
+         controller->AddAnimations(part.Add<SkeletonAnimations>("sword_left"));
+      }
 
       Entity playerCamera = mEntities.Create(0, 0, 0);
       ArmCamera::Options cameraOptions;
@@ -196,6 +203,16 @@ namespace Game
       playerCamera.Add<MouseControlledCameraArm>();
       playerCamera.Add<Follower>(player.Get<Transform>());
       player.Add<WalkDirector>(playerCamera.Get<Transform>(), false);
+
+      // Create a campfire
+      Engine::Entity campfire = mEntities.Create(0, 0, 0);
+      campfire.Get<Transform>()->SetLocalScale(glm::vec3(0.05f));
+      campfire.Add<VoxModel>(Asset::Model("campfire.vox"));
+
+      Entity fire = mEntities.Create(0, 1, 0);
+      fire.Get<Transform>()->SetLocalScale(glm::vec3(20.0f));
+      fire.Get<Transform>()->SetParent(campfire);
+      fire.Add<ParticleEmitter>(Asset::Particle("fire"));
 
       mCamera.Set(handle.get());
 
@@ -253,7 +270,7 @@ namespace Game
             else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
             float perc = (elevation - start) / (end - start);
 
-            glm::vec3 position = glm::vec3(i, std::round(elevation * 10), j);
+            glm::vec3 position = glm::vec3(i, std::round(elevation * 10) - 4, j);
             glm::vec4 color = dest * perc + source * (1 - perc);
             carpet.push_back(Voxel::Data(position, color, Voxel::All));
 

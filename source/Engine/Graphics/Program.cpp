@@ -1,13 +1,13 @@
 // By Thomas Steinke
 
-#include <cassert>
-#include <fstream>
-#include <glad/glad.h>
+#include <GL/includes.h>
 #include <glm/ext.hpp>
 
-#include <RGBLogger/Logger.h>
 #include <RGBDesignPatterns/Scope.h>
+#include <RGBLogger/Logger.h>
+#include <RGBText/StringHelper.h>
 
+#include "../Core/FileSystemProvider.h"
 #include "Program.h"
 
 namespace CubeWorld
@@ -59,24 +59,13 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    std::unique_ptr<Shader> shader = std::make_unique<Shader>(glCreateShader(shaderType));
 
    // Read the Shader code from the file
-   std::ifstream file(filePath);
-   std::string code;
+   Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(filePath);
+   if (!maybeCode)
+   {
+      return maybeCode.Failure().WithContext("Failed reading shader file");
+   }
 
-   assert(file.good() && "Error loading shader!");
-
-   file.seekg(0, std::ios::end);
-   code.reserve(static_cast<size_t>(file.tellg()));
-   file.seekg(0, std::ios::beg);
-
-   code.assign((std::istreambuf_iterator<char>(file)),
-      std::istreambuf_iterator<char>());
-
-#if !NDEBUG
-   LOG_DEBUG("Compiling shader %1", filePath);
-   LOG_DEBUG("----------------------------------------------");
-#endif
-
-   const char *code_cstr = code.c_str();
+   const char *code_cstr = maybeCode->c_str();
    glShaderSource(shader->id, 1, &code_cstr, nullptr);
    glCompileShader(shader->id);
 
@@ -97,8 +86,7 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
       }
    }
 
-   GLenum error = glGetError();
-   assert(error == 0);
+   CHECK_GL_ERRORS();
 
    return std::move(shader);
 }
@@ -106,7 +94,8 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
 Maybe<std::unique_ptr<Program>> Program::Load(
    const std::string& vertexShaderPath,
    const std::string& geometryShaderPath,
-   const std::string& fragmentShaderPath
+   const std::string& fragmentShaderPath,
+   const std::vector<std::string>& interleavedAttributes
 )
 {
    // Another instance of the unique_ptr magic: if we return a failure, then this
@@ -117,7 +106,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    Maybe<std::unique_ptr<Shader>> vertexShader = LoadShader(vertexShaderPath, GL_VERTEX_SHADER);
    if (!vertexShader)
    {
-      return vertexShader.Failure().WithContext("Failed loading vertex shader");
+      return vertexShader.Failure().WithContext("Failed loading vertex shader at %1", vertexShaderPath);
    }
    vertexShader.Result()->Attach(program->id);
 
@@ -128,7 +117,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
       Maybe<std::unique_ptr<Shader>> maybeGeomShader = LoadShader(geometryShaderPath, GL_GEOMETRY_SHADER);
       if (!maybeGeomShader)
       {
-         return maybeGeomShader.Failure().WithContext("Failed loading geometry shader");
+         return maybeGeomShader.Failure().WithContext("Failed loading geometry shader at %1", geometryShaderPath);
       }
       geomShader = std::move(*maybeGeomShader);
       geomShader->Attach(program->id);
@@ -138,9 +127,21 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    Maybe<std::unique_ptr<Shader>> fragShader = LoadShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
    if (!fragShader)
    {
-      return fragShader.Failure().WithContext("Failed loading vertex shader");
+      return fragShader.Failure().WithContext("Failed loading fragment shader at %1", fragmentShaderPath);
    }
    fragShader.Result()->Attach(program->id);
+
+   if (!interleavedAttributes.empty())
+   {
+      std::unique_ptr<GLchar*> data{new GLchar*[interleavedAttributes.size()]};
+      for (size_t i = 0; i < interleavedAttributes.size(); ++i)
+      {
+         data.get()[i] = (GLchar*)interleavedAttributes[i].c_str();
+      }
+
+      glTransformFeedbackVaryings(program->id, (GLsizei)interleavedAttributes.size(), data.get(), GL_INTERLEAVED_ATTRIBS);
+      CHECK_GL_ERRORS();
+   }
 
    // Link the program
    glLinkProgram(program->id);
@@ -192,17 +193,22 @@ void Program::Unbind()
    glUseProgram(0);
 }
 
-void Program::Uniform1i(const std::string& name, const int value)
+void Program::Uniform1u(const std::string& name, const uint32_t value)
+{
+   glUniform1ui(Uniform(name), value);
+}
+
+void Program::Uniform1i(const std::string& name, const int32_t value)
 {
    glUniform1i(Uniform(name), value);
 }
 
-void Program::Uniform2i(const std::string& name, const int value1, const int value2)
+void Program::Uniform2i(const std::string& name, const int32_t value1, const int32_t value2)
 {
    glUniform2i(Uniform(name), value1, value2);
 }
 
-void Program::Uniform3i(const std::string& name, const int value1, const int value2, const int value3)
+void Program::Uniform3i(const std::string& name, const int32_t value1, const int32_t value2, const int32_t value3)
 {
    glUniform3i(Uniform(name), value1, value2, value3);
 }
@@ -221,7 +227,7 @@ void Program::Uniform3f(const std::string& name, const float value1, const float
 {
    glUniform3f(Uniform(name), value1, value2, value3);
 }
-   
+
 void Program::Uniform4f(const std::string& name, const float value1, const float value2, const float value3, const float value4)
 {
    glUniform4f(Uniform(name), value1, value2, value3, value4);
@@ -268,7 +274,7 @@ GLuint Program::Attrib(const std::string& name)
    GLint location = glGetAttribLocation(id, name.c_str());
    if (location >= 0)
    {
-	   attributes.push_back(std::make_pair(name, (GLuint)location));
+      attributes.push_back(std::make_pair(name, (GLuint)location));
    }
 
    CheckErrors();

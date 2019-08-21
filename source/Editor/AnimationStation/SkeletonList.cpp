@@ -1,6 +1,5 @@
 // By Thomas Steinke
 
-#include <fstream>
 #include <RGBFileSystem/File.h>
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>

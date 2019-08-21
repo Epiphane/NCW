@@ -12,7 +12,9 @@
       .CompilerOptions     + .SourceIncludePaths
                         #if __WINDOWS__
                            + ' /wd4365'
+                           + ' /wd4388'
                            + ' /wd4583'
+                           + ' /wd4866'
                            + ' /wd6330'
                         #endif
 
@@ -71,17 +73,13 @@
          .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
       #if __WINDOWS__
          .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
-                              + ' libcmt.lib'      // Std Lib (Multi-Threaded, Static, Release)
                               + ' Comdlg32.lib'
-                              + ' libcmtd.lib'
                               + ' Gdi32.lib'       // Bitmap functions
                               + ' kernel32.lib'    // Kernel functions
                               + ' Ole32.lib'
-                              + ' ucrtd.lib'        // CRT libs
                               + ' Shell32.lib'     // Shell API
                               + ' Shlwapi.lib'
                               + ' User32.lib'
-                              + ' vcruntime.lib'
       #endif
       }
 

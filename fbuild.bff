@@ -19,16 +19,18 @@ Using( .MachineConfig )
 
 Settings
 {
-	// Use clean environment to prevent rebuilds caused by changes in it.
-	// All important variables are imported exclicitly.
+   .AllowDBMigration_Experimental = true
+
+   // Use clean environment to prevent rebuilds caused by changes in it.
+   // All important variables are imported exclicitly.
 #if __WINDOWS__
    #import SystemRoot
-	.Environment =
-	{
+   .Environment =
+   {
       "PATH=^"$VS_PATH$^""
-		'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
-		'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
-	}
+      'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
+      'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
+   }
 #endif
 }
 
@@ -73,6 +75,7 @@ Settings
 .Debug_Config =
 [
    .CompilerOptions              = ' -DDEBUG'
+                                 + ' -D_DEBUG'
                                  + ' -DPROFILING_ENABLED'
                                  + ' -DZLIB_DEBUG'
                                  + .CommonOptions
@@ -81,6 +84,9 @@ Settings
    .Config                       = 'Debug'
    .LinkerOptions                = .CommonLinkerOptions
                               #if __WINDOWS__
+                                 + ' ucrtd.lib'
+                                 + ' vcruntimed.lib'
+                                 + ' msvcrtd.lib'
                                  + ' msvcprtd.lib'
                               #endif
 ]
@@ -94,6 +100,9 @@ Settings
    .Config                       = 'Release'
    .LinkerOptions                = .CommonLinkerOptions
                               #if __WINDOWS__
+                                 + ' ucrt.lib'
+                                 + ' vcruntime.lib'
+                                 + ' msvcrt.lib'
                                  + ' msvcprt.lib'
                               #endif
 ]
@@ -103,7 +112,7 @@ Settings
 //------------------------------------------------------------------------------
 .Debug_Optimizations_MSVC =
 [
-    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /GR- /analyze'
+    .CompilerOptions    = ' /MDd /Od /RTC1 /GS /Oy- /analyze'
     .CompilerOptionsC   = .CompilerOptions
 ]
 .Release_Optimizations_MSVC =
@@ -214,8 +223,11 @@ Settings
 ]
 
 .ProjectDebug     = [ Using( .ProjectCommon ) .Config = 'Debug' ]
-.ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
-.ProjectConfigs   = { .ProjectDebug, .ProjectRelease }
+.ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectCommon ) .Config = 'Release' ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
 
 //------------------------------------------------------------------------------
 // External Dependencies
@@ -324,9 +336,12 @@ VCXProject( 'UpdateSolution-proj' )
       .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild CubeWorld-sln-visualstudio -vs -clean'
    ]
 
-   .ProjectDebug        = [ Using( .ProjectDebug )       Using( .GenerateProjectsCommands ) ]
-   .ProjectRelease      = [ Using( .ProjectRelease )     Using( .GenerateProjectsCommands ) ]
-   .ProjectConfigs = { .ProjectDebug, .ProjectRelease }
+   .ProjectDebug     = [ Using( .ProjectDebug )    Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease )  Using( .GenerateProjectsCommands ) ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
 }
 
 VSSolution('CubeWorld-sln-visualstudio')
@@ -339,13 +354,14 @@ VSSolution('CubeWorld-sln-visualstudio')
                               'Shared-proj'
                               'DataCLI-proj'
                               'Tests-proj'
+                              'Sandbox-proj'
                               'All-proj'
                               'UpdateSolution-proj'
                            }
    .SolutionBuildProject   = 'All-proj'
    .SolutionConfigs        = .ProjectConfigs
    .SolutionVisualStudioVersion = .VS_Version
-   
+
    .Folder_Dependencies =
    [
       .Path           = 'Dependencies'
@@ -404,7 +420,7 @@ XCodeProject( 'CubeWorld-sln-xcode' )
                         'Tests-xcode'
                         'UpdateSolution-xcode'
                      }
-                     + .XCodeCoreLibraries 
+                     + .XCodeCoreLibraries
                      + .XCodeDependencyProjects
 
    .ProjectConfigs   = { .XCodeDebugConfig }

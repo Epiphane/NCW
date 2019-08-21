@@ -103,7 +103,7 @@ SCENARIO( "Basic Observable operations should properly manipulate messages strea
       }
       
       WHEN( "An Observable sends its messages through RemoveDuplicates()" ) {
-         Observable<int> testObservable;
+         Observable<bool> testObservable;
          std::vector<bool> results;
          
          testObservable >>

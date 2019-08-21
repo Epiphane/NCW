@@ -40,6 +40,7 @@ public:
 
    glm::mat4 GetPerspective() const override;
    glm::mat4 GetView() const override;
+   glm::vec3 GetPosition() const override;
 
    Engine::ComponentHandle<Engine::Transform> transform;
 

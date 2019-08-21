@@ -138,7 +138,7 @@ public:
    Object AsObject();
    ConstObject AsObject() const;
 
-   bool Has(const std::string& key);
+   bool Has(const std::string& key) const;
    ObjectIterator Find(const std::string& key);
    ConstObjectIterator Find(const std::string& key) const;
 

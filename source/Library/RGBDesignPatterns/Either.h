@@ -16,7 +16,7 @@ public:
 
 public:
 #pragma warning (disable : 4582) // constructor is not implicitly called
-	constexpr Either(const LeftType& left) : leftVal(left), isLeft(true) {};
+   constexpr Either(const LeftType& left) : leftVal(left), isLeft(true) {};
    constexpr Either(LeftType&& left) : leftVal(std::move(left)), isLeft(true) {};
    constexpr Either(const RightType& right) : rightVal(right), isLeft(false) {};
    constexpr Either(RightType&& right) : rightVal(std::move(right)), isLeft(false) {};
@@ -137,7 +137,7 @@ public:
 
    ~Pointer()
    {
-      
+
    };
 
    constexpr T* get()

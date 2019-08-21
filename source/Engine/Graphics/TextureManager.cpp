@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <fstream>
 #include <glad/glad.h>
 #include <lodepng/lodepng.h>
+#include <random>
 
 #include <RGBText/Format.h>
 #include <RGBFileSystem/FileSystem.h>
@@ -46,7 +46,7 @@ Maybe<void> Texture::LoadPNG(const std::string& filename) {
    unsigned code = lodepng::decode(data, mWidth, mHeight, filename);
    if (code != 0)
    {
-      return Failure(lodepng_error_text(code)).WithContext("lodepng decode failed");
+      return Failure{lodepng_error_text(code)}.WithContext("lodepng decode failed");
    }
 
    glBindTexture(GL_TEXTURE_2D, mTexture);
@@ -58,6 +58,34 @@ Maybe<void> Texture::LoadPNG(const std::string& filename) {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//LINEAR);
 
    CHECK_GL_ERRORS();
+
+   return Success;
+}
+
+Maybe<void> Texture::LoadRandom(uint32_t size)
+{
+   std::vector<glm::vec3> data;
+   data.resize(size);
+
+   std::default_random_engine generator;
+   std::uniform_real_distribution<float> distribution(0, 1);
+   for (unsigned int i = 0 ; i < size ; i++) {
+      data[i].x = distribution(generator);
+      data[i].y = distribution(generator);
+      data[i].z = distribution(generator);
+   }
+   
+   glBindTexture(GL_TEXTURE_1D, mTexture);
+   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, (GLsizei)size, 0, GL_RGB, GL_FLOAT, data.data());
+   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   
+   GLenum err = glGetError();
+   if (err != GL_NO_ERROR)
+   {
+      return Failure{"GL error: %1", err};
+   }
 
    return Success;
 }
@@ -105,11 +133,11 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
 
    if (metadata["width"] != texture->mWidth)
    {
-      LOG_WARNING("File %1's width of %i didn't match its metadata's width of %i", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
+      LOG_WARNING("File %1's width of %2 didn't match its metadata's width of %3", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
    }
    if (metadata["height"] != texture->mHeight)
    {
-      LOG_WARNING("File %1's height of %i didn't match its metadata's height of %i", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
+      LOG_WARNING("File %1's height of %2 didn't match its metadata's height of %3", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
    }
 
    for (const auto [name, info] : metadata["images"].pairs())
@@ -120,6 +148,18 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
          info["w"].GetFloatValue() / texture->mWidth,
          info["h"].GetFloatValue() / texture->mHeight
       ));
+   }
+
+   return std::move(texture);
+}
+
+Maybe<std::unique_ptr<Texture>> Texture::MakeRandom(uint32_t size)
+{
+   std::unique_ptr<Texture> texture = std::make_unique<Texture>();
+   Maybe<void> result = texture->LoadRandom(size);
+   if (!result)
+   {
+      return result.Failure().WithContext("Failed generating random texture");
    }
 
    return std::move(texture);

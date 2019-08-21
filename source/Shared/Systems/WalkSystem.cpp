@@ -76,7 +76,7 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
       }
    });
    
-   entities.Each<Engine::Transform, WalkSpeed, SimplePhysics::Body>([&](Engine::Entity /*entity*/, Engine::Transform& transform, WalkSpeed& walk, SimplePhysics::Body& body) {
+   entities.Each<Engine::Transform, WalkSpeed, SimplePhysics::Body>([&](Engine::Transform& transform, WalkSpeed& walk, SimplePhysics::Body& body) {
       float goalSpeed = 0;
       if (walk.running)
       {

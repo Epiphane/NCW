@@ -46,7 +46,11 @@
 
       CopyDir( '$ProjectName$-Shaders-$Platform$-$Config$' )
       {
-         .SourcePaths   = '$ProjectPath$/../Shared/Shaders'
+         .SourcePaths    = {
+                              '$ProjectPath$/../Engine/Shaders'
+                              '$ProjectPath$/../Shared/Shaders'
+                              '$ProjectPath$/../Editor/Shaders'
+                           }
          .Dest          = '$OutputPath$/Shaders'
       }
 
@@ -89,18 +93,15 @@
          // Output
          .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
       #if __WINDOWS__
-         .LinkerOptions       + ' /SUBSYSTEM:CONSOLE'
-                              + ' libcmt.lib'      // Std Lib (Multi-Threaded, Static, Release)
+         .LinkerOptions       + ' /SUBSYSTEM:WINDOWS'
+                              + ' /ENTRY:mainCRTStartup'
                               + ' Comdlg32.lib'
-                              + ' libcmtd.lib'
                               + ' Gdi32.lib'       // Bitmap functions
                               + ' kernel32.lib'    // Kernel functions
                               + ' Ole32.lib'
-                              + ' ucrtd.lib'        // CRT libs
                               + ' Shell32.lib'     // Shell API
                               + ' Shlwapi.lib'
                               + ' User32.lib'
-                              + ' vcruntime.lib'
       #endif
       }
 

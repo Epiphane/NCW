@@ -2,16 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <functional>
-#pragma warning(push, 0)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wreorder"
-#include <noise/noise.h>
-#include <noiseutils/noiseutils.h>
-#pragma clang diagnostic pop
-#pragma warning(pop)
 
 #include <RGBFileSystem/Paths.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -20,6 +11,7 @@
 #include <Engine/Entity/Transform.h>
 #include <Engine/System/InputEventSystem.h>
 #include <Shared/Components/VoxModel.h>
+#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
@@ -152,7 +144,7 @@ void MainState::Receive(const AddSkeletonPartEvent& evt)
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
-      LOG_ERROR("%1", data.Failure().WithContext("Failed loading %1", evt.filename).GetMessage());
+      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
       return;
    }
 

@@ -5,10 +5,12 @@
 #include <unordered_map>
 
 #include <Engine/Entity/Component.h>
+#include <Engine/Graphics/ParticleSystem.h>
 #include <Engine/System/System.h>
 #include <Shared/Components/AnimationController.h>
 #include <Shared/Components/Skeleton.h>
 #include <Shared/Components/SkeletonAnimations.h>
+#include <Shared/Systems/SimpleParticleSystem.h>
 
 namespace CubeWorld
 {
@@ -37,6 +39,16 @@ public:
    // Types
    using Bone = Skeleton::Bone;
 
+   //
+   // References an emitter in the MultipleParticleEmitters component.
+   //
+   struct EmitterRef {
+      std::string bone;
+      size_t emitter;
+      double start;
+      double end;
+   };
+
    struct State {
       std::string entity;
       std::string name;
@@ -45,6 +57,7 @@ public:
 
       double length = 0.0;
       std::vector<SkeletonAnimations::Keyframe> keyframes;
+      std::vector<EmitterRef> emitters;
    };
 
    struct Stance {
@@ -55,6 +68,7 @@ public:
 
 public:
    SimpleAnimationController();
+   SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters);
    void Reset();
    void UpdateSkeletonStates();
 
@@ -86,6 +100,8 @@ public:
    double transitionCurrent;
    double transitionStart;
    double transitionEnd;
+
+   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
 };
 
 class SimpleAnimationSystem : public Engine::System<SimpleAnimationSystem> {

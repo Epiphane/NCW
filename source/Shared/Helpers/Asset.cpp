@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <tuple>
 #include <RGBFileSystem/FileSystem.h>
 
 #include "Asset.h"
@@ -16,12 +17,12 @@ void SetAssetRootDefault()
 {
    DiskFileSystem fs;
    // Account for / (relative to repo)
-   if (auto [_, exists] = fs.Exists("./Assets"); exists)
+   if (auto [_1, localExists] = fs.Exists("./Assets"); localExists)
    {
       gAssetRoot = "./Assets";
    }
    // Account for running from /tmp/{config}/{target}
-   else if (auto [_, exists] = fs.Exists("../../../Assets"); exists)
+   else if (auto [_2, repoExists] = fs.Exists("../../../Assets"); repoExists)
    {
       gAssetRoot = "../../../Assets";
    }
@@ -50,6 +51,16 @@ std::string Image(const std::string& model)
 std::string Font(const std::string& fontName)
 {
    return Paths::Join(gAssetRoot, "Fonts", fontName + ".ttf");
+}
+
+std::string ParticleShaders()
+{
+   return Paths::Join(gAssetRoot, "Particles", "shaders");
+}
+
+std::string Particle(const std::string& particle)
+{
+   return Paths::Join(gAssetRoot, "Particles", particle + ".yaml");
 }
 
 std::string Skeleton(const std::string& skeleton)

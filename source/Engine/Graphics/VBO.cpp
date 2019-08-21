@@ -28,8 +28,9 @@ GLuint GenerateBuffer()
 {
    GLuint buffer;
    glGenBuffers(1, &buffer);
+   assert(buffer != 0 && "Buffer capacity exceeded");
 
-   if (gBufferReferences.size() < buffer) {
+   if (gBufferReferences.size() <= buffer) {
       gBufferReferences.resize(gBufferReferences.size() + BUFFER_COUNT_INCREMENT);
    }
 

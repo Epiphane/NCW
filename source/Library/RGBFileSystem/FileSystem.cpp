@@ -44,6 +44,11 @@ Failure DiskFileSystem::TransformPlatformError(const std::string& message)
 ///
 std::pair<Maybe<void>, bool> DiskFileSystem::Exists(const std::string& path)
 {
+   if (path.empty())
+   {
+      return {Success, false};
+   }
+
 #if CUBEWORLD_PLATFORM_WINDOWS
    DWORD ret = ::GetFileAttributesW(Utf8ToWide(path).c_str());
    if (ret != INVALID_FILE_ATTRIBUTES)
@@ -349,7 +354,7 @@ Maybe<std::string> DiskFileSystem::ReadEntireFile(const std::string& path)
    Maybe<FileHandle> maybeHandle = OpenFileRead(path);
    if (!maybeHandle)
    {
-      return maybeHandle.Failure().WithContext("Failed opening file for read");
+      return maybeHandle.Failure();
    }
 
    CUBEWORLD_SCOPE_EXIT([&] { CloseFile(*maybeHandle); });

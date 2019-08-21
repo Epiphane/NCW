@@ -404,12 +404,17 @@ void BindingProperty::PopBack()
 ///
 ///
 ///
-bool BindingProperty::Has(const std::string& key)
+bool BindingProperty::Has(const std::string& key) const
 {
+   if (IsNull())
+   {
+      return false;
+   }
+
    assert(IsObject() && "Has is only valid on an object");
-   Object me = AsObject();
-   ObjectIterator it = me.begin();
-   ObjectIterator end = me.end();
+   ConstObject me = AsObject();
+   ConstObjectIterator it = me.begin();
+   ConstObjectIterator end = me.end();
    for (; it != end; ++it)
    {
       if (it->key == key)
