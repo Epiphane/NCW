@@ -10,7 +10,7 @@
 using namespace CubeWorld;
 using namespace CubeWorld::Observables;
 
-using CubeWorld::Engine::UI::CollapsibleTreeVC; 
+using CubeWorld::Engine::CollapsibleTreeVC; 
 using TreeData = CubeWorld::Engine::CollapsibleTreeItem::Data;
 
 SCENARIO( "The CollapsibleTreeController reacts appropriately to data changes" ) {
@@ -20,16 +20,20 @@ GIVEN( "A CollapsibleTreeController" ) {
       CollapsibleTreeVC* collapsible = dummyRoot->Add<CollapsibleTreeVC>("TestCollapsibleTreeController");
       
       WHEN( "the controller is provided with a tree of data" ) {
+         TreeData coolItem1 = {"coolItem1", {}};
+         TreeData coolItem2 = {"coolItem2", {}};
+         TreeData coolItem3 = {"coolItem3", {}};
+         
          TreeData topElement1{
             "topElement1",
             { 
-               {"coolItem1"}, {"coolItem2"}, {"coolItem3"}
+               coolItem1, coolItem2, coolItem3
             }
          };
          TreeData topElement2{
             "topElement2",
             { 
-               {"level1", {{"level2", {{"level3", {{"level4"}}}}}}}
+               {"level1", {{"level2", {{"level3", {{"level4", {}}}}}}}}
             }
          };
          
@@ -47,7 +51,7 @@ GIVEN( "A CollapsibleTreeController" ) {
             CHECK( deepTitle == "level4" );
             
             AND_WHEN( "the controller is provided with new data" ) {
-               collapsible->GetDataSink().SendMessage({ {"newFella"} });
+               collapsible->GetDataSink().SendMessage({ {"newFella", {}} });
                
                THEN( "the old data is removed, and the new data replaces it" ) {
                   dummyRoot->UpdateRoot(); // delete old UIElements

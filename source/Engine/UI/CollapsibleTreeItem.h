@@ -29,7 +29,7 @@ class CollapsibleTreeItem : public UIElement
 public:
    struct Data {
       std::string title;
-      std::vector<Data> children;
+      std::vector<Data> children = {};
    };
    
    CollapsibleTreeItem(UIRoot* root, UIElement* parent, const std::string& name = "");
