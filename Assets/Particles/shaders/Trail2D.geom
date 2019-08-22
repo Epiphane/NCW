@@ -33,42 +33,52 @@ void main()
       return;
    }
 
+   // Rendering for front side:
+   // 1--3  1
+   // | / / |
+   // 2  2--3
+
    // Front side
    gl_Position = gl_in[0].gl_Position;
-   fUV = vec2(0, 1 - gRotation[0].x);
+   fUV = vec2(gRotation[2].y, 0);
    fAge = gAge[0];
    EmitVertex();
 
    gl_Position = gl_in[1].gl_Position;
-   fUV = vec2(0, 1 - gRotation[1].x);
-   if (gRotation[0].x == 0) {
-      fUV.x = 1;
-   }
+   fUV = vec2(0, 1);
    fAge = gAge[1];
    EmitVertex();
 
    gl_Position = gl_in[2].gl_Position;
-   fUV = vec2(1, 1 - gRotation[2].x);
+   fUV = vec2(1, gRotation[2].y);
    fAge = gAge[2];
    EmitVertex();
    EndPrimitive();
 
+   // Rendering for front side:
+   // 3  1--3
+   // | \ \ |
+   // 1--2  2
+
+   // 1  3--1
+   // | \ \ |
+   // 3--2  2
+
    // Reverse side.
    gl_Position = gl_in[2].gl_Position;
-   fUV = vec2(1, 1 - gRotation[2].x);
+   fUV = vec2(0, gRotation[2].y);
+   fAge = gAge[2];
    EmitVertex();
 
    gl_Position = gl_in[1].gl_Position;
-   fUV = vec2(0, 1 - gRotation[1].x);
-   if (gRotation[0].x == 0) {
-      fUV.x = 1;
-   }
+   fUV = vec2(1, 1);
+   fAge = gAge[1];
    EmitVertex();
 
    gl_Position = gl_in[0].gl_Position;
-   fUV = vec2(0, 1 - gRotation[0].x);
+   fUV = vec2(gRotation[2].x, 0);
+   fAge = gAge[0];
    EmitVertex();
 
    EndPrimitive();
-   return;
 }

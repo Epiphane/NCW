@@ -212,9 +212,21 @@ void SimpleParticleSystem::UpdateParticleSystem(
             const Engine::ParticleSystem::Particle& nt = system.particles[i + 2];
             const Engine::ParticleSystem::Particle& nb = system.particles[i + 3];
 
-            // For now, just go 10% of the way each frame.
-            top.pos = 0.9f * top.pos + 0.1f * nt.pos;
-            bot.pos = 0.9f * bot.pos + 0.1f * nb.pos;
+            // Move towards the next point
+            float percent = 20.0f * (float)dt;
+            if (top.age >= 0.2f)
+            {
+               percent *= top.age * top.age;
+            }
+
+            top.pos = (1 - percent) * top.pos + percent * nt.pos;
+            bot.pos = (1 - percent) * bot.pos + percent * nb.pos;
+
+            float converge = 1 * (float)dt;
+            glm::vec3 newTopPos = (1 - converge) * top.pos + converge * bot.pos;
+            glm::vec3 newBotPos = (1 - converge) * bot.pos + converge * top.pos;
+            top.pos = newTopPos;
+            bot.pos = newBotPos;
 
             // Age the particles
             top.age += (float)dt;
@@ -222,33 +234,59 @@ void SimpleParticleSystem::UpdateParticleSystem(
          }
       }
 
-      // Emit a new trail pair.
-      system.particles[system.particles.size() - 1].age += (float)dt;
-      if (
-         (system.emitterLifetime == 0 || system.age < system.emitterLifetime) &&
-         system.particles[system.particles.size() - 1].age > system.emitterCooldown
-      )
-      {
-         Engine::ParticleSystem::Particle newParticle;
-         newParticle.type = 2.0f; // Particle
+      // Prep new lead pair data
+      glm::vec3 topLeadPos{matrix * glm::vec4{0, 15, 0, 1}};
+      glm::vec3 botLeadPos{matrix * glm::vec4{0, -6, 0, 1}};
 
-         newParticle.rot = {1,0,0,0}; // Top
-         system.particles.push_back(newParticle);
-         
-         newParticle.rot = {0,1,0,0}; // Bot
-         system.particles.push_back(newParticle);
+      glm::vec3 topStart{system.particles[system.particles.size() - 2].pos};
+      glm::vec3 botStart{system.particles[system.particles.size() - 1].pos};
+      if (system.firstRender)
+      {
+         topStart = topLeadPos;
+         botStart = botLeadPos;
       }
 
       // Update lead pair to always follow the model.
       {
-         glm::vec4 translate = matrix * glm::vec4{0, 15, 0, 1};
-         system.particles[system.particles.size() - 2].pos = glm::vec3{translate};
+         Engine::ParticleSystem::Particle& top = system.particles[system.particles.size() - 2];
+         top.pos = topLeadPos;
 
-         translate = matrix * glm::vec4{0, -1, 0, 1};
-         system.particles[system.particles.size() - 1].pos = glm::vec3{translate};
+         Engine::ParticleSystem::Particle& bot = system.particles[system.particles.size() - 1];
+         bot.pos = botLeadPos;
+      }
+
+      // Emit new lead pairs.
+      system.particles[system.particles.size() - 1].age += (float)dt;
+      system.particles[system.particles.size() - 2].age += (float)dt;
+      if (system.emitterLifetime == 0 || system.age < system.emitterLifetime)
+      {
+         float nEmit = std::floor(system.particles[system.particles.size() - 1].age / system.emitterCooldown);
+         system.particles[system.particles.size() - 1].age -= nEmit * system.emitterCooldown;
+         system.particles[system.particles.size() - 2].age -= nEmit * system.emitterCooldown;
+         nEmit = 1;
+         for (float i = 0; i < nEmit; ++i)
+         {
+            float percent = (i + 1) / nEmit;
+
+            Engine::ParticleSystem::Particle newTop;
+            newTop.type = 2.0f; // Particle
+            newTop.pos = percent * topLeadPos + (1 - percent) * topStart;
+            newTop.rot = {1,0,0,0}; // Top
+            newTop.age = 0;
+
+            Engine::ParticleSystem::Particle newBot;
+            newBot.type = 2.0f; // Particle
+            newBot.pos = percent * botLeadPos + (1 - percent) * botStart;
+            newBot.rot = {0,1,0,0}; // Bot
+            newBot.age = 0;
+
+            system.particles.push_back(newTop);
+            system.particles.push_back(newBot);
+         }
       }
 
       system.particleBuffers[0].BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STATIC_DRAW);
+      system.firstRender = false;
       return;
    }
 
