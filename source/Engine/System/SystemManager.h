@@ -36,7 +36,7 @@ public:
    {
       std::unique_ptr<S> system(new S(std::forward<Args>(args) ...));
 
-      mSystems.insert(std::make_pair(S::GetFamily(), std::move(system)));
+      mSystems.push_back(std::move(system));
 #if CUBEWORLD_BENCHMARK_SYSTEMS
       std::string name = typeid(S).name();
       // Cut off namespace.
@@ -46,7 +46,7 @@ public:
 #else
       name = name.substr(23); // class Cubeworld::Game::
 #endif
-      mBenchmarks.insert(std::make_pair(S::GetFamily(), std::make_pair(std::string(name), Timer<100>())));
+      mBenchmarks.push_back(std::make_pair(std::string(name), Timer<100>()));
 #endif
    }
 
@@ -54,7 +54,10 @@ public:
    template<typename S>
    S* Get()
    {
-      auto it = mSystems.find(S::GetFamily());
+      BaseSystem::Family family = S::GetFamily();
+      auto it = std::find(mSystems.begin(), mSystems.end(), [&](const auto& system) {
+         return system->GetFamily() == family;
+      });
       assert(it != mSystems.end());
       return static_cast<S*>(it->second.get());
    }
@@ -74,9 +77,9 @@ private:
    EntityManager& mEntityManager;
    EventManager& mEventManager;
 
-   std::unordered_map<BaseSystem::Family, std::unique_ptr<BaseSystem>> mSystems;
+   std::vector<std::unique_ptr<BaseSystem>> mSystems;
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-   std::unordered_map<BaseSystem::Family, std::pair<std::string, Timer<100>>> mBenchmarks;
+   std::vector<std::pair<std::string, Timer<100>>> mBenchmarks;
 #endif
 };
 

@@ -162,11 +162,11 @@ void ParticleSystem::Reset()
       // Create lead particles
       particles.resize(2);
       particles[0].type = 2.0f; // Particle
-      particles[0].pos = {0};
+      particles[0].pos = {0,0,0};
       particles[0].rot = {1,0,0,0}; // Top
       particles[0].age = 0;
       particles[1].type = 2.0f; // Particle
-      particles[1].pos = {0};
+      particles[1].pos = {0,0,0};
       particles[1].rot = {0,1,0,0}; // Bottom
       particles[1].age = 0;
       particleBuffers[0].BufferData(sizeof(Particle) * particles.size(), particles.data(), GL_STATIC_DRAW);

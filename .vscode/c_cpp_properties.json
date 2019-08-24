@@ -2,6 +2,9 @@
     "configurations": [
         {
             "name": "Win32",
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks"
+            ],
             "browse": {
                 "path": [
                     "${workspaceFolder}"
@@ -24,7 +27,8 @@
                 "${workspaceFolder}/dependencies/rhea/0.2.4",
                 "${workspaceFolder}/dependencies/sqlite/3.22.0",
                 "${workspaceFolder}/source",
-                "${workspaceFolder}/source/Library"
+                "${workspaceFolder}/source/Library",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"
             ],
             "defines": [
                 "CUBEWORLD_PLATFORM_WINDOWS"

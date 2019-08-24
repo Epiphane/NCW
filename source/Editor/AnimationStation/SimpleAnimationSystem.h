@@ -93,6 +93,7 @@ public:
    // Animation State
    std::string current;
    double time;
+   double cooldown;
 
    // If transition > 0, this defines the state we're transitioning to,
    // as well as the amount of time remaining in that transition.
