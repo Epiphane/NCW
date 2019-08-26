@@ -160,7 +160,9 @@ namespace Game
       auto controller = player.Add<AnimationController>(player.Add<MultipleParticleEmitters>());
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-         player.Get<AnimationController>()->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         auto anim = player.Get<AnimationController>();
+         anim->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         anim->SetBoolParameter("fighting", anim->GetBoolParameter("fighting") | mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
       });
 
       Engine::Entity part = mEntities.Create(0, 0, 0);

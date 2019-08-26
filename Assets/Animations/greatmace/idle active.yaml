@@ -1,0 +1,54 @@
+---
+name: idle active
+next: 
+stance: wield_twohands
+length: 5.02
+keyframes:
+- time: 0
+- time: 0.79
+  bones:
+    character.Spine:
+      position: [0, 0.494142, 0.208203]
+- time: 2.64
+  bones:
+    character.Spine:
+      position: [0, 0.959376, 0.208203]
+    character.Head:
+      position: [0, 4.937648, -0.201875]
+- time: 3.23
+  bones:
+    character.Face:
+      position: [0, 0, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+    character.Right Foot:
+      position: [0, -5, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+    character.Head:
+      position: [0, 4.937648, -0.201875]
+      rotation: [0, 0, 0]
+      scale: [1.02, 1.04, 1.02]
+    character.Spine:
+      position: [0, 0.690234, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+    character.Left Foot:
+      position: [0, -5, 0]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+    character.Torso:
+      position: [0, -6, -1.948438]
+      rotation: [0, 0, 0]
+      scale: [1, 1, 1]
+transitions:
+- to: idle
+  time: 0
+  triggers:
+  - parameter: fighting
+    bool: false
+- to: swing 1
+  time: 0.1
+  triggers:
+  - parameter: attack
+    bool: true

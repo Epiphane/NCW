@@ -14,13 +14,3 @@ transitions:
   triggers:
   - parameter: attack
     bool: true
-# particles:
-# - name: slash
-#   bone: greatmace.Mace
-  # start: 0.66
-  # end: 0.7
-  # mods:
-  #   launcher:
-  #     lifetime: 0.04
-  #   particle:
-  #     lifetime: 0.04
