@@ -6,36 +6,36 @@ length: 0.9
 keyframes:
 - time: 0
   bones:
-    greatmace.root:
-      position: [1.990625, 4.917968, 1.23086]
-      rotation: [0, -89.492188, 0]
-    character.Spine:
-      position: [0, 0.455469, 1.99383]
-      rotation: [2.898438, 11.078125, 0]
     character.Head:
       position: [0, 4.730227, 0.321562]
       rotation: [-3.414062, 0, 0]
-    character.Left Leg:
-      position: [2.5, -0.352344, -3.104687]
-      rotation: [29.515625, 0, 0]
-    character.root:
-      position: [0, -0.5, 6.698039]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
-    character.Shoulders:
-      position: [-6.604614, 0.079219, 6.416793]
-      rotation: [85.980003, -8.405312, -5.179688]
-    character.Right Leg:
-      position: [-3.5, -0.624219, 0]
-      rotation: [-9.609375, 0, 0]
+    character.Left Leg:
+      position: [2.5, -0.352344, -3.104687]
+      rotation: [29.515625, 0, 0]
     character.Right Hand:
       position: [-0.243827, 1.255391, 0.277735]
       rotation: [0, -90.265625, 0]
-    character.Torso:
-      rotation: [0, -6.6, 0]
+    character.Right Leg:
+      position: [-3.5, -0.624219, 0]
+      rotation: [-9.609375, 0, 0]
+    character.Shoulders:
+      position: [-6.604614, 0.079219, 6.416793]
+      rotation: [85.980003, -8.405312, -5.179688]
+    character.Spine:
+      position: [0, 0.455469, 1.99383]
+      rotation: [2.898438, 11.078125, 0]
+    character.root:
+      position: [0, -0.5, 6.698039]
+    greatmace.root:
+      position: [1.990625, 4.917968, 1.23086]
+      rotation: [0, -89.492188, 0]
     character.Left Hand:
       rotation: [0, -92.9375, 0]
+    character.Torso:
+      rotation: [0, -6.6, 0]
 - time: 0.64
   bones:
     character.Head:
@@ -46,10 +46,10 @@ keyframes:
       rotation: [70.389999, -53.68, 0.05]
     character.root:
       position: [0, -0.5, 6.894133]
-    character.Torso:
-      rotation: [0.02, 51.27, 0.02]
     character.Spine:
       rotation: [8.33, 0, 0]
+    character.Torso:
+      rotation: [0.02, 51.27, 0.02]
 - time: 0.66
   bones:
     character.Head:
@@ -60,10 +60,10 @@ keyframes:
       rotation: [67.529999, -52.240002, 0.41]
     character.root:
       position: [0, -0.5, 6.894133]
-    character.Torso:
-      rotation: [0.04, 49.380001, 0.02]
     character.Spine:
       rotation: [8.03, 0, 0]
+    character.Torso:
+      rotation: [0.04, 49.380001, 0.02]
 - time: 0.79
   bones:
     character.Shoulders:

@@ -12,12 +12,12 @@ keyframes:
     character.Hips:
       position: [0, 1.5, 0.83]
       rotation: [0.08, 0, 0]
-    character.Spine:
-      position: [0, 0.77, -3.69]
-      rotation: [-16.09, 0, 0]
     character.Shoulders:
       position: [-7.25, 1.36, 0.2]
       rotation: [-37.73, 15.12, 1.23]
+    character.Spine:
+      position: [0, 0.77, -3.69]
+      rotation: [-16.09, 0, 0]
     character.Left Leg:
       rotation: [-29.559999, 0, 0]
     character.Torso:
