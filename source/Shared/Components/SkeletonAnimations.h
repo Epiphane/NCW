@@ -59,6 +59,18 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       BindingProperty modifications;
    };
 
+   struct Event {
+      enum class Type {
+         Unknown,
+         Strike,
+      };
+
+      Type type = Type::Unknown;
+      double start;
+      double end;
+      BindingProperty properties;
+   };
+
 public:
    SkeletonAnimations();
 
@@ -82,6 +94,7 @@ public:
    std::map<std::string, State> states;
    std::map<std::string, std::vector<Transition>> transitions;
    std::map<std::string, std::vector<ParticleEffect>> effects;
+   std::map<std::string, std::vector<Event>> events;
 };
 
 }; // namespace CubeWorld
