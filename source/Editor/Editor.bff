@@ -10,6 +10,7 @@
       .OutputPath          + '$Platform$-$Config$/$ProjectName$'
       .CompilerOutputPath  = .OutputPath
       .CompilerOptions     + .SourceIncludePaths
+                           + .ImguiIncludePaths
 
       // Unity
       // --------------------------------------------------------------------------
@@ -78,6 +79,7 @@
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'
+                                 'imgui-Lib-$Platform$-$Config$'
                                  'libnoise-Lib-$Platform$-$Config$'
                                  'libyaml-Lib-$Platform$-$Config$'
                                  'lodepng-Lib-$Platform$-$Config$'

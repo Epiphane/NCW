@@ -240,6 +240,7 @@ Settings
 #include "dependencies/glad/glad.bff"
 #include "dependencies/glfw/glfw.bff"
 #include "dependencies/glm/glm.bff"
+#include "dependencies/imgui/imgui.bff"
 #if !__WINDOWS__
     #include "dependencies/libfswatch/libfswatch.bff"
 #endif

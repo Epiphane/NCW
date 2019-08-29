@@ -26,6 +26,7 @@ public:
    ~Texture();
 
    static Maybe<std::unique_ptr<Texture>> Load(const std::string& filename);
+   static Maybe<std::unique_ptr<Texture>> FromBytes(const uint8_t* data, uint32_t width, uint32_t height);
    static Maybe<std::unique_ptr<Texture>> MakeRandom(uint32_t size);
 
    GLuint GetTexture() { return mTexture; }
@@ -37,6 +38,7 @@ public:
 
 private:
    Maybe<void> LoadPNG(const std::string& filename);
+   Maybe<void> LoadBytes(const uint8_t* data, uint32_t width, uint32_t height);
    Maybe<void> LoadRandom(uint32_t size);
 
 private:
