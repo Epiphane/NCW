@@ -31,6 +31,7 @@
 #include "ParticleSpace/Editor.h"
 #include "Skeletor/Editor.h"
 
+#include "Imgui/Context.h"
 #include "Controls.h"
 #include "Main.h"
 
@@ -135,6 +136,8 @@ int main(int argc, char** argv)
       }
    };
 
+   Editor::ImguiContext imgui(window);
+
    // Create editors
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(&window, controlsOptions);
    animationStation->SetBounds(window);
@@ -236,6 +239,8 @@ int main(int argc, char** argv)
       {
          TIMEDELTA dt = std::min(elapsed, SEC_PER_FRAME);
 
+         imgui.StartFrame(dt);
+
          // Basic prep
          window.Clear();
          window.Update();
@@ -259,6 +264,8 @@ int main(int argc, char** argv)
             debug.Update();
             debug.Render();
          }
+
+         imgui.Render();
 
          // Swap buffers
          {
