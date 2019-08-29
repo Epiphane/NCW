@@ -155,8 +155,15 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
    io.DeltaTime = (float)dt;
 
    // Update mouse position.
-   auto mouse = mWindow.GetMousePosition();
-   io.MousePos = ImVec2((float)mouse.x, (float)mouse.y);
+   auto mouse = mWindow.GetRawMousePosition();
+   io.MousePos = ImVec2((float)mouse.x, (float)mWindow.GetHeight() - mouse.y);
+
+   // Update mouse click state
+   for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++)
+   {
+      // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+      io.MouseDown[i] = mWindow.IsMouseDown(i);
+   }
 
    // Update mouse cursor.
    if (
@@ -203,7 +210,6 @@ void ImguiContext::ResetRenderState(ImDrawData* drawData, int fbWidth, int fbHei
        { 0.0,                0.0,             -1.0,   0.0 },
        { (R + L) / (L - R),   (T + B) / (B - T), 0.0,   1.0 },
    };
-   BIND_PROGRAM_IN_SCOPE(mProgram);
    mProgram->Uniform1i("uTexture", 0);
    mProgram->UniformMatrix4f("uProjMatrix", projection);
 
@@ -229,6 +235,7 @@ void ImguiContext::Render()
    }
    
    // Setup GL state
+   BIND_PROGRAM_IN_SCOPE(mProgram);
    ResetRenderState(drawData, fbWidth, fbHeight);
    CUBEWORLD_SCOPE_EXIT([] {
       glEnable(GL_CULL_FACE);
@@ -295,6 +302,7 @@ void ImguiContext::Render()
                // Bind texture and draw
                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, (void*)(intptr_t)(pcmd->IdxOffset * sizeof(ImDrawIdx)));
+               CHECK_GL_ERRORS();
             }
          }
       }

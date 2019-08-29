@@ -15,6 +15,7 @@
                 "${workspaceFolder}/dependencies/glad/07052019/include",
                 "${workspaceFolder}/dependencies/glfw/3.2.1/include",
                 "${workspaceFolder}/dependencies/glm/0.9.9.0",
+                "${workspaceFolder}/dependencies/imgui/1.72b",
                 "${workspaceFolder}/dependencies/libfswatch/0.2.4/src",
                 "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
                 "${workspaceFolder}/dependencies/libyaml/0.2.2",

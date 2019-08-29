@@ -32,6 +32,11 @@ public:
    //
    void Start();
 
+   //
+   // Called once per frame.
+   //
+   void Update(TIMEDELTA dt) override;
+
 private:
    Engine::EventManager mEvents;
 

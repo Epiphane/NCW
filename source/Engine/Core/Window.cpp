@@ -77,7 +77,8 @@ Maybe<Window*> Window::Initialize(const Options& options)
    glfwMakeContextCurrent(mGLFW);
 
    // Initialize OpenGL context
-   if (!gladLoadGL()) {
+   if (!gladLoadGL())
+   {
       return Failure{"Failed to initialize glad!"};
    }
 

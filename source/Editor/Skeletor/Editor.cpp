@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <imgui.h>
 #include <Engine/Core/StateManager.h>
 #include <Shared/DebugHelper.h>
 
@@ -58,6 +59,16 @@ Editor::Editor(Engine::Input* input, const Controls::Options& options) : UIRoot(
 void Editor::Start()
 {
    DebugHelper::Instance().SetBounds(&mStateWindow->GetFrame());
+}
+
+void Editor::Update(TIMEDELTA dt)
+{
+   UIRoot::Update(dt);
+
+   ImGui::Begin("Whatever");
+   ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
+   ImGui::Spacing();
+   ImGui::End();
 }
 
 }; // namespace Skeletor
