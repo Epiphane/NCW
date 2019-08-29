@@ -99,6 +99,7 @@
                               + ' /ENTRY:mainCRTStartup'
                               + ' Comdlg32.lib'
                               + ' Gdi32.lib'       // Bitmap functions
+                              + ' Imm32.lib'
                               + ' kernel32.lib'    // Kernel functions
                               + ' Ole32.lib'
                               + ' Shell32.lib'     // Shell API
