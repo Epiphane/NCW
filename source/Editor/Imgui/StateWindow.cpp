@@ -5,28 +5,34 @@
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
 #include <Engine/UI/UIRoot.h>
+#include <Shared/Aggregator/Image.h>
 
-#include "../Aggregator/Image.h"
 #include "StateWindow.h"
 
 namespace CubeWorld
 {
 
-namespace UI
+namespace Editor
 {
 
-StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
-   : UIElement(root, parent)
+StateWindow::StateWindow(
+   Engine::Input& input,
+   uint32_t width,
+   uint32_t height,
+   Aggregator::Image& aggregator,
+   std::unique_ptr<Engine::State>&& state
+)  : Bounds(0, 0, width, height)
+   , mInput(input)
    , mState(nullptr)
-   , mFramebuffer((GLsizei)root->GetWidth(), (GLsizei)root->GetHeight())
-   , mRegion(root->Reserve<Aggregator::Image>(2))
+   , mFramebuffer((GLsizei)GetWidth(), (GLsizei)GetHeight())
+   , mRegion(aggregator.Reserve(2))
 {
    if (state)
    {
       SetState(std::move(state));
    }
 
-   root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mFramebuffer.GetTexture());
+   aggregator.ConnectToTexture(mRegion, mFramebuffer.GetTexture());
 }
 
 void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
@@ -38,20 +44,10 @@ void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)
 void StateWindow::Update(TIMEDELTA dt)
 {
    // Draw elements
+   mFramebuffer.Resize((GLsizei)GetWidth(), (GLsizei)GetHeight());
    mFramebuffer.Bind();
    mState->Update(dt);
    mFramebuffer.Unbind();
-}
-
-void StateWindow::Redraw()
-{
-   mFramebuffer.Resize((GLsizei)GetWidth(), (GLsizei)GetHeight());
-   std::vector<Aggregator::ImageData> vertices{
-      { mFrame.GetBottomLeft(), glm::vec2(0, 0) },
-      { mFrame.GetTopRight(), glm::vec2(1, 1) },
-   };
-
-   mRegion.Set(vertices.data());
 }
 
 //
@@ -59,7 +55,7 @@ void StateWindow::Redraw()
 //
 void StateWindow::Reset()
 {
-   mpRoot->GetInput()->Reset();
+   mInput.Reset();
 }
 
 void StateWindow::Update()
@@ -70,7 +66,7 @@ void StateWindow::Update()
 
 bool StateWindow::IsKeyDown(int key) const
 {
-   return mpRoot->GetInput()->IsKeyDown(key);
+   return mInput.IsKeyDown(key);
 }
 
 bool StateWindow::IsMouseDown(int button) const
@@ -85,7 +81,7 @@ bool StateWindow::IsDragging(int button) const
 
 glm::tvec2<double> StateWindow::GetRawMousePosition() const
 {
-   return mpRoot->GetInput()->GetRawMousePosition() - glm::tvec2<double>{GetX(), GetY()};
+   return mInput.GetRawMousePosition() - glm::tvec2<double>{GetX(), GetY()};
 }
 
 glm::tvec2<double> StateWindow::GetMousePosition() const
@@ -95,27 +91,27 @@ glm::tvec2<double> StateWindow::GetMousePosition() const
 
 glm::tvec2<double> StateWindow::CorrectYCoordinate(glm::tvec2<double> point) const
 {
-   return mpRoot->GetInput()->CorrectYCoordinate(point);
+   return mInput.CorrectYCoordinate(point);
 }
 
 glm::tvec2<double> StateWindow::GetMouseMovement() const
 {
-   return mpRoot->GetInput()->GetMouseMovement();
+   return mInput.GetMouseMovement();
 }
 
 glm::tvec2<double> StateWindow::GetMouseScroll() const
 {
-   return mpRoot->GetInput()->GetMouseScroll();
+   return mInput.GetMouseScroll();
 }
 
 void StateWindow::SetMouseLock(bool locked)
 {
-   mpRoot->GetInput()->SetMouseLock(locked);
+   mInput.SetMouseLock(locked);
 }
 
 bool StateWindow::IsMouseLocked() const
 {
-   return mpRoot->GetInput()->IsMouseLocked();
+   return mInput.IsMouseLocked();
 }
 
 //
@@ -136,6 +132,6 @@ const MouseClickEvent StateWindow::TransformEventDown(const MouseClickEvent& evt
    return MouseClickEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
 }
 
-}; // namespace UI
+}; // namespace Editor
 
 }; // namespace CubeWorld

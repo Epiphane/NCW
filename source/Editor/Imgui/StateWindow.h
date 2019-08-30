@@ -5,18 +5,17 @@
 #include <memory>
 #include <vector>
 
+#include <Engine/Core/Bounded.h>
 #include <Engine/Core/Input.h>
 #include <Engine/Core/State.h>
 #include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
-#include <Engine/UI/UIElement.h>
-
-#include "../Aggregator/Image.h"
+#include <Shared/Aggregator/Image.h>
 
 namespace CubeWorld
 {
 
-namespace UI
+namespace Editor
 {
 
 //
@@ -27,10 +26,18 @@ namespace UI
 // important, because all systems/components/logic in a state should act identically,
 // regardless of whether its the core of the window or we've got a StateWindow housing it.
 //
-class StateWindow : public Engine::UIElement, public Engine::Input, public MouseInputTransformer
+// Similar to UI::StateWindow, except playing with Imgui instead of constraints
+//
+class StateWindow : public Bounds, public Engine::Input, public MouseInputTransformer
 {
 public:
-   StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state);
+   StateWindow(
+      Engine::Input& input,
+      uint32_t width,
+      uint32_t height,
+      Aggregator::Image& aggregator,
+      std::unique_ptr<Engine::State>&& state
+   );
    ~StateWindow() {}
 
    //
@@ -41,12 +48,17 @@ public:
    //
    // Update the state and render it to the internal framebuffer.
    //
-   void Update(TIMEDELTA dt) override;
+   void Update(TIMEDELTA dt);
 
-public:
-   void Redraw() override;
+   Engine::Graphics::Framebuffer& GetFramebuffer() { return mFramebuffer; }
+   void SetPosition(uint32_t x, uint32_t y)
+   {
+      this->x = x;
+      this->y = y;
+   }
 
 private:
+   Engine::Input& mInput;
    std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;
 
@@ -84,6 +96,6 @@ public:
    const MouseClickEvent TransformEventDown(const MouseClickEvent& evt) const override;
 };
 
-}; // namespace UI
+}; // namespace Editor
 
 }; // namespace CubeWorld

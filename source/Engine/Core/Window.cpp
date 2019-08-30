@@ -296,6 +296,11 @@ glm::tvec2<double> Window::GetMousePosition() const
    return mMousePosition / glm::tvec2<double>(GetWidth(), GetHeight());
 }
 
+glm::tvec2<double> Window::CorrectYCoordinate(glm::tvec2<double> position) const
+{
+   return glm::tvec2<double>{position.x, GetHeight() - position.y};
+}
+
 }; // namespace Engine
 
 }; // namespace CubeWorld

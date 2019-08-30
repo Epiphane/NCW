@@ -6,9 +6,9 @@
 
 #include <Engine/Event/EventManager.h>
 #include <Engine/UI/UIRoot.h>
-#include <Shared/UI/StateWindow.h>
 
 #include "../Controls.h"
+#include "../Imgui/StateWindow.h"
 #include "Dock.h"
 #include "Sidebar.h"
 #include "State.h"
@@ -38,9 +38,10 @@ public:
    void Update(TIMEDELTA dt) override;
 
 private:
+   Engine::Input& mInput;
    Engine::EventManager mEvents;
 
-   UI::StateWindow* mStateWindow;
+   std::unique_ptr<StateWindow> mStateWindow;
 };
 
 }; // namespace Skeletor

@@ -72,23 +72,6 @@ ImguiContext::ImguiContext(Engine::Window& window)
    mCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);  // FIXME: GLFW doesn't have this.
    mCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 
-   /*
-   // Chain GLFW callbacks: our callbacks will call the user's previously installed callbacks, if any.
-   g_PrevUserCallbackMousebutton = NULL;
-   g_PrevUserCallbackScroll = NULL;
-   g_PrevUserCallbackKey = NULL;
-   g_PrevUserCallbackChar = NULL;
-   if (install_callbacks)
-   {
-      g_PrevUserCallbackMousebutton = glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
-      g_PrevUserCallbackScroll = glfwSetScrollCallback(window, ImGui_ImplGlfw_ScrollCallback);
-      g_PrevUserCallbackKey = glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
-      g_PrevUserCallbackChar = glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
-   }
-
-   g_ClientApi = client_api;
-   */
-
    // Prepare graphics resources.
    auto maybeProgram = Engine::Graphics::Program::Load(
       "Shaders/Imgui.vert",
