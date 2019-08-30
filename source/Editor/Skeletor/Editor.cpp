@@ -63,19 +63,15 @@ void Editor::Update(TIMEDELTA dt)
 {
    UIRoot::Update(dt);
 
-   ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_Always);
-   ImGui::Begin("Whatever");
-   ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
-   ImGui::Spacing();
-   ImGui::End();
-
-   ImGui::Begin("Whatever2");
-   ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
-   ImGui::Spacing();
+   ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+   // ImGui::SetNextWindowSizeConstraints(ImVec2(-1, -1), ImVec2(-1, -1));
+   ImGui::Begin("Preview");
+   ImVec2 space = ImGui::GetContentRegionAvail();
    // Get position of game window
    ImVec2 cursor = ImGui::GetCursorScreenPos();
    glm::tvec2<double> corrected = mStateWindow->CorrectYCoordinate({(double)cursor.x, (double)cursor.y});
    mStateWindow->SetPosition((uint32_t)corrected.x, (uint32_t)corrected.y - mStateWindow->GetHeight());
+   mStateWindow->SetSize((uint32_t)space.x, (uint32_t)space.y);
    ImGui::ImageButton(
       (ImTextureID)(intptr_t)mStateWindow->GetFramebuffer().GetTexture(),
       ImVec2(mStateWindow->GetWidth(), mStateWindow->GetHeight()),

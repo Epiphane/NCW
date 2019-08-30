@@ -57,6 +57,12 @@ public:
       this->y = y;
    }
 
+   void SetSize(uint32_t w, uint32_t h)
+   {
+      this->w = w;
+      this->h = h;
+   }
+
 private:
    Engine::Input& mInput;
    std::unique_ptr<Engine::State> mState;
