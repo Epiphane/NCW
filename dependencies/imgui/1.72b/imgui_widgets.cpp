@@ -57,12 +57,8 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wfloat-equal"            // warning : comparing floating point with == or != is unsafe   // storing and comparing against same constants (typically 0.0f) is ok.
 #pragma clang diagnostic ignored "-Wformat-nonliteral"      // warning : format string is not a string literal              // passing non-literal to vsnformat(). yes, user passing incorrect format strings can crash the code.
 #pragma clang diagnostic ignored "-Wsign-conversion"        // warning : implicit conversion changes signedness             //
-#if __has_warning("-Wzero-as-null-pointer-constant")
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"  // warning : zero as null pointer constant              // some standard header variations use #define NULL 0
-#endif
-#if __has_warning("-Wdouble-promotion")
 #pragma clang diagnostic ignored "-Wdouble-promotion"       // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is a misery with this as C++ va_arg ellipsis changes float to double.
-#endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wpragmas"                  // warning: unknown option after '#pragma GCC diagnostic' kind
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"        // warning: format not a string literal, format string not checked
@@ -399,37 +395,37 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 // See the series of events below and the corresponding state reported by dear imgui:
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // with PressedOnClickRelease:             return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
-//   Frame N+0 (mouse is outside bb)        -             -                -               -                  -                    -    
-//   Frame N+1 (mouse moves inside bb)      -             true             -               -                  -                    -    
+//   Frame N+0 (mouse is outside bb)        -             -                -               -                  -                    -
+//   Frame N+1 (mouse moves inside bb)      -             true             -               -                  -                    -
 //   Frame N+2 (mouse button is down)       -             true             true            true               -                    true
-//   Frame N+3 (mouse button is down)       -             true             true            -                  -                    -    
+//   Frame N+3 (mouse button is down)       -             true             true            -                  -                    -
 //   Frame N+4 (mouse moves outside bb)     -             -                true            -                  -                    -
 //   Frame N+5 (mouse moves inside bb)      -             true             true            -                  -                    -
-//   Frame N+6 (mouse button is released)   true          true             -               -                  true                 -    
-//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -    
-//   Frame N+8 (mouse moves outside bb)     -             -                -               -                  -                    -    
+//   Frame N+6 (mouse button is released)   true          true             -               -                  true                 -
+//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -
+//   Frame N+8 (mouse moves outside bb)     -             -                -               -                  -                    -
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // with PressedOnClick:                    return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
 //   Frame N+2 (mouse button is down)       true          true             true            true               -                    true
-//   Frame N+3 (mouse button is down)       -             true             true            -                  -                    -    
-//   Frame N+6 (mouse button is released)   -             true             -               -                  true                 -    
-//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -    
+//   Frame N+3 (mouse button is down)       -             true             true            -                  -                    -
+//   Frame N+6 (mouse button is released)   -             true             -               -                  true                 -
+//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // with PressedOnRelease:                  return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
 //   Frame N+2 (mouse button is down)       -             true             -               -                  -                    true
-//   Frame N+3 (mouse button is down)       -             true             -               -                  -                    -    
+//   Frame N+3 (mouse button is down)       -             true             -               -                  -                    -
 //   Frame N+6 (mouse button is released)   true          true             -               -                  -                    -
-//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -    
+//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // with PressedOnDoubleClick:              return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
 //   Frame N+0 (mouse button is down)       -             true             -               -                  -                    true
-//   Frame N+1 (mouse button is down)       -             true             -               -                  -                    -    
+//   Frame N+1 (mouse button is down)       -             true             -               -                  -                    -
 //   Frame N+2 (mouse button is released)   -             true             -               -                  -                    -
-//   Frame N+3 (mouse button is released)   -             true             -               -                  -                    -    
+//   Frame N+3 (mouse button is released)   -             true             -               -                  -                    -
 //   Frame N+4 (mouse button is down)       true          true             true            true               -                    true
-//   Frame N+5 (mouse button is down)       -             true             true            -                  -                    -    
+//   Frame N+5 (mouse button is down)       -             true             true            -                  -                    -
 //   Frame N+6 (mouse button is released)   -             true             -               -                  true                 -
-//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -    
+//   Frame N+7 (mouse button is released)   -             true             -               -                  -                    -
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Note that some combinations are supported,
 // - PressedOnDragDropHold can generally be associated with any flag.
@@ -439,7 +435,7 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 //                                         Repeat+                  Repeat+           Repeat+             Repeat+
 //                                         PressedOnClickRelease    PressedOnClick    PressedOnRelease    PressedOnDoubleClick
 //-------------------------------------------------------------------------------------------------------------------------------------------------
-//   Frame N+0 (mouse button is down)       -                        true              -                   true 
+//   Frame N+0 (mouse button is down)       -                        true              -                   true
 //   ...                                    -                        -                 -                   -
 //   Frame N + RepeatDelay                  true                     true              -                   true
 //   ...                                    -                        -                 -                   -
@@ -5473,7 +5469,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, button_flags);
 
-    // Update NavId when clicking or when Hovering (this doesn't happen on most widgets), so navigation can be resumed with gamepad/keyboard 
+    // Update NavId when clicking or when Hovering (this doesn't happen on most widgets), so navigation can be resumed with gamepad/keyboard
     if (pressed || (hovered && (flags & ImGuiSelectableFlags_SetNavIdOnHover)))
     {
         if (!g.NavDisableMouseHover && g.NavWindow == window && g.NavLayer == window->DC.NavLayerCurrent)
@@ -7254,7 +7250,7 @@ void ImGui::PushColumnsBackground()
         return;
     window->DrawList->ChannelsSetCurrent(0);
     int cmd_size = window->DrawList->CmdBuffer.Size;
-    PushClipRect(columns->HostClipRect.Min, columns->HostClipRect.Max, false); 
+    PushClipRect(columns->HostClipRect.Min, columns->HostClipRect.Max, false);
     IM_UNUSED(cmd_size);
     IM_ASSERT(cmd_size == window->DrawList->CmdBuffer.Size); // Being in channel 0 this should not have created an ImDrawCmd
 }

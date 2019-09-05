@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <imgui.h>
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Input.h>
 #include <Engine/Core/State.h>
@@ -51,17 +53,12 @@ public:
    void Update(TIMEDELTA dt);
 
    Engine::Graphics::Framebuffer& GetFramebuffer() { return mFramebuffer; }
-   void SetPosition(uint32_t x, uint32_t y)
-   {
-      this->x = x;
-      this->y = y;
-   }
-
-   void SetSize(uint32_t w, uint32_t h)
-   {
-      this->w = w;
-      this->h = h;
-   }
+   void SetPosition(uint32_t x, uint32_t y);
+   void SetPosition(ImVec2 position);
+   void SetPosition(glm::tvec2<double> position);
+   void SetSize(uint32_t w, uint32_t h);
+   void SetSize(ImVec2 size);
+   void SetSize(glm::tvec2<double> size);
 
 private:
    Engine::Input& mInput;

@@ -25,7 +25,7 @@ namespace Skeletor
 class Editor : public Engine::UIRoot
 {
 public:
-   Editor(Engine::Input* input, const Controls::Options& options);
+   Editor(Engine::Input& input, const Controls::Options& options);
 
    //
    // Called every time this editor is reactivated.

@@ -64,6 +64,38 @@ void StateWindow::Update()
    assert(false && "My root's input should be updating, not mine!");
 }
 
+void StateWindow::SetPosition(uint32_t x, uint32_t y)
+{
+   this->x = x;
+   this->y = y;
+}
+
+void StateWindow::SetPosition(ImVec2 position)
+{
+   SetPosition((uint32_t)position.x, (uint32_t)position.y);
+}
+
+void StateWindow::SetPosition(glm::tvec2<double> position)
+{
+   SetPosition((uint32_t)position.x, (uint32_t)position.y);
+}
+
+void StateWindow::SetSize(uint32_t w, uint32_t h)
+{
+   this->w = w;
+   this->h = h;
+}
+
+void StateWindow::SetSize(ImVec2 size)
+{
+   SetSize((uint32_t)size.x, (uint32_t)size.y);
+}
+
+void StateWindow::SetSize(glm::tvec2<double> size)
+{
+   SetSize((uint32_t)size.x, (uint32_t)size.y);
+}
+
 bool StateWindow::IsKeyDown(int key) const
 {
    return mInput.IsKeyDown(key);

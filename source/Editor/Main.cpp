@@ -147,7 +147,7 @@ int main(int argc, char** argv)
    particleSpace->SetBounds(window);
    particleSpace->SetName("Particle Space");
 
-   skeletor = windowContent.Add<Editor::Skeletor::Editor>(&window, controlsOptions);
+   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window, controlsOptions);
    skeletor->SetBounds(window);
    skeletor->SetName("Skeletor");
 
