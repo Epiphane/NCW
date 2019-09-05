@@ -66,8 +66,10 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowPos(ImVec2(100, 320), ImGuiCond_FirstUseEver);
    ImGui::Begin("Stance");
    ImGui::Columns(3);
+   float windowWidth = ImGui::GetWindowWidth();
 
    // Stance selector
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth / 5);
    ImVec2 space = ImGui::GetContentRegionAvail();
    for (const auto& stance : mSkeleton->stances)
    {
@@ -90,6 +92,7 @@ void Dock::Update(TIMEDELTA)
 
    // Bone selector
    ImGui::NextColumn();
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth / 5);
    space = ImGui::GetContentRegionAvail();
    for (const auto& bone : mSkeleton->bones)
    {
@@ -110,14 +113,11 @@ void Dock::Update(TIMEDELTA)
       }
    }
 
-   // Editable fields
-   auto stance = std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; });
-   // auto bone = std::find_if(mSkeleton->bones.begin(), mSkeleton->bones.end(), [&](const auto& b) { return b.name == mBone; });
-
    // Position, rotation, scale
    ImGui::NextColumn();
-   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), space.x * 3);
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), 3 * windowWidth / 5);
 
+   auto stance = std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; });
    mScrubbers[0].Update("Position", stance->positions[mBone], 0.1f);
    mScrubbers[1].Update("Rotation", stance->rotations[mBone]);
    mScrubbers[2].Update("Scale", stance->scales[mBone]);
