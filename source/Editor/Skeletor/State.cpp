@@ -86,6 +86,10 @@ void MainState::Initialize()
 
    mCamera.Set(mPlayerCam.get());
 
+   playerCamera.Add<Makeshift>([&]{
+      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+   });
+
    // Add some voxels.
    std::vector<Voxel::Data> carpet;
    std::vector<glm::vec3> points;

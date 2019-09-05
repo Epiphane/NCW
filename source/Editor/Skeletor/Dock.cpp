@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
@@ -25,215 +27,16 @@ using Bone = Skeleton::Bone;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
-using UI::Button;
-using UI::RectFilled;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "SkeletorDock", glm::vec4(0.2, 0.2, 0.2, 1))
+   : UIElement(root, parent, "SkeletorDock")
    , mBone("none.root")
-   , mStance("base")
+   , mScrubbers{
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Position, std::placeholders::_1, std::placeholders::_2)),
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Rotation, std::placeholders::_1, std::placeholders::_2)),
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Scale, std::placeholders::_1, std::placeholders::_2)),
+   }
 {
-   RectFilled* foreground = Add<RectFilled>("SkeletorDockFG", glm::vec4(0, 0, 0, 1));
-
-   foreground->ConstrainCenterTo(this);
-   foreground->ConstrainDimensionsTo(this, -4);
-
-   // Stance information
-   UIElement* stanceHeader = Add<UIStackView>();
-   stanceHeader->ConstrainLeftAlignedTo(foreground, 32);
-   stanceHeader->ConstrainTopAlignedTo(foreground, 32);
-   {
-      UIStackView* row1 = stanceHeader->Add<UIStackView>();
-      row1->SetVertical(false);
-      row1->SetOffset(8.0);
-      row1->ConstrainHeight(19);
-      row1->ConstrainLeftAlignedTo(stanceHeader);
-
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "button_left";
-      buttonOptions.hoverImage = "hover_button_left";
-      buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevStanceCommand>(this); };
-      Button* prevBoneButton = row1->Add<Button>(buttonOptions);
-      prevBoneButton->ConstrainTopAlignedTo(row1);
-      prevBoneButton->ConstrainHeightTo(row1);
-
-      mStanceName = row1->Add<Text>(Text::Options{"Stance name"});
-      mStanceName->ConstrainTopAlignedTo(row1);
-      mStanceName->ConstrainHeightTo(row1);
-
-      buttonOptions.image = "button_right";
-      buttonOptions.hoverImage = "hover_button_right";
-      buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextStanceCommand>(this); };
-      Button* nextBoneButton = row1->Add<Button>(buttonOptions);
-      nextBoneButton->ConstrainTopAlignedTo(row1);
-      nextBoneButton->ConstrainHeightTo(row1);
-      stanceHeader->Contains(nextBoneButton);
-   }
-
-   // Bone information
-   UIElement* boneHeader = Add<UIStackView>();
-   boneHeader->ConstrainToRightOf(stanceHeader, 32);
-   boneHeader->ConstrainTopAlignedTo(stanceHeader);
-   {
-      UIStackView* row1 = boneHeader->Add<UIStackView>();
-      row1->SetVertical(false);
-      row1->SetOffset(8.0);
-      row1->ConstrainHeight(19);
-      row1->ConstrainLeftAlignedTo(boneHeader);
-
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "button_left";
-      buttonOptions.hoverImage = "hover_button_left";
-      buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevBoneCommand>(this); };
-      Button* prevBoneButton = row1->Add<Button>(buttonOptions);
-      prevBoneButton->ConstrainTopAlignedTo(row1);
-      prevBoneButton->ConstrainHeightTo(row1);
-
-      mBoneName = row1->Add<Text>(Text::Options{"Bone name"});
-      mBoneName->ConstrainTopAlignedTo(row1);
-      mBoneName->ConstrainHeightTo(row1);
-
-      buttonOptions.image = "button_right";
-      buttonOptions.hoverImage = "hover_button_right";
-      buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextBoneCommand>(this); };
-      Button* nextBoneButton = row1->Add<Button>(buttonOptions);
-      nextBoneButton->ConstrainTopAlignedTo(row1);
-      nextBoneButton->ConstrainHeightTo(row1);
-   }
-
-   // Bone positions, rotations and sliders
-   UIElement* bonePosition = Add<UIElement>();
-   UIElement* boneRotation = Add<UIElement>();
-   UIElement* boneScale = Add<UIElement>();
-   bonePosition->ConstrainBelow(boneHeader, 8);
-   bonePosition->ConstrainLeftAlignedTo(boneHeader);
-
-   boneRotation->ConstrainTopAlignedTo(bonePosition);
-   boneRotation->ConstrainToRightOf(bonePosition, 32);
-   boneRotation->ConstrainWidthTo(bonePosition);
-
-   boneScale->ConstrainTopAlignedTo(boneRotation);
-   boneScale->ConstrainRightAlignedTo(boneHeader);
-   boneScale->ConstrainToRightOf(boneRotation, 32);
-   boneScale->ConstrainWidthTo(boneRotation);
-
-   {
-      // Position/rotation icons that look good
-      Image* position = bonePosition->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "position"});
-      Image* rotation = boneRotation->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "rotation"});
-      Image* scale = boneScale->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "scale"});
-
-      position->ConstrainWidth(37);
-      position->ConstrainLeftAlignedTo(bonePosition);
-      position->ConstrainVerticalCenterTo(bonePosition);
-      rotation->ConstrainWidth(40);
-      rotation->ConstrainLeftAlignedTo(boneRotation);
-      rotation->ConstrainVerticalCenterTo(boneRotation);
-      scale->ConstrainWidth(37);
-      scale->ConstrainLeftAlignedTo(boneScale);
-      scale->ConstrainVerticalCenterTo(boneScale);
-
-      // Bone position/rotation reset buttons
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "reset";
-      buttonOptions.onClick = [&]() {
-         // TODO
-      };
-      Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
-      resetPositionButton->ConstrainWidth(35);
-      resetPositionButton->ConstrainLeftAlignedTo(position);
-      resetPositionButton->ConstrainBelow(position, 8);
-
-      buttonOptions.onClick = [&]() {
-         // TODO
-      };
-      Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
-      resetRotationButton->ConstrainWidth(35);
-      resetRotationButton->ConstrainLeftAlignedTo(rotation);
-      resetRotationButton->ConstrainBelow(rotation, 8);
-
-      buttonOptions.onClick = [&]() {
-         // TODO
-      };
-      Button* resetScaleButton = boneRotation->Add<Button>(buttonOptions);
-      resetScaleButton->ConstrainWidth(35);
-      resetScaleButton->ConstrainLeftAlignedTo(scale);
-      resetScaleButton->ConstrainBelow(scale, 8);
-
-      // Bone position/rotation controls
-      NumDisplay<float>::Options textOptions;
-      textOptions.text = "0.0";
-      textOptions.precision = 1;
-
-      Scrubber<float>::Options scrubberOptions;
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.onChange = [&](double, double) {
-         /*
-         Bone& bone = mSkeleton->bones[mBone];
-
-         bone.originalPosition = bone.position;
-         bone.originalRotation = bone.rotation;
-         bone.originalScale = bone.scale;
-         */
-
-         mpRoot->Emit<SkeletonModifiedEvent>(mSkeleton);
-      };
-
-      UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
-      positionScrubbers->ConstrainToRightOf(resetPositionButton, 16);
-      positionScrubbers->ConstrainHeightTo(bonePosition);
-      positionScrubbers->ConstrainTopAlignedTo(bonePosition);
-      positionScrubbers->ConstrainRightAlignedTo(bonePosition, 12);
-      UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
-      rotationScrubbers->ConstrainToRightOf(resetRotationButton, 16);
-      rotationScrubbers->ConstrainHeightTo(boneRotation);
-      rotationScrubbers->ConstrainTopAlignedTo(boneRotation);
-      rotationScrubbers->ConstrainRightAlignedTo(boneRotation, 12);
-      UIStackView* scaleScrubbers = boneScale->Add<UIStackView>("ScaleScrubbers");
-      scaleScrubbers->ConstrainToRightOf(scale, 16);
-      scaleScrubbers->ConstrainHeightTo(boneScale);
-      scaleScrubbers->ConstrainTopAlignedTo(boneScale);
-      scaleScrubbers->ConstrainRightAlignedTo(boneScale, 12);
-
-      for (int i = 0; i < 3; i++)
-      {
-         scrubberOptions.sensitivity = 0.02;
-         mBonePos[i].text = positionScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(scrubberOptions);
-         scrubberOptions.sensitivity = 0.1;
-         mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(scrubberOptions);
-         scrubberOptions.sensitivity = 0.02;
-         mBoneScl[i].text = scaleScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBoneScl[i].scrubber = scaleScrubbers->Add<Scrubber<float>>(scrubberOptions);
-
-         mBonePos[i].text->ConstrainHeight(32);
-         mBonePos[i].text->ConstrainLeftAlignedTo(positionScrubbers);
-         mBonePos[i].scrubber->ConstrainHeight(7);
-         mBonePos[i].scrubber->ConstrainLeftAlignedTo(positionScrubbers);
-         mBoneRot[i].text->ConstrainHeight(32);
-         mBoneRot[i].text->ConstrainLeftAlignedTo(rotationScrubbers);
-         mBoneRot[i].scrubber->ConstrainHeight(7);
-         mBoneRot[i].scrubber->ConstrainLeftAlignedTo(rotationScrubbers);
-         mBoneScl[i].text->ConstrainHeight(32);
-         mBoneScl[i].text->ConstrainLeftAlignedTo(scaleScrubbers);
-         mBoneScl[i].scrubber->ConstrainHeight(7);
-         mBoneScl[i].scrubber->ConstrainLeftAlignedTo(scaleScrubbers);
-      }
-
-      mBonePos[0].scrubber->ConstrainRightAlignedTo(bonePosition);
-      mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
-      mBoneScl[0].scrubber->ConstrainRightAlignedTo(boneScale);
-   }
-
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonClearedEvent>(*this);
@@ -241,30 +44,118 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
 }
 
+void Dock::Update(TIMEDELTA)
+{
+   if (!mSkeleton || !mSkeletons)
+   {
+      return;
+   }
+
+   // Select defaults
+   if (std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; }) == mSkeleton->stances.end())
+   {
+      SetStance(mSkeleton->stances[0].name);
+   }
+
+   if (std::find_if(mSkeleton->bones.begin(), mSkeleton->bones.end(), [&](const auto& s) { return s.name == mBone; }) == mSkeleton->bones.end())
+   {
+      SetBone(mSkeleton->bones[0].name);
+   }
+
+   // Stance information
+   ImGui::SetNextWindowPos(ImVec2(100, 320), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Stance");
+   ImGui::Columns(3);
+
+   // Stance selector
+   ImVec2 space = ImGui::GetContentRegionAvail();
+   for (const auto& stance : mSkeleton->stances)
+   {
+      if (mStance == stance.name)
+      {
+         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
+         ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0));
+         ImGui::PopStyleColor(3);
+      }
+      else
+      {
+         if (ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0)))
+         {
+            SetStance(stance.name);
+         }
+      }
+   }
+
+   // Bone selector
+   ImGui::NextColumn();
+   space = ImGui::GetContentRegionAvail();
+   for (const auto& bone : mSkeleton->bones)
+   {
+      if (mBone == bone.name)
+      {
+         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
+         ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0));
+         ImGui::PopStyleColor(3);
+      }
+      else
+      {
+         if (ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0)))
+         {
+            SetBone(bone.name);
+         }
+      }
+   }
+
+   // Editable fields
+   auto stance = std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; });
+   // auto bone = std::find_if(mSkeleton->bones.begin(), mSkeleton->bones.end(), [&](const auto& b) { return b.name == mBone; });
+
+   // Position, rotation, scale
+   ImGui::NextColumn();
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), space.x * 3);
+
+   mScrubbers[0].Update("Position", stance->positions[mBone], 0.1f);
+   mScrubbers[1].Update("Rotation", stance->rotations[mBone]);
+   mScrubbers[2].Update("Scale", stance->scales[mBone]);
+
+   ImGui::End();
+}
+
+///
+///
+///
+void Dock::SetStance(const std::string& stance)
+{
+   Receive(SuspendEditingEvent{});
+
+   mStance = stance;
+
+   if (mSkeletons)
+   {
+      mSkeletons->stance = mStance;
+   }
+
+   Receive(ResumeEditingEvent{});
+}
+
+void Dock::SetBone(const std::string& bone)
+{
+   Receive(SuspendEditingEvent{});
+
+   mBone = bone;
+
+   Receive(ResumeEditingEvent{});
+}
+
 ///
 ///
 ///
 void Dock::Receive(const SkeletonClearedEvent&)
 {
-   mBonePos[0].text->Bind(nullptr);
-   mBonePos[1].text->Bind(nullptr);
-   mBonePos[2].text->Bind(nullptr);
-   mBoneRot[0].text->Bind(nullptr);
-   mBoneRot[1].text->Bind(nullptr);
-   mBoneRot[2].text->Bind(nullptr);
-   mBoneScl[0].text->Bind(nullptr);
-   mBoneScl[1].text->Bind(nullptr);
-   mBoneScl[2].text->Bind(nullptr);
-
-   mBonePos[0].scrubber->Bind(nullptr);
-   mBonePos[1].scrubber->Bind(nullptr);
-   mBonePos[2].scrubber->Bind(nullptr);
-   mBoneRot[0].scrubber->Bind(nullptr);
-   mBoneRot[1].scrubber->Bind(nullptr);
-   mBoneRot[2].scrubber->Bind(nullptr);
-   mBoneScl[0].scrubber->Bind(nullptr);
-   mBoneScl[1].scrubber->Bind(nullptr);
-   mBoneScl[2].scrubber->Bind(nullptr);
 }
 
 ///
@@ -278,7 +169,6 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
    Receive(SkeletonClearedEvent{});
 
    SetStance(mStance);
-   SetBone(mSkeleton->bones[0].name);
 }
 
 void Dock::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt)
@@ -295,8 +185,7 @@ void Dock::Receive(const SuspendEditingEvent&)
       return;
    }
 
-   // Not editing yet
-   if (!mBonePos[0].text->IsBound())
+   if (mSkeleton->boneLookup.count(mBone) == 0)
    {
       return;
    }
@@ -369,26 +258,6 @@ void Dock::Receive(const SuspendEditingEvent&)
    {
       stance.parents.erase(mBone);
    }
-
-   mBonePos[0].text->Bind(nullptr);
-   mBonePos[1].text->Bind(nullptr);
-   mBonePos[2].text->Bind(nullptr);
-   mBoneRot[0].text->Bind(nullptr);
-   mBoneRot[1].text->Bind(nullptr);
-   mBoneRot[2].text->Bind(nullptr);
-   mBoneScl[0].text->Bind(nullptr);
-   mBoneScl[1].text->Bind(nullptr);
-   mBoneScl[2].text->Bind(nullptr);
-
-   mBonePos[0].scrubber->Bind(nullptr);
-   mBonePos[1].scrubber->Bind(nullptr);
-   mBonePos[2].scrubber->Bind(nullptr);
-   mBoneRot[0].scrubber->Bind(nullptr);
-   mBoneRot[1].scrubber->Bind(nullptr);
-   mBoneRot[2].scrubber->Bind(nullptr);
-   mBoneScl[0].scrubber->Bind(nullptr);
-   mBoneScl[1].scrubber->Bind(nullptr);
-   mBoneScl[2].scrubber->Bind(nullptr);
 }
 
 void Dock::Receive(const ResumeEditingEvent&)
@@ -451,133 +320,50 @@ void Dock::Receive(const ResumeEditingEvent&)
       stance.parents[mBone] = original.parent;
       set[3] = true;
    }
-
-   glm::vec3& position = stance.positions[mBone];
-   glm::vec3& rotation = stance.rotations[mBone];
-   glm::vec3& scale = stance.scales[mBone];
-
-   mBonePos[0].text->Bind(&position.x);
-   mBonePos[1].text->Bind(&position.y);
-   mBonePos[2].text->Bind(&position.z);
-   mBoneRot[0].text->Bind(&rotation.x);
-   mBoneRot[1].text->Bind(&rotation.y);
-   mBoneRot[2].text->Bind(&rotation.z);
-   mBoneScl[0].text->Bind(&scale.x);
-   mBoneScl[1].text->Bind(&scale.y);
-   mBoneScl[2].text->Bind(&scale.z);
-
-   mBonePos[0].scrubber->Bind(&position.x);
-   mBonePos[1].scrubber->Bind(&position.y);
-   mBonePos[2].scrubber->Bind(&position.z);
-   mBoneRot[0].scrubber->Bind(&rotation.x);
-   mBoneRot[1].scrubber->Bind(&rotation.y);
-   mBoneRot[2].scrubber->Bind(&rotation.z);
-   mBoneScl[0].scrubber->Bind(&scale.x);
-   mBoneScl[1].scrubber->Bind(&scale.y);
-   mBoneScl[2].scrubber->Bind(&scale.z);
 }
 
 ///
 ///
 ///
-void Dock::SetStance(const std::string& stance)
+void Dock::OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3)
 {
-   Receive(SuspendEditingEvent{});
-
-   mStance = stance;
-
-   mStanceName->SetText(mStance);
-
-   if (mSkeletons)
-   {
-      mSkeletons->stance = mStance;
-   }
-
-   Receive(ResumeEditingEvent{});
-}
-
-void Dock::SetBone(const std::string& bone)
-{
-   if (!mSkeleton)
-   {
-      mBone = bone;
-      return;
-   }
-
-   Receive(SuspendEditingEvent{});
-
-   mBone = bone;
-
-   std::vector<std::string> parts = StringHelper::Split(mBone, '.');
-   mBoneName->SetText(parts[1]);
-
-   Receive(ResumeEditingEvent{});
+   // Funky time: at this point, the current value represents the NEW state,
+   // and we create a command to set it to the OLD state. So we perform the
+   // command twice, once immediately to revert to the old state, and then
+   // again when it gets placed on the stack to go back to the new state.
+   std::unique_ptr<SetBoneCommand> command{new SetBoneCommand(this, mStance, mBone, type, oldValue)};
+   command->Do();
+   CommandStack::Instance().Do(std::move(command));
 }
 
 ///
 ///
 ///
-void Dock::NextBoneCommand::Do()
+void Dock::SetBoneCommand::Do()
 {
-   size_t ndx = dock->mSkeleton->boneLookup[dock->mBone];
-   if (ndx >= dock->mSkeleton->bones.size() - 1)
-   {
-      dock->SetBone(dock->mSkeleton->bones[0].name);
-   }
-   else
-   {
-      dock->SetBone(dock->mSkeleton->bones[ndx + 1].name);
-   }
-}
+   dock->SetStance(stance);
+   dock->SetBone(bone);
 
-///
-///
-///
-void Dock::NextBoneCommand::Undo()
-{
-   size_t ndx = dock->mSkeleton->boneLookup[dock->mBone];
-   if (ndx == 0)
+   auto stance = std::find_if(dock->mSkeleton->stances.begin(), dock->mSkeleton->stances.end(), [&](const auto& s) { return s.name == dock->mStance; });
+   glm::vec3* vec = nullptr;
+   switch (type)
    {
-      dock->SetBone(dock->mSkeleton->bones[dock->mSkeleton->bones.size() - 1].name);
+   case ScrubType::Position:
+      vec = &stance->positions[dock->mBone];
+      break;
+   case ScrubType::Rotation:
+      vec = &stance->rotations[dock->mBone];
+      break;
+   case ScrubType::Scale:
+      vec = &stance->scales[dock->mBone];
+      break;
    }
-   else
-   {
-      dock->SetBone(dock->mSkeleton->bones[ndx - 1].name);
-   }
-}
 
-///
-///
-///
-void Dock::NextStanceCommand::Do()
-{
-   size_t index = dock->mSkeleton->stanceLookup[dock->mStance];
-   const auto& stances = dock->mSkeleton->stances;
-   if (index >= stances.size() - 1)
-   {
-      dock->SetStance(stances[0].name);
-   }
-   else
-   {
-      dock->SetStance(stances[index + 1].name);
-   }
-}
+   assert(vec != nullptr && "Invalid type");
 
-///
-///
-///
-void Dock::NextStanceCommand::Undo()
-{
-   size_t index = dock->mSkeleton->stanceLookup[dock->mStance];
-   const auto& stances = dock->mSkeleton->stances;
-   if (index == 0)
-   {
-      dock->SetStance(stances[stances.size() - 1].name);
-   }
-   else
-   {
-      dock->SetStance(stances[index - 1].name);
-   }
+   glm::vec3 prev = value;
+   value = *vec;
+   *vec = prev;
 }
 
 }; // namespace Skeletor

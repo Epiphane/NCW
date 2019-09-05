@@ -120,6 +120,11 @@ public:
    virtual glm::tvec2<double> GetRawMousePosition() const = 0;
 
    //
+   // Flip the y value of a coordinate to account for y-swapping.
+   //
+   virtual glm::tvec2<double> CorrectYCoordinate(glm::tvec2<double> position) const = 0;
+
+   //
    // Get the mouse's current position, in [-1,1] space.
    //
    virtual glm::tvec2<double> GetMousePosition() const = 0;

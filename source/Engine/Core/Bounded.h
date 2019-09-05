@@ -35,8 +35,8 @@ public:
    uint32_t GetWidth() const override { return w; }
    uint32_t GetHeight() const override { return h; }
 
-public:
-   const uint32_t x, y, w, h;
+protected:
+   uint32_t x, y, w, h;
 };
 
 }; // namespace CubeWorld
