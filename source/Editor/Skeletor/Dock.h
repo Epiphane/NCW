@@ -16,6 +16,7 @@
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIElement.h>
 
+#include "../Imgui/Scrubber.h"
 #include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"
@@ -53,6 +54,14 @@ public:
    void Receive(const SkeletonLoadedEvent& evt);
    void Receive(const Engine::ComponentAddedEvent<SkeletonCollection>& evt);
 
+   enum class ScrubType
+   {
+      Position,
+      Rotation,
+      Scale,
+   };
+   void OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3 newValue);
+
 private:
    // State
    std::string mBone;
@@ -61,6 +70,49 @@ private:
    std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<Skeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
+
+   ScrubberVec3 mScrubbers[3];
+
+private:
+   //
+   //
+   //
+   class DockCommand : public Command {
+   public:
+      DockCommand(Dock* dock) : dock(dock) {};
+
+   protected:
+      Dock* dock;
+   };
+
+   //
+   //
+   //
+   struct SetBoneCommand : public DockCommand
+   {
+      SetBoneCommand(
+         Dock* dock,
+         const std::string& stance,
+         const std::string& bone,
+         ScrubType type,
+         const glm::vec3& value
+      )
+         : DockCommand(dock)
+         , stance(stance)
+         , bone(bone)
+         , type(type)
+         , value(value)
+      {};
+
+      void Do() override;
+      void Undo() override { Do(); }
+
+   private:
+      std::string stance;
+      std::string bone;
+      ScrubType type;
+      glm::vec3 value;
+   };
 };
 
 }; // namespace Skeletor

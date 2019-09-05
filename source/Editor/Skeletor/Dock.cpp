@@ -31,6 +31,11 @@ using Engine::UIStackView;
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent, "SkeletorDock")
    , mBone("none.root")
+   , mScrubbers{
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Position, std::placeholders::_1, std::placeholders::_2)),
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Rotation, std::placeholders::_1, std::placeholders::_2)),
+      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Scale, std::placeholders::_1, std::placeholders::_2)),
+   }
 {
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
@@ -113,14 +118,37 @@ void Dock::Update(TIMEDELTA)
    ImGui::NextColumn();
    ImGui::SetColumnWidth(ImGui::GetColumnIndex(), space.x * 3);
 
-   glm::vec3& pos = stance->positions[mBone];
-   glm::vec3& rot = stance->rotations[mBone];
-   glm::vec3& scl = stance->scales[mBone];
-   ImGui::DragFloat3("Position", &pos[0]);
-   ImGui::DragFloat3("Rotation", &rot[0]);
-   ImGui::DragFloat3("Scale", &scl[0]);
+   mScrubbers[0].Update("Position", stance->positions[mBone], 0.1f);
+   mScrubbers[1].Update("Rotation", stance->rotations[mBone]);
+   mScrubbers[2].Update("Scale", stance->scales[mBone]);
 
    ImGui::End();
+}
+
+///
+///
+///
+void Dock::SetStance(const std::string& stance)
+{
+   Receive(SuspendEditingEvent{});
+
+   mStance = stance;
+
+   if (mSkeletons)
+   {
+      mSkeletons->stance = mStance;
+   }
+
+   Receive(ResumeEditingEvent{});
+}
+
+void Dock::SetBone(const std::string& bone)
+{
+   Receive(SuspendEditingEvent{});
+
+   mBone = bone;
+
+   Receive(ResumeEditingEvent{});
 }
 
 ///
@@ -292,36 +320,50 @@ void Dock::Receive(const ResumeEditingEvent&)
       stance.parents[mBone] = original.parent;
       set[3] = true;
    }
-
-   // glm::vec3& position = stance.positions[mBone];
-   // glm::vec3& rotation = stance.rotations[mBone];
-   // glm::vec3& scale = stance.scales[mBone];
 }
 
 ///
 ///
 ///
-void Dock::SetStance(const std::string& stance)
+void Dock::OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3)
 {
-   Receive(SuspendEditingEvent{});
+   // Funky time: at this point, the current value represents the NEW state,
+   // and we create a command to set it to the OLD state. So we perform the
+   // command twice, once immediately to revert to the old state, and then
+   // again when it gets placed on the stack to go back to the new state.
+   std::unique_ptr<SetBoneCommand> command{new SetBoneCommand(this, mStance, mBone, type, oldValue)};
+   command->Do();
+   CommandStack::Instance().Do(std::move(command));
+}
 
-   mStance = stance;
+///
+///
+///
+void Dock::SetBoneCommand::Do()
+{
+   dock->SetStance(stance);
+   dock->SetBone(bone);
 
-   if (mSkeletons)
+   auto stance = std::find_if(dock->mSkeleton->stances.begin(), dock->mSkeleton->stances.end(), [&](const auto& s) { return s.name == dock->mStance; });
+   glm::vec3* vec = nullptr;
+   switch (type)
    {
-      mSkeletons->stance = mStance;
+   case ScrubType::Position:
+      vec = &stance->positions[dock->mBone];
+      break;
+   case ScrubType::Rotation:
+      vec = &stance->rotations[dock->mBone];
+      break;
+   case ScrubType::Scale:
+      vec = &stance->scales[dock->mBone];
+      break;
    }
 
-   Receive(ResumeEditingEvent{});
-}
+   assert(vec != nullptr && "Invalid type");
 
-void Dock::SetBone(const std::string& bone)
-{
-   Receive(SuspendEditingEvent{});
-
-   mBone = bone;
-
-   Receive(ResumeEditingEvent{});
+   glm::vec3 prev = value;
+   value = *vec;
+   *vec = prev;
 }
 
 }; // namespace Skeletor
