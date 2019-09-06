@@ -133,6 +133,7 @@ public:
    bool IsDragging(int button) const override { return mMouseDragging[button]; }
    glm::tvec2<double> GetRawMousePosition() const override;
    glm::tvec2<double> GetMousePosition() const override;
+   glm::tvec2<double> CorrectYCoordinate(glm::tvec2<double> position) const override;
    glm::tvec2<double> GetMouseMovement() const override { return mMouseMovement; }
    glm::tvec2<double> GetMouseScroll() const override { return mLastMouseScroll; }
    void SetMouseLock(bool locked) override;

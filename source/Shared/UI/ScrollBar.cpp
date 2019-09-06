@@ -29,7 +29,7 @@ Engine::UIElement::Action ScrollBar::MouseDown(const MouseDownEvent& evt)
    if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
       mScrubbing = ContainsPoint(evt.x, evt.y);
-      return mScrubbing ? Handled : Unhandled;
+      return mScrubbing ? Capture : Unhandled;
    }
    return Unhandled;
 }

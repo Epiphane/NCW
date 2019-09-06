@@ -6,9 +6,6 @@
 #include <unordered_map>
 
 #include <Engine/UI/UIElement.h>
-#include <Shared/UI/TextButton.h>
-#include <Shared/UI/RectFilled.h>
-
 #include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"
@@ -22,9 +19,11 @@ namespace Editor
 namespace Skeletor
 {
 
-class Sidebar : public UI::RectFilled {
+class Sidebar : public Engine::UIElement {
 public:
    Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
+
+   void Update(TIMEDELTA dt);
 
 private:
    // Actions
@@ -35,14 +34,6 @@ private:
 
    void SaveFile();
    void LoadFile(const std::string& filename);
-
-   void DiscardChanges();
-   void Quit();
-
-private:
-   // Elements
-   UI::TextButton* mSave;
-   UI::TextButton* mQuit;
 
 public:
    // Event handlers

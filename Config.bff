@@ -45,4 +45,4 @@
 // this again. Each change to this line also triggers a rebuild of the whole
 // thing.
 //------------------------------------------------------------------------------
-#define SKIP_DEPENDENCY_BUILD
+//#define SKIP_DEPENDENCY_BUILD

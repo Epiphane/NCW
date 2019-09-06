@@ -84,7 +84,8 @@
         "__errc": "cpp",
         "__node_handle": "cpp",
         "new": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "memory_resource": "cpp"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false,

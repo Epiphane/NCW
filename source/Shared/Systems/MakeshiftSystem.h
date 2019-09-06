@@ -13,8 +13,8 @@ namespace CubeWorld
 struct Makeshift : public Engine::Component<Makeshift> {
    using Callback = std::function<void(Engine::EntityManager&, Engine::EventManager&, TIMEDELTA)>;
 
-   Makeshift(Callback cb) : callback(cb)
-   {};
+   Makeshift(Callback cb) : callback(cb) {};
+   Makeshift(std::function<void()> cb) : callback([cb](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA){cb();}) {};
    
    Callback callback;
 };

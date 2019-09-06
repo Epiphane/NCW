@@ -79,8 +79,18 @@ int main(int argc, char **argv)
    });
 
    double timemod = 1.0;
-   auto _2 = window.AddCallback(GLFW_KEY_P, [&](int, int, int) {
+   auto _2 = window.AddCallback(GLFW_KEY_O, [&](int, int, int) {
       timemod = 11.0 - timemod;
+   });
+
+   bool pause = false;
+   auto _3 = window.AddCallback(GLFW_KEY_P, [&](int, int, int) {
+      pause = !pause;
+   });
+
+   bool advance = false;
+   auto _4 = window.AddCallback(GLFW_KEY_I, [&](int, int, int) {
+      advance = true;
    });
 
    do {
@@ -90,7 +100,8 @@ int main(int argc, char **argv)
          window.Clear();
          window.Update();
 
-         stateManager.Update(std::min(elapsed, SEC_PER_FRAME) / timemod);
+         stateManager.Update((pause && !advance) ? 0 : std::min(elapsed, SEC_PER_FRAME) / timemod);
+         advance = false;
 
          GLenum error = glGetError();
          assert(error == 0);

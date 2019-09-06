@@ -49,16 +49,23 @@ Maybe<void> Texture::LoadPNG(const std::string& filename) {
       return Failure{lodepng_error_text(code)}.WithContext("lodepng decode failed");
    }
 
+   return LoadBytes(data.data(), mWidth, mHeight);
+}
+
+Maybe<void> Texture::LoadBytes(const uint8_t* data, uint32_t width, uint32_t height)
+{
+   mWidth = width;
+   mHeight = height;
+
    glBindTexture(GL_TEXTURE_2D, mTexture);
 
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)mWidth, (GLsizei)mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)mWidth, (GLsizei)mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
    //Always set reasonable texture parameters
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//LINEAR);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
    CHECK_GL_ERRORS();
-
    return Success;
 }
 
@@ -148,6 +155,18 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
          info["w"].GetFloatValue() / texture->mWidth,
          info["h"].GetFloatValue() / texture->mHeight
       ));
+   }
+
+   return std::move(texture);
+}
+
+Maybe<std::unique_ptr<Texture>> Texture::FromBytes(const uint8_t* data, uint32_t width, uint32_t height)
+{
+   std::unique_ptr<Texture> texture = std::make_unique<Texture>();
+   Maybe<void> result = texture->LoadBytes(data, width, height);
+   if (!result)
+   {
+      return result.Failure().WithContext("Failed generating random texture");
    }
 
    return std::move(texture);

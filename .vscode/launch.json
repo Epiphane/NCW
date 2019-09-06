@@ -35,6 +35,22 @@
             "logging": {
                 "moduleLoad": false
             }
+        },
+        {
+            "name": "(lldb) Sandbox",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/OSX-Debug/Sandbox/Sandbox",
+            "args": ["--asset-root", "${workspaceFolder}/Assets"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tmp/OSX-Debug/Sandbox",
+            "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/Sandbox"}],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "make sandbox",
+            "logging": {
+                "moduleLoad": false
+            }
         }
     ]
 }

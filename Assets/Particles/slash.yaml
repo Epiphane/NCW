@@ -9,7 +9,7 @@ shader-uniforms:
   uSheetWidth: 1
   uSheetHeight: 1
 launcher:
-  particles-per-second: 50
+  particles-per-second: 200
   lifetime: 0.1
 shape: trail
 particle:

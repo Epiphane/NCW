@@ -10,6 +10,7 @@
       .OutputPath          + '$Platform$-$Config$/$ProjectName$'
       .CompilerOutputPath  = .OutputPath
       .CompilerOptions     + .SourceIncludePaths
+                           + .ImguiIncludePaths
 
       // Unity
       // --------------------------------------------------------------------------
@@ -78,6 +79,7 @@
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'
+                                 'imgui-Lib-$Platform$-$Config$'
                                  'libnoise-Lib-$Platform$-$Config$'
                                  'libyaml-Lib-$Platform$-$Config$'
                                  'lodepng-Lib-$Platform$-$Config$'
@@ -97,6 +99,7 @@
                               + ' /ENTRY:mainCRTStartup'
                               + ' Comdlg32.lib'
                               + ' Gdi32.lib'       // Bitmap functions
+                              + ' Imm32.lib'
                               + ' kernel32.lib'    // Kernel functions
                               + ' Ole32.lib'
                               + ' Shell32.lib'     // Shell API

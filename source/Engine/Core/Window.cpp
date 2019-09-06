@@ -77,7 +77,8 @@ Maybe<Window*> Window::Initialize(const Options& options)
    glfwMakeContextCurrent(mGLFW);
 
    // Initialize OpenGL context
-   if (!gladLoadGL()) {
+   if (!gladLoadGL())
+   {
       return Failure{"Failed to initialize glad!"};
    }
 
@@ -293,6 +294,11 @@ glm::tvec2<double> Window::GetRawMousePosition() const
 glm::tvec2<double> Window::GetMousePosition() const
 {
    return mMousePosition / glm::tvec2<double>(GetWidth(), GetHeight());
+}
+
+glm::tvec2<double> Window::CorrectYCoordinate(glm::tvec2<double> position) const
+{
+   return glm::tvec2<double>{position.x, GetHeight() - position.y};
 }
 
 }; // namespace Engine
