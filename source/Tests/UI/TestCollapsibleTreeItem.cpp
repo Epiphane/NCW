@@ -61,11 +61,15 @@ GIVEN( "a CollapsibleTreeItem" ) {
          CHECK( label->GetText() == "Test Title" );
       }
       
-      THEN( "the item adds children with the correct labels" ) {
+      THEN( "the item adds children with the correct labels and indentation" ) {
          for (size_t ndx = 0; ndx < subItems.size(); ndx++) {
             const std::string& childName = subItems[ndx]->GetName();
             Text* childLabel = (Text*) FindChildByName(itemStackView, childName + "." + childName + "Label");
             CHECK( dummyData.children[ndx].title == childLabel->GetText() );
+            
+            UIElement* myToggle    = FindChildByName(item, "DummyItemToggle");
+            UIElement* childToggle = FindChildByName(itemStackView, childName + "." + childName + "Toggle");
+            CHECK( myToggle->GetFrame().left.int_value() > childToggle->GetFrame().left.int_value() + 10 );
          }
       }
       

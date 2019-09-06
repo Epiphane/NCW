@@ -36,15 +36,19 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    mOffImage->ConstrainEqualBounds(this);
    mOnImage->ConstrainEqualBounds(this);
 
-   mToggleObservable >>
+   CombineLatest(mActiveObservable, mToggleObservable) >>
       RemoveDuplicates() >>
-      OnMessage<bool>([&](bool isOn) {
-         mToggleState = isOn;
+      OnMessage<std::tuple<bool, bool>>([&](auto newState) {
+         auto [bActive, bToggled] = newState;
          
-         mOnImage->SetActive(isOn);
-         mOffImage->SetActive(!isOn);
+         mToggleState = bToggled;
+         
+         if (bActive) {
+            mOnImage->SetActive(bToggled);
+            mOffImage->SetActive(!bToggled);
+         }
       }, mBag);
-   
+      
    OnClick() >>
      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto /*m*/) {
         mToggleObservable.SendMessage(!mToggleState);

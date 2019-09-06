@@ -60,6 +60,10 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          for (const Data& newSubItemData : newData.children) {
             auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>();
             newItem->GetDataSink().SendMessage(newSubItemData);
+            
+            // Indent sub-items
+            newItem->mExpandToggle->ConstrainLeftAlignedTo(mLabel, 0.0);
+            
             mSubItems.push_back(newItem);
          }
 
@@ -93,8 +97,13 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mExpandToggle->ConstrainInFrontOf(mSelectionToggle);
    mExpandToggle->ConstrainWidth(20);
    mExpandToggle->ConstrainHeight(20);
-   mExpandToggle->ConstrainLeftAlignedTo(this);
    mExpandToggle->ConstrainTopAlignedTo(this);
+   
+   // Constrain toggle to the left side of the item, but allow it to move FURTHER IN
+   //    in case it needs to be indented.
+   UIConstraint::Options greaterThan;
+   greaterThan.relationship = UIConstraint::GreaterThanOrEqual;
+   mExpandToggle->ConstrainLeftAlignedTo(this, 0.0, greaterThan);
 
    mSelectedHighlight->ConstrainLeftAlignedTo(this);
    mSelectedHighlight->ConstrainTopAlignedTo(this);
