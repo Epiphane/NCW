@@ -25,7 +25,7 @@ namespace Skeletor
 class Editor : public Engine::UIRoot
 {
 public:
-   Editor(Engine::Input& input, const Controls::Options& options);
+   Editor(Engine::Input& input);
 
    //
    // Called every time this editor is reactivated.
@@ -38,7 +38,6 @@ public:
    void Update(TIMEDELTA dt) override;
 
 private:
-   Engine::Input& mInput;
    Engine::EventManager mEvents;
 
    std::unique_ptr<StateWindow> mStateWindow;

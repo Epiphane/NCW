@@ -11,7 +11,7 @@
 #include <Shared/UI/RectFilled.h>
 
 #include "../Command/CommandStack.h"
-
+#include "../Imgui/Extensions.h"
 #include "Dock.h"
 
 namespace CubeWorld
@@ -63,7 +63,8 @@ void Dock::Update(TIMEDELTA)
    }
 
    // Stance information
-   ImGui::SetNextWindowPos(ImVec2(100, 320), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Stance");
    ImGui::Columns(3);
    float windowWidth = ImGui::GetWindowWidth();
@@ -73,20 +74,9 @@ void Dock::Update(TIMEDELTA)
    ImVec2 space = ImGui::GetContentRegionAvail();
    for (const auto& stance : mSkeleton->stances)
    {
-      if (mStance == stance.name)
+      if (ImGuiEx::Button(mStance == stance.name, stance.name, ImVec2(space.x, 0)))
       {
-         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
-         ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0));
-         ImGui::PopStyleColor(3);
-      }
-      else
-      {
-         if (ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0)))
-         {
-            SetStance(stance.name);
-         }
+         SetStance(stance.name);
       }
    }
 
@@ -96,20 +86,9 @@ void Dock::Update(TIMEDELTA)
    space = ImGui::GetContentRegionAvail();
    for (const auto& bone : mSkeleton->bones)
    {
-      if (mBone == bone.name)
+      if (ImGuiEx::Button(mBone == bone.name, bone.name, ImVec2(space.x, 0)))
       {
-         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
-         ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0));
-         ImGui::PopStyleColor(3);
-      }
-      else
-      {
-         if (ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0)))
-         {
-            SetBone(bone.name);
-         }
+         SetBone(bone.name);
       }
    }
 

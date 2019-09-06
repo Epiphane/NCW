@@ -26,6 +26,8 @@ class Sidebar : public UI::RectFilled {
 public:
    Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
 
+   void Update(TIMEDELTA dt) override;
+
 private:
    // Actions
    void SetModified(bool modified);
@@ -36,12 +38,6 @@ private:
    void LoadFile(const std::string& filename);
 
    void DiscardChanges();
-   void Quit();
-
-private:
-   // Elements
-   UI::TextButton* mSave;
-   UI::TextButton* mQuit;
 
 public:
    // Event handlers

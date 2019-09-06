@@ -139,7 +139,7 @@ int main(int argc, char** argv)
    Editor::ImguiContext imgui(window);
 
    // Create editors
-   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(&window, controlsOptions);
+   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window);
    animationStation->SetBounds(window);
    animationStation->SetName("Animation Station");
 
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
    particleSpace->SetBounds(window);
    particleSpace->SetName("Particle Space");
 
-   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window, controlsOptions);
+   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window);
    skeletor->SetBounds(window);
    skeletor->SetName("Skeletor");
 
@@ -240,6 +240,41 @@ int main(int argc, char** argv)
          TIMEDELTA dt = std::min(elapsed, SEC_PER_FRAME);
 
          imgui.StartFrame(dt);
+
+         ImGui::SetNextWindowPos(ImVec2(20, 550), ImGuiCond_FirstUseEver);
+         ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_FirstUseEver);
+         ImGui::Begin("Editors", nullptr, ImGuiWindowFlags_NoResize);
+
+         ImVec2 space = ImGui::GetContentRegionAvail();
+         if (ImGui::Button("Animation Station", ImVec2(space.x, 0)))
+         {
+            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            SettingsProvider::Instance().Set("main", "editor", "animation_station");
+            animationStation->Start();
+         }
+
+         if (ImGui::Button("Skeletor", ImVec2(space.x, 0)))
+         {
+            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            SettingsProvider::Instance().Set("main", "editor", "skeletor");
+            skeletor->Start();
+         }
+
+         if (ImGui::Button("Particle Space", ImVec2(space.x, 0)))
+         {
+            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            SettingsProvider::Instance().Set("main", "editor", "particle_space");
+            particleSpace->Start();
+         }
+
+         if (ImGui::Button("Constrainer", ImVec2(space.x, 0)))
+         {
+            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            SettingsProvider::Instance().Set("main", "editor", "constrainer");
+            constrainer->Start();
+         }
+
+         ImGui::End();
 
          // Basic prep
          window.Clear();

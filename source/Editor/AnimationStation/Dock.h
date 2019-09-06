@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include <rhea/variable.hpp>
 #include <Engine/Core/Bounded.h>
 #include <RGBDesignPatterns/Command.h>
 #include <RGBDesignPatterns/Either.h>
@@ -16,15 +15,8 @@
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIElement.h>
-#include <Engine/UI/UIRoot.h>
-#include <Shared/UI/Image.h>
-#include <Shared/UI/NumDisplay.h>
-#include <Shared/UI/RectFilled.h>
-#include <Shared/UI/ScrollBar.h>
-#include <Shared/UI/TextButton.h>
-#include <Shared/UI/TextField.h>
 
-#include "../UI/Scrubber.h"
+#include "../Imgui/Scrubber.h"
 #include "Events.h"
 #include "State.h"
 
@@ -37,14 +29,7 @@ namespace Editor
 namespace AnimationStation
 {
 
-using UI::Image;
-using UI::NumDisplay;
-using UI::RectFilled;
-using UI::ScrollBar;
-using UI::Text;
-using UI::TextField;
-
-class Dock : public RectFilled {
+class Dock : public Engine::UIElement {
 public:
    const double kTimelineWidth = 512.0;
 
@@ -57,9 +42,6 @@ public:
    Dock(Engine::UIRoot* root, Engine::UIElement* parent);
 
    void Update(TIMEDELTA dt) override;
-
-   void AddKeyframeIcon();
-   void UpdateKeyframeIcons();
 
 public:
    // Dock state actions
@@ -86,46 +68,26 @@ public:
    void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
+   enum class ScrubType
+   {
+      Position,
+      Rotation,
+      Scale,
+   };
+   void OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3 newValue);
+
 private:
    // State
    size_t mBone;
    std::string mSkeleton;
+   size_t mSelectedKeyframe;
    std::vector<std::string> mStates;
 
    std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
-
-private:
-   // Layout and elements
-   rhea::variable c1, c2, c3, c4;
-
-   template <typename N>
-   struct LabelAndScrubber {
-      NumDisplay<N>* text;
-      Scrubber<N>* scrubber;
-   };
-
-   // General state info
-   Image* mPlay;
-   Image* mPause;
-   Image* mTick;
-   ScrollBar* mScrubber;
-   size_t mSelectedKeyframe;
-   Scrubber<double>* mKeyframeTime;
-   TextField* mStateName;
-   LabelAndScrubber<double> mStateLength;
-   NumDisplay<double>* mTime;
-
-   // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   UIElement* mKeyframes;
-   std::vector<std::pair<Image*, rhea::variable>> mKeyframeIcons;
-
-   // Bone inspector
-   Text* mBoneName;
-   Text* mBoneParent;
-   LabelAndScrubber<float> mBonePos[3];
-   LabelAndScrubber<float> mBoneRot[3];
+   
+   ScrubberVec3 mScrubbers[3];
 
 private:
    //
@@ -138,21 +100,6 @@ private:
    protected:
       Dock* dock;
    };
-
-   //
-   //
-   //
-   struct NextStateCommand : public DockCommand
-   {
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   };
-
-   //
-   //
-   //
-   using PrevStateCommand = ReverseCommand<NextStateCommand>;
 
    //
    //
@@ -229,35 +176,6 @@ private:
 
    private:
       double value;
-   };
-
-   //
-   //
-   //
-   class NextBoneCommand : public DockCommand
-   {
-   public:
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   };
-
-   //
-   //
-   //
-   using PrevBoneCommand = ReverseCommand<NextBoneCommand>;
-
-   //
-   //
-   //
-   class ParentBoneCommand : public DockCommand
-   {
-   public:
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   private:
-      size_t last;
    };
 
    //
