@@ -66,11 +66,6 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent, "AnimationStationDock")
    , mBone(0)
    , mSelectedKeyframe(0)
-   , mScrubbers{
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Position, std::placeholders::_1, std::placeholders::_2)),
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Rotation, std::placeholders::_1, std::placeholders::_2)),
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Scale, std::placeholders::_1, std::placeholders::_2)),
-   }
 {
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
@@ -439,7 +434,7 @@ void Dock::OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3)
       scl = oldValue;
       break;
    }
-   
+
    std::unique_ptr<ResetBoneCommand> command{new ResetBoneCommand(this, mBone, pos, rot, scl)};
    command->Do();
    CommandStack::Instance().Do(std::move(command));
@@ -665,7 +660,7 @@ void Dock::SetTime(double time)
       mSelectedKeyframe = keyframeIndex;
    }
    else if (
-      (keyframeIndex < state.keyframes.size() - 1) && 
+      (keyframeIndex < state.keyframes.size() - 1) &&
       (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02
    )
    {
@@ -713,7 +708,7 @@ void Dock::ResetBoneCommand::Do()
    {
       return;
    }
-   
+
    const Stance& stance = dock->GetCurrentStance();
    const Bone& bone = stance.bones[dock->mBone];
 

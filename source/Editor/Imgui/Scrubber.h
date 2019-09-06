@@ -33,12 +33,10 @@ namespace Editor
 class ScrubberVec3
 {
 public:
-   ScrubberVec3(std::function<void(glm::vec3, glm::vec3)> onChange)
-      : onChange(onChange)
-   {};
+   ScrubberVec3() : initialValue{0} {};
 
 public:
-   void Update(const std::string& label, glm::vec3& value, float sensitivity = 1.0f)
+   bool Update(const std::string& label, glm::vec3& value, float sensitivity = 1.0f)
    {
       ImGui::DragFloat3(label.c_str(), &value.x, sensitivity);
       if (ImGui::IsItemActivated())
@@ -46,14 +44,12 @@ public:
          initialValue = value;
       }
 
-      if (ImGui::IsItemDeactivatedAfterEdit())
-      {
-         onChange(initialValue, value);
-      }
+      return ImGui::IsItemDeactivatedAfterEdit();
    }
 
+   glm::vec3 GetLastValue() { return initialValue; }
+
 private:
-   std::function<void(glm::vec3, glm::vec3)> onChange;
    glm::vec3 initialValue;
 };
 

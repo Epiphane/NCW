@@ -64,10 +64,10 @@ void StateWindow::Update()
    assert(false && "My root's input should be updating, not mine!");
 }
 
-void StateWindow::SetPosition(uint32_t x, uint32_t y)
+void StateWindow::SetPosition(uint32_t x_, uint32_t y_)
 {
-   this->x = x;
-   this->y = y;
+   x = x_;
+   y = y_;
 }
 
 void StateWindow::SetPosition(ImVec2 position)
@@ -80,10 +80,10 @@ void StateWindow::SetPosition(glm::tvec2<double> position)
    SetPosition((uint32_t)position.x, (uint32_t)position.y);
 }
 
-void StateWindow::SetSize(uint32_t w, uint32_t h)
+void StateWindow::SetSize(uint32_t width, uint32_t height)
 {
-   this->w = w;
-   this->h = h;
+   w = width;
+   h = height;
 }
 
 void StateWindow::SetSize(ImVec2 size)
