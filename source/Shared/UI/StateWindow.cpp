@@ -93,6 +93,11 @@ glm::tvec2<double> StateWindow::GetMousePosition() const
    return GetRawMousePosition() / glm::tvec2<double>{GetWidth(), GetHeight()};
 }
 
+glm::tvec2<double> StateWindow::CorrectYCoordinate(glm::tvec2<double> point) const
+{
+   return mpRoot->GetInput()->CorrectYCoordinate(point);
+}
+
 glm::tvec2<double> StateWindow::GetMouseMovement() const
 {
    return mpRoot->GetInput()->GetMouseMovement();

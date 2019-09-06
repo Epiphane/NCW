@@ -309,10 +309,23 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       const Stance& stance = controller.stances[state.stance];
 
       // Progress animation
-      controller.time += dt;
-      while (controller.time > state.length)
+      if (controller.cooldown >= 0)
       {
-         controller.time -= state.length;
+         controller.cooldown -= dt;
+
+         if (controller.cooldown < 0)
+         {
+            controller.time = 0;
+         }
+      }
+      else
+      {
+         controller.time += dt;
+         if (controller.time > state.length)
+         {
+            controller.time = state.length;
+            controller.cooldown = 1.0f;
+         }
       }
 
       const std::vector<Keyframe>& keyframes = state.keyframes;

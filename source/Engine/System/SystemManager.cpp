@@ -11,13 +11,13 @@ namespace Engine
 void SystemManager::UpdateAll(TIMEDELTA dt)
 {
    assert(mInitialized);
-   for (auto& pair : mSystems)
+   for (size_t i = 0; i < mSystems.size(); ++i)
    {
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-      std::pair<std::string, Timer<100>>& benchmark = mBenchmarks.at(pair.first);
+      std::pair<std::string, Timer<100>>& benchmark = mBenchmarks[i];
       benchmark.second.Reset();
 #endif
-      pair.second->Update(mEntityManager, mEventManager, dt);
+      mSystems[i]->Update(mEntityManager, mEventManager, dt);
 #if CUBEWORLD_BENCHMARK_SYSTEMS
       benchmark.second.Elapsed();
 #endif
@@ -27,9 +27,9 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
 void SystemManager::Configure()
 {
    assert(!mInitialized);
-   for (auto& pair : mSystems)
+   for (auto& system : mSystems)
    {
-      pair.second->Configure(mEntityManager, mEventManager);
+      system->Configure(mEntityManager, mEventManager);
    }
    mInitialized = true;
 }
@@ -38,9 +38,9 @@ void SystemManager::Configure()
 std::vector<std::pair<std::string, double>> SystemManager::GetBenchmarks()
 {
    std::vector<std::pair<std::string, double>> benchmarks;
-   for (auto& pair : mBenchmarks)
+   for (auto& benchmark : mBenchmarks)
    {
-      benchmarks.push_back(std::make_pair(pair.second.first, pair.second.second.Average()));
+      benchmarks.push_back(std::make_pair(benchmark.first, benchmark.second.Average()));
    }
    return benchmarks;
 }

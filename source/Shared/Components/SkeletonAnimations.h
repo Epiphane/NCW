@@ -18,9 +18,9 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
    // Types
    struct Keyframe {
       double time = 0.0;
-      std::unordered_map<std::string, glm::vec3> positions;
-      std::unordered_map<std::string, glm::vec3> rotations;
-      std::unordered_map<std::string, glm::vec3> scales;
+      std::map<std::string, glm::vec3> positions;
+      std::map<std::string, glm::vec3> rotations;
+      std::map<std::string, glm::vec3> scales;
    };
 
    struct State {
@@ -59,6 +59,18 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       BindingProperty modifications;
    };
 
+   struct Event {
+      enum class Type {
+         Unknown,
+         Strike,
+      };
+
+      Type type = Type::Unknown;
+      double start;
+      double end;
+      BindingProperty properties;
+   };
+
 public:
    SkeletonAnimations();
 
@@ -82,6 +94,7 @@ public:
    std::map<std::string, State> states;
    std::map<std::string, std::vector<Transition>> transitions;
    std::map<std::string, std::vector<ParticleEffect>> effects;
+   std::map<std::string, std::vector<Event>> events;
 };
 
 }; // namespace CubeWorld

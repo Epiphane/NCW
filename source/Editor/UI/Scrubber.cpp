@@ -33,7 +33,7 @@ Engine::UIElement::Action BaseScrubber::MouseDown(const MouseDownEvent& evt)
    {
       mLastPosition = glm::tvec2<double>(evt.x, evt.y);
       StartScrubbing();
-      return Handled;
+      return Capture;
    }
 
    return Unhandled;

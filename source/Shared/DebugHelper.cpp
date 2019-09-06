@@ -84,6 +84,11 @@ void DebugHelper::RemoveLink(MetricLink* link)
 
 void DebugHelper::Update()
 {
+   if (mBounds == nullptr)
+   {
+      return;
+   }
+
    mMetricsState.clear();
    std::string text = "DEBUG:";
    MetricLink* metric = mMetrics->next;

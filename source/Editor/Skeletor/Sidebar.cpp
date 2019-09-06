@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <imgui.h>
+#include <RGBDesignPatterns/Macros.h>
 #include <RGBFileSystem/File.h>
 #include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -7,8 +9,6 @@
 #include <Engine/Core/Window.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/RectFilled.h>
-#include <Shared/UI/TextButton.h>
 
 #include "Sidebar.h"
 
@@ -21,13 +21,9 @@ namespace Editor
 namespace Skeletor
 {
 
-using Engine::UIRoot;
-using UI::RectFilled;
-using UI::TextButton;
-
-Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "SkeletorSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mModified(true)
+Sidebar::Sidebar(Engine::UIRoot* root, Engine::UIElement* parent)
+   : UIElement(root, parent, "SkeletorSidebar")
+   , mModified(false)
 {
    mFilename = SettingsProvider::Instance().Get("animation_station", "filename").GetStringValue();
    if (mFilename.empty())
@@ -35,57 +31,52 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
       mFilename = Asset::Skeleton("greatmace.yaml");
    }
 
-   RectFilled* foreground = Add<RectFilled>("SkeletorSidebarFG", glm::vec4(0, 0, 0, 1));
-
-   foreground->ConstrainCenterTo(this);
-   foreground->ConstrainDimensionsTo(this, -4);
-
-   // Labels
-   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("SkeletorSidebarStackView");
-   buttons->SetOffset(8.0);
-
-   TextButton::Options buttonOptions;
-   buttonOptions.text = "Open";
-   buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-   TextButton* load = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Save";
-   buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-   mSave = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Save As...";
-   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Discard Changes";
-   buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-   TextButton* discard = buttons->Add<TextButton>(buttonOptions);
-      
-   buttonOptions.text = "Quit";
-   buttonOptions.size = 13; // "> Save first!"
-   buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
-   mQuit = buttons->Add<TextButton>(buttonOptions);
-
-   buttons->ConstrainTopAlignedTo(foreground);
-   buttons->ConstrainHorizontalCenterTo(foreground);
-   buttons->ConstrainWidthTo(foreground, -12);
-   load->ConstrainLeftAlignedTo(buttons, 2);
-   load->ConstrainWidthTo(buttons, -4);
-   load->ConstrainHeight(32);
-   mSave->ConstrainDimensionsTo(load);
-   mSave->ConstrainLeftAlignedTo(load);
-   saveAs->ConstrainDimensionsTo(mSave);
-   saveAs->ConstrainLeftAlignedTo(mSave);
-   discard->ConstrainDimensionsTo(saveAs);
-   discard->ConstrainLeftAlignedTo(saveAs);
-   mQuit->ConstrainDimensionsTo(discard);
-   mQuit->ConstrainLeftAlignedTo(discard);
-      
    root->Subscribe<Engine::ComponentAddedEvent<SkeletonCollection>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
 
-   SetModified(false);
+   LoadFile(mFilename);
+}
+
+void Sidebar::Update(TIMEDELTA)
+{
+   ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+   ImGui::Begin("File", nullptr, ImGuiWindowFlags_NoResize);
+
+   ImVec2 space = ImGui::GetContentRegionAvail();
+   if (ImGui::Button("Open", ImVec2(space.x, 0)))
+   {
+      LoadNewFile();
+   }
+
+   float halfSize = (space.x - ImGui::GetStyle().ItemSpacing.x) / 2;
+   if (mModified)
+   {
+      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
+      if (ImGui::Button("*Save", ImVec2(halfSize, 0)))
+      {
+         SaveFile();
+      }
+
+      ImGui::PopStyleColor(3);
+   }
+   else
+   {
+      if (ImGui::Button("Save", ImVec2(halfSize, 0)))
+      {
+         SaveFile();
+      }
+   }
+
+   ImGui::SameLine();
+   if (ImGui::Button("Save as", ImVec2(halfSize, 0)))
+   {
+      SaveNewFile();
+   }
+
+   ImGui::End();
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<SkeletonCollection>&)
@@ -123,9 +114,6 @@ void Sidebar::SetModified(bool modified)
    }
    title += Paths::GetFilename(mFilename);
    Engine::Window::Instance().SetTitle(title);
-
-   mSave->SetText(modified ? "*Save" : "Save");
-   mQuit->SetText("Quit");
 }
 
 void Sidebar::LoadNewFile()
@@ -202,23 +190,6 @@ void Sidebar::SaveFile()
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);
    SetModified(false);
-}
-
-void Sidebar::DiscardChanges()
-{
-   LoadFile(mFilename);
-}
-
-void Sidebar::Quit()
-{
-   if (!mModified)
-   {
-      Engine::Window::Instance().SetShouldClose(true);
-   }
-   else
-   {
-      mQuit->SetText("Save first!");
-   }
 }
 
 }; // namespace Skeletor

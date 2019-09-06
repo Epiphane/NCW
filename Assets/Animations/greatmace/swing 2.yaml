@@ -6,95 +6,142 @@ length: 0.9
 keyframes:
 - time: 0
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
+    character.Hips:
+      position: [0, 1.5, 2.1]
+      rotation: [3.8, 0, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Hips:
-      position: [0, 1.5, 2.1]
-      rotation: [3.8, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Torso:
       rotation: [0, 46.09, 0]
 - time: 0.45
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-21.09, 0, 0]
+    character.Hips:
+      position: [0, 1.5, 2.1]
+      rotation: [3.8, 0, 0]
     character.Shoulders:
       position: [-8.38, 2.18, 2.5]
       rotation: [70.779999, -53.91, 0]
     character.Spine:
       position: [0, 0, 6.12]
       rotation: [24.219999, 0, 0]
-    character.Hips:
-      position: [0, 1.5, 2.1]
-      rotation: [3.8, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-21.09, 0, 0]
     character.Torso:
       rotation: [0, 46.09, 0]
 - time: 0.6
   bones:
+    character.Head:
+      position: [0, 4.86, -2]
+      rotation: [-12.19, 0, 0]
+    character.Hips:
+      position: [0, 1.5, 2.1]
+      rotation: [3.8, 0, 0]
     character.Shoulders:
       position: [-8.38, 0.38, 0.4]
       rotation: [70.779999, -24.309999, 0]
     character.Spine:
       position: [0, 0, 2.82]
       rotation: [12.02, 0, 0]
-    character.Hips:
-      position: [0, 1.5, 2.1]
-      rotation: [3.8, 0, 0]
-    character.Head:
-      position: [0, 4.86, -2]
-      rotation: [-12.19, 0, 0]
     character.Torso:
       rotation: [0, 17.59, 0]
-- time: 0.69
+- time: 0.801742
   bones:
-    character.Shoulders:
-      position: [-8.38, -1.02, -0.3]
-      rotation: [85.980003, 4.29, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
+    character.Left Leg:
+      position: [2.5, -0.352344, 0]
+      rotation: [13.632812, 0, 0]
+    character.Right Hand:
+      position: [-0.243827, 1.255391, 0.277735]
+      rotation: [0, -90.265625, 0]
+    character.Right Leg:
+      position: [-3.5, -0.624219, 0]
+      rotation: [-22.78125, 0, 0]
+    character.Shoulders:
+      position: [-6.604614, 0.079219, -0.3]
+      rotation: [85.980003, -8.405312, 0]
+    character.Spine:
+      position: [0, 0.455469, 1.99383]
+      rotation: [-5.054688, 16.25, 0]
+    character.root:
+      position: [0, -0.5, 1.866407]
+    greatmace.root:
+      position: [1.990625, 4.917968, 1.23086]
+      rotation: [0, -89.492188, 0]
+    character.Left Hand:
+      rotation: [0, -92.9375, 0]
     character.Torso:
       rotation: [0, -6.6, 0]
 - time: 0.85
   bones:
-    character.root:
-      position: [0, 0, 0]
-      rotation: [0, 0, 0]
-    character.Shoulders:
-      position: [-8.38, -1.02, -0.3]
-      rotation: [85.980003, 4.29, 0]
+    character.Head:
+      position: [0, 4.730227, 0.321562]
+      rotation: [-3.414062, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
+    character.Left Leg:
+      position: [2.5, -0.352344, -3.104687]
+      rotation: [29.515625, 0, 0]
+    character.Right Hand:
+      position: [-0.243827, 1.255391, 0.277735]
+      rotation: [0, -90.265625, 0]
+    character.Right Leg:
+      position: [-3.5, -0.624219, 0]
+      rotation: [-9.609375, 0, 0]
+    character.Shoulders:
+      position: [-6.604614, 0.079219, 6.416793]
+      rotation: [85.980003, -8.405312, -5.179688]
     character.Spine:
-      position: [0, 0, 0.25]
-      rotation: [1.01, 0, 0]
+      position: [0, 0.455469, 1.99383]
+      rotation: [2.898438, 11.078125, 0]
+    character.root:
+      position: [0, -0.5, 6.698039]
+    greatmace.root:
+      position: [1.990625, 4.917968, 1.23086]
+      rotation: [0, -89.492188, 0]
+    character.Left Hand:
+      rotation: [0, -92.9375, 0]
     character.Torso:
       rotation: [0, -6.6, 0]
 - time: 0.9
   bones:
-    character.root:
-      position: [0, -0.5, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Shoulders:
-      position: [-8.38, 0.06, 7.95]
-      rotation: [79.339996, -15.69, 0]
-    character.Spine:
-      position: [0, 0, 3.57]
-      rotation: [11.09, 0, 0]
+    character.Head:
+      position: [0, 4.730227, 0.321562]
+      rotation: [-3.414062, 0, 0]
     character.Hips:
       position: [0, 1.5, 2.1]
       rotation: [3.8, 0, 0]
-    character.Head:
-      position: [0, 4.29, -0.28]
-      rotation: [-7.13, 0, 0]
+    character.Left Leg:
+      position: [2.5, -0.352344, -3.104687]
+      rotation: [29.515625, 0, 0]
+    character.Right Hand:
+      position: [-0.243827, 1.255391, 0.277735]
+      rotation: [0, -90.265625, 0]
+    character.Right Leg:
+      position: [-3.5, -0.624219, 0]
+      rotation: [-9.609375, 0, 0]
+    character.Shoulders:
+      position: [-6.604614, 0.079219, 6.416793]
+      rotation: [85.980003, -8.405312, -5.179688]
+    character.Spine:
+      position: [0, 0.455469, 1.99383]
+      rotation: [2.898438, 11.078125, 0]
+    character.root:
+      position: [0, -0.5, 6.698039]
+    greatmace.root:
+      position: [1.990625, 4.917968, 1.23086]
+      rotation: [0, -89.492188, 0]
+    character.Left Hand:
+      rotation: [0, -92.9375, 0]
     character.Torso:
-      rotation: [0, 16.41, 0]
+      rotation: [0, -6.6, 0]

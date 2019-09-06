@@ -67,7 +67,7 @@ public:
       const std::string& shaderDir,
       const std::string& textureDir
    );
-   ParticleSystem(ParticleSystem&& other);
+   ParticleSystem(ParticleSystem&& other) noexcept;
    ~ParticleSystem();
 
    //

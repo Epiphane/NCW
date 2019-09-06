@@ -91,7 +91,7 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
          assert(keyframe.time > lastTime);
          lastTime = keyframe.time;
 
-         for (const auto&[bone, modification] : frame["bones"].pairs())
+         for (const auto& [bone, modification] : frame["bones"].pairs())
          {
             if (const auto& pos = modification["position"]; pos.IsVec3())
             {
@@ -149,7 +149,7 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
       }
 
       std::vector<ParticleEffect>& effectData = effects[state.name];
-      for(const BindingProperty& info : anim["particles"])
+      for (const BindingProperty& info : anim["particles"])
       {
          ParticleEffect effect;
          effect.name = info["name"];
@@ -159,6 +159,28 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
          effect.modifications = info["mods"];
 
          effectData.push_back(std::move(effect));
+      }
+
+      std::vector<Event>& eventData = events[state.name];
+      for (const BindingProperty& info : anim["events"])
+      {
+         Event evt;
+         evt.start = info["start"].GetDoubleValue(0.0);
+         evt.end = info["end"].GetDoubleValue(state.length);
+         evt.properties = info["properties"];
+
+         std::string type = info["type"];
+         if (type == "strike")
+         {
+            evt.type = Event::Type::Strike;
+         }
+         else
+         {
+            LOG_ERROR("Unrecognized event type: %1", type);
+            evt.type = Event::Type::Unknown;
+         }
+
+         eventData.push_back(std::move(evt));
       }
    }
 }
@@ -237,6 +259,25 @@ BindingProperty SkeletonAnimations::Serialize()
          effectData["end"] = effect.end;
          effectData["mods"] = effect.modifications;
          data["particles"].push_back(std::move(effectData));
+      }
+
+      for (const Event& evt : events[state.name])
+      {
+         BindingProperty eventData;
+         switch (evt.type)
+         {
+         case Event::Type::Strike:
+            eventData["type"] = "strike";
+            break;
+         default:
+            eventData["type"] = "unknown";
+            break;
+         }
+
+         eventData["start"] = evt.start;
+         eventData["end"] = evt.end;
+         eventData["properties"] = evt.properties;
+         data["events"].push_back(std::move(eventData));
       }
    }
 
