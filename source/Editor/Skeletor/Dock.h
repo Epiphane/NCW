@@ -60,7 +60,7 @@ public:
       Rotation,
       Scale,
    };
-   void OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3 newValue);
+   void OnScrub(ScrubType type, glm::vec3 oldValue);
 
 private:
    // State

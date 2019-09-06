@@ -139,7 +139,7 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
 
    // Update mouse position.
    auto mouse = mWindow.GetRawMousePosition();
-   io.MousePos = ImVec2((float)mouse.x, (float)mWindow.GetHeight() - mouse.y);
+   io.MousePos = ImVec2((float)mouse.x, (float)mWindow.GetHeight() - (float)mouse.y);
 
    // Update mouse click state
    for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++)
@@ -216,7 +216,7 @@ void ImguiContext::Render()
    {
       return;
    }
-   
+
    // Setup GL state
    BIND_PROGRAM_IN_SCOPE(mProgram);
    ResetRenderState(drawData, fbWidth, fbHeight);

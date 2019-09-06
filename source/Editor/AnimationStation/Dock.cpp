@@ -78,7 +78,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
       c3 >= c2 + 100,
       c4 >= c3 + 140,
    });
-   
+
    UIStackView* dockStateInfo = foreground->Add<UIStackView>("DockStateInfo");
    dockStateInfo->ConstrainLeftAlignedTo(foreground, 30);
    dockStateInfo->ConstrainTopAlignedTo(foreground, 30);
@@ -1040,7 +1040,7 @@ void Dock::SetTime(double time)
       mSelectedKeyframe = keyframeIndex;
    }
    else if (
-      (keyframeIndex < state.keyframes.size() - 1) && 
+      (keyframeIndex < state.keyframes.size() - 1) &&
       (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02
    )
    {
@@ -1180,7 +1180,7 @@ void Dock::ResetBoneCommand::Do()
    {
       return;
    }
-   
+
    const Stance& stance = dock->GetCurrentStance();
    const Bone& bone = stance.bones[dock->mBone];
 
