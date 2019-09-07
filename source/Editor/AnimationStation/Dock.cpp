@@ -124,7 +124,7 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowSize(ImVec2(336, 0), ImGuiCond_FirstUseEver);
    ImGui::Begin("Timeline");
 
-   ImGuiEx::DragDouble("##time", &mController->time, 1.0, 0.0, state.length);
+   ImGuiEx::SliderDouble("##time", &mController->time, 0.0, state.length);
    // TODO keyframes (custom drag behavior)
 
    size_t index = GetKeyframeIndex(state, mController->time);

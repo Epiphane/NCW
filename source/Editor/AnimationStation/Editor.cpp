@@ -58,7 +58,7 @@ void Editor::Update(TIMEDELTA dt)
       mStateWindow->SetSize(space);
       ImGui::ImageButton(
          (ImTextureID)(intptr_t)mStateWindow->GetFramebuffer().GetTexture(),
-         ImVec2(mStateWindow->GetWidth(), mStateWindow->GetHeight()),
+         ImVec2((float)mStateWindow->GetWidth(), (float)mStateWindow->GetHeight()),
          ImVec2(0, 1),
          ImVec2(1, 0),
          0

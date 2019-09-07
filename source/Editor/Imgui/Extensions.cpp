@@ -33,11 +33,11 @@ bool Button(bool red, const std::string& label, const ImVec2& size)
    return ImGui::Button(label.c_str(), size);
 }
 
-bool DragDouble(const std::string& label, double* v, double, double v_min, double v_max, const char* format, double power)
+bool SliderDouble(const std::string& label, double* v, double v_min, double v_max, const char* format, double power)
 {
-   float val = *v;
-   bool result = ImGui::SliderFloat(label.c_str(), &val, v_min, v_max, format, power);
-   *v = val;
+   float val = (float)*v;
+   bool result = ImGui::SliderFloat(label.c_str(), &val, (float)v_min, (float)v_max, format, (float)power);
+   *v = (double)val;
    return result;
 }
 
