@@ -100,7 +100,7 @@ void Dock::Update(TIMEDELTA)
    {
       OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
    }
-   if (mScrubbers[2].Update("Scale", stance->scales[mBone]))
+   if (mScrubbers[2].Update("Scale", stance->scales[mBone], 0.1f))
    {
       OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
    }

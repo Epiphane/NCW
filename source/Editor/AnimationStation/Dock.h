@@ -29,7 +29,8 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Dock : public Engine::UIElement {
+class Dock : public Engine::UIElement
+{
 public:
    const double kTimelineWidth = 512.0;
 
@@ -74,7 +75,7 @@ public:
       Rotation,
       Scale,
    };
-   void OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3 newValue);
+   void OnScrub(ScrubType type, glm::vec3 oldValue);
 
 private:
    // State
@@ -86,16 +87,17 @@ private:
    std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
-   
+
    ScrubberVec3 mScrubbers[3];
 
 private:
    //
    //
    //
-   class DockCommand : public Command {
+   class DockCommand : public Command
+   {
    public:
-      DockCommand(Dock* dock) : dock(dock) {};
+      DockCommand(Dock* dock) : dock(dock){};
 
    protected:
       Dock* dock;
@@ -185,11 +187,11 @@ private:
    {
    public:
       ResetBoneCommand(Dock* dock, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
-         : DockCommand(dock)
-         , boneId(bone)
-         , position(position)
-         , rotation(rotation)
-         , scale(scale)
+          : DockCommand(dock)
+          , boneId(bone)
+          , position(position)
+          , rotation(rotation)
+          , scale(scale)
       {};
       void Do() override;
       void Undo() override { Do(); }

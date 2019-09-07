@@ -19,13 +19,9 @@ namespace Editor
 namespace AnimationStation
 {
 
-using Engine::UIRoot;
-using UI::RectFilled;
-using UI::TextButton;
-
-Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "AnimationStationSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mModified(true)
+Sidebar::Sidebar(Engine::UIRoot* root, Engine::UIElement* parent)
+    : UIElement(root, parent, "AnimationStationSidebar")
+    , mModified(true)
 {
    root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
    root->Subscribe<SkeletonModifiedEvent>(*this);
@@ -54,12 +50,9 @@ void Sidebar::Update(TIMEDELTA)
       SaveFile();
    }
 
-   if (mModified)
+   if (ImGui::Button("Discard Changes", ImVec2(space.x, 0)))
    {
-      if (ImGui::Button("Discard Changes", ImVec2(space.x, 0)))
-      {
-         DiscardChanges();
-      }
+      DiscardChanges();
    }
 
    ImGui::End();
