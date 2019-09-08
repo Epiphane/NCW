@@ -117,7 +117,6 @@ void Dock::Update(TIMEDELTA)
 
    State& state = GetCurrentState();
    ImGui::Text("%.3f", state.length);
-   // TODO edit
 
    ImGui::SameLine();
    if (ImGui::SmallButton("^"))
@@ -136,8 +135,16 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowSize(ImVec2(336, 0), ImGuiCond_FirstUseEver);
    ImGui::Begin("Timeline");
 
-   ImGuiEx::SliderDouble("##time", &mController->time, 0.0, state.length);
-   // TODO keyframes (custom drag behavior)
+   std::vector<double> keyframes;
+   for (const Keyframe& frame : state.keyframes)
+   {
+      keyframes.push_back(frame.time);
+   }
+   double time = mController->time;
+   if (ImGuiEx::Timeline("##time", &time, state.length, keyframes))
+   {
+      SetTime(time);
+   }
 
    size_t index = GetKeyframeIndex(state, mController->time);
    Keyframe& keyframe = state.keyframes[index];
