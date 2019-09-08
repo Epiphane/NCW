@@ -1408,7 +1408,7 @@ struct ImGuiTabItem
     float               Width;                  // Width currently displayed
     float               WidthContents;          // Width of actual contents, stored during BeginTabItem() call
 
-    ImGuiTabItem()      { ID = Flags = 0; LastFrameVisible = LastFrameSelected = -1; NameOffset = -1; Offset = Width = WidthContents = 0.0f; }
+    ImGuiTabItem() { ID = 0; Flags = 0; LastFrameVisible = LastFrameSelected = -1; NameOffset = -1; Offset = Width = WidthContents = 0.0f; }
 };
 
 // Storage for a tab bar (sizeof() 92~96 bytes)

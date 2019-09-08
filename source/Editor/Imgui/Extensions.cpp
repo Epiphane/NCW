@@ -239,14 +239,13 @@ bool Timeline(const std::string& label, double* time, double max, const std::vec
    // Render keyframes
    for (const double& keyframe : keyframes)
    {
-      const ImVec4 frameColor(0.439f, 0.322f, 0.122f, 1);
-      const ImU32 frame_col = ImGui::GetColorU32(frameColor);
+      const ImU32 keyframe_col = ImGui::GetColorU32(ImVec4(0.439f, 0.322f, 0.122f, 1));
       const ImRect keyframe_bb(frame_bb.Min, frame_bb.Max);
-      const double percent = keyframe / max;
-      const double padding = 2.0 + ImGui::GetStyle().GrabMinSize / 2;
-      const double size = 2.0;
-      const double x_center = frame_bb.Min.x + padding + percent * (frame_bb.Max.x - frame_bb.Min.x - 2.0 * padding);
-      ImGui::RenderFrame(ImVec2(x_center - size, frame_bb.Min.y), ImVec2(x_center + size, frame_bb.Max.y), frame_col, true, g.Style.FrameRounding);
+      const float percent = (float)(keyframe / max);
+      const float padding = 2.0f + ImGui::GetStyle().GrabMinSize / 2.0f;
+      const float size = 2.0f;
+      const float x_center = frame_bb.Min.x + padding + percent * (frame_bb.Max.x - frame_bb.Min.x - 2.0f * padding);
+      ImGui::RenderFrame(ImVec2(x_center - size, frame_bb.Min.y), ImVec2(x_center + size, frame_bb.Max.y), keyframe_col, true, g.Style.FrameRounding);
    }
 
    // Slider behavior
