@@ -71,7 +71,7 @@ private:
    Engine::ComponentHandle<Skeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
 
-   ScrubberVec3 mScrubbers[3];
+   Scrubber<glm::vec3, float> mScrubbers[3];
 
 private:
    //

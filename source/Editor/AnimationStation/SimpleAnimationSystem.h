@@ -28,6 +28,7 @@ struct AnimationSystemController : public Engine::Component<AnimationSystemContr
    //
    double speed = 1.0;
    bool paused = true;
+   bool seamlessLoop = true;
    TIMEDELTA nextTick = 0;
 };
 

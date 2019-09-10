@@ -7,8 +7,6 @@
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/Button.h>
-#include <Shared/UI/RectFilled.h>
 
 #include "../Command/CommandStack.h"
 #include "../Imgui/Extensions.h"
@@ -31,8 +29,6 @@ using State = SimpleAnimationController::State;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
-using UI::Button;
-using UI::RectFilled;
 
 namespace
 {
@@ -146,49 +142,6 @@ void Dock::Update(TIMEDELTA)
       SetTime(time);
    }
 
-   size_t index = GetKeyframeIndex(state, mController->time);
-   Keyframe& keyframe = state.keyframes[index];
-   if (mController->time != keyframe.time && ImGui::Button("Add Keyframe"))
-   {
-      CommandStack::Instance().Do<AddKeyframeCommand>(this);
-   }
-
-   if (mController->time == keyframe.time && ImGuiEx::RedButton("Remove Keyframe"))
-   {
-      CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
-   }
-
-   // TODO moving keyframes
-   /*
-      State& state = GetCurrentState();
-      size_t index = mSelectedKeyframe;
-      if (index >= state.keyframes.size())
-      {
-         return;
-      }
-
-      Keyframe& keyframe = state.keyframes[index];
-
-      if (index == 0)
-      {
-         keyframe.time = 0;
-      }
-      else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
-      {
-         keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
-      }
-      else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
-      {
-         keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
-      }
-      else if (keyframe.time > state.length)
-      {
-         keyframe.time = state.length;
-      }
-
-      mController->time = keyframe.time;
-   */
-
    if (mSystemControls->paused && ImGui::Button("Play"))
    {
       mSystemControls->paused = false;
@@ -208,6 +161,50 @@ void Dock::Update(TIMEDELTA)
    if (ImGui::SmallButton("/2"))
    {
       mSystemControls->speed /= 2.0;
+   }
+   ImGui::Checkbox("Seamless loop", &mSystemControls->seamlessLoop);
+
+   ImGui::End();
+
+   // Keyframe modification
+   ImGui::SetNextWindowPos(ImVec2(664, 550), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(336, 0), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Keyframe");
+
+   size_t index = GetKeyframeIndex(state, mController->time);
+   Keyframe& keyframe = state.keyframes[index];
+   if (mController->time != keyframe.time)
+   {
+      if (ImGui::Button("Add Keyframe"))
+      {
+         CommandStack::Instance().Do<AddKeyframeCommand>(this);
+      }
+   }
+   else
+   {
+      if (ImGui::Button("Remove Keyframe"))
+      {
+         CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
+      }
+
+      double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
+      double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
+
+      if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+      {
+         auto command = std::make_unique<SetKeyframeTimeCommand>(
+            this,
+            index,
+            mKeyframeTimeScrubber.GetLastValue()
+         );
+         command->Do();
+         CommandStack::Instance().Do(std::move(command));
+      }
+
+      if (ImGui::IsItemActive())
+      {
+         mController->time = keyframe.time;
+      }
    }
 
    ImGui::End();
@@ -245,14 +242,17 @@ void Dock::Update(TIMEDELTA)
 
    if (mController->time == keyframe.time)
    {
-      if (mScrubbers[0].Update("Position", keyframe.positions[selected.name], 0.1f))
+      Receive(ResumeEditingEvent{});
+
+      if (mScrubbers[0].Drag("Position", keyframe.positions[selected.name], 0.1f))
       {
          OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+         Receive(ResumeEditingEvent{});
       }
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        selected.position,
                                                        keyframe.rotations[selected.name],
                                                        keyframe.scales[selected.name]);
@@ -265,20 +265,21 @@ void Dock::Update(TIMEDELTA)
             prev.positions.at(selected.name) :
             selected.position;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        pos,
                                                        keyframe.rotations[selected.name],
                                                        keyframe.scales[selected.name]);
       }
 
-      if (mScrubbers[1].Update("Rotation", keyframe.rotations[selected.name]))
+      if (mScrubbers[1].Drag("Rotation", keyframe.rotations[selected.name]))
       {
          OnScrub(ScrubType::Rotation, mScrubbers[1].GetLastValue());
+         Receive(ResumeEditingEvent{});
       }
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        keyframe.positions[selected.name],
                                                        selected.rotation,
                                                        keyframe.scales[selected.name]);
@@ -291,20 +292,21 @@ void Dock::Update(TIMEDELTA)
             prev.rotations.at(selected.name) :
             selected.rotation;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        keyframe.positions[selected.name],
                                                        rot,
                                                        keyframe.scales[selected.name]);
       }
 
-      if (mScrubbers[2].Update("Scale", keyframe.scales[selected.name], 0.1f))
+      if (mScrubbers[2].Drag("Scale", keyframe.scales[selected.name], 0.1f))
       {
          OnScrub(ScrubType::Scale, mScrubbers[2].GetLastValue());
+         Receive(ResumeEditingEvent{});
       }
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        keyframe.positions[selected.name],
                                                        keyframe.rotations[selected.name],
                                                        selected.scale);
@@ -317,11 +319,14 @@ void Dock::Update(TIMEDELTA)
             prev.scales.at(selected.name) :
             selected.scale;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
                                                        keyframe.positions[selected.name],
                                                        keyframe.rotations[selected.name],
                                                        scl);
       }
+
+      // Revert any unchanged vectors so that they are not persisted.
+      Receive(SuspendEditingEvent{});
    }
    else
    {
@@ -330,9 +335,9 @@ void Dock::Update(TIMEDELTA)
       assert(it != mController->skeletons.end() && "Couldn't find skeleton");
       Bone& bone = (*it)->bones[(*it)->boneLookup[selected.name]];
 
-      mScrubbers[0].Update("Position", bone.position, 0.1f);
-      mScrubbers[1].Update("Rotation", bone.rotation);
-      mScrubbers[2].Update("Scale", bone.scale);
+      mScrubbers[0].Drag("Position", bone.position, 0.1f);
+      mScrubbers[1].Drag("Rotation", bone.rotation);
+      mScrubbers[2].Drag("Scale", bone.scale);
    }
 
    ImGui::End();
@@ -343,13 +348,13 @@ void Dock::Update(TIMEDELTA)
 ///
 void Dock::Receive(const SuspendEditingEvent&)
 {
-   if (!mController)
+   if (!mController || GetCurrentState().keyframes.empty())
    {
       return;
    }
 
-   State& state = GetCurrentState();
-   if (state.keyframes.empty() || mSelectedKeyframe >= state.keyframes.size() - 1)
+   Keyframe& keyframe = GetCurrentKeyframe();
+   if (keyframe.time != mController->time)
    {
       return;
    }
@@ -358,16 +363,18 @@ void Dock::Receive(const SuspendEditingEvent&)
    const Stance& stance = GetCurrentStance();
    const Bone& original = stance.bones[mBone];
 
-   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
-   if (keyframe.positions.count(original.name) > 0 && keyframe.positions.at(original.name) == original.position)
+   if (keyframe.positions.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.positions.at(original.name), original.position)))
    {
       keyframe.positions.erase(original.name);
    }
-   if (keyframe.rotations.count(original.name) > 0 && keyframe.rotations.at(original.name) == original.rotation)
+   if (keyframe.rotations.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.rotations.at(original.name), original.rotation)))
    {
       keyframe.rotations.erase(original.name);
    }
-   if (keyframe.scales.count(original.name) > 0 && keyframe.scales.at(original.name) == original.scale)
+   if (keyframe.scales.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.scales.at(original.name), original.scale)))
    {
       keyframe.scales.erase(original.name);
    }
@@ -378,13 +385,16 @@ void Dock::Receive(const SuspendEditingEvent&)
 ///
 void Dock::Receive(const ResumeEditingEvent&)
 {
-   State& state = GetCurrentState();
-   if (mSelectedKeyframe >= state.keyframes.size())
+   if (GetCurrentState().keyframes.empty())
    {
       return;
    }
 
-   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
+   Keyframe& keyframe = GetCurrentKeyframe();
+   if (keyframe.time != mController->time)
+   {
+      return;
+   }
 
    const Stance& stance = GetCurrentStance();
    const Bone& original = stance.bones[mBone];
@@ -456,7 +466,9 @@ void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
    // again when it gets placed on the stack to go back to the new one,
 
    const Bone& selected = GetCurrentStance().bones[mBone];
-   Keyframe& keyframe = GetCurrentKeyframe();
+   State& state = GetCurrentState();
+   size_t keyframeIndex = GetKeyframeIndex(state, mController->time);
+   Keyframe& keyframe = state.keyframes[keyframeIndex];
    glm::vec3 pos = keyframe.positions[selected.name];
    glm::vec3 rot = keyframe.rotations[selected.name];
    glm::vec3 scl = keyframe.scales[selected.name];
@@ -474,7 +486,7 @@ void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
       break;
    }
 
-   std::unique_ptr<ResetBoneCommand> command{new ResetBoneCommand(this, mBone, pos, rot, scl)};
+   std::unique_ptr<ResetBoneCommand> command{new ResetBoneCommand(this, mBone, keyframeIndex, pos, rot, scl)};
    command->Do();
    CommandStack::Instance().Do(std::move(command));
 }
@@ -677,7 +689,6 @@ void Dock::AddKeyframeCommand::Do()
       }
    }
 
-   keyframeIndex = GetKeyframeIndex(state, dock->mController->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + (int64_t)keyframeIndex, keyframe);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -685,6 +696,14 @@ void Dock::AddKeyframeCommand::Do()
 ///
 ///
 ///
+Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock)
+   : DockCommand(dock)
+   , keyframeIndex(0)
+{
+   keyframe.time = dock->mController->time;
+   keyframeIndex = GetKeyframeIndex(dock->GetCurrentState(), dock->mController->time) + 1;
+};
+
 void Dock::AddKeyframeCommand::Undo()
 {
    State& state = dock->GetCurrentState();
@@ -738,11 +757,7 @@ void Dock::SetTime(double time)
 void Dock::SetKeyframeTimeCommand::Do()
 {
    State& state = dock->GetCurrentState();
-   Keyframe& keyframe = GetKeyframe(state, dock->mController->time);
-   if (dock->mController->time != keyframe.time)
-   {
-      return;
-   }
+   Keyframe& keyframe = state.keyframes[index];
 
    double last = keyframe.time;
    dock->mController->time = keyframe.time = value;
@@ -756,15 +771,13 @@ void Dock::SetKeyframeTimeCommand::Do()
 ///
 void Dock::ResetBoneCommand::Do()
 {
-   Keyframe& keyframe = dock->GetCurrentKeyframe();
-   if (dock->mController->time != keyframe.time)
-   {
-      return;
-   }
+   Keyframe& keyframe = dock->GetCurrentState().keyframes[keyframeIndex];
+   dock->mController->time = keyframe.time;
 
    const Stance& stance = dock->GetCurrentStance();
    const Bone& bone = stance.bones[dock->mBone];
 
+   dock->Receive(ResumeEditingEvent{});
    assert(keyframe.positions.count(bone.name) > 0 && "Not editing a bone");
    assert(keyframe.rotations.count(bone.name) > 0 && "Not editing a bone");
    assert(keyframe.scales.count(bone.name) > 0 && "Not editing a bone");
@@ -778,6 +791,8 @@ void Dock::ResetBoneCommand::Do()
    position = pos;
    rotation = rot;
    scale = scl;
+
+   dock->Receive(SuspendEditingEvent{});
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }

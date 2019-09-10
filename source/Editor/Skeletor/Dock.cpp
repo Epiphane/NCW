@@ -92,15 +92,15 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetColumnWidth(ImGui::GetColumnIndex(), 3 * windowWidth / 5);
 
    auto stance = std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; });
-   if (mScrubbers[0].Update("Position", stance->positions[mBone], 0.1f))
+   if (mScrubbers[0].Drag("Position", stance->positions[mBone], 0.1f))
    {
       OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
    }
-   if (mScrubbers[1].Update("Rotation", stance->rotations[mBone]))
+   if (mScrubbers[1].Drag("Rotation", stance->rotations[mBone]))
    {
       OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
    }
-   if (mScrubbers[2].Update("Scale", stance->scales[mBone], 0.1f))
+   if (mScrubbers[2].Drag("Scale", stance->scales[mBone], 0.1f))
    {
       OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
    }

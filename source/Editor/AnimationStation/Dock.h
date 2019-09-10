@@ -84,11 +84,11 @@ private:
    size_t mSelectedKeyframe;
    std::vector<std::string> mStates;
 
-   std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
-   ScrubberVec3 mScrubbers[3];
+   Scrubber<double> mKeyframeTimeScrubber;
+   Scrubber<glm::vec3, float> mScrubbers[3];
 
 private:
    //
@@ -143,10 +143,7 @@ private:
    class AddKeyframeCommand : public DockCommand
    {
    public:
-      AddKeyframeCommand(Dock* dock) : DockCommand(dock), keyframeIndex(0)
-      {
-         keyframe.time = dock->mController->time;
-      };
+      AddKeyframeCommand(Dock* dock);
       void Do() override;
       void Undo() override;
 
@@ -172,11 +169,16 @@ private:
    class SetKeyframeTimeCommand : public DockCommand
    {
    public:
-      SetKeyframeTimeCommand(Dock* dock, double value) : DockCommand(dock), value(value) {};
+      SetKeyframeTimeCommand(Dock* dock, size_t index, double value)
+         : DockCommand(dock)
+         , index(index)
+         , value(value)
+      {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      size_t index;
       double value;
    };
 
@@ -186,18 +188,20 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
-          : DockCommand(dock)
-          , boneId(bone)
-          , position(position)
-          , rotation(rotation)
-          , scale(scale)
+      ResetBoneCommand(Dock* dock, size_t bone, size_t keyframe, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+         : DockCommand(dock)
+         , boneId(bone)
+         , keyframeIndex(keyframe)
+         , position(position)
+         , rotation(rotation)
+         , scale(scale)
       {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
       size_t boneId;
+      size_t keyframeIndex;
       glm::vec3 position, rotation, scale;
    };
 

@@ -15,6 +15,9 @@ namespace CubeWorld
 namespace Editor
 {
 
+namespace Dep
+{
+
 BaseScrubber::BaseScrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
    : Image(root, parent, options)
    , mScrubbing(nullptr)
@@ -70,6 +73,8 @@ Engine::UIElement::Action BaseScrubber::MouseMove(const MouseMoveEvent& evt)
 
    return Unhandled;
 }
+
+}; // namespace Dep
 
 }; // namespace Editor
 

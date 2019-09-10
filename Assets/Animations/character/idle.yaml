@@ -1,6 +1,6 @@
 ---
 name: idle
-next:
+next: 
 stance: resting
 length: 5.02
 keyframes:
