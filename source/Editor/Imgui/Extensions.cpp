@@ -20,7 +20,7 @@ namespace ImGuiEx
 namespace
 {
 
-bool TimelineBehavior(const ImRect& bb, ImGuiID id, double* v, const double v_min, const double v_max, std::vector<double> hooks, const char* format, ImRect* out_grab_bb)
+bool TimelineBehavior(const ImRect& bb, ImGuiID id, double* v, const double v_min, const double v_max, bool snap, const std::vector<double>& hooks, const char* format, ImRect* out_grab_bb)
 {
    ImGuiContext& g = *GImGui;
    const ImGuiStyle& style = g.Style;
@@ -40,6 +40,7 @@ bool TimelineBehavior(const ImRect& bb, ImGuiID id, double* v, const double v_mi
 
    // Process interacting with the slider
    bool value_changed = false;
+   double v_new = *v;
    if (g.ActiveId == id)
    {
       bool set_new_value = false;
@@ -106,34 +107,37 @@ bool TimelineBehavior(const ImRect& bb, ImGuiID id, double* v, const double v_mi
 
       if (set_new_value)
       {
-         double v_new = ImLerp(v_min, v_max, clicked_t);
-
-         // Snap to checkpoints
-         // Use 8px of the slider size for snapping
-         constexpr double SNAP_SIZE = 8.0;
-         if (slider_usable_sz > SNAP_SIZE)
-         {
-            double snap_size = v_range * (SNAP_SIZE / slider_usable_sz);
-            for (const double& hook : hooks)
-            {
-               if (std::abs(v_new - hook) < snap_size)
-               {
-                  v_new = hook;
-                  break;
-               }
-            }
-         }
+         v_new = ImLerp(v_min, v_max, clicked_t);
 
          // Round to user desired precision based on format string
          v_new = ImGui::RoundScalarWithFormatT<double, double>(format, ImGuiDataType_Double, v_new);
+      }
+   }
 
-         // Apply result
-         if (*v != v_new)
+   // Snap to checkpoints
+   // Use 8px of the slider size for snapping
+   if (snap)
+   {
+      constexpr double SNAP_SIZE = 8.0;
+      if (slider_usable_sz > SNAP_SIZE)
+      {
+         double snap_size = v_range * (SNAP_SIZE / slider_usable_sz);
+         for (const double& hook : hooks)
          {
-            *v = v_new;
-            value_changed = true;
+            if (std::abs(v_new - hook) < snap_size)
+            {
+               v_new = hook;
+               break;
+            }
          }
       }
+   }
+
+   // Apply result
+   if (*v != v_new)
+   {
+      *v = v_new;
+      value_changed = true;
    }
 
    if (slider_sz < 1.0f)
@@ -181,7 +185,7 @@ bool SliderDouble(const std::string& label, double* v, double v_min, double v_ma
    return result;
 }
 
-bool Timeline(const std::string& label, double* time, double max, const std::vector<double>& keyframes, const char* format)
+bool Timeline(const std::string& label, double* time, double max, bool snap, const std::vector<double>& keyframes, const char* format)
 {
    // Similar to ImGui::SliderFloat, but with keyframe snapping
    ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -250,8 +254,8 @@ bool Timeline(const std::string& label, double* time, double max, const std::vec
 
    // Slider behavior
    ImRect grab_bb;
-   const bool value_changed = TimelineBehavior(frame_bb, id, time, 0.0, max, keyframes, format, &grab_bb);
-   if (value_changed)
+   const bool value_changed = TimelineBehavior(frame_bb, id, time, 0.0, max, snap, keyframes, format, &grab_bb);
+   if (value_changed && GImGui->ActiveId == id)
    {
       ImGui::MarkItemEdited(id);
    }

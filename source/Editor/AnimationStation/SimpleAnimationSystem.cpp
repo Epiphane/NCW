@@ -145,11 +145,6 @@ void SimpleAnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> sk
    skeletons.push_back(skeleton);
 
    const auto addSkeletonName = [&](const Skeleton::Bone& b) { return b; };
-   //   Skeleton::Bone result = b;
-   //   result.name = skeleton->name + "." + b.name;
-   //   return result;
-   //};
-
    for (const Skeleton::Stance& s : skeleton->stances)
    {
       Stance& stance = stances[s.name];

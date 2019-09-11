@@ -63,6 +63,9 @@ ImguiContext::ImguiContext(Engine::Window& window)
    io.GetClipboardTextFn = GetClipboardText;
    io.ClipboardUserData = mWindow.get();
 
+   mKeyCallback = mWindow.OnKey(std::bind(&ImguiContext::OnKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+   mCharCallback = mWindow.OnCharacter(std::bind(&ImguiContext::OnChar, this, std::placeholders::_1));
+
    mCursors[ImGuiMouseCursor_Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
    mCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
    mCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);   // FIXME: GLFW doesn't have this.
@@ -117,6 +120,26 @@ ImguiContext::~ImguiContext()
       mCursors[i] = nullptr;
    }
    ImGui::DestroyContext();
+}
+
+void ImguiContext::OnKey(int key, int action, int)
+{
+   ImGuiIO& io = ImGui::GetIO();
+   if (action == GLFW_PRESS)
+      io.KeysDown[key] = true;
+   else if (action == GLFW_RELEASE)
+      io.KeysDown[key] = false;
+
+   // Modifiers are not reliable across systems
+   io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+   io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+   io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+   io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+}
+
+void ImguiContext::OnChar(unsigned int character)
+{
+   ImGui::GetIO().AddInputCharacter(character);
 }
 
 void ImguiContext::StartFrame(TIMEDELTA dt)

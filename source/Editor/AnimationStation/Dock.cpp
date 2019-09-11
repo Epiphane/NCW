@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include <RGBText/StringHelper.h>
 #include <Engine/Entity/EntityManager.h>
@@ -61,7 +62,6 @@ static Keyframe& GetKeyframe(State& state, double time)
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
     : UIElement(root, parent, "AnimationStationDock")
     , mBone(0)
-    , mSelectedKeyframe(0)
 {
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
@@ -87,11 +87,11 @@ void Dock::Update(TIMEDELTA)
    ImGuiStyle& style = ImGui::GetStyle();
    const ImVec2 label_size = ImGui::CalcTextSize("X", NULL, true);
    float buttonSize = label_size.y + style.FramePadding.y * 2.0f;
-   for (const auto& state : mStates)
+   for (const auto&[name, _] : mController->states)
    {
-      if (ImGuiEx::Button(state == mController->current, state, ImVec2(space.x - buttonSize - style.ItemSpacing.x, buttonSize)))
+      if (ImGuiEx::Button(name == mController->current, name, ImVec2(space.x - buttonSize - style.ItemSpacing.x, buttonSize)))
       {
-         SetState(state);
+         SetState(name);
       }
       ImGui::SameLine();
       if (ImGuiEx::Button(false, "X", ImVec2(buttonSize, buttonSize)))
@@ -110,6 +110,17 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowPos(ImVec2(458, 550), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(200, 50), ImGuiCond_FirstUseEver);
    ImGui::Begin("State info");
+   
+   {
+      State& state = GetCurrentState();
+      if (mStateName.Update("Name", state.name))
+      {
+         mController->states.emplace(state.name, state);
+         CommandStack::Instance().Emplace<SetStateNameCommand>(this, state.name, mStateName.GetLastValue());
+         SetState(state.name);
+         mController->states.erase(mStateName.GetLastValue());
+      }
+   }
 
    State& state = GetCurrentState();
    ImGui::Text("%.3f", state.length);
@@ -117,12 +128,12 @@ void Dock::Update(TIMEDELTA)
    ImGui::SameLine();
    if (ImGui::SmallButton("^"))
    {
-      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.length + 0.1);
+      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.name, state.length + 0.1);
    }
    ImGui::SameLine();
    if (state.length > 0.1 && ImGui::SmallButton("V"))
    {
-      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.length - 0.1);
+      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.name, state.length - 0.1);
    }
 
    ImGui::End();
@@ -136,11 +147,9 @@ void Dock::Update(TIMEDELTA)
    {
       keyframes.push_back(frame.time);
    }
-   double time = mController->time;
-   if (ImGuiEx::Timeline("##time", &time, state.length, keyframes))
-   {
-      SetTime(time);
-   }
+
+   Receive(SuspendEditingEvent{});
+   ImGuiEx::Timeline("##time", &mController->time, state.length, mSystemControls->paused, keyframes);
 
    if (mSystemControls->paused && ImGui::Button("Play"))
    {
@@ -177,14 +186,14 @@ void Dock::Update(TIMEDELTA)
    {
       if (ImGui::Button("Add Keyframe"))
       {
-         CommandStack::Instance().Do<AddKeyframeCommand>(this);
+         CommandStack::Instance().Do<AddKeyframeCommand>(this, state.name);
       }
    }
    else
    {
       if (ImGui::Button("Remove Keyframe"))
       {
-         CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
+         CommandStack::Instance().Do<RemoveKeyframeCommand>(this, state.name, index);
       }
 
       double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
@@ -192,13 +201,12 @@ void Dock::Update(TIMEDELTA)
 
       if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
       {
-         auto command = std::make_unique<SetKeyframeTimeCommand>(
+         CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
             this,
+            state.name,
             index,
             mKeyframeTimeScrubber.GetLastValue()
          );
-         command->Do();
-         CommandStack::Instance().Do(std::move(command));
       }
 
       if (ImGui::IsItemActive())
@@ -252,7 +260,7 @@ void Dock::Update(TIMEDELTA)
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        selected.position,
                                                        keyframe.rotations[selected.name],
                                                        keyframe.scales[selected.name]);
@@ -265,7 +273,7 @@ void Dock::Update(TIMEDELTA)
             prev.positions.at(selected.name) :
             selected.position;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        pos,
                                                        keyframe.rotations[selected.name],
                                                        keyframe.scales[selected.name]);
@@ -279,7 +287,7 @@ void Dock::Update(TIMEDELTA)
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
                                                        selected.rotation,
                                                        keyframe.scales[selected.name]);
@@ -292,7 +300,7 @@ void Dock::Update(TIMEDELTA)
             prev.rotations.at(selected.name) :
             selected.rotation;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
                                                        rot,
                                                        keyframe.scales[selected.name]);
@@ -306,7 +314,7 @@ void Dock::Update(TIMEDELTA)
       ImGui::SameLine();
       if (ImGui::Button("Set base"))
       {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
                                                        keyframe.rotations[selected.name],
                                                        selected.scale);
@@ -319,7 +327,7 @@ void Dock::Update(TIMEDELTA)
             prev.scales.at(selected.name) :
             selected.scale;
 
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mBone, index,
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
                                                        keyframe.rotations[selected.name],
                                                        scl);
@@ -348,7 +356,7 @@ void Dock::Update(TIMEDELTA)
 ///
 void Dock::Receive(const SuspendEditingEvent&)
 {
-   if (!mController || GetCurrentState().keyframes.empty())
+   if (!mController || mController->current.empty() || GetCurrentState().keyframes.empty())
    {
       return;
    }
@@ -385,7 +393,7 @@ void Dock::Receive(const SuspendEditingEvent&)
 ///
 void Dock::Receive(const ResumeEditingEvent&)
 {
-   if (GetCurrentState().keyframes.empty())
+   if (!mController || mController->current.empty() || GetCurrentState().keyframes.empty())
    {
       return;
    }
@@ -419,15 +427,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mController = evt.component;
 
-   mStates.clear();
-   for (const auto&[name, _] : mController->states)
-   {
-      mStates.push_back(name);
-   }
-   std::sort(mStates.begin(), mStates.end());
-
-   SetState(mStates[0]);
-   SetTime(0);
+   SetState(mController->states.begin()->first);
    SetBone(0);
 }
 
@@ -486,9 +486,7 @@ void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
       break;
    }
 
-   std::unique_ptr<ResetBoneCommand> command{new ResetBoneCommand(this, mBone, keyframeIndex, pos, rot, scl)};
-   command->Do();
-   CommandStack::Instance().Do(std::move(command));
+   CommandStack::Instance().Emplace<ResetBoneCommand>(this, state.name, keyframeIndex, mBone, pos, rot, scl);
 }
 
 ///
@@ -528,7 +526,6 @@ void Dock::SetState(const std::string& name)
    Receive(SuspendEditingEvent{});
 
    mController->current = name;
-   SetTime(mController->time);
 
    Receive(ResumeEditingEvent{});
 }
@@ -573,8 +570,6 @@ void Dock::AddStateCommand::Do()
    }
 
    dock->mController->states.emplace(state.name, state);
-   dock->mStates.push_back(state.name);
-   std::sort(dock->mStates.begin(), dock->mStates.end());
    dock->SetState(state.name);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -588,13 +583,7 @@ void Dock::AddStateCommand::Undo()
    state = dock->GetCurrentState();
 
    dock->mController->states.erase(state.name);
-   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), state.name) - dock->mStates.begin());
-   if (index > 0)
-   {
-      --index;
-   }
-   dock->mStates.erase(dock->mStates.begin() + (int64_t)index);
-   dock->SetState(dock->mStates[index]);
+   dock->SetState(dock->mController->states.begin()->first);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -613,7 +602,7 @@ void Dock::SetStateLength(double newValue, double oldValue)
       keyframe.time *= stretch;
    }
 
-   SetTime(mController->time * stretch);
+   mController->time *= stretch;
    mpRoot->Emit<SkeletonModifiedEvent>(mController);
 }
 
@@ -622,23 +611,16 @@ void Dock::SetStateLength(double newValue, double oldValue)
 ///
 void Dock::SetStateNameCommand::Do()
 {
-   State& state = dock->GetCurrentState();
+   State state = dock->mController->states[prev];
 
    std::string last = state.name;
    state.name = name;
 
-   dock->mController->states.emplace(state.name, dock->mController->states.at(last));
-   for (std::string& entry : dock->mStates)
-   {
-      if (entry == last)
-      {
-         entry = name;
-         break;
-      }
-   }
+   dock->mController->states.emplace(name, state);
    dock->SetState(name);
-   dock->mController->states.erase(last);
+   dock->mController->states.erase(prev);
 
+   prev = name;
    name = last;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
@@ -649,6 +631,7 @@ void Dock::SetStateNameCommand::Do()
 ///
 void Dock::SetStateLengthCommand::Do()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
    double prev = state.length;
    dock->SetStateLength(value, prev);
@@ -658,8 +641,18 @@ void Dock::SetStateLengthCommand::Do()
 ///
 ///
 ///
+Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock, const std::string& state)
+   : DockCommand(dock)
+   , stateName(state)
+   , keyframeIndex(0)
+{
+   keyframe.time = dock->mController->time;
+   keyframeIndex = GetKeyframeIndex(dock->GetCurrentState(), dock->mController->time) + 1;
+};
+
 void Dock::AddKeyframeCommand::Do()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
    Stance& stance = dock->mController->stances[state.stance];
 
@@ -693,19 +686,9 @@ void Dock::AddKeyframeCommand::Do()
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
-///
-///
-///
-Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock)
-   : DockCommand(dock)
-   , keyframeIndex(0)
-{
-   keyframe.time = dock->mController->time;
-   keyframeIndex = GetKeyframeIndex(dock->GetCurrentState(), dock->mController->time) + 1;
-};
-
 void Dock::AddKeyframeCommand::Undo()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
 
    // Copy by value not reference
@@ -717,45 +700,9 @@ void Dock::AddKeyframeCommand::Undo()
 ///
 ///
 ///
-void Dock::SetTime(double time)
-{
-   State& state = GetCurrentState();
-
-   Receive(SuspendEditingEvent{});
-
-   size_t keyframeIndex = GetKeyframeIndex(state, time);
-   Keyframe& prev = state.keyframes[keyframeIndex];
-   mSelectedKeyframe = std::numeric_limits<size_t>::max();
-
-   if ((time - prev.time) / state.length < 0.02)
-   {
-      mController->time = prev.time;
-      mSelectedKeyframe = keyframeIndex;
-   }
-   else if (
-       (keyframeIndex < state.keyframes.size() - 1) &&
-       (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02)
-   {
-      mController->time = state.keyframes[keyframeIndex + 1].time;
-      mSelectedKeyframe = keyframeIndex + 1;
-   }
-   else if ((state.length - time) / state.length < 0.02)
-   {
-      mController->time = state.length;
-   }
-   else
-   {
-      mController->time = time;
-   }
-
-   Receive(ResumeEditingEvent{});
-}
-
-///
-///
-///
 void Dock::SetKeyframeTimeCommand::Do()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
    Keyframe& keyframe = state.keyframes[index];
 
@@ -771,6 +718,7 @@ void Dock::SetKeyframeTimeCommand::Do()
 ///
 void Dock::ResetBoneCommand::Do()
 {
+   dock->SetState(stateName);
    Keyframe& keyframe = dock->GetCurrentState().keyframes[keyframeIndex];
    dock->mController->time = keyframe.time;
 

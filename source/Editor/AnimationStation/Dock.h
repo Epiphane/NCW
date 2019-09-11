@@ -17,6 +17,7 @@
 #include <Engine/UI/UIElement.h>
 
 #include "../Imgui/Scrubber.h"
+#include "../Imgui/TextField.h"
 #include "Events.h"
 #include "State.h"
 
@@ -32,9 +33,6 @@ namespace AnimationStation
 class Dock : public Engine::UIElement
 {
 public:
-   const double kTimelineWidth = 512.0;
-
-public:
    using Bone = Skeleton::Bone;
    using Keyframe = SkeletonAnimations::Keyframe;
    using State = SimpleAnimationController::State;
@@ -48,7 +46,6 @@ public:
    // Dock state actions
    void SetState(const std::string& state);
    void SetBone(const size_t& boneId);
-   void SetTime(double time);
 
 public:
    // Reactions to the scrubbers
@@ -81,12 +78,11 @@ private:
    // State
    size_t mBone;
    std::string mSkeleton;
-   size_t mSelectedKeyframe;
-   std::vector<std::string> mStates;
 
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
+   TextField mStateName;
    Scrubber<double> mKeyframeTimeScrubber;
    Scrubber<glm::vec3, float> mScrubbers[3];
 
@@ -129,11 +125,16 @@ private:
    class SetStateLengthCommand : public DockCommand
    {
    public:
-      SetStateLengthCommand(Dock* dock, double value) : DockCommand(dock), value(value) {};
+      SetStateLengthCommand(Dock* dock, const std::string& state, double value)
+         : DockCommand(dock)
+         , stateName(state)
+         , value(value)
+      {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      std::string stateName;
       double value;
    };
 
@@ -143,11 +144,12 @@ private:
    class AddKeyframeCommand : public DockCommand
    {
    public:
-      AddKeyframeCommand(Dock* dock);
+      AddKeyframeCommand(Dock* dock, const std::string& state);
       void Do() override;
       void Undo() override;
 
    protected:
+      std::string stateName;
       size_t keyframeIndex;
       SkeletonAnimations::Keyframe keyframe{};
    };
@@ -157,7 +159,8 @@ private:
    //
    struct RemoveKeyframeCommand : public ReverseCommand<AddKeyframeCommand>
    {
-      RemoveKeyframeCommand(Dock* dock, size_t index) : ReverseCommand<AddKeyframeCommand>(dock)
+      RemoveKeyframeCommand(Dock* dock, const std::string& state, size_t index)
+         : ReverseCommand<AddKeyframeCommand>(dock, state)
       {
          keyframeIndex = index;
       };
@@ -169,8 +172,9 @@ private:
    class SetKeyframeTimeCommand : public DockCommand
    {
    public:
-      SetKeyframeTimeCommand(Dock* dock, size_t index, double value)
+      SetKeyframeTimeCommand(Dock* dock, const std::string& state, size_t index, double value)
          : DockCommand(dock)
+         , stateName(state)
          , index(index)
          , value(value)
       {};
@@ -178,6 +182,7 @@ private:
       void Undo() override { Do(); }
 
    private:
+      std::string stateName;
       size_t index;
       double value;
    };
@@ -188,10 +193,11 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, size_t bone, size_t keyframe, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+      ResetBoneCommand(Dock* dock, const std::string& state, size_t keyframe, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
          : DockCommand(dock)
-         , boneId(bone)
+         , stateName(state)
          , keyframeIndex(keyframe)
+         , boneId(bone)
          , position(position)
          , rotation(rotation)
          , scale(scale)
@@ -200,8 +206,9 @@ private:
       void Undo() override { Do(); }
 
    private:
-      size_t boneId;
+      std::string stateName;
       size_t keyframeIndex;
+      size_t boneId;
       glm::vec3 position, rotation, scale;
    };
 
@@ -211,11 +218,12 @@ private:
    class SetStateNameCommand : public DockCommand
    {
    public:
-      SetStateNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
+      SetStateNameCommand(Dock* dock, const std::string& prev, const std::string& name) : DockCommand(dock), prev(prev), name(name) {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      std::string prev;
       std::string name;
    };
 };
