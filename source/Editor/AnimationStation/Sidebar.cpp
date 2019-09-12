@@ -35,7 +35,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, Engine::UIElement* parent)
 
 void Sidebar::Update(TIMEDELTA)
 {
-   ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(25, 20), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_Always);
    ImGui::Begin("File", nullptr, ImGuiWindowFlags_NoResize);
 

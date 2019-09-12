@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 
          imgui.StartFrame(dt);
 
-         ImGui::SetNextWindowPos(ImVec2(20, 550), ImGuiCond_FirstUseEver);
+         ImGui::SetNextWindowPos(ImVec2(25, 550), ImGuiCond_FirstUseEver);
          ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_FirstUseEver);
          ImGui::Begin("Editors", nullptr, ImGuiWindowFlags_NoResize);
 

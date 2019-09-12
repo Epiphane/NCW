@@ -311,12 +311,8 @@ void Dock::Receive(const ResumeEditingEvent&)
 void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
 {
    // Funky time: at this point, the current value represents the NEW state,
-   // and we create a command to set it to the OLD state. So we perform the
-   // command twice, once immediately to revert to the old state, and then
-   // again when it gets placed on the stack to go back to the new state.
-   std::unique_ptr<SetBoneCommand> command{new SetBoneCommand(this, mStance, mBone, type, oldValue)};
-   command->Do();
-   CommandStack::Instance().Do(std::move(command));
+   // and we create a command to set it to the OLD state.
+   CommandStack::Instance().Emplace<SetBoneCommand>(this, mStance, mBone, type, oldValue);
 }
 
 ///

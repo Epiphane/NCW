@@ -79,8 +79,8 @@ void Dock::Update(TIMEDELTA)
    }
 
    // State selector
-   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(25, 140), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
    ImGui::Begin("State");
 
    ImVec2 space = ImGui::GetContentRegionAvail();
@@ -107,8 +107,8 @@ void Dock::Update(TIMEDELTA)
 
    ImGui::End();
 
-   ImGui::SetNextWindowPos(ImVec2(458, 550), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(200, 50), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(975, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
    ImGui::Begin("State info");
    
    {
@@ -138,8 +138,8 @@ void Dock::Update(TIMEDELTA)
 
    ImGui::End();
 
-   ImGui::SetNextWindowPos(ImVec2(664, 550), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(336, 0), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Timeline");
 
    std::vector<double> keyframes;
@@ -176,8 +176,8 @@ void Dock::Update(TIMEDELTA)
    ImGui::End();
 
    // Keyframe modification
-   ImGui::SetNextWindowPos(ImVec2(664, 550), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(336, 0), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
    ImGui::Begin("Keyframe");
 
    size_t index = GetKeyframeIndex(state, mController->time);
@@ -217,8 +217,8 @@ void Dock::Update(TIMEDELTA)
 
    ImGui::End();
 
-   ImGui::SetNextWindowPos(ImVec2(664, 610), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(336, 150), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Bone");
    ImGui::Columns(2);
    float windowWidth = ImGui::GetWindowWidth();
