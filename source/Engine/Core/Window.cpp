@@ -14,6 +14,7 @@ namespace Engine
 // Implemented below with the rest of the window input functions.
 //
 void keyCallback(GLFWwindow* glfw, int key, int scancode, int action, int mods);
+void charCallback(GLFWwindow* glfw, unsigned int c);
 void scrollCallback(GLFWwindow* glfw, double xoffset, double yoffset);
 void mouseButtonCallback(GLFWwindow* glfw, int button, int action, int mods);
 
@@ -114,6 +115,7 @@ Maybe<Window*> Window::Initialize(const Options& options)
    glfwSetInputMode(mGLFW, GLFW_STICKY_KEYS, GL_TRUE);
 
    glfwSetKeyCallback(mGLFW, &keyCallback);
+   glfwSetCharCallback(mGLFW, &charCallback);
    glfwSetScrollCallback(mGLFW, &scrollCallback);
    glfwSetMouseButtonCallback(mGLFW, &mouseButtonCallback);
    SetMouseLock(mOptions.lockCursor);
@@ -155,6 +157,14 @@ void keyCallback(GLFWwindow* glfw, int key, int /*scancode*/, int action, int mo
    // TODO validate this is a real Window
 
    window->TriggerKeyCallbacks(key, action, mods);
+}
+
+void charCallback(GLFWwindow* glfw, unsigned int c)
+{
+   Window* window = (Window*)glfwGetWindowUserPointer(glfw);
+   // TODO validate this is a real Window
+
+   window->TriggerCharCallbacks(c);
 }
 
 void scrollCallback(GLFWwindow* glfw, double xoffset, double yoffset)

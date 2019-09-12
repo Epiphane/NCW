@@ -52,7 +52,6 @@ MainState::~MainState()
 
 void MainState::Initialize()
 {
-   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
    mEvents.Subscribe<SkeletonClearedEvent>(*this);
    mEvents.Subscribe<AddSkeletonPartEvent>(*this);
 
@@ -95,17 +94,16 @@ void MainState::Initialize()
 
    mCamera.Set(mPlayerCam.get());
 
+   playerCamera.Add<Makeshift>([&]{
+      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+   });
+
    // Add some voxels.
    std::vector<Voxel::Data> carpet;
    std::vector<glm::vec3> points;
    std::vector<glm::vec3> colors;
 
    Maybe<void> floor = AddFloor(mEntities, glm::vec3(105, 157, 3));
-}
-
-void MainState::Receive(const Engine::UIRebalancedEvent&)
-{
-   mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
 }
 
 void MainState::Receive(const SkeletonClearedEvent&)
@@ -123,7 +121,7 @@ void MainState::Receive(const SkeletonClearedEvent&)
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
-   LOG_DEBUG("Adding skeleton %1", evt.filename);
+   LOG_DEBUG("AnimationStation:: Adding skeleton %1", evt.filename);
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {

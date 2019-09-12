@@ -145,11 +145,6 @@ void SimpleAnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> sk
    skeletons.push_back(skeleton);
 
    const auto addSkeletonName = [&](const Skeleton::Bone& b) { return b; };
-   //   Skeleton::Bone result = b;
-   //   result.name = skeleton->name + "." + b.name;
-   //   return result;
-   //};
-
    for (const Skeleton::Stance& s : skeleton->stances)
    {
       Stance& stance = stances[s.name];
@@ -284,6 +279,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
 void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   bool seamlessLoop = true;
    entities.Each<AnimationSystemController>([&](AnimationSystemController& controller) {
       if (controller.paused)
       {
@@ -291,6 +287,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
          controller.nextTick = 0;
       }
       dt *= controller.speed;
+      seamlessLoop = controller.seamlessLoop;
    });
 
    using Keyframe = SkeletonAnimations::Keyframe;
@@ -324,7 +321,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
          if (controller.time > state.length)
          {
             controller.time = state.length;
-            controller.cooldown = 1.0f;
+            controller.cooldown = seamlessLoop ? 0.0f : 1.0f;
          }
       }
 

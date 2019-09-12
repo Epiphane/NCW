@@ -27,11 +27,15 @@ public:
    void Render();
 
 private:
+   void OnKey(int key, int action, int mods);
+   void OnChar(unsigned int character);
    void ResetRenderState(ImDrawData* drawData, int fbWidth, int fbHeight);
 
 private:
    // Parameters.
    Engine::Window& mWindow;
+   std::unique_ptr<Engine::Input::KeyCallbackLink> mKeyCallback;
+   std::unique_ptr<Engine::Input::CharCallbackLink> mCharCallback;
 
    // Graphics resources.
    Engine::Graphics::VBO mVBO;

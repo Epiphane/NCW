@@ -15,6 +15,9 @@ namespace CubeWorld
 namespace Editor
 {
 
+namespace Dep
+{
+
 BaseScrubber::BaseScrubber(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
    : Image(root, parent, options)
    , mScrubbing(nullptr)
@@ -48,11 +51,8 @@ Engine::UIElement::Action BaseScrubber::MouseUp(const MouseUpEvent& evt)
 
    // Funky time: at this point, the current value represents the NEW state,
    // and mScrubbing represents a command to set it to the OLD state. So we
-   // perform the command twice, once immediately to revert to the old state,
-   // and then again when it gets placed on the stack to go back to the new
-   // state.
-   mScrubbing->Do();
-   CommandStack::Instance().Do(std::move(mScrubbing));
+   // emplace the command instead of doing it.
+   CommandStack::Instance().Emplace(std::move(mScrubbing));
 
    return Handled;
 }
@@ -70,6 +70,8 @@ Engine::UIElement::Action BaseScrubber::MouseMove(const MouseMoveEvent& evt)
 
    return Unhandled;
 }
+
+}; // namespace Dep
 
 }; // namespace Editor
 

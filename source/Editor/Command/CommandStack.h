@@ -35,6 +35,20 @@ public:
       Do(std::make_unique<C>(std::forward<Args>(args) ...));
    }
 
+   //
+   // Add a command to the stack, as if it had already been done.
+   //
+   void Emplace(std::unique_ptr<Command>&& command)
+   {
+      commands.push(std::move(command));
+   }
+
+   template<typename C, typename ...Args>
+   void Emplace(Args ...args)
+   {
+      Emplace(std::make_unique<C>(std::forward<Args>(args) ...));
+   }
+
    void Undo()
    {
       if (commands.empty())

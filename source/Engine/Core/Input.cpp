@@ -45,7 +45,7 @@ void Input::RemoveCallback(KeyCallbackLink* link)
    link->prev->next = link->next;
 
    // See if we're emptying a ring.
-   if (mKeyCallbacks[link->key] == link)
+   if (link->key >= 0 && mKeyCallbacks[link->key] == link)
    {
       if (link->next == link)
       {
@@ -54,6 +54,39 @@ void Input::RemoveCallback(KeyCallbackLink* link)
       else
       {
          mKeyCallbacks[link->key] = link->next;
+      }
+   }
+   else if (link->key < 0 && mKeyCallback == link)
+   {
+      if (link->next == link)
+      {
+         mKeyCallback = nullptr;
+      }
+      else
+      {
+         mKeyCallback = link->next;
+      }
+   }
+
+   // Not really necessary, but it helps tie up the "complete disconnect" idea.
+   link->next = link->prev = nullptr;
+}
+
+void Input::RemoveCallback(CharCallbackLink* link)
+{
+   link->next->prev = link->prev;
+   link->prev->next = link->next;
+
+   // See if we're emptying a ring.
+   if (mCharCallback == link)
+   {
+      if (link->next == link)
+      {
+         mCharCallback = nullptr;
+      }
+      else
+      {
+         mCharCallback = link->next;
       }
    }
 
@@ -99,21 +132,93 @@ std::vector<std::unique_ptr<Input::KeyCallbackLink>> Input::AddCallback(const st
    return result;
 }
 
+std::unique_ptr<Input::CharCallbackLink> Input::OnCharacter(char_callback cb)
+{
+   std::unique_ptr<CharCallbackLink> link = std::make_unique<CharCallbackLink>(this, cb);
+
+   if (mCharCallback == nullptr)
+   {
+      mCharCallback = link.get();
+      link->next = mCharCallback;
+      link->prev = mCharCallback;
+   }
+   else
+   {
+      link->next = mCharCallback;
+      link->prev = link->next->prev;
+      link->prev->next = link.get();
+      link->next->prev = link.get();
+   }
+
+   return link;
+}
+
+std::unique_ptr<Input::KeyCallbackLink> Input::OnKey(input_key_callback cb)
+{
+   std::unique_ptr<KeyCallbackLink> link = std::make_unique<KeyCallbackLink>(this, KeyCombination{-1, 0}, cb);
+
+   if (mKeyCallback == nullptr)
+   {
+      mKeyCallback = link.get();
+      link->next = mKeyCallback;
+      link->prev = mKeyCallback;
+   }
+   else
+   {
+      link->next = mKeyCallback;
+      link->prev = link->next->prev;
+      link->prev->next = link.get();
+      link->next->prev = link.get();
+   }
+
+   return link;
+}
+
 void Input::TriggerKeyCallbacks(int key, int action, int mods)
 {
-   if (action == GLFW_PRESS && mKeyCallbacks[key] != nullptr)
+   if (action == GLFW_PRESS)
+   {
+      if (mKeyCallbacks[key] != nullptr)
+      {
+         // Circle the ring, invoking callbacks.
+         KeyCallbackLink* start = mKeyCallbacks[key];
+         KeyCallbackLink* link = start;
+         do
+         {
+            // Check for equivalence on the modifier keys.
+            // Future consideration, is a superset okay?
+            if (link->mods == mods && link->callback)
+            {
+               link->callback(key, action, mods);
+            }
+            link = link->next;
+         } while (link != start);
+      }
+   }
+
+   if (mKeyCallback != nullptr)
    {
       // Circle the ring, invoking callbacks.
-      KeyCallbackLink* start = mKeyCallbacks[key];
+      KeyCallbackLink* start = mKeyCallback;
       KeyCallbackLink* link = start;
       do
       {
-         // Check for equivalence on the modifier keys.
-         // Future consideration, is a superset okay?
-         if (link->mods == mods && link->callback)
-         {
-            link->callback(key, action, mods);
-         }
+         link->callback(key, action, mods);
+         link = link->next;
+      } while (link != start);
+   }
+}
+
+void Input::TriggerCharCallbacks(unsigned int c)
+{
+   if (mCharCallback != nullptr)
+   {
+      // Circle the ring, invoking callbacks.
+      CharCallbackLink* start = mCharCallback;
+      CharCallbackLink* link = start;
+      do
+      {
+         link->callback(c);
          link = link->next;
       } while (link != start);
    }

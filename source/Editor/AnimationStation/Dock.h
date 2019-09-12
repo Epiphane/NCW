@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include <rhea/variable.hpp>
 #include <Engine/Core/Bounded.h>
 #include <RGBDesignPatterns/Command.h>
 #include <RGBDesignPatterns/Either.h>
@@ -16,15 +15,9 @@
 #include <Engine/Event/InputEvent.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIElement.h>
-#include <Engine/UI/UIRoot.h>
-#include <Shared/UI/Image.h>
-#include <Shared/UI/NumDisplay.h>
-#include <Shared/UI/RectFilled.h>
-#include <Shared/UI/ScrollBar.h>
-#include <Shared/UI/TextButton.h>
-#include <Shared/UI/TextField.h>
 
-#include "../UI/Scrubber.h"
+#include "../Imgui/Scrubber.h"
+#include "../Imgui/TextField.h"
 #include "Events.h"
 #include "State.h"
 
@@ -37,17 +30,8 @@ namespace Editor
 namespace AnimationStation
 {
 
-using UI::Image;
-using UI::NumDisplay;
-using UI::RectFilled;
-using UI::ScrollBar;
-using UI::Text;
-using UI::TextField;
-
-class Dock : public RectFilled {
-public:
-   const double kTimelineWidth = 512.0;
-
+class Dock : public Engine::UIElement
+{
 public:
    using Bone = Skeleton::Bone;
    using Keyframe = SkeletonAnimations::Keyframe;
@@ -58,14 +42,10 @@ public:
 
    void Update(TIMEDELTA dt) override;
 
-   void AddKeyframeIcon();
-   void UpdateKeyframeIcons();
-
 public:
    // Dock state actions
    void SetState(const std::string& state);
    void SetBone(const size_t& boneId);
-   void SetTime(double time);
 
 public:
    // Reactions to the scrubbers
@@ -86,73 +66,38 @@ public:
    void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
+   enum class ScrubType
+   {
+      Position,
+      Rotation,
+      Scale,
+   };
+   void OnScrub(ScrubType type, glm::vec3 oldValue);
+
 private:
    // State
    size_t mBone;
    std::string mSkeleton;
-   std::vector<std::string> mStates;
 
-   std::unique_ptr<Command> mScrubbing;
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;
 
-private:
-   // Layout and elements
-   rhea::variable c1, c2, c3, c4;
-
-   template <typename N>
-   struct LabelAndScrubber {
-      NumDisplay<N>* text;
-      Scrubber<N>* scrubber;
-   };
-
-   // General state info
-   Image* mPlay;
-   Image* mPause;
-   Image* mTick;
-   ScrollBar* mScrubber;
-   size_t mSelectedKeyframe;
-   Scrubber<double>* mKeyframeTime;
-   TextField* mStateName;
-   LabelAndScrubber<double> mStateLength;
-   NumDisplay<double>* mTime;
-
-   // Use a SubWindow, to allow for adding and removing elements without waiting until between frames.
-   UIElement* mKeyframes;
-   std::vector<std::pair<Image*, rhea::variable>> mKeyframeIcons;
-
-   // Bone inspector
-   Text* mBoneName;
-   Text* mBoneParent;
-   LabelAndScrubber<float> mBonePos[3];
-   LabelAndScrubber<float> mBoneRot[3];
+   TextField mStateName;
+   Scrubber<double> mKeyframeTimeScrubber;
+   Scrubber<glm::vec3, float> mScrubbers[3];
 
 private:
    //
    //
    //
-   class DockCommand : public Command {
+   class DockCommand : public Command
+   {
    public:
-      DockCommand(Dock* dock) : dock(dock) {};
+      DockCommand(Dock* dock) : dock(dock){};
 
    protected:
       Dock* dock;
    };
-
-   //
-   //
-   //
-   struct NextStateCommand : public DockCommand
-   {
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   };
-
-   //
-   //
-   //
-   using PrevStateCommand = ReverseCommand<NextStateCommand>;
 
    //
    //
@@ -180,11 +125,16 @@ private:
    class SetStateLengthCommand : public DockCommand
    {
    public:
-      SetStateLengthCommand(Dock* dock, double value) : DockCommand(dock), value(value) {};
+      SetStateLengthCommand(Dock* dock, const std::string& state, double value)
+         : DockCommand(dock)
+         , stateName(state)
+         , value(value)
+      {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      std::string stateName;
       double value;
    };
 
@@ -194,14 +144,12 @@ private:
    class AddKeyframeCommand : public DockCommand
    {
    public:
-      AddKeyframeCommand(Dock* dock) : DockCommand(dock), keyframeIndex(0)
-      {
-         keyframe.time = dock->mController->time;
-      };
+      AddKeyframeCommand(Dock* dock, const std::string& state);
       void Do() override;
       void Undo() override;
 
    protected:
+      std::string stateName;
       size_t keyframeIndex;
       SkeletonAnimations::Keyframe keyframe{};
    };
@@ -211,7 +159,8 @@ private:
    //
    struct RemoveKeyframeCommand : public ReverseCommand<AddKeyframeCommand>
    {
-      RemoveKeyframeCommand(Dock* dock, size_t index) : ReverseCommand<AddKeyframeCommand>(dock)
+      RemoveKeyframeCommand(Dock* dock, const std::string& state, size_t index)
+         : ReverseCommand<AddKeyframeCommand>(dock, state)
       {
          keyframeIndex = index;
       };
@@ -223,41 +172,19 @@ private:
    class SetKeyframeTimeCommand : public DockCommand
    {
    public:
-      SetKeyframeTimeCommand(Dock* dock, double value) : DockCommand(dock), value(value) {};
+      SetKeyframeTimeCommand(Dock* dock, const std::string& state, size_t index, double value)
+         : DockCommand(dock)
+         , stateName(state)
+         , index(index)
+         , value(value)
+      {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      std::string stateName;
+      size_t index;
       double value;
-   };
-
-   //
-   //
-   //
-   class NextBoneCommand : public DockCommand
-   {
-   public:
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   };
-
-   //
-   //
-   //
-   using PrevBoneCommand = ReverseCommand<NextBoneCommand>;
-
-   //
-   //
-   //
-   class ParentBoneCommand : public DockCommand
-   {
-   public:
-      using DockCommand::DockCommand;
-      void Do() override;
-      void Undo() override;
-   private:
-      size_t last;
    };
 
    //
@@ -266,8 +193,10 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+      ResetBoneCommand(Dock* dock, const std::string& state, size_t keyframe, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
          : DockCommand(dock)
+         , stateName(state)
+         , keyframeIndex(keyframe)
          , boneId(bone)
          , position(position)
          , rotation(rotation)
@@ -277,6 +206,8 @@ private:
       void Undo() override { Do(); }
 
    private:
+      std::string stateName;
+      size_t keyframeIndex;
       size_t boneId;
       glm::vec3 position, rotation, scale;
    };
@@ -287,11 +218,12 @@ private:
    class SetStateNameCommand : public DockCommand
    {
    public:
-      SetStateNameCommand(Dock* dock, std::string name) : DockCommand(dock), name(name) {};
+      SetStateNameCommand(Dock* dock, const std::string& prev, const std::string& name) : DockCommand(dock), prev(prev), name(name) {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
+      std::string prev;
       std::string name;
    };
 };

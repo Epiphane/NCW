@@ -1,15 +1,16 @@
 // By Thomas Steinke
 
 #include <algorithm>
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include <RGBText/StringHelper.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/Button.h>
-#include <Shared/UI/RectFilled.h>
 
 #include "../Command/CommandStack.h"
+#include "../Imgui/Extensions.h"
 
 #include "Dock.h"
 
@@ -29,8 +30,6 @@ using State = SimpleAnimationController::State;
 using Engine::UIElement;
 using Engine::UIFrame;
 using Engine::UIStackView;
-using UI::Button;
-using UI::RectFilled;
 
 namespace
 {
@@ -39,7 +38,7 @@ namespace
 // Returns the index of the last keyframe. For example, if the animation is between
 // keyframes 2 and 3, it will return 2.
 //
-size_t GetKeyframeIndex(State& state, double time)
+static size_t GetKeyframeIndex(State& state, double time)
 {
    size_t keyframeIndex = state.keyframes.size() - 1;
    while (time < state.keyframes[keyframeIndex].time && keyframeIndex > 0)
@@ -53,7 +52,7 @@ size_t GetKeyframeIndex(State& state, double time)
 //
 //
 //
-Keyframe& GetKeyframe(State& state, double time)
+static Keyframe& GetKeyframe(State& state, double time)
 {
    return state.keyframes[GetKeyframeIndex(state, time)];
 }
@@ -61,533 +60,9 @@ Keyframe& GetKeyframe(State& state, double time)
 }; // anonymous namespace
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "AnimationStationDock", glm::vec4(0.2, 0.2, 0.2, 1))
-   , mBone(0)
-   , mTick(nullptr)
-   , mSelectedKeyframe(0)
+    : UIElement(root, parent, "AnimationStationDock")
+    , mBone(0)
 {
-   RectFilled* foreground = Add<RectFilled>("AnimationStationDockFG", glm::vec4(0, 0, 0, 1));
-
-   foreground->ConstrainCenterTo(this);
-   foreground->ConstrainDimensionsTo(this, -4);
-
-   // Columns, for making everything all organized.
-   root->AddConstraints({
-      c1 == mFrame.left + 32,
-      c2 >= c1 + 120,
-      c3 >= c2 + 100,
-      c4 >= c3 + 140,
-   });
-   
-   UIStackView* dockStateInfo = foreground->Add<UIStackView>("DockStateInfo");
-   dockStateInfo->ConstrainLeftAlignedTo(foreground, 30);
-   dockStateInfo->ConstrainTopAlignedTo(foreground, 30);
-   dockStateInfo->ConstrainWidth(kTimelineWidth);
-   dockStateInfo->SetOffset(16.0);
-
-   // These elements are used for lining up columns nicely
-   Text* stateNameLabel = nullptr;
-   Button* prevStateButton = nullptr;
-
-   // State name
-   UIStackView* stateName = dockStateInfo->Add<UIStackView>();
-   stateName->SetVertical(false);
-   stateName->SetOffset(8.0);
-   stateName->ConstrainHeight(19);
-   stateName->ConstrainLeftAlignedTo(dockStateInfo);
-   {
-      stateNameLabel = stateName->Add<Text>(Text::Options{"Name"});
-      stateNameLabel->ConstrainTopAlignedTo(stateName);
-      stateNameLabel->ConstrainHeightTo(stateName);
-
-      mStateName = stateName->Add<TextField>(TextField::Options{[&](std::string value) {
-         CommandStack::Instance().Do<SetStateNameCommand>(this, value);
-      }});
-      mStateName->ConstrainTopAlignedTo(stateName);
-      mStateName->ConstrainHeightTo(stateName);
-
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "button_left";
-      buttonOptions.hoverImage = "hover_button_left";
-      buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevStateCommand>(this); };
-      prevStateButton = stateName->Add<Button>(buttonOptions);
-      prevStateButton->ConstrainTopAlignedTo(stateName);
-      prevStateButton->ConstrainHeightTo(stateName);
-
-      buttonOptions.image = "button_right";
-      buttonOptions.hoverImage = "hover_button_right";
-      buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextStateCommand>(this); };
-      Button* nextStateButton = stateName->Add<Button>(buttonOptions);
-      nextStateButton->ConstrainTopAlignedTo(stateName);
-      nextStateButton->ConstrainHeightTo(stateName);
-
-      buttonOptions.image = "button_add";
-      buttonOptions.hoverImage = "hover_button_add";
-      buttonOptions.pressImage = "press_button_add";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<AddStateCommand>(this); };
-      Button* addStateButton = stateName->Add<Button>(buttonOptions);
-      addStateButton->ConstrainTopAlignedTo(stateName);
-      addStateButton->ConstrainHeightTo(stateName);
-
-      buttonOptions.image = "button_add";
-      buttonOptions.hoverImage = "hover_button_add";
-      buttonOptions.pressImage = "press_button_add";
-      buttonOptions.onClick = [&]() {
-         State newState = GetCurrentState();
-         newState.name += " Copy";
-         CommandStack::Instance().Do<AddStateCommand>(this, newState);
-      };
-      Button* dupStateButton = stateName->Add<Button>(buttonOptions);
-      dupStateButton->ConstrainTopAlignedTo(stateName);
-      dupStateButton->ConstrainHeightTo(stateName);
-
-      buttonOptions.image = "button_remove";
-      buttonOptions.hoverImage = "hover_button_remove";
-      buttonOptions.pressImage = "press_button_remove";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<RemoveStateCommand>(this); };
-      Button* removeStateButton = stateName->Add<Button>(buttonOptions);
-      removeStateButton->ConstrainTopAlignedTo(stateName);
-      removeStateButton->ConstrainHeightTo(stateName);
-   }
-
-   // State Length
-   UIStackView* stateLength = dockStateInfo->Add<UIStackView>();
-   stateLength->SetVertical(false);
-   stateLength->SetOffset(8.0);
-   stateLength->ConstrainHeightTo(stateName);
-   stateLength->ConstrainLeftAlignedTo(stateName);
-   {
-      Text* stateLengthLabel = stateLength->Add<Text>(Text::Options{"Length"});
-      stateLengthLabel->ConstrainTopAlignedTo(stateLength);
-      stateLengthLabel->ConstrainHeightTo(stateLength);
-
-      mStateLength.text = stateLength->Add<NumDisplay<double>>(NumDisplay<double>::Options(1));
-      mStateLength.text->ConstrainTopAlignedTo(stateLength);
-      mStateLength.text->ConstrainHeightTo(stateLength);
-
-      Scrubber<double>::Options scrubberOptions;
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.min = 0.1;
-      scrubberOptions.onChange = std::bind(&Dock::SetStateLength, this, std::placeholders::_1, std::placeholders::_2);
-      scrubberOptions.sensitivity = 0.05;
-      mStateLength.scrubber = stateLength->Add<Scrubber<double>>(scrubberOptions);
-      mStateLength.scrubber->ConstrainTopAlignedTo(stateLength);
-      mStateLength.scrubber->ConstrainHeightTo(stateLength);
-
-      // Column alignment
-      stateLengthLabel->ConstrainLeftAlignedTo(stateNameLabel);
-      mStateLength.text->ConstrainLeftAlignedTo(mStateName);
-      mStateLength.scrubber->ConstrainLeftAlignedTo(prevStateButton);
-   }
-
-   // ScrollBar for setting the current time in the animation
-   {
-      RectFilled* timeline = dockStateInfo->Add<RectFilled>("AnimationTimeline", glm::vec4(1, 1, 1, 0.1));
-      timeline->ConstrainLeftAlignedTo(stateName);
-      timeline->ConstrainHeight(32);
-      //timeline->ConstrainBelow(stateLength, 32);
-      timeline->ConstrainWidth(kTimelineWidth);
-
-      // Container for keyframe icons. Not very important but it can't hurt.
-      mKeyframes = Add<UIElement>();
-      mKeyframes->ConstrainLeftAlignedTo(timeline);
-      mKeyframes->ConstrainTopAlignedTo(timeline);
-      mKeyframes->ConstrainDimensionsTo(timeline);
-
-      ScrollBar::Options scrollbarOptions;
-      scrollbarOptions.filename = Asset::Image("EditorIcons.png");
-      scrollbarOptions.image = "frame_pointer";
-      scrollbarOptions.onChange = std::bind(&Dock::SetTime, this, std::placeholders::_1);
-      mScrubber = dockStateInfo->Add<ScrollBar>(scrollbarOptions);
-      mScrubber->ConstrainLeftAlignedTo(timeline);
-      mScrubber->ConstrainWidthTo(timeline);
-      mScrubber->ConstrainHeight(10);
-   }
-
-   // Keyframe buttons
-   UIStackView* keyframe = dockStateInfo->Add<UIStackView>();
-   keyframe->SetVertical(false);
-   keyframe->SetOffset(8.0);
-   keyframe->ConstrainHeightTo(stateName);
-   keyframe->ConstrainLeftAlignedTo(stateName);
-   {
-      Text* label = keyframe->Add<Text>(Text::Options{"Keyframe"});
-      label->ConstrainTopAlignedTo(keyframe);
-      label->ConstrainHeightTo(keyframe);
-
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-
-      buttonOptions.image = "button_add";
-      buttonOptions.hoverImage = "hover_button_add";
-      buttonOptions.pressImage = "press_button_add";
-      buttonOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
-         if (mController->time != keyframe.time)
-         {
-            CommandStack::Instance().Do<AddKeyframeCommand>(this);
-         }
-      };
-      Button* addFrameButton = keyframe->Add<Button>(buttonOptions);
-      addFrameButton->ConstrainTopAlignedTo(keyframe);
-      addFrameButton->ConstrainHeightTo(keyframe);
-
-      buttonOptions.image = "button_remove";
-      buttonOptions.hoverImage = "hover_button_remove";
-      buttonOptions.pressImage = "press_button_remove";
-      buttonOptions.onClick = [&]() {
-         State& state = GetCurrentState();
-         size_t index = GetKeyframeIndex(state, mController->time);
-         if (mController->time == state.keyframes[index].time)
-         {
-            CommandStack::Instance().Do<RemoveKeyframeCommand>(this, index);
-         }
-      };
-      Button* removeFrameButton = keyframe->Add<Button>(buttonOptions);
-      removeFrameButton->ConstrainTopAlignedTo(keyframe);
-      removeFrameButton->ConstrainHeightTo(keyframe);
-
-      // Column alignment
-      label->ConstrainLeftAlignedTo(stateNameLabel);
-      addFrameButton->ConstrainLeftAlignedTo(prevStateButton);
-   }
-
-   // State length
-   UIStackView* time = dockStateInfo->Add<UIStackView>();
-   time->SetVertical(false);
-   time->SetOffset(8.0);
-   time->ConstrainHeightTo(stateName);
-   time->ConstrainLeftAlignedTo(stateName);
-   {
-      Text* label = time->Add<Text>(Text::Options{"Time"});
-      label->ConstrainTopAlignedTo(time);
-      label->ConstrainHeightTo(time);
-
-      mTime = time->Add<NumDisplay<double>>(NumDisplay<double>::Options(2));
-      mTime->ConstrainTopAlignedTo(time);
-      mTime->ConstrainHeightTo(time);
-
-      Scrubber<double>::Options scrubberOptions;
-      scrubberOptions.filename = Asset::Image("EditorIcons.png");
-      scrubberOptions.image = "drag_number";
-      scrubberOptions.sensitivity = 0.05;
-      scrubberOptions.onChange = [&](double, double) {
-         State& state = GetCurrentState();
-         size_t index = mSelectedKeyframe;
-         if (index >= state.keyframes.size())
-         {
-            return;
-         }
-
-         Keyframe& keyframe = state.keyframes[index];
-
-         if (index == 0)
-         {
-            keyframe.time = 0;
-         }
-         else if (keyframe.time <= state.keyframes[index - 1].time + state.length * 0.01f)
-         {
-            keyframe.time = state.keyframes[index - 1].time + state.length * 0.01f;
-         }
-         else if (index < state.keyframes.size() - 1 && keyframe.time >= state.keyframes[index + 1].time - state.length * 0.01f)
-         {
-            keyframe.time = state.keyframes[index + 1].time - state.length * 0.01f;
-         }
-         else if (keyframe.time > state.length)
-         {
-            keyframe.time = state.length;
-         }
-
-         mController->time = keyframe.time;
-         mpRoot->Suggest(mKeyframeIcons[index].second, keyframe.time / state.length);
-      };
-      mKeyframeTime = time->Add<Scrubber<double>>(scrubberOptions);
-      mKeyframeTime->ConstrainTopAlignedTo(time);
-      mKeyframeTime->ConstrainHeightTo(time);
-
-      // Column alignment
-      label->ConstrainLeftAlignedTo(stateNameLabel);
-      mTime->ConstrainLeftAlignedTo(mStateName);
-      mKeyframeTime->ConstrainLeftAlignedTo(prevStateButton);
-   }
-
-   // Playback controls
-   {
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-
-      buttonOptions.image = "scale";
-      buttonOptions.hoverImage = "hover_button_play";
-      buttonOptions.pressImage = "press_button_play";
-      buttonOptions.onClick = [&]() { mSystemControls->paused = false; };
-      mPlay = Add<Button>(buttonOptions);
-      mPlay->ConstrainHeight(38);
-      mPlay->ConstrainTopAlignedTo(dockStateInfo);
-      mPlay->ConstrainToRightOf(dockStateInfo);
-
-      buttonOptions.image = "button_pause";
-      buttonOptions.hoverImage = "hover_button_pause";
-      buttonOptions.pressImage = "press_button_pause";
-      buttonOptions.onClick = [&]() { mSystemControls->paused = true; };
-      mPause = Add<Button>(buttonOptions);
-      mPause->ConstrainDimensionsTo(mPlay);
-      mPause->ConstrainTopAlignedTo(mPlay);
-      mPause->ConstrainLeftAlignedTo(mPlay);
-
-      UIStackView* playback = Add<UIStackView>();
-      playback->SetVertical(false);
-      playback->SetOffset(8.0);
-      playback->ConstrainHeight(19);
-      playback->ConstrainBelow(mPlay, 8);
-      playback->ConstrainLeftAlignedTo(mPlay);
-
-      buttonOptions.image = "button_left";
-      buttonOptions.hoverImage = "hover_button_left";
-      buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { mSystemControls->speed /= 2.0; };
-      Button* slower = playback->Add<Button>(buttonOptions);
-      slower->ConstrainHeightTo(playback);
-      slower->ConstrainTopAlignedTo(playback);
-
-      buttonOptions.image = "button_right";
-      buttonOptions.hoverImage = "hover_button_right";
-      buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { mSystemControls->speed *= 2.0; };
-      Button* faster = playback->Add<Button>(buttonOptions);
-      faster->ConstrainHeightTo(playback);
-      faster->ConstrainTopAlignedTo(playback);
-   }
-
-   // Bone information
-   UIElement* boneHeader = Add<UIStackView>();
-   boneHeader->ConstrainToRightOf(dockStateInfo, 64);
-   boneHeader->ConstrainTopAlignedTo(dockStateInfo);
-   {
-      UIStackView* row1 = boneHeader->Add<UIStackView>();
-      row1->SetVertical(false);
-      row1->SetOffset(8.0);
-      row1->ConstrainHeight(19);
-      row1->ConstrainLeftAlignedTo(boneHeader);
-
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "button_left";
-      buttonOptions.hoverImage = "hover_button_left";
-      buttonOptions.pressImage = "press_button_left";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<PrevBoneCommand>(this); };
-      Button* prevBoneButton = row1->Add<Button>(buttonOptions);
-      prevBoneButton->ConstrainTopAlignedTo(row1);
-      prevBoneButton->ConstrainHeightTo(row1);
-
-      mBoneName = row1->Add<Text>(Text::Options{"Bone name"});
-      mBoneName->ConstrainTopAlignedTo(row1);
-      mBoneName->ConstrainHeightTo(row1);
-
-      buttonOptions.image = "button_right";
-      buttonOptions.hoverImage = "hover_button_right";
-      buttonOptions.pressImage = "press_button_right";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<NextBoneCommand>(this); };
-      Button* nextBoneButton = row1->Add<Button>(buttonOptions);
-      nextBoneButton->ConstrainTopAlignedTo(row1);
-      nextBoneButton->ConstrainHeightTo(row1);
-
-      UIStackView* row2 = boneHeader->Add<UIStackView>();
-      row2->SetVertical(false);
-      row2->SetOffset(8.0);
-      row2->ConstrainHeightTo(row1);
-      row2->ConstrainLeftAlignedTo(row1);
-
-      Text* parentLabel = row2->Add<Text>(Text::Options{"Parent"});
-      parentLabel->ConstrainTopAlignedTo(row2);
-      parentLabel->ConstrainHeightTo(row2);
-
-      Text::Options parentOptions{"N/A"};
-      parentOptions.size = 12;
-      parentOptions.alignment = Engine::Graphics::Font::Right;
-      mBoneParent = row2->Add<Text>(parentOptions);
-      mBoneParent->ConstrainTopAlignedTo(row2);
-      mBoneParent->ConstrainHeightTo(row2);
-
-      buttonOptions.image = "button_up";
-      buttonOptions.hoverImage = "hover_button_up";
-      buttonOptions.pressImage = "press_button_up";
-      buttonOptions.onClick = [&]() { CommandStack::Instance().Do<ParentBoneCommand>(this); };
-      Button* parentBoneButton = row2->Add<Button>(buttonOptions);
-      parentBoneButton->ConstrainTopAlignedTo(row2);
-      parentBoneButton->ConstrainHeightTo(row2);
-
-      // parentBoneButton->ConstrainRightAlignedTo(nextBoneButton);
-      // mBoneParent->ConstrainRightAlignedTo(parentBoneButton, 8);
-   }
-
-   // Bone positions, rotations and sliders
-   UIElement* bonePosition = Add<UIElement>();
-   UIElement* boneRotation = Add<UIElement>();
-   bonePosition->ConstrainBelow(boneHeader, 8);
-   bonePosition->ConstrainLeftAlignedTo(boneHeader);
-
-   boneRotation->ConstrainTopAlignedTo(bonePosition);
-   boneRotation->ConstrainRightAlignedTo(boneHeader);
-   boneRotation->ConstrainToRightOf(bonePosition);
-   boneRotation->ConstrainWidthTo(bonePosition);
-
-   {
-      // Position/rotation icons that look good
-      Image* position = bonePosition->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "position"});
-      Image* rotation = boneRotation->Add<Image>(Image::Options{Asset::Image("EditorIcons.png"), "rotation"});
-
-      position->ConstrainWidth(37);
-      position->ConstrainLeftAlignedTo(bonePosition);
-      position->ConstrainVerticalCenterTo(bonePosition);
-      rotation->ConstrainWidth(40);
-      rotation->ConstrainLeftAlignedTo(boneRotation);
-      rotation->ConstrainVerticalCenterTo(boneRotation);
-
-      // Bone position/rotation reset buttons
-      Button::Options buttonOptions;
-      buttonOptions.filename = Asset::Image("EditorIcons.png");
-      buttonOptions.image = "reset";
-
-      // Reset position
-      buttonOptions.onClick = [&]() {
-         Keyframe& keyframe = GetCurrentKeyframe();
-         if (mController->time == keyframe.time)
-         {
-            const Stance& stance = GetCurrentStance();
-            const Bone& original = stance.bones[mBone];
-            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
-               original.position,
-               keyframe.rotations[original.name],
-               keyframe.scales[original.name]);
-         }
-      };
-      Button* resetPositionButton = bonePosition->Add<Button>(buttonOptions);
-      resetPositionButton->ConstrainWidth(35);
-      resetPositionButton->ConstrainLeftAlignedTo(position);
-      resetPositionButton->ConstrainBelow(position, 8);
-
-      // Set position to previous
-      buttonOptions.onClick = [&]() {
-         State& state = GetCurrentState();
-         size_t index = GetKeyframeIndex(state, mController->time);
-         Keyframe& keyframe = state.keyframes[index];
-         if (mController->time == keyframe.time && index > 0)
-         {
-            const Stance& stance = GetCurrentStance();
-            const Bone& original = stance.bones[mBone];
-            Keyframe& prev = state.keyframes[index - 1];
-            glm::vec3 pos = prev.positions.count(original.name) != 0 ?
-               prev.positions.at(original.name) :
-               original.position;
-
-            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
-               pos,
-               keyframe.rotations[original.name],
-               keyframe.scales[original.name]);
-         }
-      };
-      Button* setPrevPositionButton = bonePosition->Add<Button>(buttonOptions);
-      setPrevPositionButton->ConstrainWidth(35);
-      setPrevPositionButton->ConstrainLeftAlignedTo(resetPositionButton);
-      setPrevPositionButton->ConstrainBelow(resetPositionButton, 8);
-
-      // Reset rotation
-      buttonOptions.onClick = [&]() {
-         Keyframe& keyframe = GetKeyframe(GetCurrentState(), mController->time);
-         if (mController->time == keyframe.time)
-         {
-            const Stance& stance = GetCurrentStance();
-            const Bone& original = stance.bones[mBone];
-            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
-               keyframe.positions[original.name],
-               original.rotation,
-               keyframe.scales[original.name]);
-         }
-      };
-      Button* resetRotationButton = boneRotation->Add<Button>(buttonOptions);
-      resetRotationButton->ConstrainWidth(35);
-      resetRotationButton->ConstrainLeftAlignedTo(rotation);
-      resetRotationButton->ConstrainBelow(rotation, 8);
-
-      // Set rotation to previous
-      buttonOptions.onClick = [&]() {
-         State& state = GetCurrentState();
-         size_t index = GetKeyframeIndex(state, mController->time);
-         Keyframe& keyframe = state.keyframes[index];
-         if (mController->time == keyframe.time && index > 0)
-         {
-            const Stance& stance = GetCurrentStance();
-            const Bone& original = stance.bones[mBone];
-            Keyframe& prev = state.keyframes[index - 1];
-            glm::vec3 rot = prev.rotations.count(original.name) != 0 ?
-               prev.rotations.at(original.name) :
-               original.rotation;
-
-            CommandStack::Instance().Do<ResetBoneCommand>(this, mBone,
-               keyframe.positions[original.name],
-               rot,
-               keyframe.scales[original.name]);
-         }
-      };
-      Button* setPrevRotationButton = bonePosition->Add<Button>(buttonOptions);
-      setPrevRotationButton->ConstrainWidth(35);
-      setPrevRotationButton->ConstrainLeftAlignedTo(resetRotationButton);
-      setPrevRotationButton->ConstrainBelow(resetRotationButton, 8);
-
-      // Bone position/rotation controls
-      NumDisplay<float>::Options textOptions;
-      textOptions.text = "0.0";
-      textOptions.precision = 1;
-
-      Scrubber<float>::Options posScrubberOptions;
-      posScrubberOptions.filename = Asset::Image("EditorIcons.png");
-      posScrubberOptions.image = "drag_number";
-      posScrubberOptions.onChange = [&](double, double) { mpRoot->Emit<SkeletonModifiedEvent>(mController); };
-      posScrubberOptions.sensitivity = 0.1;
-      Scrubber<float>::Options rotScrubberOptions = posScrubberOptions;
-      rotScrubberOptions.sensitivity = 2.0;
-
-      UIStackView* positionScrubbers = bonePosition->Add<UIStackView>("PositionScrubbers");
-      UIStackView* rotationScrubbers = boneRotation->Add<UIStackView>("RotationScrubbers");
-      positionScrubbers->ConstrainToRightOf(resetPositionButton, 32);
-      positionScrubbers->ConstrainHeightTo(bonePosition);
-      positionScrubbers->ConstrainTopAlignedTo(bonePosition);
-      positionScrubbers->ConstrainRightAlignedTo(bonePosition, 12);
-      rotationScrubbers->ConstrainToRightOf(resetRotationButton, 32);
-      rotationScrubbers->ConstrainHeightTo(boneRotation);
-      rotationScrubbers->ConstrainTopAlignedTo(boneRotation);
-      rotationScrubbers->ConstrainRightAlignedTo(boneRotation, 12);
-
-      for (int i = 0; i < 3; i++)
-      {
-         mBonePos[i].text = positionScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBonePos[i].scrubber = positionScrubbers->Add<Scrubber<float>>(posScrubberOptions);
-         mBoneRot[i].text = rotationScrubbers->Add<NumDisplay<float>>(textOptions);
-         mBoneRot[i].scrubber = rotationScrubbers->Add<Scrubber<float>>(rotScrubberOptions);
-
-         mBonePos[i].text->ConstrainHeight(32);
-         mBonePos[i].text->ConstrainLeftAlignedTo(positionScrubbers);
-         mBonePos[i].scrubber->ConstrainHeight(7);
-         mBonePos[i].scrubber->ConstrainLeftAlignedTo(positionScrubbers);
-         mBoneRot[i].text->ConstrainHeight(32);
-         mBoneRot[i].text->ConstrainLeftAlignedTo(rotationScrubbers);
-         mBoneRot[i].scrubber->ConstrainHeight(7);
-         mBoneRot[i].scrubber->ConstrainLeftAlignedTo(rotationScrubbers);
-      }
-
-      mBonePos[0].scrubber->ConstrainRightAlignedTo(bonePosition);
-      mBoneRot[0].scrubber->ConstrainRightAlignedTo(boneRotation);
-   }
-
-   for (size_t i = 0; i < 20; ++i)
-   {
-      AddKeyframeIcon();
-   }
-
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
@@ -596,23 +71,298 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
 }
 
-///
-///
-///
-void Dock::Receive(const SuspendEditingEvent&)
+void Dock::Update(TIMEDELTA)
 {
    if (!mController)
    {
       return;
    }
 
-   if (!mBonePos[0].scrubber->IsBound())
+   // State selector
+   ImGui::SetNextWindowPos(ImVec2(25, 140), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
+   ImGui::Begin("State");
+
+   ImVec2 space = ImGui::GetContentRegionAvail();
+   ImGuiStyle& style = ImGui::GetStyle();
+   const ImVec2 label_size = ImGui::CalcTextSize("X", NULL, true);
+   float buttonSize = label_size.y + style.FramePadding.y * 2.0f;
+   for (const auto&[name, _] : mController->states)
+   {
+      if (ImGuiEx::Button(name == mController->current, name, ImVec2(space.x - buttonSize - style.ItemSpacing.x, buttonSize)))
+      {
+         SetState(name);
+      }
+      ImGui::SameLine();
+      if (ImGuiEx::Button(false, "X", ImVec2(buttonSize, buttonSize)))
+      {
+         CommandStack::Instance().Do<RemoveStateCommand>(this);
+      }
+   }
+
+   if (ImGui::Button("New State", ImVec2(space.x, buttonSize)))
+   {
+      CommandStack::Instance().Do<AddStateCommand>(this);
+   }
+
+   ImGui::End();
+
+   ImGui::SetNextWindowPos(ImVec2(975, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
+   ImGui::Begin("State info");
+   
+   {
+      State& state = GetCurrentState();
+      if (mStateName.Update("Name", state.name))
+      {
+         mController->states.emplace(state.name, state);
+         CommandStack::Instance().Emplace<SetStateNameCommand>(this, state.name, mStateName.GetLastValue());
+         SetState(state.name);
+         mController->states.erase(mStateName.GetLastValue());
+      }
+   }
+
+   State& state = GetCurrentState();
+   ImGui::Text("%.3f", state.length);
+
+   ImGui::SameLine();
+   if (ImGui::SmallButton("^"))
+   {
+      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.name, state.length + 0.1);
+   }
+   ImGui::SameLine();
+   if (state.length > 0.1 && ImGui::SmallButton("V"))
+   {
+      CommandStack::Instance().Do<SetStateLengthCommand>(this, state.name, state.length - 0.1);
+   }
+
+   ImGui::End();
+
+   ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 200), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Timeline");
+
+   std::vector<double> keyframes;
+   for (const Keyframe& frame : state.keyframes)
+   {
+      keyframes.push_back(frame.time);
+   }
+
+   Receive(SuspendEditingEvent{});
+   ImGuiEx::Timeline("##time", &mController->time, state.length, mSystemControls->paused, keyframes);
+
+   if (mSystemControls->paused && ImGui::Button("Play"))
+   {
+      mSystemControls->paused = false;
+   }
+   if (!mSystemControls->paused && ImGui::Button("Pause"))
+   {
+      mSystemControls->paused = true;
+   }
+
+   ImGui::Text("Speed: %.3f", mSystemControls->speed);
+   ImGui::SameLine();
+   if (ImGui::SmallButton("2x"))
+   {
+      mSystemControls->speed *= 2.0;
+   }
+   ImGui::SameLine();
+   if (ImGui::SmallButton("/2"))
+   {
+      mSystemControls->speed /= 2.0;
+   }
+   ImGui::Checkbox("Seamless loop", &mSystemControls->seamlessLoop);
+
+   ImGui::End();
+
+   // Keyframe modification
+   ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Keyframe");
+
+   size_t index = GetKeyframeIndex(state, mController->time);
+   Keyframe& keyframe = state.keyframes[index];
+   if (mController->time != keyframe.time)
+   {
+      if (ImGui::Button("Add Keyframe"))
+      {
+         CommandStack::Instance().Do<AddKeyframeCommand>(this, state.name);
+      }
+   }
+   else
+   {
+      if (ImGui::Button("Remove Keyframe"))
+      {
+         CommandStack::Instance().Do<RemoveKeyframeCommand>(this, state.name, index);
+      }
+
+      double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
+      double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
+
+      if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+      {
+         CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
+            this,
+            state.name,
+            index,
+            mKeyframeTimeScrubber.GetLastValue()
+         );
+      }
+
+      if (ImGui::IsItemActive())
+      {
+         mController->time = keyframe.time;
+      }
+   }
+
+   ImGui::End();
+
+   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Bone");
+   ImGui::Columns(2);
+   float windowWidth = ImGui::GetWindowWidth();
+
+   // Bone selector
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth / 5);
+   Stance& stance = GetCurrentStance();
+   const Bone& selected = stance.bones[mBone];
+   if (ImGui::BeginCombo("##bone", selected.name.c_str()))
+   {
+      for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
+      {
+         const Bone& bone = stance.bones[boneId];
+         bool isSelected = (mBone == boneId);
+         if (ImGui::Selectable(bone.name.c_str(), isSelected))
+         {
+            SetBone(boneId);
+         }
+         if (isSelected)
+         {
+            ImGui::SetItemDefaultFocus();
+         }
+      }
+      ImGui::EndCombo();
+   }
+
+   ImGui::NextColumn();
+   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth * 4 / 5);
+
+   if (mController->time == keyframe.time)
+   {
+      Receive(ResumeEditingEvent{});
+
+      if (mScrubbers[0].Drag("Position", keyframe.positions[selected.name], 0.1f))
+      {
+         OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+         Receive(ResumeEditingEvent{});
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set base"))
+      {
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       selected.position,
+                                                       keyframe.rotations[selected.name],
+                                                       keyframe.scales[selected.name]);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set previous"))
+      {
+         Keyframe& prev = state.keyframes[index - 1];
+         glm::vec3 pos = prev.positions.count(selected.name) != 0 ?
+            prev.positions.at(selected.name) :
+            selected.position;
+
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       pos,
+                                                       keyframe.rotations[selected.name],
+                                                       keyframe.scales[selected.name]);
+      }
+
+      if (mScrubbers[1].Drag("Rotation", keyframe.rotations[selected.name]))
+      {
+         OnScrub(ScrubType::Rotation, mScrubbers[1].GetLastValue());
+         Receive(ResumeEditingEvent{});
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set base"))
+      {
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       keyframe.positions[selected.name],
+                                                       selected.rotation,
+                                                       keyframe.scales[selected.name]);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set previous"))
+      {
+         Keyframe& prev = state.keyframes[index - 1];
+         glm::vec3 rot = prev.rotations.count(selected.name) != 0 ?
+            prev.rotations.at(selected.name) :
+            selected.rotation;
+
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       keyframe.positions[selected.name],
+                                                       rot,
+                                                       keyframe.scales[selected.name]);
+      }
+
+      if (mScrubbers[2].Drag("Scale", keyframe.scales[selected.name], 0.1f))
+      {
+         OnScrub(ScrubType::Scale, mScrubbers[2].GetLastValue());
+         Receive(ResumeEditingEvent{});
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set base"))
+      {
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       keyframe.positions[selected.name],
+                                                       keyframe.rotations[selected.name],
+                                                       selected.scale);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Set previous"))
+      {
+         Keyframe& prev = state.keyframes[index - 1];
+         glm::vec3 scl = prev.scales.count(selected.name) != 0 ?
+            prev.scales.at(selected.name) :
+            selected.scale;
+
+         CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
+                                                       keyframe.positions[selected.name],
+                                                       keyframe.rotations[selected.name],
+                                                       scl);
+      }
+
+      // Revert any unchanged vectors so that they are not persisted.
+      Receive(SuspendEditingEvent{});
+   }
+   else
+   {
+      std::vector<std::string> parts = StringHelper::Split(selected.name, '.');
+      const auto it = std::find_if(mController->skeletons.begin(), mController->skeletons.end(), [&](const auto& s) { return s->name == parts[0]; });
+      assert(it != mController->skeletons.end() && "Couldn't find skeleton");
+      Bone& bone = (*it)->bones[(*it)->boneLookup[selected.name]];
+
+      mScrubbers[0].Drag("Position", bone.position, 0.1f);
+      mScrubbers[1].Drag("Rotation", bone.rotation);
+      mScrubbers[2].Drag("Scale", bone.scale);
+   }
+
+   ImGui::End();
+}
+
+///
+///
+///
+void Dock::Receive(const SuspendEditingEvent&)
+{
+   if (!mController || mController->current.empty() || GetCurrentState().keyframes.empty())
    {
       return;
    }
 
-   State& state = GetCurrentState();
-   if (mSelectedKeyframe >= state.keyframes.size() - 1)
+   Keyframe& keyframe = GetCurrentKeyframe();
+   if (keyframe.time != mController->time)
    {
       return;
    }
@@ -621,26 +371,21 @@ void Dock::Receive(const SuspendEditingEvent&)
    const Stance& stance = GetCurrentStance();
    const Bone& original = stance.bones[mBone];
 
-   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
-   if (keyframe.positions[original.name] == original.position)
+   if (keyframe.positions.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.positions.at(original.name), original.position)))
    {
       keyframe.positions.erase(original.name);
    }
-   if (keyframe.rotations[original.name] == original.rotation)
+   if (keyframe.rotations.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.rotations.at(original.name), original.rotation)))
    {
       keyframe.rotations.erase(original.name);
    }
-   if (keyframe.scales[original.name] == original.scale)
+   if (keyframe.scales.count(original.name) > 0 &&
+      glm::all(glm::equal(keyframe.scales.at(original.name), original.scale)))
    {
       keyframe.scales.erase(original.name);
    }
-
-   mBonePos[0].scrubber->Bind(nullptr);
-   mBonePos[1].scrubber->Bind(nullptr);
-   mBonePos[2].scrubber->Bind(nullptr);
-   mBoneRot[0].scrubber->Bind(nullptr);
-   mBoneRot[1].scrubber->Bind(nullptr);
-   mBoneRot[2].scrubber->Bind(nullptr);
 }
 
 ///
@@ -648,13 +393,16 @@ void Dock::Receive(const SuspendEditingEvent&)
 ///
 void Dock::Receive(const ResumeEditingEvent&)
 {
-   State& state = GetCurrentState();
-   if (mSelectedKeyframe >= state.keyframes.size())
+   if (!mController || mController->current.empty() || GetCurrentState().keyframes.empty())
    {
       return;
    }
 
-   Keyframe& keyframe = state.keyframes[mSelectedKeyframe];
+   Keyframe& keyframe = GetCurrentKeyframe();
+   if (keyframe.time != mController->time)
+   {
+      return;
+   }
 
    const Stance& stance = GetCurrentStance();
    const Bone& original = stance.bones[mBone];
@@ -670,13 +418,6 @@ void Dock::Receive(const ResumeEditingEvent&)
    {
       keyframe.scales.emplace(original.name, original.scale);
    }
-
-   mBonePos[0].scrubber->Bind(&keyframe.positions[original.name].x);
-   mBonePos[1].scrubber->Bind(&keyframe.positions[original.name].y);
-   mBonePos[2].scrubber->Bind(&keyframe.positions[original.name].z);
-   mBoneRot[0].scrubber->Bind(&keyframe.rotations[original.name].x);
-   mBoneRot[1].scrubber->Bind(&keyframe.rotations[original.name].y);
-   mBoneRot[2].scrubber->Bind(&keyframe.rotations[original.name].z);
 }
 
 ///
@@ -686,15 +427,7 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 {
    mController = evt.component;
 
-   mStates.clear();
-   for (const auto&[name, _] : mController->states)
-   {
-      mStates.push_back(name);
-   }
-   std::sort(mStates.begin(), mStates.end());
-
-   SetState(mStates[0]);
-   SetTime(0);
+   SetState(mController->states.begin()->first);
    SetBone(0);
 }
 
@@ -712,8 +445,6 @@ void Dock::Receive(const SkeletonSelectedEvent& evt)
 void Dock::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt)
 {
    mController = evt.component;
-   mScrubber->Bind(&mController->time);
-   mTime->Bind(&mController->time);
 }
 
 ///
@@ -722,6 +453,40 @@ void Dock::Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>&
 void Dock::Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt)
 {
    mSystemControls = evt.component;
+}
+
+///
+///
+///
+void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
+{
+   // Funky time: at this point, the current value represents the NEW state,
+   // and we create a command to set it to the OLD state. So we perform the
+   // command twice, once immediately to revert to the old state, and then
+   // again when it gets placed on the stack to go back to the new one,
+
+   const Bone& selected = GetCurrentStance().bones[mBone];
+   State& state = GetCurrentState();
+   size_t keyframeIndex = GetKeyframeIndex(state, mController->time);
+   Keyframe& keyframe = state.keyframes[keyframeIndex];
+   glm::vec3 pos = keyframe.positions[selected.name];
+   glm::vec3 rot = keyframe.rotations[selected.name];
+   glm::vec3 scl = keyframe.scales[selected.name];
+
+   switch (type)
+   {
+   case ScrubType::Position:
+      pos = oldValue;
+      break;
+   case ScrubType::Rotation:
+      rot = oldValue;
+      break;
+   case ScrubType::Scale:
+      scl = oldValue;
+      break;
+   }
+
+   CommandStack::Instance().Emplace<ResetBoneCommand>(this, state.name, keyframeIndex, mBone, pos, rot, scl);
 }
 
 ///
@@ -751,72 +516,6 @@ Keyframe& Dock::GetCurrentKeyframe()
 ///
 ///
 ///
-void Dock::Update(TIMEDELTA dt)
-{
-   // Update the play/pause buttons
-   mPlay->SetActive(mSystemControls->paused);
-   mPause->SetActive(!mSystemControls->paused);
-
-   UIElement::Update(dt);
-}
-
-///
-///
-///
-void Dock::AddKeyframeIcon()
-{
-   Image::Options keyframeOptions;
-   keyframeOptions.filename = Asset::Image("EditorIcons.png");
-   keyframeOptions.image = "keyframe";
-
-   Image* image = mKeyframes->Add<Image>(keyframeOptions);
-   image->SetName(Format::FormatString("Frame %1", mKeyframeIcons.size()));
-
-   UIFrame& fImage = image->GetFrame();
-   UIFrame& fKeyframes = mKeyframes->GetFrame();
-   auto entry = std::make_pair(image, rhea::variable());
-   mpRoot->AddEditVar(entry.second);
-   mpRoot->AddConstraints({
-      fImage > fKeyframes,
-      fImage.top == fKeyframes.top,
-      fImage.bottom == fKeyframes.bottom,
-      fImage.left == fKeyframes.left + kTimelineWidth * entry.second - (fImage.right - fImage.left) / 2,
-   });
-
-   mKeyframeIcons.push_back(entry);
-}
-
-///
-///
-///
-void Dock::UpdateKeyframeIcons()
-{
-   State& state = GetCurrentState();
-
-   size_t nKeyframes = state.keyframes.size();
-   while (mKeyframeIcons.size() < nKeyframes)
-   {
-      AddKeyframeIcon();
-   }
-   for (size_t i = 0; i < mKeyframeIcons.size(); i++)
-   {
-      auto& entry = mKeyframeIcons[i];
-      if (i < nKeyframes)
-      {
-         entry.first->SetActive(true);
-         double val = state.keyframes[i].time / state.length;
-         mpRoot->Suggest(entry.second, val);
-      }
-      else
-      {
-         entry.first->SetActive(false);
-      }
-   }
-}
-
-///
-///
-///
 void Dock::SetState(const std::string& name)
 {
    if (mController->current == name)
@@ -828,15 +527,6 @@ void Dock::SetState(const std::string& name)
 
    mController->current = name;
 
-   State& state = GetCurrentState();
-   mStateName->SetText(state.name);
-   mStateLength.text->Bind(&state.length);
-   mStateLength.scrubber->Bind(&state.length);
-   mScrubber->SetBounds(0, state.length);
-
-   UpdateKeyframeIcons();
-
-   SetTime(mController->time);
    Receive(ResumeEditingEvent{});
 }
 
@@ -853,25 +543,6 @@ void Dock::SetBone(const size_t& boneId)
    Receive(SuspendEditingEvent{});
 
    mBone = boneId;
-
-   // Update bone info
-   Stance& stance = GetCurrentStance();
-   Bone& info = stance.bones[mBone];
-
-   std::vector<std::string> parts = StringHelper::Split(info.name, '.');
-   mBoneName->SetText(parts[1]);
-   mBoneParent->SetText(info.parent);
-
-   const auto it = std::find_if(mController->skeletons.begin(), mController->skeletons.end(), [&](const auto& s) { return s->name == parts[0]; });
-   assert(it != mController->skeletons.end() && "Couldn't find skeleton");
-   Bone& bone = (*it)->bones[(*it)->boneLookup[info.name]];
-
-   mBonePos[0].text->Bind(&bone.position.x);
-   mBonePos[1].text->Bind(&bone.position.y);
-   mBonePos[2].text->Bind(&bone.position.z);
-   mBoneRot[0].text->Bind(&bone.rotation.x);
-   mBoneRot[1].text->Bind(&bone.rotation.y);
-   mBoneRot[2].text->Bind(&bone.rotation.z);
 
    Receive(ResumeEditingEvent{});
 }
@@ -899,8 +570,6 @@ void Dock::AddStateCommand::Do()
    }
 
    dock->mController->states.emplace(state.name, state);
-   dock->mStates.push_back(state.name);
-   std::sort(dock->mStates.begin(), dock->mStates.end());
    dock->SetState(state.name);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
@@ -914,10 +583,7 @@ void Dock::AddStateCommand::Undo()
    state = dock->GetCurrentState();
 
    dock->mController->states.erase(state.name);
-   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), state.name) - dock->mStates.begin());
-   if (index > 0) { --index; }
-   dock->mStates.erase(dock->mStates.begin() + (int64_t)index);
-   dock->SetState(dock->mStates[index]);
+   dock->SetState(dock->mController->states.begin()->first);
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -927,6 +593,7 @@ void Dock::AddStateCommand::Undo()
 void Dock::SetStateLength(double newValue, double oldValue)
 {
    State& state = GetCurrentState();
+   state.length = newValue;
 
    double stretch = newValue / oldValue;
 
@@ -935,8 +602,7 @@ void Dock::SetStateLength(double newValue, double oldValue)
       keyframe.time *= stretch;
    }
 
-   mScrubber->SetBounds(0, newValue);
-   SetTime(mController->time * stretch);
+   mController->time *= stretch;
    mpRoot->Emit<SkeletonModifiedEvent>(mController);
 }
 
@@ -945,33 +611,48 @@ void Dock::SetStateLength(double newValue, double oldValue)
 ///
 void Dock::SetStateNameCommand::Do()
 {
-   State& state = dock->GetCurrentState();
+   State state = dock->mController->states[prev];
 
    std::string last = state.name;
    state.name = name;
 
-   dock->mController->states.emplace(state.name, dock->mController->states.at(last));
-   for (std::string& entry : dock->mStates)
-   {
-      if (entry == last)
-      {
-         entry = name;
-         break;
-      }
-   }
+   dock->mController->states.emplace(name, state);
    dock->SetState(name);
-   dock->mController->states.erase(last);
+   dock->mController->states.erase(prev);
 
+   prev = name;
    name = last;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
+//
+///
+///
+void Dock::SetStateLengthCommand::Do()
+{
+   dock->SetState(stateName);
+   State& state = dock->GetCurrentState();
+   double prev = state.length;
+   dock->SetStateLength(value, prev);
+   value = prev;
+}
+
 ///
 ///
 ///
+Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock, const std::string& state)
+   : DockCommand(dock)
+   , stateName(state)
+   , keyframeIndex(0)
+{
+   keyframe.time = dock->mController->time;
+   keyframeIndex = GetKeyframeIndex(dock->GetCurrentState(), dock->mController->time) + 1;
+};
+
 void Dock::AddKeyframeCommand::Do()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
    Stance& stance = dock->mController->stances[state.stance];
 
@@ -1001,99 +682,19 @@ void Dock::AddKeyframeCommand::Do()
       }
    }
 
-   keyframeIndex = GetKeyframeIndex(state, dock->mController->time) + 1;
    state.keyframes.insert(state.keyframes.begin() + (int64_t)keyframeIndex, keyframe);
-   dock->UpdateKeyframeIcons();
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
-///
-///
-///
 void Dock::AddKeyframeCommand::Undo()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
 
    // Copy by value not reference
    keyframe = state.keyframes[keyframeIndex];
    state.keyframes.erase(state.keyframes.begin() + (int64_t)keyframeIndex);
-   dock->UpdateKeyframeIcons();
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
-}
-
-///
-///
-///
-void Dock::SetTime(double time)
-{
-   State& state = GetCurrentState();
-
-   Receive(SuspendEditingEvent{});
-
-   size_t keyframeIndex = GetKeyframeIndex(state, time);
-   Keyframe& prev = state.keyframes[keyframeIndex];
-   mSelectedKeyframe = std::numeric_limits<size_t>::max();
-
-   if ((time - prev.time) / state.length < 0.02)
-   {
-      mController->time = prev.time;
-      mSelectedKeyframe = keyframeIndex;
-   }
-   else if (
-      (keyframeIndex < state.keyframes.size() - 1) && 
-      (state.keyframes[keyframeIndex + 1].time - time) / state.length < 0.02
-   )
-   {
-      mController->time = state.keyframes[keyframeIndex + 1].time;
-      mSelectedKeyframe = keyframeIndex + 1;
-   }
-   else if ((state.length - time) / state.length < 0.02)
-   {
-      mController->time = state.length;
-   }
-   else
-   {
-      mController->time = time;
-   }
-
-   if (mSelectedKeyframe < state.keyframes.size())
-   {
-      mKeyframeTime->Bind(&state.keyframes[mSelectedKeyframe].time);
-   }
-
-   Receive(ResumeEditingEvent{});
-}
-
-///
-///
-///
-void Dock::NextStateCommand::Do()
-{
-   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin());
-   if (index >= dock->mStates.size() - 1)
-   {
-      dock->SetState(dock->mStates[0]);
-   }
-   else
-   {
-      dock->SetState(dock->mStates[index + 1]);
-   }
-}
-
-///
-///
-///
-void Dock::NextStateCommand::Undo()
-{
-   size_t index = size_t(std::find(dock->mStates.begin(), dock->mStates.end(), dock->mController->current) - dock->mStates.begin());
-   if (index == 0)
-   {
-      dock->SetState(dock->mStates[dock->mStates.size() - 1]);
-   }
-   else
-   {
-      dock->SetState(dock->mStates[index - 1]);
-   }
 }
 
 ///
@@ -1101,16 +702,12 @@ void Dock::NextStateCommand::Undo()
 ///
 void Dock::SetKeyframeTimeCommand::Do()
 {
+   dock->SetState(stateName);
    State& state = dock->GetCurrentState();
-   Keyframe& keyframe = GetKeyframe(state, dock->mController->time);
-   if (dock->mController->time != keyframe.time)
-   {
-      return;
-   }
+   Keyframe& keyframe = state.keyframes[index];
 
    double last = keyframe.time;
    dock->mController->time = keyframe.time = value;
-   dock->UpdateKeyframeIcons();
    value = last;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
@@ -1119,71 +716,16 @@ void Dock::SetKeyframeTimeCommand::Do()
 ///
 ///
 ///
-void Dock::NextBoneCommand::Do()
-{
-   size_t numBones = dock->mController->stances["base"].bones.size();
-   if (dock->mBone + 1 >= numBones)
-   {
-      dock->SetBone(0);
-   }
-   else
-   {
-      dock->SetBone(dock->mBone + 1);
-   }
-}
-
-///
-///
-///
-void Dock::NextBoneCommand::Undo()
-{
-   size_t numBones = dock->mController->stances["base"].bones.size();
-   if (dock->mBone == 0)
-   {
-      dock->SetBone(numBones - 1);
-   }
-   else
-   {
-      dock->SetBone(dock->mBone - 1);
-   }
-}
-
-///
-///
-///
-void Dock::ParentBoneCommand::Do()
-{
-   last = dock->mBone;
-   Stance& stance = dock->GetCurrentStance();
-
-   const std::string& parent = stance.bones[last].parent;
-   size_t index = size_t(std::find_if(stance.bones.begin(), stance.bones.end(), [&](const Bone& b) { return b.name == parent; }) - stance.bones.begin());
-
-   dock->SetBone(index);
-}
-
-///
-///
-///
-void Dock::ParentBoneCommand::Undo()
-{
-   dock->SetBone(last);
-}
-
-///
-///
-///
 void Dock::ResetBoneCommand::Do()
 {
-   Keyframe& keyframe = dock->GetCurrentKeyframe();
-   if (dock->mController->time != keyframe.time)
-   {
-      return;
-   }
-   
+   dock->SetState(stateName);
+   Keyframe& keyframe = dock->GetCurrentState().keyframes[keyframeIndex];
+   dock->mController->time = keyframe.time;
+
    const Stance& stance = dock->GetCurrentStance();
    const Bone& bone = stance.bones[dock->mBone];
 
+   dock->Receive(ResumeEditingEvent{});
    assert(keyframe.positions.count(bone.name) > 0 && "Not editing a bone");
    assert(keyframe.rotations.count(bone.name) > 0 && "Not editing a bone");
    assert(keyframe.scales.count(bone.name) > 0 && "Not editing a bone");
@@ -1193,10 +735,12 @@ void Dock::ResetBoneCommand::Do()
    glm::vec3 scl = keyframe.scales[bone.name];
    keyframe.positions[bone.name] = position;
    keyframe.rotations[bone.name] = rotation;
-   keyframe.scales[bone.name] = scl;
+   keyframe.scales[bone.name] = scale;
    position = pos;
    rotation = rot;
    scale = scl;
+
+   dock->Receive(SuspendEditingEvent{});
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }

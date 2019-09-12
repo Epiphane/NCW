@@ -6,8 +6,6 @@
 #include <unordered_map>
 
 #include <Engine/UI/UIElement.h>
-#include <Shared/UI/TextButton.h>
-#include <Shared/UI/RectFilled.h>
 
 #include "SimpleAnimationSystem.h"
 #include "Events.h"
@@ -22,9 +20,11 @@ namespace Editor
 namespace AnimationStation
 {
 
-class Sidebar : public UI::RectFilled {
+class Sidebar : public Engine::UIElement {
 public:
    Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
+
+   void Update(TIMEDELTA dt) override;
 
 private:
    // Actions
@@ -36,12 +36,6 @@ private:
    void LoadFile(const std::string& filename);
 
    void DiscardChanges();
-   void Quit();
-
-private:
-   // Elements
-   UI::TextButton* mSave;
-   UI::TextButton* mQuit;
 
 public:
    // Event handlers

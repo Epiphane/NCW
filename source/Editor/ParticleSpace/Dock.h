@@ -58,7 +58,7 @@ private:
    template <typename N>
    struct LabelAndScrubber {
       NumDisplay<N>* text;
-      Scrubber<N>* scrubber;
+      Dep::Scrubber<N>* scrubber;
    };
 
    // Stance inspector

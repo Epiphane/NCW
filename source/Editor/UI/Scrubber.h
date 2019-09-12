@@ -25,6 +25,9 @@ namespace CubeWorld
 namespace Editor
 {
 
+namespace Dep
+{
+
 //
 // This is just convenience, so I can hide some implementation in Scrubber.cpp. Always use the derived Scrubber<N> class
 //
@@ -129,6 +132,8 @@ protected:
    std::function<void(N, N)> mCallback;
    double mSensitivity;
 };
+
+}; // namespace Dep
 
 }; // namespace Editor
 

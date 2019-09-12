@@ -7,9 +7,9 @@
 #include <RGBNetworking/YAMLSerializer.h>
 #include <RGBSettings/SettingsProvider.h>
 #include <Engine/Core/Window.h>
-#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 
+#include "../Imgui/Extensions.h"
 #include "Sidebar.h"
 
 namespace CubeWorld
@@ -41,6 +41,7 @@ Sidebar::Sidebar(Engine::UIRoot* root, Engine::UIElement* parent)
 void Sidebar::Update(TIMEDELTA)
 {
    ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_Always);
    ImGui::Begin("File", nullptr, ImGuiWindowFlags_NoResize);
 
    ImVec2 space = ImGui::GetContentRegionAvail();
@@ -50,24 +51,9 @@ void Sidebar::Update(TIMEDELTA)
    }
 
    float halfSize = (space.x - ImGui::GetStyle().ItemSpacing.x) / 2;
-   if (mModified)
+   if (ImGuiEx::Button(mModified, "Save", ImVec2(halfSize, 0)))
    {
-      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
-      if (ImGui::Button("*Save", ImVec2(halfSize, 0)))
-      {
-         SaveFile();
-      }
-
-      ImGui::PopStyleColor(3);
-   }
-   else
-   {
-      if (ImGui::Button("Save", ImVec2(halfSize, 0)))
-      {
-         SaveFile();
-      }
+      SaveFile();
    }
 
    ImGui::SameLine();
