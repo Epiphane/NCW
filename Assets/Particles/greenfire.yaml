@@ -1,5 +1,5 @@
 ---
-name: bluefire
+name: greenfire
 shader: Voxel
 shader-uniforms:
   uVoxelSize: 0.1
@@ -13,11 +13,11 @@ shape: cone
 cone:
   direction: [0, 1, 0]
   radius: 0.45
-  height: 
+  height:
     min: 0.6
     max: 1.2
 particle:
-  spawn-age: 
+  spawn-age:
     min: 0
     max: 0.5
   lifetime: 0.75

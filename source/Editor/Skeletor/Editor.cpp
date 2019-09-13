@@ -45,7 +45,7 @@ void Editor::Update(TIMEDELTA dt)
 
    ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(1000, 500), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Preview");
+   ImGui::Begin("Skeletor");
    ImVec2 space = ImGui::GetContentRegionAvail();
    if (space.y > 0)
    {

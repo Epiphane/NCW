@@ -40,7 +40,7 @@ std::string OpenFileDialog(
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;
    ofn.lpstrInitialDir = NULL; // Inherits from lpstrFile
-   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
    // Display the Open dialog box.
    if (GetOpenFileNameW(&ofn) == TRUE)
@@ -78,7 +78,7 @@ std::string SaveFileDialog(
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;
    ofn.lpstrInitialDir = NULL; // Inherits from lpstrFile
-   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
    // Display the Open dialog box.
    if (GetSaveFileNameW(&ofn) == TRUE)

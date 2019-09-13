@@ -27,7 +27,7 @@ namespace Constrainer
 class ConstrainerVC : public Engine::UIRoot
 {
 public:
-   ConstrainerVC(Engine::Input* input, const Controls::Options& options);
+   ConstrainerVC(Engine::Input& input);
 
    //
    // Called every time this editor is reactivated.

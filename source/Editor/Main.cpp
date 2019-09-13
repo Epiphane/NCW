@@ -143,7 +143,7 @@ int main(int argc, char** argv)
    animationStation->SetBounds(window);
    animationStation->SetName("Animation Station");
 
-   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(&window, controlsOptions);
+   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(window);
    particleSpace->SetBounds(window);
    particleSpace->SetName("Particle Space");
 
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
    skeletor->SetBounds(window);
    skeletor->SetName("Skeletor");
 
-   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerVC>(&window, controlsOptions);
+   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerVC>(window);
    constrainer->SetBounds(window);
    constrainer->SetName("Constrainer");
 

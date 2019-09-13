@@ -62,6 +62,8 @@ void MainState::Initialize()
    // Create a player component
    mParticleSpawner = mEntities.Create(0, 0, 0);
    mParticleSpawner.Add<Makeshift>([&](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+      
       Engine::ComponentHandle<ParticleEmitter> emitter = mParticleSpawner.Get<ParticleEmitter>();
       if (!emitter)
       {
