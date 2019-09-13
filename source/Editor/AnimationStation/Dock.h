@@ -141,6 +141,25 @@ private:
    //
    //
    //
+   class SetStanceCommand : public DockCommand
+   {
+   public:
+      SetStanceCommand(Dock* dock, const std::string& state, const std::string& stance)
+         : DockCommand(dock)
+         , stateName(state)
+         , stance(stance)
+      {};
+      void Do() override;
+      void Undo() override { Do(); }
+
+   private:
+      std::string stateName;
+      std::string stance;
+   };
+
+   //
+   //
+   //
    class AddKeyframeCommand : public DockCommand
    {
    public:

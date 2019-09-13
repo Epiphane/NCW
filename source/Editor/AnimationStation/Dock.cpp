@@ -136,6 +136,23 @@ void Dock::Update(TIMEDELTA)
       CommandStack::Instance().Do<SetStateLengthCommand>(this, state.name, state.length - 0.1);
    }
 
+   if (ImGui::BeginCombo("##stance", state.stance.c_str()))
+   {
+      for (const auto& [stance, _] : mController->stances)
+      {
+         bool isSelected = (state.stance == stance);
+         if (ImGui::Selectable(stance.c_str(), isSelected))
+         {
+            CommandStack::Instance().Do<SetStanceCommand>(this, state.name, stance);
+         }
+         if (isSelected)
+         {
+            ImGui::SetItemDefaultFocus();
+         }
+      }
+      ImGui::EndCombo();
+   }
+
    ImGui::End();
 
    ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
@@ -552,6 +569,11 @@ void Dock::SetBone(const size_t& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
+   if (state.name.empty())
+   {
+      state.name = Format::FormatString("Unnamed state %1", dock->mController->states.size());
+   }
+
    if (state.entity.empty())
    {
       state.entity = dock->mSkeleton;
@@ -636,6 +658,18 @@ void Dock::SetStateLengthCommand::Do()
    double prev = state.length;
    dock->SetStateLength(value, prev);
    value = prev;
+}
+
+//
+///
+///
+void Dock::SetStanceCommand::Do()
+{
+   dock->SetState(stateName);
+   State& state = dock->GetCurrentState();
+   std::string prev = state.stance;
+   state.stance = stance;
+   stance = prev;
 }
 
 ///
