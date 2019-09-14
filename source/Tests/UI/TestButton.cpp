@@ -12,32 +12,32 @@ using namespace CubeWorld;
 using namespace Observables;
 
 using Engine::ButtonVC;
-using Engine::UIRoot;
 
-SCENARIO( "Buttons respond correctly to mouse moves and clicks" ) {
-   
+SCENARIO( "Buttons respond correctly to mouse moves and clicks", GL_TEST_FLAG) {
+
    GIVEN( "A button with an Observable attached to it" ) {
-      std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
-      UIRoot* root = dummyRoot.get();
+      Test::MockInput input;
+      std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
+      Engine::UIRoot* root = dummyRoot.get();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
       std::vector<Engine::UIGestureRecognizer::Message_GestureState> clicks;
-      
+
       ButtonVC* button = dummyRoot->Add<ButtonVC>("ButtonDummy");
       button->ConstrainHeight(50);
       button->ConstrainWidth(50);
       button->OnClick() >>
          ToContainer<std::vector<Engine::UIGestureRecognizer::Message_GestureState>>(clicks, myBag);
-      
+
       // Solve constraints
       dummyRoot->UpdateRoot();
-      
+
       WHEN( "The button receives a click" ) {
          MockClick(root, button);
          THEN ( "the button should send a message from its OnClick observable." ) {
             CHECK( clicks.size() == 1 );
          }
       }
-      
+
       WHEN( "the button receives a MouseDown, the mouse moves OFF the button, then back on, then MouseUps" ) {
          MockMouseDown(root, button);
          MockMouseMove(root, button, 1000, 1000);
@@ -48,7 +48,7 @@ SCENARIO( "Buttons respond correctly to mouse moves and clicks" ) {
             CHECK( clicks.size() == 1 );
          }
       }
-      
+
       WHEN( "MouseDown ON the button, drags off, MouseUps, MouseDown and drags back ON, MouseUp" ) {
          MockMouseDown(root, button);
          MockMouseMove(root, button, 1000, 1000);
@@ -56,7 +56,7 @@ SCENARIO( "Buttons respond correctly to mouse moves and clicks" ) {
          MockMouseDown(root, root, 1000, 1000);
          MockMouseMove(root, button);
          MockMouseUp  (root, button);
-         
+
          THEN( "the button should NOT send a message from its OnClick observable." ) {
             CHECK( clicks.size() == 0 );
          }

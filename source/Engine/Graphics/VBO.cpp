@@ -46,10 +46,9 @@ VBO::VBO(const DataType type, const GLuint buffer) : mBuffer(buffer)
    ++gBufferReferences[mBuffer];
 }
 
-VBO::VBO(const DataType type) : mBuffer(GenerateBuffer())
+VBO::VBO(const DataType type)
 {
-   if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
-   else mBufferType = GL_ARRAY_BUFFER;
+   Init(type);
 }
 
 VBO::VBO(const GLuint bufferType, const GLuint buffer) : mBuffer(buffer), mBufferType(bufferType)
@@ -82,11 +81,13 @@ VBO::~VBO()
    }
 }
 
-void VBO::Init()
+void VBO::Init(const DataType type)
 {
-   assert(mBuffer == GL_FALSE);
+   assert(mBuffer == 0);
 
    mBuffer = GenerateBuffer();
+   if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
+   else mBufferType = GL_ARRAY_BUFFER;
 }
 
 void VBO::BufferData(size_t size, void* data, GLuint strategy)

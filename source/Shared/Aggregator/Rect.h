@@ -8,7 +8,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Engine/Graphics/FontManager.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Aggregator/Aggregator.h>
 
 namespace CubeWorld
@@ -25,7 +25,7 @@ struct RectData {
 class Rect : public Engine::Aggregator<RectData>
 {
 public:
-   Rect(Engine::UIRoot* root);
+   Rect(Bounded* bounds);
 
    void Render() override;
 

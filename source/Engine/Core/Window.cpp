@@ -20,6 +20,7 @@ void mouseButtonCallback(GLFWwindow* glfw, int button, int action, int mods);
 
 Window::Window() : mGLFW(nullptr)
 {
+   Reset();
 }
 
 Window::~Window()

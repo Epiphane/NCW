@@ -14,7 +14,7 @@ namespace Aggregator
 
 std::unique_ptr<Engine::Graphics::Program> Rect::program = nullptr;
 
-Rect::Rect(Engine::UIRoot* root) : Engine::Aggregator<RectData>(root)
+Rect::Rect(Bounded* bounds) : Engine::Aggregator<RectData>(bounds)
 {
    if (!program)
    {
@@ -35,7 +35,7 @@ void Rect::Render()
 {
    BIND_PROGRAM_IN_SCOPE(program);
 
-   program->Uniform2f("uWindowSize", static_cast<GLfloat>(mRoot->GetWidth()), static_cast<GLfloat>(mRoot->GetHeight()));
+   program->Uniform2f("uWindowSize", static_cast<GLfloat>(mBounds->GetWidth()), static_cast<GLfloat>(mBounds->GetHeight()));
 
    mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)0);
    mVBO.AttribPointer(program->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, sizeof(RectData), (void*)(sizeof(glm::vec3)));
