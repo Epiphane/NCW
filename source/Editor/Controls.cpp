@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBFileSystem/File.h>
 #include <RGBLogger/Logger.h>
 
@@ -8,7 +9,6 @@
 #include <Shared/UI/TextButton.h>
 
 #include "Command/Commands.h"
-#include "Command/CommandStack.h"
 #include "Controls.h"
 
 namespace CubeWorld

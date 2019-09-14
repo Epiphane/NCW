@@ -10,14 +10,15 @@
 #include <libfswatch/c/libfswatch.h>
 #endif
 
-#include <Engine/Core/Input.h>
-#include <Engine/Core/Timer.h>
-#include <Engine/Core/Window.h>
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBLogger/Logger.h>
 #include <RGBLogger/StdoutLogger.h>
 #include <RGBLogger/DebugLogger.h>
 #include <RGBSettings/SettingsProvider.h>
 
+#include <Engine/Core/Input.h>
+#include <Engine/Core/Timer.h>
+#include <Engine/Core/Window.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/RectFilled.h>
@@ -25,7 +26,6 @@
 #include <Shared/UI/TextButton.h>
 
 #include "AnimationStation/Editor.h"
-#include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "Constrainer/ConstrainerVC.h"
 #include "ParticleSpace/Editor.h"
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
       LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
       return 1;
    }
-   
+
    // Setup input
    auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
       window.SetShouldClose(true);

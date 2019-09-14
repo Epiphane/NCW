@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <imgui.h>
 
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/Button.h>
 #include <Shared/UI/RectFilled.h>
 
-#include "../Command/CommandStack.h"
 #include "../Imgui/Extensions.h"
 
 #include "Dock.h"

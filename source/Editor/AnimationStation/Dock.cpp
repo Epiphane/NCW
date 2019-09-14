@@ -4,12 +4,12 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/Entity/EntityManager.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 
-#include "../Command/CommandStack.h"
 #include "../Imgui/Extensions.h"
 
 #include "Dock.h"
@@ -110,7 +110,7 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowPos(ImVec2(975, 20), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
    ImGui::Begin("State info");
-   
+
    {
       State& state = GetCurrentState();
       if (mStateName.Update("Name", state.name))
