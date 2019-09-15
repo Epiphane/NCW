@@ -102,7 +102,7 @@ int main(int argc, char** argv)
       {
          "Animation Station",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
             SettingsProvider::Instance().Set("main", "editor", "animation_station");
             animationStation->Start();
          }
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
       {
          "Skeletor",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
             SettingsProvider::Instance().Set("main", "editor", "skeletor");
             skeletor->Start();
          }
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
       {
          "Particle Space",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
             SettingsProvider::Instance().Set("main", "editor", "particle_space");
             particleSpace->Start();
          }
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
       {
          "Constrainer",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
             SettingsProvider::Instance().Set("main", "editor", "constrainer");
             constrainer->Start();
          }
@@ -183,13 +183,13 @@ int main(int argc, char** argv)
 
    // Save the pointers so that the callback doesn't get deregistered.
    auto _1 = window.AddCallback(Engine::Window::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
-      Editor::CommandStack::Instance().Undo();
+      CommandStack::Instance().Undo();
    });
    auto _2 = window.AddCallback({
       Engine::Window::CtrlShiftKey(GLFW_KEY_Z),
       Engine::Window::CtrlKey(GLFW_KEY_Y)
    }, [&](int, int, int) {
-      Editor::CommandStack::Instance().Redo();
+      CommandStack::Instance().Redo();
    });
 
    // Start in Animation Station
@@ -248,28 +248,28 @@ int main(int argc, char** argv)
          ImVec2 space = ImGui::GetContentRegionAvail();
          if (ImGui::Button("Animation Station", ImVec2(space.x, 0)))
          {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
             SettingsProvider::Instance().Set("main", "editor", "animation_station");
             animationStation->Start();
          }
 
          if (ImGui::Button("Skeletor", ImVec2(space.x, 0)))
          {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
             SettingsProvider::Instance().Set("main", "editor", "skeletor");
             skeletor->Start();
          }
 
          if (ImGui::Button("Particle Space", ImVec2(space.x, 0)))
          {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
             SettingsProvider::Instance().Set("main", "editor", "particle_space");
             particleSpace->Start();
          }
 
          if (ImGui::Button("Constrainer", ImVec2(space.x, 0)))
          {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
             SettingsProvider::Instance().Set("main", "editor", "constrainer");
             constrainer->Start();
          }

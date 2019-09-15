@@ -5,14 +5,10 @@
 #include <memory>
 #include <stack>
 
-#include <RGBDesignPatterns/Command.h>
-#include <RGBDesignPatterns/Singleton.h>
-#include <Engine/Event/Event.h>
+#include "Command.h"
+#include "Singleton.h"
 
 namespace CubeWorld
-{
-
-namespace Editor
 {
 
 class CommandStack : public Singleton<CommandStack>
@@ -25,6 +21,11 @@ public:
 
    void Do(std::unique_ptr<Command>&& command)
    {
+      while (!undoneCommands.empty())
+      {
+         undoneCommands.pop();
+      }
+
       command->Do();
       commands.push(std::move(command));
    }
@@ -40,6 +41,11 @@ public:
    //
    void Emplace(std::unique_ptr<Command>&& command)
    {
+      while (!undoneCommands.empty())
+      {
+         undoneCommands.pop();
+      }
+
       commands.push(std::move(command));
    }
 
@@ -69,8 +75,10 @@ public:
          return;
       }
 
-      Do(std::move(undoneCommands.top()));
+      std::unique_ptr<Command> command = std::move(undoneCommands.top());
       undoneCommands.pop();
+      command->Do();
+      commands.push(std::move(command));
    }
 
    bool empty() { return commands.empty(); }
@@ -79,7 +87,5 @@ private:
    std::stack<std::unique_ptr<Command>> commands;
    std::stack<std::unique_ptr<Command>> undoneCommands;
 };
-
-}; // namespace Editor
 
 }; // namespace CubeWorld
