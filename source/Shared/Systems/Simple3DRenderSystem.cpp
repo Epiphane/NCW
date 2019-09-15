@@ -61,7 +61,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
    }
 
    metric = DebugHelper::Instance().RegisterMetric("3D Render Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
+      return FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }
 
@@ -83,7 +83,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
 
       glm::mat4 model = transform.GetMatrix();
       program->UniformMatrix4f("uModelMatrix", model);
-      
+
       glDrawArrays(GL_TRIANGLES, 0, GLsizei(render.mCount));
 
       CHECK_GL_ERRORS();

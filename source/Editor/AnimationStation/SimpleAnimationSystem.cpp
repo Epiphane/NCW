@@ -335,11 +335,10 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       bool isLastFrame = (keyframeIndex == keyframes.size() - 1);
       const Keyframe& src = keyframes[keyframeIndex];
       const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
-      const double dstTime = isLastFrame ? state.length : dst.time;
       float progress = 0.0f;
-      if (dstTime > src.time)
+      if (dst.time > src.time)
       {
-         progress = float(controller.time - src.time) / float(dstTime - src.time);
+         progress = float(controller.time - src.time) / float(dst.time - src.time);
       }
 
       size_t boneId = 0;

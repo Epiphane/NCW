@@ -1110,7 +1110,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       part.name = part.id > 0 ? node.name : "root";
       if (part.name == "")
       {
-         part.name = Format::FormatString("Unnammed node %1", part.id);
+         part.name = FormatString("Unnammed node %1", part.id);
       }
       // Combine rotation and translation
       part.transform = glm::translate(parent, glm::vec3{
@@ -1687,11 +1687,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_inf" },
          { "_i", ToShortString(voxModelData.sun.intensity) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.sun.color[0],
               voxModelData.sun.color[1],
               voxModelData.sun.color[2]) },
-         { "_angle", Format::FormatString("%1 %2", voxModelData.sun.angle[0], voxModelData.sun.angle[1]) },
+         { "_angle", FormatString("%1 %2", voxModelData.sun.angle[0], voxModelData.sun.angle[1]) },
          { "_area", ToShortString(voxModelData.sun.area) },
          { "_disk", voxModelData.sun.disk ? "1" : "0" },
       });
@@ -1706,7 +1706,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_uni" },
          { "_i", ToShortString(voxModelData.sky.intensity) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.sky.color[0],
               voxModelData.sky.color[1],
               voxModelData.sky.color[2]) },
@@ -1722,20 +1722,20 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_atm" },
          { "_ray_d", ToShortString(voxModelData.atm.rayleighDensity) },
          { "_ray_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.atm.rayleighColor[0],
               voxModelData.atm.rayleighColor[1],
               voxModelData.atm.rayleighColor[2]) },
          { "_mie_d", ToShortString(voxModelData.atm.mieDensity) },
          { "_mie_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.atm.mieColor[0],
               voxModelData.atm.mieColor[1],
               voxModelData.atm.mieColor[2]) },
          { "_mie_g", ToShortString(voxModelData.atm.miePhase) },
          { "_o3_d", ToShortString(voxModelData.atm.ozoneDensity) },
          { "_o3_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.atm.ozoneColor[0],
               voxModelData.atm.ozoneColor[1],
               voxModelData.atm.ozoneColor[2]) },
@@ -1751,7 +1751,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_fog_uni" },
          { "_d", ToShortString(voxModelData.fog.density) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.fog.color[0],
               voxModelData.fog.color[1],
               voxModelData.fog.color[2]) },
@@ -1809,7 +1809,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_ground" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.ground.color[0],
               voxModelData.ground.color[1],
               voxModelData.ground.color[2]) },
@@ -1825,7 +1825,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_bg" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.bg.color[0],
               voxModelData.bg.color[1],
               voxModelData.bg.color[2]) },
@@ -1840,7 +1840,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_edge" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.edge.color[0],
               voxModelData.edge.color[1],
               voxModelData.edge.color[2]) },
@@ -1856,7 +1856,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_grid" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.grid.color[0],
               voxModelData.grid.color[1],
               voxModelData.grid.color[2]) },
@@ -1881,7 +1881,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_bg_c", voxModelData.settings.background ? "1" : "0" },
          { "_bg_a", voxModelData.settings.bgTransparent ? "1" : "0" },
          { "_scale",
-           Format::FormatString("%1 %2 %3",
+           FormatString("%1 %2 %3",
               voxModelData.settings.scale[0],
               voxModelData.settings.scale[1],
               voxModelData.settings.scale[2]) },

@@ -161,7 +161,7 @@ int main(int argc, char** argv)
    // FPS clock
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug.RegisterMetric("FPS", [&clock]() -> std::string {
-      return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
+      return FormatString("%.1f", std::round(1.0 / clock.Average()));
    });
 
    // Attach mouse events to state
@@ -221,12 +221,12 @@ int main(int argc, char** argv)
 
    Timer<100> windowContentRender;
    auto _3 = debug.RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {
-      return Format::FormatString("%.1f", windowContentRender.Average());
+      return FormatString("%.1f", windowContentRender.Average());
    });
 
    Timer<100> uiUpdateTime;
    auto _4 = debug.RegisterMetric("UI UpdateRoot", [&uiUpdateTime]() -> std::string {
-      return Format::FormatString("%.1f", uiUpdateTime.Average());
+      return FormatString("%.1f", uiUpdateTime.Average());
    });
 
    uiUpdateTime.Reset();

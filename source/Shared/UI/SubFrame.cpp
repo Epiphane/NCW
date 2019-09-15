@@ -15,7 +15,7 @@ namespace UI
 void SubFrameUIRoot::Receive(const Engine::ElementAddedEvent& evt)
 {
    UIRoot::Receive(evt);
-   
+
    // Special situation: we always wanna know how big the UI is, since it can overflow.
    mSolver.add_constraints({
       mLeft <= evt.element->GetFrame().left,
@@ -43,7 +43,7 @@ SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
    mUIRoot.TransformParentEvents<Engine::ElementAddedEvent>(this);
 
    metric = DebugHelper::Instance().RegisterMetric("Update Sub UI", [&]() -> std::string {
-      return Format::FormatString("%.3f", mUpdateTimer.Average());
+      return FormatString("%.3f", mUpdateTimer.Average());
    });
 }
 

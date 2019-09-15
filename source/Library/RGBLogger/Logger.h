@@ -30,7 +30,7 @@ public:
    virtual void Log(const char* message, Color color = Default) = 0;
 
    template <typename... Args>
-   const inline void Log(std::string_view fmt, const Args& ... args) { Log(Format::FormatString(fmt, args...).c_str()); }
+   const inline void Log(std::string_view fmt, const Args& ... args) { Log(FormatString(fmt, args...).c_str()); }
    const inline void Log(const std::string& message) { Log(message.c_str()); }
 };
 
@@ -56,7 +56,7 @@ public:
    void Log(LogLevel level, const char* message);
 
    template <typename... Args>
-   const inline void Log(LogLevel level, std::string_view fmt, const Args& ... args) { Log(level, Format::FormatString(fmt, args...).c_str()); }
+   const inline void Log(LogLevel level, std::string_view fmt, const Args& ... args) { Log(level, FormatString(fmt, args...).c_str()); }
    const inline void Log(LogLevel level, const std::string& message) { Log(level, message.c_str()); }
 
 private:

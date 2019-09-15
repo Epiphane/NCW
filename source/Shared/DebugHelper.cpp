@@ -52,7 +52,7 @@ DebugHelper::~DebugHelper()
 std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn)
 {
    std::unique_ptr<MetricLink> link = std::make_unique<MetricLink>(this, name, fn);
-      
+
    link->next = mMetrics.get();
    link->prev = mMetrics->prev;
    link->prev->next = link.get();
@@ -77,7 +77,7 @@ void DebugHelper::RemoveLink(MetricLink* link)
    {
       link->prev->next = link->next;
    }
-      
+
    link->next = nullptr;
    link->prev = nullptr;
 }
@@ -124,7 +124,7 @@ void DebugHelper::Update()
       for (auto system : mSystemManager->GetBenchmarks())
       {
          leftText += "\n" + system.first;
-         std::string ms = Format::FormatString("%.1fms", system.second * 1000.0);
+         std::string ms = FormatString("%.1fms", system.second * 1000.0);
          if (ms.size() < 7)
          {
             ms.insert(ms.begin(), 7 - ms.size(), ' ');

@@ -12,9 +12,6 @@
 namespace CubeWorld
 {
 
-namespace Format
-{
-
 const char DIGITS[] =
 "0001020304050607080910111213141516171819"
 "2021222324252627282930313233343536373839"
@@ -92,7 +89,7 @@ void AppendFloatLength(char *&, T) {}
 void AppendFloatLength(char *&p, long double) { *p++ = 'L'; }
 
 template <typename T>
-std::string FormatDouble(T value, const impl::format_specs& specs)
+std::string FormatDouble(T value, const FormatImpl::format_specs& specs)
 {
    switch (fpclassify(value)) {
    case FP_INFINITE:  return "<inf>";
@@ -133,46 +130,46 @@ std::string FormatPointer(const void *pointer)
    return "<pointer:" + FormatInt(reinterpret_cast<uint64_t>(pointer)).result() + ">";
 }
 
-namespace impl {
-std::string FormatArg(const impl::basic_arg& argument, const format_specs& specs)
+namespace FormatImpl {
+std::string FormatArg(const FormatImpl::basic_arg& argument, const format_specs& specs)
 {
    switch (argument.type_)
    {
-   case impl::type::none_type:
-   case impl::type::name_arg_type:
+   case FormatImpl::type::none_type:
+   case FormatImpl::type::name_arg_type:
       assert(false);
-   case impl::type::int32_type:
+   case FormatImpl::type::int32_type:
       return FormatInt(argument.value_.int32_value).result();
-   case impl::type::uint32_type:
+   case FormatImpl::type::uint32_type:
       return FormatInt(argument.value_.uint32_value).result();
-   case impl::type::int64_type:
+   case FormatImpl::type::int64_type:
       return FormatInt(argument.value_.int64_value).result();
-   case impl::type::uint64_type:
+   case FormatImpl::type::uint64_type:
       return FormatInt(argument.value_.uint64_value).result();
-   case impl::type::bool_type:
+   case FormatImpl::type::bool_type:
       return FormatBool(argument.value_.int32_value != 0);
-   case impl::type::char_type:
+   case FormatImpl::type::char_type:
       return FormatChar(static_cast<char>(argument.value_.int32_value));
-   case impl::type::double_type:
+   case FormatImpl::type::double_type:
       return FormatDouble(argument.value_.double_value, specs);
-   case impl::type::long_double_type:
+   case FormatImpl::type::long_double_type:
       return FormatDouble(argument.value_.long_double_value, specs);
-   case impl::type::cstring_type:
+   case FormatImpl::type::cstring_type:
       return std::string(argument.value_.string.value);
-   case impl::type::string_type:
+   case FormatImpl::type::string_type:
       return std::string(argument.value_.string.value, argument.value_.string.size);
-   case impl::type::pointer_type:
+   case FormatImpl::type::pointer_type:
       return FormatPointer(argument.value_.pointer);
-   case impl::type::custom_type:
+   case FormatImpl::type::custom_type:
       break;
    }
 
    return "<unimplemented>";
 }
-}; // namespace impl
+}; // namespace FormatImpl
 
 template <typename... Args>
-size_t BufferSize(std::string_view string, impl::basic_format_args args)
+size_t BufferSize(std::string_view string, FormatImpl::basic_format_args args)
 {
    return string.length() + 16 * args.max_size();
 }
@@ -200,7 +197,7 @@ uint32_t ParseNonnegativeInteger(std::string_view::iterator& it, std::string_vie
    return value;
 }
 
-std::string FormatString(std::string_view fmt, impl::basic_format_args args)
+std::string FormatString(std::string_view fmt, FormatImpl::basic_format_args args)
 {
    std::string result;
    result.reserve(BufferSize(fmt, args));
@@ -240,7 +237,7 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
          arg_index = _arg++;
       }
 
-      impl::format_specs specs;
+      FormatImpl::format_specs specs;
       if (it != end)
       {
          // Parse format
@@ -263,7 +260,7 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
          }
       }
 
-      impl::basic_arg arg = args[arg_index];
+      FormatImpl::basic_arg arg = args[arg_index];
 
       result.append(FormatArg(arg, specs));
 
@@ -273,7 +270,5 @@ std::string FormatString(std::string_view fmt, impl::basic_format_args args)
 
    return result;
 }
-
-}; // namespace Format
 
 }; // namespace CubeWorld

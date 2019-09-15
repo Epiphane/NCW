@@ -149,12 +149,12 @@ Maybe<void> DiskFileSystem::MakeDirectory(const std::string& path)
          {
             if (CreateDirectoryW(normalizedW.c_str(), nullptr) == 0 && GetLastError() != ERROR_ALREADY_EXISTS)
             {
-               return TransformPlatformError(Format::FormatString("Failed to create directory %1", normalized));
+               return TransformPlatformError(FormatString("Failed to create directory %1", normalized));
             }
          }
          else
          {
-            return TransformPlatformError(Format::FormatString("Failed to get attributes on %1", normalized));
+            return TransformPlatformError(FormatString("Failed to get attributes on %1", normalized));
          }
       }
       else if ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -241,10 +241,10 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
       dir = opendir(Paths::Join(base, path).c_str());
       if (dir == nullptr)
       {
-         return TransformPlatformError(Format::FormatString("Failed opening %1", Paths::Join(base, path)));
+         return TransformPlatformError(FormatString("Failed opening %1", Paths::Join(base, path)));
       }
 
-      
+
       for (struct dirent *info = readdir(dir); info != nullptr; info = readdir(dir))
       {
          // Ignore . and ..

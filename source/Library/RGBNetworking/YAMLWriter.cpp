@@ -60,7 +60,7 @@ bool YAMLWriter::Int64(int64_t i)
    }
    else
    {
-      std::string formatted = Format::FormatString("%1", i);
+      std::string formatted = FormatString("%1", i);
       return String(formatted.c_str(), (rapidjson::SizeType)formatted.size(), true);
    }
 }
@@ -81,7 +81,7 @@ bool YAMLWriter::Uint64(uint64_t i)
    }
    else
    {
-      std::string formatted = Format::FormatString("%1", i);
+      std::string formatted = FormatString("%1", i);
       return String(formatted.c_str(), (rapidjson::SizeType)formatted.size(), true);
    }
 }

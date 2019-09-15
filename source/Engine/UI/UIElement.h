@@ -17,7 +17,6 @@
 #include <rhea/variable.hpp>
 #include <rhea/constraint.hpp>
 
-#include <RGBDesignPatterns/DereferenceIterator.h>
 #include <RGBLogger/Logger.h>
 #include <RGBBinding/BindingProperty.h>
 #include <RGBBinding/Observable.h>
@@ -100,7 +99,7 @@ public:
 
       return static_cast<E*>(AddChild(std::make_unique<E>(mpRoot, this, std::forward<Args>(args)...)));
    }
-   
+
    //
    // Add a new gesture recognizer of type G to this element.
    // Returns a shared_pointer to the element, for referencing, configuring, etc.
@@ -109,7 +108,7 @@ public:
    std::shared_ptr<G> CreateAndAddGestureRecognizer(Args ...args)
    {
       static_assert(std::is_base_of<UIGestureRecognizer, G>::value, "Only subclasses of UIGestureRecognizer should be added through here");
-      
+
       return AddGestureRecognizer(std::make_shared<G>(this, std::forward<Args>(args)...));
    }
 
@@ -214,20 +213,20 @@ public:
    virtual Action MouseMove(const MouseMoveEvent& evt);
    virtual Action MouseUp(const MouseUpEvent& evt);
    virtual Action MouseClick(const MouseClickEvent&) { return Unhandled; }
-   
+
    template<typename G>
    std::shared_ptr<G> AddGestureRecognizer(std::shared_ptr<G> recognizer)
    {
       mGestureRecognizers.push_back(recognizer);
       return recognizer;
    }
-   
+
    Observables::Observable<bool>& OnActiveStateChanged() { return mActiveObservable; }
 
 protected:
    // Sends a message when you become active or inactive
    Observables::Observable<bool> mActiveObservable;
-   
+
    // Convenience DisposeBag for subclasses to use
    std::shared_ptr<Observables::DisposeBag> mBag;
 
@@ -237,13 +236,13 @@ protected:
 
    // If true, this element is MARKED FOR DEATH
    bool mbDeleteAfterThisFrame = false;
-   
+
    // If true, this element will block mouse events to elements behind it.
    bool mbAbsorbsMouseEvents = false;
 
    // Children are owned by their parent elements.
    std::vector<std::unique_ptr<UIElement>> mChildren;
-   
+
    // List of gesture recognizers on this element
    std::vector<std::shared_ptr<UIGestureRecognizer>> mGestureRecognizers;
 

@@ -38,7 +38,7 @@ public:
 public:
    NumDisplay(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
       : Text(root, parent, options)
-      , mFormat("%." + Format::FormatString("%1", options.precision) + "f")
+      , mFormat("%." + FormatString("%1", options.precision) + "f")
    {};
 
    //
@@ -48,7 +48,7 @@ public:
    {
       if (Binding::Update())
       {
-         SetText(Format::FormatString(mFormat, Binding::GetValue()));
+         SetText(FormatString(mFormat, Binding::GetValue()));
       }
 
       Text::Update(dt);

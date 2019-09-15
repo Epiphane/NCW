@@ -42,10 +42,10 @@ SimpleParticleSystem::~SimpleParticleSystem()
 void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
    mUpdateMetric = DebugHelper::Instance().RegisterMetric("Particle Update Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
+      return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
    mRenderMetric = DebugHelper::Instance().RegisterMetric("Particle Render Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mRenderClock.Average() * 1000.0);
+      return FormatString("%.2fms", mRenderClock.Average() * 1000.0);
    });
 
    mTick = 0;
@@ -362,12 +362,12 @@ void SimpleParticleSystem::UpdateParticleSystem(
       glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
       glEndTransformFeedback();
    }
-     
+
 #if CUBEWORLD_DIAGNOSE_PARTICLE_OUTPUT
    glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
    while (result == 0)
       glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
-   
+
    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
    glDeleteQueries(1, &drawnQuery);
 #endif

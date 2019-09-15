@@ -118,11 +118,11 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
    events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
 
    updateMetric = DebugHelper::Instance().RegisterMetric("Physics Update", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
+      return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
 
    collisionMetric = DebugHelper::Instance().RegisterMetric("Collision Checks", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
+      return FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
    });
 }
 
@@ -209,7 +209,7 @@ void System::Receive(const Engine::ComponentAddedEvent<Collider>& e)
 {
    Engine::ComponentHandle<Collider> handle = e.component;
    Collider* collider = handle.get();
-   
+
    TransformHandle transform = e.entity.Get<Engine::Transform>();
    // TODO parent transforms !?
    assert(!transform->GetParent());
