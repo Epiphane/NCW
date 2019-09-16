@@ -53,7 +53,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                const auto& it = controller.stateLookup.find(state->next);
                if (it == controller.stateLookup.end())
                {
-                  LOG_ERROR("State %1 specified next='%2', which doesn't exist", state->name, state->next);
+                  LOG_ERROR("State {state} specified next={next}, which doesn't exist", state->name, state->next);
                   state->next = "";
                }
                else

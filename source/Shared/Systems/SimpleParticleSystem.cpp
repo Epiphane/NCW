@@ -425,7 +425,7 @@ void SimpleParticleSystem::RenderParticleSystem(
       }
       else
       {
-         LOG_ERROR("Unknown shader value for %1", key.GetStringValue());
+         LOG_ERROR("Unknown shader value for {key}", key.GetStringValue());
          assert(false);
       }
       CHECK_GL_ERRORS();

@@ -25,9 +25,9 @@ using namespace Paths;
 Failure DiskFileSystem::TransformPlatformError(const std::string& message)
 {
 #if CUBEWORLD_PLATFORM_WINDOWS
-   Failure err{"Error %1", GetLastError()};
+   Failure err{"Error {errno}", GetLastError()};
 #elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
-   Failure err{"Error %1", errno};
+   Failure err{"Error {errno}", errno};
 #else
 #error "Unhandled platform"
 #endif
@@ -107,7 +107,7 @@ std::pair<Maybe<void>, bool> DiskFileSystem::IsDirectory(const std::string& path
          return {Success, (status.st_mode & S_IFDIR) != 0};
       }
    }
-   return {Failure{"Failed to access path: Error %1", errno}, false};
+   return {Failure{"Failed to access path: Error {errno}", errno}, false};
 #else
 #error "Unhandled platform"
 #endif
@@ -149,22 +149,22 @@ Maybe<void> DiskFileSystem::MakeDirectory(const std::string& path)
          {
             if (CreateDirectoryW(normalizedW.c_str(), nullptr) == 0 && GetLastError() != ERROR_ALREADY_EXISTS)
             {
-               return TransformPlatformError(FormatString("Failed to create directory %1", normalized));
+               return TransformPlatformError(FormatString("Failed to create directory {path}", normalized));
             }
          }
          else
          {
-            return TransformPlatformError(FormatString("Failed to get attributes on %1", normalized));
+            return TransformPlatformError(FormatString("Failed to get attributes on {path}", normalized));
          }
       }
       else if ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0)
       {
-         return Failure{"%1 is not a directory", normalized};
+         return Failure{"{path} is not a directory", normalized};
       }
 #else
       if (mkdir(normalized.c_str(), 0755) != 0 && errno != EEXIST)
       {
-         return Failure{"Failed to create directory: Error %1", errno};
+         return Failure{"Failed to create directory: Error {errno}", errno};
       }
 #endif
 
@@ -241,7 +241,7 @@ Maybe<std::vector<DiskFileSystem::FileEntry>> DiskFileSystem::ListDirectory(
       dir = opendir(Paths::Join(base, path).c_str());
       if (dir == nullptr)
       {
-         return TransformPlatformError(FormatString("Failed opening %1", Paths::Join(base, path)));
+         return TransformPlatformError(FormatString("Failed opening {path}", Paths::Join(base, path)));
       }
 
 
@@ -329,7 +329,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
 
    if (numRead != size)
    {
-      return Failure{"Tried to read %1 bytes, but only got %2", size, numRead};
+      return Failure{"Tried to read {size} bytes, but only got {numRead}", size, numRead};
    }
 
    return Success;
@@ -337,7 +337,7 @@ Maybe<void> DiskFileSystem::ReadFile(FileHandle handle, void* data, size_t size)
    ssize_t numRead = read(handle, data, size);
    if ((size_t)numRead != size)
    {
-      return Failure{"Tried to read %1 bytes, but only got %2", size, numRead};
+      return Failure{"Tried to read {size} bytes, but only got {numRead}", size, numRead};
    }
    return Success;
 #else
@@ -432,7 +432,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
 
    if (numWritten != size)
    {
-      return Failure{"Tried to write %1 bytes, but only wrote %2", size, numWritten};
+      return Failure{"Tried to write {size} bytes, but only wrote {numWritten}", size, numWritten};
    }
 
    return Success;
@@ -440,7 +440,7 @@ Maybe<void> DiskFileSystem::WriteFile(FileHandle handle, void* data, size_t size
    ssize_t numWritten = write(handle, data, size);
    if ((size_t)numWritten != size)
    {
-      return Failure{"Tried to write %1 bytes, but only wrote %2", size, numWritten};
+      return Failure{"Tried to write {size} bytes, but only wrote {numWritten}", size, numWritten};
    }
    return Success;
 #else

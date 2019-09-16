@@ -68,15 +68,14 @@ Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element
       newElement = std::make_unique<UIStackView>(pRoot, pParent, element["name"]);
    }
    else {
-      return Failure{"Unsupported class name in file: %1", newElementClass.c_str()};
+      return Failure{"Unsupported class name in file: {name}", newElementClass};
    }
 
    // Let each class do some initialization based on the JSON data
    newElement->InitFromJSON(element);
 
    if (elementMapOut->find(element["name"]) != elementMapOut->end()) {
-      std::string badName = element["name"];
-      return Failure{"Duplicate element name %1 in file", badName.c_str()};
+      return Failure{"Duplicate element name {name} in file", element["name"].GetStringValue()};
    }
 
    UIElement* reference = pParent->AddChild(std::move(newElement));
@@ -131,14 +130,14 @@ Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& const
       UIElement* secondaryElement = nullptr;
 
       if (elementsMap.find(primaryElementName) == elementsMap.end()) {
-         return Failure{"Unknown element name %1 when creating constraints.", primaryElementName};
+         return Failure{"Unknown element name {name} when creating constraints.", primaryElementName};
       }
 
       primaryElement = elementsMap.at(primaryElementName);
 
       if (!secondaryElementName.empty()) {
          if (elementsMap.find(secondaryElementName) == elementsMap.end()) {
-            return Failure{"Unknown element name %1 when creating constraints.", secondaryElementName};
+            return Failure{"Unknown element name {name} when creating constraints.", secondaryElementName};
          }
          secondaryElement = elementsMap.at(secondaryElementName);
       }

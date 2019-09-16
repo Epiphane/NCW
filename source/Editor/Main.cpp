@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 
    uiUpdateTime.Reset();
    windowContent.GetCurrent()->UpdateRoot();
-   LOG_ALWAYS("Time spent updating initial root: %1s", uiUpdateTime.Elapsed());
+   LOG_ALWAYS("Time spent updating initial root: {time}s", uiUpdateTime.Elapsed());
 
    do {
       double elapsed = clock.Elapsed();

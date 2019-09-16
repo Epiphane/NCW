@@ -137,7 +137,7 @@ std::string FormatArg(const FormatImpl::basic_arg& argument, const format_specs&
    {
    case FormatImpl::type::none_type:
    case FormatImpl::type::name_arg_type:
-      assert(false);
+      return "<missing arg>";
    case FormatImpl::type::int32_type:
       return FormatInt(argument.value_.int32_value).result();
    case FormatImpl::type::uint32_type:
@@ -210,54 +210,80 @@ std::string FormatString(std::string_view fmt, FormatImpl::basic_format_args arg
    std::string_view::iterator start = it;
    while (it != end)
    {
+      uint32_t arg_index = std::numeric_limits<uint32_t>::max();
+      FormatImpl::format_specs specs;
+
       char ch = *it++;
-      if (ch != '%') continue;
-      if (*it == ch) {
-         // Append simple text.
-         result.append(start, it);
-         start = ++it;
+      if (ch == '\\' && it != end)
+      {
+         // Skip whatever character this is.
+         ++it;
          continue;
       }
-
-      // Append everything before %
-      result.append(start, it - 1);
-
-      // Parse argument index, flags, and width.
-      uint32_t arg_index = std::numeric_limits<uint32_t>::max();
-
-      char c = *it;
-      if (c >= '0' && c <= '9')
+      else if (ch == '%')
       {
-         // Parse argument index (followed by '$') or a width preceded with '0'.
-         arg_index = ParseNonnegativeInteger(it, end) - 1;
+         if (*it == ch) {
+            // Append simple text.
+            result.append(start, it);
+            start = ++it;
+            continue;
+         }
+
+         // Append everything before %
+         result.append(start, it - 1);
+
+         // Parse argument index, flags, and width.
+         char c = *it;
+         if (c >= '0' && c <= '9')
+         {
+            // Parse argument index (followed by '$') or a width preceded with '0'.
+            arg_index = ParseNonnegativeInteger(it, end) - 1;
+         }
+
+         if (it != end)
+         {
+            // Parse format
+            auto newIt = it;
+            // TODO
+            if (*newIt == '.')
+            {
+               ++newIt;
+               if ('0' <= *newIt && *newIt <= '9')
+               {
+                  specs.precision = ParseNonnegativeInteger(newIt, end);
+               }
+
+               if (*newIt++ == 'f')
+               {
+                  // valid format, move along
+                  // TODO there's a lot more to worry about here i think
+                  it = newIt;
+               }
+            }
+         }
+      }
+      else if (ch == '{')
+      {
+         // Append everything before {
+         result.append(start, it - 1);
+
+         // Parse argument name
+         std::string argName;
+         std::string_view::iterator nameStart = it;
+         while (*it++ != '}' && it != end)
+         {}
+
+         argName.assign(nameStart, it);
+         start = it;
+      }
+      else
+      {
+         continue;
       }
 
       if (arg_index == std::numeric_limits<uint32_t>::max())
       {
          arg_index = _arg++;
-      }
-
-      FormatImpl::format_specs specs;
-      if (it != end)
-      {
-         // Parse format
-         auto newIt = it;
-         // TODO
-         if (*newIt == '.')
-         {
-            ++newIt;
-            if ('0' <= *newIt && *newIt <= '9')
-            {
-               specs.precision = ParseNonnegativeInteger(newIt, end);
-            }
-
-            if (*newIt++ == 'f')
-            {
-               // valid format, move along
-               // TODO there's a lot more to worry about here i think
-               it = newIt;
-            }
-         }
       }
 
       FormatImpl::basic_arg arg = args[arg_index];

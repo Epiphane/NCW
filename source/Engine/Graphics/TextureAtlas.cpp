@@ -49,7 +49,7 @@ namespace Graphics
 
    TextureAtlas::~TextureAtlas()
    {
-      if (mData != nullptr) 
+      if (mData != nullptr)
       {
          free(mData);
       }
@@ -60,7 +60,7 @@ namespace Graphics
       // Default initialized because the compiler didn't think alloc.y (referenced later)
       // was guaranteed to be initialized. We're smarter than that though.
       Region alloc{0,0,0,0};
-      
+
       GLsizei bestY = -1;
       std::forward_list<Region>::iterator best = mNodes.end();
       for (auto node = mNodes.begin(); node != mNodes.end(); ++node)
@@ -117,7 +117,6 @@ namespace Graphics
          auto next = std::next(best);
          while (next != mNodes.end() && next->x + next->w < best->x + best->w)
          {
-            //LOG_INFO("Erase node: (%1 %2) (%3)", next->x, next->y, next->w);
             mNodes.erase_after(best);
             next = std::next(best);
          }
@@ -125,7 +124,6 @@ namespace Graphics
          if (next != mNodes.end() && next->x < best->x + best->w)
          {
             GLsizei diff = (best->x + best->w) - next->x;
-            //LOG_INFO("Resize node: (%1 %2) (%3) -> (%4 %5) (%6)", next->x, next->y, next->w, next->x + diff, next->y, next->w - diff);
             next->x += diff;
             next->w -= diff;
          }
@@ -141,10 +139,6 @@ namespace Graphics
 
          best->y = alloc.y + height;
          best->w = width;
-
-         //LOG_INFO("Nodes: (%1 %2) (%3) + (%4 %5) (%6)",
-         //   best->x, best->y, best->w,
-         //   newNode.x, newNode.y, newNode.w);
 
          mNodes.insert_after(best, newNode);
       }
@@ -205,7 +199,7 @@ namespace Graphics
 
       return mTexture;
    }
-   
+
 }; // namespace Graphics
 
 }; // namespace Engine

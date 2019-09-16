@@ -142,7 +142,7 @@ namespace Game
          }
       }
 
-      LOG_INFO("Generated %1 blocks", blocksCreated);
+      LOG_INFO("Generated {num} blocks", blocksCreated);
 
       return false;
    }
@@ -150,7 +150,7 @@ namespace Game
    void StupidState::Initialize()
    {
       mWindow.SetMouseLock(true);
-      
+
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));

@@ -129,7 +129,7 @@ void SimpleAnimationController::TransitionTo(const std::string& state, double tr
 {
    // If a transition is in flight, skip to the end of it.
    if (current != next)
-   { 
+   {
       current = next;
       time = transitionCurrent;
    }
@@ -229,7 +229,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
             const auto it = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const SkeletonAnimations::Keyframe& kf) { return kf.time == k.time; });
             if (it == state.keyframes.end())
             {
-               LOG_ERROR("Keyframe at time %1 has no match in the base state", k.time);
+               LOG_ERROR("Keyframe at time {time} has no match in the base state", k.time);
             }
             else
             {
@@ -248,7 +248,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
       if (state.name.empty())
       {
-         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
+         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
          assert(false);
       }
 

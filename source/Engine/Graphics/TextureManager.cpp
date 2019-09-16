@@ -81,17 +81,17 @@ Maybe<void> Texture::LoadRandom(uint32_t size)
       data[i].y = distribution(generator);
       data[i].z = distribution(generator);
    }
-   
+
    glBindTexture(GL_TEXTURE_1D, mTexture);
    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, (GLsizei)size, 0, GL_RGB, GL_FLOAT, data.data());
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   
+
    GLenum err = glGetError();
    if (err != GL_NO_ERROR)
    {
-      return Failure{"GL error: %1", err};
+      return Failure{"GL error: {errno}", err};
    }
 
    return Success;
@@ -140,11 +140,11 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
 
    if (metadata["width"] != texture->mWidth)
    {
-      LOG_WARNING("File %1's width of %2 didn't match its metadata's width of %3", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
+      LOG_WARNING("File {filename}'s width of {width} didn't match its metadata's width of {expected}", Paths::GetFilename(filename), texture->mWidth, metadata["width"].GetUintValue());
    }
    if (metadata["height"] != texture->mHeight)
    {
-      LOG_WARNING("File %1's height of %2 didn't match its metadata's height of %3", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
+      LOG_WARNING("File {filename}'s height of {height} didn't match its metadata's height of {expected}", Paths::GetFilename(filename), texture->mWidth, metadata["height"].GetUintValue());
    }
 
    for (const auto [name, info] : metadata["images"].pairs())
@@ -209,7 +209,7 @@ Maybe<Texture*> TextureManager::GetTexture(const std::string& path)
    }
 
    // Attempt to load the font.
-   LOG_DEBUG("Loading %1", path);
+   LOG_DEBUG("Loading {path}", path);
    Maybe<std::unique_ptr<Texture>> newTexture = Texture::Load(path);
    if (!newTexture)
    {
@@ -219,7 +219,7 @@ Maybe<Texture*> TextureManager::GetTexture(const std::string& path)
    auto insertion = mTextures.emplace(path, std::move(*newTexture));
    return insertion.first->second.get();
 }
-   
+
 }; // namespace Graphics
 
 }; // namespace Engine

@@ -140,7 +140,8 @@ public:
    private:
       // TODO
       custom_value custom;
-   };*/
+   };
+   */
 
    constexpr basic_arg() : type_(type::none_type) {}
 
@@ -304,9 +305,11 @@ inline arg_store<Args...> make_args(const Args & ... args)
 std::string FormatString(std::string_view fmt, FormatImpl::basic_format_args args);
 
 //
-// Custom string formatter, which allows for type-agnostic insertion of arguments.
+// Custom string formatter, which allows for type-agnostic insertion of arguments. Arguments can be specified
+// using argument number (%1, %2, %3) or in-order using curly braces ({param1}, {param2}, {param3}).
 //
 // Example: FormatString("This incorporates %1 values, starting with %2 and %3", 2, "my string", &myObject);
+//          FormatString("This incorporates {num} values, starting with {first} and {second}", 2, "my string", &myObject);
 //
 // Usual types from printf are also "supported" (incomplete), such as %d, %s, etc.
 //

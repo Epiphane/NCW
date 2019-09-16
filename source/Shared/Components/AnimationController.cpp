@@ -207,7 +207,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time; });
          if (keyframeIt == state.keyframes.end())
          {
-            LOG_ERROR("Unable to find a keyframe with time %1 in the original skeleton", kframe.time);
+            LOG_ERROR("Unable to find a keyframe with time {time} in the original skeleton", kframe.time);
             continue;
          }
 
@@ -242,7 +242,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
 
       if (state.name.empty())
       {
-         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
+         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
          assert(false);
       }
 

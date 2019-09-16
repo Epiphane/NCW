@@ -83,7 +83,7 @@ ParticleSystem::ParticleSystem(
    assert(data.Succeeded());
    if (!data)
    {
-      data.Failure().WithContext("Failed loading %1", path).Log();
+      data.Failure().WithContext("Failed loading {path}", path).Log();
       return;
    }
 
@@ -122,7 +122,7 @@ void ParticleSystem::Initialize(
       );
       if (!maybeProgram)
       {
-         maybeProgram.Failure().WithContext("Failed loading particle shader for %1", name).Log();
+         maybeProgram.Failure().WithContext("Failed loading particle shader for {name}", name).Log();
          return;
       }
       else
@@ -239,7 +239,7 @@ void ParticleSystem::ApplyConfiguration(
       Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDir, textureName));
       if (!maybeTexture)
       {
-         maybeTexture.Failure().WithContext("Failed loading %1", textureName).Log();
+         maybeTexture.Failure().WithContext("Failed loading {texture}", textureName).Log();
       }
       else
       {
@@ -264,7 +264,7 @@ void ParticleSystem::ApplyConfiguration(
       }
       else
       {
-         LOG_ERROR("Unknown shape value %1. Defaulting to point", shapeVal);
+         LOG_ERROR("Unknown shape value {shape}. Defaulting to point", shapeVal);
          shape = Shape::Point;
       }
    }

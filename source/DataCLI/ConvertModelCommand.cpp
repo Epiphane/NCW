@@ -41,7 +41,7 @@ Maybe<std::string> ConvertModelCommand::Run(int argc, char** argv)
 
    if (!maybeModel)
    {
-      return maybeModel.Failure().WithContext("Failed to load source file %1", mSource);
+      return maybeModel.Failure().WithContext("Failed to load source file {path}", mSource);
    }
 
    Maybe<void> result;
@@ -56,7 +56,7 @@ Maybe<std::string> ConvertModelCommand::Run(int argc, char** argv)
 
    if (!result)
    {
-      return result.Failure().WithContext("Failed to write destination file %1", mDestination);
+      return result.Failure().WithContext("Failed to write destination file {path}", mDestination);
    }
 
    return mDestination;

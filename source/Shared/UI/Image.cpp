@@ -23,7 +23,7 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(options.filename);
    if (!maybeTexture)
    {
-      LOG_ERROR(maybeTexture.Failure().WithContext("Failed loading %1", options.filename).GetMessage());
+      maybeTexture.Failure().WithContext("Failed loading {filename}", options.filename).Log();
       return;
    }
    mTexture = *maybeTexture;
@@ -41,10 +41,10 @@ Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& opt
    ConstrainAspectRatio(pixelW / pixelH, opts);
 
    root->GetAggregator<Aggregator::Image>()->ConnectToTexture(mRegion, mTexture->GetTexture());
-   
+
    mpRoot->AddEditVar(mImageContentWidth);
    mpRoot->AddEditVar(mImageContentHeight);
-   
+
    UpdateContentSize();
 }
 
@@ -70,7 +70,7 @@ void Image::Redraw()
 
    mRegion.Set(vertices.data());
 }
-   
+
 rhea::linear_expression Image::ConvertTargetToVariable(Engine::UIConstraint::Target target) const
 {
    switch(target) {
@@ -82,12 +82,12 @@ rhea::linear_expression Image::ConvertTargetToVariable(Engine::UIConstraint::Tar
          return UIElement::ConvertTargetToVariable(target);
    }
 }
-   
+
 void Image::UpdateContentSize()
 {
    double pixelW = mCoords.z * mTexture->GetWidth();
    double pixelH = mCoords.w * mTexture->GetHeight();
-   
+
    mpRoot->Suggest(mImageContentWidth,  pixelW);
    mpRoot->Suggest(mImageContentHeight, pixelH);
 }

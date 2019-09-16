@@ -152,25 +152,25 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
    logger.Log("DEBUG | ");
    logger.Log(indentation.c_str());
    logger.Log(my.name.c_str(), Logger::Logger::Red);
-   logger.Log(FormatString(" [%1]\n", my.type).c_str());
+   logger.Log(FormatString(" [{type}]\n", my.type).c_str());
 
    // The rest is pretty simple.
-   logger.Log(Logger::LogLevel::kDebug, "%1Origin: (%2, %3) Size: (%4, %5)", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
-   logger.Log(Logger::LogLevel::kDebug, "%1Z: %2 Biggest Child Z: %3", indentation, my.z, my.maxZ);
+   logger.Log(Logger::LogLevel::kDebug, "{}Origin: ({x}, {y}) Size: ({w}, {h})", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
+   logger.Log(Logger::LogLevel::kDebug, "{}Z: {z} Biggest Child Z: {maxZ}", indentation, my.z, my.maxZ);
 
    if (bRecursive) {
       if (mChildren.size() == 0)
       {
-         logger.Log(Logger::LogLevel::kDebug, "%1Children: None", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}Children: None", indentation);
       }
       else
       {
-         logger.Log(Logger::LogLevel::kDebug, "%1Children: [", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}Children: [", indentation);
          for (const auto& child : mChildren)
          {
             child->LogDebugInfo(true, indentLevel + 1);
          }
-         logger.Log(Logger::LogLevel::kDebug, "%1]", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}]", indentation);
       }
    }
 }

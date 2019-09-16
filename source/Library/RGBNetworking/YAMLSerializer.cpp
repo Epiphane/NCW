@@ -60,7 +60,7 @@ bool ParseNumber(BindingPropertyReader& reader, yaml_char_t* str, rapidjson::Siz
    uint16_t significandDigit = 0;
    uint32_t i32 = 0;
    uint64_t i64 = 0;
-   
+
    // Parse minus first
    bool neg = *str == '-';
    if (neg) { ++str; }
@@ -308,7 +308,7 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
    {
       if (!yaml_parser_parse(&parser, &event))
       {
-         return Failure(parser.error, "Failed parsing buffer: Error %1", parser.error);
+         return Failure(parser.error, "Failed parsing buffer: Error {error}", parser.error);
       }
 
       bool map = false;
@@ -362,7 +362,7 @@ Maybe<BindingProperty> YAMLSerializer::Deserialize(const std::string& buffer)
                      return Failure{"Failed writing false"};
                   }
                }
-               else 
+               else
                if (!reader.String((char*)event.data.scalar.value, (rapidjson::SizeType)event.data.scalar.length, true))
                {
                   return Failure{"Failed writing string"};
@@ -463,7 +463,7 @@ Maybe<void> YAMLSerializer::SerializeFile(FileSystem& fs, const std::string& pat
    {
       return serialized.Failure().WithContext("Failed to serialize data");
    }
-   
+
    return fs.WriteFile(path, std::move(*serialized));
 }
 

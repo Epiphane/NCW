@@ -28,7 +28,7 @@ SettingsProvider::SettingsProvider()
 
    if (!SUCCEEDED(hr))
    {
-      LOG_ERROR("Failed getting local data path: Error %1", hr);
+      LOG_ERROR("Failed getting local data path: Error {hr}", hr);
       return;
    }
 
@@ -143,7 +143,7 @@ void SettingsProvider::Reload()
       Maybe<BindingProperty> settings = YAMLSerializer::DeserializeFile(path);
       if (!settings)
       {
-         LOG_ERROR("Failed loading settings from disk: %1", settings.Failure().GetMessage());
+         settings.Failure().WithContext("Failed loading settings from disk").Log();
       }
       else
       {
@@ -164,13 +164,13 @@ void SettingsProvider::Persist() const
    Maybe<void> makeFolders = DiskFileSystem{}.MakeDirectory(basePath);
    if (!makeFolders)
    {
-      LOG_ERROR("Failed creating location to store settings: %1", makeFolders.Failure().GetMessage());
+      makeFolders.Failure().WithContext("Failed creating location to store settings").Log();
    }
 
    Maybe<void> writeResult = YAMLSerializer::SerializeFile(Paths::Join(basePath, "settings.yaml"), mSettings);
    if (!writeResult)
    {
-      LOG_ERROR("Failed writing settings to disk: %1", writeResult.Failure().GetMessage());
+      writeResult.Failure().WithContext("Failed writing settings to disk").Log();
    }
 }
 

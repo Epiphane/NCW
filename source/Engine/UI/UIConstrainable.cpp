@@ -23,7 +23,7 @@ uint64_t UIConstrainable::sID = 0;
 
 UIConstrainable::UIConstrainable(UIRoot* root, const std::string& name)
    : mpRoot(root)
-   , mName(name.empty() ? FormatString("Element_%1", sID++) : name)
+   , mName(name.empty() ? FormatString("Element_{id}", sID++) : name)
 {
 }
 

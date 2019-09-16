@@ -33,7 +33,7 @@ public:
    {};
 
    const std::string GetMessage() const { return message; }
-   void Log() const { LOG_ERROR("%1", GetMessage()); }
+   void Log() const { LOG_ERROR("{}", GetMessage()); }
    int GetFailureCode() const { return failureCode; }
 
 public:

@@ -138,7 +138,7 @@ void Sidebar::SaveFile()
    Maybe<void> written = YAMLSerializer{}.SerializeFile(mFilename, serialized);
    if (!written)
    {
-      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
+      written.Failure().WithContext("Failed writing file {path}", mFilename).Log();
    }
 
    mpRoot->Emit<ParticleEmitterSavedEvent>(mParticleSystem);

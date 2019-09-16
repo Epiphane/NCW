@@ -216,7 +216,7 @@ public:
    // This uses the rapidjson Handler pattern.
    template <typename Handler>
    Maybe<void> Write(Handler& handler) const;
-   
+
 public:
    // Iterators and such things
    template<typename Property>
@@ -509,7 +509,7 @@ private:
       int64_t i64;
       uint64_t u64;
       double d;
-   };  
+   };
 
    union Data {
 #pragma warning(disable : 4582) // '%s': constructor is not implicitly called
@@ -622,7 +622,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       else if (IsUint()) { HANDLE_ERROR(handler.Uint(data.numVal.u.u), "Failed to write unsigned int value"); }
       else if (IsInt64()) { HANDLE_ERROR(handler.Int64(data.numVal.i64), "Failed to write 64-bit int value"); }
       else if (IsUint64()) { HANDLE_ERROR(handler.Uint64(data.numVal.u64), "Failed to write unsigned 64-bit int value"); }
-      else { return Failure{"Unhandled number type: %1", flags}; }
+      else { return Failure{"Unhandled number type: {flags}", flags}; }
       break;
    case kStringType:
       HANDLE_ERROR(handler.String(data.stringVal.c_str(), (rapidjson::SizeType)data.stringVal.size(), false), "Failed to write string value");
@@ -633,11 +633,11 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       {
          if (!handler.Key(kv.key.c_str(), (rapidjson::SizeType)kv.key.size(), false))
          {
-            return Failure{"Failed to write key %1", kv.key};
+            return Failure{"Failed to write key {key}", kv.key};
          }
          if (Maybe<void> result = kv.value.Write(handler); !result)
          {
-            return result.Failure().WithContext("Failed to write value for %1", kv.key);
+            return result.Failure().WithContext("Failed to write value for {key}", kv.key);
          }
       }
       HANDLE_ERROR(handler.EndObject((rapidjson::SizeType)data.objectVal.size()), "Failed to end object");
@@ -649,13 +649,13 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       {
          if (Maybe<void> result = it->Write(handler); !result)
          {
-            return result.Failure().WithContext("Failed to write index %1", it.mIndex);
+            return result.Failure().WithContext("Failed to write index {index}", it.mIndex);
          }
       }
       HANDLE_ERROR(handler.EndArray((rapidjson::SizeType)data.arrayVal.size()), "Failed to end array");
       break;
    default:
-      return Failure{"Unhandled type flag: %1", flags & kTypeMask};
+      return Failure{"Unhandled type flag: {type}", flags & kTypeMask};
    }
 
    return Success;

@@ -46,7 +46,7 @@ void SkeletonAnimations::Load(const std::string& entity_)
    Maybe<std::vector<FileSystem::FileEntry>> maybeFiles = fs.ListDirectory(dir, false, false);
    if (!maybeFiles)
    {
-      LOG_ERROR("Failed loading animations for entity %1: %2", entity_, maybeFiles.Failure().GetMessage());
+      maybeFiles.Failure().WithContext("Failed loading animations for entity {entity}", entity_).Log();
       return;
    }
 
@@ -55,7 +55,7 @@ void SkeletonAnimations::Load(const std::string& entity_)
       Maybe<BindingProperty> animation = YAMLSerializer::DeserializeFile(fs, Paths::Join(dir, entry.name));
       if (!animation)
       {
-         LOG_ERROR("Failed loading animation %1: %2", entry.name, animation.Failure().GetMessage());
+         animation.Failure().WithContext("Failed loading animation {name}", entry.name).Log();
          continue;
       }
 
@@ -137,7 +137,7 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
             }
             else
             {
-               LOG_ERROR("I don't understand the trigger data for entity=%1 from=%2 to=%3 (param=%4)",
+               LOG_ERROR("I don't understand the trigger data for entity={entity} from={state} to={dest} (param={param})",
                   entity, state.name, transition.destination, trigger.parameter);
                continue;
             }
@@ -176,7 +176,7 @@ void SkeletonAnimations::Load(const std::string& entity_, const BindingProperty&
          }
          else
          {
-            LOG_ERROR("Unrecognized event type: %1", type);
+            LOG_ERROR("Unrecognized event type: {type}", type);
             evt.type = Event::Type::Unknown;
          }
 

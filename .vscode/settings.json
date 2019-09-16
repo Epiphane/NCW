@@ -85,7 +85,8 @@
         "__node_handle": "cpp",
         "new": "cpp",
         "variant": "cpp",
-        "memory_resource": "cpp"
+        "memory_resource": "cpp",
+        "xtree": "cpp"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false,

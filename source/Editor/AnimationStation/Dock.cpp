@@ -571,7 +571,7 @@ void Dock::AddStateCommand::Do()
 {
    if (state.name.empty())
    {
-      state.name = FormatString("Unnamed state %1", dock->mController->states.size());
+      state.name = FormatString("Unnamed state {id}", dock->mController->states.size());
    }
 
    if (state.entity.empty())

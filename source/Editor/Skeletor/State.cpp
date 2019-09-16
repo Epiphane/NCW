@@ -144,11 +144,11 @@ void MainState::Receive(const SkeletonClearedEvent&)
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
-   LOG_DEBUG("Adding skeleton %1", evt.filename);
+   LOG_DEBUG("Adding skeleton {path}", evt.filename);
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
-      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
+      data.Failure().WithContext("Failed loading {path}", evt.filename).Log();
       return;
    }
 

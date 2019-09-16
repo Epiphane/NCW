@@ -124,7 +124,7 @@ void Sidebar::LoadFile(const std::string& filename)
       Maybe<BindingProperty> maybeData = YAMLSerializer::DeserializeFile(currentFile);
       if (!maybeData)
       {
-         LOG_ERROR("Failed to deserialize file %1: %2", currentFile, maybeData.Failure().GetMessage());
+         maybeData.Failure().WithContext("Failed to deserialize file {path}", currentFile).Log();
          break;
       }
       const BindingProperty data = std::move(*maybeData);
@@ -171,7 +171,7 @@ void Sidebar::SaveFile()
    Maybe<void> written = YAMLSerializer{}.SerializeFile(mFilename, serialized);
    if (!written)
    {
-      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
+      written.Failure().WithContext("Failed writing file {path}", mFilename).Log();
    }
 
    mpRoot->Emit<SkeletonSavedEvent>(mSkeleton);

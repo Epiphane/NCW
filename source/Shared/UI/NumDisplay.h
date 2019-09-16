@@ -38,7 +38,7 @@ public:
 public:
    NumDisplay(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
       : Text(root, parent, options)
-      , mFormat("%." + FormatString("%1", options.precision) + "f")
+      , mFormat("%." + FormatString("{}", options.precision) + "f")
    {};
 
    //
