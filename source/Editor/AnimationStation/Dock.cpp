@@ -78,14 +78,14 @@ void Dock::Update(TIMEDELTA)
       return;
    }
 
-   // State selector
+   // Begin state selector
    ImGui::SetNextWindowPos(ImVec2(25, 140), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
    ImGui::Begin("State");
 
    ImVec2 space = ImGui::GetContentRegionAvail();
    ImGuiStyle& style = ImGui::GetStyle();
-   const ImVec2 label_size = ImGui::CalcTextSize("X", NULL, true);
+   const ImVec2 label_size = ImGui::CalcTextSize("X", nullptr, true);
    float buttonSize = label_size.y + style.FramePadding.y * 2.0f;
    for (const auto&[name, _] : mController->states)
    {
@@ -106,7 +106,9 @@ void Dock::Update(TIMEDELTA)
    }
 
    ImGui::End();
+   // End state selector
 
+   // Begin state info window
    ImGui::SetNextWindowPos(ImVec2(975, 20), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
    ImGui::Begin("State info");
@@ -154,19 +156,12 @@ void Dock::Update(TIMEDELTA)
    }
 
    ImGui::End();
+   // End state info window
 
+   // Begin playback window
    ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(275, 200), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Timeline");
-
-   std::vector<double> keyframes;
-   for (const Keyframe& frame : state.keyframes)
-   {
-      keyframes.push_back(frame.time);
-   }
-
-   Receive(SuspendEditingEvent{});
-   ImGuiEx::Timeline("##time", &mController->time, state.length, mSystemControls->paused, keyframes);
+   ImGui::Begin("Playback");
 
    if (mSystemControls->paused && ImGui::Button("Play"))
    {
@@ -189,10 +184,26 @@ void Dock::Update(TIMEDELTA)
       mSystemControls->speed /= 2.0;
    }
    ImGui::Checkbox("Seamless loop", &mSystemControls->seamlessLoop);
-
    ImGui::End();
+   // End playback window
 
-   // Keyframe modification
+   // Begin timeline window
+   ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(275, 200), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Timeline");
+
+   std::vector<double> keyframes;
+   for (const Keyframe& frame : state.keyframes)
+   {
+      keyframes.push_back(frame.time);
+   }
+
+   Receive(SuspendEditingEvent{});
+   ImGuiEx::Timeline("Keyframes##time", &mController->time, state.length, mSystemControls->paused, keyframes);
+   ImGui::End();
+   // End timeline window
+
+   // Begin keyframe window
    ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
    ImGui::Begin("Keyframe");
@@ -233,15 +244,13 @@ void Dock::Update(TIMEDELTA)
    }
 
    ImGui::End();
+   // End keyframe window
 
+   // Begin bone window
    ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
    ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Bone");
-   ImGui::Columns(2);
-   float windowWidth = ImGui::GetWindowWidth();
 
-   // Bone selector
-   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth / 5);
    Stance& stance = GetCurrentStance();
    const Bone& selected = stance.bones[mBone];
    if (ImGui::BeginCombo("##bone", selected.name.c_str()))
@@ -262,9 +271,6 @@ void Dock::Update(TIMEDELTA)
       ImGui::EndCombo();
    }
 
-   ImGui::NextColumn();
-   ImGui::SetColumnWidth(ImGui::GetColumnIndex(), windowWidth * 4 / 5);
-
    if (mController->time == keyframe.time)
    {
       Receive(ResumeEditingEvent{});
@@ -274,8 +280,7 @@ void Dock::Update(TIMEDELTA)
          OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
          Receive(ResumeEditingEvent{});
       }
-      ImGui::SameLine();
-      if (ImGui::Button("Set base"))
+      if (ImGui::Button("Base"))
       {
          CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        selected.position,
@@ -283,7 +288,7 @@ void Dock::Update(TIMEDELTA)
                                                        keyframe.scales[selected.name]);
       }
       ImGui::SameLine();
-      if (ImGui::Button("Set previous"))
+      if (ImGui::Button("Previous") && index > 0)
       {
          Keyframe& prev = state.keyframes[index - 1];
          glm::vec3 pos = prev.positions.count(selected.name) != 0 ?
@@ -301,8 +306,7 @@ void Dock::Update(TIMEDELTA)
          OnScrub(ScrubType::Rotation, mScrubbers[1].GetLastValue());
          Receive(ResumeEditingEvent{});
       }
-      ImGui::SameLine();
-      if (ImGui::Button("Set base"))
+      if (ImGui::Button("Base"))
       {
          CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
@@ -310,7 +314,7 @@ void Dock::Update(TIMEDELTA)
                                                        keyframe.scales[selected.name]);
       }
       ImGui::SameLine();
-      if (ImGui::Button("Set previous"))
+      if (ImGui::Button("Previous") && index > 0)
       {
          Keyframe& prev = state.keyframes[index - 1];
          glm::vec3 rot = prev.rotations.count(selected.name) != 0 ?
@@ -328,8 +332,7 @@ void Dock::Update(TIMEDELTA)
          OnScrub(ScrubType::Scale, mScrubbers[2].GetLastValue());
          Receive(ResumeEditingEvent{});
       }
-      ImGui::SameLine();
-      if (ImGui::Button("Set base"))
+      if (ImGui::Button("Base"))
       {
          CommandStack::Instance().Do<ResetBoneCommand>(this, state.name, index, mBone,
                                                        keyframe.positions[selected.name],
@@ -337,7 +340,7 @@ void Dock::Update(TIMEDELTA)
                                                        selected.scale);
       }
       ImGui::SameLine();
-      if (ImGui::Button("Set previous"))
+      if (ImGui::Button("Previous") && index > 0)
       {
          Keyframe& prev = state.keyframes[index - 1];
          glm::vec3 scl = prev.scales.count(selected.name) != 0 ?
@@ -366,6 +369,7 @@ void Dock::Update(TIMEDELTA)
    }
 
    ImGui::End();
+   // End bone window
 }
 
 ///
