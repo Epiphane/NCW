@@ -79,6 +79,22 @@ SCENARIO("CommandStack manipulates commands as expected") {
          }
       }
 
+      WHEN("A reverse command is done") {
+         value = 1;
+         stack.Do<DecrementCommand>(&value, 1);
+
+         THEN("The value is decremented") {
+            CHECK(!stack.empty());
+            CHECK(value == 0);
+
+            AND_THEN("Undoing it does the original command") {
+               stack.Undo();
+               CHECK(stack.empty());
+               CHECK(value == 1);
+            }
+         }
+      }
+
       WHEN("Two commands are performed in order") {
          stack.Do<IncrementCommand>(&value, 1);
          REQUIRE(value == 1);
