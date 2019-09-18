@@ -50,6 +50,8 @@ public:
       double end;
    };
 
+   using Event = SkeletonAnimations::Event;
+
    struct State {
       std::string entity;
       std::string name;
@@ -59,6 +61,7 @@ public:
       double length = 0.0;
       std::vector<SkeletonAnimations::Keyframe> keyframes;
       std::vector<EmitterRef> emitters;
+      std::vector<Event> events;
    };
 
    struct Stance {

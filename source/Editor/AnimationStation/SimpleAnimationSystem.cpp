@@ -65,6 +65,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
             continue;
          }
 
+         // If this is the first entity (owner), then set modified=true.
          bool modified = !found;
          found = true;
 
@@ -85,6 +86,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
                    std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.positions.emplace(bone, pos);
+                  modified = true;
                }
             }
             for (const auto&[bone, rot] : keyframe.rotations)
@@ -94,6 +96,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
                   std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.rotations.emplace(bone, rot);
+                  modified = true;
                }
             }
             for (const auto&[bone, scl] : keyframe.scales)
@@ -103,6 +106,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
                   std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.scales.emplace(bone, scl);
+                  modified = true;
                }
             }
 
@@ -274,6 +278,20 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          emitters->systems.push_back(std::move(effect));
          state.emitters.push_back(std::move(ref));
       }
+   }
+
+   // Add events
+   for (const auto& [name, events] : anims->events)
+   {
+      State& state = states[name];
+
+      if (state.name.empty())
+      {
+         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
+         assert(false);
+      }
+
+      state.events = events;
    }
 }
 

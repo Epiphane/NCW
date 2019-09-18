@@ -252,8 +252,7 @@ void Dock::Update(TIMEDELTA)
    ImGui::Begin("Bone");
 
    Stance& stance = GetCurrentStance();
-   const Bone& selected = stance.bones[mBone];
-   if (ImGui::BeginCombo("##bone", selected.name.c_str()))
+   if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
    {
       for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
       {
@@ -271,6 +270,7 @@ void Dock::Update(TIMEDELTA)
       ImGui::EndCombo();
    }
 
+   const Bone& selected = stance.bones[mBone];
    if (mController->time == keyframe.time)
    {
       Receive(ResumeEditingEvent{});
@@ -565,7 +565,7 @@ void Dock::SetBone(const size_t& boneId)
 
    mBone = boneId;
 
-   Receive(ResumeEditingEvent{});
+   //Receive(ResumeEditingEvent{});
 }
 
 ///
