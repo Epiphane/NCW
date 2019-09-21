@@ -107,7 +107,7 @@ void ParticleSystem::Initialize(
 {
    name = config["name"];
 
-   std::string shader = config["shader"];
+   shader = config["shader"];
    std::string vertexShader = Paths::Join(shaderDir, shader + ".vert");
    std::string geometryShader = Paths::Join(shaderDir, shader + ".geom");
    std::string fragmentShader = Paths::Join(shaderDir, shader + ".frag");
@@ -182,17 +182,24 @@ void ParticleSystem::Reset()
    }
 }
 
-BindingProperty ParticleSystem::Serialize()
+BindingProperty ParticleSystem::Serialize() const
 {
    BindingProperty result;
 
    result["name"] = name;
+   result["shader"] = shader;
    result["launcher"]["particles-per-second"] = 1.0 / emitterCooldown;
    result["launcher"]["lifetime"] = emitterLifetime;
    result["particle"]["lifetime"] = particleLifetime;
    result["particle"]["spawn-age"]["min"] = spawnAge[0];
    result["particle"]["spawn-age"]["max"] = spawnAge[1];
+   result["max-particles"] = maxParticles;
    result["shader-uniforms"] = uniforms;
+   
+   if (!textureName.empty())
+   {
+      result["shader-texture"] = textureName;
+   }
 
    switch (shape)
    {
@@ -202,7 +209,14 @@ BindingProperty ParticleSystem::Serialize()
       result["shape"] = "cone";
       cone["direction"] = shapeParam0;
       cone["radius"] = shapeParam1;
-      cone["height"] = shapeParam2;
+      cone["height"]["min"] = shapeParam2;
+      cone["height"]["max"] = shapeParam3;
+      break;
+   }
+
+   case Shape::Trail:
+   {
+      result["shape"] = "trail";
       break;
    }
 
@@ -233,7 +247,7 @@ void ParticleSystem::ApplyConfiguration(
       uniforms = config["shader-uniforms"];
    }
 
-   std::string textureName = config["shader-texture"];
+   textureName = config["shader-texture"];
    if (!textureName.empty())
    {
       Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDir, textureName));

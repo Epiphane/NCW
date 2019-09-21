@@ -1,16 +1,19 @@
 ---
 name: slash
 shader: Trail2D
+launcher:
+  particles-per-second: 200.000004
+  lifetime: 0.1
+particle:
+  lifetime: 0.3
+  spawn-age:
+    min: 0
+    max: 0
 max-particles: 100
-shader-texture: trail.png
 shader-uniforms:
   uSize: 1
   uSprites: 1
   uSheetWidth: 1
   uSheetHeight: 1
-launcher:
-  particles-per-second: 200
-  lifetime: 0.1
+shader-texture: trail.png
 shape: trail
-particle:
-  lifetime: 0.3

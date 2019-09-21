@@ -138,11 +138,11 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
       });
 
       entities.Each<Transform, MultipleParticleEmitters>([&](Transform& transform, MultipleParticleEmitters& group) {
-         for (auto& system : group.systems)
+         for (MultipleParticleEmitters::Emitter* system : group.systems)
          {
-            if (system.update)
+            if (system != nullptr && system->update)
             {
-               UpdateParticleSystem(system, system.useEntityTransform ? transform.GetMatrix() : system.transform, dt);
+               UpdateParticleSystem(*system, system->useEntityTransform ? transform.GetMatrix() : system->transform, dt);
             }
          }
       });
@@ -169,13 +169,13 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    entities.Each<MultipleParticleEmitters>([&](MultipleParticleEmitters& group) {
       for (auto& system : group.systems)
       {
-         if (system.render)
+         if (system != nullptr && system->render)
          {
             RenderParticleSystem(
                perspective,
                view,
                position,
-               system
+               *system
             );
          }
       }

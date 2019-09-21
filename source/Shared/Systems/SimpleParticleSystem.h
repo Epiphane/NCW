@@ -63,7 +63,7 @@ struct MultipleParticleEmitters : public Engine::Component<MultipleParticleEmitt
    // Each particle system is paired with a transform
    // in order to place it in the world.
    //
-   std::vector<Emitter> systems;
+   std::vector<Emitter*> systems;
 };
 
 //

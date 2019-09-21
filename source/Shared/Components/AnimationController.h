@@ -132,7 +132,8 @@ public:
    double transitionStart, transitionEnd;
 
    // Particle system emitters.
-   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
+   std::vector<MultipleParticleEmitters::Emitter> emitters;
+   Engine::ComponentHandle<MultipleParticleEmitters> emitterContainer;
 };
 
 }; // namespace CubeWorld

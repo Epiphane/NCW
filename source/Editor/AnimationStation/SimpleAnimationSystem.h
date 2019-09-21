@@ -43,14 +43,21 @@ public:
    //
    // References an emitter in the MultipleParticleEmitters component.
    //
-   struct EmitterRef {
+   struct Emitter : public MultipleParticleEmitters::Emitter {
+      using MultipleParticleEmitters::Emitter::Emitter;
+
+      std::string entity;
       std::string bone;
-      size_t emitter;
       double start;
       double end;
    };
 
-   using Event = SkeletonAnimations::Event;
+   struct Event : public SkeletonAnimations::Event
+   {
+      Event(const SkeletonAnimations::Event& evt) : SkeletonAnimations::Event(evt) {};
+
+      std::string entity;
+   };
 
    struct State {
       std::string entity;
@@ -60,8 +67,6 @@ public:
 
       double length = 0.0;
       std::vector<SkeletonAnimations::Keyframe> keyframes;
-      std::vector<EmitterRef> emitters;
-      std::vector<Event> events;
    };
 
    struct Stance {
@@ -92,6 +97,8 @@ private:
 
    std::unordered_map<std::string, Stance> stances;
    std::unordered_map<std::string, State> states;
+   std::unordered_map<std::string, std::vector<Emitter>> stateEffects;
+   std::unordered_map<std::string, std::vector<Event>> stateEvents;
 
 public:
    // Animation State
@@ -106,7 +113,7 @@ public:
    double transitionStart;
    double transitionEnd;
 
-   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
+   Engine::ComponentHandle<MultipleParticleEmitters> emitterContainer;
 };
 
 class SimpleAnimationSystem : public Engine::System<SimpleAnimationSystem> {

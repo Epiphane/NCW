@@ -111,7 +111,7 @@ private:
       void Undo() override;
 
    private:
-      State state{"", "", "", "base", 1.0f, {}, {}};
+      State state{"", "", "", "base", 1.0f, {}};
    };
 
    //

@@ -89,7 +89,7 @@ public:
    //
    // Serialize all configuration into a BindingProperty.
    //
-   BindingProperty Serialize();
+   BindingProperty Serialize() const;
 
    const std::string& GetName() const { return name; }
 
@@ -145,6 +145,11 @@ public:
    float shapeParam3 = 0;
 
    //
+   // Rendered texture.
+   //
+   std::string textureName;
+
+   //
    // Provided texture for the renderer.
    //
    Graphics::Texture* texture = nullptr;
@@ -169,6 +174,11 @@ protected:
    // Name of the particle system.
    //
    std::string name;
+
+   //
+   // Shader name.
+   //
+   std::string shader;
    
 public:
    //

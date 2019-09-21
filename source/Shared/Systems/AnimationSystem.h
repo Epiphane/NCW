@@ -16,8 +16,8 @@ public:
 
 private:
    void UpdateEmitters(
+      AnimationController& controller,
       const Engine::Transform& transform,
-      const AnimationController& controller,
       const AnimationController::State& state,
       bool updateAllTransforms
    ) const;

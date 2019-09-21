@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <glm/gtc/epsilon.hpp>
+
 #include "BindingProperty.h"
 
 namespace CubeWorld
@@ -254,7 +256,8 @@ bool BindingProperty::operator==(const BindingProperty& other) const
       return false;
    }
 
-   if (IsNumber()) { return data.numVal.u64 == other.data.numVal.u64; }
+   if (IsDouble()) { return glm::epsilonEqual(data.numVal.d, other.data.numVal.d, DBL_EPSILON); }
+   else if (IsNumber()) { return data.numVal.u64 == other.data.numVal.u64; }
    else if (IsString()) { return data.stringVal == other.data.stringVal; }
    else if (IsObject()) { return data.objectVal == other.data.objectVal; }
    else if (IsArray()) { return data.arrayVal == other.data.arrayVal; }

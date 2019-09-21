@@ -248,13 +248,10 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          }
       }
 
-      if (controller.emitters)
+      UpdateEmitters(controller, transform, controller.states[controller.current], false);
+      if (prevState != controller.current)
       {
-         UpdateEmitters(transform, controller, controller.states[controller.current], false);
-         if (prevState != controller.current)
-         {
-            UpdateEmitters(transform, controller, controller.states[prevState], true);
-         }
+         UpdateEmitters(controller, transform, controller.states[prevState], true);
       }
    });
 
@@ -274,17 +271,24 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 }
 
 void AnimationSystem::UpdateEmitters(
+   AnimationController& controller,
    const Engine::Transform& transform,
-   const AnimationController& controller,
    const AnimationController::State& state,
    bool updateAllTransforms
 ) const
 {
+   if (!controller.emitterContainer)
+   {
+      return;
+   }
+
+   controller.emitterContainer->systems.clear();
+
    for (const AnimationController::EmitterRef& ref : state.emitters)
    {
       bool updateTransform = updateAllTransforms;
 
-      MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
+      MultipleParticleEmitters::Emitter& system = controller.emitters[ref.emitter];
       if (controller.time >= ref.start && controller.time <= ref.end)
       {
          if (!system.active)
@@ -298,7 +302,12 @@ void AnimationSystem::UpdateEmitters(
       }
       else
       {
-         controller.emitters->systems[ref.emitter].active = false;
+         system.active = false;
+      }
+
+      if (system.emitterLifetime == 0 || system.age <= system.emitterLifetime + system.particleLifetime)
+      {
+         controller.emitterContainer->systems.push_back(&system);
       }
 
       if (updateTransform)

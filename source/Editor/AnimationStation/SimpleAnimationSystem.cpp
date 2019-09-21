@@ -1,7 +1,9 @@
 // By Thomas Steinke
 
 #include <glm/ext.hpp>
+#include <RGBBinding/BindingPropertyHelper.h>
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <RGBText/StringHelper.h>
 #include <Shared/Helpers/Asset.h>
 
@@ -23,19 +25,20 @@ SimpleAnimationController::SimpleAnimationController()
 SimpleAnimationController::SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
    : current("")
    , time(0)
+   , cooldown(0)
    , next("")
    , transitionCurrent(0)
    , transitionStart(0)
    , transitionEnd(0)
-   , emitters(emitters)
+   , emitterContainer(emitters)
 {
 }
 
 void SimpleAnimationController::Reset()
 {
-   if (emitters)
+   if (emitterContainer)
    {
-      emitters->systems.clear();
+      emitterContainer->systems.clear();
    }
    skeletons.clear();
    animations.clear();
@@ -48,6 +51,8 @@ void SimpleAnimationController::UpdateSkeletonStates()
    for (const Engine::ComponentHandle<SkeletonAnimations>& anims : animations)
    {
       anims->states.clear();
+      anims->effects.clear();
+      anims->events.clear();
    }
 
    for (const auto&[name, state] : states)
@@ -119,6 +124,41 @@ void SimpleAnimationController::UpdateSkeletonStates()
          }
 
          skipped.clear();
+      }
+   }
+
+   // Update effects
+   for (const auto& [name, emitters] : stateEffects)
+   {
+      for (const auto& emitter : emitters)
+      {
+         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == emitter.entity; });
+         assert(it != animations.end());
+
+         SkeletonAnimations& anims = **it;
+         std::vector<SkeletonAnimations::ParticleEffect>& effectDefs = anims.effects[name];
+
+         SkeletonAnimations::ParticleEffect effectDef;
+         effectDef.name = emitter.GetName();
+         effectDef.bone = emitter.bone;
+         effectDef.start = emitter.start;
+         effectDef.end = emitter.end;
+         BindingProperty config = emitter.Serialize();
+
+         // Figure out what's been modified.
+         std::string originalPath = Asset::Particle(effectDef.name);
+         Maybe<BindingProperty> original = YAMLSerializer::DeserializeFile(originalPath);
+         if (!original)
+         {
+            original.Failure().WithContext("Failed loading base particle system {path}", originalPath).Log();
+            effectDef.modifications = config;
+         }
+         else
+         {
+            effectDef.modifications = BindingPropertyHelper::Difference(*original, config);
+         }
+
+         effectDefs.push_back(std::move(effectDef));
       }
    }
 }
@@ -246,52 +286,47 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
    }
 
    // Add particle effects
-   for (const auto& [name, effects] : anims->effects)
+   for (const auto& [name, effectDefs] : anims->effects)
    {
-      State& state = states[name];
+      std::vector<Emitter>& effects = stateEffects[name];
 
-      if (state.name.empty())
+      for (const auto& effectDef : effectDefs)
       {
-         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
-         assert(false);
-      }
-
-      for (const auto& effectDef : effects)
-      {
-         MultipleParticleEmitters::Emitter effect(
+         // Construct the base system.
+         Emitter effect(
             Asset::Particle(effectDef.name),
             Asset::ParticleShaders(),
             Asset::Image("")
          );
 
+         // Set MultipleParticleEmitter properties.
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
          effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
 
-         EmitterRef ref;
-         ref.emitter = emitters->systems.size();
-         ref.bone = effectDef.bone;
-         ref.start = effectDef.start;
-         ref.end = effectDef.end;
+         // Set state properties.
+         effect.entity = anims->entity;
+         effect.bone = effectDef.bone;
+         effect.start = effectDef.start;
+         effect.end = effectDef.end;
 
-         emitters->systems.push_back(std::move(effect));
-         state.emitters.push_back(std::move(ref));
+         effects.push_back(std::move(effect));
       }
    }
 
    // Add events
-   for (const auto& [name, events] : anims->events)
+   for (const auto& [name, eventDefs] : anims->events)
    {
-      State& state = states[name];
+      std::vector<Event>& events = stateEvents[name];
 
-      if (state.name.empty())
+      for (const SkeletonAnimations::Event& eventDef : eventDefs)
       {
-         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
-         assert(false);
-      }
+         Event evt = eventDef;
+         evt.entity = anims->entity;
 
-      state.events = events;
+         events.push_back(std::move(evt));
+      }
    }
 }
 
@@ -429,30 +464,31 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
 
    // Update particle systems
    entities.Each<Engine::Transform, SimpleAnimationController>([&](Engine::Transform& transform, SimpleAnimationController& controller) {
-      const State& state = controller.states[controller.current];
+      auto& effects = controller.stateEffects[controller.current];
 
-      if (controller.emitters)
+      if (controller.emitterContainer)
       {
-         for (const SimpleAnimationController::EmitterRef& ref : state.emitters)
+         controller.emitterContainer->systems.clear();
+         for (SimpleAnimationController::Emitter& emitter : effects)
          {
-            if (controller.time >= ref.start && controller.time <= ref.end)
+            controller.emitterContainer->systems.push_back(&emitter);
+            if (controller.time >= emitter.start && controller.time <= emitter.end)
             {
-               MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
-               if (!system.active)
+               if (!emitter.active)
                {
-                  system.Reset();
-                  system.active = true;
+                  emitter.Reset();
+                  emitter.active = true;
                }
-               system.update = true;
-               system.render = true;
+               emitter.update = true;
+               emitter.render = true;
 
                for (const auto& s : controller.skeletons)
                {
-                  if (s->boneLookup.count(ref.bone) != 0)
+                  if (s->boneLookup.count(emitter.bone) != 0)
                   {
-                     system.transform =
+                     emitter.transform =
                         transform.GetMatrix() *
-                        s->bones[s->boneLookup.at(ref.bone)].matrix *
+                        s->bones[s->boneLookup.at(emitter.bone)].matrix *
                         glm::rotate(glm::mat4(1), RADIANS(180), glm::vec3{0, 1, 0});
                      break;
                   }
@@ -460,7 +496,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
             }
             else
             {
-               controller.emitters->systems[ref.emitter].active = false;
+               emitter.active = false;
             }
          }
       }

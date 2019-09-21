@@ -20,7 +20,7 @@ AnimationController::AnimationController()
 }
 
 AnimationController::AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
-   : emitters(emitters)
+   : emitterContainer(emitters)
 {
    Reset();
 }
@@ -43,9 +43,9 @@ void AnimationController::Reset()
    transitionStart = 0;
    transitionEnd = 0;
 
-   if (emitters)
+   if (emitterContainer)
    {
-      emitters->systems.clear();
+      emitterContainer->systems.clear();
    }
 }
 
@@ -261,12 +261,12 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          effect.Reset();
 
          EmitterRef ref;
-         ref.emitter = emitters->systems.size();
+         ref.emitter = emitters.size();
          ref.bone = effectDef.bone;
          ref.start = effectDef.start;
          ref.end = effectDef.end;
 
-         emitters->systems.push_back(std::move(effect));
+         emitters.push_back(std::move(effect));
          state.emitters.push_back(std::move(ref));
       }
    }
