@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include <Meta.h>
+
 #include <RGBBinding/BindingProperty.h>
 #include "Program.h"
 #include "TextureManager.h"
@@ -31,13 +33,6 @@ public:
    //
    // Types
    //
-   enum class Shape : uint32_t
-   {
-      Point = 0,
-      Cone = 1,
-      Trail = 2,
-   };
-
    struct Particle
    {
       float type = 0;
@@ -45,6 +40,75 @@ public:
       glm::vec4 rot = {0, 0, 1, 0};
       glm::vec3 vel = {0, 0, 0};
       float age = 0;
+   };
+
+   struct LauncherConfig
+   {
+   public:
+      void SetPPS(float particlesPerSecond) { cooldown = 1.0f / particlesPerSecond; }
+      float GetPPS() const { return 1.0f / cooldown; }
+
+   public:
+      //
+      // Amount of time between particle spawns.
+      // Equal to 1 / {particles per second}
+      //
+      float cooldown = 1.0f;
+
+      //
+      // Lifetime of the entire system.
+      // 0 means run indefinitely.
+      //
+      float lifetime = 0.0f;
+   };
+
+   struct MinMax
+   {
+      float min = 0;
+      float max = 0;
+   };
+
+   struct ParticleConfig
+   {
+
+      //
+      // Min/max age to spawn particles at, for
+      // variability.
+      //
+      MinMax spawnAge;
+
+      //
+      // Lifetime of each particle. Use spawnAge
+      // to configure variable lifetimes.
+      //
+      float lifetime = 0.0f;
+   };
+
+   //
+   // Shape configurations
+   //
+   enum class Shape : uint32_t
+   {
+      Point = 0,
+      Cone = 1,
+      Trail = 2,
+   };
+
+   struct PointConfig
+   {
+      // Empty
+   };
+
+   struct ConeConfig
+   {
+      glm::vec3 direction = {0, 0, 0};
+      float radius = 0.0f;
+      MinMax height;
+   };
+
+   struct TrailConfig
+   {
+      // Empty
    };
 
 private:
@@ -81,19 +145,27 @@ public:
    // override provided configs, not changing anything
    // that is not explicitly specified.
    //
-   void ApplyConfiguration(
-      const std::string& textureDir,
-      const BindingProperty& config
-   );
+   void ApplyConfiguration(const std::string& textureDir, const BindingProperty& config);
 
    //
    // Serialize all configuration into a BindingProperty.
    //
    BindingProperty Serialize() const;
 
-   const std::string& GetName() const { return name; }
+   void SetTexture(const std::string& texture);
+   const std::string& GetTexture() const;
 
 public:
+   //
+   // Name of the particle system.
+   //
+   std::string name;
+
+   //
+   // Shader name.
+   //
+   std::string shader;
+
    //
    // Maximum amount of particles supported. Changes 
    // will not take effect until the next Reset().
@@ -101,58 +173,25 @@ public:
    uint32_t maxParticles = 1000;
 
    //
-   // Amount of time between particle spawns.
-   // Equal to 1 / {particles per second}
+   // Launcher configuration.
    //
-   float emitterCooldown = 1.0f;
+   LauncherConfig launcher;
 
    //
-   // Lifetime of the entire system.
-   // 0 means run indefinitely.
+   // Particle configuration
    //
-   float emitterLifetime = 0.0f;
-
-   //
-   // Useful for tracking (without referencing the VBO)
-   // the current state of the emitter
-   //
-   float age = 0.0f;
-
-   //
-   // Min/max age to spawn particles at, for
-   // variability.
-   //
-   float spawnAge[2] = {0, 0};
-
-   //
-   // Lifetime of each particle. Use spawnAge
-   // to configure variable lifetimes.
-   //
-   float particleLifetime = 0.0f;
+   ParticleConfig particle;
 
    //
    // Shape in which to emit particles.
    //
    Shape shape = Shape::Point;
 
-   //
-   // Variable params, applied differently to
-   // each shape and thus not given names.
-   //
-   glm::vec3 shapeParam0 = {0, 0, 0};
-   float shapeParam1 = 0;
-   float shapeParam2 = 0;
-   float shapeParam3 = 0;
-
-   //
-   // Rendered texture.
-   //
-   std::string textureName;
-
-   //
-   // Provided texture for the renderer.
-   //
-   Graphics::Texture* texture = nullptr;
+   union {
+      PointConfig point;
+      ConeConfig cone;
+      TrailConfig trail;
+   } shapeConfig;
    
    //
    // Renderer.
@@ -164,21 +203,33 @@ public:
    //
    BindingProperty uniforms;
 
+   //
+   // Rendered texture.
+   //
+   std::string textureName;
+
+public:
+   //
+   // Useful for tracking (without referencing the VBO)
+   // the current state of the emitter
+   //
+   float age = 0.0f;
+
+   //
+   // Location in which to find textures.
+   //
+   std::string textureDirectory;
+
+   //
+   // Provided texture for the renderer.
+   //
+   Graphics::Texture* texture = nullptr;
+
 protected:
    //
    // Map of particle name to GL program
    //
    static std::unordered_map<std::string, std::unique_ptr<Graphics::Program>> programs;
-
-   //
-   // Name of the particle system.
-   //
-   std::string name;
-
-   //
-   // Shader name.
-   //
-   std::string shader;
    
 public:
    //
@@ -198,3 +249,72 @@ public:
 }; // namespace Engine
 
 }; // namespace CubeWorld
+
+namespace meta {
+
+using CubeWorld::Engine::ParticleSystem;
+
+template <>
+inline auto registerMembers<ParticleSystem::LauncherConfig>()
+{
+   return members(
+      member("particles-per-second", &ParticleSystem::LauncherConfig::GetPPS, &ParticleSystem::LauncherConfig::SetPPS),
+      member("lifetime", &ParticleSystem::LauncherConfig::lifetime)
+   );
+}
+
+template <>
+inline auto registerMembers<ParticleSystem::MinMax>()
+{
+   return members(
+      member("min", &ParticleSystem::MinMax::min),
+      member("max", &ParticleSystem::MinMax::max)
+   );
+}
+
+template <>
+inline auto registerMembers<ParticleSystem::ParticleConfig>()
+{
+   return members(
+      member("spawn-age", &ParticleSystem::ParticleConfig::spawnAge),
+      member("lifetime", &ParticleSystem::ParticleConfig::lifetime)
+   );
+}
+
+template <>
+inline auto registerMembers<ParticleSystem::PointConfig>()
+{
+   return members();
+}
+
+template <>
+inline auto registerMembers<ParticleSystem::ConeConfig>()
+{
+   return members(
+      member("direction", &ParticleSystem::ConeConfig::direction),
+      member("radius", &ParticleSystem::ConeConfig::radius),
+      member("height", &ParticleSystem::ConeConfig::height)
+   );
+}
+
+template <>
+inline auto registerMembers<ParticleSystem::TrailConfig>()
+{
+   return members();
+}
+
+template <>
+inline auto registerMembers<ParticleSystem>()
+{
+   return members(
+      member("name", &ParticleSystem::name),
+      member("shader", &ParticleSystem::shader),
+      member("max-particles", &ParticleSystem::maxParticles),
+      member("shader-uniforms", &ParticleSystem::uniforms),
+      member("shader-texture", &ParticleSystem::GetTexture, &ParticleSystem::SetTexture),
+      member("launcher", &ParticleSystem::launcher),
+      member("particle", &ParticleSystem::particle)
+   );
+}
+
+}; // namespace meta

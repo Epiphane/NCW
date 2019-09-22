@@ -258,11 +258,11 @@ void SimpleParticleSystem::UpdateParticleSystem(
       // Emit new lead pairs.
       system.particles[system.particles.size() - 1].age += (float)dt;
       system.particles[system.particles.size() - 2].age += (float)dt;
-      if (system.emitterLifetime == 0 || system.age < system.emitterLifetime)
+      if (system.launcher.lifetime == 0 || system.age < system.launcher.lifetime)
       {
-         float nEmit = std::floor(system.particles[system.particles.size() - 1].age / system.emitterCooldown);
-         system.particles[system.particles.size() - 1].age -= nEmit * system.emitterCooldown;
-         system.particles[system.particles.size() - 2].age -= nEmit * system.emitterCooldown;
+         float nEmit = std::floor(system.particles[system.particles.size() - 1].age / system.launcher.cooldown);
+         system.particles[system.particles.size() - 1].age -= nEmit * system.launcher.cooldown;
+         system.particles[system.particles.size() - 2].age -= nEmit * system.launcher.cooldown;
          nEmit = 1;
          for (float i = 0; i < nEmit; ++i)
          {
@@ -293,7 +293,7 @@ void SimpleParticleSystem::UpdateParticleSystem(
    //
    // Now update a normal particle system
    //
-   if (system.emitterLifetime == 0.0f || system.age < system.emitterLifetime)
+   if (system.launcher.lifetime == 0.0f || system.age < system.launcher.lifetime)
    {
       updater->Uniform1i("uEmit", 1);
    }
@@ -301,15 +301,18 @@ void SimpleParticleSystem::UpdateParticleSystem(
    {
       updater->Uniform1i("uEmit", 0);
    }
-   updater->Uniform1f("uEmitterCooldown", system.emitterCooldown);
-   updater->Uniform1f("uParticleLifetime", system.particleLifetime);
+   updater->Uniform1f("uEmitterCooldown", system.launcher.cooldown);
+   updater->Uniform1f("uParticleLifetime", system.particle.lifetime);
 
    updater->Uniform1u("uShape", (uint32_t)system.shape);
-   updater->Uniform2f("uSpawnAge", system.spawnAge[0], system.spawnAge[1]);
-   updater->UniformVector3f("uShapeParam0", system.shapeParam0);
-   updater->Uniform1f("uShapeParam1", system.shapeParam1);
-   updater->Uniform1f("uShapeParam2", system.shapeParam2);
-   updater->Uniform1f("uShapeParam3", system.shapeParam3);
+   updater->Uniform2f("uSpawnAge", system.particle.spawnAge.min, system.particle.spawnAge.max);
+   if (system.shape == Engine::ParticleSystem::Shape::Cone)
+   {
+      updater->UniformVector3f("uShapeParam0", system.shapeConfig.cone.direction);
+      updater->Uniform1f("uShapeParam1", system.shapeConfig.cone.radius);
+      updater->Uniform1f("uShapeParam2", system.shapeConfig.cone.height.min);
+      updater->Uniform1f("uShapeParam3", system.shapeConfig.cone.height.max);
+   }
 
    system.particleBuffers[system.buffer].Bind();
 
@@ -407,7 +410,7 @@ void SimpleParticleSystem::RenderParticleSystem(
    system.program->UniformMatrix4f("uProjMatrix", perspective);
    system.program->UniformMatrix4f("uViewMatrix", view);
    system.program->UniformVector3f("uCameraPos", cameraPos);
-   system.program->Uniform1f("uParticleLifetime", system.particleLifetime);
+   system.program->Uniform1f("uParticleLifetime", system.particle.lifetime);
 
    for (const auto& [key, value] : system.uniforms.pairs())
    {

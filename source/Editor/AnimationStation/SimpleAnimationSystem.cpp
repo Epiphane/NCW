@@ -139,7 +139,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
          std::vector<SkeletonAnimations::ParticleEffect>& effectDefs = anims.effects[name];
 
          SkeletonAnimations::ParticleEffect effectDef;
-         effectDef.name = emitter.GetName();
+         effectDef.name = emitter.name;
          effectDef.bone = emitter.bone;
          effectDef.start = emitter.start;
          effectDef.end = emitter.end;
@@ -303,7 +303,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+         effect.ApplyConfiguration(effectDef.modifications);
 
          // Set state properties.
          effect.entity = anims->entity;

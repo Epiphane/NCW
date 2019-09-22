@@ -43,7 +43,7 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowSize(ImVec2(250, 700), ImGuiCond_FirstUseEver);
    ImGui::Begin("Particle");
 
-   ImGui::Text(mParticleSystem->GetName().c_str());
+   ImGui::Text(mParticleSystem->name.c_str());
 
    ImGui::End();
 }

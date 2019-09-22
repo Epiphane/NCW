@@ -20,6 +20,7 @@
                 "${workspaceFolder}/dependencies/libnoise/1.0.0/src",
                 "${workspaceFolder}/dependencies/libyaml/0.2.2",
                 "${workspaceFolder}/dependencies/lodepng/20131222",
+                "${workspaceFolder}/dependencies/metastuff/c883f78/include",
                 "${workspaceFolder}/dependencies/noiseutils/0.9.0.1",
                 "${workspaceFolder}/dependencies/rapidjson/1.1.0",
                 "${workspaceFolder}/dependencies/rhea/0.2.4",

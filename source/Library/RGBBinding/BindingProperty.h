@@ -7,6 +7,7 @@
 #include <tuple>
 #include <vector>
 #include <glm/glm.hpp>
+#include <Meta.h>
 #pragma warning(disable : 4365 6313 6319 6385 6386)
 #include <rapidjson/document.h>
 #pragma warning(default : 4365 6313 6319 6385 6386)
@@ -88,6 +89,26 @@ public:
    // Assignment
    BindingProperty& operator=(const BindingProperty& other);
    BindingProperty& operator=(BindingProperty&& other);
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty& operator=(CompatibleType&& other)
+   {
+      return operator=(BindingProperty(other));
+   }
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty & operator=(const CompatibleType& other)
+   {
+      return operator=(BindingProperty(other));
+   }
+
+   // Custom initialization
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty(CompatibleType&& val)
+      : BindingProperty(meta::serialize(val))
+   {}
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty(const CompatibleType& val)
+      : BindingProperty(meta::serialize(val))
+   {}
 
    // Creates an element if the index does not exist.
    BindingProperty& operator[](const int& index);
@@ -131,7 +152,31 @@ public:
    glm::vec3 GetVec3(const glm::vec3& defaultValue = {0, 0, 0}) const;
    glm::vec4 GetVec4(const glm::vec4& defaultValue = {0, 0, 0, 0}) const;
 
+   // Template-style getters
    inline operator std::string() const { return GetStringValue(); }
+
+   template<typename T, typename = std::enable_if_t<!meta::isRegistered<T>()>, typename = void>
+   inline T Get() const = delete;
+
+   template<typename T, typename = std::enable_if_t<meta::isRegistered<T>()>>
+   inline T Get() const
+   {
+      T result;
+      meta::deserialize(result, *this);
+      return result;
+   }
+
+   template<> inline BindingProperty Get() const { return *this; }
+   template<> inline bool Get() const { return GetBooleanValue(); }
+   template<> inline int64_t Get() const { return GetInt64Value(); }
+   template<> inline int32_t Get() const { return GetIntValue(); }
+   template<> inline uint64_t Get() const { return GetUint64Value(); }
+   template<> inline uint32_t Get() const { return GetUintValue(); }
+   template<> inline double Get() const { return GetDoubleValue(); }
+   template<> inline float Get() const { return GetFloatValue(); }
+   template<> inline std::string Get() const { return GetStringValue(); }
+   template<> inline glm::vec3 Get() const { return GetVec3(); }
+   template<> inline glm::vec4 Get() const { return GetVec4(); }
 
    Array AsArray();
    ConstArray AsArray() const;

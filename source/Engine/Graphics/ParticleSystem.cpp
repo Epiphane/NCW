@@ -3,7 +3,9 @@
 #include <glad/glad.h>
 #include <glm/ext.hpp>
 
+#include <RGBBinding/BindingPropertyMeta.h>
 #include <RGBDesignPatterns/Scope.h>
+#include <RGBDesignPatterns/Macros.h>
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -24,8 +26,9 @@ namespace Engine
 std::unordered_map<std::string, std::unique_ptr<Engine::Graphics::Program>> ParticleSystem::programs;
 
 ParticleSystem::ParticleSystem()
-   : program(nullptr)
-   , name("")
+   : name("")
+   , shapeConfig{PointConfig{}}
+   , program(nullptr)
    , firstRender(true)
    , buffer(0)
    , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
@@ -41,21 +44,17 @@ ParticleSystem::ParticleSystem()
 }
 
 ParticleSystem::ParticleSystem(ParticleSystem&& other) noexcept
-   : maxParticles(other.maxParticles)
-   , emitterCooldown(other.emitterCooldown)
-   , emitterLifetime(other.emitterLifetime)
-   , age{other.age}
-   , spawnAge{other.spawnAge[0], other.spawnAge[1]}
-   , particleLifetime(other.particleLifetime)
+   : name(std::move(other.name))
+   , maxParticles(other.maxParticles)
+   , launcher(other.launcher)
+   , particle(other.particle)
    , shape(other.shape)
-   , shapeParam0(other.shapeParam0)
-   , shapeParam1(other.shapeParam1)
-   , shapeParam2(other.shapeParam2)
-   , shapeParam3(other.shapeParam3)
-   , texture(other.texture)
+   , shapeConfig(other.shapeConfig)
    , program(other.program)
    , uniforms(std::move(other.uniforms))
-   , name(std::move(other.name))
+   , age{other.age}
+   , textureDirectory{other.textureDirectory}
+   , texture(other.texture)
    , firstRender(other.firstRender)
    , buffer(other.buffer)
    , particleBuffers{std::move(other.particleBuffers[0]), std::move(other.particleBuffers[1])}
@@ -176,81 +175,18 @@ void ParticleSystem::Reset()
       std::vector<Particle> data;
       data.resize(maxParticles);
       data[0].type = 1.0f; // Emitter
-      data[0].age = emitterCooldown; // Emit immediately
+      data[0].age = launcher.cooldown; // Emit immediately
       particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
       particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
    }
 }
 
-BindingProperty ParticleSystem::Serialize() const
+void ParticleSystem::SetTexture(const std::string& tex)
 {
-   BindingProperty result;
-
-   result["name"] = name;
-   result["shader"] = shader;
-   result["launcher"]["particles-per-second"] = 1.0 / emitterCooldown;
-   result["launcher"]["lifetime"] = emitterLifetime;
-   result["particle"]["lifetime"] = particleLifetime;
-   result["particle"]["spawn-age"]["min"] = spawnAge[0];
-   result["particle"]["spawn-age"]["max"] = spawnAge[1];
-   result["max-particles"] = maxParticles;
-   result["shader-uniforms"] = uniforms;
-   
+   textureName = tex;
    if (!textureName.empty())
    {
-      result["shader-texture"] = textureName;
-   }
-
-   switch (shape)
-   {
-   case Shape::Cone:
-   {
-      BindingProperty& cone = result["cone"];
-      result["shape"] = "cone";
-      cone["direction"] = shapeParam0;
-      cone["radius"] = shapeParam1;
-      cone["height"]["min"] = shapeParam2;
-      cone["height"]["max"] = shapeParam3;
-      break;
-   }
-
-   case Shape::Trail:
-   {
-      result["shape"] = "trail";
-      break;
-   }
-
-   case Shape::Point:
-   default:
-   {
-      result["shape"] = "point";
-      break;
-   }
-   }
-
-   return result;
-}
-
-void ParticleSystem::ApplyConfiguration(
-   const std::string& textureDir,
-   const BindingProperty& config
-)
-{
-   emitterCooldown = 1.0f / config["launcher"]["particles-per-second"].GetFloatValue(1.0f / emitterCooldown);
-   emitterLifetime = config["launcher"]["lifetime"].GetFloatValue(emitterLifetime);
-   particleLifetime = config["particle"]["lifetime"].GetFloatValue(particleLifetime);
-   spawnAge[0] = config["particle"]["spawn-age"]["min"].GetFloatValue(spawnAge[0]);
-   spawnAge[1] = config["particle"]["spawn-age"]["max"].GetFloatValue(spawnAge[1]);
-
-   if (config.Has("shader-uniforms"))
-   {
-      uniforms = config["shader-uniforms"];
-   }
-
-   textureName = config["shader-texture"];
-   if (!textureName.empty())
-   {
-      Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDir, textureName));
+      Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(Paths::Join(textureDirectory, textureName));
       if (!maybeTexture)
       {
          maybeTexture.Failure().WithContext("Failed loading {texture}", textureName).Log();
@@ -260,6 +196,17 @@ void ParticleSystem::ApplyConfiguration(
          texture = *maybeTexture;
       }
    }
+}
+
+const std::string& ParticleSystem::GetTexture() const
+{
+   return textureName;
+}
+
+void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const BindingProperty& config)
+{
+   textureDirectory = textureDir;
+   meta::deserialize(*this, config);
 
    if (config.Has("shape"))
    {
@@ -283,20 +230,40 @@ void ParticleSystem::ApplyConfiguration(
       }
    }
 
-   if (shape == Shape::Point || shape == Shape::Trail)
+   if (shape == Shape::Cone && config.Has("cone"))
    {
-      shapeParam0 = {0, 0, 0};
-      shapeParam1 = 0;
-      shapeParam2 = 0;
+      meta::deserialize(shapeConfig.cone, config["cone"]);
    }
-   else if (shape == Shape::Cone)
+}
+
+BindingProperty ParticleSystem::Serialize() const
+{
+   BindingProperty result(*this);
+
+   switch (shape)
    {
-      const BindingProperty& cone = config["cone"];
-      shapeParam0 = cone["direction"].GetVec3(shapeParam0);
-      shapeParam1 = cone["radius"].GetFloatValue(shapeParam1);
-      shapeParam2 = cone["height"]["min"].GetFloatValue(shapeParam2);
-      shapeParam3 = cone["height"]["max"].GetFloatValue(shapeParam3);
+   case Shape::Cone:
+   {
+      result["shape"] = "cone";
+      result["cone"] = shapeConfig.cone;
+      break;
    }
+
+   case Shape::Trail:
+   {
+      result["shape"] = "trail";
+      break;
+   }
+
+   case Shape::Point:
+   default:
+   {
+      result["shape"] = "point";
+      break;
+   }
+   }
+
+   return result;
 }
 
 }; // namespace Engine

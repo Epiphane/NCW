@@ -257,7 +257,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+         effect.ApplyConfiguration(effectDef.modifications);
          effect.Reset();
 
          EmitterRef ref;

@@ -305,7 +305,7 @@ void AnimationSystem::UpdateEmitters(
          system.active = false;
       }
 
-      if (system.emitterLifetime == 0 || system.age <= system.emitterLifetime + system.particleLifetime)
+      if (system.launcher.lifetime == 0 || system.age <= system.launcher.lifetime + system.particle.lifetime)
       {
          controller.emitterContainer->systems.push_back(&system);
       }
