@@ -15,6 +15,7 @@
                         + .GladIncludePaths
                         + .GlfwIncludePaths
                         + .GlmIncludePaths
+                        + .MetaStuffIncludePaths
                         + .RapidJsonIncludePaths
                         + .SqliteIncludePaths
 

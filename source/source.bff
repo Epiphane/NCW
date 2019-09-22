@@ -25,6 +25,7 @@
                      + .LibNoiseIncludePaths
                      + .LibYamlIncludePaths
                      + .LodePNGIncludePaths
+                     + .MetaStuffIncludePaths
                      + .NoiseUtilsIncludePaths
                      + .RapidJsonIncludePaths
                      + .RheaIncludePaths

@@ -15,5 +15,5 @@ shader-uniforms:
   uSprites: 1
   uSheetWidth: 1
   uSheetHeight: 1
-shader-texture: trail.png
+shader-texture: Assets/Images/trail.png
 shape: trail
