@@ -8,7 +8,6 @@
 
 #include <map>
 #include <vector>
-#include <typeinfo> // TODO-EF: deletarino
 #include <string>
 
 namespace CubeWorld
@@ -78,6 +77,11 @@ public:
       //          myself...
       //
       //       uhhhh
+      //
+      // NOTE: This doesn't matter for now, it only affects times when the data sink OUTLIVES
+      //          the data producer. Might change to use the neat "ring" pattern from Events.h
+      //          later. For now everything will still clean up nicely when the data producer dies.
+      //
 //      for (const auto& [weakBag, _] : mBaggedObservers) {
 //         auto strongBag = weakBag.lock();
 //         if (strongBag) {
@@ -195,28 +199,6 @@ Observable<T>& operator>>(Observable<T>& producer, Observable<T>& sink)
    
    return sink;
 }
-
-//template<typename Last>
-//class Observable_CombineLatest : public Observable<std::tuple<Last>>
-//{
-//public:
-//   Observable_CombineLatest(Observable<T> cool, T... args)
-//   {
-//      cool >>
-//         OnMessage([&](T message) {
-//            
-//         });
-//   }
-   
-//protected:
-//   
-//};
-   
-//template<typename First, typename Second, typename ...Rest>
-//class Observable_CombineLatest : public Observable<std::tuple<First, Second, Rest...>>
-//{
-//   
-//};
 
 /**
  * Subclass that can remember the last message it sent, as well as if it has

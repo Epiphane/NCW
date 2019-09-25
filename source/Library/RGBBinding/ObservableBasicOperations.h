@@ -130,44 +130,12 @@ Observable<T>& Merge(Observable<T>& firstObs, Observable<T>& secondObs)
    return *newObservable;
 }
    
-//
-// Combine two Observables' messages together. Both Observables can be any type,
-//    and the result will be a tuple of their combined types.
-//
-// CombineLatest will only emit when both Observables have sent a message, and
-//    each message will be a combination of the 2 latest messages of each
-//    Observable.
-//
-// Example usage:
-//    CombineLatest(mToggle.GetToggleObservable(), someIntegerObservable) >>
-//       OnMessage(handleMostRecentDataFromToggleAndIntegers)
-//
-// TODO-EF: Someday, make this use variadic args so it can combine any # of Observables.
-//
-//template<typename T, typename U>
-//Observable<std::tuple<T, U>>& CombineLatest(Observable<T>& firstObs, Observable<U>& secondObs) 
-//{
-//   std::shared_ptr<Observable_CombineLatest<T, U>> newObservable = std::make_shared<Observable_CombineLatest<T, U>>();
-//   firstObs.AddOwnedObservable(newObservable);
-//   secondObs.AddOwnedObservable(newObservable);
-//   
-//   firstObs.AddObserver([=](T message) {
-////      newObservable->SendType1Message(message);
-//   }, newObservable);
-//   
-//   secondObs.AddObserver([=](U message) {
-////      newObservable->SendType2Message(message);
-//   }, newObservable);
-//   
-//   return *newObservable;
-//}
-   
 /**
  * Operator that takes the latest messages it received and combines them
  *    into a new message.
  *
- * If it hasn't received both a T and a U message yet, it won't send any
- *    messages.
+ * If any one of the source Observables has not emitted a message yet, this
+ *    will not emit any messages.
  */
 template <typename Last>
 Observable<std::tuple<Last>>& CombineLatest(Observable<Last>& l) {
@@ -181,6 +149,14 @@ Observable<std::tuple<Last>>& CombineLatest(Observable<Last>& l) {
    return *result;
 }
 
+// SUPER WACKY IMPLEMENTATION :O
+// C++ doesn't really let you loop through variadic template args. So, to support any # of arguments, we
+//    recursively apply this template until there's only 1 argument left, which is applied to the "Last"
+//    template above. For instance, when there are exactly 2 args left, ...Rest has a length of 0, and
+//    both "First" and "Second" are handled by the "Last" specialization above.
+//
+// This (might??) end up non-performant, and the way I've seen other libraries handle this is just manually
+//    specifying CombineLatest<1arg>, CombineLatest<1arg, 2arg>, ... etc. up to like 8 args.
 template <typename First, typename Second, typename ...Rest>
 Observable<std::tuple<First, Second, Rest...>>& CombineLatest(Observable<First>& f, Observable<Second>& s, Observable<Rest>&... r) {
    typedef Observable<std::tuple<First, Second, Rest...>> CombinedObservable;
