@@ -206,7 +206,7 @@ const std::string& ParticleSystem::GetTexture() const
 void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const BindingProperty& config)
 {
    textureDirectory = textureDir;
-   meta::deserialize(*this, config);
+   deserialize(*this, config);
 
    if (config.Has("shape"))
    {
@@ -232,7 +232,7 @@ void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const Bin
 
    if (shape == Shape::Cone && config.Has("cone"))
    {
-      meta::deserialize(shapeConfig.cone, config["cone"]);
+      deserialize(shapeConfig.cone, config["cone"]);
    }
 }
 

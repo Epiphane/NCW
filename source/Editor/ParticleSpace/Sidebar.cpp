@@ -1,7 +1,6 @@
 // By Thomas Steinke
 
 #include <imgui.h>
-#include <Windows.h>
 
 #include <RGBFileSystem/File.h>
 #include <RGBFileSystem/FileSystem.h>

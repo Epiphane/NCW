@@ -2,7 +2,7 @@
 
 #include "BindingPropertyMeta.h"
 
-namespace meta
+namespace CubeWorld
 {
 
 // ------------------------------------------------------------------
@@ -103,18 +103,28 @@ void deserialize(Class& obj, const BindingProperty& object)
 template <typename T>
 void deserialize(std::vector<T>& obj, const BindingProperty& object)
 {
-   obj.reserve(object.size()); // vector.resize() works only for default constructible types
-   for (auto& elem : object) {
-      obj.push_back(elem); // push rvalue
+   obj.reserve(object.GetSize());
+   for (const BindingProperty& elem : object) {
+      obj.push_back(elem.Get<T>()); // push rvalue
+   }
+}
+
+template <typename K, typename V>
+void deserialize(std::map<K, V>& obj, const BindingProperty& object)
+{
+   for (const auto& [key, value] : object.pairs())
+   {
+      obj.emplace(key.Get<K>(), value.Get<V>());
    }
 }
 
 template <typename K, typename V>
 void deserialize(std::unordered_map<K, V>& obj, const BindingProperty& object)
 {
-   for (auto it = object.begin(); it != object.end(); ++it) {
-      obj.emplace(fromString<K>(it.key()), it.value());
+   for (const auto& [key, value] : object.pairs())
+   {
+      obj.emplace(key.Get<K>(), value.Get<V>());
    }
 }
 
-}
+}; // namespace CubeWorld

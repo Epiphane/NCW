@@ -303,7 +303,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
-         effect.ApplyConfiguration(effectDef.modifications);
+         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
 
          // Set state properties.
          effect.entity = anims->entity;
