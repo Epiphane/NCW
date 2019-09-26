@@ -43,6 +43,32 @@ ParticleSystem::ParticleSystem()
    }
 }
 
+ParticleSystem::ParticleSystem(const ParticleSystem& other) noexcept
+   : name(other.name)
+   , maxParticles(other.maxParticles)
+   , launcher(other.launcher)
+   , particle(other.particle)
+   , shape(other.shape)
+   , shapeConfig(other.shapeConfig)
+   , program(other.program)
+   , uniforms(other.uniforms)
+   , age{other.age}
+   , textureDirectory{other.textureDirectory}
+   , texture(other.texture)
+   , firstRender(other.firstRender)
+   , buffer(other.buffer)
+   , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
+{
+   glGenTransformFeedbacks(2, feedbackBuffers);
+
+   // Set up feedback buffers
+   for (size_t i = 0; i < 2; ++i)
+   {
+      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffers[i]);
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, particleBuffers[i].GetBuffer());
+   }
+}
+
 ParticleSystem::ParticleSystem(ParticleSystem&& other) noexcept
    : name(std::move(other.name))
    , maxParticles(other.maxParticles)
@@ -70,6 +96,25 @@ ParticleSystem::~ParticleSystem()
    {
       glDeleteTransformFeedbacks(2, feedbackBuffers);
    }
+}
+
+ParticleSystem& ParticleSystem::operator=(const ParticleSystem& other)
+{
+   name = other.name;
+   maxParticles = other.maxParticles;
+   launcher = other.launcher;
+   particle = other.particle;
+   shape = other.shape;
+   shapeConfig = other.shapeConfig;
+   program = other.program;
+   uniforms = other.uniforms;
+   age = other.age;
+   textureDirectory = other.textureDirectory;
+   texture = other.texture;
+   firstRender = other.firstRender;
+   buffer = other.buffer;
+
+   return *this;
 }
 
 ParticleSystem::ParticleSystem(

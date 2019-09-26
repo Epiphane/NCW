@@ -152,7 +152,12 @@ public:
    inline operator std::string() const { return GetStringValue(); }
 
    template<typename T, typename = std::enable_if_t<!meta::isRegistered<T>()>, typename = void>
-   inline T Get() const = delete;
+   inline T Get() const
+   {
+      T result;
+      deserialize(result, *this);
+      return result;
+   }
 
    template<typename T, typename = std::enable_if_t<meta::isRegistered<T>()>>
    inline T Get() const;
@@ -242,6 +247,11 @@ public:
    BindingProperty& PushBack(BindingProperty val);
    inline BindingProperty& push_back(BindingProperty val) { return PushBack(val); }
    void PopBack();
+   size_t GetSize() const
+   {
+      assert(IsArray() && "Cannot call GetSize on non-array");
+      return data.arrayVal.size();
+   }
    inline void pop_back() { return PopBack(); }
    inline size_t GetSize() const
    {

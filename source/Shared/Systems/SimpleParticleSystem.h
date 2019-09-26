@@ -106,10 +106,10 @@ private:
    static std::unique_ptr<Engine::Graphics::Program> updater;
 
 private:
-   bool mDisabled;
+   bool mDisabled = false;
 
    static constexpr uint16_t RANDOM_SIZE = 1000;
-   uint32_t mTick;
+   uint32_t mTick = 0;
    std::unique_ptr<Engine::Graphics::Texture> mRandom;
 
    std::unique_ptr<DebugHelper::MetricLink> mUpdateMetric;

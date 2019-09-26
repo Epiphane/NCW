@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <RGBBinding/BindingProperty.h>
+#include <RGBBinding/BindingPropertyMeta.h>
 #include <Engine/Entity/ComponentHandle.h>
 #include "Skeleton.h"
 
@@ -21,15 +22,6 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       std::map<std::string, glm::vec3> positions;
       std::map<std::string, glm::vec3> rotations;
       std::map<std::string, glm::vec3> scales;
-   };
-
-   struct State {
-      std::string name;
-      std::string next;
-      std::string stance;
-
-      double length;
-      std::vector<Keyframe> keyframes;
    };
 
    struct Transition {
@@ -71,6 +63,19 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       BindingProperty properties;
    };
 
+   struct State {
+      std::string name;
+      std::string next;
+      std::string stance;
+
+      double length = 0.0;
+      std::vector<Keyframe> keyframes;
+
+      std::vector<Transition> transitions;
+      std::vector<ParticleEffect> particles;
+      std::vector<Event> events;
+   };
+
 public:
    SkeletonAnimations();
 
@@ -92,9 +97,90 @@ public:
    // Data
    std::string entity;
    std::map<std::string, State> states;
-   std::map<std::string, std::vector<Transition>> transitions;
-   std::map<std::string, std::vector<ParticleEffect>> effects;
-   std::map<std::string, std::vector<Event>> events;
 };
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::SkeletonAnimations;
+
+template<>
+inline auto registerMembers<SkeletonAnimations::Keyframe>()
+{
+   return members(
+      member("time", &SkeletonAnimations::Keyframe::time),
+      member("positions", &SkeletonAnimations::Keyframe::positions),
+      member("rotations", &SkeletonAnimations::Keyframe::rotations),
+      member("scales", &SkeletonAnimations::Keyframe::scales)
+   );
+}
+
+// TODO
+template<>
+inline auto registerMembers<SkeletonAnimations::Transition::Trigger>()
+{
+   return members(
+      member("parameter", &SkeletonAnimations::Transition::Trigger::parameter),
+      member("bool", &SkeletonAnimations::Transition::Trigger::boolVal)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations::Transition>()
+{
+   return members(
+      member("to", &SkeletonAnimations::Transition::destination),
+      member("time", &SkeletonAnimations::Transition::time),
+      member("triggers", &SkeletonAnimations::Transition::triggers)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations::ParticleEffect>()
+{
+   return members(
+      member("name", &SkeletonAnimations::ParticleEffect::name),
+      member("bone", &SkeletonAnimations::ParticleEffect::bone),
+      member("start", &SkeletonAnimations::ParticleEffect::start),
+      member("end", &SkeletonAnimations::ParticleEffect::end),
+      member("mods", &SkeletonAnimations::ParticleEffect::modifications)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations::Event>()
+{
+   return members(
+      //member("type", &SkeletonAnimations::Event::type),
+      member("start", &SkeletonAnimations::Event::start),
+      member("end", &SkeletonAnimations::Event::end),
+      member("properties", &SkeletonAnimations::Event::properties)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations::State>()
+{
+   return members(
+      member("name", &SkeletonAnimations::State::name),
+      member("next", &SkeletonAnimations::State::next),
+      member("stance", &SkeletonAnimations::State::stance),
+      member("length", &SkeletonAnimations::State::length),
+      member("keyframes", &SkeletonAnimations::State::keyframes),
+      member("particles", &SkeletonAnimations::State::particles),
+      member("events", &SkeletonAnimations::State::events),
+      member("transitions", &SkeletonAnimations::State::transitions)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations>()
+{
+   return members(
+      member("states", &SkeletonAnimations::states)
+   );
+}
+
+}; // namespace meta

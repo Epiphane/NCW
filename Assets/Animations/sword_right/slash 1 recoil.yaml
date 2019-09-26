@@ -5,46 +5,37 @@ stance: wield_right
 length: 0.8
 keyframes:
 - time: 0
-  bones:
-    character.Left Leg:
-      position: [3.646484, -1, -1.469141]
-      rotation: [0, -14.66992, 0]
-    character.Right Leg:
-      position: [-3.892578, -1, 2.739061]
-      rotation: [0, -14.088284, 0]
-    character.Right Hand:
-      position: [-7.884887, -2.020006, -0.892685]
-      rotation: [-5.096268, 20.323568, 89.814651]
-    character.Spine:
-      position: [0, 0.3, 2.6]
-      rotation: [7.099998, 0, 0]
-    character.Left Hand:
-      position: [5.780704, -1.1, 2.661406]
-      rotation: [-3.9, -6.9, -43.980831]
-    character.Shoulders:
-      rotation: [3.903903, 51.08712, 0]
-    character.Hips:
-      rotation: [0, 18.940233, 0]
-    character.Torso:
-      rotation: [0, 51.039009, 0]
+  positions:
+    character.Left Hand: [5.780704, -1.1, 2.661406]
+    character.Left Leg: [3.646484, -1, -1.469141]
+    character.Right Hand: [-7.884887, -2.020006, -0.892685]
+    character.Right Leg: [-3.892578, -1, 2.739061]
+    character.Spine: [0, 0.3, 2.6]
+  rotations:
+    character.Hips: [0, 18.940233, 0]
+    character.Left Hand: [-3.9, -6.9, -43.980831]
+    character.Left Leg: [0, -14.66992, 0]
+    character.Right Hand: [-5.096268, 20.323568, 89.814651]
+    character.Right Leg: [0, -14.088284, 0]
+    character.Shoulders: [3.903903, 51.08712, 0]
+    character.Spine: [7.099998, 0, 0]
+    character.Torso: [0, 51.039009, 0]
 - time: 0.8
-  bones:
-    character.root:
-      position: [0, -0.5, 4]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Right Hand:
-      position: [-6.180703, 0, 2.661406]
-      rotation: [0, 0, 11.580857]
-      scale: [1, 1, 1]
-    character.Head:
-      position: [0, 4, 0.6]
-      rotation: [0, 0, 0]
-      scale: [1.02, 1.04, 1.02]
-    character.Hips:
-      position: [0, 1.5, 0.8]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
+  positions:
+    character.Head: [0, 4, 0.6]
+    character.Hips: [0, 1.5, 0.8]
+    character.Right Hand: [-6.180703, 0, 2.661406]
+    character.root: [0, -0.5, 4]
+  rotations:
+    character.Head: [0, 0, 0]
+    character.Hips: [0, 0, 0]
+    character.Right Hand: [0, 0, 11.580857]
+    character.root: [0, 0, 0]
+  scales:
+    character.Head: [1.02, 1.04, 1.02]
+    character.Hips: [1, 1, 1]
+    character.Right Hand: [1, 1, 1]
+    character.root: [1, 1, 1]
 transitions:
 - to: slash 2
   time: 0.1

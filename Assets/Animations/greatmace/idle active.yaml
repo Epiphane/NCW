@@ -6,41 +6,34 @@ length: 5.02
 keyframes:
 - time: 0
 - time: 0.79
-  bones:
-    character.Spine:
-      position: [0, 0.494142, 0.208203]
+  positions:
+    character.Spine: [0, 0.494142, 0.208203]
 - time: 2.64
-  bones:
-    character.Head:
-      position: [0, 4.937648, -0.201875]
-    character.Spine:
-      position: [0, 0.959376, 0.208203]
+  positions:
+    character.Head: [0, 4.937648, -0.201875]
+    character.Spine: [0, 0.959376, 0.208203]
 - time: 3.23
-  bones:
-    character.Face:
-      position: [0, 0, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Head:
-      position: [0, 4.937648, -0.201875]
-      rotation: [0, 0, 0]
-      scale: [1.02, 1.04, 1.02]
-    character.Left Foot:
-      position: [0, -5, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Right Foot:
-      position: [0, -5, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Spine:
-      position: [0, 0.690234, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
-    character.Torso:
-      position: [0, -6, -1.948438]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
+  positions:
+    character.Face: [0, 0, 0]
+    character.Head: [0, 4.937648, -0.201875]
+    character.Left Foot: [0, -5, 0]
+    character.Right Foot: [0, -5, 0]
+    character.Spine: [0, 0.690234, 0]
+    character.Torso: [0, -6, -1.948438]
+  rotations:
+    character.Face: [0, 0, 0]
+    character.Head: [0, 0, 0]
+    character.Left Foot: [0, 0, 0]
+    character.Right Foot: [0, 0, 0]
+    character.Spine: [0, 0, 0]
+    character.Torso: [0, 0, 0]
+  scales:
+    character.Face: [1, 1, 1]
+    character.Head: [1.02, 1.04, 1.02]
+    character.Left Foot: [1, 1, 1]
+    character.Right Foot: [1, 1, 1]
+    character.Spine: [1, 1, 1]
+    character.Torso: [1, 1, 1]
 transitions:
 - to: idle
   time: 0

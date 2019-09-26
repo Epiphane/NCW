@@ -87,22 +87,24 @@ void Dock::Update(TIMEDELTA)
    ImGuiStyle& style = ImGui::GetStyle();
    const ImVec2 label_size = ImGui::CalcTextSize("X", nullptr, true);
    float buttonSize = label_size.y + style.FramePadding.y * 2.0f;
-   for (const auto&[name, _] : mController->states)
+   for (size_t i = 0; i < mController->states.size(); ++i)
    {
-      if (ImGuiEx::Button(name == mController->current, name, ImVec2(space.x - buttonSize - style.ItemSpacing.x, buttonSize)))
+      const std::string& name = mController->states[i].name;
+      if (ImGuiEx::Button(i == mController->current, name, ImVec2(space.x - buttonSize - style.ItemSpacing.x, buttonSize)))
       {
          SetState(name);
       }
       ImGui::SameLine();
-      if (ImGuiEx::Button(false, "X", ImVec2(buttonSize, buttonSize)))
+      if (ImGuiEx::Button(false, FormatString("X##{state}", name), ImVec2(buttonSize, buttonSize)))
       {
-         CommandStack::Instance().Do<RemoveStateCommand>(this);
+         CommandStack::Instance().Do<RemoveStateCommand>(this, i);
+         i--;
       }
    }
 
    if (ImGui::Button("New State", ImVec2(space.x, buttonSize)))
    {
-      CommandStack::Instance().Do<AddStateCommand>(this);
+      CommandStack::Instance().Do<AddStateCommand>(this, "");
    }
 
    ImGui::End();
@@ -573,10 +575,12 @@ void Dock::SetBone(const size_t& boneId)
 ///
 void Dock::AddStateCommand::Do()
 {
-   if (state.name.empty())
+   if (name.empty())
    {
-      state.name = FormatString("Unnamed state {id}", dock->mController->states.size());
+      name = FormatString("Unnamed state {id}", dock->mController->states.size());
    }
+
+   state.name = name;
 
    if (state.entity.empty())
    {
@@ -605,11 +609,14 @@ void Dock::AddStateCommand::Do()
 ///
 void Dock::AddStateCommand::Undo()
 {
-   // Get current state as a copy not a reference
-   state = dock->GetCurrentState();
+   // Get state as a copy not a reference
+   state = std::move(dock->mController->states[name]);
+   dock->mController->states.erase(name);
 
-   dock->mController->states.erase(state.name);
-   dock->SetState(dock->mController->states.begin()->first);
+   if (dock->mController->current == name)
+   {
+      dock->mController->current = dock->mController->states.begin()->first;
+   }
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
 }
 
@@ -637,16 +644,10 @@ void Dock::SetStateLength(double newValue, double oldValue)
 ///
 void Dock::SetStateNameCommand::Do()
 {
-   State state = dock->mController->states[prev];
+   State state = dock->mController->states[index];
 
    std::string last = state.name;
    state.name = name;
-
-   dock->mController->states.emplace(name, state);
-   dock->SetState(name);
-   dock->mController->states.erase(prev);
-
-   prev = name;
    name = last;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
@@ -657,7 +658,7 @@ void Dock::SetStateNameCommand::Do()
 ///
 void Dock::SetStateLengthCommand::Do()
 {
-   dock->SetState(stateName);
+   dock->SetState(index);
    State& state = dock->GetCurrentState();
    double prev = state.length;
    dock->SetStateLength(value, prev);
@@ -669,7 +670,7 @@ void Dock::SetStateLengthCommand::Do()
 ///
 void Dock::SetStanceCommand::Do()
 {
-   dock->SetState(stateName);
+   dock->SetState(index);
    State& state = dock->GetCurrentState();
    std::string prev = state.stance;
    state.stance = stance;
@@ -679,9 +680,9 @@ void Dock::SetStanceCommand::Do()
 ///
 ///
 ///
-Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock, const std::string& state)
+Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock, const size_t& state)
    : DockCommand(dock)
-   , stateName(state)
+   , state(state)
    , keyframeIndex(0)
 {
    keyframe.time = dock->mController->time;
@@ -690,7 +691,7 @@ Dock::AddKeyframeCommand::AddKeyframeCommand(Dock* dock, const std::string& stat
 
 void Dock::AddKeyframeCommand::Do()
 {
-   dock->SetState(stateName);
+   dock->SetState(state);
    State& state = dock->GetCurrentState();
    Stance& stance = dock->mController->stances[state.stance];
 

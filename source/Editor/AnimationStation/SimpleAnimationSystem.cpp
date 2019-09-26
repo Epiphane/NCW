@@ -23,10 +23,10 @@ SimpleAnimationController::SimpleAnimationController()
 {}
 
 SimpleAnimationController::SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
-   : current("")
+   : current(0)
    , time(0)
    , cooldown(0)
-   , next("")
+   , next(0)
    , transitionCurrent(0)
    , transitionStart(0)
    , transitionEnd(0)
@@ -51,11 +51,9 @@ void SimpleAnimationController::UpdateSkeletonStates()
    for (const Engine::ComponentHandle<SkeletonAnimations>& anims : animations)
    {
       anims->states.clear();
-      anims->effects.clear();
-      anims->events.clear();
    }
 
-   for (const auto&[name, state] : states)
+   for (const auto& state : states)
    {
       // Start at the skeleton that _created_ the state. This way we don't add
       // state details for a sub-skeleton's state to it's parent, thus changing
@@ -75,7 +73,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
          found = true;
 
          SkeletonAnimations::State newState;
-         newState.name = name;
+         newState.name = state.name;
          newState.next = state.next;
          newState.length = state.length;
          newState.stance = state.stance;
@@ -120,23 +118,24 @@ void SimpleAnimationController::UpdateSkeletonStates()
 
          if (modified)
          {
-            anims->states.emplace(name, std::move(newState));
+            anims->states.emplace(state.name, std::move(newState));
          }
 
          skipped.clear();
       }
-   }
 
-   // Update effects
-   for (const auto& [name, emitters] : stateEffects)
-   {
-      for (const auto& emitter : emitters)
+      // Update effects
+      for (const Emitter& emitter : state.particles)
       {
-         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == emitter.entity; });
+         (void)emitter;
+         auto it = std::find_if(
+            animations.begin(),
+            animations.end(),
+            [&](const auto& component) { return component->entity == emitter.entity; });
          assert(it != animations.end());
 
-         SkeletonAnimations& anims = **it;
-         std::vector<SkeletonAnimations::ParticleEffect>& effectDefs = anims.effects[name];
+         Engine::ComponentHandle<SkeletonAnimations> anims = *it;
+         std::vector<SkeletonAnimations::ParticleEffect>& effectDefs = anims->states[state.name].particles;
 
          SkeletonAnimations::ParticleEffect effectDef;
          effectDef.name = emitter.name;
@@ -160,17 +159,42 @@ void SimpleAnimationController::UpdateSkeletonStates()
 
          effectDefs.push_back(std::move(effectDef));
       }
+
+      // Update events
+      for (const auto& evt : state.events)
+      {
+         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == evt.entity; });
+         assert(it != animations.end());
+
+         SkeletonAnimations& anims = **it;
+         std::vector<SkeletonAnimations::Event>& eventDefs = anims.states[state.name].events;
+
+         SkeletonAnimations::Event eventDef = evt;
+         eventDefs.push_back(eventDef);
+      }
    }
 }
 
 void SimpleAnimationController::Play(const std::string& state, double startTime)
 {
-   current = state;
+   auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
+   if (it == states.end())
+   {
+      return;
+   }
+
+   current = it - states.begin();
    time = startTime;
 }
 
 void SimpleAnimationController::TransitionTo(const std::string& state, double transitionTime, double startTime)
 {
+   auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
+   if (it == states.end())
+   {
+      return;
+   }
+
    // If a transition is in flight, skip to the end of it.
    if (current != next)
    {
@@ -178,7 +202,7 @@ void SimpleAnimationController::TransitionTo(const std::string& state, double tr
       time = transitionCurrent;
    }
 
-   next = state;
+   next = it - states.begin();
    transitionStart = startTime;
    transitionCurrent = startTime;
    transitionEnd = startTime + transitionTime;
@@ -255,7 +279,14 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
    for (const auto& [name, s] : anims->states)
    {
-      State& state = states[name];
+      auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
+      if (it == states.end())
+      {
+         states.push_back(State{});
+         it = states.end() - 1;
+      }
+
+      State& state = *it;
 
       if (state.name.empty())
       {
@@ -283,18 +314,13 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
             }
          }
       }
-   }
 
-   // Add particle effects
-   for (const auto& [name, effectDefs] : anims->effects)
-   {
-      std::vector<Emitter>& effects = stateEffects[name];
-
-      for (const auto& effectDef : effectDefs)
+      // Add particle effects
+      for (const auto& particleDefinition : s.particles)
       {
          // Construct the base system.
          Emitter effect(
-            Asset::Particle(effectDef.name),
+            Asset::Particle(particleDefinition.name),
             Asset::ParticleShaders(),
             Asset::Image("")
          );
@@ -303,29 +329,24 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+         effect.ApplyConfiguration(Asset::Image(""), particleDefinition.modifications);
 
          // Set state properties.
          effect.entity = anims->entity;
-         effect.bone = effectDef.bone;
-         effect.start = effectDef.start;
-         effect.end = effectDef.end;
+         effect.bone = particleDefinition.bone;
+         effect.start = particleDefinition.start;
+         effect.end = particleDefinition.end;
 
-         effects.push_back(std::move(effect));
+         state.particles.push_back(std::move(effect));
       }
-   }
 
-   // Add events
-   for (const auto& [name, eventDefs] : anims->events)
-   {
-      std::vector<Event>& events = stateEvents[name];
-
-      for (const SkeletonAnimations::Event& eventDef : eventDefs)
+      // Add events
+      for (const SkeletonAnimations::Event& eventDef : s.events)
       {
          Event evt = eventDef;
          evt.entity = anims->entity;
 
-         events.push_back(std::move(evt));
+         state.events.push_back(std::move(evt));
       }
    }
 }
@@ -464,12 +485,12 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
 
    // Update particle systems
    entities.Each<Engine::Transform, SimpleAnimationController>([&](Engine::Transform& transform, SimpleAnimationController& controller) {
-      auto& effects = controller.stateEffects[controller.current];
+      auto& emitters = controller.states[controller.current].particles;
 
       if (controller.emitterContainer)
       {
          controller.emitterContainer->systems.clear();
-         for (SimpleAnimationController::Emitter& emitter : effects)
+         for (SimpleAnimationController::Emitter& emitter : emitters)
          {
             controller.emitterContainer->systems.push_back(&emitter);
             if (controller.time >= emitter.start && controller.time <= emitter.end)

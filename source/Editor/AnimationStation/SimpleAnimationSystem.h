@@ -67,6 +67,8 @@ public:
 
       double length = 0.0;
       std::vector<SkeletonAnimations::Keyframe> keyframes;
+      std::vector<Emitter> particles;
+      std::vector<Event> events;
    };
 
    struct Stance {
@@ -96,19 +98,17 @@ private:
    std::vector<Engine::ComponentHandle<SkeletonAnimations>> animations;
 
    std::unordered_map<std::string, Stance> stances;
-   std::unordered_map<std::string, State> states;
-   std::unordered_map<std::string, std::vector<Emitter>> stateEffects;
-   std::unordered_map<std::string, std::vector<Event>> stateEvents;
+   std::vector<State> states;
 
 public:
    // Animation State
-   std::string current;
+   size_t current = 0;
    double time;
    double cooldown;
 
    // If transition > 0, this defines the state we're transitioning to,
    // as well as the amount of time remaining in that transition.
-   std::string next;
+   size_t next = 0;
    double transitionCurrent;
    double transitionStart;
    double transitionEnd;

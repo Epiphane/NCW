@@ -224,29 +224,12 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
             keyframeIt->scales[boneLookup.at(bone)] = scl;
          }
       }
-   }
-
-   // Add transitions
-   for (const auto&[name, transitions] : animations->transitions)
-   {
-      State& state = states[stateLookup.at(name)];
 
       // Append transition data
-      state.transitions.insert(state.transitions.end(), transitions.begin(), transitions.end());
-   }
+      state.transitions.insert(state.transitions.end(), mods.transitions.begin(), mods.transitions.end());
 
-   // Add particle effects
-   for (const auto& [name, effects] : animations->effects)
-   {
-      State& state = states[stateLookup.at(name)];
-
-      if (state.name.empty())
-      {
-         LOG_ERROR("State {name} was not initialized properly, it had no state definition but had animations", state.name);
-         assert(false);
-      }
-
-      for (const auto& effectDef : effects)
+      // Add effects
+      for (const auto& effectDef : mods.particles)
       {
          MultipleParticleEmitters::Emitter effect(
             Asset::Particle(effectDef.name),

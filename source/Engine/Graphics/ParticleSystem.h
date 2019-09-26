@@ -131,8 +131,11 @@ public:
       const std::string& shaderDir,
       const std::string& textureDir
    );
+   ParticleSystem(const ParticleSystem& other) noexcept;
    ParticleSystem(ParticleSystem&& other) noexcept;
-   ~ParticleSystem();
+   virtual ~ParticleSystem();
+
+   ParticleSystem& operator=(const ParticleSystem& other);
 
    //
    // Reset the particle system to an initial state,

@@ -1,55 +1,40 @@
 ---
 name: character
-parent: 
+parent:
 default_model: character.vox
 stances:
 - name: base
-  inherit: 
-  bones:
-    character.Head:
-      scale: [1.02, 1.04, 1.02]
+  parent:
+  scales:
+    character.Head: [1.02, 1.04, 1.02]
 - name: resting
-  inherit: base
-  bones:
-    character.Attachment:
-      position: [0, 0, -10.1]
-    character.Head:
-      position: [0, 4, 0.6]
-    character.Hips:
-      position: [0, 1.5, 0.8]
-    character.Left Leg:
-      position: [2.5, -1, 0]
-    character.Right Leg:
-      position: [-3.5, -1, 0]
-    character.Shoulders:
-      position: [0, 0.9, 2.1]
-    character.root:
-      position: [0, -0.5, 0]
+  parent: base
+  positions:
+    character.Attachment: [0, 0, -10.1]
+    character.Head: [0, 4, 0.6]
+    character.Hips: [0, 1.5, 0.8]
+    character.Left Leg: [2.5, -1, 0]
+    character.Right Leg: [-3.5, -1, 0]
+    character.Shoulders: [0, 0.9, 2.1]
+    character.root: [0, -0.5, 0]
 - name: wield_twohands
-  inherit: resting
-  bones:
-    character.Attachment:
-      position: [0, 0, 0]
-    character.Head:
-      position: [0, 4.730227, -0.201875]
-    character.Left Hand:
-      position: [0.855782, -1.092422, 1.218203]
-    character.Right Hand:
-      position: [-0.243827, 1.255391, 2]
-    character.Shoulders:
-      position: [-6.348985, 1.547265, 2.1]
-      rotation: [6.211718, 1.015625, 11.231565]
-    character.Torso:
-      position: [0, -6, -1.948438]
+  parent: resting
+  positions:
+    character.Attachment: [0, 0, 0]
+    character.Head: [0, 4.730227, -0.201875]
+    character.Left Hand: [0.855782, -1.092422, 1.218203]
+    character.Right Hand: [-0.243827, 1.255391, 2]
+    character.Shoulders: [-6.348985, 1.547265, 2.1]
+    character.Torso: [0, -6, -1.948438]
+  rotations:
+    character.Shoulders: [6.211718, 1.015625, 11.231565]
 - name: wield_right
-  inherit: resting
-  bones:
-    character.Left Hand:
-      position: [5.780704, 0, 2.661406]
-      rotation: [0, 0, -11.580857]
-    character.Right Hand:
-      position: [-5.680704, 0, 2.661406]
-      rotation: [0, 0, 11.580857]
-    character.Shoulders:
-      position: [0, -0.121015, 1.932501]
-      rotation: [12.703899, 0, 0]
+  parent: resting
+  positions:
+    character.Left Hand: [5.780704, 0, 2.661406]
+    character.Right Hand: [-5.680704, 0, 2.661406]
+    character.Shoulders: [0, -0.121015, 1.932501]
+  rotations:
+    character.Left Hand: [0, 0, -11.580857]
+    character.Right Hand: [0, 0, 11.580857]
+    character.Shoulders: [12.703899, 0, 0]

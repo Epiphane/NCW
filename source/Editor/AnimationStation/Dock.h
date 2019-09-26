@@ -44,7 +44,7 @@ public:
 
 public:
    // Dock state actions
-   void SetState(const std::string& state);
+   void SetState(const size_t& state);
    void SetBone(const size_t& boneId);
 
 public:
@@ -105,12 +105,13 @@ private:
    class AddStateCommand : public DockCommand
    {
    public:
-      AddStateCommand(Dock* dock) : DockCommand(dock) {};
-      AddStateCommand(Dock* dock, State base) : DockCommand(dock), state(base) {};
+      AddStateCommand(Dock* dock, size_t index) : DockCommand(dock), index(index) {};
+      AddStateCommand(Dock* dock, size_t index, State base) : DockCommand(dock), index(index), state(base) {};
       void Do() override;
       void Undo() override;
 
    private:
+      size_t index;
       State state{"", "", "", "base", 1.0f, {}};
    };
 
@@ -125,16 +126,16 @@ private:
    class SetStateLengthCommand : public DockCommand
    {
    public:
-      SetStateLengthCommand(Dock* dock, const std::string& state, double value)
+      SetStateLengthCommand(Dock* dock, const size_t& index, double value)
          : DockCommand(dock)
-         , stateName(state)
+         , index(index)
          , value(value)
       {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
-      std::string stateName;
+      size_t index;
       double value;
    };
 
@@ -144,16 +145,16 @@ private:
    class SetStanceCommand : public DockCommand
    {
    public:
-      SetStanceCommand(Dock* dock, const std::string& state, const std::string& stance)
+      SetStanceCommand(Dock* dock, const size_t& index, const std::string& stance)
          : DockCommand(dock)
-         , stateName(state)
+         , index(index)
          , stance(stance)
       {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
-      std::string stateName;
+      size_t index;
       std::string stance;
    };
 
@@ -163,12 +164,12 @@ private:
    class AddKeyframeCommand : public DockCommand
    {
    public:
-      AddKeyframeCommand(Dock* dock, const std::string& state);
+      AddKeyframeCommand(Dock* dock, const size_t& state);
       void Do() override;
       void Undo() override;
 
    protected:
-      std::string stateName;
+      size_t state;
       size_t keyframeIndex;
       SkeletonAnimations::Keyframe keyframe{};
    };
@@ -237,12 +238,12 @@ private:
    class SetStateNameCommand : public DockCommand
    {
    public:
-      SetStateNameCommand(Dock* dock, const std::string& prev, const std::string& name) : DockCommand(dock), prev(prev), name(name) {};
+      SetStateNameCommand(Dock* dock, const size_t& index, const std::string& name) : DockCommand(dock), index(index), name(name) {};
       void Do() override;
       void Undo() override { Do(); }
 
    private:
-      std::string prev;
+      size_t index;
       std::string name;
    };
 };
