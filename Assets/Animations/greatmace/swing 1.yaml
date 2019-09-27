@@ -78,7 +78,6 @@ keyframes:
     character.Hips: [0, 1.5, 2.1]
     character.Shoulders: [-8.38, 2.18, 2.5]
     character.Spine: [0, 0, 6.12]
-    character.root: [0, -0.5, 0]
   rotations:
     character.Head: [0, 0, 0]
     character.Hips: [3.8, 0, 0]
@@ -89,7 +88,6 @@ keyframes:
   scales:
     character.Head: [1, 1, 1]
     character.Shoulders: [1, 1, 1]
-    character.root: [1, 1, 1]
 particles:
 - name: slash
   bone: greatmace.Mace

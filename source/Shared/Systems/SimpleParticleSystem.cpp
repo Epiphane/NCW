@@ -285,7 +285,7 @@ void SimpleParticleSystem::UpdateParticleSystem(
          }
       }
 
-      system.particleBuffers[0].BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STATIC_DRAW);
+      system.buffers[0].data.BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STREAM_DRAW);
       system.firstRender = false;
       return;
    }
@@ -314,7 +314,7 @@ void SimpleParticleSystem::UpdateParticleSystem(
       updater->Uniform1f("uShapeParam3", system.shapeConfig.cone.height.max);
    }
 
-   system.particleBuffers[system.buffer].Bind();
+   system.buffers[system.buffer].Bind();
 
    // We enable the attribute pointers individually since a normal VBO only
    // expects to be attached to one.
@@ -339,31 +339,28 @@ void SimpleParticleSystem::UpdateParticleSystem(
 
    // Begin rendering
    if (system.firstRender) {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1]);
-      glBeginTransformFeedback(GL_POINTS);
+      system.buffers[1].Begin(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, 1);
-      glEndTransformFeedback();
+      system.buffers[0].End();
 
       // [Mac] Initialize both feedback buffers by rendering initial data into them
       // TODO is this even necessary?
-      system.particleBuffers[1 - system.buffer].Bind();
+      system.buffers[1 - system.buffer].Bind();
       glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
       glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
       glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
       glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[0]);
-      glBeginTransformFeedback(GL_POINTS);
+      system.buffers[0].Begin(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, 1);
-      glEndTransformFeedback();
+      system.buffers[0].End();
 
       system.firstRender = false;
    }
    else {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1 - system.buffer]);
-      glBeginTransformFeedback(GL_POINTS);
-      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
-      glEndTransformFeedback();
+      system.buffers[1 - system.buffer].Begin(GL_POINTS);
+      system.buffers[system.buffer].Draw(GL_POINTS);
+      system.buffers[1 - system.buffer].End();
    }
 
 #if CUBEWORLD_DIAGNOSE_PARTICLE_OUTPUT
@@ -441,7 +438,7 @@ void SimpleParticleSystem::RenderParticleSystem(
       system.program->Uniform1i("uTexture", 0);
    }
 
-   system.particleBuffers[system.buffer].Bind();
+   system.buffers[system.buffer].Bind();
 
    // We enable the attribute pointers individually since a normal VBO only
    // expects to be attached to one.
@@ -463,7 +460,7 @@ void SimpleParticleSystem::RenderParticleSystem(
    }
    else
    {
-      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+      system.buffers[system.buffer].Draw(GL_POINTS);
    }
 
    glDisableVertexAttribArray(0);

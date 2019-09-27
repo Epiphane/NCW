@@ -5,6 +5,9 @@
 namespace CubeWorld
 {
 
+namespace Binding
+{
+
 // ------------------------------------------------------------------
 // |                                                                |
 // |                         Serialization                          |
@@ -116,7 +119,8 @@ void deserialize(Class& obj, const BindingProperty& object)
                member.set(obj, objName.template Get<meta::get_member_type<decltype(member)>>());
             }
             else if (member.canGetRef()) {
-               member.getRef(obj) = objName.template Get<meta::get_member_type<decltype(member)>>();
+               deserialize(member.getRef(obj), objName);
+               //member.getRef(obj) = objName.template Get<meta::get_member_type<decltype(member)>>();
             }
             else {
                assert(false && "can't deserialize member because it's read only");
@@ -152,5 +156,7 @@ void deserialize(std::unordered_map<K, V>& obj, const BindingProperty& object)
       obj.emplace(key.Get<K>(), value.Get<V>());
    }
 }
+
+}; // namespace Binding
 
 }; // namespace CubeWorld

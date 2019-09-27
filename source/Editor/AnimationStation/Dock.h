@@ -169,7 +169,7 @@ private:
       void Undo() override;
 
    protected:
-      size_t state;
+      size_t stateIndex;
       size_t keyframeIndex;
       SkeletonAnimations::Keyframe keyframe{};
    };
@@ -179,7 +179,7 @@ private:
    //
    struct RemoveKeyframeCommand : public ReverseCommand<AddKeyframeCommand>
    {
-      RemoveKeyframeCommand(Dock* dock, const std::string& state, size_t index)
+      RemoveKeyframeCommand(Dock* dock, const size_t& state, size_t index)
          : ReverseCommand<AddKeyframeCommand>(dock, state)
       {
          keyframeIndex = index;
@@ -192,9 +192,9 @@ private:
    class SetKeyframeTimeCommand : public DockCommand
    {
    public:
-      SetKeyframeTimeCommand(Dock* dock, const std::string& state, size_t index, double value)
+      SetKeyframeTimeCommand(Dock* dock, const size_t& state, size_t index, double value)
          : DockCommand(dock)
-         , stateName(state)
+         , stateIndex(state)
          , index(index)
          , value(value)
       {};
@@ -202,7 +202,7 @@ private:
       void Undo() override { Do(); }
 
    private:
-      std::string stateName;
+      size_t stateIndex;
       size_t index;
       double value;
    };
@@ -213,9 +213,9 @@ private:
    class ResetBoneCommand : public DockCommand
    {
    public:
-      ResetBoneCommand(Dock* dock, const std::string& state, size_t keyframe, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+      ResetBoneCommand(Dock* dock, const size_t& state, size_t keyframe, size_t bone, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
          : DockCommand(dock)
-         , stateName(state)
+         , state(state)
          , keyframeIndex(keyframe)
          , boneId(bone)
          , position(position)
@@ -226,7 +226,7 @@ private:
       void Undo() override { Do(); }
 
    private:
-      std::string stateName;
+      size_t state;
       size_t keyframeIndex;
       size_t boneId;
       glm::vec3 position, rotation, scale;

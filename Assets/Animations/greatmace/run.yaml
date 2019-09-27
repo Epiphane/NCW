@@ -1,0 +1,10 @@
+---
+name: run
+next: 
+stance: resting
+length: 0.4
+keyframes:
+- time: 0
+- time: 0.1
+- time: 0.2
+- time: 0.3

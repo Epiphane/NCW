@@ -1,5 +1,7 @@
 #pragma once
 
+/*
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -62,3 +64,5 @@ void deserialize(std::map<K, V>& obj, const BindingProperty& object);
 }
 
 #include "BindingPropertyMeta.inl"
+
+*/

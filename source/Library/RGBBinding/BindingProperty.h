@@ -101,10 +101,10 @@ public:
    }
 
    // Custom initialization
-   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
-   BindingProperty(CompatibleType&& val);
-   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
-   BindingProperty(const CompatibleType& val);
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>()>>
+   BindingProperty(T&& val);
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>()>>
+   BindingProperty(const T& val);
 
    // Creates an element if the index does not exist.
    BindingProperty& operator[](const int& index);
@@ -155,7 +155,7 @@ public:
    inline T Get() const
    {
       T result;
-      deserialize(result, *this);
+      Binding::deserialize(result, *this);
       return result;
    }
 
@@ -247,11 +247,6 @@ public:
    BindingProperty& PushBack(BindingProperty val);
    inline BindingProperty& push_back(BindingProperty val) { return PushBack(val); }
    void PopBack();
-   size_t GetSize() const
-   {
-      assert(IsArray() && "Cannot call GetSize on non-array");
-      return data.arrayVal.size();
-   }
    inline void pop_back() { return PopBack(); }
    inline size_t GetSize() const
    {

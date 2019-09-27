@@ -251,7 +251,15 @@ const BindingProperty& BindingProperty::operator[](const char* key) const
 
 bool BindingProperty::operator==(const BindingProperty& other) const
 {
-   if (flags != other.flags)
+   if (IsNumber() && other.IsNumber())
+   {
+      if (glm::epsilonEqual(GetDoubleValue(), other.GetDoubleValue(), DBL_EPSILON))
+      {
+         return true;
+      }
+   }
+
+   if ((flags & kTypeMask) != (other.flags & kTypeMask))
    {
       return false;
    }

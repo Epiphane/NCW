@@ -59,6 +59,13 @@ public:
       std::string entity;
    };
 
+   struct Transition : public SkeletonAnimations::Transition
+   {
+      Transition(const SkeletonAnimations::Transition& tra) : SkeletonAnimations::Transition(tra) {};
+
+      std::string entity;
+   };
+
    struct State {
       std::string entity;
       std::string name;
@@ -69,6 +76,7 @@ public:
       std::vector<SkeletonAnimations::Keyframe> keyframes;
       std::vector<Emitter> particles;
       std::vector<Event> events;
+      std::vector<Transition> transitions;
    };
 
    struct Stance {

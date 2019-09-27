@@ -11,6 +11,9 @@
 namespace CubeWorld
 {
 
+namespace Binding
+{
+
 // ------------------------------------------------------------------
 // |                                                                |
 // |                         Serialization                          |
@@ -18,7 +21,10 @@ namespace CubeWorld
 // ------------------------------------------------------------------
 
 template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
-BindingProperty serialize(const Class& obj);
+BindingProperty serialize(const Class & obj);
+
+template <typename Class, typename = std::enable_if_t <!meta::isRegistered<Class>()>, typename = void>
+BindingProperty serialize(const Class & obj);
 
 template <typename Class>
 BindingProperty serialize_basic(const Class& obj);
@@ -29,6 +35,9 @@ BindingProperty serialize_basic(const std::vector<T>& obj);
 template <typename K, typename V>
 BindingProperty serialize_basic(const std::unordered_map<K, V>& obj);
 
+template <typename K, typename V>
+BindingProperty serialize_basic(const std::map<K, V>& obj);
+
 
 // ------------------------------------------------------------------
 // |                                                                |
@@ -37,7 +46,10 @@ BindingProperty serialize_basic(const std::unordered_map<K, V>& obj);
 // ------------------------------------------------------------------
 
 template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
-void deserialize(Class& obj, const BindingProperty& object);
+void deserialize(Class & obj, const BindingProperty & object);
+
+template <typename Class, typename = std::enable_if_t<!meta::isRegistered<Class>()>, typename = void>
+void deserialize(Class & obj, const BindingProperty & object);
 
 template <typename T>
 void deserialize(std::vector<T>& obj, const BindingProperty& object);
@@ -45,6 +57,10 @@ void deserialize(std::vector<T>& obj, const BindingProperty& object);
 template <typename K, typename V>
 void deserialize(std::unordered_map<K, V>& obj, const BindingProperty& object);
 
+template <typename K, typename V>
+void deserialize(std::map<K, V>& obj, const BindingProperty& object);
+
+}; // namespace Binding
 
 // ------------------------------------------------------------------
 // |                                                                |
@@ -64,20 +80,17 @@ struct BindingProperty::KeyVal {
    BindingProperty value;
 };
 
-template <typename CompatibleType, typename>
-BindingProperty::BindingProperty(CompatibleType&& val)
-   : BindingProperty(serialize(val))
-{}
-template <typename CompatibleType, typename>
-BindingProperty::BindingProperty(const CompatibleType& val)
-   : BindingProperty(serialize(val))
-{}
+template <typename T, typename>
+BindingProperty::BindingProperty(T&& val) : BindingProperty(Binding::serialize(val)) {}
+
+template <typename T, typename>
+BindingProperty::BindingProperty(const T& val) : BindingProperty(Binding::serialize(val)) {}
 
 template<typename T, typename>
 inline T BindingProperty::Get() const
 {
    T result;
-   deserialize(result, *this);
+   Binding::deserialize(result, *this);
    return result;
 }
 

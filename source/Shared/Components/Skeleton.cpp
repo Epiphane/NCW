@@ -62,7 +62,7 @@ void Skeleton::Load(const BindingProperty& data)
 {
    Reset();
 
-   deserialize(*this, data);
+   Binding::deserialize(*this, data);
 
    if (defaultModel.empty())
    {
@@ -98,7 +98,7 @@ void Skeleton::Load(const BindingProperty& data)
 
 BindingProperty Skeleton::Serialize()
 {
-   return serialize(*this);
+   return Binding::serialize(*this);
 }
 
 }; // namespace CubeWorld

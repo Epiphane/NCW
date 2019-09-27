@@ -86,7 +86,8 @@
         "new": "cpp",
         "variant": "cpp",
         "memory_resource": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "xlocale": "cpp"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false,

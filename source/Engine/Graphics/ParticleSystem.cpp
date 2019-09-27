@@ -31,91 +31,7 @@ ParticleSystem::ParticleSystem()
    , program(nullptr)
    , firstRender(true)
    , buffer(0)
-   , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
-{
-   glGenTransformFeedbacks(2, feedbackBuffers);
-
-   // Set up feedback buffers
-   for (size_t i = 0; i < 2; ++i)
-   {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffers[i]);
-      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, particleBuffers[i].GetBuffer());
-   }
-}
-
-ParticleSystem::ParticleSystem(const ParticleSystem& other) noexcept
-   : name(other.name)
-   , maxParticles(other.maxParticles)
-   , launcher(other.launcher)
-   , particle(other.particle)
-   , shape(other.shape)
-   , shapeConfig(other.shapeConfig)
-   , program(other.program)
-   , uniforms(other.uniforms)
-   , age{other.age}
-   , textureDirectory{other.textureDirectory}
-   , texture(other.texture)
-   , firstRender(other.firstRender)
-   , buffer(other.buffer)
-   , particleBuffers{Engine::Graphics::VBO::Vertices, Engine::Graphics::VBO::Vertices}
-{
-   glGenTransformFeedbacks(2, feedbackBuffers);
-
-   // Set up feedback buffers
-   for (size_t i = 0; i < 2; ++i)
-   {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackBuffers[i]);
-      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, particleBuffers[i].GetBuffer());
-   }
-}
-
-ParticleSystem::ParticleSystem(ParticleSystem&& other) noexcept
-   : name(std::move(other.name))
-   , maxParticles(other.maxParticles)
-   , launcher(other.launcher)
-   , particle(other.particle)
-   , shape(other.shape)
-   , shapeConfig(other.shapeConfig)
-   , program(other.program)
-   , uniforms(std::move(other.uniforms))
-   , age{other.age}
-   , textureDirectory{other.textureDirectory}
-   , texture(other.texture)
-   , firstRender(other.firstRender)
-   , buffer(other.buffer)
-   , particleBuffers{std::move(other.particleBuffers[0]), std::move(other.particleBuffers[1])}
-   , feedbackBuffers{other.feedbackBuffers[0], other.feedbackBuffers[1]}
-   , particles{std::move(other.particles)}
-{
-   other.feedbackBuffers[0] = other.feedbackBuffers[1] = 0;
-}
-
-ParticleSystem::~ParticleSystem()
-{
-   if (feedbackBuffers[0] != 0 || feedbackBuffers[1] != 0)
-   {
-      glDeleteTransformFeedbacks(2, feedbackBuffers);
-   }
-}
-
-ParticleSystem& ParticleSystem::operator=(const ParticleSystem& other)
-{
-   name = other.name;
-   maxParticles = other.maxParticles;
-   launcher = other.launcher;
-   particle = other.particle;
-   shape = other.shape;
-   shapeConfig = other.shapeConfig;
-   program = other.program;
-   uniforms = other.uniforms;
-   age = other.age;
-   textureDirectory = other.textureDirectory;
-   texture = other.texture;
-   firstRender = other.firstRender;
-   buffer = other.buffer;
-
-   return *this;
-}
+{}
 
 ParticleSystem::ParticleSystem(
    const std::string& path,
@@ -213,7 +129,7 @@ void ParticleSystem::Reset()
       particles[1].pos = {0,0,0};
       particles[1].rot = {0,1,0,0}; // Bottom
       particles[1].age = 0;
-      particleBuffers[0].BufferData(sizeof(Particle) * particles.size(), particles.data(), GL_STATIC_DRAW);
+      buffers[0].data.BufferData(sizeof(Particle) * particles.size(), particles.data(), GL_STATIC_DRAW);
    }
    else
    {
@@ -221,8 +137,8 @@ void ParticleSystem::Reset()
       data.resize(maxParticles);
       data[0].type = 1.0f; // Emitter
       data[0].age = launcher.cooldown; // Emit immediately
-      particleBuffers[0].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
-      particleBuffers[1].BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+      buffers[0].data.BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
+      buffers[1].data.BufferData(sizeof(Particle) * data.size(), data.data(), GL_STATIC_DRAW);
    }
 }
 
@@ -251,7 +167,7 @@ const std::string& ParticleSystem::GetTexture() const
 void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const BindingProperty& config)
 {
    textureDirectory = textureDir;
-   deserialize(*this, config);
+   Binding::deserialize(*this, config);
 
    if (config.Has("shape"))
    {
@@ -277,7 +193,7 @@ void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const Bin
 
    if (shape == Shape::Cone && config.Has("cone"))
    {
-      deserialize(shapeConfig.cone, config["cone"]);
+      Binding::deserialize(shapeConfig.cone, config["cone"]);
    }
 }
 

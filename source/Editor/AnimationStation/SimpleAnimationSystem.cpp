@@ -69,7 +69,6 @@ void SimpleAnimationController::UpdateSkeletonStates()
          }
 
          // If this is the first entity (owner), then set modified=true.
-         bool modified = !found;
          found = true;
 
          SkeletonAnimations::State newState;
@@ -89,7 +88,6 @@ void SimpleAnimationController::UpdateSkeletonStates()
                    std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.positions.emplace(bone, pos);
-                  modified = true;
                }
             }
             for (const auto&[bone, rot] : keyframe.rotations)
@@ -99,7 +97,6 @@ void SimpleAnimationController::UpdateSkeletonStates()
                   std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.rotations.emplace(bone, rot);
-                  modified = true;
                }
             }
             for (const auto&[bone, scl] : keyframe.scales)
@@ -109,17 +106,13 @@ void SimpleAnimationController::UpdateSkeletonStates()
                   std::find(skipped.begin(), skipped.end(), parts[0]) != skipped.end())
                {
                   newKeyframe.scales.emplace(bone, scl);
-                  modified = true;
                }
             }
 
             newState.keyframes.push_back(std::move(newKeyframe));
          }
 
-         if (modified)
-         {
-            anims->states.emplace(state.name, std::move(newState));
-         }
+         anims->states.emplace(state.name, std::move(newState));
 
          skipped.clear();
       }
@@ -172,6 +165,16 @@ void SimpleAnimationController::UpdateSkeletonStates()
          SkeletonAnimations::Event eventDef = evt;
          eventDefs.push_back(eventDef);
       }
+
+      // Update events
+      for (const auto& trans : state.transitions)
+      {
+         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == trans.entity; });
+         assert(it != animations.end());
+
+         SkeletonAnimations& anims = **it;
+         anims.states[state.name].transitions.push_back(trans);
+      }
    }
 }
 
@@ -183,7 +186,7 @@ void SimpleAnimationController::Play(const std::string& state, double startTime)
       return;
    }
 
-   current = it - states.begin();
+   current = size_t(it - states.begin());
    time = startTime;
 }
 
@@ -202,7 +205,7 @@ void SimpleAnimationController::TransitionTo(const std::string& state, double tr
       time = transitionCurrent;
    }
 
-   next = it - states.begin();
+   next = size_t(it - states.begin());
    transitionStart = startTime;
    transitionCurrent = startTime;
    transitionEnd = startTime + transitionTime;
@@ -279,14 +282,14 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
    for (const auto& [name, s] : anims->states)
    {
-      auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
-      if (it == states.end())
+      auto stateIt = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == name; });
+      if (stateIt == states.end())
       {
          states.push_back(State{});
-         it = states.end() - 1;
+         stateIt = states.end() - 1;
       }
 
-      State& state = *it;
+      State& state = *stateIt;
 
       if (state.name.empty())
       {
@@ -347,6 +350,15 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          evt.entity = anims->entity;
 
          state.events.push_back(std::move(evt));
+      }
+
+      // Add transitions
+      for (const SkeletonAnimations::Transition& def : s.transitions)
+      {
+         Transition trans = def;
+         trans.entity = anims->entity;
+
+         state.transitions.push_back(std::move(trans));
       }
    }
 }

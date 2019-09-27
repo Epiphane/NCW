@@ -1,0 +1,10 @@
+---
+name: walk
+next: 
+stance: resting
+length: 0.8
+keyframes:
+- time: 0
+- time: 0.2
+- time: 0.4
+- time: 0.6

@@ -11,6 +11,7 @@
 #include "Program.h"
 #include "TextureManager.h"
 #include "VBO.h"
+#include "FeedbackBuffer.h"
 
 namespace CubeWorld
 {
@@ -45,8 +46,12 @@ public:
    struct LauncherConfig
    {
    public:
-      void SetPPS(float particlesPerSecond) { cooldown = 1.0f / particlesPerSecond; }
-      float GetPPS() const { return 1.0f / cooldown; }
+      void SetPPS(float particlesPerSecond) {
+         cooldown = 1.0f / particlesPerSecond;
+      }
+      float GetPPS() const {
+         return 1.0f / cooldown;
+      }
 
    public:
       //
@@ -131,11 +136,11 @@ public:
       const std::string& shaderDir,
       const std::string& textureDir
    );
-   ParticleSystem(const ParticleSystem& other) noexcept;
-   ParticleSystem(ParticleSystem&& other) noexcept;
-   virtual ~ParticleSystem();
+   ParticleSystem(const ParticleSystem& other) = default;
+   ParticleSystem(ParticleSystem&& other) = default;
+   virtual ~ParticleSystem() = default;
 
-   ParticleSystem& operator=(const ParticleSystem& other);
+   ParticleSystem& operator=(const ParticleSystem& other) = default;
 
    //
    // Reset the particle system to an initial state,
@@ -240,8 +245,7 @@ public:
    //
    bool firstRender = true;
    uint8_t buffer = 0;
-   Graphics::VBO particleBuffers[2];
-   GLuint feedbackBuffers[2] = {0, 0};
+   Graphics::FeedbackBuffer buffers[2];
 
    //
    // For particle systems that manage their data without the GPU (trails).

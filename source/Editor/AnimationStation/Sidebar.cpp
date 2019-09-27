@@ -151,9 +151,9 @@ void Sidebar::SaveFile()
    {
       BindingProperty serialized = anims->Serialize();
 
-      for (const auto&[name, animation] : serialized.pairs())
+      for (const auto& animation : serialized["states"])
       {
-         std::string path = Asset::Animation(Paths::Join(anims->entity, name.GetStringValue() + ".yaml"));
+         std::string path = Asset::Animation(Paths::Join(anims->entity, animation["name"].GetStringValue() + ".yaml"));
          Maybe<void> result = YAMLSerializer::SerializeFile(path, animation);
          if (!result)
          {
