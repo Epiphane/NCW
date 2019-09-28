@@ -44,6 +44,7 @@ void SimpleAnimationController::Reset()
    animations.clear();
    stances.clear();
    states.clear();
+   current = 0;
 }
 
 void SimpleAnimationController::UpdateSkeletonStates()
