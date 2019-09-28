@@ -192,6 +192,11 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
       }
    }
 
+   // Update scroll state
+   glm::tvec2<double> scroll = mWindow.GetMouseScroll();
+   io.MouseWheelH = (float)scroll.x;
+   io.MouseWheel = (float)scroll.y;
+
    // Start recording!
    ImGui::NewFrame();
 }
