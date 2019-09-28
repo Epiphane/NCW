@@ -13,7 +13,6 @@ keyframes:
     character.Right Leg: [-3.5, -0.624219, 0]
     character.Shoulders: [-6.604614, 0.079219, 6.416793]
     character.Spine: [0, 0.455469, 1.99383]
-    character.root: [0, -0.5, 0]
     greatmace.root: [1.990625, 4.917968, 1.23086]
   rotations:
     character.Head: [-3.414062, 0, 0]

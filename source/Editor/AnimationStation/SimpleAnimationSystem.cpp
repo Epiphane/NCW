@@ -426,6 +426,10 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       {
          progress = float(controller.time - src.time) / float(dst.time - src.time);
       }
+      else if (isLastFrame && glm::epsilonNotEqual(src.time, state.length, 0.1))
+      {
+         progress = float(controller.time - src.time) / float(state.length - src.time);
+      }
 
       size_t boneId = 0;
       for (const auto& skeleton : controller.skeletons)
