@@ -8,6 +8,7 @@
 #include <Meta.h>
 
 #include <RGBBinding/BindingProperty.h>
+#include <RGBMeta/Value.h>
 #include "Program.h"
 #include "TextureManager.h"
 #include "VBO.h"
@@ -289,6 +290,16 @@ inline auto registerMembers<ParticleSystem::ParticleConfig>()
 }
 
 template <>
+inline auto registerValues<ParticleSystem::Shape>()
+{
+   return values(
+      value("cone", ParticleSystem::Shape::Cone),
+      value("point", ParticleSystem::Shape::Point),
+      value("trail", ParticleSystem::Shape::Trail)
+   );
+}
+
+template <>
 inline auto registerMembers<ParticleSystem::PointConfig>()
 {
    return members();
@@ -320,7 +331,8 @@ inline auto registerMembers<ParticleSystem>()
       member("shader-uniforms", &ParticleSystem::uniforms),
       member("shader-texture", &ParticleSystem::GetTexture, &ParticleSystem::SetTexture),
       member("launcher", &ParticleSystem::launcher),
-      member("particle", &ParticleSystem::particle)
+      member("particle", &ParticleSystem::particle),
+      member("shape", &ParticleSystem::shape)
    );
 }
 

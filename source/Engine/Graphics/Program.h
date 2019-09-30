@@ -47,6 +47,7 @@ public:
       return Load(vertexShaderPath, "", fragmentShaderPath, {});
    }
 
+   GLuint GetID() const { return id; }
    void Bind();
    void Unbind();
 #define BIND_PROGRAM_IN_SCOPE(program) program->Bind();\

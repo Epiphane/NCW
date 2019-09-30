@@ -169,28 +169,6 @@ void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const Bin
    textureDirectory = textureDir;
    Binding::deserialize(*this, config);
 
-   if (config.Has("shape"))
-   {
-      std::string shapeVal = config["shape"];
-      if (shapeVal == "point")
-      {
-         shape = Shape::Point;
-      }
-      else if (shapeVal == "cone")
-      {
-         shape = Shape::Cone;
-      }
-      else if (shapeVal == "trail")
-      {
-         shape = Shape::Trail;
-      }
-      else
-      {
-         LOG_ERROR("Unknown shape value {shape}. Defaulting to point", shapeVal);
-         shape = Shape::Point;
-      }
-   }
-
    if (shape == Shape::Cone && config.Has("cone"))
    {
       Binding::deserialize(shapeConfig.cone, config["cone"]);
@@ -201,27 +179,9 @@ BindingProperty ParticleSystem::Serialize() const
 {
    BindingProperty result(*this);
 
-   switch (shape)
+   if (shape == Shape::Cone)
    {
-   case Shape::Cone:
-   {
-      result["shape"] = "cone";
       result["cone"] = shapeConfig.cone;
-      break;
-   }
-
-   case Shape::Trail:
-   {
-      result["shape"] = "trail";
-      break;
-   }
-
-   case Shape::Point:
-   default:
-   {
-      result["shape"] = "point";
-      break;
-   }
    }
 
    return result;

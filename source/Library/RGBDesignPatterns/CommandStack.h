@@ -31,7 +31,7 @@ public:
    }
 
    template<typename C, typename ...Args>
-   void Do(Args ...args)
+   void Do(Args&& ...args)
    {
       Do(std::make_unique<C>(std::forward<Args>(args) ...));
    }
@@ -50,7 +50,7 @@ public:
    }
 
    template<typename C, typename ...Args>
-   void Emplace(Args ...args)
+   void Emplace(Args&& ...args)
    {
       Emplace(std::make_unique<C>(std::forward<Args>(args) ...));
    }

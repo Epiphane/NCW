@@ -37,6 +37,8 @@ public:
       kArrayType = 6,
    };
 
+   static std::string TypeToString(Type type);
+
 public:
    // Forward declarations
    struct KeyVal;
@@ -101,9 +103,9 @@ public:
    }
 
    // Custom initialization
-   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>()>>
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>() || meta::valuesRegistered<T>()>>
    BindingProperty(T&& val);
-   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>()>>
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>() || meta::valuesRegistered<T>()>>
    BindingProperty(const T& val);
 
    // Creates an element if the index does not exist.
@@ -123,6 +125,7 @@ public:
 
 public:
    // Access and reading
+   Type GetType() const { return Type(flags & kTypeMask); }
    bool IsNull() const { return flags == uint16_t(kNullFlag); }
    bool IsBool() const { return (flags & kBoolFlag) != 0; }
    bool IsObject() const { return flags == uint16_t(kObjectFlag); }
@@ -191,6 +194,10 @@ public:
    PairIterator end_pairs();
    ConstPairIterator begin_pairs() const;
    ConstPairIterator end_pairs() const;
+   ObjectIterator begin_object();
+   ObjectIterator end_object();
+   ConstObjectIterator begin_object() const;
+   ConstObjectIterator end_object() const;
 
    template <typename Property, typename Iterator>
    struct PairMaker {
@@ -209,6 +216,25 @@ public:
    PairMaker<const BindingProperty, ConstPairIterator> pairs() const
    {
       return PairMaker<const BindingProperty, ConstPairIterator>{*this};
+   }
+
+   template <typename Property, typename Iterator>
+   struct ObjectIteratorMaker {
+      ObjectIteratorMaker(Property& obj_) : obj(obj_) {};
+
+      Iterator begin() const { return obj.begin_object(); }
+      Iterator end() const { return obj.end_object(); }
+      Property& obj;
+   };
+
+   ObjectIteratorMaker<BindingProperty, ObjectIterator> object()
+   {
+      return ObjectIteratorMaker<BindingProperty, ObjectIterator>{*this};
+   }
+
+   ObjectIteratorMaker<const BindingProperty, ConstObjectIterator> object() const
+   {
+      return ObjectIteratorMaker<const BindingProperty, ConstObjectIterator>{*this};
    }
 
    /*
@@ -248,11 +274,7 @@ public:
    inline BindingProperty& push_back(BindingProperty val) { return PushBack(val); }
    void PopBack();
    inline void pop_back() { return PopBack(); }
-   inline size_t GetSize() const
-   {
-      assert(IsArray() && "Can only call GetSize on an array");
-      return data.arrayVal.size();
-   }
+   size_t GetSize() const;
 
    BindingProperty& SetObject() { this->~BindingProperty(); new (this) BindingProperty(kObjectType); return *this; }
    BindingProperty& Set(const std::string& key, const BindingProperty& value);

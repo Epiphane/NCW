@@ -1,0 +1,10 @@
+// RGBMeta library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBMeta'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = ''
+
+   #include "../LibraryHelper.bff"
+}

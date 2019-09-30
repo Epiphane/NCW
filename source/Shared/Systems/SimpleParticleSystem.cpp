@@ -411,22 +411,34 @@ void SimpleParticleSystem::RenderParticleSystem(
 
    for (const auto& [key, value] : system.uniforms.pairs())
    {
-      if (value.IsNumber())
+      GLint uniform = system.program->Uniform(key.GetStringValue());
+      if (uniform < 0)
+      {
+         continue;
+      }
+
+      GLsizei uniformSize;
+      GLenum type;
+      glGetActiveUniform(system.program->GetID(), GLuint(uniform), 0, nullptr, &uniformSize, &type, nullptr);
+
+      if (value.IsNumber() && (type == GL_FLOAT || type == GL_DOUBLE || type == GL_INT))
       {
          system.program->Uniform1f(key.GetStringValue(), value.GetFloatValue());
       }
-      else if (value.IsVec3())
+      else if (value.IsVec3() && (type == GL_FLOAT_VEC3 || type == GL_DOUBLE_VEC3))
       {
          system.program->UniformVector3f(key.GetStringValue(), value.GetVec3());
       }
-      else if (value.IsVec4())
+      else if (value.IsVec4() && (type == GL_FLOAT_VEC4 || type == GL_DOUBLE_VEC4))
       {
          system.program->UniformVector4f(key.GetStringValue(), value.GetVec4());
       }
       else
       {
+         /*
          LOG_ERROR("Unknown shader value for {key}", key.GetStringValue());
          assert(false);
+         */
       }
       CHECK_GL_ERRORS();
    }

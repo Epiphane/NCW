@@ -11,6 +11,7 @@
 #include <Shared/UI/RectFilled.h>
 
 #include "../Imgui/Extensions.h"
+#include "../Imgui/Meta.h"
 
 #include "Dock.h"
 
@@ -45,6 +46,16 @@ void Dock::Update(TIMEDELTA)
 
    ImGui::Text("%s", mParticleSystem->name.c_str());
 
+   Engine::ParticleSystem::Shape shape = mParticleSystem->shape;
+
+   if (Imgui::Draw("", static_cast<Engine::ParticleSystem&>(*mParticleSystem)))
+   {
+      if (shape != mParticleSystem->shape)
+      {
+         mParticleSystem->Reset();
+      }
+   }
+   
    ImGui::End();
 }
 

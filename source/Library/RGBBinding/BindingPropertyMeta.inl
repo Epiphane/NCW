@@ -37,7 +37,23 @@ BindingProperty serialize(const Class& obj)
    return value;
 }
 
-template <typename Class, typename, typename>
+template <typename EnumType, typename, typename>
+BindingProperty serialize(const EnumType& obj)
+{
+   BindingProperty result;
+   meta::doForAllValues<EnumType>(
+      [&obj, &result](auto& value)
+      {
+         if (value.getValue() == obj)
+         {
+            result = value.getName();
+         }
+      }
+   );
+   return result;
+}
+
+template <typename Class, typename, typename, typename>
 BindingProperty serialize(const Class& obj)
 {
    return serialize_basic(obj);
@@ -96,12 +112,6 @@ Class deserialize(const BindingProperty& obj)
    return c;
 }
 
-template <typename Class, typename, typename>
-void deserialize(Class& obj, const BindingProperty& object)
-{
-   obj = object.Get<Class>();
-}
-
 template <typename Class, typename>
 void deserialize(Class& obj, const BindingProperty& object)
 {
@@ -128,6 +138,28 @@ void deserialize(Class& obj, const BindingProperty& object)
          }
       }
    );
+}
+
+template <typename EnumType, typename, typename>
+void deserialize(EnumType& val, const BindingProperty& object)
+{
+   std::string name = object.GetStringValue();
+
+   meta::doForAllValues<EnumType>(
+      [&](auto& value)
+      {
+         if (name == value.getName())
+         {
+            val = value.getValue();
+         }
+      }
+   );
+}
+
+template <typename Class, typename, typename, typename>
+void deserialize(Class& obj, const BindingProperty& object)
+{
+   obj = object.Get<Class>();
 }
 
 template <typename T>
