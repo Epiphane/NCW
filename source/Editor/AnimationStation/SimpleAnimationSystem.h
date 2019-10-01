@@ -150,4 +150,10 @@ inline auto registerMembers<SimpleAnimationController::State>()
    );
 }
 
+template <>
+inline auto registerMembers<SimpleAnimationController::Transition>()
+{
+   return registerMembers<SkeletonAnimations::Transition>();
+}
+
 }; // namespace meta

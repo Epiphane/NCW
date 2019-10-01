@@ -1,6 +1,6 @@
 ---
 name: idle active
-next:
+next: 
 stance: wield_twohands
 length: 5.02
 keyframes:
@@ -39,9 +39,11 @@ transitions:
   time: 0
   triggers:
   - parameter: fighting
+    type: bool
     bool: false
 - to: swing 1
   time: 0.1
   triggers:
   - parameter: attack
+    type: bool
     bool: true

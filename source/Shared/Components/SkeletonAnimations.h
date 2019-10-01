@@ -39,6 +39,19 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
             double doubleVal;
             bool boolVal;
          };
+
+         const inline Type& GetType() const;
+         inline void SetType(const Type& type);
+
+         const inline bool IsGreaterThan() const;
+         const inline bool IsLessThan() const;
+         const inline bool IsBool() const;
+         const inline double& GetGreaterThan() const;
+         const inline double& GetLessThan() const;
+         const inline bool& GetBool() const;
+         inline void SetGreaterThan(const double& value);
+         inline void SetLessThan(const double& value);
+         inline void SetBool(const bool& value);
       };
 
       std::string destination;
@@ -124,7 +137,7 @@ template<>
 inline auto registerValues<SkeletonAnimations::Transition::Trigger::Type>()
 {
    return values(
-      value("gt", SkeletonAnimations::Transition::Trigger::Type::GreaterThan),
+      value("gte", SkeletonAnimations::Transition::Trigger::Type::GreaterThan),
       value("lt", SkeletonAnimations::Transition::Trigger::Type::LessThan),
       value("bool", SkeletonAnimations::Transition::Trigger::Type::Bool)
    );
@@ -135,7 +148,10 @@ inline auto registerMembers<SkeletonAnimations::Transition::Trigger>()
 {
    return members(
       member("parameter", &SkeletonAnimations::Transition::Trigger::parameter),
-      member("type", &SkeletonAnimations::Transition::Trigger::type)
+      member("type", &SkeletonAnimations::Transition::Trigger::GetType, &SkeletonAnimations::Transition::Trigger::SetType),
+      member("gte", &SkeletonAnimations::Transition::Trigger::GetGreaterThan, &SkeletonAnimations::Transition::Trigger::SetGreaterThan, &SkeletonAnimations::Transition::Trigger::IsGreaterThan),
+      member("lt", &SkeletonAnimations::Transition::Trigger::GetLessThan, &SkeletonAnimations::Transition::Trigger::SetLessThan, &SkeletonAnimations::Transition::Trigger::IsLessThan),
+      member("bool", &SkeletonAnimations::Transition::Trigger::GetBool, &SkeletonAnimations::Transition::Trigger::SetBool, &SkeletonAnimations::Transition::Trigger::IsBool)
    );
 }
 
@@ -196,3 +212,75 @@ inline auto registerMembers<SkeletonAnimations>()
 }
 
 }; // namespace meta
+
+namespace CubeWorld
+{
+
+const inline SkeletonAnimations::Transition::Trigger::Type& SkeletonAnimations::Transition::Trigger::GetType() const
+{
+   return type;
+}
+
+inline void  SkeletonAnimations::Transition::Trigger::SetType(const Type& t)
+{
+   if (type == t) { return; }
+   type = t;
+   if (type == Type::GreaterThan || type == Type::LessThan)
+   {
+      doubleVal = 0;
+   }
+   else if (type == Type::Bool)
+   {
+      boolVal = false;
+   }
+}
+
+const inline bool SkeletonAnimations::Transition::Trigger::IsGreaterThan() const
+{
+   return type == Type::GreaterThan;
+}
+
+const inline bool SkeletonAnimations::Transition::Trigger::IsLessThan() const
+{
+   return type == Type::LessThan;
+}
+
+const inline bool SkeletonAnimations::Transition::Trigger::IsBool() const
+{
+   return type == Type::Bool;
+}
+
+const inline double& SkeletonAnimations::Transition::Trigger::GetGreaterThan() const
+{
+   return doubleVal;
+}
+
+const inline double& SkeletonAnimations::Transition::Trigger::GetLessThan() const
+{
+   return doubleVal;
+}
+
+const inline bool& SkeletonAnimations::Transition::Trigger::GetBool() const
+{
+   return boolVal;
+}
+
+inline void SkeletonAnimations::Transition::Trigger::SetGreaterThan(const double& value)
+{
+   type = Type::GreaterThan;
+   doubleVal = value;
+}
+
+inline void SkeletonAnimations::Transition::Trigger::SetLessThan(const double& value)
+{
+   type = Type::LessThan;
+   doubleVal = value;
+}
+
+inline void SkeletonAnimations::Transition::Trigger::SetBool(const bool& value)
+{
+   type = Type::Bool;
+   boolVal = value;
+}
+
+}; // namespace CubeWorld

@@ -1,6 +1,6 @@
 ---
 name: run
-next:
+next: 
 stance: resting
 length: 0.4
 keyframes:

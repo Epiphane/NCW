@@ -106,38 +106,8 @@ void Dock::Update(TIMEDELTA)
    }
 
    ImGui::End();
-   // End state selector
-
-   // Begin state info window
-   ImGui::SetNextWindowPos(ImVec2(975, 20), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
-   ImGui::Begin("State info");
-
    State& state = GetCurrentState();
-   if (Imgui::Draw("State", state))
-   {
-      mpRoot->Emit<SkeletonModifiedEvent>(mController);
-   }
-
-   if (ImGui::BeginCombo("##stance", state.stance.c_str()))
-   {
-      for (const auto& [stance, _] : mController->stances)
-      {
-         bool isSelected = (state.stance == stance);
-         if (ImGui::Selectable(stance.c_str(), isSelected))
-         {
-            CommandStack::Instance().Do<SetStanceCommand>(this, mController->current, stance);
-         }
-         if (isSelected)
-         {
-            ImGui::SetItemDefaultFocus();
-         }
-      }
-      ImGui::EndCombo();
-   }
-
-   ImGui::End();
-   // End state info window
+   // End state selector
 
    // Begin playback window
    ImGui::SetNextWindowPos(ImVec2(975, 136), ImGuiCond_FirstUseEver);
@@ -177,176 +147,211 @@ void Dock::Update(TIMEDELTA)
    ImGui::End();
    // End timeline window
 
-   // Begin keyframe window
+   // Begin animation properties window
+   ImGui::Begin("Animation Editor");
+
    size_t index = GetKeyframeIndex(state, mController->time);
    Keyframe& keyframe = state.keyframes[index];
-   if (mSystemControls->paused)
+   if (ImGui::BeginTabBar("Animation Properties"))
    {
-      ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
-      ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
-      ImGui::Begin("Keyframe");
-
-      if (mController->time != keyframe.time)
+      if (ImGui::BeginTabItem("State"))
       {
-         if (ImGui::Button("Add Keyframe"))
+         if (Imgui::Draw("State", state))
          {
-            CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
-         }
-      }
-      else
-      {
-         if (ImGui::Button("Remove Keyframe"))
-         {
-            CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
+            mpRoot->Emit<SkeletonModifiedEvent>(mController);
          }
 
-         double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
-         double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
-
-         if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+         if (ImGui::BeginCombo("##stance", state.stance.c_str()))
          {
-            CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
-               this,
-               mController->current,
-               index,
-               mKeyframeTimeScrubber.GetLastValue()
-               );
+            for (const auto& [stance, _] : mController->stances)
+            {
+               bool isSelected = (state.stance == stance);
+               if (ImGui::Selectable(stance.c_str(), isSelected))
+               {
+                  CommandStack::Instance().Do<SetStanceCommand>(this, mController->current, stance);
+               }
+               if (isSelected)
+               {
+                  ImGui::SetItemDefaultFocus();
+               }
+            }
+            ImGui::EndCombo();
+         }
+         ImGui::EndTabItem();
+      }
+      Stance& stance = GetCurrentStance();
+      if (mSystemControls->paused && ImGui::BeginTabItem("Keyframe"))
+      {
+         if (mController->time != keyframe.time)
+         {
+            if (ImGui::Button("Add Keyframe"))
+            {
+               CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
+            }
+         }
+         else
+         {
+            if (ImGui::Button("Remove Keyframe"))
+            {
+               CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
+            }
+
+            double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
+            double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
+
+            if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+            {
+               CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
+                  this,
+                  mController->current,
+                  index,
+                  mKeyframeTimeScrubber.GetLastValue()
+                  );
+            }
+
+            if (ImGui::IsItemActive())
+            {
+               mController->time = keyframe.time;
+            }
          }
 
-         if (ImGui::IsItemActive())
+         ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Bone"))
+      {
+         // Pick a bone, any bone
+         if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
          {
-            mController->time = keyframe.time;
+            for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
+            {
+               const Bone& bone = stance.bones[boneId];
+               bool isSelected = (mBone == boneId);
+               if (ImGui::Selectable(bone.name.c_str(), isSelected))
+               {
+                  SetBone(boneId);
+               }
+               if (isSelected)
+               {
+                  ImGui::SetItemDefaultFocus();
+               }
+            }
+            ImGui::EndCombo();
          }
-      }
 
-      ImGui::End();
-   }
-   // End keyframe window
-
-   // Begin bone window
-   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Bone");
-
-   Stance& stance = GetCurrentStance();
-   if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
-   {
-      for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
-      {
-         const Bone& bone = stance.bones[boneId];
-         bool isSelected = (mBone == boneId);
-         if (ImGui::Selectable(bone.name.c_str(), isSelected))
+         const Bone& selected = stance.bones[mBone];
+         if (mController->time == keyframe.time && mSystemControls->paused)
          {
-            SetBone(boneId);
+            Receive(ResumeEditingEvent{});
+
+            if (mScrubbers[0].Drag("Position", keyframe.positions[selected.name], 0.1f))
+            {
+               OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+               Receive(ResumeEditingEvent{});
+            }
+            if (ImGui::Button("Base"))
+            {
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  selected.position,
+                  keyframe.rotations[selected.name],
+                  keyframe.scales[selected.name]);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Previous") && index > 0)
+            {
+               Keyframe& prev = state.keyframes[index - 1];
+               glm::vec3 pos = prev.positions.count(selected.name) != 0 ?
+                  prev.positions.at(selected.name) :
+                  selected.position;
+
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  pos,
+                  keyframe.rotations[selected.name],
+                  keyframe.scales[selected.name]);
+            }
+
+            if (mScrubbers[1].Drag("Rotation", keyframe.rotations[selected.name]))
+            {
+               OnScrub(ScrubType::Rotation, mScrubbers[1].GetLastValue());
+               Receive(ResumeEditingEvent{});
+            }
+            if (ImGui::Button("Base"))
+            {
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  keyframe.positions[selected.name],
+                  selected.rotation,
+                  keyframe.scales[selected.name]);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Previous") && index > 0)
+            {
+               Keyframe& prev = state.keyframes[index - 1];
+               glm::vec3 rot = prev.rotations.count(selected.name) != 0 ?
+                  prev.rotations.at(selected.name) :
+                  selected.rotation;
+
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  keyframe.positions[selected.name],
+                  rot,
+                  keyframe.scales[selected.name]);
+            }
+
+            if (mScrubbers[2].Drag("Scale", keyframe.scales[selected.name], 0.1f))
+            {
+               OnScrub(ScrubType::Scale, mScrubbers[2].GetLastValue());
+               Receive(ResumeEditingEvent{});
+            }
+            if (ImGui::Button("Base"))
+            {
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  keyframe.positions[selected.name],
+                  keyframe.rotations[selected.name],
+                  selected.scale);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Previous") && index > 0)
+            {
+               Keyframe& prev = state.keyframes[index - 1];
+               glm::vec3 scl = prev.scales.count(selected.name) != 0 ?
+                  prev.scales.at(selected.name) :
+                  selected.scale;
+
+               CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
+                  keyframe.positions[selected.name],
+                  keyframe.rotations[selected.name],
+                  scl);
+            }
+
+            // Revert any unchanged vectors so that they are not persisted.
+            Receive(SuspendEditingEvent{});
          }
-         if (isSelected)
+         else
          {
-            ImGui::SetItemDefaultFocus();
+            std::vector<std::string> parts = StringHelper::Split(selected.name, '.');
+            const auto it = std::find_if(mController->skeletons.begin(), mController->skeletons.end(), [&](const auto& s) { return s->name == parts[0]; });
+            assert(it != mController->skeletons.end() && "Couldn't find skeleton");
+            Bone& bone = (*it)->bones[(*it)->boneLookup[selected.name]];
+
+            mScrubbers[0].Drag("Position", bone.position, 0.1f);
+            mScrubbers[1].Drag("Rotation", bone.rotation);
+            mScrubbers[2].Drag("Scale", bone.scale);
          }
-      }
-      ImGui::EndCombo();
-   }
 
-   const Bone& selected = stance.bones[mBone];
-   if (mController->time == keyframe.time && mSystemControls->paused)
-   {
-      Receive(ResumeEditingEvent{});
+         ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Transitions"))
+      {
+         if (Imgui::Draw("transitions", state.transitions))
+         {
+            mpRoot->Emit<SkeletonModifiedEvent>(mController);
+         }
 
-      if (mScrubbers[0].Drag("Position", keyframe.positions[selected.name], 0.1f))
-      {
-         OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
-         Receive(ResumeEditingEvent{});
+         ImGui::EndTabItem();
       }
-      if (ImGui::Button("Base"))
-      {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       selected.position,
-                                                       keyframe.rotations[selected.name],
-                                                       keyframe.scales[selected.name]);
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Previous") && index > 0)
-      {
-         Keyframe& prev = state.keyframes[index - 1];
-         glm::vec3 pos = prev.positions.count(selected.name) != 0 ?
-            prev.positions.at(selected.name) :
-            selected.position;
-
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       pos,
-                                                       keyframe.rotations[selected.name],
-                                                       keyframe.scales[selected.name]);
-      }
-
-      if (mScrubbers[1].Drag("Rotation", keyframe.rotations[selected.name]))
-      {
-         OnScrub(ScrubType::Rotation, mScrubbers[1].GetLastValue());
-         Receive(ResumeEditingEvent{});
-      }
-      if (ImGui::Button("Base"))
-      {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       keyframe.positions[selected.name],
-                                                       selected.rotation,
-                                                       keyframe.scales[selected.name]);
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Previous") && index > 0)
-      {
-         Keyframe& prev = state.keyframes[index - 1];
-         glm::vec3 rot = prev.rotations.count(selected.name) != 0 ?
-            prev.rotations.at(selected.name) :
-            selected.rotation;
-
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       keyframe.positions[selected.name],
-                                                       rot,
-                                                       keyframe.scales[selected.name]);
-      }
-
-      if (mScrubbers[2].Drag("Scale", keyframe.scales[selected.name], 0.1f))
-      {
-         OnScrub(ScrubType::Scale, mScrubbers[2].GetLastValue());
-         Receive(ResumeEditingEvent{});
-      }
-      if (ImGui::Button("Base"))
-      {
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       keyframe.positions[selected.name],
-                                                       keyframe.rotations[selected.name],
-                                                       selected.scale);
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Previous") && index > 0)
-      {
-         Keyframe& prev = state.keyframes[index - 1];
-         glm::vec3 scl = prev.scales.count(selected.name) != 0 ?
-            prev.scales.at(selected.name) :
-            selected.scale;
-
-         CommandStack::Instance().Do<ResetBoneCommand>(this, mController->current, index, mBone,
-                                                       keyframe.positions[selected.name],
-                                                       keyframe.rotations[selected.name],
-                                                       scl);
-      }
-
-      // Revert any unchanged vectors so that they are not persisted.
-      Receive(SuspendEditingEvent{});
-   }
-   else
-   {
-      std::vector<std::string> parts = StringHelper::Split(selected.name, '.');
-      const auto it = std::find_if(mController->skeletons.begin(), mController->skeletons.end(), [&](const auto& s) { return s->name == parts[0]; });
-      assert(it != mController->skeletons.end() && "Couldn't find skeleton");
-      Bone& bone = (*it)->bones[(*it)->boneLookup[selected.name]];
-
-      mScrubbers[0].Drag("Position", bone.position, 0.1f);
-      mScrubbers[1].Drag("Rotation", bone.rotation);
-      mScrubbers[2].Drag("Scale", bone.scale);
+      ImGui::EndTabBar();
    }
 
    ImGui::End();
-   // End bone window
+   // End animation properties window
 }
 
 ///

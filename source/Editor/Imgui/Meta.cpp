@@ -18,7 +18,7 @@ namespace Editor
 namespace Imgui
 {
 
-bool Draw(const std::string& label, std::string& value)
+bool Draw(const std::string& label, std::string& value, bool addToStack)
 {
    static std::string initialValue;
 
@@ -30,7 +30,10 @@ bool Draw(const std::string& label, std::string& value)
 
    if (ImGui::IsItemDeactivatedAfterEdit())
    {
-      CommandStack::Instance().Emplace<SetValueCommand<std::string>>(value, initialValue);
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<std::string>>(value, initialValue);
+      }
       return true;
    }
 
@@ -188,7 +191,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
          size_t index = 0;
          for (auto& elem : value)
          {
-            if (ImGui::TreeNode(FormatString("Element {num}{label}", index++, label).c_str()))
+            if (ImGui::TreeNode(FormatString("Element {num}{label}", index, label).c_str()))
             {
                std::pair<bool, bool> valueResult = DrawInternal(FormatString(label + "##{num}", index), elem);
                result.first |= valueResult.first;
@@ -196,6 +199,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
 
                ImGui::TreePop();
             }
+            index++;
          }
       }
 
@@ -207,7 +211,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
    return result;
 }
 
-bool Draw(const std::string& label, BindingProperty& value)
+bool Draw(const std::string& label, BindingProperty& value, bool addToStack)
 {
    if (!label.empty() && label[0] != '#')
    {
@@ -230,16 +234,15 @@ bool Draw(const std::string& label, BindingProperty& value)
       initialValue = value;
    }
 
-   if (edited)
+   if (edited && addToStack)
    {
       CommandStack::Instance().Emplace<SetValueCommand<BindingProperty>>(value, initialValue);
-      return true;
    }
 
-   return false;
+   return edited;
 }
 
-bool Draw(const std::string& label, uint32_t& value)
+bool Draw(const std::string& label, uint32_t& value, bool addToStack)
 {
    static uint32_t initialValue;
 
@@ -253,14 +256,17 @@ bool Draw(const std::string& label, uint32_t& value)
 
    if (ImGui::IsItemDeactivatedAfterEdit())
    {
-      CommandStack::Instance().Emplace<SetValueCommand<uint32_t>>(value, initialValue);
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<uint32_t>>(value, initialValue);
+      }
       return true;
    }
 
    return false;
 }
 
-bool Draw(const std::string& label, double& value)
+bool Draw(const std::string& label, double& value, bool addToStack)
 {
    static double initialValue;
 
@@ -272,14 +278,17 @@ bool Draw(const std::string& label, double& value)
 
    if (ImGui::IsItemDeactivatedAfterEdit())
    {
-      CommandStack::Instance().Emplace<SetValueCommand<double>>(value, initialValue);
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<double>>(value, initialValue);
+      }
       return true;
    }
 
    return false;
 }
 
-bool Draw(const std::string& label, float& value)
+bool Draw(const std::string& label, float& value, bool addToStack)
 {
    static float initialValue;
 
@@ -291,7 +300,24 @@ bool Draw(const std::string& label, float& value)
 
    if (ImGui::IsItemDeactivatedAfterEdit())
    {
-      CommandStack::Instance().Emplace<SetValueCommand<float>>(value, initialValue);
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<float>>(value, initialValue);
+      }
+      return true;
+   }
+
+   return false;
+}
+
+bool Draw(const std::string& label, bool& value, bool addToStack)
+{
+   if (ImGui::Checkbox(label.c_str(), &value))
+   {
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<bool>>(value, !value);
+      }
       return true;
    }
 

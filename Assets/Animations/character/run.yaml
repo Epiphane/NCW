@@ -1,6 +1,6 @@
 ---
 name: run
-next:
+next: 
 stance: resting
 length: 0.4
 keyframes:
@@ -65,11 +65,14 @@ transitions:
   time: 0.2
   triggers:
   - parameter: speed
+    type: lt
     lt: 1
 - to: walk
   time: 0.5
   triggers:
   - parameter: speed
+    type: gte
     gte: 1
   - parameter: speed
+    type: lt
     lt: 8

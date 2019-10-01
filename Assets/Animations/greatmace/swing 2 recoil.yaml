@@ -59,4 +59,5 @@ transitions:
   time: 0.1
   triggers:
   - parameter: attack
+    type: bool
     bool: true

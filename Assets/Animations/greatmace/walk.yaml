@@ -1,6 +1,6 @@
 ---
 name: walk
-next:
+next: 
 stance: resting
 length: 0.8
 keyframes:
