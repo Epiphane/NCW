@@ -260,6 +260,25 @@ bool Draw(const std::string& label, uint32_t& value)
    return false;
 }
 
+bool Draw(const std::string& label, double& value)
+{
+   static double initialValue;
+
+   ImGui::InputDouble(label.c_str(), &value);
+   if (ImGui::IsItemActivated())
+   {
+      initialValue = value;
+   }
+
+   if (ImGui::IsItemDeactivatedAfterEdit())
+   {
+      CommandStack::Instance().Emplace<SetValueCommand<double>>(value, initialValue);
+      return true;
+   }
+
+   return false;
+}
+
 bool Draw(const std::string& label, float& value)
 {
    static float initialValue;

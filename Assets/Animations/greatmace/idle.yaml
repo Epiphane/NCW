@@ -1,13 +1,13 @@
 ---
 name: idle
-next: 
+next:
 stance: resting
 length: 5.02
 keyframes:
 - time: 0
-- time: 0.79
-- time: 2.64
-- time: 3.23
+- time: 0.16
+- time: 0.53
+- time: 0.64
 transitions:
 - to: swing 1
   time: 0.1

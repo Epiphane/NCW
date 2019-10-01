@@ -1,6 +1,6 @@
 ---
 name: walk
-next: 
+next:
 stance: resting
 length: 0.8
 keyframes:
@@ -12,7 +12,7 @@ keyframes:
     character.Head: [-5, 0, 0]
     character.Hips: [5, 0, 0]
     character.Spine: [5, 0, 0]
-- time: 0.2
+- time: 0.25
   positions:
     character.Attachment: [-1.5, 0, -10.1]
     character.Head: [0, 5.49, 0]
@@ -29,7 +29,7 @@ keyframes:
     character.Spine: [5, 0, 0]
     character.Torso: [0, -10, 0]
     character.root: [0, 0, 0]
-- time: 0.4
+- time: 0.5
   positions:
     character.Head: [0, 4.52, 0]
     character.Torso: [0, -6.52, 0]
@@ -37,7 +37,7 @@ keyframes:
     character.Head: [-5, 0, 0]
     character.Hips: [5, 0, 0]
     character.Spine: [5, 0, 0]
-- time: 0.6
+- time: 0.75
   positions:
     character.Attachment: [1.5, 0, -10.1]
     character.Head: [0, 5.53, 0]
@@ -61,9 +61,9 @@ transitions:
   time: 0.2
   triggers:
   - parameter: speed
-    bool: false
+    lt: 1
 - to: run
   time: 0.5
   triggers:
   - parameter: speed
-    bool: false
+    gte: 8

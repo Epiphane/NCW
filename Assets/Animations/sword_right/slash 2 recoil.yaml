@@ -60,7 +60,7 @@ keyframes:
     character.Torso: [1, 1, 1]
     character.Unnammed node 2: [1, 1, 1]
     sword_right.root: [1, 1, 1]
-- time: 0.8
+- time: 1
   positions:
     character.Head: [0, 4, 0.6]
     character.Right Hand: [-6.180703, 0, 2.661406]

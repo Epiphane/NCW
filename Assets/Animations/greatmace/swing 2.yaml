@@ -16,7 +16,7 @@ keyframes:
     character.Shoulders: [70.779999, -53.91, 0]
     character.Spine: [24.219999, 0, 0]
     character.Torso: [0, 46.09, 0]
-- time: 0.45
+- time: 0.5
   positions:
     character.Head: [0, 4.86, -2]
     character.Hips: [0, 1.5, 2.1]
@@ -28,7 +28,7 @@ keyframes:
     character.Shoulders: [70.779999, -53.91, 0]
     character.Spine: [24.219999, 0, 0]
     character.Torso: [0, 46.09, 0]
-- time: 0.6
+- time: 0.67
   positions:
     character.Head: [0, 4.86, -2]
     character.Hips: [0, 1.5, 2.1]
@@ -40,7 +40,7 @@ keyframes:
     character.Shoulders: [70.779999, -24.309999, 0]
     character.Spine: [12.02, 0, 0]
     character.Torso: [0, 17.59, 0]
-- time: 0.801742
+- time: 0.89
   positions:
     character.Hips: [0, 1.5, 2.1]
     character.Left Leg: [2.5, -0.352344, 0]
@@ -60,7 +60,7 @@ keyframes:
     character.Spine: [-5.054688, 16.25, 0]
     character.Torso: [0, -6.6, 0]
     greatmace.root: [0, -89.492188, 0]
-- time: 0.85
+- time: 0.94
   positions:
     character.Head: [0, 4.730227, 0.321562]
     character.Hips: [0, 1.5, 2.1]
@@ -82,7 +82,7 @@ keyframes:
     character.Spine: [2.898438, 11.078125, 0]
     character.Torso: [0, -6.6, 0]
     greatmace.root: [0, -89.492188, 0]
-- time: 0.9
+- time: 1
   positions:
     character.Head: [0, 4.730227, 0.321562]
     character.Hips: [0, 1.5, 2.1]

@@ -58,7 +58,7 @@ keyframes:
     character.Torso: [1, 1, 1]
     character.Unnammed node 2: [1, 1, 1]
     sword_right.root: [1, 1, 1]
-- time: 0.231
+- time: 1
   positions:
     character.Left Hand: [5.780704, -1.1, 2.661406]
     character.Left Leg: [3.646484, -1, -1.469141]

@@ -17,7 +17,7 @@ keyframes:
     character.Shoulders: [-37.73, 15.12, 1.23]
     character.Spine: [-16.09, 0, 0]
     character.Torso: [0, 0.35, 0]
-- time: 0.5
+- time: 1
   positions:
     character.Shoulders: [-6, 3.37, 2.77]
   rotations:

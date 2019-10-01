@@ -11,6 +11,7 @@
 #include <Shared/Helpers/Asset.h>
 
 #include "../Imgui/Extensions.h"
+#include "../Imgui/Meta.h"
 
 #include "Dock.h"
 
@@ -115,26 +116,10 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowSize(ImVec2(275, 100), ImGuiCond_FirstUseEver);
    ImGui::Begin("State info");
 
-   {
-      State& state = GetCurrentState();
-      if (mStateName.Update("Name", state.name))
-      {
-         CommandStack::Instance().Emplace<SetStateNameCommand>(this, mController->current, mStateName.GetLastValue());
-      }
-   }
-
    State& state = GetCurrentState();
-   ImGui::Text("%.3f", state.length);
-
-   ImGui::SameLine();
-   if (ImGui::SmallButton("^"))
+   if (Imgui::Draw("State", state))
    {
-      CommandStack::Instance().Do<SetStateLengthCommand>(this, mController->current, state.length + 0.1);
-   }
-   ImGui::SameLine();
-   if (state.length > 0.1 && ImGui::SmallButton("V"))
-   {
-      CommandStack::Instance().Do<SetStateLengthCommand>(this, mController->current, state.length - 0.1);
+      mpRoot->Emit<SkeletonModifiedEvent>(mController);
    }
 
    if (ImGui::BeginCombo("##stance", state.stance.c_str()))
@@ -198,51 +183,54 @@ void Dock::Update(TIMEDELTA)
    }
 
    Receive(SuspendEditingEvent{});
-   ImGuiEx::Timeline("Keyframes##time", &mController->time, state.length, mSystemControls->paused, keyframes);
+   ImGuiEx::Timeline("Keyframes##time", &mController->time, 1, mSystemControls->paused, keyframes);
    ImGui::End();
    // End timeline window
 
    // Begin keyframe window
-   ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Keyframe");
-
    size_t index = GetKeyframeIndex(state, mController->time);
    Keyframe& keyframe = state.keyframes[index];
-   if (mController->time != keyframe.time)
+   if (mSystemControls->paused)
    {
-      if (ImGui::Button("Add Keyframe"))
+      ImGui::SetNextWindowPos(ImVec2(975, 350), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(275, 80), ImGuiCond_FirstUseEver);
+      ImGui::Begin("Keyframe");
+
+      if (mController->time != keyframe.time)
       {
-         CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
+         if (ImGui::Button("Add Keyframe"))
+         {
+            CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
+         }
       }
+      else
+      {
+         if (ImGui::Button("Remove Keyframe"))
+         {
+            CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
+         }
+
+         double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
+         double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
+
+         if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+         {
+            CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
+               this,
+               mController->current,
+               index,
+               mKeyframeTimeScrubber.GetLastValue()
+               );
+         }
+
+         if (ImGui::IsItemActive())
+         {
+            mController->time = keyframe.time;
+         }
+      }
+
+      ImGui::End();
    }
-   else
-   {
-      if (ImGui::Button("Remove Keyframe"))
-      {
-         CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
-      }
-
-      double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
-      double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
-
-      if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
-      {
-         CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
-            this,
-            mController->current,
-            index,
-            mKeyframeTimeScrubber.GetLastValue()
-         );
-      }
-
-      if (ImGui::IsItemActive())
-      {
-         mController->time = keyframe.time;
-      }
-   }
-
-   ImGui::End();
    // End keyframe window
 
    // Begin bone window
@@ -270,7 +258,7 @@ void Dock::Update(TIMEDELTA)
    }
 
    const Bone& selected = stance.bones[mBone];
-   if (mController->time == keyframe.time)
+   if (mController->time == keyframe.time && mSystemControls->paused)
    {
       Receive(ResumeEditingEvent{});
 
@@ -646,18 +634,6 @@ void Dock::SetStateNameCommand::Do()
    name = last;
 
    dock->mpRoot->Emit<SkeletonModifiedEvent>(dock->mController);
-}
-
-//
-///
-///
-void Dock::SetStateLengthCommand::Do()
-{
-   dock->SetState(index);
-   State& state = dock->GetCurrentState();
-   double prev = state.length;
-   dock->SetStateLength(value, prev);
-   value = prev;
 }
 
 //

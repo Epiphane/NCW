@@ -404,10 +404,10 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       }
       else
       {
-         controller.time += dt;
-         if (controller.time > state.length)
+         controller.time += dt / state.length;
+         if (controller.time > 1)
          {
-            controller.time = state.length;
+            controller.time = 1;
             controller.cooldown = seamlessLoop ? 0.0f : 1.0f;
          }
       }
@@ -427,9 +427,9 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       {
          progress = float(controller.time - src.time) / float(dst.time - src.time);
       }
-      else if (isLastFrame && glm::epsilonNotEqual(src.time, state.length, 0.1))
+      else if (isLastFrame && glm::epsilonNotEqual(src.time, 1.0, 0.1))
       {
-         progress = float(controller.time - src.time) / float(state.length - src.time);
+         progress = float(controller.time - src.time) / float(1.0 - src.time);
       }
 
       size_t boneId = 0;

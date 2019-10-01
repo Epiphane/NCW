@@ -1,6 +1,6 @@
 ---
 name: run
-next: 
+next:
 stance: resting
 length: 0.4
 keyframes:
@@ -16,7 +16,7 @@ keyframes:
     character.Head: [-15, 0, 0]
     character.Hips: [15, 0, 0]
     character.Spine: [15, 0, 0]
-- time: 0.1
+- time: 0.25
   positions:
     character.Attachment: [-1.8, -0.4, -10.1]
     character.Head: [0, 5, 0]
@@ -32,7 +32,7 @@ keyframes:
     character.Right Leg: [75, 0, 0]
     character.Spine: [15, 0, 0]
     character.Torso: [0, -20, 0]
-- time: 0.2
+- time: 0.5
   positions:
     character.Head: [0, 4.5, 0]
     character.Left Hand: [6.4, 0, 0]
@@ -43,7 +43,7 @@ keyframes:
     character.Head: [-15, 0, 0]
     character.Hips: [15, 0, 0]
     character.Spine: [15, 0, 0]
-- time: 0.3
+- time: 0.75
   positions:
     character.Attachment: [2.3, -0.4, -10.1]
     character.Head: [0, 5, 0]
@@ -65,11 +65,11 @@ transitions:
   time: 0.2
   triggers:
   - parameter: speed
-    bool: false
+    lt: 1
 - to: walk
   time: 0.5
   triggers:
   - parameter: speed
-    bool: false
+    gte: 1
   - parameter: speed
-    bool: false
+    lt: 8

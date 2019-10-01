@@ -9,6 +9,7 @@
 
 #include <RGBBinding/BindingProperty.h>
 #include <RGBBinding/BindingPropertyMeta.h>
+#include <RGBMeta/Value.h>
 #include <Engine/Entity/ComponentHandle.h>
 #include "Skeleton.h"
 
@@ -26,11 +27,13 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
 
    struct Transition {
       struct Trigger {
-         enum {
+         enum class Type {
             GreaterThan,
             LessThan,
             Bool
-         } type;
+         };
+         
+         Type type;
          std::string parameter;
          union {
             double doubleVal;
@@ -117,13 +120,22 @@ inline auto registerMembers<SkeletonAnimations::Keyframe>()
    );
 }
 
-// TODO
+template<>
+inline auto registerValues<SkeletonAnimations::Transition::Trigger::Type>()
+{
+   return values(
+      value("gt", SkeletonAnimations::Transition::Trigger::Type::GreaterThan),
+      value("lt", SkeletonAnimations::Transition::Trigger::Type::LessThan),
+      value("bool", SkeletonAnimations::Transition::Trigger::Type::Bool)
+   );
+}
+
 template<>
 inline auto registerMembers<SkeletonAnimations::Transition::Trigger>()
 {
    return members(
       member("parameter", &SkeletonAnimations::Transition::Trigger::parameter),
-      member("bool", &SkeletonAnimations::Transition::Trigger::boolVal)
+      member("type", &SkeletonAnimations::Transition::Trigger::type)
    );
 }
 

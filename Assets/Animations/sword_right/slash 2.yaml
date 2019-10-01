@@ -21,7 +21,7 @@ keyframes:
     character.Shoulders: [3.903903, 51.08712, 0]
     character.Spine: [7.099998, 0, 0]
     character.Torso: [0, 51.039009, 0]
-- time: 0.061035
+- time: 0.24
   positions:
     character.Hips: [0, 1.5, 0.8]
     character.Left Foot: [0, -5, 1.042684]
@@ -43,7 +43,7 @@ keyframes:
     character.Spine: [7.099998, 0, 0]
     character.Torso: [0, 25.149925, 0]
     character.root: [0, 0, 0]
-- time: 0.110352
+- time: 0.44
   positions:
     character.Hips: [0, 1.5, 0.8]
     character.Left Foot: [0, -5, 1.885172]
@@ -64,7 +64,7 @@ keyframes:
     character.Shoulders: [3.903903, 20.372593, 0]
     character.Spine: [7.099998, 0, 0]
     character.Torso: [0, 4.231546, 0]
-- time: 0.25
+- time: 1
   positions:
     character.Attachment: [0, 0, -10.1]
     character.Body: [0, 0, 1]

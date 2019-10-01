@@ -5,13 +5,13 @@ stance: wield_right
 length: 0.231
 keyframes:
 - time: 0
-- time: 0.027
+- time: 0.11
   positions:
     character.Right Hand: [-8.051759, 2.150725, -1.240696]
   rotations:
     character.Right Hand: [1.917061, -2.898841, 25.130194]
     character.Torso: [0, -11.908991, 0]
-- time: 0.06
+- time: 0.26
   positions:
     character.Left Hand: [5.780704, 0, 2.661406]
     character.Right Hand: [-8.051759, 1.340568, -1.240696]
@@ -21,7 +21,7 @@ keyframes:
     character.Torso: [0, -16.883568, 0]
   scales:
     character.Left Hand: [1, 1, 1]
-- time: 0.075
+- time: 0.32
   positions:
     character.Right Foot: [0, -4.7, 0.9]
     character.Right Hand: [-7.884887, 0.049915, -0.892685]
@@ -30,7 +30,7 @@ keyframes:
     character.Right Hand: [-5.096268, -18.179573, 57.768787]
     character.Spine: [-3.700001, 0, 0]
     character.Torso: [0, -15.377798, 0]
-- time: 0.1
+- time: 0.43
   positions:
     character.Head: [0, 4.1, 0.6]
     character.Right Foot: [0, -4.200001, 1.4]
@@ -41,7 +41,7 @@ keyframes:
     character.Right Hand: [-5.096268, -18.179573, 57.768787]
     character.Spine: [-6.799998, 0, 0]
     character.Torso: [0, -15.377798, 0]
-- time: 0.122246
+- time: 0.53
   positions:
     character.Head: [0, 4.1, 0.6]
     character.Right Foot: [0, -4.200001, 1.8]
@@ -53,7 +53,7 @@ keyframes:
     character.Shoulders: [3.903903, 8.171332, 0]
     character.Spine: [-6.799998, 0, 0]
     character.Torso: [0, -4.918799, 0]
-- time: 0.2
+- time: 0.87
   positions:
     character.Left Hand: [5.780704, -1.1, 2.661406]
     character.Left Leg: [3.646484, -1, -1.469141]
@@ -71,7 +71,7 @@ keyframes:
     character.Shoulders: [3.903903, 36.73204, 0]
     character.Spine: [7.099998, 0, 0]
     character.Torso: [0, 31.637838, 0]
-- time: 0.231
+- time: 1
   positions:
     character.Left Hand: [5.780704, -1.1, 2.661406]
     character.Left Leg: [3.646484, -1, -1.469141]

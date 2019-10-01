@@ -71,8 +71,8 @@ public:
       std::string name;
       std::string next;
       std::string stance;
-
       double length = 0.0;
+
       std::vector<SkeletonAnimations::Keyframe> keyframes;
       std::vector<Emitter> particles;
       std::vector<Event> events;
@@ -134,3 +134,20 @@ public:
 }; // namespace Editor
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::Editor::AnimationStation::SimpleAnimationController;
+
+template <>
+inline auto registerMembers<SimpleAnimationController::State>()
+{
+   return members(
+      member("name", &SimpleAnimationController::State::name),
+      member("next", &SimpleAnimationController::State::next),
+      member("length", &SimpleAnimationController::State::length)
+   );
+}
+
+}; // namespace meta

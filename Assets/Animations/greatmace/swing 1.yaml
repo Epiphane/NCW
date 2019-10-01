@@ -9,7 +9,7 @@ keyframes:
     character.Shoulders: [-6, 3.37, 2.77]
   rotations:
     character.Shoulders: [0, 0, 15.78]
-- time: 0.05
+- time: 0.07
   positions:
     character.Head: [0, 4.04, -0.08]
     character.Shoulders: [-6.45, 0.79, -1.33]
@@ -22,7 +22,7 @@ keyframes:
     character.Shoulders: [-42.84, 19.280001, 6.8]
     character.Spine: [-0.76, 0, 0]
     character.Torso: [0, -24.84, 0]
-- time: 0.1
+- time: 0.14
   positions:
     character.Hair: [0, 0, 0]
     character.Head: [0, 4.09, -0.16]
@@ -37,7 +37,7 @@ keyframes:
     character.Shoulders: [-83.129997, 38.439999, 0]
     character.Spine: [-1.49, 0, 0]
     character.Torso: [-0.25, -42.990002, 2.14]
-- time: 0.34
+- time: 0.5
   positions:
     character.Hair: [0, 0, 0]
     character.Head: [0, 4.38, -0.53]
@@ -51,7 +51,7 @@ keyframes:
     character.Shoulders: [-84.809998, 45.369999, -1.37]
     character.Spine: [-5.35, 0, 0]
     character.Torso: [-1.56, -44.34, 2.82]
-- time: 0.62
+- time: 0.88
   positions:
     character.Head: [0, 4.81, -0.84]
     character.Right Foot: [0, -5.5, 0]
@@ -63,7 +63,7 @@ keyframes:
     character.Shoulders: [-84.690002, 53.279999, 0]
     character.Spine: [-9.72, 0, 0]
     character.Torso: [1.16, -45.860001, 1.57]
-- time: 0.66
+- time: 0.94
   positions:
     character.Head: [0, 4.85, -0.89]
     character.Shoulders: [-4.72, 5.51, 3.83]
@@ -72,7 +72,7 @@ keyframes:
     character.Left Leg: [4.11, 0, 0]
     character.Right Leg: [-14.43, 0, 0]
     character.Spine: [-0.3, 0, 0]
-- time: 0.7
+- time: 1
   positions:
     character.Head: [0, 4.86, -2]
     character.Hips: [0, 1.5, 2.1]
@@ -91,16 +91,16 @@ keyframes:
 particles:
 - name: slash
   bone: greatmace.Mace
-  start: 0.62
-  end: 0.7
+  start: 0.88
+  end: 1
   mods:
     launcher:
       lifetime: 0.08
     particle:
       lifetime: 0.4
 events:
-- start: 0.62
-  end: 0.7
+- start: 0.94
+  end: 1
   properties:
     bone: greatmace.Mace
     hitbox:

@@ -20,7 +20,7 @@ keyframes:
     character.Shoulders: [3.903903, 51.08712, 0]
     character.Spine: [7.099998, 0, 0]
     character.Torso: [0, 51.039009, 0]
-- time: 0.8
+- time: 1
   positions:
     character.Head: [0, 4, 0.6]
     character.Hips: [0, 1.5, 0.8]

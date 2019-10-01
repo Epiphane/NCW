@@ -41,6 +41,7 @@ struct SetValueCommand : public Command
 bool Draw(const std::string& label, std::string& val);
 bool Draw(const std::string& label, BindingProperty& val);
 bool Draw(const std::string& label, uint32_t& val);
+bool Draw(const std::string& label, double& val);
 bool Draw(const std::string& label, float& val);
 
 template <typename EnumType, typename = std::enable_if_t<meta::valuesRegistered<EnumType>()>, typename = void>
@@ -107,11 +108,13 @@ bool Draw(const std::string& label, Class& obj)
    meta::doForAllMembers<Class>(
       [&](auto& member)
       {
+         std::string sublabel = std::string(member.getName()) + labelSuffix;
+
          if (member.hasSetter()) {
-            // Draw const? I guess?
+            // I dunno man
          }
          else if (member.canGetRef()) {
-            changed |= Draw(std::string(member.getName()) + labelSuffix, member.getRef(obj));
+            changed |= Draw(sublabel, member.getRef(obj));
          }
          else {
             assert(false && "can't deserialize member because it's read only");

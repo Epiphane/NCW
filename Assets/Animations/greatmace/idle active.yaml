@@ -1,18 +1,18 @@
 ---
 name: idle active
-next: 
+next:
 stance: wield_twohands
 length: 5.02
 keyframes:
 - time: 0
-- time: 0.79
+- time: 0.16
   positions:
     character.Spine: [0, 0.494142, 0.208203]
-- time: 2.64
+- time: 0.53
   positions:
     character.Head: [0, 4.937648, -0.201875]
     character.Spine: [0, 0.959376, 0.208203]
-- time: 3.23
+- time: 0.64
   positions:
     character.Face: [0, 0, 0]
     character.Head: [0, 4.937648, -0.201875]
