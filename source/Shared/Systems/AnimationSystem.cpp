@@ -175,13 +175,13 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                {
                   switch (trigger.type)
                   {
-                  case Transition::Trigger::GreaterThan:
+                  case Transition::Trigger::Type::GreaterThan:
                      valid &= controller.floatParams[trigger.parameter] >= trigger.doubleVal;
                      break;
-                  case Transition::Trigger::LessThan:
+                  case Transition::Trigger::Type::LessThan:
                      valid &= controller.floatParams[trigger.parameter] < trigger.doubleVal;
                      break;
-                  case Transition::Trigger::Bool:
+                  case Transition::Trigger::Type::Bool:
                      valid &= controller.boolParams[trigger.parameter] == trigger.boolVal;
                      break;
                   default:
