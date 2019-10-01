@@ -14,7 +14,7 @@ namespace CubeWorld
 class CommandStack : public Singleton<CommandStack>
 {
 public:
-   CommandStack() 
+   CommandStack()
       : commands{}
       , undoneCommands{}
    {};
@@ -81,6 +81,18 @@ public:
       commands.push(std::move(command));
    }
 
+   void clear()
+   {
+      while (!undoneCommands.empty())
+      {
+         undoneCommands.pop();
+      }
+
+      while (!commands.empty())
+      {
+         commands.pop();
+      }
+   }
    bool empty() { return commands.empty(); }
 
 private:

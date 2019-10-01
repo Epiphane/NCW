@@ -157,6 +157,25 @@ SCENARIO("CommandStack manipulates commands as expected") {
          }
       }
    }
+
+   GIVEN("A CommandStack with commands") {
+      CommandStack stack;
+      int value = 0;
+      stack.Do<IncrementCommand>(&value, 1);
+      stack.Do<IncrementCommand>(&value, 2);
+      stack.Do<IncrementCommand>(&value, 3);
+
+      REQUIRE(!stack.empty());
+      REQUIRE(value == 6);
+
+      WHEN("The stack is cleared") {
+         THEN("it is empty") {
+            stack.clear();
+            CHECK(stack.empty());
+            CHECK(value == 6);
+         }
+      }
+   }
 }
 
 }; // namespace CubeWorld

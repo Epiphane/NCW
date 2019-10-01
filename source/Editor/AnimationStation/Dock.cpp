@@ -28,9 +28,6 @@ using Bone = Skeleton::Bone;
 using Keyframe = SkeletonAnimations::Keyframe;
 using Stance = SimpleAnimationController::Stance;
 using State = SimpleAnimationController::State;
-using Engine::UIElement;
-using Engine::UIFrame;
-using Engine::UIStackView;
 
 namespace
 {
@@ -147,14 +144,8 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetNextWindowSize(ImVec2(275, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Playback");
 
-   if (mSystemControls->paused && ImGui::Button("Play"))
-   {
-      mSystemControls->paused = false;
-   }
-   if (!mSystemControls->paused && ImGui::Button("Pause"))
-   {
-      mSystemControls->paused = true;
-   }
+   ImGui::Checkbox("Paused", &mSystemControls->paused);
+   ImGui::Checkbox("Seamless loop", &mSystemControls->seamlessLoop);
 
    ImGui::Text("Speed: %.3f", mSystemControls->speed);
    ImGui::SameLine();
@@ -167,7 +158,6 @@ void Dock::Update(TIMEDELTA)
    {
       mSystemControls->speed /= 2.0;
    }
-   ImGui::Checkbox("Seamless loop", &mSystemControls->seamlessLoop);
    ImGui::End();
    // End playback window
 
