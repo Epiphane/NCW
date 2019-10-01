@@ -30,10 +30,10 @@ private:
 };
 
 template <typename EnumType>
-Value<EnumType> value(const char* name, EnumType value);
+Value<EnumType> value(const std::string& name, EnumType value);
 
 template <typename EnumType>
-Value<EnumType> value(const char* name, EnumType value)
+Value<EnumType> value(const std::string& name, EnumType value)
 {
    return Value<EnumType>(name, value);
 }
@@ -67,13 +67,45 @@ constexpr bool valuesRegistered()
 }
 
 template <typename EnumType, typename F,
-    typename = std::enable_if_t<valuesRegistered<EnumType>()>>
+   typename = std::enable_if_t<valuesRegistered<EnumType>()>>
 void doForAllValues(F&& f);
 
 template <typename EnumType, typename F, typename>
 void doForAllValues(F&& f)
 {
    detail::for_tuple(std::forward<F>(f), getValues<EnumType>());
+}
+
+template <typename EnumType, typename = std::enable_if_t<valuesRegistered<EnumType>()>>
+EnumType getValue(const std::string& name);
+
+template <typename EnumType, typename>
+EnumType getValue(const std::string& name)
+{
+   EnumType result;
+   doForAllValues<EnumType>([&result, &name](const auto& item) {
+      if (item.getName() == name)
+      {
+         result = item.getValue();
+      }
+   });
+   return result;
+}
+
+template <typename EnumType, typename = std::enable_if_t<valuesRegistered<EnumType>()>>
+std::string getName(const EnumType value);
+
+template <typename EnumType, typename>
+std::string getName(const EnumType value)
+{
+   std::string result;
+   doForAllValues<EnumType>([&result, &value](const auto& item) {
+      if (item.getValue() == value)
+      {
+         result = item.getName();
+      }
+   });
+   return result;
 }
 
 }; // namespace meta

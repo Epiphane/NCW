@@ -21,6 +21,11 @@ BindingProperty serialize(const Class& obj)
    meta::doForAllMembers<Class>(
       [&obj, &value](auto& member)
       {
+         if (!member.enabled(obj))
+         {
+            return;
+         }
+
          BindingProperty prop;
          if (member.canGetConstRef()) {
             prop = serialize(member.get(obj));
@@ -40,17 +45,7 @@ BindingProperty serialize(const Class& obj)
 template <typename EnumType, typename, typename>
 BindingProperty serialize(const EnumType& obj)
 {
-   BindingProperty result;
-   meta::doForAllValues<EnumType>(
-      [&obj, &result](auto& value)
-      {
-         if (value.getValue() == obj)
-         {
-            result = value.getName();
-         }
-      }
-   );
-   return result;
+   return BindingProperty(meta::getName<EnumType>(obj));
 }
 
 template <typename Class, typename, typename, typename>
@@ -143,17 +138,7 @@ void deserialize(Class& obj, const BindingProperty& object)
 template <typename EnumType, typename, typename>
 void deserialize(EnumType& val, const BindingProperty& object)
 {
-   std::string name = object.GetStringValue();
-
-   meta::doForAllValues<EnumType>(
-      [&](auto& value)
-      {
-         if (name == value.getName())
-         {
-            val = value.getValue();
-         }
-      }
-   );
+   val = meta::getValue<EnumType>(object.GetStringValue());
 }
 
 template <typename Class, typename, typename, typename>

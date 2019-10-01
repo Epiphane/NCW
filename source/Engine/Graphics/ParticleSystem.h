@@ -164,6 +164,16 @@ public:
    void SetTexture(const std::string& texture);
    const std::string& GetTexture() const;
 
+   const inline bool IsPoint() const;
+   const inline bool IsCone()  const;
+   const inline bool IsTrail() const;
+   const inline PointConfig& GetPoint() const;
+   const inline ConeConfig& GetCone()   const;
+   const inline TrailConfig& GetTrail() const;
+   inline void SetPoint(const PointConfig& point);
+   inline void SetCone(const ConeConfig& cone);
+   inline void SetTrail(const TrailConfig& trail);
+
 public:
    //
    // Name of the particle system.
@@ -332,8 +342,31 @@ inline auto registerMembers<ParticleSystem>()
       member("shader-texture", &ParticleSystem::GetTexture, &ParticleSystem::SetTexture),
       member("launcher", &ParticleSystem::launcher),
       member("particle", &ParticleSystem::particle),
-      member("shape", &ParticleSystem::shape)
+      member("shape", &ParticleSystem::shape),
+      //member("point", &ParticleSystem::GetPoint, &ParticleSystem::SetPoint, &ParticleSystem::IsPoint),
+      //member("trail", &ParticleSystem::GetTrail, &ParticleSystem::SetTrail, &ParticleSystem::IsTrail),
+      member("cone", &ParticleSystem::GetCone, &ParticleSystem::SetCone, &ParticleSystem::IsCone)
    );
 }
 
 }; // namespace meta
+
+namespace CubeWorld
+{
+
+namespace Engine
+{
+
+const inline bool ParticleSystem::IsPoint() const { return shape == Shape::Point; }
+const inline bool ParticleSystem::IsCone()  const { return shape == Shape::Cone; }
+const inline bool ParticleSystem::IsTrail() const { return shape == Shape::Trail; }
+const inline ParticleSystem::PointConfig& ParticleSystem::GetPoint() const { return shapeConfig.point; }
+const inline ParticleSystem::ConeConfig& ParticleSystem::GetCone()   const { return shapeConfig.cone; }
+const inline ParticleSystem::TrailConfig& ParticleSystem::GetTrail() const { return shapeConfig.trail; }
+inline void ParticleSystem::SetPoint(const PointConfig& point) { shape = Shape::Point; shapeConfig.point = point; }
+inline void ParticleSystem::SetCone(const ConeConfig& cone) { shape = Shape::Cone;  shapeConfig.cone = cone; }
+inline void ParticleSystem::SetTrail(const TrailConfig& trail) { shape = Shape::Trail; shapeConfig.trail = trail; }
+
+}; // namespace Engine
+
+}; // namespace CubeWorld

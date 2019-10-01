@@ -4,9 +4,10 @@ namespace meta
 {
 
 template <typename Class, typename T>
-Member<Class, T>::Member(const char* name, member_ptr_t<Class, T> ptr) :
+Member<Class, T>::Member(const char* name, member_ptr_t<Class, T> ptr, enabled_func_ptr_t<Class> enabledPtr) :
     name(name),
     ptr(ptr),
+    enabledPtr(enabledPtr),
     hasMemberPtr(true),
     refGetterPtr(nullptr),
     refSetterPtr(nullptr),
@@ -16,9 +17,10 @@ Member<Class, T>::Member(const char* name, member_ptr_t<Class, T> ptr) :
 { }
 
 template <typename Class, typename T>
-Member<Class, T>::Member(const char* name, ref_getter_func_ptr_t<Class, T> getterPtr, ref_setter_func_ptr_t<Class, T> setterPtr) :
+Member<Class, T>::Member(const char* name, ref_getter_func_ptr_t<Class, T> getterPtr, ref_setter_func_ptr_t<Class, T> setterPtr, enabled_func_ptr_t<Class> enabledPtr) :
     name(name),
     ptr(nullptr),
+    enabledPtr(enabledPtr),
     hasMemberPtr(false),
     refGetterPtr(getterPtr),
     refSetterPtr(setterPtr),
@@ -28,9 +30,10 @@ Member<Class, T>::Member(const char* name, ref_getter_func_ptr_t<Class, T> gette
 { }
 
 template <typename Class, typename T>
-Member<Class, T>::Member(const char* name, val_getter_func_ptr_t<Class, T> getterPtr, val_setter_func_ptr_t<Class, T> setterPtr) :
+Member<Class, T>::Member(const char* name, val_getter_func_ptr_t<Class, T> getterPtr, val_setter_func_ptr_t<Class, T> setterPtr, enabled_func_ptr_t<Class> enabledPtr) :
     name(name),
     ptr(nullptr),
+    enabledPtr(enabledPtr),
     hasMemberPtr(false),
     refGetterPtr(nullptr),
     refSetterPtr(nullptr),
@@ -44,6 +47,15 @@ Member<Class, T>& Member<Class, T>::addNonConstGetter(nonconst_ref_getter_func_p
 {
     this->nonConstRefGetterPtr = nonConstRefGetterPtr;
     return *this;
+}
+
+template <typename Class, typename T>
+const bool Member<Class, T>::enabled(const Class& obj) const
+{
+    if (enabledPtr) {
+        return (obj.*enabledPtr)();
+    }
+    return true;
 }
 
 template <typename Class, typename T>
@@ -106,21 +118,21 @@ void Member<Class, T>::set(Class& obj, V&& value) const
 }
 
 template <typename Class, typename T>
-Member<Class, T> member(const char* name, T Class::* ptr)
+Member<Class, T> member(const char* name, T Class::* ptr, enabled_func_ptr_t<Class> enabledPtr)
 {
-    return Member<Class, T>(name, ptr);
+    return Member<Class, T>(name, ptr, enabledPtr);
 }
 
 template <typename Class, typename T>
-Member<Class, T> member(const char* name, ref_getter_func_ptr_t<Class, T> getterPtr, ref_setter_func_ptr_t<Class, T> setterPtr)
+Member<Class, T> member(const char* name, ref_getter_func_ptr_t<Class, T> getterPtr, ref_setter_func_ptr_t<Class, T> setterPtr, enabled_func_ptr_t<Class> enabledPtr)
 {
-    return Member<Class, T>(name, getterPtr, setterPtr);
+    return Member<Class, T>(name, getterPtr, setterPtr, enabledPtr);
 }
 
 template <typename Class, typename T>
-Member<Class, T> member(const char* name, val_getter_func_ptr_t<Class, T> getterPtr, val_setter_func_ptr_t<Class, T> setterPtr)
+Member<Class, T> member(const char* name, val_getter_func_ptr_t<Class, T> getterPtr, val_setter_func_ptr_t<Class, T> setterPtr, enabled_func_ptr_t<Class> enabledPtr)
 {
-    return Member<Class, T>(name, getterPtr, setterPtr);
+    return Member<Class, T>(name, getterPtr, setterPtr, enabledPtr);
 }
 
 // read only

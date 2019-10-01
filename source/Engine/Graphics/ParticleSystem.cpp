@@ -168,23 +168,11 @@ void ParticleSystem::ApplyConfiguration(const std::string& textureDir, const Bin
 {
    textureDirectory = textureDir;
    Binding::deserialize(*this, config);
-
-   if (shape == Shape::Cone && config.Has("cone"))
-   {
-      Binding::deserialize(shapeConfig.cone, config["cone"]);
-   }
 }
 
 BindingProperty ParticleSystem::Serialize() const
 {
-   BindingProperty result(*this);
-
-   if (shape == Shape::Cone)
-   {
-      result["cone"] = shapeConfig.cone;
-   }
-
-   return result;
+   return BindingProperty(*this);
 }
 
 }; // namespace Engine

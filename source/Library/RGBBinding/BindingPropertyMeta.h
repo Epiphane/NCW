@@ -49,6 +49,9 @@ BindingProperty serialize_basic(const std::map<K, V>& obj);
 // |                                                                |
 // ------------------------------------------------------------------
 
+template <typename Class>
+Class deserialize(const BindingProperty& obj);
+
 template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
 void deserialize(Class & obj, const BindingProperty & object);
 

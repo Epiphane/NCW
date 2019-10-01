@@ -44,6 +44,12 @@ bool Draw(const std::string& label, uint32_t& val);
 bool Draw(const std::string& label, double& val);
 bool Draw(const std::string& label, float& val);
 
+template <typename Class,
+   typename = std::enable_if_t<!meta::isRegistered<Class>()>,
+   typename = std::enable_if_t<!meta::valuesRegistered<Class>()>,
+   typename = void>
+bool Draw(const std::string&, Class&) { return false; }
+
 template <typename EnumType, typename = std::enable_if_t<meta::valuesRegistered<EnumType>()>, typename = void>
 bool Draw(const std::string& label, EnumType& obj);
 
@@ -53,18 +59,18 @@ bool Draw(const std::string & label, Class& obj);
 template <typename EnumType, typename, typename>
 bool Draw(const std::string& label, EnumType& obj)
 {
-   std::string val = Binding::serialize< EnumType>(obj).GetStringValue();
+   std::string val = meta::getName<EnumType>(obj);
    EnumType newVal = obj;
 
    if (ImGui::BeginCombo(label.c_str(), val.c_str()))
    {
       meta::doForAllValues<EnumType>(
-         [&](auto& value)
+         [&](const auto& item)
          {
-            bool isSelected = (value.getValue() == obj);
-            if (ImGui::Selectable(value.getName().c_str(), isSelected))
+            bool isSelected = (item.getValue() == obj);
+            if (ImGui::Selectable(item.getName().c_str(), isSelected))
             {
-               newVal = value.getValue();
+               newVal = item.getValue();
             }
          }
       );
@@ -108,10 +114,17 @@ bool Draw(const std::string& label, Class& obj)
    meta::doForAllMembers<Class>(
       [&](auto& member)
       {
+         if (!member.enabled(obj))
+         {
+            return;
+         }
+
          std::string sublabel = std::string(member.getName()) + labelSuffix;
 
          if (member.hasSetter()) {
-            // I dunno man
+            auto copy = member.getCopy(obj);
+            changed |= Draw(sublabel, copy);
+            member.set(obj, copy);
          }
          else if (member.canGetRef()) {
             changed |= Draw(sublabel, member.getRef(obj));
