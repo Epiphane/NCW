@@ -347,6 +347,24 @@ void Dock::Update(TIMEDELTA)
 
          ImGui::EndTabItem();
       }
+      if (ImGui::BeginTabItem("Effects"))
+      {
+         if (Imgui::Draw("effects", state.particles))
+         {
+            mpRoot->Emit<SkeletonModifiedEvent>(mController);
+         }
+
+         ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Events"))
+      {
+         if (Imgui::Draw("events", state.events))
+         {
+            mpRoot->Emit<SkeletonModifiedEvent>(mController);
+         }
+
+         ImGui::EndTabItem();
+      }
       ImGui::EndTabBar();
    }
 

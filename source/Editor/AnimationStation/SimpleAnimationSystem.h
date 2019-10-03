@@ -156,4 +156,22 @@ inline auto registerMembers<SimpleAnimationController::Transition>()
    return registerMembers<SkeletonAnimations::Transition>();
 }
 
+template <>
+inline auto registerMembers<SimpleAnimationController::Emitter>()
+{
+   return std::tuple_cat(
+      registerMembers<CubeWorld::Engine::ParticleSystem>(),
+      members(
+         member("start", &SimpleAnimationController::Emitter::start),
+         member("end", &SimpleAnimationController::Emitter::end)
+      )
+   );
+}
+
+template <>
+inline auto registerMembers<SimpleAnimationController::Event>()
+{
+   return registerMembers<SkeletonAnimations::Event>();
+}
+
 }; // namespace meta

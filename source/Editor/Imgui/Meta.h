@@ -62,6 +62,7 @@ struct SetIndexCommand : public Command
 //
 bool Draw(const std::string& label, std::string& val, bool addToStack = true);
 bool Draw(const std::string& label, BindingProperty& val, bool addToStack = true);
+bool Draw(const std::string& label, glm::vec3& val, bool addToStack = true);
 bool Draw(const std::string& label, uint32_t& val, bool addToStack = true);
 bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);

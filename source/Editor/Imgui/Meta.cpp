@@ -242,6 +242,28 @@ bool Draw(const std::string& label, BindingProperty& value, bool addToStack)
    return edited;
 }
 
+bool Draw(const std::string& label, glm::vec3& value, bool addToStack)
+{
+   static glm::vec3 initialValue;
+   ImGui::InputFloat3(label.c_str(), &value.x);
+
+   if (ImGui::IsItemActivated())
+   {
+      initialValue = value;
+   }
+
+   if (ImGui::IsItemDeactivatedAfterEdit())
+   {
+      if (addToStack)
+      {
+         CommandStack::Instance().Emplace<SetValueCommand<glm::vec3>>(value, initialValue);
+      }
+      return true;
+   }
+
+   return false;
+}
+
 bool Draw(const std::string& label, uint32_t& value, bool addToStack)
 {
    static uint32_t initialValue;

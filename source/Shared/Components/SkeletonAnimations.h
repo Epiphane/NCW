@@ -73,10 +73,24 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
          Strike,
       };
 
+      struct StrikeConfig
+      {
+         std::string bone;
+         glm::vec3 offset = {0, 0, 0};
+         glm::vec3 size = {0, 0, 0};
+      };
+
       Type type = Type::Unknown;
       double start;
       double end;
-      BindingProperty properties;
+      StrikeConfig strike;
+
+      const inline Type& GetType() const;
+      inline void SetType(const Type& type);
+
+      const inline bool IsStrike() const;
+      const inline StrikeConfig& GetStrike() const;
+      inline void SetStrike(const StrikeConfig& value);
    };
 
    struct State {
@@ -178,13 +192,32 @@ inline auto registerMembers<SkeletonAnimations::ParticleEffect>()
 }
 
 template<>
+inline auto registerValues<SkeletonAnimations::Event::Type>()
+{
+   return values(
+      value("unknown", SkeletonAnimations::Event::Type::Unknown),
+      value("strike", SkeletonAnimations::Event::Type::Strike)
+   );
+}
+
+template<>
+inline auto registerMembers<SkeletonAnimations::Event::StrikeConfig>()
+{
+   return members(
+      member("bone", &SkeletonAnimations::Event::StrikeConfig::bone),
+      member("offset", &SkeletonAnimations::Event::StrikeConfig::offset),
+      member("size", &SkeletonAnimations::Event::StrikeConfig::size)
+   );
+}
+
+template<>
 inline auto registerMembers<SkeletonAnimations::Event>()
 {
    return members(
-      //member("type", &SkeletonAnimations::Event::type),
+      member("type", &SkeletonAnimations::Event::type),
       member("start", &SkeletonAnimations::Event::start),
       member("end", &SkeletonAnimations::Event::end),
-      member("properties", &SkeletonAnimations::Event::properties)
+      member("strike", &SkeletonAnimations::Event::GetStrike, &SkeletonAnimations::Event::SetStrike, &SkeletonAnimations::Event::IsStrike)
    );
 }
 
@@ -281,6 +314,32 @@ inline void SkeletonAnimations::Transition::Trigger::SetBool(const bool& value)
 {
    type = Type::Bool;
    boolVal = value;
+}
+
+const inline SkeletonAnimations::Event::Type& SkeletonAnimations::Event::GetType() const
+{
+   return type;
+}
+
+inline void SkeletonAnimations::Event::SetType(const Type& t)
+{
+   type = t;
+}
+
+const inline bool SkeletonAnimations::Event::IsStrike() const
+{
+   return type == Type::Strike;
+}
+
+const inline SkeletonAnimations::Event::StrikeConfig& SkeletonAnimations::Event::GetStrike() const
+{
+   return strike;
+}
+
+inline void SkeletonAnimations::Event::SetStrike(const SkeletonAnimations::Event::StrikeConfig& value)
+{
+   type = Type::Strike;
+   strike = value;
 }
 
 }; // namespace CubeWorld

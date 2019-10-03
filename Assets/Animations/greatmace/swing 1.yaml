@@ -99,13 +99,10 @@ particles:
     particle:
       lifetime: 0.4
 events:
-- start: 0.94
+- type: strike
+  start: 0.94
   end: 1
-  properties:
+  strike:
     bone: greatmace.Mace
-    hitbox:
-      w: 1
-      h: 1
-      x: 0
-      y: 0
-      z: 2
+    offset: [0, 0, 2]
+    size: [1, 1, 1]
