@@ -102,6 +102,7 @@ private:
    friend class Dock;
    friend class Sidebar;
    friend class SimpleAnimationSystem;
+   friend class AnimationDebugSystem;
    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
    std::vector<Engine::ComponentHandle<SkeletonAnimations>> animations;
 
@@ -163,7 +164,8 @@ inline auto registerMembers<SimpleAnimationController::Emitter>()
       registerMembers<CubeWorld::Engine::ParticleSystem>(),
       members(
          member("start", &SimpleAnimationController::Emitter::start),
-         member("end", &SimpleAnimationController::Emitter::end)
+         member("end", &SimpleAnimationController::Emitter::end),
+         member("bone", &SimpleAnimationController::Emitter::bone)
       )
    );
 }

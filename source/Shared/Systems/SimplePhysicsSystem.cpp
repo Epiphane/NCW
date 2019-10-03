@@ -281,8 +281,10 @@ void Debug::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMED
 
    glm::mat4 perspective = mCamera->GetPerspective();
    glm::mat4 view = mCamera->GetView();
+   glm::mat4 model(1);
    program->UniformMatrix4f("uProjMatrix", perspective);
    program->UniformMatrix4f("uViewMatrix", view);
+   program->UniformMatrix4f("uModelMatrix", model);
 
    entities.Each<Engine::Transform, Collider>([&](Engine::Entity, Engine::Transform& transform, Collider& collider) {
       glm::vec3 pos = transform.GetAbsolutePosition();

@@ -23,6 +23,7 @@
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include "../Systems/EditorBackdropSystem.h"
+#include "AnimationDebugSystem.h"
 #include "SimpleAnimationSystem.h"
 #include "State.h"
 
@@ -59,6 +60,7 @@ void MainState::Initialize()
    DebugHelper::Instance().SetSystemManager(&mSystems);
    mSystems.Add<CameraSystem>(mInput);
    mSystems.Add<SimpleAnimationSystem>();
+   mSystems.Add<AnimationDebugSystem>(true, &mCamera);
    mSystems.Add<VoxelRenderSystem>(&mCamera);
    mSystems.Add<SimpleParticleSystem>(&mCamera);
    mSystems.Add<MakeshiftSystem>();

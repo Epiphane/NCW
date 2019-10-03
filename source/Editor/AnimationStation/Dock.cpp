@@ -215,10 +215,6 @@ void Dock::Update(TIMEDELTA)
             }
          }
 
-         ImGui::EndTabItem();
-      }
-      if (ImGui::BeginTabItem("Bone"))
-      {
          // Pick a bone, any bone
          if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
          {

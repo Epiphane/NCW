@@ -24,13 +24,13 @@ void main()
    // gl_Position represents the center of the collision box.
    vec4 center = gl_in[0].gl_Position;
 
-   mat4 mvp = uProjMatrix * uViewMatrix;
+   mat4 mvp = uProjMatrix * uViewMatrix * uModelMatrix;
 
    // vec4 directions, in camera space, for computing the other corners
    vec4 dx = mvp[0] / 2.0f * uSize.x;
    vec4 dy = mvp[1] / 2.0f * uSize.y;
    vec4 dz = mvp[2] / 2.0f * uSize.z;
-   
+
    Point(center, dx, dy, dz, vec3(1, 0, 1));
    Point(center, -dx, dy, -dz, vec3(0, 0, 0));
    Point(center, dx, dy, -dz, vec3(1, 0, 0));
