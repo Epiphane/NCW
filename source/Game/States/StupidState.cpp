@@ -10,6 +10,7 @@
 #include <Shared/Components/VoxModel.h>
 #include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
+#include <Shared/Systems/AnimationEventSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
@@ -38,6 +39,7 @@ namespace Game
       DebugHelper::Instance().SetSystemManager(&mSystems);
       mSystems.Add<CameraSystem>(&window);
       mSystems.Add<AnimationSystem>();
+      mSystems.Add<AnimationEventSystem>();
       mSystems.Add<FlySystem>(&window);
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
@@ -150,6 +152,21 @@ namespace Game
    void StupidState::Initialize()
    {
       mWindow.SetMouseLock(true);
+
+      {
+         Entity dummy = mEntities.Create(5, 10, 0);
+         dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+         dummy.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
+         dummy.Add<SimplePhysics::Body>();
+         dummy.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
+         auto dummyController = dummy.Add<AnimationController>(dummy.Add<MultipleParticleEmitters>());
+
+         Engine::Entity part = mEntities.Create(0, 0, 0);
+         part.Get<Transform>()->SetParent(dummy);
+         part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 168.0f, 0);
+         dummyController->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
+         dummyController->AddAnimations(part.Add<SkeletonAnimations>("character"));
+      }
 
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));

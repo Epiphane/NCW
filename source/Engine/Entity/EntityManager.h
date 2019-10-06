@@ -316,7 +316,7 @@ public:
    {
       assert_valid(id);
       const BaseComponent::Family family = C::GetFamily();
-      assert(!mEntityComponentMask[id.index()].test(family));
+      assert(!mEntityComponentMask[id.index()].test(family) && "Component already exists on this entity");
 
       // Add to the component pool.
       if (mComponentPools.size() <= family)

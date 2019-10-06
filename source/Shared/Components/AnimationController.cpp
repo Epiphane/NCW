@@ -204,7 +204,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
 
       for (const SkeletonAnimations::Keyframe& kframe : mods.keyframes)
       {
-         const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time; });
+         const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time * state.length; });
          if (keyframeIt == state.keyframes.end())
          {
             LOG_ERROR("Unable to find a keyframe with time {time} in the original skeleton", kframe.time);
@@ -246,8 +246,8 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          EmitterRef ref;
          ref.emitter = emitters.size();
          ref.bone = effectDef.bone;
-         ref.start = effectDef.start;
-         ref.end = effectDef.end;
+         ref.start = effectDef.start * state.length;
+         ref.end = effectDef.end * state.length;
 
          emitters.push_back(std::move(effect));
          state.emitters.push_back(std::move(ref));

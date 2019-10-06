@@ -75,8 +75,15 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 
          const Keyframe& src = keyframes[keyframeIndex];
          const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
-         const double dstTime = isLastFrame ? state->length : dst.time;
-         const float progress = float(controller.time - src.time) / float(dstTime - src.time);
+         float progress = 0.0f;
+         if (dst.time > src.time)
+         {
+            progress = float(controller.time - src.time) / float(dst.time - src.time);
+         }
+         else if (isLastFrame && glm::epsilonNotEqual(src.time, 1.0, 0.1))
+         {
+            progress = float(controller.time - src.time) / float(1.0 - src.time);
+         }
 
          size_t boneId = 0;
          for (Engine::ComponentHandle<Skeleton>& skeleton : controller.skeletons)

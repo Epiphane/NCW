@@ -94,6 +94,17 @@ void Skeleton::Load(const BindingProperty& data)
    }
 
    bones.assign(original.begin(), original.end());
+
+   // Create lookup maps
+   for (size_t i = 0; i < bones.size(); ++i)
+   {
+      boneLookup.emplace(bones[i].name, i);
+   }
+
+   for (size_t i = 0; i < stances.size(); ++i)
+   {
+      stanceLookup.emplace(stances[i].name, i);
+   }
 }
 
 BindingProperty Skeleton::Serialize()

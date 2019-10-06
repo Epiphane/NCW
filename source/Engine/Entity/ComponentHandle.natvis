@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="CubeWorld::Engine::ComponentHandle&lt;*&gt;">
+    <DisplayString>
+      Entity {{ id={id._ind}, version={id._ver} }}
+    </DisplayString>
+    <Expand>
+      <ExpandedItem>
+        *($T1 *)(
+        manager->mComponentPools[$T1::sFamily]->mBlocks[id._ind / manager->mComponentPools[$T1::sFamily]->mBlockSize]._Mypair._Myval2
+        + (id._ind % manager->mComponentPools[$T1::sFamily]->mBlockSize) * manager->mComponentPools[$T1::sFamily]->mElementSize
+        )
+      </ExpandedItem>
+    </Expand>
+  </Type>
+</AutoVisualizer>

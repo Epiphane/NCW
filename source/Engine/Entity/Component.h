@@ -79,10 +79,16 @@ public:
    static Family GetFamily()
    {
       static Family family = sNumFamilies++;
+      sFamily = family;
       assert(family < MAX_COMPONENTS);
       return family;
    }
+
+   static Family sFamily;
 };
+
+template <typename Derived>
+BaseComponent::Family Component<Derived>::sFamily = 0;
 
 template<typename C>
 ComponentMask MakeComponentMask()

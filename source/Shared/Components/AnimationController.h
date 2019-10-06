@@ -101,6 +101,7 @@ public:
 private:
    // Skeleton and model objects
    friend class AnimationSystem;
+   friend class AnimationEventSystem;
    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
 
    // Pair of skeleton ID and bone ID

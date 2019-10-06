@@ -97,7 +97,7 @@ particles:
     launcher:
       lifetime: 0.08
     particle:
-      lifetime: 0.4
+      lifetime: 0.2
 events:
 - type: strike
   start: 0.94

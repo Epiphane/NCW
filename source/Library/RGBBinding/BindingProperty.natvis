@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="CubeWorld::BindingProperty">
+    <DisplayString Condition="flags == 0">
+      null
+    </DisplayString>
+    <DisplayString Condition="flags == 1">
+      true
+    </DisplayString>
+    <DisplayString Condition="flags == 2">
+      false
+    </DisplayString>
+    <DisplayString Condition="flags == kNumberInt64Flag || flags == kNumberIntFlag">
+      { data.numVal.i64 }
+    </DisplayString>
+    <DisplayString Condition="flags == kNumberUint64Flag || flags == kNumberUintFlag">
+      { data.numVal.u64 }
+    </DisplayString>
+    <DisplayString Condition="flags == kNumberDoubleFlag || flags == kNumberAnyFlag">
+      { data.numVal.d }
+    </DisplayString>
+    <DisplayString Condition="flags == 3 || flags >= 7">
+      { data.numVal.d }
+    </DisplayString>
+    <DisplayString Condition="flags == 4">
+      { data.stringVal }
+    </DisplayString>
+    <DisplayString Condition="flags == 5">
+      Object {{ size={data.objectVal.mSize} }}
+    </DisplayString>
+    <DisplayString Condition="flags == 6">
+      Array {{ size={data.objectVal.mSize} }}
+    </DisplayString>
+    <Expand>
+      <CustomListItems Condition="flags == 5">
+        <Variable Name="i" InitialValue="0" />
+        <Loop>
+          <Break Condition="i == data.objectVal.mSize" />
+          <Item Name="{ data.objectVal.mData[i].key }">data.objectVal.mData[i].value</Item>
+          <Exec>i = i + 1</Exec>
+        </Loop>
+      </CustomListItems>
+      <ArrayItems Condition="flags == 6">
+        <Size>data.arrayVal.mSize</Size>
+        <ValuePointer>data.arrayVal.mData</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>
