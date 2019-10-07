@@ -37,11 +37,7 @@ public:
 
 protected:
    static void fail() {
-#if defined(_HAS_EXCEPTIONS) || defined(__EXCEPTIONS)
-      throw std::bad_alloc();
-#else
-      std::abort();
-#endif
+      assert(false && "Component cannot be constructed or destructed by anything bu an EntityManager");
    }
 
    // This gets incremented with each unique call to Component<C>::GetFamily();

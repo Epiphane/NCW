@@ -4,8 +4,6 @@
 
 #include <iterator>
 #include <string>
-#include <tuple>
-#include <vector>
 #include <glm/glm.hpp>
 #include <Meta.h>
 #pragma warning(disable : 4365 6313 6319 6385 6386)

@@ -19,12 +19,6 @@ AnimationController::AnimationController()
    Reset();
 }
 
-AnimationController::AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
-   : emitterContainer(emitters)
-{
-   Reset();
-}
-
 void AnimationController::Reset()
 {
    skeletons.clear();
@@ -42,11 +36,6 @@ void AnimationController::Reset()
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
-
-   if (emitterContainer)
-   {
-      emitterContainer->systems.clear();
-   }
 }
 
 void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton)
@@ -225,33 +214,23 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          }
       }
 
-      // Append transition data
+      // Append transition and event data
       state.transitions.insert(state.transitions.end(), mods.transitions.begin(), mods.transitions.end());
+      std::transform(mods.events.begin(), mods.events.end(), std::back_inserter(state.events), [&](SkeletonAnimations::Event evt) {
+         evt.start *= state.length;
+         evt.end *= state.length;
+         return evt;
+      });
 
       // Add effects
-      for (const auto& effectDef : mods.particles)
-      {
-         MultipleParticleEmitters::Emitter effect(
-            Asset::Particle(effectDef.name),
-            Asset::ParticleShaders(),
-            Asset::Image("")
-         );
-
-         effect.useEntityTransform = false;
-         effect.update = false;
-         effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
-         effect.Reset();
-
-         EmitterRef ref;
-         ref.emitter = emitters.size();
-         ref.bone = effectDef.bone;
-         ref.start = effectDef.start * state.length;
-         ref.end = effectDef.end * state.length;
-
-         emitters.push_back(std::move(effect));
-         state.emitters.push_back(std::move(ref));
-      }
+      std::transform(mods.particles.begin(), mods.particles.end(), std::back_inserter(state.effects), [&](const auto& effect) {
+         ParticleEffect result;
+         *(SkeletonAnimations::ParticleEffect *)(&result) = effect;
+         result.name = Asset::Particle(result.name);
+         result.start *= state.length;
+         result.end *= state.length;
+         return result;
+      });
    }
 }
 

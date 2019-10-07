@@ -40,6 +40,7 @@ namespace Game
       mSystems.Add<CameraSystem>(&window);
       mSystems.Add<AnimationSystem>();
       mSystems.Add<AnimationEventSystem>();
+      mSystems.Add<AnimationEventDebugSystem>(true, &mCamera);
       mSystems.Add<FlySystem>(&window);
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
@@ -159,7 +160,7 @@ namespace Game
          dummy.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
          dummy.Add<SimplePhysics::Body>();
          dummy.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-         auto dummyController = dummy.Add<AnimationController>(dummy.Add<MultipleParticleEmitters>());
+         auto dummyController = dummy.Add<AnimationController>();
 
          Engine::Entity part = mEntities.Create(0, 0, 0);
          part.Get<Transform>()->SetParent(dummy);
@@ -174,7 +175,7 @@ namespace Game
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-      auto controller = player.Add<AnimationController>(player.Add<MultipleParticleEmitters>());
+      auto controller = player.Add<AnimationController>();
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
          auto anim = player.Get<AnimationController>();

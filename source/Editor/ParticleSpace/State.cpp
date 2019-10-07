@@ -30,7 +30,7 @@ namespace ParticleSpace
 {
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mParticleSpawner(&mEntities, Engine::Entity::ID(0))
+   : mParticleSpawner(&mEntities, Engine::Entity::ID(0, 0))
    , mInput(input)
    , mParent(parent)
 {

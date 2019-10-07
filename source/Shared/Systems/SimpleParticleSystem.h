@@ -37,6 +37,9 @@ public:
    bool active = true;
    bool update = true;
    bool render = true;
+
+   // Destroy this entity once the particle system is done animating.
+   bool destroyOnComplete = false;
 };
 
 //

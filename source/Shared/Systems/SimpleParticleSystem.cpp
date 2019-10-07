@@ -130,10 +130,18 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
       updater->Uniform1f("uDeltaTimeMillis", (float)dt);
       updater->Uniform1f("uTick", (float)mTick);
 
-      entities.Each<Transform, ParticleEmitter>([&](Transform& transform, ParticleEmitter& emitter) {
+      entities.Each<Transform, ParticleEmitter>([&](Engine::Entity entity, Transform& transform, ParticleEmitter& emitter) {
          if (emitter.update)
          {
             UpdateParticleSystem(emitter, transform.GetMatrix(), dt);
+
+            if (
+               emitter.destroyOnComplete &&
+               emitter.launcher.lifetime != 0 &&
+               emitter.age > emitter.launcher.lifetime + emitter.particle.lifetime
+            ) {
+               entities.Destroy(entity.GetID());
+            }
          }
       });
 

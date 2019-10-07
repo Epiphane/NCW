@@ -51,6 +51,10 @@ public:
    void SetParent(const ComponentHandle<Transform>& parent) { mParent = parent; }
    void SetParent(const Entity& parent) { mParent = parent.Get<Transform>(); }
 
+   // Break all the normal conventions of a Transform and set the matrix directly.
+   // Any extra changes will cause previous state to be lost.
+   void SetMatrix(const glm::mat4 matrix) { mMatrix = matrix; }
+
 private:
    void ComputeMatrix();
    glm::mat4 mMatrix;

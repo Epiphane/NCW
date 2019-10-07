@@ -40,7 +40,7 @@ using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mPlayer(&mEntities, Engine::Entity::ID(0))
+   : mPlayer(&mEntities, Engine::Entity::ID(0, 0))
    , mInput(input)
    , mParent(parent)
 {

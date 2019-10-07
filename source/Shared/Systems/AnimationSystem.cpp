@@ -19,7 +19,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 {
    using Keyframe = AnimationController::Keyframe;
    using State = AnimationController::State;
-   using Transition = AnimationController::Transition;
+   using Transition = SkeletonAnimations::Transition;
 
    // First, update skeletons.
    entities.Each<AnimationController>([&](Engine::Entity entity, AnimationController& controller) {
@@ -255,10 +255,10 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          }
       }
 
-      UpdateEmitters(controller, transform, controller.states[controller.current], false);
+      UpdateEmitters(entities, controller, transform, controller.states[controller.current], false);
       if (prevState != controller.current)
       {
-         UpdateEmitters(controller, transform, controller.states[prevState], true);
+         UpdateEmitters(entities, controller, transform, controller.states[prevState], true);
       }
    });
 
@@ -278,55 +278,50 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 }
 
 void AnimationSystem::UpdateEmitters(
+   Engine::EntityManager& entities,
    AnimationController& controller,
    const Engine::Transform& transform,
-   const AnimationController::State& state,
+   AnimationController::State& state,
    bool updateAllTransforms
 ) const
 {
-   if (!controller.emitterContainer)
-   {
-      return;
-   }
-
-   controller.emitterContainer->systems.clear();
-
-   for (const AnimationController::EmitterRef& ref : state.emitters)
+   for (AnimationController::ParticleEffect& effect : state.effects)
    {
       bool updateTransform = updateAllTransforms;
 
-      MultipleParticleEmitters::Emitter& system = controller.emitters[ref.emitter];
-      if (controller.time >= ref.start && controller.time <= ref.end)
+      bool active = controller.time >= effect.start && controller.time <= effect.end;
+      if (active)
       {
-         if (!system.active)
+         if (!effect.spawned)
          {
-            system.Reset();
-            system.active = true;
+            Engine::Entity entity = entities.Create();
+
+            effect.spawned = entity.Add<Engine::Transform>(glm::vec3(0));
+            auto emitter = entity.Add<ParticleEmitter>(effect.name);
+            emitter->destroyOnComplete = true;
+            emitter->active = true;
+            emitter->update = true;
+            emitter->render = true;
          }
-         system.update = true;
-         system.render = true;
          updateTransform = true;
       }
-      else
-      {
-         system.active = false;
-      }
 
-      if (system.launcher.lifetime == 0 || system.age <= system.launcher.lifetime + system.particle.lifetime)
-      {
-         controller.emitterContainer->systems.push_back(&system);
-      }
-
-      if (updateTransform)
+      if (updateTransform && effect.spawned)
       {
          for (const auto& s : controller.skeletons)
          {
-            if (s->boneLookup.count(ref.bone) != 0)
+            if (s->boneLookup.count(effect.bone) != 0)
             {
-               system.transform = transform.GetMatrix() * s->bones[s->boneLookup.at(ref.bone)].matrix;
+               effect.spawned->SetMatrix(transform.GetMatrix() * s->bones[s->boneLookup.at(effect.bone)].matrix);
                break;
             }
          }
+      }
+
+      if (!active)
+      {
+         // Release emitter
+         effect.spawned = Engine::ComponentHandle<Engine::Transform>();
       }
    }
 }
