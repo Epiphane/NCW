@@ -84,6 +84,7 @@
                                  'libyaml-Lib-$Platform$-$Config$'
                                  'lodepng-Lib-$Platform$-$Config$'
                                  'noiseutils-Lib-$Platform$-$Config$'
+                                 'reactphysics-Lib-$Platform$-$Config$'
                                  'rhea-Lib-$Platform$-$Config$'
                                  'sqlite-Lib-$Platform$-$Config$'
                                  'zlib-Lib-$Platform$-$Config$'

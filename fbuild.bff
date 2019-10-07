@@ -250,6 +250,7 @@ Settings
 #include "dependencies/MetaStuff/MetaStuff.bff"
 #include "dependencies/noiseutils/noiseutils.bff"
 #include "dependencies/rapidjson/rapidjson.bff"
+#include "dependencies/reactphysics3d/reactphysics3d.bff"
 #include "dependencies/rhea/rhea.bff"
 #include "dependencies/sqlite/sqlite.bff"
 #include "dependencies/zlib/zlib.bff"
