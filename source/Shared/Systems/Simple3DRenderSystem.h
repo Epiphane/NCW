@@ -23,11 +23,13 @@ class Simple3DComponentCamera : public Engine::Graphics::Camera {
 };
 
 struct Simple3DRender : public Engine::Component<Simple3DRender> {
+   Simple3DRender();
    Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors);
    Simple3DRender(const Simple3DRender& other);
    
    Engine::Graphics::VBO mVertices, mColors;
    size_t mCount;
+   bool cullFaces = true;
 };
 
 class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {

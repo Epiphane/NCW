@@ -132,7 +132,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 
    // Update position for all entities
    mUpdateClock.Reset();
-   entities.Each<Engine::Transform, Body>([&](Engine::Entity, Engine::Transform& transform, Body& body) {
+   entities.Each<Engine::Transform, Body>([&](Engine::Transform& transform, Body& body) {
       // TODO parent transforms make my brain hurt
       assert(!transform.GetParent());
 
@@ -237,6 +237,46 @@ void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)
 {
 
 }
+
+/*
+System::CollisionIterator& System::CollisionIterator::operator++()
+{}
+
+bool System::CollisionIterator::operator==(const System::CollisionIterator&)
+{}
+
+Engine::Entity::ID System::CollisionIterator::operator*()
+{}
+
+const Engine::Entity::ID System::CollisionIterator::operator*() const
+{}
+
+System::CollisionIterator::CollisionIterator()
+{}
+
+System::CollisionIterator& System::CollisionIterator::operator=(const CollisionIterator&)
+{}
+
+System::CollisionIterator System::CollisionIterator::operator+(uint16_t)
+{}
+
+System::CollisionIterator System::CollisionView::begin()
+{}
+
+System::CollisionIterator System::CollisionView::end()
+{}
+
+const System::CollisionIterator System::CollisionView::begin() const
+{}
+
+const System::CollisionIterator System::CollisionView::end() const
+{}
+
+System::CollisionView System::Test(const glm::vec3&, const glm::vec3&)
+{
+   return CollisionView(*this);
+}
+*/
 
 ///
 ///

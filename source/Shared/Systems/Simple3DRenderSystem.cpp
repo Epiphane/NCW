@@ -17,11 +17,16 @@
 namespace CubeWorld
 {
 
-Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
+Simple3DRender::Simple3DRender()
    : mVertices(Engine::Graphics::VBO::Vertices)
    , mColors(Engine::Graphics::VBO::Colors)
-   , mCount(points.size())
+   , mCount(0)
+{}
+
+Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
+   : Simple3DRender()
 {
+   mCount = points.size();
    mVertices.BufferData(sizeof(GLfloat) * mCount, &points[0], GL_STATIC_DRAW);
    mColors.BufferData(sizeof(GLfloat) * mCount, &colors[0], GL_STATIC_DRAW);
 }
@@ -29,6 +34,7 @@ Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloa
 Simple3DRender::Simple3DRender(const Simple3DRender& other)
    : mVertices(other.mVertices)
    , mColors(other.mColors)
+   , mCount(other.mCount)
 {}
 
 std::unique_ptr<Engine::Graphics::Program> Simple3DRenderSystem::program = nullptr;
@@ -78,6 +84,16 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
 
    mClock.Reset();
    entities.Each<Transform, Simple3DRender>([&](Transform& transform, Simple3DRender& render) {
+      if (render.mCount == 0)
+      {
+         return;
+      }
+
+      if (!render.cullFaces)
+      {
+         glDisable(GL_CULL_FACE);
+      }
+
       render.mVertices.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
       render.mColors.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -85,6 +101,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
       program->UniformMatrix4f("uModelMatrix", model);
 
       glDrawArrays(GL_TRIANGLES, 0, GLsizei(render.mCount));
+      glEnable(GL_CULL_FACE);
 
       CHECK_GL_ERRORS();
    });

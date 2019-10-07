@@ -39,14 +39,15 @@ namespace Game
       DebugHelper::Instance().SetSystemManager(&mSystems);
       mSystems.Add<CameraSystem>(&window);
       mSystems.Add<AnimationSystem>();
-      mSystems.Add<AnimationEventSystem>();
-      mSystems.Add<AnimationEventDebugSystem>(true, &mCamera);
       mSystems.Add<FlySystem>(&window);
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
+      mSystems.Add<AnimationEventSystem>();
+      mSystems.Add<AnimationEventDebugSystem>();
+      mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
 
@@ -176,6 +177,9 @@ namespace Game
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
       auto controller = player.Add<AnimationController>();
+      
+      Entity debugger = mEntities.Create(0, 0, 0);
+      player.Add<AnimationEventDebugger>(debugger.Add<Simple3DRender>());
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
          auto anim = player.Get<AnimationController>();
