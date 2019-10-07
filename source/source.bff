@@ -29,6 +29,7 @@
                      + .MetaStuffIncludePaths
                      + .NoiseUtilsIncludePaths
                      + .RapidJsonIncludePaths
+                     + .ReactPhysicsIncludePaths
                      + .RheaIncludePaths
                      + .SqliteIncludePaths
                      + .ZlibIncludePaths
