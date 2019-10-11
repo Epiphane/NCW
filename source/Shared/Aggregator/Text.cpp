@@ -14,7 +14,7 @@ namespace Aggregator
 
 std::unique_ptr<Engine::Graphics::Program> Text::program = nullptr;
 
-Text::Text(Engine::UIRoot* root) : Engine::Aggregator<TextData>(root)
+Text::Text(Bounded* bounds) : Engine::Aggregator<TextData>(bounds)
 {
    if (!program)
    {
@@ -69,7 +69,7 @@ void Text::Render()
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, pair.first);
       program->Uniform1i("uTexture", 0);
-      program->Uniform2f("uWindowSize", static_cast<GLfloat>(mRoot->GetWidth()), static_cast<GLfloat>(mRoot->GetHeight()));
+      program->Uniform2f("uWindowSize", static_cast<GLfloat>(mBounds->GetWidth()), static_cast<GLfloat>(mBounds->GetHeight()));
 
       mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(TextData), (void*)0);
       mVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(TextData), (void*)(sizeof(glm::vec3)));

@@ -6,7 +6,7 @@
 #include <cstring>
 #include <vector>
 
-#include "../Graphics/Program.h"
+#include "../Core/Bounded.h"
 #include "../Graphics/VBO.h"
 
 namespace CubeWorld
@@ -16,9 +16,6 @@ namespace Engine
 {
 
 const uint32_t MAX_AGGREGATORS = 64;
-
-// Forward declaration
-class UIRoot;
 
 //
 // Base aggregatpr class, only used for insertion into collections.
@@ -81,13 +78,14 @@ public:
    };
 
 public:
-   Aggregator(UIRoot* root)
-      : mRoot(root)
+   Aggregator(Bounded* bounds)
+      : mBounds(bounds)
       , mVBO(Graphics::VBO::Vertices)
       , mData{}
       , mDirty(false)
       , mFree{}
    {};
+
    virtual ~Aggregator() = default;
 
    // Used internally for registration.
@@ -160,7 +158,7 @@ public:
    }
 
 protected:
-   UIRoot* mRoot;
+   Bounded* mBounds;
 
    Graphics::VBO mVBO;
    std::vector<DataType> mData;

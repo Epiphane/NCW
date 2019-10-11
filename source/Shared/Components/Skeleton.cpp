@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <glm/ext.hpp>
 
+#include <RGBBinding/BindingPropertyMeta.h>
 #include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
@@ -61,9 +62,7 @@ void Skeleton::Load(const BindingProperty& data)
 {
    Reset();
 
-   name = data["name"];
-   parent = data["parent"];
-   defaultModel = data["default_model"];
+   Binding::deserialize(*this, data);
 
    if (defaultModel.empty())
    {
@@ -96,82 +95,21 @@ void Skeleton::Load(const BindingProperty& data)
 
    bones.assign(original.begin(), original.end());
 
-   // Load stances
-   if (data["stances"][0]["name"] != "base")
+   // Create lookup maps
+   for (size_t i = 0; i < bones.size(); ++i)
    {
-      Stance base;
-      base.name = "base";
-      base.parent = "";
-      
-      stanceLookup.emplace("base", size_t(0));
-      stances.push_back(std::move(base));
+      boneLookup.emplace(bones[i].name, i);
    }
 
-   for (const auto& def : data["stances"])
+   for (size_t i = 0; i < stances.size(); ++i)
    {
-      Stance stance;
-      stance.name = def["name"];
-      stance.parent = def["inherit"].GetStringValue("base");
-      for (const auto& [boneName, boneDef] : def["bones"].pairs())
-      {
-         if (boneDef["position"].IsVec3())
-         {
-            stance.positions[boneName] = boneDef["position"].GetVec3();
-         }
-         if (boneDef["rotation"].IsVec3())
-         {
-            stance.rotations[boneName] = boneDef["rotation"].GetVec3();
-         }
-         if (boneDef["scale"].IsVec3())
-         {
-            stance.scales[boneName] = boneDef["scale"].GetVec3();
-         }
-         if (boneDef["parent"].IsString())
-         {
-            stance.parents[boneName] = boneDef["parent"];
-         }
-      }
-
-      stanceLookup.emplace(stance.name, stances.size());
-      stances.push_back(std::move(stance));
+      stanceLookup.emplace(stances[i].name, i);
    }
 }
 
 BindingProperty Skeleton::Serialize()
 {
-   BindingProperty result;
-
-   result["name"] = name;
-   result["parent"] = parent;
-   result["default_model"] = defaultModel;
-
-   for (const auto& stance : stances)
-   {
-      BindingProperty def;
-      def["name"] = stance.name;
-      def["inherit"] = stance.parent;
-      BindingProperty& boneData = def["bones"];
-      for (const auto&[bone, pos] : stance.positions)
-      {
-         boneData[bone]["position"] = pos;
-      }
-      for (const auto&[bone, rot] : stance.rotations)
-      {
-         boneData[bone]["rotation"] = rot;
-      }
-      for (const auto&[bone, scl] : stance.scales)
-      {
-         boneData[bone]["scale"] = scl;
-      }
-      for (const auto&[bone, par] : stance.parents)
-      {
-         boneData[bone]["parent"] = par;
-      }
-
-      result["stances"].push_back(std::move(def));
-   }
-
-   return result;
+   return Binding::serialize(*this);
 }
 
 }; // namespace CubeWorld

@@ -110,6 +110,7 @@ private:
    // Used for listening to inputs
    //
    friend void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+   friend void charCallback(GLFWwindow* window, unsigned int c);
    friend void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
    friend void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 

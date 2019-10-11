@@ -24,7 +24,7 @@ struct Database::Statements {
 
 Failure SqliteFailure(int rc, const std::string& action)
 {
-   return Failure{"Failed to %1: sqlite3 error code %2: %3", action, rc, sqlite3_errstr(rc)};
+   return Failure{rc, "Failed to {action}: sqlite3 error code {code}: {message}", action, rc, sqlite3_errstr(rc)};
 }
 
 Maybe<std::unique_ptr<Database>> Database::OpenRead(const std::string& path)

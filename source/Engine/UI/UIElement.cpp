@@ -51,7 +51,7 @@ UIElement* UIElement::AddChild(std::unique_ptr<UIElement>&& ptr)
    element->ConstrainInFrontOf(this, constraintOptions);
 
    mpRoot->AddConstraints({mFrame.biggestDescendantZ >= element->GetFrame().biggestDescendantZ});
-   
+
    return element;
 }
 
@@ -85,9 +85,9 @@ void UIElement::SetActive(bool active)
    {
       child->SetActive(active);
    }
-   
+
    mActiveObservable.SendMessage(active);
-   
+
    Redraw();
 }
 
@@ -154,26 +154,25 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
    logger.Log("DEBUG | ");
    logger.Log(indentation.c_str());
    logger.Log(my.name.c_str(), Logger::Logger::Red);
-   logger.Log(Format::FormatString(" [%1]\n", my.type).c_str());
+   logger.Log(FormatString(" [{type}]\n", my.type).c_str());
 
    // The rest is pretty simple.
-   logger.Log(Logger::LogLevel::kDebug, "%1Origin: (%2, %3) Size: (%4, %5)", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
-   logger.Log(Logger::LogLevel::kDebug, "%1Active: %2", indentation, my.active ? "YEAH" : "NAH");
-   logger.Log(Logger::LogLevel::kDebug, "%1Z: %2 Biggest Child Z: %3", indentation, my.z, my.maxZ);
+   logger.Log(Logger::LogLevel::kDebug, "{}Origin: ({x}, {y}) Size: ({w}, {h})", indentation, my.origin.x, my.origin.y, my.size.x, my.size.y);
+   logger.Log(Logger::LogLevel::kDebug, "{}Z: {z} Biggest Child Z: {maxZ}", indentation, my.z, my.maxZ);
 
    if (bRecursive) {
       if (mChildren.size() == 0)
       {
-         logger.Log(Logger::LogLevel::kDebug, "%1Children: None", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}Children: None", indentation);
       }
       else
       {
-         logger.Log(Logger::LogLevel::kDebug, "%1Children: [", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}Children: [", indentation);
          for (const auto& child : mChildren)
          {
             child->LogDebugInfo(true, indentLevel + 1);
          }
-         logger.Log(Logger::LogLevel::kDebug, "%1]", indentation);
+         logger.Log(Logger::LogLevel::kDebug, "{}]", indentation);
       }
    }
 }
@@ -181,13 +180,13 @@ void UIElement::LogDebugInfo(bool bRecursive, uint32_t indentLevel)
 void UIElement::InitFromJSON(const BindingProperty& /*data*/)
 {
 }
-   
+
 BindingProperty UIElement::ConvertToJSON()
 {
    BindingProperty result;
    result["class"] = GetDebugInfo().type;
    result["name"]  = GetName();
-   
+
    for (const auto& child : mChildren) {
       result["children"].push_back(child->ConvertToJSON());
    }
@@ -223,9 +222,9 @@ rhea::linear_inequality operator>(UIFrame& lhs, UIElement& rhs)
 rhea::linear_inequality operator>(UIFrame& lhs, UIFrame& rhs)
 {
    return lhs.z >= rhs.z + 1.0;
-}   
+}
 
-UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt) 
+UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt)
 {
    bool wantsToCapture = false;
    for (auto& g : mGestureRecognizers) {
@@ -235,7 +234,7 @@ UIElement::Action UIElement::MouseDown(const MouseDownEvent& evt)
    if (wantsToCapture) {
       return Capture;
    }
-   
+
    return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 
@@ -258,7 +257,7 @@ UIElement::Action UIElement::MouseUp(const MouseUpEvent& evt)
    for (auto& g : mGestureRecognizers) {
       g->MouseUp(evt);
    }
-   
+
    return mbAbsorbsMouseEvents ? Handled : Unhandled;
 }
 

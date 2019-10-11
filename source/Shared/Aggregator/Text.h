@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include <Engine/Graphics/FontManager.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Aggregator/Aggregator.h>
 
 namespace CubeWorld
@@ -28,7 +29,7 @@ struct TextData
 class Text : public Engine::Aggregator<TextData>
 {
 public:
-   Text(Engine::UIRoot* root);
+   Text(Bounded* bounds);
 
    void ConnectToTexture(const Region& region, GLuint texture);
 

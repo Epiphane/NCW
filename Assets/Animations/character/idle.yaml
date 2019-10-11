@@ -5,36 +5,32 @@ stance: resting
 length: 5.02
 keyframes:
 - time: 0
-- time: 0.79
-  bones:
-    character.Head:
-      position: [0, 3.9, 0.6]
-    character.Spine:
-      position: [0, 0.1, 0]
-- time: 2.64
-  bones:
-    character.Head:
-      position: [0, 4.1, 0.6]
-    character.Shoulders:
-      position: [0, 1.1, 2.1]
-    character.Spine:
-      position: [0, 0.44, 0]
-- time: 3.23
-  bones:
-    character.Head:
-      position: [0, 4.4, 0.6]
-    character.Spine:
-      position: [0, 0.33, 0]
+- time: 0.16
+  positions:
+    character.Head: [0, 3.9, 0.6]
+    character.Spine: [0, 0.1, 0]
+- time: 0.53
+  positions:
+    character.Head: [0, 4.1, 0.6]
+    character.Shoulders: [0, 1.1, 2.1]
+    character.Spine: [0, 0.44, 0]
+- time: 0.64
+  positions:
+    character.Head: [0, 4.4, 0.6]
+    character.Spine: [0, 0.33, 0]
 transitions:
 - to: walk
   time: 0.5
   triggers:
   - parameter: speed
+    type: gte
     gte: 1
   - parameter: speed
+    type: lt
     lt: 8
 - to: run
   time: 0.5
   triggers:
   - parameter: speed
+    type: gte
     gte: 8

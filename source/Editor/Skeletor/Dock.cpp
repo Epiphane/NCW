@@ -4,14 +4,14 @@
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/Button.h>
 #include <Shared/UI/RectFilled.h>
 
-#include "../Command/CommandStack.h"
-
+#include "../Imgui/Extensions.h"
 #include "Dock.h"
 
 namespace CubeWorld
@@ -31,11 +31,6 @@ using Engine::UIStackView;
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent, "SkeletorDock")
    , mBone("none.root")
-   , mScrubbers{
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Position, std::placeholders::_1, std::placeholders::_2)),
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Rotation, std::placeholders::_1, std::placeholders::_2)),
-      ScrubberVec3(std::bind(&Dock::OnScrub, this, ScrubType::Scale, std::placeholders::_1, std::placeholders::_2)),
-   }
 {
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
@@ -63,7 +58,8 @@ void Dock::Update(TIMEDELTA)
    }
 
    // Stance information
-   ImGui::SetNextWindowPos(ImVec2(100, 320), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowPos(ImVec2(250, 550), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(1000, 200), ImGuiCond_FirstUseEver);
    ImGui::Begin("Stance");
    ImGui::Columns(3);
    float windowWidth = ImGui::GetWindowWidth();
@@ -73,20 +69,9 @@ void Dock::Update(TIMEDELTA)
    ImVec2 space = ImGui::GetContentRegionAvail();
    for (const auto& stance : mSkeleton->stances)
    {
-      if (mStance == stance.name)
+      if (ImGuiEx::Button(mStance == stance.name, stance.name, ImVec2(space.x, 0)))
       {
-         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
-         ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0));
-         ImGui::PopStyleColor(3);
-      }
-      else
-      {
-         if (ImGui::Button(stance.name.c_str(), ImVec2(space.x, 0)))
-         {
-            SetStance(stance.name);
-         }
+         SetStance(stance.name);
       }
    }
 
@@ -96,20 +81,9 @@ void Dock::Update(TIMEDELTA)
    space = ImGui::GetContentRegionAvail();
    for (const auto& bone : mSkeleton->bones)
    {
-      if (mBone == bone.name)
+      if (ImGuiEx::Button(mBone == bone.name, bone.name, ImVec2(space.x, 0)))
       {
-         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.98f, 0.25f, 0.25f, 0.40f));
-         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.98f, 0.05f, 0.05f, 0.40f));
-         ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0));
-         ImGui::PopStyleColor(3);
-      }
-      else
-      {
-         if (ImGui::Button(bone.name.c_str(), ImVec2(space.x, 0)))
-         {
-            SetBone(bone.name);
-         }
+         SetBone(bone.name);
       }
    }
 
@@ -118,9 +92,18 @@ void Dock::Update(TIMEDELTA)
    ImGui::SetColumnWidth(ImGui::GetColumnIndex(), 3 * windowWidth / 5);
 
    auto stance = std::find_if(mSkeleton->stances.begin(), mSkeleton->stances.end(), [&](const auto& s) { return s.name == mStance; });
-   mScrubbers[0].Update("Position", stance->positions[mBone], 0.1f);
-   mScrubbers[1].Update("Rotation", stance->rotations[mBone]);
-   mScrubbers[2].Update("Scale", stance->scales[mBone]);
+   if (mScrubbers[0].Drag("Position", stance->positions[mBone], 0.1f))
+   {
+      OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+   }
+   if (mScrubbers[1].Drag("Rotation", stance->rotations[mBone]))
+   {
+      OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+   }
+   if (mScrubbers[2].Drag("Scale", stance->scales[mBone], 0.1f))
+   {
+      OnScrub(ScrubType::Position, mScrubbers[0].GetLastValue());
+   }
 
    ImGui::End();
 }
@@ -325,15 +308,11 @@ void Dock::Receive(const ResumeEditingEvent&)
 ///
 ///
 ///
-void Dock::OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3)
+void Dock::OnScrub(ScrubType type, glm::vec3 oldValue)
 {
    // Funky time: at this point, the current value represents the NEW state,
-   // and we create a command to set it to the OLD state. So we perform the
-   // command twice, once immediately to revert to the old state, and then
-   // again when it gets placed on the stack to go back to the new state.
-   std::unique_ptr<SetBoneCommand> command{new SetBoneCommand(this, mStance, mBone, type, oldValue)};
-   command->Do();
-   CommandStack::Instance().Do(std::move(command));
+   // and we create a command to set it to the OLD state.
+   CommandStack::Instance().Emplace<SetBoneCommand>(this, mStance, mBone, type, oldValue);
 }
 
 ///
@@ -344,18 +323,18 @@ void Dock::SetBoneCommand::Do()
    dock->SetStance(stance);
    dock->SetBone(bone);
 
-   auto stance = std::find_if(dock->mSkeleton->stances.begin(), dock->mSkeleton->stances.end(), [&](const auto& s) { return s.name == dock->mStance; });
+   auto currentStance = std::find_if(dock->mSkeleton->stances.begin(), dock->mSkeleton->stances.end(), [&](const auto& s) { return s.name == dock->mStance; });
    glm::vec3* vec = nullptr;
    switch (type)
    {
    case ScrubType::Position:
-      vec = &stance->positions[dock->mBone];
+      vec = &currentStance->positions[dock->mBone];
       break;
    case ScrubType::Rotation:
-      vec = &stance->rotations[dock->mBone];
+      vec = &currentStance->rotations[dock->mBone];
       break;
    case ScrubType::Scale:
-      vec = &stance->scales[dock->mBone];
+      vec = &currentStance->scales[dock->mBone];
       break;
    }
 

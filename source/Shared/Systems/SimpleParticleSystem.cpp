@@ -42,10 +42,10 @@ SimpleParticleSystem::~SimpleParticleSystem()
 void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
    mUpdateMetric = DebugHelper::Instance().RegisterMetric("Particle Update Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
+      return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
    mRenderMetric = DebugHelper::Instance().RegisterMetric("Particle Render Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mRenderClock.Average() * 1000.0);
+      return FormatString("%.2fms", mRenderClock.Average() * 1000.0);
    });
 
    mTick = 0;
@@ -130,19 +130,27 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
       updater->Uniform1f("uDeltaTimeMillis", (float)dt);
       updater->Uniform1f("uTick", (float)mTick);
 
-      entities.Each<Transform, ParticleEmitter>([&](Transform& transform, ParticleEmitter& emitter) {
+      entities.Each<Transform, ParticleEmitter>([&](Engine::Entity entity, Transform& transform, ParticleEmitter& emitter) {
          if (emitter.update)
          {
             UpdateParticleSystem(emitter, transform.GetMatrix(), dt);
+
+            if (
+               emitter.destroyOnComplete &&
+               emitter.launcher.lifetime != 0 &&
+               emitter.age > emitter.launcher.lifetime + emitter.particle.lifetime
+            ) {
+               entities.Destroy(entity.GetID());
+            }
          }
       });
 
       entities.Each<Transform, MultipleParticleEmitters>([&](Transform& transform, MultipleParticleEmitters& group) {
-         for (auto& system : group.systems)
+         for (MultipleParticleEmitters::Emitter* system : group.systems)
          {
-            if (system.update)
+            if (system != nullptr && system->update)
             {
-               UpdateParticleSystem(system, system.useEntityTransform ? transform.GetMatrix() : system.transform, dt);
+               UpdateParticleSystem(*system, system->useEntityTransform ? transform.GetMatrix() : system->transform, dt);
             }
          }
       });
@@ -169,13 +177,13 @@ void SimpleParticleSystem::Update(Engine::EntityManager& entities, Engine::Event
    entities.Each<MultipleParticleEmitters>([&](MultipleParticleEmitters& group) {
       for (auto& system : group.systems)
       {
-         if (system.render)
+         if (system != nullptr && system->render)
          {
             RenderParticleSystem(
                perspective,
                view,
                position,
-               system
+               *system
             );
          }
       }
@@ -258,11 +266,11 @@ void SimpleParticleSystem::UpdateParticleSystem(
       // Emit new lead pairs.
       system.particles[system.particles.size() - 1].age += (float)dt;
       system.particles[system.particles.size() - 2].age += (float)dt;
-      if (system.emitterLifetime == 0 || system.age < system.emitterLifetime)
+      if (system.launcher.lifetime == 0 || system.age < system.launcher.lifetime)
       {
-         float nEmit = std::floor(system.particles[system.particles.size() - 1].age / system.emitterCooldown);
-         system.particles[system.particles.size() - 1].age -= nEmit * system.emitterCooldown;
-         system.particles[system.particles.size() - 2].age -= nEmit * system.emitterCooldown;
+         float nEmit = std::floor(system.particles[system.particles.size() - 1].age / system.launcher.cooldown);
+         system.particles[system.particles.size() - 1].age -= nEmit * system.launcher.cooldown;
+         system.particles[system.particles.size() - 2].age -= nEmit * system.launcher.cooldown;
          nEmit = 1;
          for (float i = 0; i < nEmit; ++i)
          {
@@ -285,7 +293,7 @@ void SimpleParticleSystem::UpdateParticleSystem(
          }
       }
 
-      system.particleBuffers[0].BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STATIC_DRAW);
+      system.buffers[0].data.BufferData(sizeof(Engine::ParticleSystem::Particle) * system.particles.size(), system.particles.data(), GL_STREAM_DRAW);
       system.firstRender = false;
       return;
    }
@@ -293,7 +301,7 @@ void SimpleParticleSystem::UpdateParticleSystem(
    //
    // Now update a normal particle system
    //
-   if (system.emitterLifetime == 0.0f || system.age < system.emitterLifetime)
+   if (system.launcher.lifetime == 0.0f || system.age < system.launcher.lifetime)
    {
       updater->Uniform1i("uEmit", 1);
    }
@@ -301,17 +309,20 @@ void SimpleParticleSystem::UpdateParticleSystem(
    {
       updater->Uniform1i("uEmit", 0);
    }
-   updater->Uniform1f("uEmitterCooldown", system.emitterCooldown);
-   updater->Uniform1f("uParticleLifetime", system.particleLifetime);
+   updater->Uniform1f("uEmitterCooldown", system.launcher.cooldown);
+   updater->Uniform1f("uParticleLifetime", system.particle.lifetime);
 
    updater->Uniform1u("uShape", (uint32_t)system.shape);
-   updater->Uniform2f("uSpawnAge", system.spawnAge[0], system.spawnAge[1]);
-   updater->UniformVector3f("uShapeParam0", system.shapeParam0);
-   updater->Uniform1f("uShapeParam1", system.shapeParam1);
-   updater->Uniform1f("uShapeParam2", system.shapeParam2);
-   updater->Uniform1f("uShapeParam3", system.shapeParam3);
+   updater->Uniform2f("uSpawnAge", system.particle.spawnAge.min, system.particle.spawnAge.max);
+   if (system.shape == Engine::ParticleSystem::Shape::Cone)
+   {
+      updater->UniformVector3f("uShapeParam0", system.shapeConfig.cone.direction);
+      updater->Uniform1f("uShapeParam1", system.shapeConfig.cone.radius);
+      updater->Uniform1f("uShapeParam2", system.shapeConfig.cone.height.min);
+      updater->Uniform1f("uShapeParam3", system.shapeConfig.cone.height.max);
+   }
 
-   system.particleBuffers[system.buffer].Bind();
+   system.buffers[system.buffer].Bind();
 
    // We enable the attribute pointers individually since a normal VBO only
    // expects to be attached to one.
@@ -336,38 +347,35 @@ void SimpleParticleSystem::UpdateParticleSystem(
 
    // Begin rendering
    if (system.firstRender) {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1]);
-      glBeginTransformFeedback(GL_POINTS);
+      system.buffers[1].Begin(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, 1);
-      glEndTransformFeedback();
+      system.buffers[0].End();
 
       // [Mac] Initialize both feedback buffers by rendering initial data into them
       // TODO is this even necessary?
-      system.particleBuffers[1 - system.buffer].Bind();
+      system.buffers[1 - system.buffer].Bind();
       glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), 0);                   // type
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)4);    // position
       glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)16);    // rotation
       glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)32);   // velocity
       glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleEmitter::Particle), (const GLvoid*)44);   // lifetime
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[0]);
-      glBeginTransformFeedback(GL_POINTS);
+      system.buffers[0].Begin(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, 1);
-      glEndTransformFeedback();
+      system.buffers[0].End();
 
       system.firstRender = false;
    }
    else {
-      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, system.feedbackBuffers[1 - system.buffer]);
-      glBeginTransformFeedback(GL_POINTS);
-      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
-      glEndTransformFeedback();
+      system.buffers[1 - system.buffer].Begin(GL_POINTS);
+      system.buffers[system.buffer].Draw(GL_POINTS);
+      system.buffers[1 - system.buffer].End();
    }
-     
+
 #if CUBEWORLD_DIAGNOSE_PARTICLE_OUTPUT
    glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
    while (result == 0)
       glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT_AVAILABLE, &result);
-   
+
    glGetQueryObjectiv(drawnQuery, GL_QUERY_RESULT, &result);
    glDeleteQueries(1, &drawnQuery);
 #endif
@@ -407,26 +415,38 @@ void SimpleParticleSystem::RenderParticleSystem(
    system.program->UniformMatrix4f("uProjMatrix", perspective);
    system.program->UniformMatrix4f("uViewMatrix", view);
    system.program->UniformVector3f("uCameraPos", cameraPos);
-   system.program->Uniform1f("uParticleLifetime", system.particleLifetime);
+   system.program->Uniform1f("uParticleLifetime", system.particle.lifetime);
 
    for (const auto& [key, value] : system.uniforms.pairs())
    {
-      if (value.IsNumber())
+      GLint uniform = system.program->Uniform(key.GetStringValue());
+      if (uniform < 0)
+      {
+         continue;
+      }
+
+      GLsizei uniformSize;
+      GLenum type;
+      glGetActiveUniform(system.program->GetID(), GLuint(uniform), 0, nullptr, &uniformSize, &type, nullptr);
+
+      if (value.IsNumber() && (type == GL_FLOAT || type == GL_DOUBLE || type == GL_INT))
       {
          system.program->Uniform1f(key.GetStringValue(), value.GetFloatValue());
       }
-      else if (value.IsVec3())
+      else if (value.IsVec3() && (type == GL_FLOAT_VEC3 || type == GL_DOUBLE_VEC3))
       {
          system.program->UniformVector3f(key.GetStringValue(), value.GetVec3());
       }
-      else if (value.IsVec4())
+      else if (value.IsVec4() && (type == GL_FLOAT_VEC4 || type == GL_DOUBLE_VEC4))
       {
          system.program->UniformVector4f(key.GetStringValue(), value.GetVec4());
       }
       else
       {
-         LOG_ERROR("Unknown shader value for %1", key.GetStringValue());
+         /*
+         LOG_ERROR("Unknown shader value for {key}", key.GetStringValue());
          assert(false);
+         */
       }
       CHECK_GL_ERRORS();
    }
@@ -438,7 +458,7 @@ void SimpleParticleSystem::RenderParticleSystem(
       system.program->Uniform1i("uTexture", 0);
    }
 
-   system.particleBuffers[system.buffer].Bind();
+   system.buffers[system.buffer].Bind();
 
    // We enable the attribute pointers individually since a normal VBO only
    // expects to be attached to one.
@@ -460,7 +480,7 @@ void SimpleParticleSystem::RenderParticleSystem(
    }
    else
    {
-      glDrawTransformFeedback(GL_POINTS, system.feedbackBuffers[system.buffer]);
+      system.buffers[system.buffer].Draw(GL_POINTS);
    }
 
    glDisableVertexAttribArray(0);

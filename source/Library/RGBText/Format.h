@@ -11,10 +11,7 @@
 namespace CubeWorld
 {
 
-namespace Format
-{
-
-namespace impl
+namespace FormatImpl
 {
 
 enum type
@@ -143,7 +140,8 @@ public:
    private:
       // TODO
       custom_value custom;
-   };*/
+   };
+   */
 
    constexpr basic_arg() : type_(type::none_type) {}
 
@@ -154,8 +152,8 @@ public:
 
    type type() const { return type_; }
 
-   bool is_integral() const { return impl::is_integral(type_); }
-   bool is_arithmetic() const { return impl::is_arithmetic(type_); }
+   bool is_integral() const { return FormatImpl::is_integral(type_); }
+   bool is_arithmetic() const { return FormatImpl::is_arithmetic(type_); }
    bool is_pointer() const { return type_ == type::pointer_type; }
 };
 
@@ -220,7 +218,7 @@ public:
 
    static const type value = value_type::type_tag;
 };
-   
+
 template <typename T>
 constexpr basic_arg make_arg(const T &value)
 {
@@ -285,7 +283,7 @@ private:
    // (IS_PACKED && NUM_ARGS != 0 ? 0 : 1)];
 
 public:
-   arg_store(const Args&... args) : data_{ impl::make_arg(args)... } {}
+   arg_store(const Args&... args) : data_{ FormatImpl::make_arg(args)... } {}
 
    basic_format_args operator*() const { return *this; }
 
@@ -302,23 +300,23 @@ inline arg_store<Args...> make_args(const Args & ... args)
    return arg_store<Args...>(args...);
 }
 
-}; // namespace impl
+}; // namespace FormatImpl
 
-std::string FormatString(std::string_view fmt, impl::basic_format_args args);
+std::string FormatString(std::string_view fmt, FormatImpl::basic_format_args args);
 
-// 
-// Custom string formatter, which allows for type-agnostic insertion of arguments.
+//
+// Custom string formatter, which allows for type-agnostic insertion of arguments. Arguments can be specified
+// using argument number (%1, %2, %3) or in-order using curly braces ({param1}, {param2}, {param3}).
 //
 // Example: FormatString("This incorporates %1 values, starting with %2 and %3", 2, "my string", &myObject);
+//          FormatString("This incorporates {num} values, starting with {first} and {second}", 2, "my string", &myObject);
 //
 // Usual types from printf are also "supported" (incomplete), such as %d, %s, etc.
 //
 template <typename... Args>
 std::string FormatString(std::string_view fmt, const Args& ... args)
 {
-   return FormatString(fmt, *impl::arg_store<Args...>(args...));
+   return FormatString(fmt, *FormatImpl::arg_store<Args...>(args...));
 }
-
-}; // namespace Input
 
 }; // namespace CubeWorld

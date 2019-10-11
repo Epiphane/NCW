@@ -28,6 +28,7 @@ struct AnimationSystemController : public Engine::Component<AnimationSystemContr
    //
    double speed = 1.0;
    bool paused = true;
+   bool seamlessLoop = true;
    TIMEDELTA nextTick = 0;
 };
 
@@ -42,11 +43,27 @@ public:
    //
    // References an emitter in the MultipleParticleEmitters component.
    //
-   struct EmitterRef {
+   struct Emitter : public MultipleParticleEmitters::Emitter {
+      using MultipleParticleEmitters::Emitter::Emitter;
+
+      std::string entity;
       std::string bone;
-      size_t emitter;
       double start;
       double end;
+   };
+
+   struct Event : public SkeletonAnimations::Event
+   {
+      Event(const SkeletonAnimations::Event& evt) : SkeletonAnimations::Event(evt) {};
+
+      std::string entity;
+   };
+
+   struct Transition : public SkeletonAnimations::Transition
+   {
+      Transition(const SkeletonAnimations::Transition& tra) : SkeletonAnimations::Transition(tra) {};
+
+      std::string entity;
    };
 
    struct State {
@@ -54,10 +71,12 @@ public:
       std::string name;
       std::string next;
       std::string stance;
-
       double length = 0.0;
+
       std::vector<SkeletonAnimations::Keyframe> keyframes;
-      std::vector<EmitterRef> emitters;
+      std::vector<Emitter> particles;
+      std::vector<Event> events;
+      std::vector<Transition> transitions;
    };
 
    struct Stance {
@@ -83,26 +102,27 @@ private:
    friend class Dock;
    friend class Sidebar;
    friend class SimpleAnimationSystem;
+   friend class AnimationDebugSystem;
    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
    std::vector<Engine::ComponentHandle<SkeletonAnimations>> animations;
 
    std::unordered_map<std::string, Stance> stances;
-   std::unordered_map<std::string, State> states;
+   std::vector<State> states;
 
 public:
    // Animation State
-   std::string current;
+   size_t current = 0;
    double time;
    double cooldown;
 
    // If transition > 0, this defines the state we're transitioning to,
    // as well as the amount of time remaining in that transition.
-   std::string next;
+   size_t next = 0;
    double transitionCurrent;
    double transitionStart;
    double transitionEnd;
 
-   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
+   Engine::ComponentHandle<MultipleParticleEmitters> emitterContainer;
 };
 
 class SimpleAnimationSystem : public Engine::System<SimpleAnimationSystem> {
@@ -115,3 +135,45 @@ public:
 }; // namespace Editor
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::Editor::AnimationStation::SimpleAnimationController;
+
+template <>
+inline auto registerMembers<SimpleAnimationController::State>()
+{
+   return members(
+      member("name", &SimpleAnimationController::State::name),
+      member("next", &SimpleAnimationController::State::next),
+      member("length", &SimpleAnimationController::State::length)
+   );
+}
+
+template <>
+inline auto registerMembers<SimpleAnimationController::Transition>()
+{
+   return registerMembers<SkeletonAnimations::Transition>();
+}
+
+template <>
+inline auto registerMembers<SimpleAnimationController::Emitter>()
+{
+   return std::tuple_cat(
+      registerMembers<CubeWorld::Engine::ParticleSystem>(),
+      members(
+         member("start", &SimpleAnimationController::Emitter::start),
+         member("end", &SimpleAnimationController::Emitter::end),
+         member("bone", &SimpleAnimationController::Emitter::bone)
+      )
+   );
+}
+
+template <>
+inline auto registerMembers<SimpleAnimationController::Event>()
+{
+   return registerMembers<SkeletonAnimations::Event>();
+}
+
+}; // namespace meta

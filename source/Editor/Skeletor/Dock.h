@@ -60,7 +60,7 @@ public:
       Rotation,
       Scale,
    };
-   void OnScrub(ScrubType type, glm::vec3 oldValue, glm::vec3 newValue);
+   void OnScrub(ScrubType type, glm::vec3 oldValue);
 
 private:
    // State
@@ -71,7 +71,7 @@ private:
    Engine::ComponentHandle<Skeleton> mSkeleton;
    Engine::ComponentHandle<SkeletonCollection> mSkeletons;
 
-   ScrubberVec3 mScrubbers[3];
+   Scrubber<glm::vec3, float> mScrubbers[3];
 
 private:
    //

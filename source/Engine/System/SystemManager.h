@@ -55,11 +55,11 @@ public:
    S* Get()
    {
       BaseSystem::Family family = S::GetFamily();
-      auto it = std::find(mSystems.begin(), mSystems.end(), [&](const auto& system) {
-         return system->GetFamily() == family;
+      auto it = std::find_if(mSystems.begin(), mSystems.end(), [&](const auto& system) {
+         return decltype(*system)::value::GetFamily() == family;
       });
       assert(it != mSystems.end());
-      return static_cast<S*>(it->second.get());
+      return static_cast<S*>(it->get());
    }
 
    // Update all systems.

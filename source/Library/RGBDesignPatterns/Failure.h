@@ -22,18 +22,18 @@ public:
 
    template <typename ...Args>
    Failure(const std::string& fmt, const Args& ... args)
-      : message(Format::FormatString(fmt, args...))
+      : message(FormatString(fmt, args...))
       , failureCode(NO_FAILURE_CODE_SPECIFIED)
    {};
-   
+
    template <typename ...Args>
-   Failure(int failureCode, const std::string& fmt, const Args& ... args) 
-      : message(Format::FormatString(fmt, args...))
+   Failure(int failureCode, const std::string& fmt, const Args& ... args)
+      : message(FormatString(fmt, args...))
       , failureCode(failureCode)
    {};
 
    const std::string GetMessage() const { return message; }
-   void Log() const { LOG_ERROR("%1", GetMessage()); }
+   void Log() const { LOG_ERROR("{}", GetMessage()); }
    int GetFailureCode() const { return failureCode; }
 
 public:
@@ -45,11 +45,11 @@ public:
    template <typename ...Args>
    Failure WithContext(const std::string& fmt, const Args& ... args)
    {
-      return WithContext(Format::FormatString(fmt, args...));
+      return WithContext(FormatString(fmt, args...));
    }
 
    static const int NO_FAILURE_CODE_SPECIFIED = -1;
-   
+
 private:
    std::string message;
    int failureCode;  //< Lets you branch code based on what kind of error was returned. Error codes should be scoped to the class they are created in.

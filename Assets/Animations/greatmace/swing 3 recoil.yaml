@@ -5,29 +5,21 @@ stance: wield_twohands
 length: 0.5
 keyframes:
 - time: 0
-  bones:
-    character.Head:
-      position: [0, 4.01, 0.58]
-      rotation: [6.79, 0, 0]
-    character.Hips:
-      position: [0, 1.5, 0.83]
-      rotation: [0.08, 0, 0]
-    character.Shoulders:
-      position: [-7.25, 1.36, 0.2]
-      rotation: [-37.73, 15.12, 1.23]
-    character.Spine:
-      position: [0, 0.77, -3.69]
-      rotation: [-16.09, 0, 0]
-    character.Left Leg:
-      rotation: [-29.559999, 0, 0]
-    character.Torso:
-      rotation: [0, 0.35, 0]
-- time: 0.5
-  bones:
-    character.Shoulders:
-      position: [-6, 3.37, 2.77]
-      rotation: [0, 0, 15.78]
-    character.root:
-      position: [0, -0.5, 0]
-      rotation: [0, 0, 0]
-      scale: [1, 1, 1]
+  positions:
+    character.Head: [0, 4.01, 0.58]
+    character.Hips: [0, 1.5, 0.83]
+    character.Shoulders: [-7.25, 1.36, 0.2]
+    character.Spine: [0, 0.77, -3.69]
+  rotations:
+    character.Head: [6.79, 0, 0]
+    character.Hips: [0.08, 0, 0]
+    character.Left Leg: [-29.559999, 0, 0]
+    character.Shoulders: [-37.73, 15.12, 1.23]
+    character.Spine: [-16.09, 0, 0]
+    character.Torso: [0, 0.35, 0]
+- time: 1
+  positions:
+    character.Shoulders: [-6, 3.37, 2.77]
+  rotations:
+    character.Shoulders: [0, 0, 15.78]
+    character.root: [0, 0, 0]

@@ -46,6 +46,47 @@ struct Collider : public Engine::Component<Collider> {
 
 class System : public Engine::System<System>, public Engine::Receiver<System> {
 public:
+   /*
+   class CollisionIterator : public std::iterator<std::input_iterator_tag, Engine::Entity::ID> {
+   public:
+      CollisionIterator& operator++();
+
+      bool operator==(const CollisionIterator& rhs);
+      bool operator!=(const CollisionIterator& rhs)
+      {
+         return !(*this == rhs);
+      }
+
+      Engine::Entity::ID operator*();
+      const Engine::Entity::ID operator*() const;
+
+   private:
+      friend class System;
+      CollisionIterator();
+
+   public:
+      ~CollisionIterator() {}
+
+      CollisionIterator& operator=(const CollisionIterator& other);
+      CollisionIterator operator+(uint16_t inc);
+   };
+
+   class CollisionView {
+   public:
+      CollisionIterator begin();
+      CollisionIterator end();
+      const CollisionIterator begin() const;
+      const CollisionIterator end() const;
+
+   private:
+      friend class System;
+      CollisionView(System& system);
+
+      System& mSystem;
+   };
+   */
+
+public:
    System() {}
    ~System() {}
    
@@ -54,6 +95,9 @@ public:
 
    void Receive(const Engine::ComponentAddedEvent<Collider>& e);
    void Receive(const Engine::ComponentRemovedEvent<Collider>& e);
+   
+   // API for testing collision.
+   //CollisionView Test(const glm::vec3& bottomLeft, const glm::vec3& rise);
 
 private:
    friend class SimplePhysicsDebug;

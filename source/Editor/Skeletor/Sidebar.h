@@ -3,7 +3,6 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 
 #include <Engine/UI/UIElement.h>
 #include "SkeletonSystem.h"
@@ -23,7 +22,7 @@ class Sidebar : public Engine::UIElement {
 public:
    Sidebar(Engine::UIRoot* root, Engine::UIElement* parent);
 
-   void Update(TIMEDELTA dt);
+   void Update(TIMEDELTA dt) override;
 
 private:
    // Actions

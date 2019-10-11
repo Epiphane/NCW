@@ -1,9 +1,10 @@
 // Create Visual Studio and XCode projects for a particular target.
 {
    .ProjectAllowedFileExtensions  = {
-                                       '*.cpp', '*.hpp', '*.c', '*.h', 
+                                       '*.cpp', '*.hpp', '*.c', '*.h',
                                        '*.cs', '*.bff', '*.rc', '*.mm',
-                                       '*.vert', '*.geom', '*.frag'
+                                       '*.vert', '*.geom', '*.frag',
+                                       '*.natvis'
                                     }
 
    .ProjectBasePath        = '$ProjectPath$'

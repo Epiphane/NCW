@@ -26,35 +26,82 @@ namespace CubeWorld
 namespace Editor
 {
 
+template<typename T, typename C>
+struct ScrubProvider {
+   static bool Drag(const std::string& label, T& v, float speed) = 0;
+   static bool Slide(const std::string& label, T& v, C min, C max) = 0;
+};
+
+template<> struct ScrubProvider<glm::vec3, float>
+{
+   static bool Drag(const std::string& label, glm::vec3& v, float speed)
+   {
+      return ImGui::DragFloat3(label.c_str(), &v.x, speed);
+   }
+
+   static bool Slide(const std::string& label, glm::vec3& v, float min, float max)
+   {
+      return ImGui::SliderFloat3(label.c_str(), &v.x, min, max);
+   }
+};
+
+template<> struct ScrubProvider<double, double>
+{
+   static bool Drag(const std::string& label, double& v, float speed)
+   {
+      float val = (float)v;
+      bool result = ImGui::DragFloat(label.c_str(), &val, speed);
+      v = (double)val;
+      return result;
+   }
+
+
+   static bool Slide(const std::string& label, double& v, double min, double max)
+   {
+      float val = (float)v;
+      bool result = ImGui::SliderFloat(label.c_str(), &val, (float)min, (float)max);
+      v = (double)val;
+      return result;
+   }
+};
+
 //
 // Represents the combination of ImGui::DragFloat3 and all associated
 // CommandStack manipulation needs
 //
-class ScrubberVec3
+template<typename T, typename C = T>
+class Scrubber
 {
 public:
-   ScrubberVec3(std::function<void(glm::vec3, glm::vec3)> onChange)
-      : onChange(onChange)
-   {};
+   Scrubber() {};
 
 public:
-   void Update(const std::string& label, glm::vec3& value, float sensitivity = 1.0f)
+   bool Drag(const std::string& label, T& value, float speed = 1.0f)
    {
-      ImGui::DragFloat3(label.c_str(), &value.x, sensitivity);
+      ScrubProvider<T, C>::Drag(label.c_str(), value, speed);
       if (ImGui::IsItemActivated())
       {
          initialValue = value;
       }
 
-      if (ImGui::IsItemDeactivatedAfterEdit())
-      {
-         onChange(initialValue, value);
-      }
+      return ImGui::IsItemDeactivatedAfterEdit();
    }
 
+   bool Slide(const std::string& label, T& value, C min, C max)
+   {
+      ScrubProvider<T, C>::Slide(label.c_str(), value, min, max);
+      if (ImGui::IsItemActivated())
+      {
+         initialValue = value;
+      }
+
+      return ImGui::IsItemDeactivatedAfterEdit();
+   }
+
+   T GetLastValue() { return initialValue; }
+
 private:
-   std::function<void(glm::vec3, glm::vec3)> onChange;
-   glm::vec3 initialValue;
+   T initialValue;
 };
 
 }; // namespace Editor

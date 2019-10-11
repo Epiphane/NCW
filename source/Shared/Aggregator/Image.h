@@ -7,7 +7,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Engine/Graphics/FontManager.h>
+#include <Engine/Graphics/Program.h>
 #include <Engine/Aggregator/Aggregator.h>
 
 namespace CubeWorld
@@ -28,7 +28,7 @@ struct ImageData
 class Image : public Engine::Aggregator<ImageData>
 {
 public:
-   Image(Engine::UIRoot* root);
+   Image(Bounded* bounds);
 
    void ConnectToTexture(const Region& region, GLuint texture);
 

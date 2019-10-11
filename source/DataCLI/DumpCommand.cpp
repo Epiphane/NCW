@@ -29,14 +29,14 @@ Maybe<std::string> DumpCommand::Run(int argc, char** argv)
 
    if (Maybe<void> result = DiskFileSystem{}.MakeDirectory(mDestination); !result)
    {
-      return result.Failure().WithContext("Failed to make directory %1", mDestination);
+      return result.Failure().WithContext("Failed to make directory {path}", mDestination);
    }
 
    std::string databasePath = Paths::Canonicalize(mFilename);
    Maybe<std::unique_ptr<Database>> maybeDb = Database::OpenRead(databasePath);
    if (!maybeDb)
    {
-      return maybeDb.Failure().WithContext("Failed to open database at %1", databasePath);
+      return maybeDb.Failure().WithContext("Failed to open database at {path}", databasePath);
    }
 
    std::unique_ptr<Database> database = std::move(*maybeDb);
@@ -47,7 +47,7 @@ Maybe<std::string> DumpCommand::Run(int argc, char** argv)
       Maybe<FileSystem::FileHandle> maybeHandle = fs.OpenFileWrite(path);
       if (!maybeHandle)
       {
-         return maybeHandle.Failure().WithContext("Failed opening %1 for writing", path);
+         return maybeHandle.Failure().WithContext("Failed opening {path} for writing", path);
       }
 
       FileSystem::FileHandle handle = *maybeHandle;
@@ -62,7 +62,7 @@ Maybe<std::string> DumpCommand::Run(int argc, char** argv)
          return write.Failure();
       }
 
-      LOG_ALWAYS("Exported %1", blob.key);
+      LOG_ALWAYS("Exported {key}", blob.key);
 
       return Success;
    });

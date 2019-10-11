@@ -1,7 +1,9 @@
 // By Thomas Steinke
 
 #include <glm/ext.hpp>
+#include <RGBBinding/BindingPropertyHelper.h>
 #include <RGBLogger/Logger.h>
+#include <RGBNetworking/YAMLSerializer.h>
 #include <RGBText/StringHelper.h>
 #include <Shared/Helpers/Asset.h>
 
@@ -21,26 +23,28 @@ SimpleAnimationController::SimpleAnimationController()
 {}
 
 SimpleAnimationController::SimpleAnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
-   : current("")
+   : current(0)
    , time(0)
-   , next("")
+   , cooldown(0)
+   , next(0)
    , transitionCurrent(0)
    , transitionStart(0)
    , transitionEnd(0)
-   , emitters(emitters)
+   , emitterContainer(emitters)
 {
 }
 
 void SimpleAnimationController::Reset()
 {
-   if (emitters)
+   if (emitterContainer)
    {
-      emitters->systems.clear();
+      emitterContainer->systems.clear();
    }
    skeletons.clear();
    animations.clear();
    stances.clear();
    states.clear();
+   current = 0;
 }
 
 void SimpleAnimationController::UpdateSkeletonStates()
@@ -50,7 +54,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
       anims->states.clear();
    }
 
-   for (const auto&[name, state] : states)
+   for (const auto& state : states)
    {
       // Start at the skeleton that _created_ the state. This way we don't add
       // state details for a sub-skeleton's state to it's parent, thus changing
@@ -65,11 +69,11 @@ void SimpleAnimationController::UpdateSkeletonStates()
             continue;
          }
 
-         bool modified = !found;
+         // If this is the first entity (owner), then set modified=true.
          found = true;
 
          SkeletonAnimations::State newState;
-         newState.name = name;
+         newState.name = state.name;
          newState.next = state.next;
          newState.length = state.length;
          newState.stance = state.stance;
@@ -109,32 +113,100 @@ void SimpleAnimationController::UpdateSkeletonStates()
             newState.keyframes.push_back(std::move(newKeyframe));
          }
 
-         if (modified)
-         {
-            anims->states.emplace(name, std::move(newState));
-         }
+         anims->states.emplace(state.name, std::move(newState));
 
          skipped.clear();
+      }
+
+      // Update effects
+      for (const Emitter& emitter : state.particles)
+      {
+         (void)emitter;
+         auto it = std::find_if(
+            animations.begin(),
+            animations.end(),
+            [&](const auto& component) { return component->entity == emitter.entity; });
+         assert(it != animations.end());
+
+         Engine::ComponentHandle<SkeletonAnimations> anims = *it;
+         std::vector<SkeletonAnimations::ParticleEffect>& effectDefs = anims->states[state.name].particles;
+
+         SkeletonAnimations::ParticleEffect effectDef;
+         effectDef.name = emitter.name;
+         effectDef.bone = emitter.bone;
+         effectDef.start = emitter.start;
+         effectDef.end = emitter.end;
+         BindingProperty config = emitter.Serialize();
+
+         // Figure out what's been modified.
+         std::string originalPath = Asset::Particle(effectDef.name);
+         Maybe<BindingProperty> original = YAMLSerializer::DeserializeFile(originalPath);
+         if (!original)
+         {
+            original.Failure().WithContext("Failed loading base particle system {path}", originalPath).Log();
+            effectDef.modifications = config;
+         }
+         else
+         {
+            effectDef.modifications = BindingPropertyHelper::Difference(*original, config);
+         }
+
+         effectDefs.push_back(std::move(effectDef));
+      }
+
+      // Update events
+      for (const auto& evt : state.events)
+      {
+         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == evt.entity; });
+         assert(it != animations.end());
+
+         SkeletonAnimations& anims = **it;
+         std::vector<SkeletonAnimations::Event>& eventDefs = anims.states[state.name].events;
+
+         SkeletonAnimations::Event eventDef = evt;
+         eventDefs.push_back(eventDef);
+      }
+
+      // Update events
+      for (const auto& trans : state.transitions)
+      {
+         auto it = std::find_if(animations.begin(), animations.end(), [&](const auto& component) { return component->entity == trans.entity; });
+         assert(it != animations.end());
+
+         SkeletonAnimations& anims = **it;
+         anims.states[state.name].transitions.push_back(trans);
       }
    }
 }
 
 void SimpleAnimationController::Play(const std::string& state, double startTime)
 {
-   current = state;
+   auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
+   if (it == states.end())
+   {
+      return;
+   }
+
+   current = size_t(it - states.begin());
    time = startTime;
 }
 
 void SimpleAnimationController::TransitionTo(const std::string& state, double transitionTime, double startTime)
 {
+   auto it = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == state; });
+   if (it == states.end())
+   {
+      return;
+   }
+
    // If a transition is in flight, skip to the end of it.
    if (current != next)
-   { 
+   {
       current = next;
       time = transitionCurrent;
    }
 
-   next = state;
+   next = size_t(it - states.begin());
    transitionStart = startTime;
    transitionCurrent = startTime;
    transitionEnd = startTime + transitionTime;
@@ -145,11 +217,6 @@ void SimpleAnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> sk
    skeletons.push_back(skeleton);
 
    const auto addSkeletonName = [&](const Skeleton::Bone& b) { return b; };
-   //   Skeleton::Bone result = b;
-   //   result.name = skeleton->name + "." + b.name;
-   //   return result;
-   //};
-
    for (const Skeleton::Stance& s : skeleton->stances)
    {
       Stance& stance = stances[s.name];
@@ -216,7 +283,14 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
    for (const auto& [name, s] : anims->states)
    {
-      State& state = states[name];
+      auto stateIt = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == name; });
+      if (stateIt == states.end())
+      {
+         states.push_back(State{});
+         stateIt = states.end() - 1;
+      }
+
+      State& state = *stateIt;
 
       if (state.name.empty())
       {
@@ -234,7 +308,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
             const auto it = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const SkeletonAnimations::Keyframe& kf) { return kf.time == k.time; });
             if (it == state.keyframes.end())
             {
-               LOG_ERROR("Keyframe at time %1 has no match in the base state", k.time);
+               LOG_ERROR("Keyframe at time {time} has no match in the base state", k.time);
             }
             else
             {
@@ -244,46 +318,55 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
             }
          }
       }
-   }
 
-   // Add particle effects
-   for (const auto& [name, effects] : anims->effects)
-   {
-      State& state = states[name];
-
-      if (state.name.empty())
+      // Add particle effects
+      for (const auto& particleDefinition : s.particles)
       {
-         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
-         assert(false);
-      }
-
-      for (const auto& effectDef : effects)
-      {
-         MultipleParticleEmitters::Emitter effect(
-            Asset::Particle(effectDef.name),
+         // Construct the base system.
+         Emitter effect(
+            Asset::Particle(particleDefinition.name),
             Asset::ParticleShaders(),
             Asset::Image("")
          );
 
+         // Set MultipleParticleEmitter properties.
          effect.useEntityTransform = false;
          effect.update = false;
          effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
+         effect.ApplyConfiguration(Asset::Image(""), particleDefinition.modifications);
 
-         EmitterRef ref;
-         ref.emitter = emitters->systems.size();
-         ref.bone = effectDef.bone;
-         ref.start = effectDef.start;
-         ref.end = effectDef.end;
+         // Set state properties.
+         effect.entity = anims->entity;
+         effect.bone = particleDefinition.bone;
+         effect.start = particleDefinition.start;
+         effect.end = particleDefinition.end;
 
-         emitters->systems.push_back(std::move(effect));
-         state.emitters.push_back(std::move(ref));
+         state.particles.push_back(std::move(effect));
+      }
+
+      // Add events
+      for (const SkeletonAnimations::Event& eventDef : s.events)
+      {
+         Event evt = eventDef;
+         evt.entity = anims->entity;
+
+         state.events.push_back(std::move(evt));
+      }
+
+      // Add transitions
+      for (const SkeletonAnimations::Transition& def : s.transitions)
+      {
+         Transition trans = def;
+         trans.entity = anims->entity;
+
+         state.transitions.push_back(std::move(trans));
       }
    }
 }
 
 void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   bool seamlessLoop = true;
    entities.Each<AnimationSystemController>([&](AnimationSystemController& controller) {
       if (controller.paused)
       {
@@ -291,6 +374,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
          controller.nextTick = 0;
       }
       dt *= controller.speed;
+      seamlessLoop = controller.seamlessLoop;
    });
 
    using Keyframe = SkeletonAnimations::Keyframe;
@@ -320,11 +404,11 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       }
       else
       {
-         controller.time += dt;
-         if (controller.time > state.length)
+         controller.time += dt / state.length;
+         if (controller.time > 1)
          {
-            controller.time = state.length;
-            controller.cooldown = 1.0f;
+            controller.time = 1;
+            controller.cooldown = seamlessLoop ? 0.0f : 1.0f;
          }
       }
 
@@ -338,11 +422,14 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
       bool isLastFrame = (keyframeIndex == keyframes.size() - 1);
       const Keyframe& src = keyframes[keyframeIndex];
       const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
-      const double dstTime = isLastFrame ? state.length : dst.time;
       float progress = 0.0f;
-      if (dstTime > src.time)
+      if (dst.time > src.time)
       {
-         progress = float(controller.time - src.time) / float(dstTime - src.time);
+         progress = float(controller.time - src.time) / float(dst.time - src.time);
+      }
+      else if (isLastFrame && glm::epsilonNotEqual(src.time, 1.0, 0.1))
+      {
+         progress = float(controller.time - src.time) / float(1.0 - src.time);
       }
 
       size_t boneId = 0;
@@ -415,30 +502,31 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
 
    // Update particle systems
    entities.Each<Engine::Transform, SimpleAnimationController>([&](Engine::Transform& transform, SimpleAnimationController& controller) {
-      const State& state = controller.states[controller.current];
+      auto& emitters = controller.states[controller.current].particles;
 
-      if (controller.emitters)
+      if (controller.emitterContainer)
       {
-         for (const SimpleAnimationController::EmitterRef& ref : state.emitters)
+         controller.emitterContainer->systems.clear();
+         for (SimpleAnimationController::Emitter& emitter : emitters)
          {
-            if (controller.time >= ref.start && controller.time <= ref.end)
+            controller.emitterContainer->systems.push_back(&emitter);
+            if (controller.time >= emitter.start && controller.time <= emitter.end)
             {
-               MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
-               if (!system.active)
+               if (!emitter.active)
                {
-                  system.Reset();
-                  system.active = true;
+                  emitter.Reset();
+                  emitter.active = true;
                }
-               system.update = true;
-               system.render = true;
+               emitter.update = true;
+               emitter.render = true;
 
                for (const auto& s : controller.skeletons)
                {
-                  if (s->boneLookup.count(ref.bone) != 0)
+                  if (s->boneLookup.count(emitter.bone) != 0)
                   {
-                     system.transform =
+                     emitter.transform =
                         transform.GetMatrix() *
-                        s->bones[s->boneLookup.at(ref.bone)].matrix *
+                        s->bones[s->boneLookup.at(emitter.bone)].matrix *
                         glm::rotate(glm::mat4(1), RADIANS(180), glm::vec3{0, 1, 0});
                      break;
                   }
@@ -446,7 +534,7 @@ void SimpleAnimationSystem::Update(Engine::EntityManager& entities, Engine::Even
             }
             else
             {
-               controller.emitters->systems[ref.emitter].active = false;
+               emitter.active = false;
             }
          }
       }

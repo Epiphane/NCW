@@ -118,11 +118,11 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
    events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
 
    updateMetric = DebugHelper::Instance().RegisterMetric("Physics Update", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
+      return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
 
    collisionMetric = DebugHelper::Instance().RegisterMetric("Collision Checks", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
+      return FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
    });
 }
 
@@ -132,7 +132,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 
    // Update position for all entities
    mUpdateClock.Reset();
-   entities.Each<Engine::Transform, Body>([&](Engine::Entity, Engine::Transform& transform, Body& body) {
+   entities.Each<Engine::Transform, Body>([&](Engine::Transform& transform, Body& body) {
       // TODO parent transforms make my brain hurt
       assert(!transform.GetParent());
 
@@ -209,7 +209,7 @@ void System::Receive(const Engine::ComponentAddedEvent<Collider>& e)
 {
    Engine::ComponentHandle<Collider> handle = e.component;
    Collider* collider = handle.get();
-   
+
    TransformHandle transform = e.entity.Get<Engine::Transform>();
    // TODO parent transforms !?
    assert(!transform->GetParent());
@@ -237,6 +237,46 @@ void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)
 {
 
 }
+
+/*
+System::CollisionIterator& System::CollisionIterator::operator++()
+{}
+
+bool System::CollisionIterator::operator==(const System::CollisionIterator&)
+{}
+
+Engine::Entity::ID System::CollisionIterator::operator*()
+{}
+
+const Engine::Entity::ID System::CollisionIterator::operator*() const
+{}
+
+System::CollisionIterator::CollisionIterator()
+{}
+
+System::CollisionIterator& System::CollisionIterator::operator=(const CollisionIterator&)
+{}
+
+System::CollisionIterator System::CollisionIterator::operator+(uint16_t)
+{}
+
+System::CollisionIterator System::CollisionView::begin()
+{}
+
+System::CollisionIterator System::CollisionView::end()
+{}
+
+const System::CollisionIterator System::CollisionView::begin() const
+{}
+
+const System::CollisionIterator System::CollisionView::end() const
+{}
+
+System::CollisionView System::Test(const glm::vec3&, const glm::vec3&)
+{
+   return CollisionView(*this);
+}
+*/
 
 ///
 ///
@@ -281,8 +321,10 @@ void Debug::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMED
 
    glm::mat4 perspective = mCamera->GetPerspective();
    glm::mat4 view = mCamera->GetView();
+   glm::mat4 model(1);
    program->UniformMatrix4f("uProjMatrix", perspective);
    program->UniformMatrix4f("uViewMatrix", view);
+   program->UniformMatrix4f("uModelMatrix", model);
 
    entities.Each<Engine::Transform, Collider>([&](Engine::Entity, Engine::Transform& transform, Collider& collider) {
       glm::vec3 pos = transform.GetAbsolutePosition();

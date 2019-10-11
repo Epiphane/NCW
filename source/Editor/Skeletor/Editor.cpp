@@ -17,9 +17,8 @@ namespace Editor
 namespace Skeletor
 {
 
-Editor::Editor(Engine::Input& input, const Controls::Options& options)
+Editor::Editor(Engine::Input& input)
    : UIRoot(&input)
-   , mInput(input)
 {
    // I wanna do this better
    mStateWindow.reset(new StateWindow(input, 600, 400, *mpRoot->GetAggregator<Aggregator::Image>(), nullptr));
@@ -31,12 +30,6 @@ Editor::Editor(Engine::Input& input, const Controls::Options& options)
 
    Add<Sidebar>();
    Add<Dock>();
-   Controls* controls = Add<Controls>(options);
-
-   // Organize everything
-   controls->ConstrainLeftAlignedTo(this);
-   controls->ConstrainBottomAlignedTo(this);
-   controls->ConstrainWidthTo(this, 0, 0.2);
 
    mStateWindow->SetState(std::move(state));
 }
@@ -50,8 +43,9 @@ void Editor::Update(TIMEDELTA dt)
 {
    UIRoot::Update(dt);
 
-   ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Preview");
+   ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(1000, 500), ImGuiCond_FirstUseEver);
+   ImGui::Begin("Skeletor");
    ImVec2 space = ImGui::GetContentRegionAvail();
    if (space.y > 0)
    {
@@ -64,7 +58,7 @@ void Editor::Update(TIMEDELTA dt)
       mStateWindow->SetSize(space);
       ImGui::ImageButton(
          (ImTextureID)(intptr_t)mStateWindow->GetFramebuffer().GetTexture(),
-         ImVec2(mStateWindow->GetWidth(), mStateWindow->GetHeight()),
+         ImVec2((float)mStateWindow->GetWidth(), (float)mStateWindow->GetHeight()),
          ImVec2(0, 1),
          ImVec2(1, 0),
          0

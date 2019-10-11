@@ -17,9 +17,6 @@
 namespace CubeWorld
 {
 
-namespace Shared
-{
-
 template <class BaseIterator> class DereferenceIterator : public BaseIterator {
 public:
    using value_type = typename BaseIterator::value_type::element_type;
@@ -40,6 +37,4 @@ template <typename Iterator> DereferenceIterator<Iterator> MakeDereferenceIterat
    return DereferenceIterator<Iterator>(t);
 }
 
-} // namespace Shared
-
-} // namespace CubeWorld
+}; // namespace CubeWorld

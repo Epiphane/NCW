@@ -28,6 +28,11 @@ namespace Engine
 using input_key_callback = std::function<void(int, int, int)>;
 
 //
+// Called when a character is inputted. Argument is the unicode character point.
+//
+using char_callback = std::function<void(unsigned int)>;
+
+//
 // Called for any event involving a mouse button (click, drag, press).
 // Arguments are (in order):
 //  1. Mouse button (e.g. GLFW_MOUSE_BUTTON_LEFT)
@@ -82,6 +87,29 @@ public:
       friend void keyCallback(GLFWwindow* window, int key, int /*scancode*/, int action, int mods);
       KeyCallbackLink* next;
       KeyCallbackLink* prev;
+   };
+
+   // Char callbacks are stored as a doubly-linked list, to allow for easy insertion and removal.
+   struct CharCallbackLink {
+      char_callback callback;
+
+      CharCallbackLink(Input* manager, const char_callback& callback)
+         : callback(callback)
+         , manager(manager)
+         , next(nullptr)
+         , prev(nullptr)
+      {};
+      ~CharCallbackLink()
+      {
+         manager->RemoveCallback(this);
+      }
+
+   private:
+      Input* manager;
+
+      friend class Input;
+      CharCallbackLink* next;
+      CharCallbackLink* prev;
    };
 
 public:
@@ -157,6 +185,7 @@ public:
 private:
    // The actual work for the above function.
    void RemoveCallback(KeyCallbackLink* link);
+   void RemoveCallback(CharCallbackLink* link);
 
 public:
    //
@@ -170,6 +199,12 @@ public:
    std::vector<std::unique_ptr<KeyCallbackLink>> AddCallback(const std::vector<KeyCombination>& keys, input_key_callback cb);
 
    //
+   // Register a callback to all text or key events
+   //
+   std::unique_ptr<CharCallbackLink> OnCharacter(char_callback cb);
+   std::unique_ptr<KeyCallbackLink> OnKey(input_key_callback cb);
+
+   //
    // Register a callback to mouse events
    //
    void OnMouseDown(mouse_button_callback cb) { mMouseDownCallback = cb; }
@@ -181,10 +216,13 @@ protected:
    // Trigger an event through the entire KeyCallback ring (to be called by subclasses)
    //
    void TriggerKeyCallbacks(int key, int action, int mods);
+   void TriggerCharCallbacks(unsigned int c);
 
 private:
    // The "key-ring" for callbacks, indexed by key.
    KeyCallbackLink* mKeyCallbacks[GLFW_KEY_LAST] = {nullptr};
+   KeyCallbackLink* mKeyCallback = nullptr;
+   CharCallbackLink* mCharCallback = nullptr;
    
 protected:
    mouse_button_callback mMouseDownCallback = nullptr;

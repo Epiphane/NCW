@@ -124,7 +124,7 @@ void SkeletonSystem::Update(Engine::EntityManager& entities, Engine::EventManage
                      auto it = std::find_if(collection.skeletons.begin(), collection.skeletons.end(), [&](const auto & other) { return other->name == components[0]; });
                      if (it == collection.skeletons.end())
                      {
-                        LOG_WARNING("Skeleton '%1' claims to have parent '%2', which is not in the collection", skeleton->name, skeleton->parent);
+                        LOG_WARNING("Skeleton {name} claims to have parent {parent}, which is not in the collection", skeleton->name, skeleton->parent);
                         bone.matrix = glm::mat4(1);
                      }
                      else

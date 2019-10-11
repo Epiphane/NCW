@@ -1,24 +1,25 @@
 ---
 name: fire
 shader: Voxel
+max-particles: 1000
 shader-uniforms:
   uVoxelSize: 0.1
   uColor0: [1, 0.94, 0.39, 0]
   uColor1: [1, 0.94, 0.14, 0.3]
   uColor2: [1, 0.46, 0.003, 0.6]
-  uColor3: [0.52, 0.007, 0, 1]
+shader-texture: 
 launcher:
   particles-per-second: 200
+  lifetime: 0
+particle:
+  spawn-age:
+    min: 0
+    max: 0.5
+  lifetime: 0.75
 shape: cone
 cone:
   direction: [0, 1, 0]
   radius: 0.45
-  height: 
+  height:
     min: 0.6
     max: 1.2
-particle:
-  spawn-age: 
-    min: 0
-    max: 0.5
-  lifetime: 0.75
-  size: 0.7

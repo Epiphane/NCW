@@ -30,7 +30,7 @@ namespace ParticleSpace
 {
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mParticleSpawner(&mEntities, Engine::Entity::ID(0))
+   : mParticleSpawner(&mEntities, Engine::Entity::ID(0, 0))
    , mInput(input)
    , mParent(parent)
 {
@@ -62,6 +62,8 @@ void MainState::Initialize()
    // Create a player component
    mParticleSpawner = mEntities.Create(0, 0, 0);
    mParticleSpawner.Add<Makeshift>([&](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+
       Engine::ComponentHandle<ParticleEmitter> emitter = mParticleSpawner.Get<ParticleEmitter>();
       if (!emitter)
       {
@@ -69,26 +71,26 @@ void MainState::Initialize()
          return;
       }
 
-      if (emitter->shape != ParticleEmitter::Shape::Trail || emitter->emitterLifetime == 0.0f)
+      if (emitter->shape != ParticleEmitter::Shape::Trail || emitter->launcher.lifetime == 0.0f)
       {
          mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({0, 0, 0});
          return;
       }
 
       // Reset emitter
-      if (emitter->age > emitter->emitterLifetime + emitter->particleLifetime + 1.0f)
+      if (emitter->age > emitter->launcher.lifetime + emitter->particle.lifetime + 1.0f)
       {
          emitter->Reset();
       }
 
-      if (emitter->age > emitter->emitterLifetime)
+      if (emitter->age > emitter->launcher.lifetime)
       {
          mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({1, 0, 0});
       }
       else
       {
          mParticleSpawner.Get<Engine::Transform>()->SetLocalPosition({
-            emitter->age / emitter->emitterLifetime,
+            emitter->age / emitter->launcher.lifetime,
             0,
             0,
          });

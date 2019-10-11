@@ -10,6 +10,7 @@
 #include <Shared/Components/VoxModel.h>
 #include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
+#include <Shared/Systems/AnimationEventSystem.h>
 #include <Shared/Systems/CameraSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
@@ -44,6 +45,9 @@ namespace Game
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
+      mSystems.Add<AnimationEventSystem>();
+      mSystems.Add<AnimationEventDebugSystem>();
+      mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
 
@@ -142,7 +146,7 @@ namespace Game
          }
       }
 
-      LOG_INFO("Generated %1 blocks", blocksCreated);
+      LOG_INFO("Generated {num} blocks", blocksCreated);
 
       return false;
    }
@@ -150,14 +154,32 @@ namespace Game
    void StupidState::Initialize()
    {
       mWindow.SetMouseLock(true);
-      
+
+      {
+         Entity dummy = mEntities.Create(5, 10, 0);
+         dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+         dummy.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
+         dummy.Add<SimplePhysics::Body>();
+         dummy.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
+         auto dummyController = dummy.Add<AnimationController>();
+
+         Engine::Entity part = mEntities.Create(0, 0, 0);
+         part.Get<Transform>()->SetParent(dummy);
+         part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 168.0f, 0);
+         dummyController->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
+         dummyController->AddAnimations(part.Add<SkeletonAnimations>("character"));
+      }
+
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<SimplePhysics::Body>();
       player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
-      auto controller = player.Add<AnimationController>(player.Add<MultipleParticleEmitters>());
+      auto controller = player.Add<AnimationController>();
+      
+      Entity debugger = mEntities.Create(0, 0, 0);
+      player.Add<AnimationEventDebugger>(debugger.Add<Simple3DRender>());
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
          auto anim = player.Get<AnimationController>();

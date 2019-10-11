@@ -63,6 +63,9 @@ ImguiContext::ImguiContext(Engine::Window& window)
    io.GetClipboardTextFn = GetClipboardText;
    io.ClipboardUserData = mWindow.get();
 
+   mKeyCallback = mWindow.OnKey(std::bind(&ImguiContext::OnKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+   mCharCallback = mWindow.OnCharacter(std::bind(&ImguiContext::OnChar, this, std::placeholders::_1));
+
    mCursors[ImGuiMouseCursor_Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
    mCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
    mCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);   // FIXME: GLFW doesn't have this.
@@ -119,6 +122,26 @@ ImguiContext::~ImguiContext()
    ImGui::DestroyContext();
 }
 
+void ImguiContext::OnKey(int key, int action, int)
+{
+   ImGuiIO& io = ImGui::GetIO();
+   if (action == GLFW_PRESS)
+      io.KeysDown[key] = true;
+   else if (action == GLFW_RELEASE)
+      io.KeysDown[key] = false;
+
+   // Modifiers are not reliable across systems
+   io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+   io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+   io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+   io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+}
+
+void ImguiContext::OnChar(unsigned int character)
+{
+   ImGui::GetIO().AddInputCharacter(character);
+}
+
 void ImguiContext::StartFrame(TIMEDELTA dt)
 {
    ImGuiIO& io = ImGui::GetIO();
@@ -139,7 +162,7 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
 
    // Update mouse position.
    auto mouse = mWindow.GetRawMousePosition();
-   io.MousePos = ImVec2((float)mouse.x, (float)mWindow.GetHeight() - mouse.y);
+   io.MousePos = ImVec2((float)mouse.x, (float)mWindow.GetHeight() - (float)mouse.y);
 
    // Update mouse click state
    for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++)
@@ -168,6 +191,11 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
          glfwSetInputMode(mWindow.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
    }
+
+   // Update scroll state
+   glm::tvec2<double> scroll = mWindow.GetMouseScroll();
+   io.MouseWheelH = (float)scroll.x;
+   io.MouseWheel = (float)scroll.y;
 
    // Start recording!
    ImGui::NewFrame();
@@ -216,7 +244,7 @@ void ImguiContext::Render()
    {
       return;
    }
-   
+
    // Setup GL state
    BIND_PROGRAM_IN_SCOPE(mProgram);
    ResetRenderState(drawData, fbWidth, fbHeight);

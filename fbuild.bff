@@ -247,6 +247,7 @@ Settings
 #include "dependencies/libnoise/libnoise.bff"
 #include "dependencies/libyaml/libyaml.bff"
 #include "dependencies/lodepng/lodepng.bff"
+#include "dependencies/MetaStuff/MetaStuff.bff"
 #include "dependencies/noiseutils/noiseutils.bff"
 #include "dependencies/rapidjson/rapidjson.bff"
 #include "dependencies/rhea/rhea.bff"

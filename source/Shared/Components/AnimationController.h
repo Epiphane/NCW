@@ -50,16 +50,11 @@ public:
       std::vector<glm::vec3> scales;
    };
 
-   using Transition = SkeletonAnimations::Transition;
-
    //
    // References an emitter in the MultipleParticleEmitters component.
    //
-   struct EmitterRef {
-      std::string bone;
-      size_t emitter;
-      double start;
-      double end;
+   struct ParticleEffect : public SkeletonAnimations::ParticleEffect {
+      Engine::ComponentHandle<Engine::Transform> spawned;
    };
 
    struct State {
@@ -69,8 +64,9 @@ public:
 
       double length;
       std::vector<Keyframe> keyframes;
-      std::vector<Transition> transitions;
-      std::vector<EmitterRef> emitters;
+      std::vector<SkeletonAnimations::Transition> transitions;
+      std::vector<SkeletonAnimations::Event> events;
+      std::vector<ParticleEffect> effects;
    };
 
    struct Stance {
@@ -85,7 +81,6 @@ public:
 public:
    // For initializing and loading data
    AnimationController();
-   AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters);
 
    void Reset();
 
@@ -101,6 +96,8 @@ public:
 private:
    // Skeleton and model objects
    friend class AnimationSystem;
+   friend class AnimationEventSystem;
+   friend class AnimationEventDebugSystem;
    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
 
    // Pair of skeleton ID and bone ID
@@ -130,9 +127,6 @@ public:
    size_t next;
    double transitionCurrent;
    double transitionStart, transitionEnd;
-
-   // Particle system emitters.
-   Engine::ComponentHandle<MultipleParticleEmitters> emitters;
 };
 
 }; // namespace CubeWorld

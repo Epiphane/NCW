@@ -238,7 +238,7 @@ Maybe<VoxFormat::Chunk> VoxFormat::ReadChunk(FileSystem& fs, FileSystem::FileHan
       Maybe<Chunk> child = ReadChunk(fs, handle);
       if (!child)
       {
-         return child.Failure().WithContext("Failed reading child %1 of %2 chunk", chunk.children.size(), chunk.id());
+         return child.Failure().WithContext("Failed reading child {num} of {id} chunk", chunk.children.size(), chunk.id());
       }
       read += sizeof(child->header) + child->header.length + child->header.childLength;
       chunk.children.push_back(std::move(*child));
@@ -307,7 +307,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
 
       if (chunk.header.length != sizeof(SIZE))
       {
-         return Failure("Chunk body was not %1 bytes (was %2 instead)", sizeof(SIZE), chunk.header.length);
+         return Failure("Chunk body was not {expected} bytes (was {actual} instead)", sizeof(SIZE), chunk.header.length);
       }
       SIZE* size = (SIZE*)data;
       m.width = size->width;
@@ -323,7 +323,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
       size_t chunkSize = sizeof(XYZI) + sizeof(uint32_t) * xyzi->numVoxels;
       if (chunk.header.length != chunkSize)
       {
-         return Failure("Chunk body was not %1 bytes (was %2 instead)", chunkSize, chunk.header.length);
+         return Failure("Chunk body was not {expected} bytes (was {actual} instead)", chunkSize, chunk.header.length);
       }
 
       model->models[model->models.size() - 1].voxels.assign(
@@ -350,18 +350,18 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          }
          else
          {
-            return Failure("Unrecognized attribute: %1=%2", keyval.first, keyval.second);
+            return Failure("Unrecognized attribute: {key}={val}", keyval.first, keyval.second);
          }
       }
 
       nTRN::Body* body = (nTRN::Body*)data;
       if (body->reserved != -1)
       {
-         return Failure("Reserved id was not -1 (was %1)", body->reserved);
+         return Failure("Reserved id was not -1 (was {val})", body->reserved);
       }
       if (body->nFrames != 1)
       {
-         return Failure("Num frames was not 1 (was %1)", body->nFrames);
+         return Failure("Num frames was not 1 (was {num})", body->nFrames);
       }
 
       node.child = body->child;
@@ -381,7 +381,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
             std::vector<std::string> components = StringHelper::Split(keyval.second, ' ');
             if (components.size() != 3)
             {
-               return Failure("Unexpected number of components: %1 must have 3 parts, not %2", keyval.second, components.size());
+               return Failure("Unexpected number of components: {attr} must have 3 parts, not {num}", keyval.second, components.size());
             }
             node.translate[0] = std::stoi(components[0]);
             node.translate[1] = std::stoi(components[1]);
@@ -389,7 +389,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          }
          else
          {
-            return Failure("Unrecognized frame attribute: %1=%2", keyval.first, keyval.second);
+            return Failure("Unrecognized frame attribute: {key}={value}", keyval.first, keyval.second);
          }
       }
 
@@ -404,7 +404,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
       auto attributes = ParseDict(data);
       if (attributes.size() > 0)
       {
-         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
+         return Failure("Unrecognized attribute: {key}={value}", attributes[0].first, attributes[1].second);
       }
 
       nGRP::Body* body = (nGRP::Body*)data;
@@ -425,7 +425,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
       auto attributes = ParseDict(data);
       if (attributes.size() > 0)
       {
-         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
+         return Failure("Unrecognized attribute: {key}={value}", attributes[0].first, attributes[1].second);
       }
 
       nSHP::Body* body = (nSHP::Body*)data;
@@ -433,7 +433,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
 
       if (body->nModels != 1)
       {
-         return Failure("nSHP object must have only 1 model (value: %1)", body->nModels);
+         return Failure("nSHP object must have only 1 model (value: {value})", body->nModels);
       }
 
       // Parse the one model
@@ -443,7 +443,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
       attributes = ParseDict(data);
       if (attributes.size() > 0)
       {
-         return Failure("Unrecognized attribute: %1=%2", attributes[0].first, attributes[1].second);
+         return Failure("Unrecognized attribute: {key}={value}", attributes[0].first, attributes[1].second);
       }
 
       model->shapes.emplace(node.id, node);
@@ -472,14 +472,14 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          }
          else
          {
-            return Failure("Unrecognized attribute: %1=%2", keyval.first, keyval.second);
+            return Failure("Unrecognized attribute: {key}={value}", keyval.first, keyval.second);
          }
       }
 
       int32_t reserved = *data++;
       if (reserved != -1)
       {
-         return Failure("Reserved ID was not -1 (was %1)", reserved);
+         return Failure("Reserved ID was not -1 (was {value})", reserved);
       }
 
       model->layers.push_back(layer);
@@ -488,7 +488,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
    {
       if (chunk.header.length != sizeof(model->palette))
       {
-         return Failure("Chunk body was not %1 bytes (was %2 instead)", sizeof(model->palette), chunk.header.length);
+         return Failure("Chunk body was not {expected} bytes (was {actual} instead)", sizeof(model->palette), chunk.header.length);
       }
 
       memcpy(model->palette, data, sizeof(model->palette));
@@ -510,7 +510,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
             else if (keyval.second == "_emit") { material.type = VoxModelData::Material::Emit; }
             else
             {
-               return Failure("Unrecognized material type: %1", keyval.second);
+               return Failure("Unrecognized material type: {type}", keyval.second);
             }
          }
          else if (keyval.first == "_weight")
@@ -547,7 +547,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          }
          else
          {
-            return Failure("Unknown material property: %1=%2", keyval.first, keyval.second);
+            return Failure("Unknown material property: {key}={value}", keyval.first, keyval.second);
          }
       }
 
@@ -563,7 +563,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
       }
       if (properties[0].first != "_type")
       {
-         return Failure("First key expected to be _type (was %1)", properties[0].first);
+         return Failure("First key expected to be _type (was {key})", properties[0].first);
       }
 
       std::string type = properties[0].second;
@@ -577,14 +577,14 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[4].first != "_area" ||
              properties[5].first != "_disk")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->sun.intensity = std::stof(properties[1].second);
          std::vector<std::string> components = StringHelper::Split(properties[2].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->sun.color[0] = uint8_t(std::stoi(components[0]));
          model->sun.color[1] = uint8_t(std::stoi(components[1]));
@@ -592,7 +592,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          components = StringHelper::Split(properties[3].second, ' ');
          if (components.size() != 2)
          {
-            return Failure("Unexpected number of components: %1 must have 2 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 2 parts, not {num}", properties[2].second, components.size());
          }
          model->sun.angle[0] = int8_t(std::stoi(components[0]));
          model->sun.angle[1] = int8_t(std::stoi(components[1]));
@@ -606,14 +606,14 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[1].first != "_i" ||
              properties[2].first != "_k")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->sky.intensity = std::stof(properties[1].second);
          std::vector<std::string> components = StringHelper::Split(properties[2].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num", properties[2].second, components.size());
          }
          model->sky.color[0] = uint8_t(std::stoi(components[0]));
          model->sky.color[1] = uint8_t(std::stoi(components[1]));
@@ -631,14 +631,14 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[6].first != "_o3_d" ||
              properties[7].first != "_o3_k")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->atm.rayleighDensity = std::stof(properties[1].second);
          std::vector<std::string> components = StringHelper::Split(properties[2].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->atm.rayleighColor[0] = uint8_t(std::stoi(components[0]));
          model->atm.rayleighColor[1] = uint8_t(std::stoi(components[1]));
@@ -648,7 +648,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          components = StringHelper::Split(properties[4].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[4].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[4].second, components.size());
          }
          model->atm.mieColor[0] = uint8_t(std::stoi(components[0]));
          model->atm.mieColor[1] = uint8_t(std::stoi(components[1]));
@@ -659,7 +659,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          components = StringHelper::Split(properties[7].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[7].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[7].second, components.size());
          }
          model->atm.ozoneColor[0] = uint8_t(std::stoi(components[0]));
          model->atm.ozoneColor[1] = uint8_t(std::stoi(components[1]));
@@ -672,14 +672,14 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[1].first != "_d" ||
              properties[2].first != "_k")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->fog.density = std::stof(properties[1].second);
          std::vector<std::string> components = StringHelper::Split(properties[2].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->fog.color[0] = uint8_t(std::stoi(components[0]));
          model->fog.color[1] = uint8_t(std::stoi(components[1]));
@@ -697,7 +697,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[6].first != "_blade_n" ||
              properties[7].first != "_blade_r")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->lens.fov = std::stoi(properties[1].second);
@@ -717,7 +717,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[3].first != "_aspect" ||
              properties[4].first != "_threshold")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->bloom.mix = std::stof(properties[1].second);
@@ -732,7 +732,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[1].first != "_aces" ||
              properties[2].first != "_gam")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->tone.aces = properties[1].second == "1";
@@ -745,13 +745,13 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[1].first != "_color" ||
              properties[2].first != "_hor")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          std::vector<std::string> components = StringHelper::Split(properties[1].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->ground.color[0] = uint8_t(std::stoi(components[0]));
          model->ground.color[1] = uint8_t(std::stoi(components[1]));
@@ -764,13 +764,13 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          if (properties.size() != 2 ||
              properties[1].first != "_color")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          std::vector<std::string> components = StringHelper::Split(properties[1].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->bg.color[0] = uint8_t(std::stoi(components[0]));
          model->bg.color[1] = uint8_t(std::stoi(components[1]));
@@ -783,13 +783,13 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[1].first != "_color" ||
              properties[2].first != "_width")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          std::vector<std::string> components = StringHelper::Split(properties[1].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->edge.color[0] = uint8_t(std::stoi(components[0]));
          model->edge.color[1] = uint8_t(std::stoi(components[1]));
@@ -805,13 +805,13 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[3].first != "_width" ||
              properties[4].first != "_display")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          std::vector<std::string> components = StringHelper::Split(properties[1].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->grid.color[0] = uint8_t(std::stoi(components[0]));
          model->grid.color[1] = uint8_t(std::stoi(components[1]));
@@ -833,7 +833,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
              properties[7].first != "_bg_a" ||
              properties[8].first != "_scale")
          {
-            return Failure("Unexpected property length or order for %1 rOBJ", type);
+            return Failure("Unexpected property length or order for {type} rOBJ", type);
          }
 
          model->settings.ground = properties[1].second == "1";
@@ -846,7 +846,7 @@ Maybe<void> VoxFormat::ParseChunk(VoxModelData* model, const Chunk& chunk)
          std::vector<std::string> components = StringHelper::Split(properties[8].second, ' ');
          if (components.size() != 3)
          {
-            return Failure("Unexpected number of components: %1 must have 3 parts, not %2", properties[2].second, components.size());
+            return Failure("Unexpected number of components: {prop} must have 3 parts, not {num}", properties[2].second, components.size());
          }
          model->settings.scale[0] = uint8_t(std::stoi(components[0]));
          model->settings.scale[1] = uint8_t(std::stoi(components[1]));
@@ -890,7 +890,7 @@ Maybe<size_t> VoxFormat::WriteRenderObj(FileSystem& fs, FileSystem::FileHandle h
    // Write the chunk to disk.
    if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
    {
-      return write.Failure().WithContext("Failed to write %1-byte rOBJ chunk", data.size());
+      return write.Failure().WithContext("Failed to write {size}-byte rOBJ chunk", data.size());
    }
    return data.size();
 }
@@ -1042,7 +1042,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
 
       if (data->transforms.count(id) == 0)
       {
-         return Failure("Unexpected non-nTRN node: %1", id);
+         return Failure("Unexpected non-nTRN node: {id}", id);
       }
 
       const VoxModelData::TransformNode& node = data->transforms[id];
@@ -1110,7 +1110,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       part.name = part.id > 0 ? node.name : "root";
       if (part.name == "")
       {
-         part.name = Format::FormatString("Unnammed node %1", part.id);
+         part.name = FormatString("Unnammed node {id}", part.id);
       }
       // Combine rotation and translation
       part.transform = glm::translate(parent, glm::vec3{
@@ -1149,7 +1149,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          }
          else if (layer.name == "Exclude")
          {
-            LOG_DEBUG("Ignoring node %1 (%2), which is in the Exclude layer", node.id, node.name);
+            LOG_DEBUG("Ignoring node {id} ({name}), which is in the Exclude layer", node.id, node.name);
             continue;
          }
          else if (layer.name == "Hidden" || layer.name == "Debug" || layer.hidden)
@@ -1191,7 +1191,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
       }
       else
       {
-         return Failure("Expected a shape or group, but got transform for node %1", node.child);
+         return Failure("Expected a shape or group, but got transform for node {id}", node.child);
       }
    }
 
@@ -1221,12 +1221,12 @@ Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& pat
 
    if (strncmp(header.id, "VOX ", 4) != 0)
    {
-      return Failure("Header ID (%1) did not match expected (VOXV)", std::string(header.id, header.id + sizeof(header.id)));
+      return Failure("Header ID ({id}) did not match expected (VOXV)", std::string(header.id, header.id + sizeof(header.id)));
    }
 
    if (header.version != 150)
    {
-      return Failure("Header version is %1. Only 150 is supported", header.version);
+      return Failure("Header version is {version}. Only 150 is supported", header.version);
    }
 
    Maybe<Chunk> maybeChunk = ReadChunk(fs, handle);
@@ -1239,14 +1239,14 @@ Maybe<std::unique_ptr<VoxModelData>> VoxFormat::ReadScene(const std::string& pat
 
    if (chunk.header.id != Chunk::MAIN)
    {
-      return Failure("First chunk was %1 (%2), expected MAIN (%3).", chunk.id(), chunk.header.id, Chunk::MAIN);
+      return Failure("First chunk was {chunkId} ({headerId}), expected MAIN ({main}).", chunk.id(), chunk.header.id, Chunk::MAIN);
    }
 
    for (const Chunk& node : chunk.children)
    {
       if (Maybe<void> result = ParseChunk(model.get(), node); !result)
       {
-         return result.Failure().WithContext("Failed parsing %1 chunk", node.id());
+         return result.Failure().WithContext("Failed parsing {id} chunk", node.id());
       }
    }
 
@@ -1353,7 +1353,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
 
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
-         return write.Failure().WithContext("Failed to write %1-byte SIZE chunk", data.size());
+         return write.Failure().WithContext("Failed to write {size}-byte SIZE chunk", data.size());
       }
       chunkBytes += data.size();
 
@@ -1367,14 +1367,14 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
 
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], sizeof(Chunk::Header) + sizeof(uint32_t)); !write)
       {
-         return write.Failure().WithContext("Failed to write %1-byte XYZI chunk", sizeof(Chunk::Header) + sizeof(uint32_t));
+         return write.Failure().WithContext("Failed to write {size}-byte XYZI chunk", sizeof(Chunk::Header) + sizeof(uint32_t));
       }
       chunkBytes += data.size();
 
       // Write the voxel data next.
       if (Maybe<void> write = fs.WriteFile(handle, (void*)&model.voxels[0], sizeof(uint32_t) * model.voxels.size()); !write)
       {
-         return write.Failure().WithContext("Failed to write %1 voxels", sizeof(uint32_t) * model.voxels.size());
+         return write.Failure().WithContext("Failed to write {num} voxels", sizeof(uint32_t) * model.voxels.size());
       }
       chunkBytes += data.size();
    }
@@ -1526,14 +1526,14 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       }
       else
       {
-         return Failure("Could not find a node with ID %1", id);
+         return Failure("Could not find a node with ID {id}", id);
       }
 
       // Write the node.
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
          Chunk::Header* header = (Chunk::Header*)&data[0];
-         return write.Failure().WithContext("Failed to write %1-byte %2 chunk", data.size(), Chunk::ReadChunkID(header->id));
+         return write.Failure().WithContext("Failed to write {size}-byte %2 chunk", data.size(), Chunk::ReadChunkID(header->id));
       }
       chunkBytes += data.size();
    }
@@ -1587,7 +1587,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       // Write the chunk to disk.
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
-         return write.Failure().WithContext("Failed to write %1-byte LAYR chunk", data.size());
+         return write.Failure().WithContext("Failed to write {size}-byte LAYR chunk", data.size());
       }
       chunkBytes += data.size();
    }
@@ -1605,7 +1605,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
 
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
-         return write.Failure().WithContext("Failed to write %1-byte RGBA chunk", data.size());
+         return write.Failure().WithContext("Failed to write {size}-byte RGBA chunk", data.size());
       }
       chunkBytes += data.size();
    }
@@ -1637,7 +1637,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
             properties.push_back(std::make_pair("_type", "_metal"));
             break;
          default:
-            return Failure("Material %1 does not have a type", material.id);
+            return Failure("Material {id} does not have a type", material.id);
       }
 
       properties.push_back(std::make_pair("_weight", ToShortString(material.weight)));
@@ -1675,7 +1675,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       // Write the chunk to disk.
       if (Maybe<void> write = fs.WriteFile(handle, &data[0], data.size()); !write)
       {
-         return write.Failure().WithContext("Failed to write %1-byte MATL chunk", data.size());
+         return write.Failure().WithContext("Failed to write {size}-byte MATL chunk", data.size());
       }
       chunkBytes += data.size();
    }
@@ -1687,11 +1687,11 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_inf" },
          { "_i", ToShortString(voxModelData.sun.intensity) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.sun.color[0],
               voxModelData.sun.color[1],
               voxModelData.sun.color[2]) },
-         { "_angle", Format::FormatString("%1 %2", voxModelData.sun.angle[0], voxModelData.sun.angle[1]) },
+         { "_angle", FormatString("{} {}", voxModelData.sun.angle[0], voxModelData.sun.angle[1]) },
          { "_area", ToShortString(voxModelData.sun.area) },
          { "_disk", voxModelData.sun.disk ? "1" : "0" },
       });
@@ -1706,7 +1706,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_uni" },
          { "_i", ToShortString(voxModelData.sky.intensity) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.sky.color[0],
               voxModelData.sky.color[1],
               voxModelData.sky.color[2]) },
@@ -1722,20 +1722,20 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_atm" },
          { "_ray_d", ToShortString(voxModelData.atm.rayleighDensity) },
          { "_ray_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.atm.rayleighColor[0],
               voxModelData.atm.rayleighColor[1],
               voxModelData.atm.rayleighColor[2]) },
          { "_mie_d", ToShortString(voxModelData.atm.mieDensity) },
          { "_mie_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.atm.mieColor[0],
               voxModelData.atm.mieColor[1],
               voxModelData.atm.mieColor[2]) },
          { "_mie_g", ToShortString(voxModelData.atm.miePhase) },
          { "_o3_d", ToShortString(voxModelData.atm.ozoneDensity) },
          { "_o3_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.atm.ozoneColor[0],
               voxModelData.atm.ozoneColor[1],
               voxModelData.atm.ozoneColor[2]) },
@@ -1751,7 +1751,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_type", "_fog_uni" },
          { "_d", ToShortString(voxModelData.fog.density) },
          { "_k",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.fog.color[0],
               voxModelData.fog.color[1],
               voxModelData.fog.color[2]) },
@@ -1809,7 +1809,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_ground" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.ground.color[0],
               voxModelData.ground.color[1],
               voxModelData.ground.color[2]) },
@@ -1825,7 +1825,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_bg" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.bg.color[0],
               voxModelData.bg.color[1],
               voxModelData.bg.color[2]) },
@@ -1840,7 +1840,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_edge" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.edge.color[0],
               voxModelData.edge.color[1],
               voxModelData.edge.color[2]) },
@@ -1856,7 +1856,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
       result = WriteRenderObj(fs, handle, {
          { "_type", "_grid" },
          { "_color",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.grid.color[0],
               voxModelData.grid.color[1],
               voxModelData.grid.color[2]) },
@@ -1881,7 +1881,7 @@ Maybe<void> VoxFormat::Write(const std::string& path, const VoxModelData& voxMod
          { "_bg_c", voxModelData.settings.background ? "1" : "0" },
          { "_bg_a", voxModelData.settings.bgTransparent ? "1" : "0" },
          { "_scale",
-           Format::FormatString("%1 %2 %3",
+           FormatString("{} {} {}",
               voxModelData.settings.scale[0],
               voxModelData.settings.scale[1],
               voxModelData.settings.scale[2]) },

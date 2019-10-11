@@ -73,3 +73,34 @@ public:
 };
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::Skeleton;
+
+template<>
+inline auto registerMembers<Skeleton::Stance>()
+{
+   return members(
+      member("name", &Skeleton::Stance::name),
+      member("parent", &Skeleton::Stance::parent),
+      member("parents", &Skeleton::Stance::parents),
+      member("positions", &Skeleton::Stance::positions),
+      member("rotations", &Skeleton::Stance::rotations),
+      member("scales", &Skeleton::Stance::scales)
+   );
+}
+
+template<>
+inline auto registerMembers<Skeleton>()
+{
+   return members(
+      member("name", &Skeleton::name),
+      member("parent", &Skeleton::parent),
+      member("default_model", &Skeleton::defaultModel),
+      member("stances", &Skeleton::stances)
+   );
+}
+
+}; // namespace meta

@@ -26,7 +26,7 @@ void VoxModel::Load(const std::string& path)
    Maybe<Voxel::VoxModel*> maybeModel = Voxel::VoxFormat::Load(path);
    if (!maybeModel)
    {
-      LOG_ERROR(maybeModel.Failure().WithContext("Failed loading VOX model at %1", path).GetMessage());
+      maybeModel.Failure().WithContext("Failed loading VOX model at {path}", path).Log();
       return;
    }
 

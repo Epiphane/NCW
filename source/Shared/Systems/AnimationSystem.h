@@ -16,9 +16,10 @@ public:
 
 private:
    void UpdateEmitters(
+      Engine::EntityManager& entities,
+      AnimationController& controller,
       const Engine::Transform& transform,
-      const AnimationController& controller,
-      const AnimationController::State& state,
+      AnimationController::State& state,
       bool updateAllTransforms
    ) const;
 };

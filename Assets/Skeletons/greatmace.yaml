@@ -4,22 +4,20 @@ parent: character
 default_model: wood-greatmace02.vox
 stances:
 - name: base
-  inherit: 
-  bones:
-    greatmace.root:
-      parent: character.Attachment
+  parent:
+  parents:
+    greatmace.root: character.Attachment
 - name: resting
-  inherit: base
-  bones:
-    greatmace.root:
-      position: [0, 5, 0]
-    greatmace.Mace:
-      rotation: [0, 0, -135]
+  parent: base
+  positions:
+    greatmace.root: [0, 5, 0]
+  rotations:
+    greatmace.Mace: [0, 0, -135]
 - name: wield_twohands
-  inherit: resting
-  bones:
-    greatmace.Mace:
-      position: [-0.006328, 7.198518, 1.893515]
-      rotation: [0, 0, -0.011585]
-    greatmace.root:
-      parent: character.Shoulders
+  parent: resting
+  parents:
+    greatmace.root: character.Shoulders
+  positions:
+    greatmace.Mace: [-0.006328, 7.198518, 1.893515]
+  rotations:
+    greatmace.Mace: [0, 0, -0.011585]

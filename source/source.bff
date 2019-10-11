@@ -7,6 +7,7 @@
 #include "Library/RGBDesignPatterns/RGBDesignPatterns.bff"
 #include "Library/RGBFileSystem/RGBFileSystem.bff"
 #include "Library/RGBLogger/RGBLogger.bff"
+#include "Library/RGBMeta/RGBMeta.bff"
 #include "Library/RGBNetworking/RGBNetworking.bff"
 #include "Library/RGBSettings/RGBSettings.bff"
 #include "Library/RGBText/RGBText.bff"
@@ -25,6 +26,7 @@
                      + .LibNoiseIncludePaths
                      + .LibYamlIncludePaths
                      + .LodePNGIncludePaths
+                     + .MetaStuffIncludePaths
                      + .NoiseUtilsIncludePaths
                      + .RapidJsonIncludePaths
                      + .RheaIncludePaths

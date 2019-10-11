@@ -19,12 +19,6 @@ AnimationController::AnimationController()
    Reset();
 }
 
-AnimationController::AnimationController(Engine::ComponentHandle<MultipleParticleEmitters> emitters)
-   : emitters(emitters)
-{
-   Reset();
-}
-
 void AnimationController::Reset()
 {
    skeletons.clear();
@@ -42,11 +36,6 @@ void AnimationController::Reset()
    transitionCurrent = 0;
    transitionStart = 0;
    transitionEnd = 0;
-
-   if (emitters)
-   {
-      emitters->systems.clear();
-   }
 }
 
 void AnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton)
@@ -190,7 +179,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          for (size_t i = 0; i < mods.keyframes.size(); i++)
          {
             Keyframe& keyframe = newState.keyframes[i];
-            keyframe.time = mods.keyframes[i].time;
+            keyframe.time = mods.keyframes[i].time * newState.length;
             keyframe.positions.assign(stanceIt->positions.begin(), stanceIt->positions.end());
             keyframe.rotations.assign(stanceIt->rotations.begin(), stanceIt->rotations.end());
             keyframe.scales.assign(stanceIt->scales.begin(), stanceIt->scales.end());
@@ -204,10 +193,10 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
 
       for (const SkeletonAnimations::Keyframe& kframe : mods.keyframes)
       {
-         const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time; });
+         const auto keyframeIt = std::find_if(state.keyframes.begin(), state.keyframes.end(), [&](const Keyframe& k) { return k.time == kframe.time * state.length; });
          if (keyframeIt == state.keyframes.end())
          {
-            LOG_ERROR("Unable to find a keyframe with time %1 in the original skeleton", kframe.time);
+            LOG_ERROR("Unable to find a keyframe with time {time} in the original skeleton", kframe.time);
             continue;
          }
 
@@ -224,51 +213,24 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
             keyframeIt->scales[boneLookup.at(bone)] = scl;
          }
       }
-   }
 
-   // Add transitions
-   for (const auto&[name, transitions] : animations->transitions)
-   {
-      State& state = states[stateLookup.at(name)];
+      // Append transition and event data
+      state.transitions.insert(state.transitions.end(), mods.transitions.begin(), mods.transitions.end());
+      std::transform(mods.events.begin(), mods.events.end(), std::back_inserter(state.events), [&](SkeletonAnimations::Event evt) {
+         evt.start *= state.length;
+         evt.end *= state.length;
+         return evt;
+      });
 
-      // Append transition data
-      state.transitions.insert(state.transitions.end(), transitions.begin(), transitions.end());
-   }
-
-   // Add particle effects
-   for (const auto& [name, effects] : animations->effects)
-   {
-      State& state = states[stateLookup.at(name)];
-
-      if (state.name.empty())
-      {
-         LOG_ERROR("State %1 was not initialized properly, it had no state definition but had animations");
-         assert(false);
-      }
-
-      for (const auto& effectDef : effects)
-      {
-         MultipleParticleEmitters::Emitter effect(
-            Asset::Particle(effectDef.name),
-            Asset::ParticleShaders(),
-            Asset::Image("")
-         );
-
-         effect.useEntityTransform = false;
-         effect.update = false;
-         effect.render = false;
-         effect.ApplyConfiguration(Asset::Image(""), effectDef.modifications);
-         effect.Reset();
-
-         EmitterRef ref;
-         ref.emitter = emitters->systems.size();
-         ref.bone = effectDef.bone;
-         ref.start = effectDef.start;
-         ref.end = effectDef.end;
-
-         emitters->systems.push_back(std::move(effect));
-         state.emitters.push_back(std::move(ref));
-      }
+      // Add effects
+      std::transform(mods.particles.begin(), mods.particles.end(), std::back_inserter(state.effects), [&](const auto& effect) {
+         ParticleEffect result;
+         *(SkeletonAnimations::ParticleEffect *)(&result) = effect;
+         result.name = Asset::Particle(result.name);
+         result.start *= state.length;
+         result.end *= state.length;
+         return result;
+      });
    }
 }
 

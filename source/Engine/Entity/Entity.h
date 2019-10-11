@@ -28,20 +28,21 @@ class Entity {
 public:
    struct ID {
    public:
-      ID() : _id(0) {}
-      explicit ID(uint64_t id) : _id(id) {}
-      ID(uint32_t index, uint32_t version) : _id(uint64_t(index) | uint64_t(version) << 32UL) {}
+      ID() : _ind(0), _ver(0) {}
+      //explicit ID(uint64_t id) : _id(id) {}
+      ID(uint32_t index, uint32_t version) : _ind(index), _ver(version) {}
 
-      uint64_t id() const { return _id; }
+      uint64_t id() const { return uint64_t(_ind) | uint64_t(_ver) << 32UL; }
 
-      bool operator == (const ID &other) const { return _id == other._id; }
-      bool operator != (const ID &other) const { return _id != other._id; }
-      bool operator < (const ID &other) const { return _id < other._id; }
+      bool operator == (const ID &other) const { return id() == other.id(); }
+      bool operator != (const ID &other) const { return id() != other.id(); }
+      bool operator < (const ID &other) const { return id() < other.id(); }
 
-      uint32_t index() const { return _id & 0xffffffffUL; }
-      uint32_t version() const { return _id >> 32; }
+      uint32_t index() const { return _ind; }
+      uint32_t version() const { return _ver; }
    private:
-      uint64_t _id;
+      uint32_t _ind;
+      uint32_t _ver;
    };
 
 public:

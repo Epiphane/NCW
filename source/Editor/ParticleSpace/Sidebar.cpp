@@ -1,15 +1,17 @@
 // By Thomas Steinke
 
+#include <imgui.h>
+
 #include <RGBFileSystem/File.h>
 #include <RGBFileSystem/FileSystem.h>
+#include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <RGBSettings/SettingsProvider.h>
+#include <RGBText/Encoding.h>
 #include <Engine/Core/Window.h>
-#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/RectFilled.h>
-#include <Shared/UI/TextButton.h>
 
+#include "../Imgui/Extensions.h"
 #include "Sidebar.h"
 
 namespace CubeWorld
@@ -21,12 +23,8 @@ namespace Editor
 namespace ParticleSpace
 {
 
-using Engine::UIRoot;
-using UI::RectFilled;
-using UI::TextButton;
-
-Sidebar::Sidebar(UIRoot* root, UIElement* parent)
-   : RectFilled(root, parent, "ParticleSpaceSidebar", glm::vec4(0.2, 0.2, 0.2, 1))
+Sidebar::Sidebar(Engine::UIRoot* root, UIElement* parent)
+   : UIElement(root, parent, "ParticleSpaceSidebar")
    , mModified(true)
 {
    mFilename = SettingsProvider::Instance().Get("particle_space", "filename").GetStringValue();
@@ -36,57 +34,38 @@ Sidebar::Sidebar(UIRoot* root, UIElement* parent)
       mFilename = Asset::Particle("fire");
    }
 
-   RectFilled* foreground = Add<RectFilled>("ParticleSpaceSidebarFG", glm::vec4(0, 0, 0, 1));
-
-   foreground->ConstrainCenterTo(this);
-   foreground->ConstrainDimensionsTo(this, -4);
-
-   // Labels
-   Engine::UIStackView* buttons = foreground->Add<Engine::UIStackView>("ParticleSpaceSidebarStackView");
-   buttons->SetOffset(8.0);
-
-   TextButton::Options buttonOptions;
-   buttonOptions.text = "Open";
-   buttonOptions.onClick = std::bind(&Sidebar::LoadNewFile, this);
-   TextButton* load = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Save";
-   buttonOptions.onClick = std::bind(&Sidebar::SaveFile, this);
-   mSave = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Save As...";
-   buttonOptions.onClick = std::bind(&Sidebar::SaveNewFile, this);
-   TextButton* saveAs = buttons->Add<TextButton>(buttonOptions);
-
-   buttonOptions.text = "Discard Changes";
-   buttonOptions.onClick = std::bind(&Sidebar::DiscardChanges, this);
-   TextButton* discard = buttons->Add<TextButton>(buttonOptions);
-      
-   buttonOptions.text = "Quit";
-   buttonOptions.size = 13; // "> Save first!"
-   buttonOptions.onClick = std::bind(&Sidebar::Quit, this);
-   mQuit = buttons->Add<TextButton>(buttonOptions);
-
-   buttons->ConstrainTopAlignedTo(foreground);
-   buttons->ConstrainHorizontalCenterTo(foreground);
-   buttons->ConstrainWidthTo(foreground, -12);
-   load->ConstrainLeftAlignedTo(buttons, 2);
-   load->ConstrainWidthTo(buttons, -4);
-   load->ConstrainHeight(32);
-   mSave->ConstrainDimensionsTo(load);
-   mSave->ConstrainLeftAlignedTo(load);
-   saveAs->ConstrainDimensionsTo(mSave);
-   saveAs->ConstrainLeftAlignedTo(mSave);
-   discard->ConstrainDimensionsTo(saveAs);
-   discard->ConstrainLeftAlignedTo(saveAs);
-   mQuit->ConstrainDimensionsTo(discard);
-   mQuit->ConstrainLeftAlignedTo(discard);
-      
    root->Subscribe<Engine::ComponentAddedEvent<ParticleEmitter>>(*this);
    root->Subscribe<ParticleEmitterReadyEvent>(*this);
    root->Subscribe<ParticleEmitterModifiedEvent>(*this);
 
    SetModified(false);
+}
+
+void Sidebar::Update(TIMEDELTA)
+{
+   ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+   ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_Always);
+   ImGui::Begin("File", nullptr, ImGuiWindowFlags_NoResize);
+
+   ImVec2 space = ImGui::GetContentRegionAvail();
+   if (ImGui::Button("Open", ImVec2(space.x, 0)))
+   {
+      LoadNewFile();
+   }
+
+   float halfSize = (space.x - ImGui::GetStyle().ItemSpacing.x) / 2;
+   if (ImGuiEx::Button(mModified, "Save", ImVec2(halfSize, 0)))
+   {
+      SaveFile();
+   }
+
+   ImGui::SameLine();
+   if (ImGui::Button("Save as", ImVec2(halfSize, 0)))
+   {
+      SaveNewFile();
+   }
+
+   ImGui::End();
 }
 
 void Sidebar::Receive(const Engine::ComponentAddedEvent<ParticleEmitter>& evt)
@@ -121,9 +100,6 @@ void Sidebar::SetModified(bool modified)
    }
    title += Paths::GetFilename(mFilename);
    Engine::Window::Instance().SetTitle(title);
-
-   mSave->SetText(modified ? "*Save" : "Save");
-   mQuit->SetText("Quit");
 }
 
 void Sidebar::LoadNewFile()
@@ -161,28 +137,11 @@ void Sidebar::SaveFile()
    Maybe<void> written = YAMLSerializer{}.SerializeFile(mFilename, serialized);
    if (!written)
    {
-      LOG_ERROR("Failed writing file: %1", written.Failure().GetMessage());
+      written.Failure().WithContext("Failed writing file {path}", mFilename).Log();
    }
 
    mpRoot->Emit<ParticleEmitterSavedEvent>(mParticleSystem);
    SetModified(false);
-}
-
-void Sidebar::DiscardChanges()
-{
-   LoadFile(mFilename);
-}
-
-void Sidebar::Quit()
-{
-   if (!mModified)
-   {
-      Engine::Window::Instance().SetShouldClose(true);
-   }
-   else
-   {
-      mQuit->SetText("Save first!");
-   }
 }
 
 }; // namespace ParticleSpace

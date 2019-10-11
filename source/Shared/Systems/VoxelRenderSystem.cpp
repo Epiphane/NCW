@@ -53,7 +53,7 @@ std::unique_ptr<Engine::Graphics::Program> VoxelRenderSystem::program = nullptr;
 VoxelRenderSystem::VoxelRenderSystem(Engine::Graphics::Camera* camera) : mCamera(camera)
 {
    metric = DebugHelper::Instance().RegisterMetric("Voxel Render Time", [this]() -> std::string {
-      return Format::FormatString("%.2fms", mClock.Average() * 1000.0);
+      return FormatString("%.2fms", mClock.Average() * 1000.0);
    });
 }
 
@@ -103,7 +103,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       glm::mat4 model = transform.GetMatrix();
       program->UniformMatrix4f("uModelMatrix", model);
       program->UniformVector3f("uTint", glm::vec3(255.0f));
-      
+
       glDrawArrays(GL_POINTS, 0, render.mSize);
 
       CHECK_GL_ERRORS();
@@ -136,7 +136,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
    mClock.Elapsed();
 
    // Cleanup.
-   
+
 }
 
 }; // namespace CubeWorld

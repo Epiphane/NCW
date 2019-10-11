@@ -105,7 +105,7 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
 
    if (result->mMetadata.width == 0 || result->mMetadata.length == 0 || result->mMetadata.height == 0)
    {
-      return Failure{"Invalid dimensions: %1x%2x%3", result->mMetadata.width, result->mMetadata.length, result->mMetadata.height};
+      return Failure{"Invalid dimensions: {}x{}x{}", result->mMetadata.width, result->mMetadata.length, result->mMetadata.height};
    }
 
    std::vector<uint8_t> data;
@@ -204,7 +204,7 @@ Maybe<void> CubeFormat::Write(const std::string& path, const ModelData& model)
       int32_t ndx = Index(model.mMetadata, x, y, z);
       if (ndx < 0)
       {
-         return Failure("Attempting to save voxel at position {%1, %2, %3} even though the size is only %4x%5x%6",
+         return Failure("Attempting to save voxel at position \\{{}, {}, {}} even though the size is only {}x{}x{}",
             x, y, z,
             model.mMetadata.width,
             model.mMetadata.height,

@@ -59,13 +59,13 @@ public:
       }
    }
 
-   inline void *get(size_t n)
+   inline void* get(size_t n)
    {
       assert(n < mSize);
       return mBlocks[n / mBlockSize].get() + (n % mBlockSize) * mElementSize;
    }
 
-   inline const void *get(size_t n) const
+   inline const void* get(size_t n) const
    {
       assert(n < mSize);
       return mBlocks[n / mBlockSize].get() + (n % mBlockSize) * mElementSize;

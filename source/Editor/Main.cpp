@@ -10,14 +10,15 @@
 #include <libfswatch/c/libfswatch.h>
 #endif
 
-#include <Engine/Core/Input.h>
-#include <Engine/Core/Timer.h>
-#include <Engine/Core/Window.h>
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBLogger/Logger.h>
 #include <RGBLogger/StdoutLogger.h>
 #include <RGBLogger/DebugLogger.h>
 #include <RGBSettings/SettingsProvider.h>
 
+#include <Engine/Core/Input.h>
+#include <Engine/Core/Timer.h>
+#include <Engine/Core/Window.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include <Shared/UI/RectFilled.h>
@@ -25,7 +26,6 @@
 #include <Shared/UI/TextButton.h>
 
 #include "AnimationStation/Editor.h"
-#include "Command/CommandStack.h"
 #include "Command/Commands.h"
 #include "Constrainer/ConstrainerVC.h"
 #include "ParticleSpace/Editor.h"
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
       LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
       return 1;
    }
-   
+
    // Setup input
    auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
       window.SetShouldClose(true);
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
       {
          "Animation Station",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
             SettingsProvider::Instance().Set("main", "editor", "animation_station");
             animationStation->Start();
          }
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
       {
          "Skeletor",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
             SettingsProvider::Instance().Set("main", "editor", "skeletor");
             skeletor->Start();
          }
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
       {
          "Particle Space",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
             SettingsProvider::Instance().Set("main", "editor", "particle_space");
             particleSpace->Start();
          }
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
       {
          "Constrainer",
          [&]() {
-            Editor::CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
             SettingsProvider::Instance().Set("main", "editor", "constrainer");
             constrainer->Start();
          }
@@ -139,19 +139,19 @@ int main(int argc, char** argv)
    Editor::ImguiContext imgui(window);
 
    // Create editors
-   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(&window, controlsOptions);
+   animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window);
    animationStation->SetBounds(window);
    animationStation->SetName("Animation Station");
 
-   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(&window, controlsOptions);
+   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(window);
    particleSpace->SetBounds(window);
    particleSpace->SetName("Particle Space");
 
-   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window, controlsOptions);
+   skeletor = windowContent.Add<Editor::Skeletor::Editor>(window);
    skeletor->SetBounds(window);
    skeletor->SetName("Skeletor");
 
-   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerVC>(&window, controlsOptions);
+   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerVC>(window);
    constrainer->SetBounds(window);
    constrainer->SetName("Constrainer");
 
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
    // FPS clock
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug.RegisterMetric("FPS", [&clock]() -> std::string {
-      return Format::FormatString("%.1f", std::round(1.0 / clock.Average()));
+      return FormatString("%.1f", std::round(1.0 / clock.Average()));
    });
 
    // Attach mouse events to state
@@ -183,13 +183,13 @@ int main(int argc, char** argv)
 
    // Save the pointers so that the callback doesn't get deregistered.
    auto _1 = window.AddCallback(Engine::Window::CtrlKey(GLFW_KEY_Z), [&](int, int, int) {
-      Editor::CommandStack::Instance().Undo();
+      CommandStack::Instance().Undo();
    });
    auto _2 = window.AddCallback({
       Engine::Window::CtrlShiftKey(GLFW_KEY_Z),
       Engine::Window::CtrlKey(GLFW_KEY_Y)
    }, [&](int, int, int) {
-      Editor::CommandStack::Instance().Redo();
+      CommandStack::Instance().Redo();
    });
 
    // Start in Animation Station
@@ -221,17 +221,17 @@ int main(int argc, char** argv)
 
    Timer<100> windowContentRender;
    auto _3 = debug.RegisterMetric("Editor Render time", [&windowContentRender]() -> std::string {
-      return Format::FormatString("%.1f", windowContentRender.Average());
+      return FormatString("%.1f", windowContentRender.Average());
    });
 
    Timer<100> uiUpdateTime;
    auto _4 = debug.RegisterMetric("UI UpdateRoot", [&uiUpdateTime]() -> std::string {
-      return Format::FormatString("%.1f", uiUpdateTime.Average());
+      return FormatString("%.1f", uiUpdateTime.Average());
    });
 
    uiUpdateTime.Reset();
    windowContent.GetCurrent()->UpdateRoot();
-   LOG_ALWAYS("Time spent updating initial root: %1s", uiUpdateTime.Elapsed());
+   LOG_ALWAYS("Time spent updating initial root: {time}s", uiUpdateTime.Elapsed());
 
    do {
       double elapsed = clock.Elapsed();
@@ -240,6 +240,41 @@ int main(int argc, char** argv)
          TIMEDELTA dt = std::min(elapsed, SEC_PER_FRAME);
 
          imgui.StartFrame(dt);
+
+         ImGui::SetNextWindowPos(ImVec2(25, 550), ImGuiCond_FirstUseEver);
+         ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_FirstUseEver);
+         ImGui::Begin("Editors", nullptr, ImGuiWindowFlags_NoResize);
+
+         ImVec2 space = ImGui::GetContentRegionAvail();
+         if (ImGui::Button("Animation Station", ImVec2(space.x, 0)))
+         {
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
+            SettingsProvider::Instance().Set("main", "editor", "animation_station");
+            animationStation->Start();
+         }
+
+         if (ImGui::Button("Skeletor", ImVec2(space.x, 0)))
+         {
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
+            SettingsProvider::Instance().Set("main", "editor", "skeletor");
+            skeletor->Start();
+         }
+
+         if (ImGui::Button("Particle Space", ImVec2(space.x, 0)))
+         {
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
+            SettingsProvider::Instance().Set("main", "editor", "particle_space");
+            particleSpace->Start();
+         }
+
+         if (ImGui::Button("Constrainer", ImVec2(space.x, 0)))
+         {
+            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
+            SettingsProvider::Instance().Set("main", "editor", "constrainer");
+            constrainer->Start();
+         }
+
+         ImGui::End();
 
          // Basic prep
          window.Clear();

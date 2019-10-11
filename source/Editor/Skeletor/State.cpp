@@ -37,7 +37,7 @@ using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-   : mPlayer(&mEntities, Engine::Entity::ID(0))
+   : mPlayer(&mEntities, Engine::Entity::ID(0, 0))
    , mInput(input)
    , mParent(parent)
 {
@@ -101,8 +101,8 @@ void MainState::Initialize()
    const int size = 150;
    for (int i = -size; i <= size; ++i) {
       for (int j = -size; j <= size; ++j) {
-         double x = (double)i / (2 * size);
-         double y = (double)j / (2 * size);
+         double x = (double)i / (2 * (double)size);
+         double y = (double)j / (2 * (double)size);
          double expectedX = 1.0 - 4.0 * std::pow(y - 0.5, 2);
          double dist = 5.0 * std::abs(x - expectedX);
          dist += (rand() % 500) / 1000.0 - 0.25;
@@ -144,11 +144,11 @@ void MainState::Receive(const SkeletonClearedEvent&)
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
-   LOG_DEBUG("Adding skeleton %1", evt.filename);
+   LOG_DEBUG("Adding skeleton {path}", evt.filename);
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {
-      data.Failure().WithContext("Failed loading %1", evt.filename).Log();
+      data.Failure().WithContext("Failed loading {path}", evt.filename).Log();
       return;
    }
 

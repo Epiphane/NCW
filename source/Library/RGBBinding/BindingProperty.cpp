@@ -1,9 +1,34 @@
 // By Thomas Steinke
 
+#include <glm/gtc/epsilon.hpp>
+
 #include "BindingProperty.h"
 
 namespace CubeWorld
 {
+
+std::string BindingProperty::TypeToString(Type type)
+{
+   switch (type)
+   {
+   case kNullType:
+      return "Null";
+   case kTrueType:
+      return "True";
+   case kFalseType:
+      return "False";
+   case kNumberType:
+      return "Number";
+   case kStringType:
+      return "String";
+   case kObjectType:
+      return "Object";
+   case kArrayType:
+      return "Array";
+   default:
+      return "N/A";
+   }
+}
 
 const BindingProperty BindingProperty::Null = BindingProperty{};
 BindingProperty BindingProperty::_ = BindingProperty{};
@@ -249,12 +274,21 @@ const BindingProperty& BindingProperty::operator[](const char* key) const
 
 bool BindingProperty::operator==(const BindingProperty& other) const
 {
-   if (flags != other.flags)
+   if (IsNumber() && other.IsNumber())
+   {
+      if (glm::epsilonEqual(GetDoubleValue(), other.GetDoubleValue(), DBL_EPSILON))
+      {
+         return true;
+      }
+   }
+
+   if ((flags & kTypeMask) != (other.flags & kTypeMask))
    {
       return false;
    }
 
-   if (IsNumber()) { return data.numVal.u64 == other.data.numVal.u64; }
+   if (IsDouble()) { return glm::epsilonEqual(data.numVal.d, other.data.numVal.d, DBL_EPSILON); }
+   else if (IsNumber()) { return data.numVal.u64 == other.data.numVal.u64; }
    else if (IsString()) { return data.stringVal == other.data.stringVal; }
    else if (IsObject()) { return data.objectVal == other.data.objectVal; }
    else if (IsArray()) { return data.arrayVal == other.data.arrayVal; }
@@ -397,8 +431,27 @@ BindingProperty& BindingProperty::PushBack(BindingProperty val)
 
 void BindingProperty::PopBack()
 {
-   assert(IsArray() && "PopBack is only valid on an array");
-   data.arrayVal.pop_back();
+   if (IsArray())
+   {
+      data.arrayVal.pop_back();
+   }
+   if (IsObject())
+   {
+      data.objectVal.pop_back();
+   }
+}
+
+size_t BindingProperty::GetSize() const
+{
+   if (IsArray())
+   {
+      return data.arrayVal.size();
+   }
+   if (IsObject())
+   {
+      return data.objectVal.size();
+   }
+   return 0;
 }
 
 ///
@@ -546,6 +599,38 @@ BindingProperty::ConstPairIterator BindingProperty::end_pairs() const
       return ConstPairIterator(this, data.objectVal.size());
    default:
       return ConstPairIterator(this, 0);
+   }
+}
+
+BindingProperty::ObjectIterator BindingProperty::begin_object()
+{
+   return ObjectIterator(this, 0);
+}
+
+BindingProperty::ObjectIterator BindingProperty::end_object()
+{
+   switch (flags)
+   {
+   case kObjectFlag:
+      return ObjectIterator(this, data.objectVal.size());
+   default:
+      return ObjectIterator(this, 0);
+   }
+}
+
+BindingProperty::ConstObjectIterator BindingProperty::begin_object() const
+{
+   return ConstObjectIterator(this, 0);
+}
+
+BindingProperty::ConstObjectIterator BindingProperty::end_object() const
+{
+   switch (flags)
+   {
+   case kObjectFlag:
+      return ConstObjectIterator(this, data.objectVal.size());
+   default:
+      return ConstObjectIterator(this, 0);
    }
 }
 

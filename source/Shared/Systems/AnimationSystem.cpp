@@ -19,7 +19,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 {
    using Keyframe = AnimationController::Keyframe;
    using State = AnimationController::State;
-   using Transition = AnimationController::Transition;
+   using Transition = SkeletonAnimations::Transition;
 
    // First, update skeletons.
    entities.Each<AnimationController>([&](Engine::Entity entity, AnimationController& controller) {
@@ -53,7 +53,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                const auto& it = controller.stateLookup.find(state->next);
                if (it == controller.stateLookup.end())
                {
-                  LOG_ERROR("State %1 specified next='%2', which doesn't exist", state->name, state->next);
+                  LOG_ERROR("State {state} specified next={next}, which doesn't exist", state->name, state->next);
                   state->next = "";
                }
                else
@@ -75,8 +75,15 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 
          const Keyframe& src = keyframes[keyframeIndex];
          const Keyframe& dst = isLastFrame ? keyframes[0] : keyframes[keyframeIndex + 1];
-         const double dstTime = isLastFrame ? state->length : dst.time;
-         const float progress = float(controller.time - src.time) / float(dstTime - src.time);
+         float progress = 0.0f;
+         if (dst.time > src.time)
+         {
+            progress = float(controller.time - src.time) / float(dst.time - src.time);
+         }
+         else if (isLastFrame && glm::epsilonNotEqual(src.time, 1.0, 0.1))
+         {
+            progress = float(controller.time - src.time) / float(1.0 - src.time);
+         }
 
          size_t boneId = 0;
          for (Engine::ComponentHandle<Skeleton>& skeleton : controller.skeletons)
@@ -175,13 +182,13 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
                {
                   switch (trigger.type)
                   {
-                  case Transition::Trigger::GreaterThan:
+                  case Transition::Trigger::Type::GreaterThan:
                      valid &= controller.floatParams[trigger.parameter] >= trigger.doubleVal;
                      break;
-                  case Transition::Trigger::LessThan:
+                  case Transition::Trigger::Type::LessThan:
                      valid &= controller.floatParams[trigger.parameter] < trigger.doubleVal;
                      break;
-                  case Transition::Trigger::Bool:
+                  case Transition::Trigger::Type::Bool:
                      valid &= controller.boolParams[trigger.parameter] == trigger.boolVal;
                      break;
                   default:
@@ -248,13 +255,10 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          }
       }
 
-      if (controller.emitters)
+      UpdateEmitters(entities, controller, transform, controller.states[controller.current], false);
+      if (prevState != controller.current)
       {
-         UpdateEmitters(transform, controller, controller.states[controller.current], false);
-         if (prevState != controller.current)
-         {
-            UpdateEmitters(transform, controller, controller.states[prevState], true);
-         }
+         UpdateEmitters(entities, controller, transform, controller.states[prevState], true);
       }
    });
 
@@ -274,43 +278,50 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
 }
 
 void AnimationSystem::UpdateEmitters(
+   Engine::EntityManager& entities,
+   AnimationController& controller,
    const Engine::Transform& transform,
-   const AnimationController& controller,
-   const AnimationController::State& state,
+   AnimationController::State& state,
    bool updateAllTransforms
 ) const
 {
-   for (const AnimationController::EmitterRef& ref : state.emitters)
+   for (AnimationController::ParticleEffect& effect : state.effects)
    {
       bool updateTransform = updateAllTransforms;
 
-      MultipleParticleEmitters::Emitter& system = controller.emitters->systems[ref.emitter];
-      if (controller.time >= ref.start && controller.time <= ref.end)
+      bool active = controller.time >= effect.start && controller.time <= effect.end;
+      if (active)
       {
-         if (!system.active)
+         if (!effect.spawned)
          {
-            system.Reset();
-            system.active = true;
+            Engine::Entity entity = entities.Create();
+
+            effect.spawned = entity.Add<Engine::Transform>(glm::vec3(0));
+            auto emitter = entity.Add<ParticleEmitter>(effect.name);
+            emitter->destroyOnComplete = true;
+            emitter->active = true;
+            emitter->update = true;
+            emitter->render = true;
          }
-         system.update = true;
-         system.render = true;
          updateTransform = true;
       }
-      else
-      {
-         controller.emitters->systems[ref.emitter].active = false;
-      }
 
-      if (updateTransform)
+      if (updateTransform && effect.spawned)
       {
          for (const auto& s : controller.skeletons)
          {
-            if (s->boneLookup.count(ref.bone) != 0)
+            if (s->boneLookup.count(effect.bone) != 0)
             {
-               system.transform = transform.GetMatrix() * s->bones[s->boneLookup.at(ref.bone)].matrix;
+               effect.spawned->SetMatrix(transform.GetMatrix() * s->bones[s->boneLookup.at(effect.bone)].matrix);
                break;
             }
          }
+      }
+
+      if (!active)
+      {
+         // Release emitter
+         effect.spawned = Engine::ComponentHandle<Engine::Transform>();
       }
    }
 }

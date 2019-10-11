@@ -14,8 +14,6 @@
 #pragma warning(default : 4201)
 
 #include "../GLSL.h"
-//#include "../tiny_obj_loader.h"
-//#include "../rendererDebug.h"
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
@@ -30,8 +28,6 @@
 #define DEGREES(radians) (radians * RADIANS_TO_DEG)
 #define RADIANS(degrees) (degrees * DEG_TO_RADIANS)
 
-#define DEBUG_LOG_VAL(val) () //RendererDebug::Instance().log(std::to_string(val), true);
-#define DEBUG_LOG(val) () //RendererDebug::Instance().log(val, true);
 #define INIT_BENCHMARK float _clock = glfwGetTime();
 #define COMPUTE_BENCHMARK(samp, msg, everyframe) {\
    static float _samples[samp] = {1};\

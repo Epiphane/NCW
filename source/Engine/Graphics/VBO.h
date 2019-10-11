@@ -53,8 +53,8 @@ public:
    };
 
 protected:
-   GLuint mBuffer;
-   GLuint mBufferType;
+   GLuint mBuffer = 0;
+   GLuint mBufferType = 0;
 
 public:
    // CAUTION: When using the default constructor, you must either call vbo.Init() or assign it another VBO before it is usable.
@@ -65,7 +65,7 @@ public:
    VBO(const GLuint bufferType, const GLuint buffer);
    VBO(const VBO& other);
    ~VBO();
-   void Init();
+   void Init(const DataType type);
 
    VBO& operator=(const VBO& other);
 

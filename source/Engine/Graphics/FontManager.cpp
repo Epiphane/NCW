@@ -12,14 +12,14 @@ namespace Engine
 
 namespace Graphics
 {
-   
-Font::Font() 
+
+Font::Font()
    : mFace(nullptr)
    , mAtlas(512, 512)
 {
 }
 
-Font::Font(Font&& other) 
+Font::Font(Font&& other)
    : mAtlas(std::move(other.mAtlas))
 {
    mFace = other.mFace;
@@ -50,17 +50,16 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
    {
       if (FT_Load_Char(mFace, c, FT_LOAD_RENDER))
       {
-         LOG_ERROR("Failed to load glyph: (%1)", c);
+         LOG_ERROR("Failed to load glyph: ({char})", c);
          continue;
       }
 
       Maybe<TextureAtlas::Region> region = mAtlas.Allocate(GLsizei(mFace->glyph->bitmap.width), GLsizei(mFace->glyph->bitmap.rows));
       if (!region) {
-         LOG_ERROR("Failed to allocate region for glyph: (%1)", c);
+         LOG_ERROR("Failed to allocate region for glyph: ({char})", c);
          continue;
       }
 
-      //LOG_INFO("Region allocated: (%1 %2) (%3 %4)", region->x, region->y, region->w, region->h);
       mAtlas.Fill(*region, mFace->glyph->bitmap.buffer, mFace->glyph->bitmap.width);
 
       characters.push_back({
@@ -73,12 +72,12 @@ Maybe<void> Font::Load(const FT_Library& library, const std::string& path)
 
    return Success;
 }
-   
+
 glm::vec2 Font::GetSizeOfRenderedText(const std::string& text)
 {
    glm::vec2 result(0, 28);
    GLfloat cursor = 0;
-   
+
    for (auto c : text)
    {
       if (c == '\n')
@@ -87,14 +86,14 @@ glm::vec2 Font::GetSizeOfRenderedText(const std::string& text)
          result.y += 28;   // TODO-EF: Actual line-height
          continue;
       }
-      
+
       Character ch = characters[size_t(c)];
-      
+
       cursor += ch.bearing.x;
       cursor += (ch.advance >> 6);
       result.x = fmax(cursor, result.x);  // Longest line sets the width
    }
-   
+
    return result;
 }
 
@@ -126,7 +125,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
       GLfloat huv = float(ch.region.h) / mAtlas.GetHeight();
 
       result.push_back({
-         glm::vec2(xpos, ypos), 
+         glm::vec2(xpos, ypos),
          glm::vec2(xuv, yuv + huv)
       });
       result.push_back({
@@ -136,16 +135,16 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
 
       cursor += (ch.advance >> 6) * scale;
    }
-   
+
    // Adjust for Right alignment or Center alignment
    GLfloat totalWidth = cursor - initialCursor;
    GLfloat nudgeRight = 0;
-   
-   if (alignment == Center) 
+
+   if (alignment == Center)
       nudgeRight = (availableWidth - totalWidth) / 2.0f;
    else if (alignment == Right)
       nudgeRight = availableWidth - totalWidth;
-      
+
    for (auto& v : result)
    {
       v.position.x += nudgeRight;
@@ -153,7 +152,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
 
    return result;
 }
-   
+
 Font::~Font()
 {
    if (FT_Done_Face(mFace))

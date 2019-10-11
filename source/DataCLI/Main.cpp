@@ -53,7 +53,7 @@ int main(int argc, char **argv)
    }
    else
    {
-      Console::Log("Command not recognized: %1", command);
+      Console::Log("Command not recognized: {command}", command);
       return 1;
    }
 

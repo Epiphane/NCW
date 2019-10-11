@@ -4,9 +4,8 @@
 
 #include <iterator>
 #include <string>
-#include <tuple>
-#include <vector>
 #include <glm/glm.hpp>
+#include <Meta.h>
 #pragma warning(disable : 4365 6313 6319 6385 6386)
 #include <rapidjson/document.h>
 #pragma warning(default : 4365 6313 6319 6385 6386)
@@ -35,6 +34,8 @@ public:
       kObjectType = 5,
       kArrayType = 6,
    };
+
+   static std::string TypeToString(Type type);
 
 public:
    // Forward declarations
@@ -88,6 +89,22 @@ public:
    // Assignment
    BindingProperty& operator=(const BindingProperty& other);
    BindingProperty& operator=(BindingProperty&& other);
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty& operator=(CompatibleType&& other)
+   {
+      return operator=(BindingProperty(other));
+   }
+   template <typename CompatibleType, typename = std::enable_if_t <meta::isRegistered<CompatibleType>()>>
+   BindingProperty & operator=(const CompatibleType& other)
+   {
+      return operator=(BindingProperty(other));
+   }
+
+   // Custom initialization
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>() || meta::valuesRegistered<T>()>>
+   BindingProperty(T&& val);
+   template <typename T, typename = std::enable_if_t <meta::isRegistered<T>() || meta::valuesRegistered<T>()>>
+   BindingProperty(const T& val);
 
    // Creates an element if the index does not exist.
    BindingProperty& operator[](const int& index);
@@ -106,6 +123,7 @@ public:
 
 public:
    // Access and reading
+   Type GetType() const { return Type(flags & kTypeMask); }
    bool IsNull() const { return flags == uint16_t(kNullFlag); }
    bool IsBool() const { return (flags & kBoolFlag) != 0; }
    bool IsObject() const { return flags == uint16_t(kObjectFlag); }
@@ -131,7 +149,31 @@ public:
    glm::vec3 GetVec3(const glm::vec3& defaultValue = {0, 0, 0}) const;
    glm::vec4 GetVec4(const glm::vec4& defaultValue = {0, 0, 0, 0}) const;
 
+   // Template-style getters
    inline operator std::string() const { return GetStringValue(); }
+
+   template<typename T, typename = std::enable_if_t<!meta::isRegistered<T>()>, typename = void>
+   inline T Get() const
+   {
+      T result;
+      Binding::deserialize(result, *this);
+      return result;
+   }
+
+   template<typename T, typename = std::enable_if_t<meta::isRegistered<T>()>>
+   inline T Get() const;
+
+   template<> inline BindingProperty Get() const { return *this; }
+   template<> inline bool Get() const { return GetBooleanValue(); }
+   template<> inline int64_t Get() const { return GetInt64Value(); }
+   template<> inline int32_t Get() const { return GetIntValue(); }
+   template<> inline uint64_t Get() const { return GetUint64Value(); }
+   template<> inline uint32_t Get() const { return GetUintValue(); }
+   template<> inline double Get() const { return GetDoubleValue(); }
+   template<> inline float Get() const { return GetFloatValue(); }
+   template<> inline std::string Get() const { return GetStringValue(); }
+   template<> inline glm::vec3 Get() const { return GetVec3(); }
+   template<> inline glm::vec4 Get() const { return GetVec4(); }
 
    Array AsArray();
    ConstArray AsArray() const;
@@ -150,6 +192,10 @@ public:
    PairIterator end_pairs();
    ConstPairIterator begin_pairs() const;
    ConstPairIterator end_pairs() const;
+   ObjectIterator begin_object();
+   ObjectIterator end_object();
+   ConstObjectIterator begin_object() const;
+   ConstObjectIterator end_object() const;
 
    template <typename Property, typename Iterator>
    struct PairMaker {
@@ -168,6 +214,25 @@ public:
    PairMaker<const BindingProperty, ConstPairIterator> pairs() const
    {
       return PairMaker<const BindingProperty, ConstPairIterator>{*this};
+   }
+
+   template <typename Property, typename Iterator>
+   struct ObjectIteratorMaker {
+      ObjectIteratorMaker(Property& obj_) : obj(obj_) {};
+
+      Iterator begin() const { return obj.begin_object(); }
+      Iterator end() const { return obj.end_object(); }
+      Property& obj;
+   };
+
+   ObjectIteratorMaker<BindingProperty, ObjectIterator> object()
+   {
+      return ObjectIteratorMaker<BindingProperty, ObjectIterator>{*this};
+   }
+
+   ObjectIteratorMaker<const BindingProperty, ConstObjectIterator> object() const
+   {
+      return ObjectIteratorMaker<const BindingProperty, ConstObjectIterator>{*this};
    }
 
    /*
@@ -207,6 +272,7 @@ public:
    inline BindingProperty& push_back(BindingProperty val) { return PushBack(val); }
    void PopBack();
    inline void pop_back() { return PopBack(); }
+   size_t GetSize() const;
 
    BindingProperty& SetObject() { this->~BindingProperty(); new (this) BindingProperty(kObjectType); return *this; }
    BindingProperty& Set(const std::string& key, const BindingProperty& value);
@@ -216,7 +282,7 @@ public:
    // This uses the rapidjson Handler pattern.
    template <typename Handler>
    Maybe<void> Write(Handler& handler) const;
-   
+
 public:
    // Iterators and such things
    template<typename Property>
@@ -509,7 +575,7 @@ private:
       int64_t i64;
       uint64_t u64;
       double d;
-   };  
+   };
 
    union Data {
 #pragma warning(disable : 4582) // '%s': constructor is not implicitly called
@@ -563,102 +629,6 @@ private:
    uint16_t flags = kNullFlag;
 };
 
-struct BindingProperty::KeyVal {
-   inline bool operator==(const KeyVal& other) const
-   {
-      return key == other.key && value == other.value;
-   }
-
-   inline bool operator!=(const KeyVal& other) const { return !(*this == other); }
-
-   std::string key;
-   BindingProperty value;
-};
-
-// BinUtility
-// For comparisons, both values must be convertible to a BindingProperty
-template<typename T,
-typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
-inline bool operator==(const BindingProperty& prop, const T& other)
-{
-   return prop == BindingProperty(other);
-}
-
-template<typename T,
-typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
-inline bool operator==(const T& other, const BindingProperty& prop)
-{
-   return BindingProperty(other) == prop;
-}
-
-template<typename T, typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
-inline bool operator!=(const BindingProperty& prop, const T& other)
-{
-   return prop != BindingProperty(other);
-}
-
-template<typename T,
-typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
-inline bool operator!=(const T& other, const BindingProperty& prop) { return !(other == prop); }
-
-template<typename Handler>
-Maybe<void> BindingProperty::Write(Handler& handler) const
-{
-   ConstArrayIterator it(this, 0), end(this, 0);
-
-#define HANDLE_ERROR(op, error) if (!op) { return Failure{error}; }
-   switch (flags & kTypeMask)
-   {
-   case kNullType:
-      HANDLE_ERROR(handler.Null(), "Failed to write null value");
-      break;
-   case kTrueType:
-   case kFalseType:
-      HANDLE_ERROR(handler.Bool(GetBooleanValue()), "Failed to write boolean value");
-      break;
-   case kNumberType:
-      if (IsDouble()) { HANDLE_ERROR(handler.Double(data.numVal.d), "Failed to write double value"); }
-      else if (IsInt()) { HANDLE_ERROR(handler.Int(data.numVal.i.i), "Failed to write int value"); }
-      else if (IsUint()) { HANDLE_ERROR(handler.Uint(data.numVal.u.u), "Failed to write unsigned int value"); }
-      else if (IsInt64()) { HANDLE_ERROR(handler.Int64(data.numVal.i64), "Failed to write 64-bit int value"); }
-      else if (IsUint64()) { HANDLE_ERROR(handler.Uint64(data.numVal.u64), "Failed to write unsigned 64-bit int value"); }
-      else { return Failure{"Unhandled number type: %1", flags}; }
-      break;
-   case kStringType:
-      HANDLE_ERROR(handler.String(data.stringVal.c_str(), (rapidjson::SizeType)data.stringVal.size(), false), "Failed to write string value");
-      break;
-   case kObjectType:
-      HANDLE_ERROR(handler.StartObject(), "Failed to start object");
-      for (const KeyVal& kv : data.objectVal)
-      {
-         if (!handler.Key(kv.key.c_str(), (rapidjson::SizeType)kv.key.size(), false))
-         {
-            return Failure{"Failed to write key %1", kv.key};
-         }
-         if (Maybe<void> result = kv.value.Write(handler); !result)
-         {
-            return result.Failure().WithContext("Failed to write value for %1", kv.key);
-         }
-      }
-      HANDLE_ERROR(handler.EndObject((rapidjson::SizeType)data.objectVal.size()), "Failed to end object");
-      break;
-   case kArrayType:
-      HANDLE_ERROR(handler.StartArray(), "Failed to start array");
-      end = AsArray().end();
-      for (it = AsArray().begin(); it != end; ++it)
-      {
-         if (Maybe<void> result = it->Write(handler); !result)
-         {
-            return result.Failure().WithContext("Failed to write index %1", it.mIndex);
-         }
-      }
-      HANDLE_ERROR(handler.EndArray((rapidjson::SizeType)data.arrayVal.size()), "Failed to end array");
-      break;
-   default:
-      return Failure{"Unhandled type flag: %1", flags & kTypeMask};
-   }
-
-   return Success;
-}
-
 }; // namespace CubeWorld
+
+#include "BindingProperty.inl"

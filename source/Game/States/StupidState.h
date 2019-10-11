@@ -30,7 +30,6 @@ private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window& mWindow;
-   int mSkip = 0;
    std::vector<int32_t> heights;
 };
 

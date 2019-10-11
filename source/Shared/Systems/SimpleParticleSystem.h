@@ -37,6 +37,9 @@ public:
    bool active = true;
    bool update = true;
    bool render = true;
+
+   // Destroy this entity once the particle system is done animating.
+   bool destroyOnComplete = false;
 };
 
 //
@@ -63,7 +66,7 @@ struct MultipleParticleEmitters : public Engine::Component<MultipleParticleEmitt
    // Each particle system is paired with a transform
    // in order to place it in the world.
    //
-   std::vector<Emitter> systems;
+   std::vector<Emitter*> systems;
 };
 
 //
@@ -106,10 +109,10 @@ private:
    static std::unique_ptr<Engine::Graphics::Program> updater;
 
 private:
-   bool mDisabled;
+   bool mDisabled = false;
 
    static constexpr uint16_t RANDOM_SIZE = 1000;
-   uint32_t mTick;
+   uint32_t mTick = 0;
    std::unique_ptr<Engine::Graphics::Texture> mRandom;
 
    std::unique_ptr<DebugHelper::MetricLink> mUpdateMetric;

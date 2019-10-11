@@ -25,48 +25,50 @@ namespace Constrainer
 using Engine::UIContextMenu;
 using UI::RectFilled;
 
-using TreeData = Engine::CollapsibleTreeItem::Data;   
+ConstrainerVC::ConstrainerVC(Engine::Input& input)
+   : UIRoot(&input)
+   , mElementList(nullptr)
+using TreeData = Engine::CollapsibleTreeItem::Data;
 
-ConstrainerVC::ConstrainerVC(Engine::Input* input, const Controls::Options& options)
+ConstrainerVC::ConstrainerVC(Engine::Input* input)
    : UIRoot(input)
 {
    mElementList = Add<CollapsibleTreeVC>("ElementList");
 
-   Sidebar* sidebar = Add<Sidebar>();
-   Controls* controls = Add<Controls>(options);
-   
-   sidebar->ConstrainLeftAlignedTo(this);
-   sidebar->ConstrainTopAlignedTo(this);
-   sidebar->ConstrainWidthTo(this, 0.0, 0.2);
-   sidebar->ConstrainAbove(controls);
-
-   controls->ConstrainLeftAlignedTo(this);
-   controls->ConstrainBottomAlignedTo(this);
-   controls->ConstrainWidthTo(sidebar);
-   
-   mElementList->ConstrainToRightOf(sidebar);
-   mElementList->ConstrainWidthTo(this, 0.0, 0.2);
-   mElementList->ConstrainTopAlignedTo(this, 300);
+//   Sidebar* sidebar = Add<Sidebar>();
+//
+//   sidebar->ConstrainLeftAlignedTo(this);
+//   sidebar->ConstrainTopAlignedTo(this);
+//   sidebar->ConstrainWidthTo(this, 0.0, 0.2);
+//   sidebar->ConstrainAbove(controls);
+//
+//   controls->ConstrainLeftAlignedTo(this);
+//   controls->ConstrainBottomAlignedTo(this);
+//   controls->ConstrainWidthTo(sidebar);
+//
+//   mElementList->ConstrainToRightOf(sidebar);
+//   mElementList->ConstrainWidthTo(this, 0.0, 0.2);
+//   mElementList->ConstrainTopAlignedTo(this);
 //   mElementList->ConstrainBottomAlignedTo(this);
 
    std::function<TreeData(UIElement*)> elementToTreeData = [&](UIElement* baseElement) -> TreeData {
       TreeData datum;
-      
+
       datum.title = baseElement->GetName();
       for (const auto& child : baseElement->GetChildren()) {
          datum.children.push_back(elementToTreeData(child.get()));
       }
-      
+
       return datum;
    };
-   
+
    mModel.GetBaseElementObservable() >>
       Observables::Map<UIElement*, std::vector<TreeData>>([&](UIElement* newBaseElement) {
-         std::vector<TreeData> result = { elementToTreeData(newBaseElement) }; 
+         std::vector<TreeData> result = { elementToTreeData(newBaseElement) };
          return result;
       }) >>
       mElementList->GetDataSink();
-   
+
    Engine::UISerializationHelper serializer;
 
    std::string path = Paths::Normalize(Asset::UIElement("example_ui_serialized.json"));
@@ -79,9 +81,9 @@ ConstrainerVC::ConstrainerVC(Engine::Input* input, const Controls::Options& opti
    mainContent->ConstrainToRightOf(mElementList);
    mainContent->ConstrainTopAlignedTo(this);
    mainContent->ConstrainRightAlignedTo(this);
-   
+
    mModel.GetBaseElementObservable().SendMessage(mainContent);
-   
+
 
    UIElement* wrapperLayer = Add<UIElement>();
    wrapperLayer->ConstrainInFrontOfAllDescendants(mainContent);

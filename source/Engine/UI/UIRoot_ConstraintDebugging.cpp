@@ -62,7 +62,7 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &ev
       }
    }
 
-   ((Text*) mConstraintDebugLabel)->SetText(Format::FormatString("%1 Possible Elements", numElementsUnderCursor));
+   ((Text*) mConstraintDebugLabel)->SetText(FormatString("{num} Possible Elements", numElementsUnderCursor));
    return Unhandled;
 }
 
