@@ -186,7 +186,7 @@ public:
    std::string shader;
 
    //
-   // Maximum amount of particles supported. Changes 
+   // Maximum amount of particles supported. Changes
    // will not take effect until the next Reset().
    //
    uint32_t maxParticles = 1000;
@@ -211,12 +211,12 @@ public:
       ConeConfig cone;
       TrailConfig trail;
    } shapeConfig;
-   
+
    //
    // Renderer.
    //
    Graphics::Program* program;
-   
+
    //
    // Custom uniforms to apply to the renderer.
    //
@@ -249,7 +249,7 @@ protected:
    // Map of particle name to GL program
    //
    static std::unordered_map<std::string, std::unique_ptr<Graphics::Program>> programs;
-   
+
 public:
    //
    // Internal state.

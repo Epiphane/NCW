@@ -12,7 +12,7 @@
                               + ' -D_GLFW_WIN32'
                               + ' /wd4100' // '%s': unreferenced formal parameter
                               + ' /wd4152'
-                              + ' /wd4204' 
+                              + ' /wd4204'
                               + ' /wd4242' // '%s': conversion from 'int' to 'short'
                               + ' /wd4244' // '%s': conversion from 'int' to 'short'
                               + ' /wd4464' // elative include path contains '..'
@@ -33,11 +33,11 @@
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = {
-                              'context.c' 
-                              'init.c' 
-                              'input.c' 
-                              'monitor.c' 
-                              'vulkan.c' 
+                              'context.c'
+                              'init.c'
+                              'input.c'
+                              'monitor.c'
+                              'vulkan.c'
                               'window.c'
                            }
                         #if __WINDOWS__
@@ -54,9 +54,9 @@
                         #endif
                         #if __OSX__
                            + {
-                              'cocoa_init.m' 
+                              'cocoa_init.m'
                               'cocoa_joystick.m'
-                              'cocoa_monitor.m' 
+                              'cocoa_monitor.m'
                               'cocoa_window.m'
                               'cocoa_time.c'
                               'posix_tls.c'

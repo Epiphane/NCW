@@ -68,38 +68,6 @@ bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);
 bool Draw(const std::string& label, bool& val, bool addToStack = true);
 
-template<typename Class>
-bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = true)
-{
-   if (!label.empty() && label[0] != '#')
-   {
-      size_t pos = label.find('#');
-      if (pos == std::string::npos)
-      {
-         ImGui::Text("%s", label.c_str());
-      }
-      else
-      {
-         ImGui::Text("%s", label.substr(0, pos).c_str());
-      }
-   }
-
-   bool modified = false;
-
-   size_t index = 0;
-   for (Class& item : val)
-   {
-      if (ImGui::TreeNode(FormatString("Element {num}##{label}", index, label).c_str()))
-      {
-         modified |= Draw(FormatString("##{label}##{num}", label, index), item, addToStack);
-         ImGui::TreePop();
-      }
-      index++;
-   }
-
-   return modified;
-}
-
 template <typename Class,
    typename = std::enable_if_t<!meta::isRegistered<Class>()>,
    typename = std::enable_if_t<!meta::valuesRegistered<Class>()>,
@@ -195,6 +163,38 @@ bool Draw(const std::string& label, Class& obj, bool addToStack)
    );
 
    return changed;
+}
+
+template<typename Class>
+bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = true)
+{
+   if (!label.empty() && label[0] != '#')
+   {
+      size_t pos = label.find('#');
+      if (pos == std::string::npos)
+      {
+         ImGui::Text("%s", label.c_str());
+      }
+      else
+      {
+         ImGui::Text("%s", label.substr(0, pos).c_str());
+      }
+   }
+
+   bool modified = false;
+
+   size_t index = 0;
+   for (Class& item : val)
+   {
+      if (ImGui::TreeNode(FormatString("Element {num}##{label}", index, label).c_str()))
+      {
+         modified |= Draw(FormatString("##{label}##{num}", label, index), item, addToStack);
+         ImGui::TreePop();
+      }
+      index++;
+   }
+
+   return modified;
 }
 
 

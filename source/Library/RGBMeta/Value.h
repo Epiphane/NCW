@@ -2,6 +2,15 @@
 
 #pragma once
 
+namespace meta
+{
+
+// Declaring above ValueHolder so it can be referenced
+template <typename EnumType>
+inline auto registerValues();
+
+}; // namespace meta
+
 #include <detail/template_helpers.h>
 #include "ValueHolder.h"
 
@@ -51,8 +60,6 @@ const auto& getValues()
 }
 
 // function used for registration of classes by user
-template <typename EnumType>
-inline auto registerValues();
 
 template <typename EnumType>
 inline auto registerValues()

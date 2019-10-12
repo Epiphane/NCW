@@ -7,10 +7,12 @@
 #include <Meta.h>
 #include <RGBMeta/Value.h>
 
-#include "BindingProperty.h"
+// #include "BindingProperty.h"
 
 namespace CubeWorld
 {
+
+class BindingProperty;
 
 namespace Binding
 {
@@ -73,5 +75,3 @@ void deserialize(std::map<K, V>& obj, const BindingProperty& object);
 }; // namespace Binding
 
 }; // namespace CubeWorld
-
-//#include "BindingPropertyMeta.inl"
