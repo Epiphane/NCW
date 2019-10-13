@@ -208,7 +208,7 @@ class Map {
             if (mCapacity > 0) {
 
                size_t hashCode = std::hash<K>()(key);
-               int bucket = hashCode % mCapacity;
+               int bucket = (int)(hashCode % mCapacity);
 
                for (int i = mBuckets[bucket]; i >= 0; i = mEntries[i].next) {
                    if (mEntries[i].hashCode == hashCode && mEntries[i].keyValue->first == key) {
@@ -620,7 +620,7 @@ class Map {
             if (mCapacity > 0) {
 
                size_t hashCode = std::hash<K>()(key);
-               bucket = hashCode % mCapacity;
+               bucket = (int)(hashCode % mCapacity);
 
                for (int i = mBuckets[bucket]; i >= 0; i = mEntries[i].next) {
                    if (mEntries[i].hashCode == hashCode && mEntries[i].keyValue->first == key) {

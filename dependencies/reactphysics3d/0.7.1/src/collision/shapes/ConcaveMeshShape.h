@@ -266,14 +266,14 @@ inline void ConvexTriangleAABBOverlapCallback::notifyOverlappingNode(int nodeId)
 
     // Get the triangle vertices for this node from the concave mesh shape
     Vector3 trianglePoints[3];
-    mConcaveMeshShape.getTriangleVertices(data[0], data[1], trianglePoints);
+    mConcaveMeshShape.getTriangleVertices((uint)data[0], (uint)data[1], trianglePoints);
 
     // Get the vertices normals of the triangle
     Vector3 verticesNormals[3];
-    mConcaveMeshShape.getTriangleVerticesNormals(data[0], data[1], verticesNormals);
+    mConcaveMeshShape.getTriangleVerticesNormals((uint)data[0], (uint)data[1], verticesNormals);
 
     // Call the callback to test narrow-phase collision with this triangle
-    mTriangleTestCallback.testTriangle(trianglePoints, verticesNormals, mConcaveMeshShape.computeTriangleShapeId(data[0], data[1]));
+    mTriangleTestCallback.testTriangle(trianglePoints, verticesNormals, mConcaveMeshShape.computeTriangleShapeId((uint)data[0], (uint)data[1]));
 }
 
 #ifdef IS_PROFILING_ACTIVE

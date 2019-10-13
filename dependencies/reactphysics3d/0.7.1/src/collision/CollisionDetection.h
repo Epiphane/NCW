@@ -283,7 +283,7 @@ inline void CollisionDetection::askForBroadPhaseCollisionCheck(ProxyShape* shape
 
 // Update a proxy collision shape (that has moved for instance)
 inline void CollisionDetection::updateProxyCollisionShape(ProxyShape* shape, const AABB& aabb,
-                                                          const Vector3& displacement, bool forceReinsert) {
+                                                          const Vector3& displacement, bool) {
     mBroadPhaseAlgorithm.updateProxyCollisionShape(shape, aabb, displacement);
 }
 

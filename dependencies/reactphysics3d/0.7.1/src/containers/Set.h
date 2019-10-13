@@ -163,7 +163,7 @@ class Set {
             if (mNbUsedEntries > 0) {
 
                 // Copy the old entries to the new allocated memory location
-                std::uninitialized_copy(mEntries, mEntries + mNbUsedEntries, newEntries); 
+                std::uninitialized_copy(mEntries, mEntries + mNbUsedEntries, newEntries);
 
                 // Destruct the old entries at previous location
                 for (int i=0; i<mNbUsedEntries; i++) {
@@ -185,7 +185,7 @@ class Set {
                 if (newEntries[i].value != nullptr) {
 
                     // Get the corresponding bucket
-                    int bucket = newEntries[i].hashCode % newCapacity;
+                    int bucket = (int)(newEntries[i].hashCode % newCapacity);
 
                     newEntries[i].next = newBuckets[bucket];
                     newBuckets[bucket] = i;
@@ -456,7 +456,7 @@ class Set {
             size_t hashCode = std::hash<V>()(value);
 
             // Compute the corresponding bucket index
-            int bucket = hashCode % mCapacity;
+            int bucket = (int) hashCode % mCapacity;
 
             // Check if the item is already in the set
             for (int i = mBuckets[bucket]; i >= 0; i = mEntries[i].next) {
@@ -473,7 +473,7 @@ class Set {
             // If there are free entries to use
             if (mNbFreeEntries > 0) {
                 assert(mFreeIndex >= 0);
-                entryIndex = mFreeIndex;
+                entryIndex = (size_t)mFreeIndex;
                 mFreeIndex = mEntries[entryIndex].next;
                 mNbFreeEntries--;
             }
@@ -486,10 +486,10 @@ class Set {
                     reserve(mCapacity * 2);
 
                     // Recompute the bucket index
-                    bucket = hashCode % mCapacity;
+                    bucket = (int)hashCode % mCapacity;
                 }
 
-                entryIndex = mNbUsedEntries;
+                entryIndex = (size_t)mNbUsedEntries;
                 mNbUsedEntries++;
             }
 
@@ -499,7 +499,7 @@ class Set {
             mEntries[entryIndex].value = static_cast<V*>(mAllocator.allocate(sizeof(V)));
             assert(mEntries[entryIndex].value != nullptr);
             new (mEntries[entryIndex].value) V(value);
-            mBuckets[bucket] = entryIndex;
+            mBuckets[bucket] = (int)entryIndex;
         }
 
         /// Remove the element pointed by some iterator
@@ -518,7 +518,7 @@ class Set {
             if (mCapacity > 0) {
 
                 size_t hashcode = std::hash<V>()(value);
-                int bucket = hashcode % mCapacity;
+                int bucket = (int) hashcode % mCapacity;
                 int last = -1;
                 for (int i = mBuckets[bucket]; i >= 0; last = i, i = mEntries[i].next) {
 

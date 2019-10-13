@@ -384,7 +384,7 @@ inline void DynamicsWorld::setIsGratityEnabled(bool isGravityEnabled) {
  * @return Number of rigid bodies in the world
  */
 inline uint DynamicsWorld::getNbRigidBodies() const {
-    return mRigidBodies.size();
+    return static_cast<uint>(mRigidBodies.size());
 }
 
 /// Return the number of joints in the world
@@ -392,7 +392,7 @@ inline uint DynamicsWorld::getNbRigidBodies() const {
  * @return Number of joints in the world
  */
 inline uint DynamicsWorld::getNbJoints() const {
-    return mJoints.size();
+    return static_cast<uint>(mJoints.size());
 }
 
 // Return true if the sleeping technique is enabled

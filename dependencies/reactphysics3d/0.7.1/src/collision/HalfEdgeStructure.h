@@ -132,7 +132,7 @@ class HalfEdgeStructure {
 inline uint HalfEdgeStructure::addVertex(uint vertexPointIndex) {
     Vertex vertex(vertexPointIndex);
     mVertices.add(vertex);
-    return mVertices.size() - 1;
+    return (uint)mVertices.size() - 1;
 }
 
 // Add a face

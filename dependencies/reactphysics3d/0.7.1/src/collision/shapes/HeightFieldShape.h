@@ -252,16 +252,16 @@ inline size_t HeightFieldShape::getSizeInBytes() const {
 inline decimal HeightFieldShape::getHeightAt(int x, int y) const {
 
     switch(mHeightDataType) {
-        case HeightDataType::HEIGHT_FLOAT_TYPE : return ((float*)mHeightFieldData)[y * mNbColumns + x];
-        case HeightDataType::HEIGHT_DOUBLE_TYPE : return ((double*)mHeightFieldData)[y * mNbColumns + x];
-        case HeightDataType::HEIGHT_INT_TYPE : return ((int*)mHeightFieldData)[y * mNbColumns + x] * mIntegerHeightScale;
+        case HeightDataType::HEIGHT_FLOAT_TYPE : return (decimal)((float*)mHeightFieldData)[y * mNbColumns + x];
+        case HeightDataType::HEIGHT_DOUBLE_TYPE : return (decimal)((double*)mHeightFieldData)[y * mNbColumns + x];
+        case HeightDataType::HEIGHT_INT_TYPE : return (decimal)((int*)mHeightFieldData)[y * mNbColumns + x] * mIntegerHeightScale;
         default: assert(false); return 0;
     }
 }
 
 // Return the closest inside integer grid value of a given floating grid value
 inline int HeightFieldShape::computeIntegerGridValue(decimal value) const {
-    return (value < decimal(0.0)) ? value - decimal(0.5) : value + decimal(0.5);
+    return (int)((value < decimal(0.0)) ? value - decimal(0.5) : value + decimal(0.5));
 }
 
 // Return the local inertia tensor

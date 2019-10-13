@@ -15,6 +15,7 @@
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
+#include <Shared/Systems/ReactPhysicsSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
 #include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/SimplePhysicsSystem.h>
@@ -43,6 +44,7 @@ namespace Game
       mSystems.Add<WalkSystem>(&window);
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
+      mSystems.Add<ReactPhysics::System>();
       mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<AnimationEventSystem>();
@@ -174,8 +176,8 @@ namespace Game
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
-      player.Add<SimplePhysics::Body>();
-      player.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
+      player.Add<ReactPhysics::Body>();
+      //player.Add<ReactPhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
       auto controller = player.Add<AnimationController>();
       
       Entity debugger = mEntities.Create(0, 0, 0);

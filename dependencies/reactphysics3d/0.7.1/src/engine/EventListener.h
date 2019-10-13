@@ -53,7 +53,7 @@ class EventListener {
         /**
          * @param contact Information about the contact
          */
-        virtual void newContact(const CollisionCallback::CollisionCallbackInfo& collisionInfo) {}
+        virtual void newContact(const CollisionCallback::CollisionCallbackInfo& /* collisionInfo */) {}
 
         /// Called at the beginning of an internal tick of the simulation step.
         /// Each time the DynamicsWorld::update() method is called, the physics

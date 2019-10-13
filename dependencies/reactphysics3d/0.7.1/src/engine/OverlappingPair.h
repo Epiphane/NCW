@@ -255,8 +255,8 @@ inline OverlappingPair::OverlappingPairId OverlappingPair::computeID(ProxyShape*
 
     // Construct the pair of body index
     OverlappingPairId pairID = shape1->getBroadPhaseId() < shape2->getBroadPhaseId() ?
-                             OverlappingPairId(shape1->getBroadPhaseId(), shape2->getBroadPhaseId()) :
-                             OverlappingPairId(shape2->getBroadPhaseId(), shape1->getBroadPhaseId());
+                             OverlappingPairId((uint)shape1->getBroadPhaseId(), (uint)shape2->getBroadPhaseId()) :
+                             OverlappingPairId((uint)shape2->getBroadPhaseId(), (uint)shape1->getBroadPhaseId());
     assert(pairID.first != pairID.second);
     return pairID;
 }

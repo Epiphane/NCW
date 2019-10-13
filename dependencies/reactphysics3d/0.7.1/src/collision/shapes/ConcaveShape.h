@@ -113,7 +113,7 @@ inline bool ConcaveShape::isPolyhedron() const {
 }
 
 // Return true if a point is inside the collision shape
-inline bool ConcaveShape::testPointInside(const Vector3& localPoint, ProxyShape* proxyShape) const {
+inline bool ConcaveShape::testPointInside(const Vector3& /* localPoint */, ProxyShape* /*  proxyShape */) const {
     return false;
 }
 

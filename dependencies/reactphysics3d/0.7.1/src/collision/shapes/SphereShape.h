@@ -122,7 +122,7 @@ inline size_t SphereShape::getSizeInBytes() const {
 }
 
 // Return a local support point in a given direction without the object margin
-inline Vector3 SphereShape::getLocalSupportPointWithoutMargin(const Vector3& direction) const {
+inline Vector3 SphereShape::getLocalSupportPointWithoutMargin(const Vector3& /* direction */) const {
 
     // Return the center of the sphere (the radius is taken into account in the object margin)
     return Vector3(0.0, 0.0, 0.0);
@@ -161,7 +161,7 @@ inline void SphereShape::computeLocalInertiaTensor(Matrix3x3& tensor, decimal ma
 }
 
 // Return true if a point is inside the collision shape
-inline bool SphereShape::testPointInside(const Vector3& localPoint, ProxyShape* proxyShape) const {
+inline bool SphereShape::testPointInside(const Vector3& localPoint, ProxyShape* /* proxyShape */) const {
     return (localPoint.lengthSquare() < mMargin * mMargin);
 }
 

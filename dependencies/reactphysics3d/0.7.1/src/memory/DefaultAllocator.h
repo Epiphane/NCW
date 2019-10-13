@@ -54,7 +54,7 @@ class DefaultAllocator : public MemoryAllocator {
         }
 
         /// Release previously allocated memory.
-        virtual void release(void* pointer, size_t size) override {
+        virtual void release(void* pointer, size_t) override {
             free(pointer);
         }
 };

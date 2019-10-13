@@ -73,12 +73,13 @@ CollisionBody::~CollisionBody() {
  *         the new collision shape you have added.
  */
 ProxyShape* CollisionBody::addCollisionShape(CollisionShape* collisionShape,
-                                             const Transform& transform) {
+                                             const Transform& transform,
+                                             decimal mass) {
 
     // Create a new proxy collision shape to attach the collision shape to the body
     ProxyShape* proxyShape = new (mWorld.mMemoryManager.allocate(MemoryManager::AllocationType::Pool,
                                       sizeof(ProxyShape))) ProxyShape(this, collisionShape,
-                                                                      transform, decimal(1), mWorld.mMemoryManager);
+                                                                      transform, mass, mWorld.mMemoryManager);
 
 #ifdef IS_PROFILING_ACTIVE
 

@@ -217,12 +217,12 @@ inline void TriangleShape::getLocalBounds(Vector3& min, Vector3& max) const {
  *                    coordinates
  * @param mass Mass to use to compute the inertia tensor of the collision shape
  */
-inline void TriangleShape::computeLocalInertiaTensor(Matrix3x3& tensor, decimal mass) const {
+inline void TriangleShape::computeLocalInertiaTensor(Matrix3x3& tensor, decimal /* mass */) const {
     tensor.setToZero();
 }
 
 // Return true if a point is inside the collision shape
-inline bool TriangleShape::testPointInside(const Vector3& localPoint, ProxyShape* proxyShape) const {
+inline bool TriangleShape::testPointInside(const Vector3& /* localPoint */, ProxyShape* /*  proxyShape */) const {
     return false;
 }
 
