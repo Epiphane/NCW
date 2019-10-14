@@ -13,72 +13,71 @@ using namespace Observables;
 using Engine::ToggleButtonVC;
 using UI::Image;
 
-SCENARIO( "Toggle buttons send the correct messages when clicked or force-toggled" ) {
-   
-   GIVEN( "A toggle button with an Observer attached" ) {
-      Test::MockInput input;
-      std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
-      Engine::UIRoot* root = dummyRoot.get();
-      std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
+SCENARIO("Toggle buttons send the correct messages when clicked or force-toggled") {
 
-   ToggleButtonVC* button = dummyRoot->Add<ToggleButtonVC>(Image::Options(), Image::Options(), "ToggleButtonDummy");
+	GIVEN("A toggle button with an Observer attached") {
+		Test::MockInput input;
+		std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
+		Engine::UIRoot* root = dummyRoot.get();
+		std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
-      std::vector<bool> toggles;
+		ToggleButtonVC* button = dummyRoot->Add<ToggleButtonVC>(Image::Options(), Image::Options(), "ToggleButtonDummy");
 
-      button->GetToggleObservable() >>
-         ToContainer<std::vector<bool>>(toggles, myBag);
+		std::vector<bool> toggles;
 
-      WHEN( "The toggle button receives mouse events" ) {
-         THEN ( "the toggle button should send messages from its OnToggled observable." ) {
-            MockClick(root, button);
+		button->GetToggleObservable() >>
+			ToContainer<std::vector<bool>>(toggles, myBag);
 
-            // ToggleButton defaults to false, so toggling once should give us one true
-            std::vector<bool> expected = { true };
-            CHECK( expected == toggles );
+		WHEN("The toggle button receives mouse events") {
+			THEN("the toggle button should send messages from its OnToggled observable.") {
+				MockClick(root, button);
 
-            MockClick(root, button);
-            MockClick(root, button);
-            MockClick(root, button);
+				// ToggleButton defaults to false, so toggling once should give us one true
+				std::vector<bool> expected = { true };
+				CHECK(expected == toggles);
 
-            expected = { true, false, true, false };
-            CHECK( expected == toggles );
-         }
-      }
+				MockClick(root, button);
+				MockClick(root, button);
+				MockClick(root, button);
 
-      AND_WHEN( "the toggle button receives piped messages" ) {
-         Observable<bool> toggleMeister;
-         toggleMeister >> button->GetToggleObservable();
+				expected = { true, false, true, false };
+				CHECK(expected == toggles);
+			}
+		}
 
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(true);
+		AND_WHEN("the toggle button receives piped messages") {
+			Observable<bool> toggleMeister;
+			toggleMeister >> button->GetToggleObservable();
 
-         THEN( "it should also send messages from its OnToggled observable." ) {
-            std::vector<bool> expectedToggles = { false, false, true };
-            CHECK( expectedToggles == toggles );
-         }
-      }
+			toggleMeister.SendMessage(false);
+			toggleMeister.SendMessage(false);
+			toggleMeister.SendMessage(true);
 
-      AND_WHEN( "piped messages are combined with mouse events" ) {
-         Observable<bool> toggleMeister;
-         toggleMeister >> button->GetToggleObservable();
+			THEN("it should also send messages from its OnToggled observable.") {
+				std::vector<bool> expectedToggles = { false, false, true };
+				CHECK(expectedToggles == toggles);
+			}
+		}
 
-         toggleMeister.SendMessage(false);
-         MockClick(root, button);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(true);
-         MockClick(root, button);
-         MockClick(root, button);
-         MockClick(root, button);
-         toggleMeister.SendMessage(false);
-         toggleMeister.SendMessage(false);
+		AND_WHEN("piped messages are combined with mouse events") {
+			Observable<bool> toggleMeister;
+			toggleMeister >> button->GetToggleObservable();
 
-         THEN("the OnToggled observable sends all the toggles out." ) {
-            std::vector<bool> expectedToggles = { false, true, false, true, false, true, false, false, false };
-            CHECK( expectedToggles == toggles );
-         }
-      }
-   }
+			toggleMeister.SendMessage(false);
+			MockClick(root, button);
+			toggleMeister.SendMessage(false);
+			toggleMeister.SendMessage(true);
+			MockClick(root, button);
+			MockClick(root, button);
+			MockClick(root, button);
+			toggleMeister.SendMessage(false);
+			toggleMeister.SendMessage(false);
+
+			THEN("the OnToggled observable sends all the toggles out.") {
+				std::vector<bool> expectedToggles = { false, true, false, true, false, true, false, false, false };
+				CHECK(expectedToggles == toggles);
+			}
+		}
 
 } // GIVEN
 

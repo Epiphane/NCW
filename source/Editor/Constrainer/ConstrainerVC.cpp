@@ -25,13 +25,11 @@ namespace Constrainer
 using Engine::UIContextMenu;
 using UI::RectFilled;
 
+using TreeData = Engine::CollapsibleTreeItem::Data;
+
 ConstrainerVC::ConstrainerVC(Engine::Input& input)
    : UIRoot(&input)
    , mElementList(nullptr)
-using TreeData = Engine::CollapsibleTreeItem::Data;
-
-ConstrainerVC::ConstrainerVC(Engine::Input* input)
-   : UIRoot(input)
 {
    mElementList = Add<CollapsibleTreeVC>("ElementList");
 

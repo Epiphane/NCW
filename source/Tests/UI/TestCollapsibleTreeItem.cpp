@@ -23,7 +23,8 @@ typedef std::vector<std::string> StringVector;
 SCENARIO( "CollapsibleTreeItems have correct layout and respond to user input correctly" ) {
    
 GIVEN( "a CollapsibleTreeItem" ) {
-   std::unique_ptr<UIRoot> dummyRoot = CreateDummyUIRoot();
+	Test::MockInput input;
+	std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
    UIRoot* root = dummyRoot.get();
    std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 

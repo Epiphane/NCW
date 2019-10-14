@@ -16,7 +16,8 @@ using TreeData = CubeWorld::Engine::CollapsibleTreeItem::Data;
 SCENARIO( "The CollapsibleTreeController reacts appropriately to data changes" ) {
 
 GIVEN( "A CollapsibleTreeController" ) {
-      std::unique_ptr<CubeWorld::Engine::UIRoot> dummyRoot = CreateDummyUIRoot();
+	Test::MockInput input;
+	std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
       CollapsibleTreeVC* collapsible = dummyRoot->Add<CollapsibleTreeVC>("TestCollapsibleTreeController");
 
       WHEN( "the controller is provided with a tree of data" ) {
