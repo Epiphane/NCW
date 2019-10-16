@@ -20,7 +20,7 @@ struct ValueHolder {
     static TupleType values;
     static const char* name()
     {
-        return registerName<T>();
+        return meta::registerName<T>();
     }
 };
 

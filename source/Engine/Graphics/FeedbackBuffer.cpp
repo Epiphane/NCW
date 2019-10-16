@@ -29,6 +29,11 @@ FeedbackBuffer::FeedbackBuffer(FeedbackBuffer&& other) noexcept
    other.mBuffer = 0;
 }
 
+FeedbackBuffer& FeedbackBuffer::operator=(const FeedbackBuffer&) noexcept
+{
+   return *this;
+}
+
 FeedbackBuffer& FeedbackBuffer::operator=(FeedbackBuffer&& other) noexcept
 {
    data = std::move(other.data);

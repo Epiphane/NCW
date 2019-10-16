@@ -1,7 +1,5 @@
 // By Thomas Steinke
 
-#pragma once
-
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
@@ -86,7 +84,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
       float floatVal = value.GetFloatValue();
       ImGui::InputFloat(valueLabel.c_str(), &floatVal);
       value.SetFloat(floatVal);
-      
+
       result.first |= ImGui::IsItemActivated();
       result.second |= ImGui::IsItemDeactivatedAfterEdit();
       break;
@@ -145,7 +143,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
    {
       int nElements = (int)value.GetSize();
       ImGui::InputInt(("##size" + label).c_str(), &nElements);
-      
+
       if (ImGui::IsItemDeactivatedAfterEdit() && nElements >= 0)
       {
          while (value.GetSize() > size_t(nElements))

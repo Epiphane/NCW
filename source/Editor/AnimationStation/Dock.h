@@ -112,7 +112,7 @@ private:
 
    private:
       size_t index;
-      State state{"", "", "", "base", 1.0f, {}};
+      State state{"", "", "", "base", 1.0f, {}, {}, {}, {}};
    };
 
    //

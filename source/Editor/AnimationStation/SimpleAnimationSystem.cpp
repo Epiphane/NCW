@@ -283,7 +283,8 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
 
    for (const auto& [name, s] : anims->states)
    {
-      auto stateIt = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == name; });
+      const std::string& n = name; // fixes a clang bug with auto capture above
+      auto stateIt = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == n; });
       if (stateIt == states.end())
       {
          states.push_back(State{});
