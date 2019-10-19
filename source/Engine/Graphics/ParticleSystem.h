@@ -142,6 +142,7 @@ public:
    virtual ~ParticleSystem() = default;
 
    ParticleSystem& operator=(const ParticleSystem& other) = default;
+   ParticleSystem& operator=(ParticleSystem&& other) = default;
 
    //
    // Reset the particle system to an initial state,
@@ -186,7 +187,7 @@ public:
    std::string shader;
 
    //
-   // Maximum amount of particles supported. Changes 
+   // Maximum amount of particles supported. Changes
    // will not take effect until the next Reset().
    //
    uint32_t maxParticles = 1000;
@@ -211,12 +212,12 @@ public:
       ConeConfig cone;
       TrailConfig trail;
    } shapeConfig;
-   
+
    //
    // Renderer.
    //
    Graphics::Program* program;
-   
+
    //
    // Custom uniforms to apply to the renderer.
    //
@@ -249,7 +250,7 @@ protected:
    // Map of particle name to GL program
    //
    static std::unordered_map<std::string, std::unique_ptr<Graphics::Program>> programs;
-   
+
 public:
    //
    // Internal state.

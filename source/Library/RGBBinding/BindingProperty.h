@@ -11,8 +11,10 @@
 #pragma warning(default : 4365 6313 6319 6385 6386)
 
 #include <RGBDesignPatterns/Maybe.h>
+#include <RGBMeta/Value.h>
 
 #include "Array.h"
+#include "BindingPropertyMeta.h"
 
 namespace CubeWorld
 {

@@ -48,6 +48,7 @@ public:
    FeedbackBuffer(FeedbackBuffer&& other) noexcept;
    ~FeedbackBuffer();
 
+   FeedbackBuffer& operator=(const FeedbackBuffer& other) noexcept;
    FeedbackBuffer& operator=(FeedbackBuffer&& other) noexcept;
 
    void Bind() { data.Bind(); }

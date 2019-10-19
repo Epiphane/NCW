@@ -986,7 +986,7 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
         [window->ns.object setLevel:NSMainMenuWindowLevel + 1];
     else
     {
-        [window->ns.object center];
+        [(NSWindow*)window->ns.object center];
 
         if (wndconfig->resizable)
             [window->ns.object setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
@@ -1650,4 +1650,3 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
     _GLFW_REQUIRE_INIT_OR_RETURN(nil);
     return window->ns.object;
 }
-
