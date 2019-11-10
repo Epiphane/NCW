@@ -5607,6 +5607,7 @@ namespace Catch {
 
         // Use static method for one-shot changes
         static void use( Code _colourCode );
+        static void ansi( bool active );
 
     private:
         bool m_moved = false;
@@ -8332,10 +8333,12 @@ namespace Catch {
         struct IColourImpl {
             virtual ~IColourImpl() = default;
             virtual void use( Colour::Code _colourCode ) = 0;
+            virtual void ansi( bool active ) = 0;
         };
 
         struct NoColourImpl : IColourImpl {
             void use( Colour::Code ) {}
+            void ansi( bool ) {}
 
             static IColourImpl* instance() {
                 static NoColourImpl s_instance;
@@ -8356,6 +8359,10 @@ namespace Catch {
 
 #if defined ( CATCH_CONFIG_COLOUR_WINDOWS ) /////////////////////////////////////////
 
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING  0x0004
+#endif
+
 namespace Catch {
 namespace {
 
@@ -8367,36 +8374,81 @@ namespace {
             GetConsoleScreenBufferInfo( stdoutHandle, &csbiInfo );
             originalForegroundAttributes = csbiInfo.wAttributes & ~( BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY );
             originalBackgroundAttributes = csbiInfo.wAttributes & ~( FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY );
+
+            DWORD outMode = 0;
+            if(GetConsoleMode(stdoutHandle, &outMode)) {
+                // Try to enable ANSI escape codes
+                outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                if(SetConsoleMode(stdoutHandle, outMode)) {
+                    useANSI = true;
+                }
+            }
+        }
+
+        void ansi( bool active ) override {
+            useANSI = active;
         }
 
         void use( Colour::Code _colourCode ) override {
-            switch( _colourCode ) {
-                case Colour::None:      return setTextAttribute( originalForegroundAttributes );
-                case Colour::White:     return setTextAttribute( FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-                case Colour::Red:       return setTextAttribute( FOREGROUND_RED );
-                case Colour::Green:     return setTextAttribute( FOREGROUND_GREEN );
-                case Colour::Blue:      return setTextAttribute( FOREGROUND_BLUE );
-                case Colour::Cyan:      return setTextAttribute( FOREGROUND_BLUE | FOREGROUND_GREEN );
-                case Colour::Yellow:    return setTextAttribute( FOREGROUND_RED | FOREGROUND_GREEN );
-                case Colour::Grey:      return setTextAttribute( 0 );
+            if (!useANSI)
+            {
+                switch( _colourCode ) {
+                    case Colour::None:      return setTextAttribute( originalForegroundAttributes );
+                    case Colour::White:     return setTextAttribute( FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
+                    case Colour::Red:       return setTextAttribute( FOREGROUND_RED );
+                    case Colour::Green:     return setTextAttribute( FOREGROUND_GREEN );
+                    case Colour::Blue:      return setTextAttribute( FOREGROUND_BLUE );
+                    case Colour::Cyan:      return setTextAttribute( FOREGROUND_BLUE | FOREGROUND_GREEN );
+                    case Colour::Yellow:    return setTextAttribute( FOREGROUND_RED | FOREGROUND_GREEN );
+                    case Colour::Grey:      return setTextAttribute( 0 );
 
-                case Colour::LightGrey:     return setTextAttribute( FOREGROUND_INTENSITY );
-                case Colour::BrightRed:     return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED );
-                case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
-                case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
-                case Colour::BrightYellow:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN );
+                    case Colour::LightGrey:     return setTextAttribute( FOREGROUND_INTENSITY );
+                    case Colour::BrightRed:     return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED );
+                    case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
+                    case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
+                    case Colour::BrightYellow:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN );
 
-                case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+                    case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
 
-                default:
-                    CATCH_ERROR( "Unknown colour requested" );
+                    default:
+                        CATCH_ERROR( "Unknown colour requested" );
+                }
+            }
+            else
+            {
+                switch( _colourCode ) {
+                    case Colour::None:
+                    case Colour::White:     return setColour( "[0m" );
+                    case Colour::Red:       return setColour( "[0;31m" );
+                    case Colour::Green:     return setColour( "[0;32m" );
+                    case Colour::Blue:      return setColour( "[0;34m" );
+                    case Colour::Cyan:      return setColour( "[0;36m" );
+                    case Colour::Yellow:    return setColour( "[0;33m" );
+                    case Colour::Grey:      return setColour( "[1;30m" );
+
+                    case Colour::LightGrey:     return setColour( "[0;37m" );
+                    case Colour::BrightRed:     return setColour( "[1;31m" );
+                    case Colour::BrightGreen:   return setColour( "[1;32m" );
+                    case Colour::BrightWhite:   return setColour( "[1;37m" );
+                    case Colour::BrightYellow:  return setColour( "[1;33m" );
+
+                    case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+                    default: CATCH_INTERNAL_ERROR( "Unknown colour requested" );
+                }
             }
         }
 
     private:
+        void setColour( const char* _escapeCode ) {
+            getCurrentContext().getConfig()->stream()
+                << '\033' << _escapeCode;
+        }
+
         void setTextAttribute( WORD _textAttribute ) {
             SetConsoleTextAttribute( stdoutHandle, _textAttribute | originalBackgroundAttributes );
         }
+
+        bool useANSI = false;
         HANDLE stdoutHandle;
         WORD originalForegroundAttributes;
         WORD originalBackgroundAttributes;
@@ -8452,6 +8504,8 @@ namespace {
                 case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
                 default: CATCH_INTERNAL_ERROR( "Unknown colour requested" );
             }
+        }
+        void ansi( bool ) override {
         }
         static IColourImpl* instance() {
             static PosixColourImpl s_instance;
@@ -8519,6 +8573,11 @@ namespace Catch {
     }
 
     Colour::~Colour(){ if( !m_moved ) use( None ); }
+
+    void Colour::ansi( bool active ) {
+        static IColourImpl* impl = platformColourInstance();
+        impl->ansi( active );
+    }
 
     void Colour::use( Code _colourCode ) {
         static IColourImpl* impl = platformColourInstance();

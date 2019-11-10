@@ -7,6 +7,17 @@ int main(int argc, char* argv[])
 {
    CubeWorld::Asset::SetAssetRootDefault();
 
+   for (int i = 0; i < argc; ++i)
+   {
+      if (strcmp("--ansi", argv[i]) == 0)
+      {
+         Catch::Colour::ansi(true);
+
+         // Hide this argument from the Catch library
+         argv[i][0] = '\0';
+      }
+   }
+
    return Catch::Session().run(argc, argv);
 }
 
