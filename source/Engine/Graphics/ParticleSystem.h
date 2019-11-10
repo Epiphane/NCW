@@ -142,6 +142,7 @@ public:
    virtual ~ParticleSystem() = default;
 
    ParticleSystem& operator=(const ParticleSystem& other) = default;
+   ParticleSystem& operator=(ParticleSystem&& other) = default;
 
    //
    // Reset the particle system to an initial state,
