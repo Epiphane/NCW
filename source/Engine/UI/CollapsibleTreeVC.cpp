@@ -24,6 +24,7 @@ CollapsibleTreeVC::CollapsibleTreeVC(Engine::UIRoot* root, Engine::UIElement* pa
    mRootItemStackView->SetVertical(true);
    mRootItemStackView->ConstrainEqualBounds(this);
    mRootItemStackView->SetAlignItemsBy(UIStackView::Left);
+   mRootItemStackView->SetAlignItemsBy(UIStackView::Right);
    
    mDataInputObserver >>
       OnMessage<std::vector<CollapsibleTreeItem::Data>>([&](std::vector<CollapsibleTreeItem::Data> newData) {

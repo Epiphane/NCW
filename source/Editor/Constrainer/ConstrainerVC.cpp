@@ -33,21 +33,16 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
 {
    mElementList = Add<CollapsibleTreeVC>("ElementList");
 
-//   Sidebar* sidebar = Add<Sidebar>();
-//
-//   sidebar->ConstrainLeftAlignedTo(this);
-//   sidebar->ConstrainTopAlignedTo(this);
-//   sidebar->ConstrainWidthTo(this, 0.0, 0.2);
-//   sidebar->ConstrainAbove(controls);
-//
-//   controls->ConstrainLeftAlignedTo(this);
-//   controls->ConstrainBottomAlignedTo(this);
-//   controls->ConstrainWidthTo(sidebar);
-//
-//   mElementList->ConstrainToRightOf(sidebar);
-//   mElementList->ConstrainWidthTo(this, 0.0, 0.2);
-//   mElementList->ConstrainTopAlignedTo(this);
-//   mElementList->ConstrainBottomAlignedTo(this);
+   Sidebar* sidebar = Add<Sidebar>();
+
+   sidebar->ConstrainLeftAlignedTo(this);
+   sidebar->ConstrainTopAlignedTo(this);
+   sidebar->ConstrainWidthTo(this, 0.0, 0.2);
+   sidebar->ConstrainBottomAlignedTo(this);
+
+   mElementList->ConstrainToRightOf(sidebar);
+   mElementList->ConstrainWidthTo(this, 0.0, 0.2);
+   mElementList->ConstrainTopAlignedTo(this);
 
    std::function<TreeData(UIElement*)> elementToTreeData = [&](UIElement* baseElement) -> TreeData {
       TreeData datum;

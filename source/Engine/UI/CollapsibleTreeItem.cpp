@@ -62,7 +62,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
             newItem->GetDataSink().SendMessage(newSubItemData);
             
             // Indent sub-items
-            newItem->mExpandToggle->ConstrainLeftAlignedTo(mLabel, 0.0);
+//            newItem->mExpandToggle->ConstrainLeftAlignedTo(mLabel, 0.0);
             
             mSubItems.push_back(newItem);
          }
@@ -109,11 +109,10 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mSelectedHighlight->ConstrainTopAlignedTo(this);
    mSelectedHighlight->ConstrainRightAlignedTo(this);
    mSelectedHighlight->ConstrainHeight(30);
-   mSelectedHighlight->ConstrainBehind(mExpandToggle);
-   mSelectedHighlight->ConstrainBehind(mLabel);
    mSelectionToggle->ConstrainEqualBounds(mSelectedHighlight);
 
    mSubItemStackView->SetAlignItemsBy(UIStackView::Left);
+   mSubItemStackView->SetAlignItemsBy(UIStackView::Right);
    mSubItemStackView->ConstrainBelow(mSelectedHighlight);
    mSubItemStackView->ConstrainWidthTo(this);
    mSubItemStackView->ConstrainBottomAlignedTo(this);
