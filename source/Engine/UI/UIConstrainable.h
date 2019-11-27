@@ -26,8 +26,6 @@ namespace Engine
    
 class UIRoot; ///< Forward declare
    
-typedef std::vector<UIConstraint*> ConstraintArray;
-   
 /**
  * Constraint-based rectangle. Has several "innate" constraints,
  *  such as `bottom - top == height`. Used as the backbone for
@@ -68,39 +66,39 @@ public:
    virtual rhea::linear_expression ConvertTargetToVariable(UIConstraint::Target target) const;
    
    // Constrain measurements to a CONSTANT
-   UIConstraint ConstrainWidth(double width, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainHeight(double height, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainAspectRatio(double aspectRatio, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainWidth(double width, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainHeight(double height, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainAspectRatio(double aspectRatio, UIConstraint::Options options = UIConstraint::Options());
    
    // Constrain yourself to ANOTHER ELEMENT
-   UIConstraint ConstrainToLeftOf (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainAbove    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainToRightOf(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainBelow    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainToLeftOf (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainAbove    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainToRightOf(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainBelow    (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
-   UIConstraint ConstrainWidthTo (UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainHeightTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
-   std::pair<UIConstraint, UIConstraint> ConstrainDimensionsTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainWidthTo (UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainHeightTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
+   void ConstrainDimensionsTo(UIConstrainable* other, double constant = 0.0, double multiplier = 1.0, UIConstraint::Options options = UIConstraint::Options());
    
-   UIConstraint ConstrainLeftAlignedTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainTopAlignedTo   (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainRightAlignedTo (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainBottomAlignedTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainLeftAlignedTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainTopAlignedTo   (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainRightAlignedTo (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainBottomAlignedTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
-   UIConstraint ConstrainHorizontalCenterTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
-   std::pair<UIConstraint, UIConstraint> ConstrainCenterTo(UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainHorizontalCenterTo(UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainVerticalCenterTo  (UIConstrainable* other, double offset = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   void ConstrainCenterTo(UIConstrainable* other, double xOffset = 0.0, double yOffset = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
-   std::tuple<UIConstraint, UIConstraint, UIConstraint, UIConstraint> ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
+   void ConstrainEqualBounds(UIConstrainable* other, double leftMargin = 0.0, double topMargin = 0.0, double rightMargin = 0.0, double bottomMargin = 0.0, UIConstraint::Options options = UIConstraint::Options());
    
-   UIConstraint ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainBehind   (UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
 
-   UIConstraint ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options = UIConstraint::Options());
    
-   UIConstraint ConstrainWidthToContent(UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainHeightToContent(UIConstraint::Options options = UIConstraint::Options());
-   UIConstraint ConstrainAspectRatioToContent(UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainWidthToContent(UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainHeightToContent(UIConstraint::Options options = UIConstraint::Options());
+   UIConstraint& ConstrainAspectRatioToContent(UIConstraint::Options options = UIConstraint::Options());
 
    //
    // Set the name of this element

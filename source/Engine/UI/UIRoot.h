@@ -58,7 +58,7 @@ public:
    //
    // Add a UIContraint to our map.
    //
-   void AddConstraint(const UIConstraint& constraintToAdd);
+   UIConstraint& AddConstraint(const UIConstraint& constraintToAdd);
 
    //
    // Remove a UIConstraint from our map.

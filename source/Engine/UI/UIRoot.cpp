@@ -112,8 +112,8 @@ void UIRoot::SetBounds(const Bounded& bounds)
    // Set the values immediately, so that they can be accessed
    mFrame.left.set_value(bounds.GetX());
    mFrame.bottom.set_value(bounds.GetY());
-   mFrame.right.set_value(bounds.GetX() + bounds.GetWidth());
-   mFrame.top.set_value(bounds.GetY() + bounds.GetHeight());
+   mFrame.right.set_value((double) (bounds.GetX() + bounds.GetWidth()));
+   mFrame.top.set_value((double) (bounds.GetY() + bounds.GetHeight()));
 
    // UIRoot covers the entirety of its bounds.
    mSolver.add_constraints(mBoundConstraints);
@@ -130,16 +130,18 @@ void UIRoot::AddConstraintsForElement(UIFrame& frame)
    });
 }
 
-void UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
+UIConstraint& UIRoot::AddConstraint(const UIConstraint& constraintToAdd) {
    auto it = mConstraintMap.find(constraintToAdd.GetName());
    if (it != mConstraintMap.end()) {
       LOG_ERROR("Trying to add constraint with duped name: '{name}'", constraintToAdd.GetName());
       assert(false && "Attempting to add 2 constraints with the same name");
-      return;
+      return mConstraintMap.at(constraintToAdd.GetName());
    }
 
    mConstraintMap.insert(make_pair(constraintToAdd.GetName(), constraintToAdd));
    mSolver.add_constraint(constraintToAdd.GetInternalConstraint());
+
+   return mConstraintMap.at(constraintToAdd.GetName());
 }
 
 void UIRoot::RemoveConstraint(std::string constraintNameToRemove) {
