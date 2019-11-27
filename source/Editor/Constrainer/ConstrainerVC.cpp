@@ -11,7 +11,6 @@
 
 #include "ConstrainerVC.h"
 #include "Sidebar.h"
-#include "UIElementDesignerWrapper.h"
 
 namespace CubeWorld
 {

@@ -58,16 +58,14 @@ rhea::linear_expression UIConstrainable::ConvertTargetToVariable(UIConstraint::T
  *  |   ME  |
  *  | width |
  */
-UIConstraint UIConstrainable::ConstrainWidth(double width, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainWidth(double width, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_constantWidth";
 
    options.constant = width;
 
    UIConstraint newConstraint(this, NULL, UIConstraint::Width, UIConstraint::NoTarget, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain constant height:
@@ -77,48 +75,42 @@ UIConstraint UIConstrainable::ConstrainWidth(double width, UIConstraint::Options
  *     v
  *  __ __
  */
-UIConstraint UIConstrainable::ConstrainHeight(double height, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainHeight(double height, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_constantHeight";
 
    options.constant = height;
 
    UIConstraint newConstraint(this, NULL, UIConstraint::Height, UIConstraint::NoTarget, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain aspect ratio:
  *
  * Aspect ratio = WIDTH / HEIGHT
  */
-UIConstraint UIConstrainable::ConstrainAspectRatio(double aspectRatio, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainAspectRatio(double aspectRatio, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_constantAspectRatio";
 
    options.multiplier = aspectRatio;
 
    UIConstraint newConstraint(this, this, UIConstraint::Width, UIConstraint::Height, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain To Left Of:
  *
  *  ME -offset- <FIRST ARGUMENT>
  */
-UIConstraint UIConstrainable::ConstrainToLeftOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainToLeftOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_leftOf_";
 
    options.constant = -offset;   // Flipped!
 
    UIConstraint newConstraint(this, other, UIConstraint::Right, UIConstraint::Left, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain To Top Of:
@@ -129,32 +121,28 @@ UIConstraint UIConstrainable::ConstrainToLeftOf(UIConstrainable* other, double o
  *       v
  * <FIRST ARGUMENT>
  */
-UIConstraint UIConstrainable::ConstrainAbove(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainAbove(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_above_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::Bottom, UIConstraint::Top, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain To Right Of:
  *
  *  <FIRST ARGUMENT>  -offset-  ME
  */
-UIConstraint UIConstrainable::ConstrainToRightOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainToRightOf(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_rightOf_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::Left, UIConstraint::Right, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 
@@ -166,16 +154,14 @@ UIConstraint UIConstrainable::ConstrainToRightOf(UIConstrainable* other, double 
  *       v
  *      ME
  */
-UIConstraint UIConstrainable::ConstrainBelow(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainBelow(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_below_";
 
    options.constant = -offset;   // Flipped!
 
    UIConstraint newConstraint(this, other, UIConstraint::Top, UIConstraint::Bottom, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain Widths:
@@ -183,7 +169,7 @@ UIConstraint UIConstrainable::ConstrainBelow(UIConstrainable* other, double offs
  * |<FIRST ARG>|
  * |     ME     + offset|
  */
-UIConstraint UIConstrainable::ConstrainWidthTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainWidthTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_widthTo_";
 
@@ -191,9 +177,7 @@ UIConstraint UIConstrainable::ConstrainWidthTo(UIConstrainable* other, double co
    options.multiplier = multiplier;
 
    UIConstraint newConstraint(this, other, UIConstraint::Width, UIConstraint::Width, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain Heights:
@@ -205,7 +189,7 @@ UIConstraint UIConstrainable::ConstrainWidthTo(UIConstrainable* other, double co
  *                 + offset
  *                   ___
  */
-UIConstraint UIConstrainable::ConstrainHeightTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainHeightTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_heightTo_";
 
@@ -213,9 +197,7 @@ UIConstraint UIConstrainable::ConstrainHeightTo(UIConstrainable* other, double c
    options.multiplier = multiplier;
 
    UIConstraint newConstraint(this, other, UIConstraint::Height, UIConstraint::Height, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain Widths and Heights:
@@ -225,128 +207,117 @@ UIConstraint UIConstrainable::ConstrainHeightTo(UIConstrainable* other, double c
 * ___________
 *                   ___
 */
-std::pair<UIConstraint, UIConstraint> UIConstrainable::ConstrainDimensionsTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
-   return std::make_pair(ConstrainHeightTo(other, constant, multiplier, options), ConstrainWidthTo(other, constant, multiplier, options));
+void UIConstrainable::ConstrainDimensionsTo(UIConstrainable* other, double constant, double multiplier, UIConstraint::Options options) {
+   /*UIConstraint& verticalConstraint   = */ConstrainHeightTo(other, constant, multiplier, options);
+   /*UIConstraint& horizontalConstraint = */ConstrainWidthTo(other, constant, multiplier, options);
 }
 
 /*
  * Constrain left edges to one another
  */
-UIConstraint UIConstrainable::ConstrainLeftAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainLeftAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignLeftWith_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::Left, UIConstraint::Left, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain top edges to one another
  */
-UIConstraint UIConstrainable::ConstrainTopAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainTopAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignTopWith_";
 
    options.constant = -offset; // Flipped!
 
    UIConstraint newConstraint(this, other, UIConstraint::Top, UIConstraint::Top, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain right edges to one another
  */
-UIConstraint UIConstrainable::ConstrainRightAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainRightAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignRightWith_";
 
    options.constant = -offset; // Flipped!
 
    UIConstraint newConstraint(this, other, UIConstraint::Right, UIConstraint::Right, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain bottom edges to one another
  */
-UIConstraint UIConstrainable::ConstrainBottomAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainBottomAlignedTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignBottomWith_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::Bottom, UIConstraint::Bottom, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain horizontal center values to one another
  */
-UIConstraint UIConstrainable::ConstrainHorizontalCenterTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainHorizontalCenterTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignHorizontalCenterTo_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::CenterX, UIConstraint::CenterX, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain vertical center values to one another
  */
-UIConstraint UIConstrainable::ConstrainVerticalCenterTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainVerticalCenterTo(UIConstrainable* other, double offset, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_alignVerticalCenterTo_";
 
    options.constant = offset;
 
    UIConstraint newConstraint(this, other, UIConstraint::CenterY, UIConstraint::CenterY, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /*
  * Constrain center points to one another
  */
-std::pair<UIConstraint, UIConstraint> UIConstrainable::ConstrainCenterTo(UIConstrainable* other, double xOffset, double yOffset, UIConstraint::Options options) {
+void UIConstrainable::ConstrainCenterTo(UIConstrainable* other, double xOffset, double yOffset, UIConstraint::Options options) {
 
-   UIConstraint verticalConstraint  = ConstrainVerticalCenterTo  (other, yOffset, options);
-   UIConstraint horizontalContraint = ConstrainHorizontalCenterTo(other, xOffset, options);
+   /*UIConstraint& verticalConstraint  = */ConstrainVerticalCenterTo  (other, yOffset, options);
+   /*UIConstraint& horizontalContraint = */ConstrainHorizontalCenterTo(other, xOffset, options);
 
-   return std::make_pair(horizontalContraint, verticalConstraint);
+   //return std::make_pair(horizontalContraint, verticalConstraint);
 }
 
 /**
  * Constrain bounds equal, with an optional margin on each side
  */
-std::tuple<UIConstraint, UIConstraint, UIConstraint, UIConstraint> UIConstrainable::ConstrainEqualBounds(UIConstrainable* other, double leftMargin, double topMargin, double rightMargin, double bottomMargin, UIConstraint::Options options) {
-   UIConstraint leftConstraint   = ConstrainLeftAlignedTo  (other, leftMargin,   options);
-   UIConstraint topConstraint    = ConstrainTopAlignedTo   (other, topMargin,    options);
-   UIConstraint rightConstraint  = ConstrainRightAlignedTo (other, rightMargin,  options);
-   UIConstraint bottomConstraint = ConstrainBottomAlignedTo(other, bottomMargin, options);
+void UIConstrainable::ConstrainEqualBounds(UIConstrainable* other, double leftMargin, double topMargin, double rightMargin, double bottomMargin, UIConstraint::Options options) {
+   /*UIConstraint& leftConstraint   = */ConstrainLeftAlignedTo  (other, leftMargin,   options);
+   /*UIConstraint& topConstraint    = */ConstrainTopAlignedTo   (other, topMargin,    options);
+   /*UIConstraint& rightConstraint  = */ConstrainRightAlignedTo (other, rightMargin,  options);
+   /*UIConstraint& bottomConstraint = */ConstrainBottomAlignedTo(other, bottomMargin, options);
 
-   return std::make_tuple(leftConstraint, topConstraint, rightConstraint, bottomConstraint);
+   //return std::make_tuple(leftConstraint, topConstraint, rightConstraint, bottomConstraint);
 }
 
 /* Constrain In Front Of:
  *
  * Constraints ME to have a HIGHER Z value than 'other', thus putting me in front.
  */
-UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_inFrontOf_";
 
@@ -354,16 +325,14 @@ UIConstraint UIConstrainable::ConstrainInFrontOf(UIConstrainable* other, UIConst
    options.constant = 1.0f;
 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain Behind:
  *
  * Constraints ME to have a LOWER Z value than 'other', thus putting me in back.
  */
-UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_behind_";
 
@@ -371,16 +340,14 @@ UIConstraint UIConstrainable::ConstrainBehind(UIConstrainable* other, UIConstrai
    options.constant = -1.0f;
 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeight, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /* Constrain In Front Of All Descendants
  *
  * Constraints ME to have a HIGHER Z value than 'other', AND all of its children.
  */
-UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options) {
+UIConstraint& UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* other, UIConstraint::Options options) {
    if (options.customNameConnector == "")
       options.customNameConnector = "_inFrontOfAllDescendants_";
 
@@ -388,37 +355,31 @@ UIConstraint UIConstrainable::ConstrainInFrontOfAllDescendants(UIConstrainable* 
    options.constant = 1.0f;
 
    UIConstraint newConstraint(this, other, UIConstraint::ZHeight, UIConstraint::ZHeightDescendants, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /**
  * Constrain this element to use the width of its content as its layout width.
  */
-UIConstraint UIConstrainable::ConstrainWidthToContent(UIConstraint::Options options)
+UIConstraint& UIConstrainable::ConstrainWidthToContent(UIConstraint::Options options)
 {
    if (options.customNameConnector == "")
       options.customNameConnector = "_widthToContentWidth";
 
    UIConstraint newConstraint(this, this, UIConstraint::Width, UIConstraint::ContentWidth, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /**
  * Constrain this element to use the height of its content as its layout height.
  */
-UIConstraint UIConstrainable::ConstrainHeightToContent(UIConstraint::Options options)
+UIConstraint& UIConstrainable::ConstrainHeightToContent(UIConstraint::Options options)
 {
    if (options.customNameConnector == "")
       options.customNameConnector = "_heightToContentHeight";
 
    UIConstraint newConstraint(this, this, UIConstraint::Height, UIConstraint::ContentHeight, options);
-   mpRoot->AddConstraint(newConstraint);
-
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 /**
@@ -427,11 +388,11 @@ UIConstraint UIConstrainable::ConstrainHeightToContent(UIConstraint::Options opt
  * NOTE: We can't use an edit variable, because otherwise it wouldn't be a linear constraint.
  *          Therefore it's impossible to do this until we write our own simplex solver :P
  */
-UIConstraint UIConstrainable::ConstrainAspectRatioToContent(UIConstraint::Options options)
+UIConstraint& UIConstrainable::ConstrainAspectRatioToContent(UIConstraint::Options options)
 {
    assert(false && "This isn't supported quite yet ;P");
    UIConstraint newConstraint(this, this, UIConstraint::Width, UIConstraint::Height, options);
-   return newConstraint;
+   return mpRoot->AddConstraint(newConstraint);
 }
 
 }; // namespace Engine
