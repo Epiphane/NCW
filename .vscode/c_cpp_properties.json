@@ -30,7 +30,8 @@
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"
             ],
             "defines": [
-                "CUBEWORLD_PLATFORM_MACOSX"
+                "CUBEWORLD_PLATFORM_MACOSX",
+                "CATCH_CONFIG_RUNNER"
             ],
             "macFrameworkPath": [
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks"
@@ -69,7 +70,8 @@
                 "${workspaceFolder}/source/Library"
             ],
             "defines": [
-                "CUBEWORLD_PLATFORM_WINDOWS"
+                "CUBEWORLD_PLATFORM_WINDOWS",
+                "CATCH_CONFIG_RUNNER"
             ],
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx64/x64/cl.exe",
             "cStandard": "c11",

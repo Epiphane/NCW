@@ -87,6 +87,7 @@
       {
          .TestExecutable = '$ProjectName$-Exe-$Platform$-$Config$'
          .TestOutput = '$OutputPath$/Output.txt'
+         .TestArguments = '--ansi'
       }
 
       Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
