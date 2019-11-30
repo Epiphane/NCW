@@ -104,3 +104,11 @@ keyframes:
     character.Spine: [2.898438, 11.078125, 0]
     character.Torso: [0, -6.6, 0]
     greatmace.root: [0, -89.492188, 0]
+events:
+- type: strike
+  start: 0.89
+  end: 0.94
+  strike:
+    bone: greatmace.Mace
+    offset: [0, 2.5, 0]
+    size: [13, 22, 13]

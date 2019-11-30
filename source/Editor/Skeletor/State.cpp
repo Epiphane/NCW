@@ -144,7 +144,6 @@ void MainState::Receive(const SkeletonClearedEvent&)
 
 void MainState::Receive(const AddSkeletonPartEvent& evt)
 {
-   LOG_DEBUG("Adding skeleton {path}", evt.filename);
    Maybe<BindingProperty> data = YAMLSerializer::DeserializeFile(evt.filename);
    if (!data)
    {

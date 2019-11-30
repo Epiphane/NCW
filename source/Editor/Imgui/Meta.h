@@ -166,7 +166,7 @@ bool Draw(const std::string& label, Class& obj, bool addToStack)
 }
 
 template<typename Class>
-bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = true)
+bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory = std::function<Class()>{}, bool addToStack = true)
 {
    if (!label.empty() && label[0] != '#')
    {
@@ -192,6 +192,10 @@ bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = t
          ImGui::TreePop();
       }
       index++;
+   }
+   if (factory && ImGui::Button(FormatString("New Element##{label}", label).c_str()))
+   {
+      val.push_back(factory());
    }
 
    return modified;

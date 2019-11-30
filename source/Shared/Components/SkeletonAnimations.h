@@ -32,7 +32,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
             LessThan,
             Bool
          };
-         
+
          Type type;
          std::string parameter;
          union {

@@ -123,3 +123,11 @@ particles:
       lifetime: 0.15
     particle:
       lifetime: 0.4
+events:
+- type: strike
+  start: 0.61
+  end: 0.67
+  strike:
+    bone: greatmace.Mace
+    offset: [0, 2.5, 0]
+    size: [13, 22, 13]

@@ -336,7 +336,7 @@ void Dock::Update(TIMEDELTA)
       }
       if (ImGui::BeginTabItem("Transitions"))
       {
-         if (Imgui::Draw("transitions", state.transitions))
+         if (Imgui::Draw("transitions", state.transitions, []{ return SimpleAnimationController::Transition(SkeletonAnimations::Transition{}); }))
          {
             mpRoot->Emit<SkeletonModifiedEvent>(mController);
          }
@@ -354,7 +354,12 @@ void Dock::Update(TIMEDELTA)
       }
       if (ImGui::BeginTabItem("Events"))
       {
-         if (Imgui::Draw("events", state.events))
+         std::function<SimpleAnimationController::Event()> factory = [&]{
+            SimpleAnimationController::Event evt(SkeletonAnimations::Event{});
+            evt.entity = state.entity;
+            return evt;
+         };
+         if (Imgui::Draw("events", state.events, factory))
          {
             mpRoot->Emit<SkeletonModifiedEvent>(mController);
          }

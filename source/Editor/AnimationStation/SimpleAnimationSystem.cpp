@@ -287,7 +287,10 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
       auto stateIt = std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == n; });
       if (stateIt == states.end())
       {
-         states.push_back(State{});
+         State newState;
+         newState.events.reserve(32);
+         newState.particles.reserve(32);
+         states.push_back(std::move(newState));
          stateIt = states.end() - 1;
       }
 
