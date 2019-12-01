@@ -38,9 +38,15 @@ UIRoot::UIRoot(Input* input)
    mSolver.on_resolve = [&](rhea::simplex_solver&) {
       mDirty = true;
    };
-   mSolver.on_variable_change = [&](const rhea::variable&, rhea::solver&) {
+   mSolver.on_variable_change = [&](const rhea::variable& var, rhea::solver&) {
       // TODO maybe drill down and find the element that cares one day.
       mDirty = true;
+      
+      auto watchedVariableCallback = mVariableCallbackMap.find(var);
+      if (watchedVariableCallback != mVariableCallbackMap.end())
+      {
+         watchedVariableCallback->second(var);
+      }
    };
 
 
@@ -205,6 +211,12 @@ void UIRoot::AddConstraints(const rhea::constraint_list& constraints)
 void UIRoot::AddEditVar(const rhea::variable& variable)
 {
    mSolver.add_edit_var(variable, rhea::strength::required());
+}
+
+void UIRoot::WatchConstrainedVar(const rhea::variable& variable, std::function<void(const rhea::variable&)> callback)
+{
+   mVariableCallbackMap[variable] = callback;
+   // TODO: When the variable dies, this entry should be cleared.
 }
 
 void UIRoot::Suggest(const rhea::variable& variable, double value)

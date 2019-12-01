@@ -88,7 +88,6 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          mSelectedHighlight->SetActive(bSelected && bActive);
       }, mBag);
 
-   mLabel->ConstrainWidthToContent();
    mLabel->ConstrainHeightToContent();
    mLabel->ConstrainToRightOf(mExpandToggle, 5.0);
    mLabel->ConstrainVerticalCenterTo(mExpandToggle);
@@ -103,19 +102,19 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    //    in case it needs to be indented.
    UIConstraint::Options greaterThan;
    greaterThan.relationship = UIConstraint::GreaterThanOrEqual;
+   greaterThan.customNameConnector = "_leftOf_";
    mExpandToggle->ConstrainLeftAlignedTo(this, 0.0, greaterThan);
+   mExpandToggle->ConstrainLeftAlignedTo(this, 0.0, UIConstraint::ConstrainLowPriority);
 
    mSelectedHighlight->ConstrainLeftAlignedTo(this);
    mSelectedHighlight->ConstrainTopAlignedTo(this);
    mSelectedHighlight->ConstrainRightAlignedTo(this);
    mSelectedHighlight->ConstrainHeight(30);
-   mSelectedHighlight->ConstrainBehind(mExpandToggle);
-   mSelectedHighlight->ConstrainBehind(mLabel);
    mSelectionToggle->ConstrainEqualBounds(mSelectedHighlight);
 
    mSubItemStackView->SetAlignItemsBy(UIStackView::Left);
+   mSubItemStackView->SetAlignItemsBy(UIStackView::Right);
    mSubItemStackView->ConstrainBelow(mSelectedHighlight);
-   mSubItemStackView->ConstrainWidthTo(this);
    mSubItemStackView->ConstrainBottomAlignedTo(this);
    mSubItemStackView->ConstrainLeftAlignedTo(this);
    mSubItemStackView->ConstrainRightAlignedTo(this);

@@ -87,6 +87,11 @@ public:
    // Alias for rhea::simplex_solver::add_edit_var. Add a rhea::variable for editing
    //
    void AddEditVar(const rhea::variable& variable);
+   
+   //
+   // When `variable` changes, call `callback`.
+   //
+   void WatchConstrainedVar(const rhea::variable& variable, std::function<void(const rhea::variable&)> callback);
 
    //
    // Suggest a value to the solver
@@ -201,6 +206,9 @@ private:
 
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;
+   
+   // Key is a rhea variable, value is the callback that is called when the variable changes.
+   std::map<rhea::variable, std::function<void(const rhea::variable&)>> mVariableCallbackMap;
 
    // The element, if any, that has captured the current click-and-drag of the mouse.
    UIElement* mActivelyCapturingElement;
