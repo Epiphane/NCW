@@ -28,7 +28,7 @@
                 "${workspaceFolder}/dependencies/rhea/0.2.4",
                 "${workspaceFolder}/dependencies/sqlite/3.22.0",
                 "${workspaceFolder}/source",
-                "${workspaceFolder}/source/Library", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
+                "${workspaceFolder}/source/Library"
             ],
             "defines": [
                 "CUBEWORLD_PLATFORM_MACOSX",
