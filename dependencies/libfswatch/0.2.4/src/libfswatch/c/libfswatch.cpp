@@ -432,11 +432,11 @@
 #include <vector>
 #include <map>
 #include "libfswatch.h"
-#include "../c++/libfswatch_map.hpp"
-#include "../c++/filter.hpp"
-#include "../c++/monitor.hpp"
-#include "../c++/monitor_factory.hpp"
-#include "../c++/libfswatch_exception.hpp"
+#include "../cpp/libfswatch_map.hpp"
+#include "../cpp/filter.hpp"
+#include "../cpp/monitor.hpp"
+#include "../cpp/monitor_factory.hpp"
+#include "../cpp/libfswatch_exception.hpp"
 
 using namespace std;
 using namespace fsw;

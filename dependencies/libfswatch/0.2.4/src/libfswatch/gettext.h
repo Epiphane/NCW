@@ -48,7 +48,7 @@
 # include <locale.h>
 #endif
 
-/* Many header files from the libstdc++ coming with g++ 3.3 or newer include
+/* Many header files from the libstdcpp coming with g++ 3.3 or newer include
    <libintl.h>, which chokes if dcgettext is defined as a macro.  So include
    it now, to make later inclusions of <libintl.h> a NOP.  */
 #if defined(__cplusplus) && defined(__GNUG__) && (__GNUC__ >= 3)

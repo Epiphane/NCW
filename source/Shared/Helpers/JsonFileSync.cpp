@@ -13,7 +13,7 @@
 #include "JsonFileSync.h"
 
 #if !CUBEWORLD_PLATFORM_WINDOWS
-#include <libfswatch/c++/monitor_factory.hpp>
+#include <libfswatch/cpp/monitor_factory.hpp>
 #include <libfswatch/c/libfswatch.h>
 #endif
 

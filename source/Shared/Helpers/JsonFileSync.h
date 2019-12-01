@@ -22,7 +22,7 @@
 #include <mutex>
 #include <thread>
 #if !CUBEWORLD_PLATFORM_WINDOWS
-#include <libfswatch/c++/monitor.hpp>
+#include <libfswatch/cpp/monitor.hpp>
 #endif
 
 #include <RGBBinding/BindingProperty.h>

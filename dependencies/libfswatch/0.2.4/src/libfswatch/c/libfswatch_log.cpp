@@ -15,7 +15,7 @@
  */
 #include "libfswatch.h"
 #include "libfswatch_log.h"
-#include "../c++/string/string_utils.hpp"
+#include "../cpp/string/string_utils.hpp"
 #include <cstdarg>
 
 using namespace std;

@@ -27,24 +27,24 @@ set(LIB_SOURCE_FILES
         src/libfswatch/c/libfswatch_log.cpp
         src/libfswatch/c/libfswatch_log.h
         src/libfswatch/c/libfswatch_types.h
-        src/libfswatch/c++/event.cpp
-        src/libfswatch/c++/event.hpp
-        src/libfswatch/c++/filter.hpp
-        src/libfswatch/c++/filter.cpp
-        src/libfswatch/c++/libfswatch_exception.cpp
-        src/libfswatch/c++/libfswatch_exception.hpp
-        src/libfswatch/c++/libfswatch_map.hpp
-        src/libfswatch/c++/libfswatch_set.hpp
-        src/libfswatch/c++/monitor.cpp
-        src/libfswatch/c++/monitor.hpp
-        src/libfswatch/c++/monitor_factory.cpp
-        src/libfswatch/c++/monitor_factory.hpp
-        src/libfswatch/c++/path_utils.cpp
-        src/libfswatch/c++/path_utils.hpp
-        src/libfswatch/c++/poll_monitor.cpp
-        src/libfswatch/c++/poll_monitor.hpp
-        src/libfswatch/c++/string/string_utils.cpp
-        src/libfswatch/c++/string/string_utils.hpp
+        src/libfswatch/cpp/event.cpp
+        src/libfswatch/cpp/event.hpp
+        src/libfswatch/cpp/filter.hpp
+        src/libfswatch/cpp/filter.cpp
+        src/libfswatch/cpp/libfswatch_exception.cpp
+        src/libfswatch/cpp/libfswatch_exception.hpp
+        src/libfswatch/cpp/libfswatch_map.hpp
+        src/libfswatch/cpp/libfswatch_set.hpp
+        src/libfswatch/cpp/monitor.cpp
+        src/libfswatch/cpp/monitor.hpp
+        src/libfswatch/cpp/monitor_factory.cpp
+        src/libfswatch/cpp/monitor_factory.hpp
+        src/libfswatch/cpp/path_utils.cpp
+        src/libfswatch/cpp/path_utils.hpp
+        src/libfswatch/cpp/poll_monitor.cpp
+        src/libfswatch/cpp/poll_monitor.hpp
+        src/libfswatch/cpp/string/string_utils.cpp
+        src/libfswatch/cpp/string/string_utils.hpp
         src/libfswatch/gettext.h
         src/libfswatch/gettext_defs.h
         src/libfswatch/libfswatch_config.h)
@@ -56,8 +56,8 @@ CHECK_INCLUDE_FILES(sys/inotify.h HAVE_SYS_INOTIFY)
 if (HAVE_SYS_INOTIFY_H)
     set(LIB_SOURCE_FILES
             ${LIB_SOURCE_FILES}
-            src/libfswatch/c++/inotify_monitor.cpp
-            src/libfswatch/c++/inotify_monitor.hpp)
+            src/libfswatch/cpp/inotify_monitor.cpp
+            src/libfswatch/cpp/inotify_monitor.hpp)
 endif (HAVE_SYS_INOTIFY_H)
 
 CHECK_INCLUDE_FILES(sys/event.h HAVE_SYS_EVENT_H)
@@ -65,8 +65,8 @@ CHECK_INCLUDE_FILES(sys/event.h HAVE_SYS_EVENT_H)
 if (HAVE_SYS_EVENT_H)
     set(LIB_SOURCE_FILES
             ${LIB_SOURCE_FILES}
-            src/libfswatch/c++/kqueue_monitor.cpp
-            src/libfswatch/c++/kqueue_monitor.hpp)
+            src/libfswatch/cpp/kqueue_monitor.cpp
+            src/libfswatch/cpp/kqueue_monitor.hpp)
 endif (HAVE_SYS_EVENT_H)
 
 CHECK_INCLUDE_FILES(port.h HAVE_PORT_H)
@@ -74,8 +74,8 @@ CHECK_INCLUDE_FILES(port.h HAVE_PORT_H)
 if (HAVE_PORT_H)
     set(LIB_SOURCE_FILES
             ${LIB_SOURCE_FILES}
-            src/libfswatch/c++/fen_monitor.cpp
-            src/libfswatch/c++/fen_monitor.hpp)
+            src/libfswatch/cpp/fen_monitor.cpp
+            src/libfswatch/cpp/fen_monitor.hpp)
 endif (HAVE_PORT_H)
 
 if (WIN32)
@@ -84,18 +84,18 @@ if (WIN32)
     if (HAVE_CYGWIN)
         set(LIB_SOURCE_FILES
                 ${LIB_SOURCE_FILES}
-                src/libfswatch/c++/windows/win_directory_change_event.cpp
-                src/libfswatch/c++/windows/win_directory_change_event.hpp
-                src/libfswatch/c++/windows/win_error_message.cpp
-                src/libfswatch/c++/windows/win_error_message.hpp
-                src/libfswatch/c++/windows/win_handle.cpp
-                src/libfswatch/c++/windows/win_handle.hpp
-                src/libfswatch/c++/windows/win_paths.cpp
-                src/libfswatch/c++/windows/win_paths.hpp
-                src/libfswatch/c++/windows/win_strings.cpp
-                src/libfswatch/c++/windows/win_strings.hpp
-                src/libfswatch/c++/windows_monitor.cpp
-                src/libfswatch/c++/windows_monitor.hpp)
+                src/libfswatch/cpp/windows/win_directory_change_event.cpp
+                src/libfswatch/cpp/windows/win_directory_change_event.hpp
+                src/libfswatch/cpp/windows/win_error_message.cpp
+                src/libfswatch/cpp/windows/win_error_message.hpp
+                src/libfswatch/cpp/windows/win_handle.cpp
+                src/libfswatch/cpp/windows/win_handle.hpp
+                src/libfswatch/cpp/windows/win_paths.cpp
+                src/libfswatch/cpp/windows/win_paths.hpp
+                src/libfswatch/cpp/windows/win_strings.cpp
+                src/libfswatch/cpp/windows/win_strings.hpp
+                src/libfswatch/cpp/windows_monitor.cpp
+                src/libfswatch/cpp/windows_monitor.hpp)
         add_definitions(-DHAVE_WINDOWS)
     endif (HAVE_CYGWIN)
 endif (WIN32)
@@ -109,8 +109,8 @@ if (APPLE)
 
         set(LIB_SOURCE_FILES
                 ${LIB_SOURCE_FILES}
-                src/libfswatch/c++/fsevents_monitor.cpp
-                src/libfswatch/c++/fsevents_monitor.hpp)
+                src/libfswatch/cpp/fsevents_monitor.cpp
+                src/libfswatch/cpp/fsevents_monitor.hpp)
 
     endif (HAVE_FSEVENTS_FILE_EVENTS)
 endif (APPLE)
