@@ -18,6 +18,10 @@ namespace CubeWorld
 
 namespace Engine
 {
+
+const UIConstraint::Options UIConstraint::ConstrainLowPriority = Options(LOW_PRIORITY);
+const UIConstraint::Options UIConstraint::ConstrainMediumPriority = Options(MEDIUM_PRIORITY);
+const UIConstraint::Options UIConstraint::ConstrainHighPriority = Options(HIGH_PRIORITY);
    
 static const std::map<UIConstraint::Target, std::string> CONSTRAINT_NAME_MAPPING = {
    {UIConstraint::Left,     "Left"},

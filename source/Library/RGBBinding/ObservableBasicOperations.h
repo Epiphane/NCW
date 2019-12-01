@@ -191,7 +191,7 @@ Observable<std::tuple<First, Second, Rest...>>& CombineLatest(Observable<First>&
 }
    
 //
-// Only get messages when the Observable value changes (includes the first message sent)
+// Only get messages when the Observable value changes (always includes the first message sent)
 //
 // Example usage:
 //    mToggleButton.OnToggleStateChanged() >> 

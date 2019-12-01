@@ -31,6 +31,7 @@ public:
    struct Options {
       // https://stackoverflow.com/questions/43819314/default-member-initializer-needed-within-definition-of-enclosing-class-outside
       Options() noexcept {} // = default;
+      Options(double priority) noexcept { this->priority = priority; }
 
       BaseConstraint::Relationship relationship = BaseConstraint::Equal;  ///< Lets you specify ==, >= or <=
       std::string customNameConnector = ""; ///< The base constraint name will become "<primaryElement's name> + connector + <secondaryElement's name>"
@@ -45,6 +46,10 @@ public:
       bool isConstantEditable = false;     ///< If true, the 'constant' aspect of the constraint will be an edit_variable.   TODO-EF: Actually implement this
       bool isMultiplierEditable = false;   ///< If true, the 'multiplier' aspect of the constraint will be an edit_variable. TODO-EF: Actually implement this
    };
+
+   static const Options ConstrainLowPriority;
+   static const Options ConstrainMediumPriority;
+   static const Options ConstrainHighPriority;
 
    //
    // What aspect of the UI element are you constraining?

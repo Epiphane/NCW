@@ -43,6 +43,11 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
 
    SetText(options.text);
    root->GetAggregator<Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
+   
+   auto redraw = [&](const rhea::variable&){ Redraw(); };
+   
+   root->WatchConstrainedVar(mFrame.right, redraw);
+   root->WatchConstrainedVar(mFrame.left,  redraw);
 }
 
 void Text::SetText(const std::string& text)
@@ -71,6 +76,16 @@ Engine::Graphics::Font::Alignment Text::GetAlignment()
 void Text::Redraw()
 {
    std::vector<Aggregator::TextData> data;
+   
+   mRendered = mText;
+   uint32_t maxWidth = GetWidth();
+   glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
+   int numCharsTruncated = 0;
+   while (size.x > maxWidth && mRendered.size() != 3) {
+      numCharsTruncated ++;
+      mRendered = mText.substr(0, mText.size() - numCharsTruncated) + "...";
+      size = mFont->GetSizeOfRenderedText(mRendered);
+   }
 
    if (mActive)
    {

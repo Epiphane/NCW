@@ -57,7 +57,7 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &ev
          foundFrontmostElement = true;
       }
 
-      if (elem->ContainsPoint(evt.x, evt.y)) {
+      if (elem->ContainsPoint(evt.x, evt.y) && dynamic_cast<Text*>(elem) != nullptr) {
          numElementsUnderCursor++;
       }
    }
@@ -70,7 +70,7 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseDown(const MouseDownEvent &ev
 {
    for (size_t ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
       UIElement* elem = mpRoot->mElements[ndx];
-      if (elem->ContainsPoint(evt.x, evt.y)) {
+      if (elem->ContainsPoint(evt.x, evt.y) && dynamic_cast<Text*>(elem) != nullptr) {
          elem->LogDebugInfo();
       }
    }
