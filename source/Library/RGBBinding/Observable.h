@@ -15,7 +15,49 @@ namespace CubeWorld
    
 namespace Observables
 {
-   
+
+/**
+ * Describes any object that can be "disposed" of.
+ */   
+class Disposable {
+   virtual void Dispose() = 0;
+};
+
+template<typename E>
+class Message
+{
+   enum MessageType {
+      NEXT, COMPLETED, ERROR;
+   };
+
+   E value;
+};
+
+class MessageSink: Disposable {
+   /**
+    * A MessageProducer will only emit Messages if the sink is "pulling"
+    *    them out.
+    */
+   Disposable& StartPullingMessages() {
+
+   }
+};
+
+/**
+ * 
+ */
+template<typename E>
+class MessageProducer {
+public:
+  Disposable& Subscribe(MessageSink<E> &sink) {
+     return sink.StartPullingMessages();
+  }
+
+  Disposable& Subscribe(std::function<void(Message<E>)>) {
+
+  }
+};
+
 /**
  * A DisposeBag holds onto some callbacks, and when it dies, it calls all the
  *    callbacks. The idea is that you can toss some "disposables" into the bag,
