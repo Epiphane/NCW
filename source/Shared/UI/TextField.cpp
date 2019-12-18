@@ -20,6 +20,7 @@ TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
    , mKeyCallbacks{}
 {
    auto onAlpha = std::bind(&TextField::OnAlphaKey, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+   root->GetInput()->OnKey(onAlpha);
    for (int key = GLFW_KEY_A; key <= GLFW_KEY_Z; key++)
    {
       mKeyCallbacks.push_back(root->GetInput()->AddCallback(Engine::Window::Key(key), onAlpha));
@@ -38,7 +39,6 @@ TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
 void TextField::AddCharacter(char ch)
 {
    mText.insert(mText.end() - 1, ch);
-   RenderText(mText);
 }
 
 void TextField::OnAlphaKey(int key, int action, int mods)
@@ -55,14 +55,12 @@ void TextField::OnAlphaKey(int key, int action, int mods)
       {
          // Erase the second to last character
          mText.erase(mText.end() - 2, mText.end() - 1);
-         RenderText(mText);
       }
       break;
    case GLFW_KEY_ENTER:
       mIsFocused = false;
       mText.pop_back();
       mChangeCallback(mText);
-      RenderText(mText);
       break;
    case GLFW_KEY_SPACE:
       AddCharacter(' ');
@@ -121,12 +119,10 @@ Engine::UIElement::Action TextField::MouseClick(const MouseClickEvent& evt)
    if (mIsFocused && !wasFocused)
    {
       mText.push_back('_');
-      RenderText(mText);
    }
    else if (!mIsFocused && wasFocused)
    {
       mText.pop_back();
-      RenderText(mText);
       if (mChangeCallback)
       {
          mChangeCallback(mText);

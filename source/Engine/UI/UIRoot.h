@@ -161,8 +161,14 @@ protected:
    // The four constraints that bound this UI.
    rhea::constraint_list mBoundConstraints;
 
-   // All normal content. Calling Add() will add elements with this as the parent.
+   // Parent to most content. Calling Add() will add elements with this as the parent.
    UIElement* mContentLayer;
+
+   // Holds all the elements in this UIRoot, sorted by z-value.
+   std::vector<UIElement*> mElements;
+   
+   // Parent to any UIContextMenus. Z-ordered in FRONT of mContentLayer.
+   UIContextMenuParent* mContextMenuLayer;
 
 public:
    // Get an aggregator, and ensure it exists.
@@ -190,19 +196,11 @@ private:
    // Helper function that gives a shallow copy of just the active elements that contain the given point
    void GetActiveElementsContainingPoint(const std::vector<UIElement*> &elementList, double pointX, double pointY, std::vector<UIElement*>* outElementList);
    
-   // On ^D, turn on constraint debugging mode
-   void ToggleDebugConstraints(int key, int action, int mods);
-
    // Input manager.
    Input* mInput;
 
    // Aggregators for batch rendering.
    std::vector<std::unique_ptr<BaseAggregator>> mAggregators;
-
-   // Holds all the elements in this tree, sorted by z-value.
-   std::vector<UIElement*> mElements;
-   
-   std::vector<UIGestureRecognizer*> mActiveRecognizers;
 
    // Keep an internal map of constraints that we'll use to allow constraint editing.
    std::map<std::string, UIConstraint> mConstraintMap;
@@ -213,11 +211,15 @@ private:
    // The element, if any, that has captured the current click-and-drag of the mouse.
    UIElement* mActivelyCapturingElement;
 
+   // The element, if any, that is receiving keyboard input.
+   UIElement* mElementObservingKeyboard;
+
+private:
+   // On ^D, turn on constraint debugging mode
+   void ToggleDebugConstraints(int key, int action, int mods);
+
    // UIElement that will capture mouse events if active and show you constraint information.
    UIRoot_ConstraintDebugging* mConstraintDebugger;
-   
-   // Parents any UIContextMenu we want to show. Lets us place it in front of all other content.
-   UIContextMenuParent* mContextMenuLayer;
 
    std::unique_ptr<Input::KeyCallbackLink> mDebugKeycallback;
 

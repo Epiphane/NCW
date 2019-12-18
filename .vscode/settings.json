@@ -103,7 +103,11 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "bit": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "strstream": "cpp",
+        "typeindex": "cpp"
     },
     "editor.tabSize": 3,
     "cmake.configureOnOpen": false,

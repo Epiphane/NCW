@@ -56,18 +56,18 @@ public:
    rhea::linear_expression ConvertTargetToVariable(Engine::UIConstraint::Target target) const override;
 
 protected:
-   void RenderText(const std::string& text);
    void RecalculateSize();
 
    Engine::Graphics::Font* mFont;
 
    std::string mText;
-   // Could be different from mText, see TextButton
-   std::string mRendered;
 
    Aggregator::Text::Region mRegion;
 
    Engine::Graphics::Font::Alignment mAlignment;
+
+   // Save the UV values so we know which character is where
+   std::vector<Engine::Graphics::Font::CharacterVertexUV> mCharacterPositions;
 
    // Edit variable that lets you make constraints to the rendered text size.
    //    Will change their values whenever new text or new fonts arrive.

@@ -28,9 +28,9 @@ UIRoot::UIRoot(Input* input)
 #pragma warning(default : 4355)
    , mBoundConstraints{}
    , mContentLayer(nullptr)
+   , mContextMenuLayer(nullptr)
    , mInput(input)
    , mActivelyCapturingElement(nullptr)
-   , mContextMenuLayer(nullptr)
    , mDirty(false)
 {
    // Disable autosolve, otherwise we try to solve whenever we add a new constraint
@@ -48,7 +48,6 @@ UIRoot::UIRoot(Input* input)
          watchedVariableCallback->second(var);
       }
    };
-
 
 // #ifdef DEBUG
    mConstraintDebugger = Add<UIRoot_ConstraintDebugging>("ConstraintDebuggingLayer");
@@ -91,7 +90,6 @@ UIRoot::~UIRoot()
 void UIRoot::ToggleDebugConstraints(int /*key*/, int /*action*/, int /*mods*/) {
    mConstraintDebugger->SetActive(!mConstraintDebugger->IsActive());
 }
-
 
 UIElement* UIRoot::AddChild(std::unique_ptr<UIElement> &&element)
 {

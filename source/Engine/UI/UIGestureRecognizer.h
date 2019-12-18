@@ -47,10 +47,11 @@ namespace Engine
          double gestureY;
       };
 
-      // If this returns true, this recognizer will Capture the current mouse click.
+      // If this returns true, this recognizer will Capture the current mouse click, if the mouse
+      //    is currently being held down.
       virtual bool MouseMove(const MouseMoveEvent& evt) = 0;
 
-      // If this returns true, this recognizer will Capture the current mouse click.
+      // If this returns true, this recognizer will Capture the new mouse click.
       virtual bool MouseDown(const MouseDownEvent& evt) = 0;
 
       // You can't capture a mouse click as it's ending.

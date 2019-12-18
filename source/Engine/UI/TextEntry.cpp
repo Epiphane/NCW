@@ -18,8 +18,8 @@ TextEntry::TextEntry(UIRoot* root, UIElement* parent, const std::string &name)
    : UIElement(root, parent, name)
 {
    mKeystrokeObservable >>
-      Observables::OnMessage<Keystroke>([&](Keystroke key) {
-         mEnteredText += (char) key.keyCode;
+      Observables::OnMessage<unsigned int>([&](unsigned int codepoint) {
+         mEnteredText += (char) codepoint;
          mEnteredTextObservable.SendMessage(mEnteredText);
       }, mBag);
 }

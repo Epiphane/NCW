@@ -34,9 +34,7 @@ void TextButton::Focus()
       return;
    }
 
-   RenderText("> " + mText);
    RecalculateSize();
-   mIsFocused = true;
 }
 
 void TextButton::Unfocus()
@@ -48,7 +46,6 @@ void TextButton::Unfocus()
 
    if (!mIsHovered)
    {
-      RenderText(mText);
       RecalculateSize();
    }
    mIsFocused = false;
@@ -75,14 +72,12 @@ void TextButton::Update(TIMEDELTA)
    bool hovered = ContainsPoint(mouse.x, mouse.y);
    if (hovered && !mIsHovered)
    {
-      RenderText("> " + mText);
       RecalculateSize(); // TODO-EF: This is changing constraints when the constraint solver has
                          //            already run this frame. Needs looking into.
       mIsHovered = true;
    }
    else if (!mIsFocused && !hovered && mIsHovered)
    {
-      RenderText(mText);
       RecalculateSize();
       mIsHovered = false;
    }

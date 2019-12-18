@@ -19,7 +19,6 @@ namespace UI
 Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name)
    : UIElement(root, parent, name)
    , mText("")
-   , mRendered("")
 {
    auto maybeFont = Engine::Graphics::FontManager::Instance().GetFont(Asset::Font(options.font));
    assert(maybeFont);
@@ -58,7 +57,6 @@ void Text::SetText(const std::string& text)
    }
 
    mText = text;
-   RenderText(text);
    RecalculateSize();
 }
 
@@ -77,20 +75,20 @@ void Text::Redraw()
 {
    std::vector<Aggregator::TextData> data;
    
-   mRendered = mText;
+   std::string truncatedText = mText;
    uint32_t maxWidth = GetWidth();
-   glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
+   glm::vec2 size = mFont->GetSizeOfRenderedText(truncatedText);
    int numCharsTruncated = 0;
-   while (size.x > maxWidth && mRendered.size() != 3) {
+   while (size.x > maxWidth && truncatedText.size() != 3) {
       numCharsTruncated ++;
-      mRendered = mText.substr(0, mText.size() - numCharsTruncated) + "...";
-      size = mFont->GetSizeOfRenderedText(mRendered);
+      truncatedText = mText.substr(0, mText.size() - numCharsTruncated) + "...";
+      size = mFont->GetSizeOfRenderedText(truncatedText);
    }
 
    if (mActive)
    {
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> uvs = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), GLfloat(mFrame.GetWidth()), 1, mRendered, mAlignment);
-      std::transform(uvs.begin(), uvs.end(), std::back_inserter(data), [&](const Engine::Graphics::Font::CharacterVertexUV& character) {
+      mCharacterPositions = mFont->Write(GLfloat(mFrame.left.value()), GLfloat(mFrame.bottom.value()), GLfloat(mFrame.GetWidth()), 1, truncatedText, mAlignment);
+      std::transform(mCharacterPositions.begin(), mCharacterPositions.end(), std::back_inserter(data), [&](const Engine::Graphics::Font::CharacterVertexUV& character) {
          return Aggregator::TextData{glm::vec3(character.position.x, character.position.y, mFrame.z.value()), character.uv};
       });
    }
@@ -114,18 +112,9 @@ rhea::linear_expression Text::ConvertTargetToVariable(Engine::UIConstraint::Targ
          return UIElement::ConvertTargetToVariable(target);
    }
 }
-
-void Text::RenderText(const std::string& text)
-{
-   if (text != mRendered)
-   {
-      mRendered = text;
-      Redraw();
-   }
-}
    
 void Text::RecalculateSize() {
-   glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
+   glm::vec2 size = mFont->GetSizeOfRenderedText(mText);
 
    mpRoot->Suggest(mTextContentWidth, size.x);
    mpRoot->Suggest(mTextContentHeight, size.y);
