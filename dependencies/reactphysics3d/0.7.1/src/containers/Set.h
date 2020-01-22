@@ -456,7 +456,7 @@ class Set {
             size_t hashCode = std::hash<V>()(value);
 
             // Compute the corresponding bucket index
-            int bucket = (int) hashCode % mCapacity;
+            int bucket = (int) (hashCode % mCapacity);
 
             // Check if the item is already in the set
             for (int i = mBuckets[bucket]; i >= 0; i = mEntries[i].next) {
@@ -486,7 +486,7 @@ class Set {
                     reserve(mCapacity * 2);
 
                     // Recompute the bucket index
-                    bucket = (int)hashCode % mCapacity;
+                    bucket = (int) (hashCode % mCapacity);
                 }
 
                 entryIndex = (size_t)mNbUsedEntries;
@@ -518,7 +518,7 @@ class Set {
             if (mCapacity > 0) {
 
                 size_t hashcode = std::hash<V>()(value);
-                int bucket = (int) hashcode % mCapacity;
+                int bucket = (int) (hashcode % mCapacity);
                 int last = -1;
                 for (int i = mBuckets[bucket]; i >= 0; last = i, i = mEntries[i].next) {
 

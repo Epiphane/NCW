@@ -22,12 +22,18 @@ namespace ReactPhysics
 
 struct Body : public Engine::Component<Body>
 {
-   Body() {};
-   Body(rp3d::BodyType type) : type(type) {};
+   Body(glm::vec3 size, float mass, rp3d::BodyType type)
+      : size(size)
+      , mass(mass)
+      , type(type)
+   {};
 
+   glm::vec3 size;
+   float mass;
    rp3d::BodyType type = rp3d::BodyType::STATIC;
 
    rp3d::RigidBody* body = nullptr;
+   std::unique_ptr<rp3d::CollisionShape> collisionShape;
    rp3d::ProxyShape* shape = nullptr;
 };
 

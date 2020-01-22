@@ -45,7 +45,7 @@ namespace Game
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<ReactPhysics::System>();
-      mSystems.Add<SimplePhysics::System>();
+      //mSystems.Add<SimplePhysics::System>();
       mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<AnimationEventSystem>();
       mSystems.Add<AnimationEventDebugSystem>();
@@ -74,6 +74,7 @@ namespace Game
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
          Entity collider = mEntities.Create(i - size + float(width - 1) / 2, float(height), j - size + float(length - 1) / 2);
          collider.Add<SimplePhysics::Collider>(glm::vec3(width, 1, length));
+         collider.Add<ReactPhysics::Body>(glm::vec3(width, 1, length), 1.0f, rp3d::BodyType::STATIC);
 
          for (int x = i; x < i + width; ++x)
          {
@@ -176,7 +177,7 @@ namespace Game
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
-      player.Add<ReactPhysics::Body>();
+      player.Add<ReactPhysics::Body>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f, rp3d::BodyType::DYNAMIC);
       //player.Add<ReactPhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
       auto controller = player.Add<AnimationController>();
       
