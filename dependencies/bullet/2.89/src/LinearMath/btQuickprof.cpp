@@ -33,7 +33,9 @@
 #if defined(WIN32) || defined(_WIN32)
 
 #define BT_USE_WINDOWS_TIMERS
+#if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
+#endif
 #define NOWINRES
 #define NOMCX
 #define NOIME

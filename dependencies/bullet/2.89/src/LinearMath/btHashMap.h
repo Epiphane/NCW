@@ -91,7 +91,7 @@ public:
 	//to our success
 	SIMD_FORCE_INLINE unsigned int getHash() const
 	{
-		unsigned int key = m_uid;
+		unsigned int key = (unsigned int)m_uid;
 		// Thomas Wang's hash
 		key += ~(key << 15);
 		key ^= (key >> 10);

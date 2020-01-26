@@ -16,6 +16,9 @@ subject to the following restrictions:
 #ifndef BULLET_DYNAMICS_COMMON_H
 #define BULLET_DYNAMICS_COMMON_H
 
+// Warning disables by tsteinke
+#pragma warning(disable : 4100 4127 4244 4365 5038)
+
 ///Common headerfile includes for Bullet Dynamics, including Collision Detection
 #include "btBulletCollisionCommon.h"
 
@@ -39,5 +42,7 @@ subject to the following restrictions:
 
 ///Vehicle simulation, with wheel contact simulated by raycasts
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+
+#pragma warning(default : 4100 4127 4244 4365 5038)
 
 #endif  //BULLET_DYNAMICS_COMMON_H
