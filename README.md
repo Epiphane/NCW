@@ -223,7 +223,7 @@ void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, T
 {
    // ...
 
-   entities.Each<Engine::Transform, FlySpeed, SimplePhysics::Body>([&](Engine::Entity, Engine::Transform& transform, FlySpeed& fly, SimplePhysics::Body& body) {
+   entities.Each<Engine::Transform, FlySpeed, BulletPhysics::Body>([&](Engine::Entity, Engine::Transform& transform, FlySpeed& fly, BulletPhysics::Body& body) {
       // Figure out what direction to fly the character
       transform.SetLocalPosition(transform.GetLocalPosition() + dt * direction);
    });

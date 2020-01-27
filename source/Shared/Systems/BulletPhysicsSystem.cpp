@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <glad/glad.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
@@ -15,6 +16,9 @@ namespace CubeWorld
 namespace BulletPhysics
 {
 
+///
+///
+///
 System::System()
 {
    collisionConfiguration.reset(new btDefaultCollisionConfiguration());
@@ -28,19 +32,24 @@ System::System()
       collisionConfiguration.get())
    );
    world->setGravity(btVector3(0, -40, 0));
+
+   broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 }
 
 System::~System()
 {}
 
+///
+///
+///
 void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
 {
    events.Subscribe<Engine::ComponentAddedEvent<StaticBody>>(*this);
    events.Subscribe<Engine::ComponentRemovedEvent<StaticBody>>(*this);
    events.Subscribe<Engine::ComponentAddedEvent<DynamicBody>>(*this);
    events.Subscribe<Engine::ComponentRemovedEvent<DynamicBody>>(*this);
-   events.Subscribe<Engine::ComponentAddedEvent<Collider>>(*this);
-   events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
+   events.Subscribe<Engine::ComponentAddedEvent<ControlledBody>>(*this);
+   events.Subscribe<Engine::ComponentRemovedEvent<ControlledBody>>(*this);
 
    updateMetric = DebugHelper::Instance().RegisterMetric("B3 Physics Update", [this]() -> std::string {
       return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
@@ -51,15 +60,19 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
    });
 }
 
+///
+///
+///
 void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
    mUpdateClock.Reset();
    world->stepSimulation(btScalar(dt));
+   world->debugDrawWorld();
    mUpdateClock.Elapsed();
 
    mCollisionClock.Reset();
-   entities.Each<Engine::Transform, DynamicBody>([&](Engine::Transform& transform, const DynamicBody& body) {
-      btTransform trans = body.body->getCenterOfMassTransform();
+   entities.Each<Engine::Transform, ControlledBody>([&](Engine::Transform& transform, const ControlledBody& body) {
+      btTransform trans = body.object->getWorldTransform();
       btVector3 position = trans.getOrigin();
 
       transform.SetLocalPosition(glm::vec3{position.getX(), position.getY(), position.getZ()});
@@ -67,6 +80,9 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
    mCollisionClock.Elapsed();
 }
 
+///
+///
+///
 void System::AddBody(const glm::vec3& position, BodyBase& component)
 {
    const auto& size = component.size;
@@ -106,6 +122,9 @@ void System::AddBody(const glm::vec3& position, BodyBase& component)
    world->addRigidBody(body.get());
 }
 
+///
+///
+///
 void System::RemoveBody(BodyBase& component)
 {
    if (component.body)
@@ -114,6 +133,9 @@ void System::RemoveBody(BodyBase& component)
    }
 }
 
+///
+///
+///
 void System::Receive(const Engine::ComponentAddedEvent<StaticBody>& e)
 {
    AddBody(
@@ -127,6 +149,9 @@ void System::Receive(const Engine::ComponentRemovedEvent<StaticBody>& e)
    RemoveBody(*e.component);
 }
 
+///
+///
+///
 void System::Receive(const Engine::ComponentAddedEvent<DynamicBody>& e)
 {
    AddBody(
@@ -140,12 +165,33 @@ void System::Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e)
    RemoveBody(*e.component);
 }
 
-void System::Receive(const Engine::ComponentAddedEvent<Collider>&)
+///
+///
+///
+void System::Receive(const Engine::ComponentAddedEvent<ControlledBody>& e)
 {
+   if (e.component->object)
+   {
+      world->addCollisionObject(e.component->object.get(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+   }
+
+   if (e.component->controller)
+   {
+      world->addAction(e.component->controller.get());
+   }
 }
 
-void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)
+void System::Receive(const Engine::ComponentRemovedEvent<ControlledBody>& e)
 {
+   if (e.component->object)
+   {
+      world->removeCollisionObject(e.component->object.get());
+   }
+
+   if (e.component->controller)
+   {
+      world->removeAction(e.component->controller.get());
+   }
 }
 
 ///

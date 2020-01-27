@@ -3,6 +3,7 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
+#include <BulletDynamics/Character/btKinematicCharacterController.h>
 
 #include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Camera.h>
@@ -20,6 +21,9 @@ namespace CubeWorld
 namespace BulletPhysics
 {
 
+//
+// Bodies
+//
 struct BodyBase
 {
    BodyBase(glm::vec3 size, float mass)
@@ -49,19 +53,29 @@ struct DynamicBody : public Engine::Component<DynamicBody>, public BodyBase
    {};
 };
 
-struct Collider : public Engine::Component<Collider>
+struct ControlledBody : public Engine::Component<ControlledBody>
 {
-   Collider(glm::vec3 size, float mass) : size(size), mass(mass) {};
+   ControlledBody(
+      std::unique_ptr<btCollisionShape>&& shape,
+      std::unique_ptr<btCollisionObject>&& object,
+      std::unique_ptr<btKinematicCharacterController>&& controller
+   )
+   {
+      this->shape = std::move(shape);
+      this->object = std::move(object);
+      this->controller = std::move(controller);
+   };
 
-   glm::vec3 size;
-   float mass;
+   std::unique_ptr<btCollisionShape> shape;
+   std::unique_ptr<btCollisionObject> object;
+   std::unique_ptr<btKinematicCharacterController> controller;
 };
 
 class System : public Engine::System<System>, public Engine::Receiver<System> {
 public:
    System();
    ~System();
-   
+
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
@@ -72,8 +86,8 @@ public:
    void Receive(const Engine::ComponentRemovedEvent<StaticBody>& e);
    void Receive(const Engine::ComponentAddedEvent<DynamicBody>& e);
    void Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e);
-   void Receive(const Engine::ComponentAddedEvent<Collider>& e);
-   void Receive(const Engine::ComponentRemovedEvent<Collider>& e);
+   void Receive(const Engine::ComponentAddedEvent<ControlledBody>& e);
+   void Receive(const Engine::ComponentRemovedEvent<ControlledBody>& e);
 
 private:
    std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
@@ -98,7 +112,7 @@ private:
 };
 
 //
-// SimplePhysicsDebug draws collision objects, for debugging physics.
+// Debug draws collision objects, for debugging physics.
 //
 class Debug : public Engine::System<Debug> {
 public:

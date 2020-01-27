@@ -1,6 +1,6 @@
 ---
 name: idle
-next: 
+next:
 stance: resting
 length: 5.02
 keyframes:
@@ -24,13 +24,13 @@ transitions:
   triggers:
   - parameter: speed
     type: gte
-    gte: 1
+    gte: 0.02
   - parameter: speed
     type: lt
-    lt: 8
+    lt: 0.12
 - to: run
   time: 0.5
   triggers:
   - parameter: speed
     type: gte
-    gte: 8
+    gte: 0.12

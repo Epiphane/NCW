@@ -35,7 +35,7 @@ namespace Engine
 // and PhysicsComponent[1] contains the physics-specific data for Entity 0 and 1,
 // respectively, and live directly next to each other in data. These components are
 // accessed through the EntityManager by using templated functions, for example:
-// 
+//
 //    mEntities.Get<Transform>(myEntity);
 //      or
 //    myEntity.Get<Transform>();
@@ -50,15 +50,14 @@ namespace Engine
 // demonstrate creation of an entity, some components, and optionally using those components further.
 //
 //   Entity player = mEntities.Create();
-//   player.Add<Transform>(glm::vec3(0, 10, 0));                    // Start the player at [0, 10, 0]
-//   player.Add<SimplePhysics::Body>();                             // Subject the player to gravity
-//   player.Add<SimplePhysics::Collider>(glm::vec3(0.8, 2.0, 0.8)); // Subject the player to collision
-//   Engine::ComponentHandle<Skeleton> skeleton = 
-//      player.Add<Skeleton>("player.yaml");                        // Add an animated skeleton
-//   skeleton->AddModel("torso", "body4.vox");                      // Add two models to the new skeleton
+//   player.Add<Transform>(glm::vec3(0, 10, 0));                       // Start the player at [0, 10, 0]
+//   player.Add<BulletPhysics::DynamicBody>(glm::vec3(1, 1, 1), 1.0f); // Subject the player to gravity
+//   Engine::ComponentHandle<Skeleton> skeleton =
+//      player.Add<Skeleton>("player.yaml");                           // Add an animated skeleton
+//   skeleton->AddModel("torso", "body4.vox");                         // Add two models to the new skeleton
 //   skeleton->AddModel("character.Head", "elf-head-m02.vox");
 //
-//   Entity playerCamera = mEntities.Create(0, 0, 0);               // Create a camera to attach to the player.
+//   Entity playerCamera = mEntities.Create(0, 0, 0);                  // Create a camera to attach to the player.
 //   playerCamera.Get<Transform>()->SetParent(player);
 //
 // EntityManager itself emits 4 different kind of events, at self-explanatory times:
@@ -453,7 +452,7 @@ private:
 inline bool Entity::IsValid() const {
    return manager != nullptr && manager->IsValid(id);
 }
-   
+
 template<typename C, typename ...Args>
 ComponentHandle<C, EntityManager> Entity::Add(Args&& ...args)
 {

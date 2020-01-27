@@ -3,6 +3,8 @@
 #include <cassert>
 #include <functional>
 
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
@@ -18,7 +20,6 @@
 #include <Shared/Systems/BulletPhysicsSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
 #include <Shared/Systems/SimpleParticleSystem.h>
-#include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Systems/WalkSystem.h>
 
@@ -171,8 +172,21 @@ namespace Game
       Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-      player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
-      player.Add<BulletPhysics::DynamicBody>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
+      player.Add<WalkSpeed>(0.15f, 0.05f, 15.0f);
+
+      // Set up the player controller
+      {
+         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 1.0f);
+         std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
+         ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+         ghostObject->setCollisionShape(playerShape.get());
+         ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+         std::unique_ptr<btKinematicCharacterController> controller = std::make_unique<btKinematicCharacterController>(ghostObject.get(), playerShape.get(), 1.5f);
+         controller->setUp(btVector3{0, 1, 0});
+
+         player.Add<BulletPhysics::ControlledBody>(std::move(playerShape), std::move(ghostObject), std::move(controller));
+      }
+
       auto controller = player.Add<AnimationController>();
 
       Entity debugger = mEntities.Create(0, 0, 0);
@@ -222,7 +236,7 @@ namespace Game
       Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
       playerCamera.Add<MouseControlledCamera>();
       playerCamera.Add<MouseControlledCameraArm>();
-      playerCamera.Add<Follower>(player.Get<Transform>());
+      playerCamera.Add<Follower>(player.Get<Transform>(), glm::vec3{10.0f, 5.0f, 10.0f});
       player.Add<WalkDirector>(playerCamera.Get<Transform>(), false);
 
       // Create a campfire

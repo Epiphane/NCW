@@ -16,8 +16,14 @@ void FollowerSystem::Update(Engine::EntityManager& entities, Engine::EventManage
       // TODO lol
       assert(!transform.GetParent());
 
-      float move = float(follower.elasticity * dt);
-      transform.SetLocalPosition(move * target + (1 - move) * current);
+      glm::vec3 move = float(dt) * follower.elasticity;
+      glm::vec3 interp{
+         move.x * target.x + (1 - move.x) * current.x,
+         move.y * target.y + (1 - move.y) * current.y,
+         move.z * target.z + (1 - move.z) * current.z,
+      };
+
+      transform.SetLocalPosition(interp);
    });
 }
 
