@@ -173,9 +173,8 @@ namespace Game
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
       player.Add<BulletPhysics::DynamicBody>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
-      //player.Add<ReactPhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
       auto controller = player.Add<AnimationController>();
-      
+
       Entity debugger = mEntities.Create(0, 0, 0);
       player.Add<AnimationEventDebugger>(debugger.Add<Simple3DRender>());
 
