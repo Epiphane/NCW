@@ -5,6 +5,7 @@
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
 #include "WalkSystem.h"
+#include "BulletPhysicsSystem.h"
 #include "SimplePhysicsSystem.h"
 
 namespace CubeWorld
@@ -75,7 +76,50 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
          director.director->SetYaw(directorAngle - walkAngle);
       }
    });
+
+   // BulletPhysics behavior
+   entities.Each<Engine::Transform, WalkSpeed, BulletPhysics::DynamicBody>([&](Engine::Transform& transform, WalkSpeed& walk, BulletPhysics::DynamicBody& body) {
+      float goalSpeed = 0;
+      if (walk.running)
+      {
+         goalSpeed = walk.runSpeed;
+      }
+      else if (walk.walking)
+      {
+         goalSpeed = walk.walkSpeed;
+      }
+
+      if (walk.currentSpeed < goalSpeed)
+      {
+         walk.currentSpeed += walk.accel * float(dt);
+      }
+      if (walk.currentSpeed > goalSpeed)
+      {
+         walk.currentSpeed -= walk.accel * float(dt);
+
+         if (walk.currentSpeed < goalSpeed)
+         {
+            walk.currentSpeed = goalSpeed;
+         }
+      }
+
+      glm::vec3 dir = float(walk.currentSpeed) * glm::normalize(transform.GetFlatDirection());
+      dir.y += body.body->getLinearVelocity().getY();
+
+      if (mInput->IsKeyDown(GLFW_KEY_SPACE))
+      {
+         dir.y = 15;
+      }
+
+      body.body->setLinearVelocity(btVector3{dir.x, dir.y, dir.z});
+   });
+
+   entities.Each<WalkSpeed, BulletPhysics::DynamicBody, AnimationController>([&](Engine::Entity, WalkSpeed&, BulletPhysics::DynamicBody& body, AnimationController& skeleton) {
+      const auto& linearVelocity = body.body->getLinearVelocity();
+      skeleton.SetParameter("speed", std::sqrt(linearVelocity.getX() * linearVelocity.getX() + linearVelocity.getZ() * linearVelocity.getZ()));
+   });
    
+   // DEPRECATED: SimplePhysics behavior
    entities.Each<Engine::Transform, WalkSpeed, SimplePhysics::Body>([&](Engine::Transform& transform, WalkSpeed& walk, SimplePhysics::Body& body) {
       float goalSpeed = 0;
       if (walk.running)

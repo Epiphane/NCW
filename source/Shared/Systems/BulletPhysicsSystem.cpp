@@ -27,7 +27,7 @@ System::System()
       solver.get(),
       collisionConfiguration.get())
    );
-   world->setGravity(btVector3(0, -10, 0));
+   world->setGravity(btVector3(0, -40, 0));
 }
 
 System::~System()
@@ -35,32 +35,45 @@ System::~System()
 
 void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
 {
-   events.Subscribe<Engine::ComponentAddedEvent<Body>>(*this);
-   events.Subscribe<Engine::ComponentRemovedEvent<Body>>(*this);
+   events.Subscribe<Engine::ComponentAddedEvent<StaticBody>>(*this);
+   events.Subscribe<Engine::ComponentRemovedEvent<StaticBody>>(*this);
+   events.Subscribe<Engine::ComponentAddedEvent<DynamicBody>>(*this);
+   events.Subscribe<Engine::ComponentRemovedEvent<DynamicBody>>(*this);
    events.Subscribe<Engine::ComponentAddedEvent<Collider>>(*this);
    events.Subscribe<Engine::ComponentRemovedEvent<Collider>>(*this);
+
+   updateMetric = DebugHelper::Instance().RegisterMetric("B3 Physics Update", [this]() -> std::string {
+      return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
+   });
+
+   collisionMetric = DebugHelper::Instance().RegisterMetric("B3 Collision Checks", [this]() -> std::string {
+      return FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
+   });
 }
 
 void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   mUpdateClock.Reset();
    world->stepSimulation(btScalar(dt));
+   mUpdateClock.Elapsed();
 
-   entities.Each<Engine::Transform, Body>([&](Engine::Transform& transform, Body& body) {
+   mCollisionClock.Reset();
+   entities.Each<Engine::Transform, DynamicBody>([&](Engine::Transform& transform, const DynamicBody& body) {
       btTransform trans = body.body->getCenterOfMassTransform();
       btVector3 position = trans.getOrigin();
 
       transform.SetLocalPosition(glm::vec3{position.getX(), position.getY(), position.getZ()});
    });
+   mCollisionClock.Elapsed();
 }
 
-void System::Receive(const Engine::ComponentAddedEvent<Body>& e)
+void System::AddBody(const glm::vec3& position, BodyBase& component)
 {
-   glm::vec3 pos = e.entity.Get<Engine::Transform>()->GetAbsolutePosition();
-   const auto& size = e.component->size;
-   const auto& mass = e.component->mass;
-   auto& motionState = e.component->motionState;
-   auto& shape = e.component->shape;
-   auto& body = e.component->body;
+   const auto& size = component.size;
+   const auto& mass = component.mass;
+   auto& motionState = component.motionState;
+   auto& shape = component.shape;
+   auto& body = component.body;
 
    shape.reset(new btBoxShape(btVector3{
       size.x / 2.0f,
@@ -76,7 +89,7 @@ void System::Receive(const Engine::ComponentAddedEvent<Body>& e)
 
    btTransform transform;
    transform.setIdentity();
-   transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+   transform.setOrigin(btVector3(position.x, position.y, position.z));
    motionState.reset(new btDefaultMotionState(transform));
 
    btRigidBody::btRigidBodyConstructionInfo cInfo(
@@ -87,36 +100,52 @@ void System::Receive(const Engine::ComponentAddedEvent<Body>& e)
    );
 
    body.reset(new btRigidBody(cInfo));
+   body->setAngularFactor(btVector3(0, 0, 0));
 
    body->setUserIndex(-1);
    world->addRigidBody(body.get());
 }
 
-void System::Receive(const Engine::ComponentRemovedEvent<Body>& e)
+void System::RemoveBody(BodyBase& component)
 {
-   world->removeRigidBody(e.component->body.get());
+   if (component.body)
+   {
+      world->removeRigidBody(component.body.get());
+   }
+}
+
+void System::Receive(const Engine::ComponentAddedEvent<StaticBody>& e)
+{
+   AddBody(
+      e.entity.Get<Engine::Transform>()->GetAbsolutePosition(),
+      *e.component
+   );
+}
+
+void System::Receive(const Engine::ComponentRemovedEvent<StaticBody>& e)
+{
+   RemoveBody(*e.component);
+}
+
+void System::Receive(const Engine::ComponentAddedEvent<DynamicBody>& e)
+{
+   AddBody(
+      e.entity.Get<Engine::Transform>()->GetAbsolutePosition(),
+      *e.component
+   );
+}
+
+void System::Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e)
+{
+   RemoveBody(*e.component);
 }
 
 void System::Receive(const Engine::ComponentAddedEvent<Collider>&)
 {
-   /*
-   glm::vec3 pos = e.entity.Get<Engine::Transform>()->GetAbsolutePosition();
-
-   rp3d::Vector3 initPosition(pos.x, pos.y, pos.z);
-   rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-   rp3d::Transform transform(initPosition, initOrientation);
-
-   rp3d::CollisionBody* collider = world.createCollisionBody(transform);
-   e.component->collider = collider;
-
-   rp3d::BoxShape shape(rp3d::Vector3(e.component->size.x, e.component->size.y, e.component->size.z));
-   e.component->shape = collider->addCollisionShape(&shape, rp3d::Transform::identity(), e.component->mass);
-   */
 }
 
 void System::Receive(const Engine::ComponentRemovedEvent<Collider>&)
 {
-   //world.destroyCollisionBody(e.component->collider);
 }
 
 ///

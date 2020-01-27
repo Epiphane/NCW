@@ -20,6 +20,23 @@ namespace CubeWorld
 namespace ReactPhysics
 {
 
+struct DynamicBody : public Engine::Component<DynamicBody>
+{
+   DynamicBody(glm::vec3 size, float mass, rp3d::BodyType type)
+      : size(size)
+      , mass(mass)
+      , type(type)
+   {};
+
+   glm::vec3 size;
+   float mass;
+   rp3d::BodyType type = rp3d::BodyType::STATIC;
+
+   rp3d::RigidBody* body = nullptr;
+   std::unique_ptr<rp3d::CollisionShape> collisionShape;
+   rp3d::ProxyShape* shape = nullptr;
+};
+
 struct Body : public Engine::Component<Body>
 {
    Body(glm::vec3 size, float mass, rp3d::BodyType type)
@@ -56,6 +73,8 @@ public:
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
+   void Receive(const Engine::ComponentAddedEvent<DynamicBody>& e);
+   void Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e);
    void Receive(const Engine::ComponentAddedEvent<Body>& e);
    void Receive(const Engine::ComponentRemovedEvent<Body>& e);
    void Receive(const Engine::ComponentAddedEvent<Collider>& e);

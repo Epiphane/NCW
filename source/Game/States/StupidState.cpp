@@ -45,8 +45,6 @@ namespace Game
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<BulletPhysics::System>();
-      //mSystems.Add<SimplePhysics::System>();
-      mSystems.Add<SimplePhysics::Debug>(false, &mCamera);
       mSystems.Add<AnimationEventSystem>();
       mSystems.Add<AnimationEventDebugSystem>();
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
@@ -73,8 +71,7 @@ namespace Game
 
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
          Entity collider = mEntities.Create(i - size + float(width - 1) / 2, float(height), j - size + float(length - 1) / 2);
-         collider.Add<SimplePhysics::Collider>(glm::vec3(width, 1, length));
-         collider.Add<BulletPhysics::Body>(glm::vec3(width, 1, length), 0.0f);
+         collider.Add<BulletPhysics::StaticBody>(glm::vec3(width, 1, length));
 
          for (int x = i; x < i + width; ++x)
          {
@@ -162,8 +159,6 @@ namespace Game
          Entity dummy = mEntities.Create(5, 10, 0);
          dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
          dummy.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
-         dummy.Add<SimplePhysics::Body>();
-         dummy.Add<SimplePhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f));
          auto dummyController = dummy.Add<AnimationController>();
 
          Engine::Entity part = mEntities.Create(0, 0, 0);
@@ -177,7 +172,7 @@ namespace Game
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
-      player.Add<BulletPhysics::Body>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
+      player.Add<BulletPhysics::DynamicBody>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
       //player.Add<ReactPhysics::Collider>(glm::vec3(0.8f, 1.6f, 0.8f), 1.0f);
       auto controller = player.Add<AnimationController>();
       

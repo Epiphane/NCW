@@ -3,6 +3,8 @@ tmp
 .vscode/ipch
 *.fdb
 
+dependencies/bullet/2.89/data
+
 Assets/cache
 Config.bff
 

@@ -20,9 +20,9 @@ namespace CubeWorld
 namespace BulletPhysics
 {
 
-struct Body : public Engine::Component<Body>
+struct BodyBase
 {
-   Body(glm::vec3 size, float mass)
+   BodyBase(glm::vec3 size, float mass)
       : size(size)
       , mass(mass)
    {};
@@ -33,6 +33,20 @@ struct Body : public Engine::Component<Body>
    std::unique_ptr<btDefaultMotionState> motionState;
    std::unique_ptr<btCollisionShape> shape;
    std::unique_ptr<btRigidBody> body;
+};
+
+struct StaticBody : public Engine::Component<StaticBody>, public BodyBase
+{
+   StaticBody(glm::vec3 size)
+      : BodyBase(size, 0.0f)
+   {};
+};
+
+struct DynamicBody : public Engine::Component<DynamicBody>, public BodyBase
+{
+   DynamicBody(glm::vec3 size, float mass)
+      : BodyBase(size, mass)
+   {};
 };
 
 struct Collider : public Engine::Component<Collider>
@@ -51,13 +65,15 @@ public:
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
-   void Receive(const Engine::ComponentAddedEvent<Body>& e);
-   void Receive(const Engine::ComponentRemovedEvent<Body>& e);
+   void AddBody(const glm::vec3& position, BodyBase& component);
+   void RemoveBody(BodyBase& component);
+
+   void Receive(const Engine::ComponentAddedEvent<StaticBody>& e);
+   void Receive(const Engine::ComponentRemovedEvent<StaticBody>& e);
+   void Receive(const Engine::ComponentAddedEvent<DynamicBody>& e);
+   void Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e);
    void Receive(const Engine::ComponentAddedEvent<Collider>& e);
    void Receive(const Engine::ComponentRemovedEvent<Collider>& e);
-   
-   // API for testing collision.
-   //CollisionView Test(const glm::vec3& bottomLeft, const glm::vec3& rise);
 
 private:
    std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
@@ -74,6 +90,11 @@ private:
    // an ID in this list.
    std::vector<Engine::Entity::ID> mEntities;
    std::vector<size_t> mEntitiesFreeList;
+
+   // Metrics
+   std::unique_ptr<DebugHelper::MetricLink> updateMetric, collisionMetric;
+   Engine::Timer<100> mUpdateClock;
+   Engine::Timer<100> mCollisionClock;
 };
 
 //

@@ -16,7 +16,7 @@ namespace ReactPhysics
 {
 
 System::System()
-   : world(rp3d::Vector3(0, -9.81, 0))
+   : world(rp3d::Vector3(0, 4 * -9.81, 0))
 {
    world.setNbIterationsPositionSolver(2);
    world.setNbIterationsVelocitySolver(5);
@@ -27,6 +27,8 @@ System::~System()
 
 void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
 {
+   events.Subscribe<Engine::ComponentAddedEvent<DynamicBody>>(*this);
+   events.Subscribe<Engine::ComponentRemovedEvent<DynamicBody>>(*this);
    events.Subscribe<Engine::ComponentAddedEvent<Body>>(*this);
    events.Subscribe<Engine::ComponentRemovedEvent<Body>>(*this);
    events.Subscribe<Engine::ComponentAddedEvent<Collider>>(*this);
@@ -42,6 +44,28 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 
       transform.SetLocalPosition(glm::vec3{position.x, position.y, position.z});
    });
+}
+
+void System::Receive(const Engine::ComponentAddedEvent<DynamicBody>& e)
+{
+   glm::vec3 pos = e.entity.Get<Engine::Transform>()->GetAbsolutePosition();
+
+   rp3d::Vector3 initPosition(pos.x, pos.y, pos.z);
+   rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+   rp3d::Transform transform(initPosition, initOrientation);
+
+   rp3d::RigidBody* body = world.createRigidBody(transform);
+   body->setType(e.component->type);
+
+   const auto& size = e.component->size;
+   e.component->body = body;
+   e.component->collisionShape.reset(new rp3d::BoxShape(rp3d::Vector3{size.x, size.y, size.z}));
+   e.component->shape = body->addCollisionShape(e.component->collisionShape.get(), rp3d::Transform::identity(), e.component->mass);
+}
+
+void System::Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e)
+{
+   world.destroyRigidBody(e.component->body);
 }
 
 void System::Receive(const Engine::ComponentAddedEvent<Body>& e)
