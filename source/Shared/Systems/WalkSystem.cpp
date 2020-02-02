@@ -5,7 +5,7 @@
 #include "../Event/NamedEvent.h"
 #include "AnimationSystem.h"
 #include "WalkSystem.h"
-#include "SimplePhysicsSystem.h"
+#include "BulletPhysicsSystem.h"
 
 namespace CubeWorld
 {
@@ -75,8 +75,10 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
          director.director->SetYaw(directorAngle - walkAngle);
       }
    });
-   
-   entities.Each<Engine::Transform, WalkSpeed, SimplePhysics::Body>([&](Engine::Transform& transform, WalkSpeed& walk, SimplePhysics::Body& body) {
+
+   // BulletPhysics behavior
+   entities.Each<Engine::Transform, WalkSpeed, BulletPhysics::ControlledBody>([&](Engine::Transform& transform, WalkSpeed& walk, BulletPhysics::ControlledBody& body) {
+
       float goalSpeed = 0;
       if (walk.running)
       {
@@ -101,18 +103,20 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
          }
       }
 
-      glm::vec3 dir = float(walk.currentSpeed) * glm::normalize(transform.GetFlatDirection());
-
-      body.velocity = glm::vec3(0, body.velocity.y, 0) + dir;
+      glm::vec3 dir = glm::normalize(transform.GetFlatDirection());
+      dir *= float(walk.currentSpeed);
+      body.controller->setWalkDirection(btVector3{dir.x, 0, dir.z});
 
       if (mInput->IsKeyDown(GLFW_KEY_SPACE))
       {
-         body.velocity.y = 15;
+         body.controller->jump();
       }
    });
 
-   entities.Each<WalkSpeed, SimplePhysics::Body, AnimationController>([&](Engine::Entity, WalkSpeed&, SimplePhysics::Body& body, AnimationController& skeleton) {
-      skeleton.SetParameter("speed", std::sqrt(body.velocity.x * body.velocity.x + body.velocity.z * body.velocity.z));
+   entities.Each<WalkSpeed, BulletPhysics::ControlledBody, AnimationController>([&](Engine::Entity, WalkSpeed&, BulletPhysics::ControlledBody& body, AnimationController& skeleton) {
+      const auto& linearVelocity = body.controller->getLinearVelocity();
+      float speed = std::sqrt(linearVelocity.getX() * linearVelocity.getX() + linearVelocity.getZ() * linearVelocity.getZ());
+      skeleton.SetParameter("speed", speed);
    });
 }
 

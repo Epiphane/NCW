@@ -71,6 +71,7 @@ Settings
                      + ' -framework OpenGL'
                      + ' -framework DiskArbitration'
                   #endif
+.AdditionalLinkerOptions = ''
 
 .Debug_Config =
 [
@@ -236,6 +237,7 @@ Settings
 .VSDependencyProjects = {}
 .XCodeDependencyProjects = {}
 .IncludeSearchPath = ''
+#include "dependencies/bullet/bullet.bff"
 #include "dependencies/freetype/freetype.bff"
 #include "dependencies/glad/glad.bff"
 #include "dependencies/glfw/glfw.bff"

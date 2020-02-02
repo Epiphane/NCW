@@ -7,6 +7,7 @@
 #include <Engine/Core/Config.h>
 
 #include "../Components/VoxModel.h"
+#include "BulletPhysicsSystem.h"
 #include "AnimationSystem.h"
 
 namespace CubeWorld
@@ -210,6 +211,19 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       translateRoot = glm::normalize(transform.GetFlatDirection()) * glm::length(translateRoot);
       translateRoot *= transform.GetLocalScale();
       transform.SetLocalPosition(transform.GetLocalPosition() + translateRoot);
+
+      auto maybeBody = entity.Get<BulletPhysics::ControlledBody>();
+      if (maybeBody)
+      {
+         auto& trans = maybeBody->object->getWorldTransform();
+         auto& origin = trans.getOrigin();
+         origin.setValue(
+            origin.getX() + translateRoot.x,
+            origin.getY() + translateRoot.y,
+            origin.getZ() + translateRoot.z
+         );
+         trans.setOrigin(origin);
+      }
 
       // IMPORTANT: This is where the actual matrix transformation gets done, after all the
       // transitioning and looping work. Don't early out before here! If you do, nothing will

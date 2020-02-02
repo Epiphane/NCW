@@ -42,7 +42,7 @@ ForEach( .Config in .Configs )
       .UnityInputPattern         = .LibrarySourceFiles
       .UnityInputPath            = '$LibrarySourcePath$'
       .UnityOutputPath           = .OutputPath
-      
+
    }
 
    ObjectList('$LibraryName$-Obj-$Platform$-$Config$')
@@ -58,6 +58,7 @@ ForEach( .Config in .Configs )
 #if !SKIP_DEPENDENCY_BUILD
    Library('$LibraryName$-Lib-$Platform$-$Config$')
    {
+      .LibrarianOptions + .AdditionalLinkerOptions
    #if UNITY_BUILD
       .CompilerInputUnity  = '$LibraryName$-Unity-$Platform$-$Config$'
    #else

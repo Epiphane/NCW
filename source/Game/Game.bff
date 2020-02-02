@@ -74,6 +74,7 @@
                                  'RGBSettings-Lib-$Platform$-$Config$'
                                  'RGBText-Lib-$Platform$-$Config$'
 
+                                 'bullet-Lib-$Platform$-$Config$'
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'

@@ -16,9 +16,7 @@ int main(int, char**)
    Logger::StdoutLogger::Instance();
    Logger::DebugLogger::Instance();
 
-   LOG_ALWAYS("Everything worked perfectly");
-
-   // // Setup main window
+   // Setup main window
    Window::Options windowOptions;
    windowOptions.title = "NCW Editor";
    windowOptions.fullscreen = false;

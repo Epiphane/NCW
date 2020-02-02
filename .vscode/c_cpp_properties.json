@@ -53,6 +53,7 @@
             "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/dependencies",
+                "${workspaceFolder}/dependencies/bullet/2.89/src",
                 "${workspaceFolder}/dependencies/freetype/2.9.1/include",
                 "${workspaceFolder}/dependencies/glad/07052019/include",
                 "${workspaceFolder}/dependencies/glfw/3.2.1/include",

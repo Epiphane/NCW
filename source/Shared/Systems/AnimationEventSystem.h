@@ -6,7 +6,7 @@
 #include "../DebugHelper.h"
 #include "../Components/AnimationController.h"
 #include "Simple3DRenderSystem.h"
-#include "SimplePhysicsSystem.h"
+#include "BulletPhysicsSystem.h"
 
 namespace CubeWorld
 {
@@ -30,9 +30,9 @@ public:
 class AnimationEventDebugSystem : public Engine::System<AnimationEventDebugSystem> {
 public:
    AnimationEventDebugSystem(
-      SimplePhysics::System* physics = nullptr,
+      BulletPhysics::System* physics = nullptr,
       bool active = true
-   ) 
+   )
       : mPhysics(physics)
       , mActive(active)
    {}
@@ -52,7 +52,7 @@ private:
       glm::vec3 size
    );
 
-   SimplePhysics::System* mPhysics;
+   BulletPhysics::System* mPhysics;
    bool mActive;
 };
 

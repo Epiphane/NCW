@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 .SourceIncludePaths  = ' "-Isource"'
                      + ' "-Isource/Library"'
+                     + .BulletIncludePaths
                      + .FreeTypeIncludePaths
                      + .GladIncludePaths
                      + .GlfwIncludePaths

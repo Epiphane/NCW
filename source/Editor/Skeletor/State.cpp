@@ -16,7 +16,6 @@
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
-#include <Shared/Systems/SimplePhysicsSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 
 #include <Shared/DebugHelper.h>

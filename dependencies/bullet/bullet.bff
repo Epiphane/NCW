@@ -1,0 +1,69 @@
+// bullet external library
+//------------------------------------------------------------------------------
+.BulletIncludePaths = ''
+{
+   .LibraryName = 'bullet'
+   .LibraryVersion = '2.89'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
+
+   .AdditionalCompilerOptions = ' -DB3_USE_CLEW'
+                           #if __WINDOWS__
+                              + ' -D_WIN64'
+                              + ' /fp:fast'
+                              + ' /GF /Gy'
+                              + ' /wd4005' // '%s': macro redefinition
+                              + ' /wd4100' // '%s': unreferenced formal parameter
+                              + ' /wd4127' // conditional expression is constant
+                              + ' /wd4189' // '%s': local variable is initialized but not referenced
+                              + ' /wd4242' // 'argument': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4244' // 'argument': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4245' // '=': conversion from 'int' to 'unsigned int', signed/unsigned mismatch'
+                              + ' /wd4263' // member function does not override any base class virtual member function
+                              + ' /wd4264' // no override available; function is hidden
+                              + ' /wd4267' // 'argument': conversion from '%s' to '%s', possible loss of data
+                              + ' /wd4296' // '>=': expression is always true
+                              + ' /wd4365' // 'argument': conversion from '%s' to '%s', signed/unsigned mismatch
+                              + ' /wd4388' // '<': signed/unsigned mismatch
+                              + ' /wd4389' // '!=': signed/unsigned mismatch
+                              + ' /wd4456' // declaration of '%s' hides previous local declaration
+                              + ' /wd4457' // declaration of '%s' hides function parameter
+                              + ' /wd4458' // declaration of '%s' hides class member
+                              + ' /wd4459' // declaration of '%s' hides global declaration
+                              + ' /wd4463' // overflow; assigning 1 to bit-field that can only hold values from -1 to 0'
+                              + ' /wd4505' // '%s': unreferenced local function has been removed
+                              + ' /wd4701' // potentially uninitialized local variable '%s' used
+                              + ' /wd4702' // unreachable code
+                              + ' /wd4703' // potentially uninitialized local pointer variable '%s' used
+                              + ' /wd4706' // assignment within conditional expression'
+                              + ' /wd5038' // data member '%s' will be initialized after data member '%s'
+                              + ' /wd6001' // Using uninitialized memory '%s'
+                              + ' /wd6011' // Dereferencing NULL pointer '%s'.
+                              + ' /wd6031' // Return value ignored: '%s'.'
+                              + ' /wd6054' // String '%s' might not be zero-terminated.
+                              + ' /wd6244' // Local declaration of 'uniqueId' hides previous declaration at line '%d' os '%s'.
+                              + ' /wd6246' // Local declaration of '%s' hides declaration of the same name in outer scope.
+                              + ' /wd6262' // Function uses '29520' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+                              + ' /wd6287' // Redundant code:  the left and right sub-expressions are identical.
+                              + ' /wd6289' // Incorrect operator:  mutual exclusion over || is always a non-zero constant.  Did you intend to use && instead?
+                              + ' /wd6340' // Mismatch on sign: '%s' passed as _Param_(%d) when some unsigned type is required in call to '%s'.
+                              + ' /wd6385' // Reading invalid data from '%s':  the readable size is '%d' bytes, but '%d' bytes may be read.
+                              + ' /wd6386' // Buffer overrun while writing to '%s':  the writable size is '%s' bytes, but '%d' bytes might be written.
+                              + ' /wd6387' // '%s' could be '0':  this does not adhere to the specification for the function '%s'.'
+                              + ' /wd28159' // Consider using 'GetTickCount64' instead of 'GetTickCount'. Reason: GetTickCount overflows roughly every 49 days.  Code that does not take that into account can loop indefinitely.  GetTickCount64 operates on 64 bit values and does not have that problem
+                              + ' /wd28182' // Dereferencing NULL pointer.
+                           #endif
+                           #if __OSX__
+                              + ' -D_DARWIN'
+                           #endif
+
+   .AdditionalLinkerOptions = ' /ignore:4006'
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
+   .LibrarySourceFiles  = { '*.cpp' }
+
+   #define NO_UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^BulletIncludePaths = ' -I$LibraryIncludePaths$'
+}
