@@ -61,6 +61,7 @@ public:
 
    struct Transition : public SkeletonAnimations::Transition
    {
+      Transition() : SkeletonAnimations::Transition() {};
       Transition(const SkeletonAnimations::Transition& tra) : SkeletonAnimations::Transition(tra) {};
 
       std::string entity;

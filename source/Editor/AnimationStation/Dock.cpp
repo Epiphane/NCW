@@ -336,7 +336,7 @@ void Dock::Update(TIMEDELTA)
       }
       if (ImGui::BeginTabItem("Transitions"))
       {
-         if (Imgui::Draw("transitions", state.transitions, []{ return SimpleAnimationController::Transition(SkeletonAnimations::Transition{}); }))
+         if (Imgui::Draw("transitions", state.transitions))
          {
             mpRoot->Emit<SkeletonModifiedEvent>(mController);
          }
