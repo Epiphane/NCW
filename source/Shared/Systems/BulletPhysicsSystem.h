@@ -89,6 +89,8 @@ public:
    void Receive(const Engine::ComponentAddedEvent<ControlledBody>& e);
    void Receive(const Engine::ComponentRemovedEvent<ControlledBody>& e);
 
+   btCollisionWorld* GetWorld() const { return world.get(); }
+
 private:
    std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
    std::unique_ptr<btDispatcher> dispatcher;
@@ -109,31 +111,6 @@ private:
    std::unique_ptr<DebugHelper::MetricLink> updateMetric, collisionMetric;
    Engine::Timer<100> mUpdateClock;
    Engine::Timer<100> mCollisionClock;
-};
-
-//
-// Debug draws collision objects, for debugging physics.
-//
-class Debug : public Engine::System<Debug> {
-public:
-   Debug(bool active = true, Engine::Graphics::Camera* camera = nullptr) : mActive(active), mCamera(camera) {}
-   ~Debug() {}
-
-   void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
-   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-
-   void SetActive(bool active) { mActive = active; }
-   bool IsActive() { return mActive; }
-
-   void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
-
-private:
-   bool mActive;
-
-private:
-   Engine::Graphics::Camera* mCamera;
-
-   static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
 }; // namespace BulletPhysics

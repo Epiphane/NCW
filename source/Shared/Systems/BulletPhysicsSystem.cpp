@@ -16,6 +16,11 @@ namespace CubeWorld
 namespace BulletPhysics
 {
 
+/*
+btBoxShape* wepShape;
+btPairCachingGhostObject* ghost;
+*/
+
 ///
 ///
 ///
@@ -34,6 +39,17 @@ System::System()
    world->setGravity(btVector3(0, -40, 0));
 
    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+   // Try making something to collide with
+   /*
+   wepShape = new btBoxShape(btVector3{1.0f, 0.5f, 1.0f});
+   ghost = new btPairCachingGhostObject();
+   ghost->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 10, 0)));
+   ghost->setCollisionShape(wepShape);
+   ghost->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
+   world->addCollisionObject(ghost);
+   //ghost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+   */
 }
 
 System::~System()
@@ -78,6 +94,18 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
       transform.SetLocalPosition(glm::vec3{position.getX(), position.getY(), position.getZ()});
    });
    mCollisionClock.Elapsed();
+
+   /*
+   btAlignedObjectArray<btCollisionObject*>& overlappingObjects = ghost->getOverlappingPairs();
+   const int numObjects = overlappingObjects.size();
+   for (int i = 0; i < numObjects; i++)
+   {
+      btCollisionObject* colObj = overlappingObjects[i];
+      /// Do something with colObj
+      (void*)colObj;
+   }
+   LOG_DEBUG("Overlapping: %1", numObjects);
+   */
 }
 
 ///
@@ -192,67 +220,6 @@ void System::Receive(const Engine::ComponentRemovedEvent<ControlledBody>& e)
    {
       world->removeAction(e.component->controller.get());
    }
-}
-
-///
-///
-///
-std::unique_ptr<Engine::Graphics::Program> Debug::program = nullptr;
-
-///
-///
-///
-
-void Debug::Configure(Engine::EntityManager&, Engine::EventManager&)
-{
-   if (!program)
-   {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/PhysicsDebug.vert", "Shaders/PhysicsDebug.geom", "Shaders/PhysicsDebug.frag");
-      if (!maybeProgram)
-      {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Physics Debug shader").GetMessage());
-         return;
-      }
-
-      program = std::move(*maybeProgram);
-      program->Uniform("uProjMatrix");
-      program->Uniform("uViewMatrix");
-      program->Uniform("uModelMatrix");
-      program->Uniform("uPosition");
-      program->Uniform("uSize");
-   }
-}
-
-///
-///
-///
-void Debug::Update(Engine::EntityManager&, Engine::EventManager&, TIMEDELTA)
-{
-   if (!mActive)
-   {
-      return;
-   }
-
-   /*
-   BIND_PROGRAM_IN_SCOPE(program);
-
-   glm::mat4 perspective = mCamera->GetPerspective();
-   glm::mat4 view = mCamera->GetView();
-   glm::mat4 model(1);
-   program->UniformMatrix4f("uProjMatrix", perspective);
-   program->UniformMatrix4f("uViewMatrix", view);
-   program->UniformMatrix4f("uModelMatrix", model);
-
-   entities.Each<Engine::Transform, Collider>([&](Engine::Entity, Engine::Transform& transform, Collider& collider) {
-      glm::vec3 pos = transform.GetAbsolutePosition();
-      program->UniformVector3f("uPosition", pos);
-      program->UniformVector3f("uSize", collider.size);
-
-      glDrawArrays(GL_POINTS, 0, 1);
-
-      CHECK_GL_ERRORS();
-   });
-   */
 }
 
 }; // namespace BulletPhysics

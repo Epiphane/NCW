@@ -54,9 +54,8 @@ public:
    template<typename S>
    S* Get()
    {
-      BaseSystem::Family family = S::GetFamily();
       auto it = std::find_if(mSystems.begin(), mSystems.end(), [&](const auto& system) {
-         return decltype(*system)::value::GetFamily() == family;
+         return dynamic_cast<S*>(system.get()) != nullptr;
       });
       assert(it != mSystems.end());
       return static_cast<S*>(it->get());

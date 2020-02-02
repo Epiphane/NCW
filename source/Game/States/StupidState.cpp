@@ -17,6 +17,7 @@
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
+#include <Shared/Systems/BulletPhysicsDebug.h>
 #include <Shared/Systems/BulletPhysicsSystem.h>
 #include <Shared/Systems/Simple3DRenderSystem.h>
 #include <Shared/Systems/SimpleParticleSystem.h>
@@ -46,6 +47,7 @@ namespace Game
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<BulletPhysics::System>();
+      mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
       mSystems.Add<AnimationEventSystem>();
       mSystems.Add<AnimationEventDebugSystem>();
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
@@ -176,9 +178,9 @@ namespace Game
 
       // Set up the player controller
       {
-         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 1.0f);
+         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 2.25f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
-         ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(0, 20, 0)));
          ghostObject->setCollisionShape(playerShape.get());
          ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
          std::unique_ptr<btKinematicCharacterController> controller = std::make_unique<btKinematicCharacterController>(ghostObject.get(), playerShape.get(), 1.5f);

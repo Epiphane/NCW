@@ -176,6 +176,11 @@ std::unique_ptr<Input::KeyCallbackLink> Input::OnKey(input_key_callback cb)
 
 void Input::TriggerKeyCallbacks(int key, int action, int mods)
 {
+   if (key < 0)
+   {
+      return;
+   }
+
    if (action == GLFW_PRESS)
    {
       if (mKeyCallbacks[key] != nullptr)
