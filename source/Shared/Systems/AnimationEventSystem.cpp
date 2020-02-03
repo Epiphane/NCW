@@ -65,7 +65,7 @@ void AnimationEventSystem::Update(Engine::EntityManager& entities, Engine::Event
                      ghost->setCollisionShape(shape.get());
                      ghost->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
-                     mPhysics.GetWorld()->addCollisionObject(ghost.get(), btBroadphaseProxy::StaticFilter, btBroadphaseProxy::CharacterFilter);
+                     mPhysics->GetWorld()->addCollisionObject(ghost.get(), btBroadphaseProxy::StaticFilter, btBroadphaseProxy::CharacterFilter);
 
                      btAlignedObjectArray<btCollisionObject*>& overlappingObjects = ghost->getOverlappingPairs();
                      const int numObjects = overlappingObjects.size();

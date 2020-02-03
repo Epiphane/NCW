@@ -24,15 +24,17 @@ struct AnimationEventStaleObject
 //
 class AnimationEventSystem : public Engine::System<AnimationEventSystem> {
 public:
-   AnimationEventSystem(BulletPhysics::System& physics)
+   AnimationEventSystem(BulletPhysics::System* physics)
       : mPhysics(physics)
-   {}
+   {
+      assert(physics != nullptr);
+   }
 
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 private:
-   BulletPhysics::System& mPhysics;
+   BulletPhysics::System* mPhysics;
 
    std::vector<AnimationEventStaleObject> mStaleObjects;
 };

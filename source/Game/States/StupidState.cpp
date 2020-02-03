@@ -48,7 +48,7 @@ namespace Game
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<BulletPhysics::System>();
       mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
-      mSystems.Add<AnimationEventSystem>(*mSystems.Get<BulletPhysics::System>());
+      mSystems.Add<AnimationEventSystem>(mSystems.Get<BulletPhysics::System>());
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
