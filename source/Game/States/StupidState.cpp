@@ -53,6 +53,11 @@ namespace Game
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
 
+      BulletPhysics::Debug* debug = mSystems.Get<BulletPhysics::Debug>();
+      mDebugCallback = window.AddCallback(GLFW_KEY_L, [debug](int, int, int) {
+         debug->SetActive(!debug->IsActive());
+      });
+
       mSystems.Configure();
    }
 

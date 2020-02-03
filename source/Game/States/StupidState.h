@@ -27,6 +27,8 @@ public:
    bool BuildFloorCollision(int32_t size);
 
 private:
+   std::unique_ptr<Engine::Input::KeyCallbackLink> mDebugCallback;
+
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window& mWindow;

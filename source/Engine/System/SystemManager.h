@@ -39,7 +39,10 @@ public:
       mSystems.push_back(std::move(system));
 #if CUBEWORLD_BENCHMARK_SYSTEMS
       std::string name = typeid(S).name();
-      // Cut off namespace.
+
+      // Cut off "class Cubeworld::"
+      name = name.substr(17);
+
       mBenchmarks.push_back(std::make_pair(std::string(name), Timer<100>()));
 #endif
    }
