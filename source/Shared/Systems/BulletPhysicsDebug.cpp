@@ -45,7 +45,6 @@ void Debug::Configure(Engine::EntityManager&, Engine::EventManager&)
       mSystem->GetWorld()->setDebugDrawer(this);
       setDebugMode(
          btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawAabb
-         //btIDebugDraw::DBG_DrawContactPoints
       );
    }
 

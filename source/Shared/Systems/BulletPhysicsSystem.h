@@ -4,6 +4,8 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
+#include <BulletCollision/BroadphaseCollision/btBroadphaseProxy.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Camera.h>
@@ -108,9 +110,9 @@ private:
    std::vector<size_t> mEntitiesFreeList;
 
    // Metrics
-   std::unique_ptr<DebugHelper::MetricLink> updateMetric, collisionMetric;
+   std::unique_ptr<DebugHelper::MetricLink> updateMetric, transformMetric;
    Engine::Timer<100> mUpdateClock;
-   Engine::Timer<100> mCollisionClock;
+   Engine::Timer<100> mTransformClock;
 };
 
 }; // namespace BulletPhysics

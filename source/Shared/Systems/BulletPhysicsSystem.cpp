@@ -2,7 +2,6 @@
 
 #include <deque>
 #include <glad/glad.h>
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
@@ -15,11 +14,6 @@ namespace CubeWorld
 
 namespace BulletPhysics
 {
-
-/*
-btBoxShape* wepShape;
-btPairCachingGhostObject* ghost;
-*/
 
 ///
 ///
@@ -39,17 +33,6 @@ System::System()
    world->setGravity(btVector3(0, -40, 0));
 
    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-
-   // Try making something to collide with
-   /*
-   wepShape = new btBoxShape(btVector3{1.0f, 0.5f, 1.0f});
-   ghost = new btPairCachingGhostObject();
-   ghost->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 10, 0)));
-   ghost->setCollisionShape(wepShape);
-   ghost->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
-   world->addCollisionObject(ghost);
-   //ghost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-   */
 }
 
 System::~System()
@@ -71,8 +54,8 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
       return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
    });
 
-   collisionMetric = DebugHelper::Instance().RegisterMetric("B3 Collision Checks", [this]() -> std::string {
-      return FormatString("%.2fms", mCollisionClock.Average() * 1000.0);
+   transformMetric = DebugHelper::Instance().RegisterMetric("B3 Transforms Updates", [this]() -> std::string {
+      return FormatString("%.2fms", mTransformClock.Average() * 1000.0);
    });
 }
 
@@ -86,26 +69,14 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
    world->debugDrawWorld();
    mUpdateClock.Elapsed();
 
-   mCollisionClock.Reset();
+   mTransformClock.Reset();
    entities.Each<Engine::Transform, ControlledBody>([&](Engine::Transform& transform, const ControlledBody& body) {
       btTransform trans = body.object->getWorldTransform();
       btVector3 position = trans.getOrigin();
 
       transform.SetLocalPosition(glm::vec3{position.getX(), position.getY(), position.getZ()});
    });
-   mCollisionClock.Elapsed();
-
-   /*
-   btAlignedObjectArray<btCollisionObject*>& overlappingObjects = ghost->getOverlappingPairs();
-   const int numObjects = overlappingObjects.size();
-   for (int i = 0; i < numObjects; i++)
-   {
-      btCollisionObject* colObj = overlappingObjects[i];
-      /// Do something with colObj
-      (void*)colObj;
-   }
-   LOG_DEBUG("Overlapping: %1", numObjects);
-   */
+   mTransformClock.Elapsed();
 }
 
 ///
@@ -166,10 +137,9 @@ void System::RemoveBody(BodyBase& component)
 ///
 void System::Receive(const Engine::ComponentAddedEvent<StaticBody>& e)
 {
-   AddBody(
-      e.entity.Get<Engine::Transform>()->GetAbsolutePosition(),
-      *e.component
-   );
+   AddBody(e.entity.Get<Engine::Transform>()->GetAbsolutePosition(), *e.component);
+   assert(sizeof(int) >= sizeof(uint32_t) && "int size is unexpected for this platform");
+   e.component->body->setUserIndex((int)e.entity.GetID().index());
 }
 
 void System::Receive(const Engine::ComponentRemovedEvent<StaticBody>& e)
@@ -182,10 +152,9 @@ void System::Receive(const Engine::ComponentRemovedEvent<StaticBody>& e)
 ///
 void System::Receive(const Engine::ComponentAddedEvent<DynamicBody>& e)
 {
-   AddBody(
-      e.entity.Get<Engine::Transform>()->GetAbsolutePosition(),
-      *e.component
-   );
+   AddBody(e.entity.Get<Engine::Transform>()->GetAbsolutePosition(), *e.component);
+   assert(sizeof(int) >= sizeof(uint32_t) && "int size is unexpected for this platform");
+   e.component->body->setUserIndex((int)e.entity.GetID().index());
 }
 
 void System::Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e)
@@ -201,6 +170,8 @@ void System::Receive(const Engine::ComponentAddedEvent<ControlledBody>& e)
    if (e.component->object)
    {
       world->addCollisionObject(e.component->object.get(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+      assert(sizeof(int) >= sizeof(uint32_t) && "int size is unexpected for this platform");
+      e.component->object->setUserIndex((int)e.entity.GetID().index());
    }
 
    if (e.component->controller)

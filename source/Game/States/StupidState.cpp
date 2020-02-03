@@ -48,8 +48,7 @@ namespace Game
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<BulletPhysics::System>();
       mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
-      mSystems.Add<AnimationEventSystem>();
-      mSystems.Add<AnimationEventDebugSystem>();
+      mSystems.Add<AnimationEventSystem>(*mSystems.Get<BulletPhysics::System>());
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
@@ -149,8 +148,6 @@ namespace Game
          }
       }
 
-      LOG_INFO("Generated {num} blocks", blocksCreated);
-
       return false;
    }
 
@@ -158,10 +155,12 @@ namespace Game
    {
       mWindow.SetMouseLock(true);
 
+      // Create player first so it gets index 0.
+      Entity player = mEntities.Create();
+
       {
-         Entity dummy = mEntities.Create(5, 10, 0);
+         Entity dummy = mEntities.Create(5, 10, 10);
          dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-         dummy.Add<WalkSpeed>(10.0f, 3.0f, 15.0f);
          auto dummyController = dummy.Add<AnimationController>();
 
          Engine::Entity part = mEntities.Create(0, 0, 0);
@@ -169,9 +168,18 @@ namespace Game
          part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 168.0f, 0);
          dummyController->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
          dummyController->AddAnimations(part.Add<SkeletonAnimations>("character"));
+
+         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 1.25f);
+         std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
+         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(5, 20, 10)));
+         ghostObject->setCollisionShape(playerShape.get());
+         ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+         std::unique_ptr<btKinematicCharacterController> controller = std::make_unique<btKinematicCharacterController>(ghostObject.get(), playerShape.get(), 1.5f);
+         controller->setUp(btVector3{0, 1, 0});
+
+         dummy.Add<BulletPhysics::ControlledBody>(std::move(playerShape), std::move(ghostObject), std::move(controller));
       }
 
-      Entity player = mEntities.Create();
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(0.15f, 0.05f, 15.0f);
@@ -190,9 +198,6 @@ namespace Game
       }
 
       auto controller = player.Add<AnimationController>();
-
-      Entity debugger = mEntities.Create(0, 0, 0);
-      player.Add<AnimationEventDebugger>(debugger.Add<Simple3DRender>());
 
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
          auto anim = player.Get<AnimationController>();

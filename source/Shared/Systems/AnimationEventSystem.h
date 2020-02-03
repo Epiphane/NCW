@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <vector>
 #include <Engine/System/System.h>
 #include "../DebugHelper.h"
 #include "../Components/AnimationController.h"
@@ -11,49 +12,29 @@
 namespace CubeWorld
 {
 
-struct AnimationEventDebugger : public Engine::Component<AnimationEventDebugger>
+struct AnimationEventStaleObject
 {
-   AnimationEventDebugger(Engine::ComponentHandle<Simple3DRender> output) : output(output) {};
-
-   Engine::ComponentHandle<Simple3DRender> output;
+   std::unique_ptr<btCollisionShape> shape;
+   std::unique_ptr<btGhostObject> ghost;
 };
 
+//
+// AnimationEventSystem tracks and manages interactions between animations and the world,
+// e.g. weapons hitting enemies.
+//
 class AnimationEventSystem : public Engine::System<AnimationEventSystem> {
 public:
-   void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
-   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
-};
-
-//
-// AnimationEventDebugSystem is useful for visually representing animation information, such as events.
-//
-class AnimationEventDebugSystem : public Engine::System<AnimationEventDebugSystem> {
-public:
-   AnimationEventDebugSystem(
-      BulletPhysics::System* physics = nullptr,
-      bool active = true
-   )
+   AnimationEventSystem(BulletPhysics::System& physics)
       : mPhysics(physics)
-      , mActive(active)
    {}
 
-   void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
-   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-
-   void SetActive(bool active) { mActive = active; }
-   bool IsActive() { return mActive; }
+   void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 private:
-   void Extend(
-      std::vector<GLfloat>& points,
-      std::vector<GLfloat>& colors,
-      glm::mat4 matrix,
-      glm::vec3 offset,
-      glm::vec3 size
-   );
+   BulletPhysics::System& mPhysics;
 
-   BulletPhysics::System* mPhysics;
-   bool mActive;
+   std::vector<AnimationEventStaleObject> mStaleObjects;
 };
 
 }; // namespace CubeWorld
