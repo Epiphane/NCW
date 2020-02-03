@@ -23,7 +23,7 @@ void AnimationEventSystem::Update(Engine::EntityManager& entities, Engine::Event
    // Erase stale objects from the world
    for (const auto& stale : mStaleObjects)
    {
-      mPhysics.GetWorld()->removeCollisionObject(stale.ghost.get());
+      mPhysics->GetWorld()->removeCollisionObject(stale.ghost.get());
    }
    mStaleObjects.clear();
 
