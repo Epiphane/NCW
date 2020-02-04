@@ -1,6 +1,6 @@
 ---
 name: idle
-next:
+next: 
 stance: resting
 default: true
 loop: true

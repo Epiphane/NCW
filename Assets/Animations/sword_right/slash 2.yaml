@@ -2,6 +2,8 @@
 name: slash 2
 next: slash 2 recoil
 stance: wield_right
+default: false
+loop: true
 length: 0.25
 keyframes:
 - time: 0
@@ -120,5 +122,12 @@ keyframes:
     character.Spine: [1, 1, 1]
     character.Torso: [1, 1, 1]
     character.Unnammed node 2: [1, 1, 1]
-    character.root: [1, 1, 1]
     sword_right.root: [1, 1, 1]
+events:
+- type: strike
+  start: 0.45
+  end: 1
+  strike:
+    bone: sword_left.Sword
+    offset: [0, 5, 0]
+    size: [2, 20, 5]

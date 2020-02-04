@@ -2,6 +2,8 @@
 name: slash 1 recoil
 next: idle
 stance: wield_right
+default: false
+loop: true
 length: 0.8
 keyframes:
 - time: 0
@@ -41,4 +43,5 @@ transitions:
   time: 0.1
   triggers:
   - parameter: attack
+    type: bool
     bool: true

@@ -50,7 +50,7 @@ namespace Game
       mSystems.Add<BulletPhysics::System>();
       mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
       mSystems.Add<AnimationEventSystem>(mSystems.Get<BulletPhysics::System>());
-      mSystems.Add< CombatSystem>();
+      mSystems.Add<CombatSystem>();
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
@@ -221,7 +221,7 @@ namespace Game
       controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
       controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
-#define HAMMER 1
+#define HAMMER 0
       if (HAMMER)
       {
          part = mEntities.Create(0, 0, 0);

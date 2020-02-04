@@ -7,6 +7,7 @@
 #include <RGBLogger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
+#include "AnimationSystem.h"
 #include "BulletPhysicsSystem.h"
 
 namespace CubeWorld
@@ -70,11 +71,20 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
    mUpdateClock.Elapsed();
 
    mTransformClock.Reset();
-   entities.Each<Engine::Transform, ControlledBody>([&](Engine::Transform& transform, const ControlledBody& body) {
+   entities.Each<Engine::Transform, ControlledBody>([&](Engine::Entity entity, Engine::Transform& transform, const ControlledBody& body) {
       btTransform trans = body.object->getWorldTransform();
       btVector3 position = trans.getOrigin();
 
-      transform.SetLocalPosition(glm::vec3{position.getX(), position.getY() - body.shape->getHalfHeight(), position.getZ()});
+      glm::vec3 adjustedPosition = glm::vec3{position.getX(), position.getY(), position.getZ()};
+      adjustedPosition.y -= body.shape->getHalfHeight();
+
+      if (entity.Has<AnimationController>())
+      {
+         const AnimationController& controller = *entity.Get<AnimationController>();
+         adjustedPosition.y += controller.lastBasePosition.y * transform.GetLocalScale().y;
+      }
+
+      transform.SetLocalPosition(adjustedPosition);
    });
    mTransformClock.Elapsed();
 }

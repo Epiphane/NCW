@@ -1,7 +1,7 @@
 ---
 name: die
 next: 
-stance: base
+stance: resting
 default: false
 loop: false
 length: 0.3

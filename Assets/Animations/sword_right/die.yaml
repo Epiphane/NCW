@@ -1,0 +1,10 @@
+---
+name: die
+next: 
+stance: resting
+default: false
+loop: false
+length: 0.3
+keyframes:
+- time: 0
+- time: 1

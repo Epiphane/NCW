@@ -1,7 +1,9 @@
 ---
 name: idle
-next:
+next: 
 stance: resting
+default: true
+loop: true
 length: 5.02
 keyframes:
 - time: 0
@@ -13,4 +15,5 @@ transitions:
   time: 0.1
   triggers:
   - parameter: attack
+    type: bool
     bool: true

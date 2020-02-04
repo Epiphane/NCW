@@ -1,0 +1,12 @@
+---
+name: run
+next: 
+stance: resting
+default: false
+loop: true
+length: 0.4
+keyframes:
+- time: 0
+- time: 0.25
+- time: 0.5
+- time: 0.75
