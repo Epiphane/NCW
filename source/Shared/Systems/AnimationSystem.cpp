@@ -13,8 +13,16 @@
 namespace CubeWorld
 {
 
+std::unique_ptr<DebugHelper::MetricLink> gLinks[4];
+std::string gMetrics[4];
+
 void AnimationSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
-{}
+{
+   gLinks[0] = DebugHelper::Instance().RegisterMetric("Current", [] { return gMetrics[0]; });
+   gLinks[1] = DebugHelper::Instance().RegisterMetric("Next", [] { return gMetrics[1]; });
+   gLinks[2] = DebugHelper::Instance().RegisterMetric("Time", [] { return gMetrics[2]; });
+   gLinks[3] = DebugHelper::Instance().RegisterMetric("Progress", [] { return gMetrics[3]; });
+}
 
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
@@ -87,7 +95,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          {
             progress = float(controller.time - src.time) / float(dst.time - src.time);
          }
-         else if (isLastFrame && glm::epsilonNotEqual(src.time, state->length, 0.1))
+         else if (isLastFrame && glm::epsilonNotEqual(src.time, state->length, 0.001))
          {
             progress = float(controller.time - src.time) / float(state->length - src.time);
          }
@@ -238,6 +246,10 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          );
          trans.setOrigin(origin);
       }
+
+      gMetrics[0] = FormatString("{current}", controller.current);
+      gMetrics[1] = FormatString("{next}", controller.next);
+      gMetrics[2] = FormatString("{time}", controller.time);
 
       // IMPORTANT: This is where the actual matrix transformation gets done, after all the
       // transitioning and looping work. Don't early out before here! If you do, nothing will

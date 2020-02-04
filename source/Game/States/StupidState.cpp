@@ -165,6 +165,7 @@ namespace Game
       // Create player first so it gets index 0.
       Entity player = mEntities.Create();
 
+      if (0)
       {
          Entity dummy = mEntities.Create(5, 10, 10);
          dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
@@ -196,7 +197,7 @@ namespace Game
 
       // Set up the player controller
       {
-         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 1.25f);
+         std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 0.75f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
          ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(0, 20, 0)));
          ghostObject->setCollisionShape(playerShape.get());
