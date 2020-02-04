@@ -61,6 +61,7 @@ public:
       std::string name;
       std::string next;
       size_t stance;
+      bool loop;
 
       double length;
       std::vector<Keyframe> keyframes;

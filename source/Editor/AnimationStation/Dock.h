@@ -62,7 +62,7 @@ public:
    void Receive(const SuspendEditingEvent& evt);
    void Receive(const ResumeEditingEvent& evt);
    void Receive(const SkeletonLoadedEvent& evt);
-   void Receive(const SkeletonSelectedEvent& evt);
+   void Receive(const Engine::ComponentAddedEvent<Skeleton>& evt);
    void Receive(const Engine::ComponentAddedEvent<SimpleAnimationController>& evt);
    void Receive(const Engine::ComponentAddedEvent<AnimationSystemController>& evt);
 
@@ -77,7 +77,7 @@ public:
 private:
    // State
    size_t mBone;
-   std::string mSkeleton;
+   std::vector<std::string> mSkeletons;
 
    Engine::ComponentHandle<SimpleAnimationController> mController;
    Engine::ComponentHandle<AnimationSystemController> mSystemControls;

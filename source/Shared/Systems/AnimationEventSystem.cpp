@@ -18,7 +18,7 @@ namespace CubeWorld
 void AnimationEventSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {}
 
-void AnimationEventSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
+void AnimationEventSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA)
 {
    // Erase stale objects from the world
    for (const auto& stale : mStaleObjects)
@@ -79,10 +79,10 @@ void AnimationEventSystem::Update(Engine::EntityManager& entities, Engine::Event
                            continue;
                         }
 
-                        LOG_DEBUG("AnimationEventSystem: %1 struck %2!", index, otherIndex);
+                        events.Emit<StrikeEvent>(entity, entities.GetEntity(entities.MakeID(otherIndex)));
                      }
 
-                     mStaleObjects.push_back(AnimationEventStaleObject{
+                     mStaleObjects.push_back(StaleObject{
                         std::move(shape),
                         std::move(ghost)
                      });

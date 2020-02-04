@@ -74,7 +74,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
       btTransform trans = body.object->getWorldTransform();
       btVector3 position = trans.getOrigin();
 
-      transform.SetLocalPosition(glm::vec3{position.getX(), position.getY(), position.getZ()});
+      transform.SetLocalPosition(glm::vec3{position.getX(), position.getY() - body.shape->getHalfHeight(), position.getZ()});
    });
    mTransformClock.Elapsed();
 }

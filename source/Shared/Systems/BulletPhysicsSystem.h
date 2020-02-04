@@ -58,7 +58,7 @@ struct DynamicBody : public Engine::Component<DynamicBody>, public BodyBase
 struct ControlledBody : public Engine::Component<ControlledBody>
 {
    ControlledBody(
-      std::unique_ptr<btCollisionShape>&& shape,
+      std::unique_ptr<btCapsuleShape>&& shape,
       std::unique_ptr<btCollisionObject>&& object,
       std::unique_ptr<btKinematicCharacterController>&& controller
    )
@@ -68,7 +68,7 @@ struct ControlledBody : public Engine::Component<ControlledBody>
       this->controller = std::move(controller);
    };
 
-   std::unique_ptr<btCollisionShape> shape;
+   std::unique_ptr<btCapsuleShape> shape;
    std::unique_ptr<btCollisionObject> object;
    std::unique_ptr<btKinematicCharacterController> controller;
 };

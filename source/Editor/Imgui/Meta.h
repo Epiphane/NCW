@@ -69,17 +69,77 @@ bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);
 bool Draw(const std::string& label, bool& val, bool addToStack = true);
 
+/*
+template<typename Class,
+   std::enable_if_t<!std::is_trivially_constructible<Class>::value>>
+bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack)
+{
+   return Draw(label, val, std::function<Class()>{}, addToStack);
+}
+*/
+
+template<typename Class,
+   typename = std::enable_if_t<!std::is_default_constructible<Class>::value>>
+bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = true)
+{
+   return Draw(label, val, std::function<Class()>{}, addToStack);
+}
+
+template<typename Class,
+   typename = std::enable_if_t<std::is_default_constructible<Class>::value>,
+   typename = void>
+bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = true)
+{
+   return Draw(label, val, std::function<Class()>([]{ return Class{}; }), addToStack);
+}
+
+template<typename Class>
+bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory, bool addToStack = true)
+{
+   if (!label.empty() && label[0] != '#')
+   {
+      size_t pos = label.find('#');
+      if (pos == std::string::npos)
+      {
+         ImGui::Text("%s", label.c_str());
+      }
+      else
+      {
+         ImGui::Text("%s", label.substr(0, pos).c_str());
+      }
+   }
+
+   bool modified = false;
+
+   size_t index = 0;
+   for (Class& item : val)
+   {
+      if (ImGui::TreeNode(FormatString("Element {num}##{label}", index, label).c_str()))
+      {
+         modified |= Draw(FormatString("##{label}##{num}", label, index), item, addToStack);
+         ImGui::TreePop();
+      }
+      index++;
+   }
+   if (factory && ImGui::Button(FormatString("New Element##{label}", label).c_str()))
+   {
+      val.push_back(factory());
+   }
+
+   return modified;
+}
+
 template <typename Class,
    typename = std::enable_if_t<!meta::isRegistered<Class>()>,
    typename = std::enable_if_t<!meta::valuesRegistered<Class>()>,
    typename = void>
-bool Draw(const std::string&, Class&, bool = true) { return false; }
+   bool Draw(const std::string&, Class&, bool = true) { return false; }
 
 template <typename EnumType, typename = std::enable_if_t<meta::valuesRegistered<EnumType>()>, typename = void>
-bool Draw(const std::string& label, EnumType& obj, bool addToStack = true);
+bool Draw(const std::string & label, EnumType & obj, bool addToStack = true);
 
 template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
-bool Draw(const std::string & label, Class& obj, bool addToStack = true);
+bool Draw(const std::string & label, Class & obj, bool addToStack = true);
 
 template <typename EnumType, typename, typename>
 bool Draw(const std::string& label, EnumType& obj, bool addToStack)
@@ -91,13 +151,13 @@ bool Draw(const std::string& label, EnumType& obj, bool addToStack)
    {
       meta::doForAllValues<EnumType>(
          [&](const auto& item)
+      {
+         bool isSelected = (item.getValue() == obj);
+         if (ImGui::Selectable(item.getName().c_str(), isSelected))
          {
-            bool isSelected = (item.getValue() == obj);
-            if (ImGui::Selectable(item.getName().c_str(), isSelected))
-            {
-               newVal = item.getValue();
-            }
+            newVal = item.getValue();
          }
+      }
       );
 
       ImGui::EndCombo();
@@ -141,66 +201,31 @@ bool Draw(const std::string& label, Class& obj, bool addToStack)
 
    meta::doForAllMembers<Class>(
       [&](auto& member)
+   {
+      if (!member.enabled(obj))
       {
-         if (!member.enabled(obj))
-         {
-            return;
-         }
-
-         std::string sublabel = std::string(member.getName()) + labelSuffix;
-
-         if (member.hasSetter()) {
-            auto copy = member.getCopy(obj);
-            changed |= Draw(sublabel, copy, addToStack);
-            member.set(obj, copy);
-         }
-         else if (member.canGetRef()) {
-            changed |= Draw(sublabel, member.getRef(obj), addToStack);
-         }
-         else {
-            assert(false && "can't deserialize member because it's read only");
-         }
+         return;
       }
+
+      std::string sublabel = std::string(member.getName()) + labelSuffix;
+
+      if (member.hasSetter()) {
+         auto copy = member.getCopy(obj);
+         changed |= Draw(sublabel, copy, addToStack);
+         member.set(obj, copy);
+      }
+      else if (member.canGetRef()) {
+         changed |= Draw(sublabel, member.getRef(obj), addToStack);
+      }
+      else {
+         assert(false && "can't deserialize member because it's read only");
+      }
+   }
    );
 
    return changed;
 }
 
-template<typename Class>
-bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory = std::function<Class()>{}, bool addToStack = true)
-{
-   if (!label.empty() && label[0] != '#')
-   {
-      size_t pos = label.find('#');
-      if (pos == std::string::npos)
-      {
-         ImGui::Text("%s", label.c_str());
-      }
-      else
-      {
-         ImGui::Text("%s", label.substr(0, pos).c_str());
-      }
-   }
-
-   bool modified = false;
-
-   size_t index = 0;
-   for (Class& item : val)
-   {
-      if (ImGui::TreeNode(FormatString("Element {num}##{label}", index, label).c_str()))
-      {
-         modified |= Draw(FormatString("##{label}##{num}", label, index), item, addToStack);
-         ImGui::TreePop();
-      }
-      index++;
-   }
-   if (factory && ImGui::Button(FormatString("New Element##{label}", label).c_str()))
-   {
-      val.push_back(factory());
-   }
-
-   return modified;
-}
 
 
 }; // namespace Imgui

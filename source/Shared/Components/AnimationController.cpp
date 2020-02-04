@@ -168,6 +168,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          State newState;
          newState.name = name;
          newState.next = mods.next;
+         newState.loop = mods.loop;
 
          std::string stance = mods.stance;
          const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });
@@ -183,6 +184,11 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
             keyframe.positions.assign(stanceIt->positions.begin(), stanceIt->positions.end());
             keyframe.rotations.assign(stanceIt->rotations.begin(), stanceIt->rotations.end());
             keyframe.scales.assign(stanceIt->scales.begin(), stanceIt->scales.end());
+         }
+
+         if (mods.isDefault)
+         {
+            current = next = states.size();
          }
 
          stateLookup.emplace(name, states.size());

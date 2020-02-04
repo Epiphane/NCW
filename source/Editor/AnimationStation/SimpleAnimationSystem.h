@@ -72,6 +72,8 @@ public:
       std::string name;
       std::string next;
       std::string stance;
+      bool isDefault = false;
+      bool loop = true;
       double length = 0.0;
 
       std::vector<SkeletonAnimations::Keyframe> keyframes;
@@ -148,7 +150,9 @@ inline auto registerMembers<SimpleAnimationController::State>()
    return members(
       member("name", &SimpleAnimationController::State::name),
       member("next", &SimpleAnimationController::State::next),
-      member("length", &SimpleAnimationController::State::length)
+      member("length", &SimpleAnimationController::State::length),
+      member("default", &SimpleAnimationController::State::isDefault),
+      member("loop", &SimpleAnimationController::State::loop)
    );
 }
 

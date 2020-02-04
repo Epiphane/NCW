@@ -98,6 +98,9 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       std::string next;
       std::string stance;
 
+      bool isDefault = false;
+      bool loop = true;
+
       double length = 0.0;
       std::vector<Keyframe> keyframes;
 
@@ -228,6 +231,8 @@ inline auto registerMembers<SkeletonAnimations::State>()
       member("name", &SkeletonAnimations::State::name),
       member("next", &SkeletonAnimations::State::next),
       member("stance", &SkeletonAnimations::State::stance),
+      member("default", &SkeletonAnimations::State::isDefault),
+      member("loop", &SkeletonAnimations::State::loop),
       member("length", &SkeletonAnimations::State::length),
       member("keyframes", &SkeletonAnimations::State::keyframes),
       member("particles", &SkeletonAnimations::State::particles),

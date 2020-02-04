@@ -54,17 +54,6 @@ struct SkeletonModifiedEvent : public Engine::Event<SkeletonModifiedEvent>
    Engine::ComponentHandle<SimpleAnimationController> component;
 };
 
-struct SkeletonSelectedEvent : public Engine::Event<SkeletonSelectedEvent>
-{
-   SkeletonSelectedEvent(size_t index, Engine::ComponentHandle<Skeleton> component)
-      : index(index)
-      , component(component)
-   {};
-
-   size_t index;
-   Engine::ComponentHandle<Skeleton> component;
-};
-
 }; // namespace AnimationStation
 
 }; // namespace Editor

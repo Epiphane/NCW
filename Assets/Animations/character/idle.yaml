@@ -2,6 +2,8 @@
 name: idle
 next:
 stance: resting
+default: true
+loop: true
 length: 5.02
 keyframes:
 - time: 0
@@ -34,3 +36,9 @@ transitions:
   - parameter: speed
     type: gte
     gte: 0.12
+- to: die
+  time: 0.3
+  triggers:
+  - parameter: dead
+    type: bool
+    bool: true

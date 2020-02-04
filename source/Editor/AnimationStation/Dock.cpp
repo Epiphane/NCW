@@ -64,7 +64,7 @@ Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    root->Subscribe<SuspendEditingEvent>(*this);
    root->Subscribe<ResumeEditingEvent>(*this);
    root->Subscribe<SkeletonLoadedEvent>(*this);
-   root->Subscribe<SkeletonSelectedEvent>(*this);
+   root->Subscribe<Engine::ComponentAddedEvent<Skeleton>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<SimpleAnimationController>>(*this);
    root->Subscribe<Engine::ComponentAddedEvent<AnimationSystemController>>(*this);
 }
@@ -169,6 +169,24 @@ void Dock::Update(TIMEDELTA)
                if (ImGui::Selectable(stance.c_str(), isSelected))
                {
                   CommandStack::Instance().Do<SetStanceCommand>(this, mController->current, stance);
+               }
+               if (isSelected)
+               {
+                  ImGui::SetItemDefaultFocus();
+               }
+            }
+            ImGui::EndCombo();
+         }
+
+         if (ImGui::BeginCombo("##state_entity", state.entity.c_str()))
+         {
+            for (const auto& skeleton : mSkeletons)
+            {
+               bool isSelected = (state.entity == skeleton);
+               if (ImGui::Selectable(skeleton.c_str(), isSelected))
+               {
+                  CommandStack::Instance().Do<Imgui::SetValueCommand<std::string>>(state.entity, skeleton);
+                  mpRoot->Emit<SkeletonModifiedEvent>(mController);
                }
                if (isSelected)
                {
@@ -336,7 +354,12 @@ void Dock::Update(TIMEDELTA)
       }
       if (ImGui::BeginTabItem("Transitions"))
       {
-         if (Imgui::Draw("transitions", state.transitions))
+         std::function<SimpleAnimationController::Transition()> factory = [&] {
+            SimpleAnimationController::Transition result;
+            result.entity = state.entity;
+            return result;
+         };
+         if (Imgui::Draw("transitions", state.transitions, factory))
          {
             mpRoot->Emit<SkeletonModifiedEvent>(mController);
          }
@@ -456,9 +479,9 @@ void Dock::Receive(const SkeletonLoadedEvent& evt)
 ///
 ///
 ///
-void Dock::Receive(const SkeletonSelectedEvent& evt)
+void Dock::Receive(const Engine::ComponentAddedEvent<Skeleton>& evt)
 {
-   mSkeleton = evt.component->name;
+   mSkeletons.push_back(evt.component->name);
 }
 
 ///
@@ -581,7 +604,7 @@ void Dock::AddStateCommand::Do()
 
    if (state.entity.empty())
    {
-      state.entity = dock->mSkeleton;
+      state.entity = dock->mSkeletons[0];
    }
 
    if (state.stance.empty())

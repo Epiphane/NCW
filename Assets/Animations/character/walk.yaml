@@ -1,7 +1,9 @@
 ---
 name: walk
-next:
+next: 
 stance: resting
+default: false
+loop: true
 length: 0.8
 keyframes:
 - time: 0

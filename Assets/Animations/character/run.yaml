@@ -1,7 +1,9 @@
 ---
 name: run
-next:
+next: 
 stance: resting
+default: false
+loop: true
 length: 0.4
 keyframes:
 - time: 0

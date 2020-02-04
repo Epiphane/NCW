@@ -77,6 +77,8 @@ void SimpleAnimationController::UpdateSkeletonStates()
          newState.next = state.next;
          newState.length = state.length;
          newState.stance = state.stance;
+         newState.isDefault = state.isDefault;
+         newState.loop = state.loop;
          for (const SkeletonAnimations::Keyframe& keyframe : state.keyframes)
          {
             SkeletonAnimations::Keyframe newKeyframe;
@@ -303,7 +305,14 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          state.next = s.next;
          state.length = s.length;
          state.stance = s.stance;
+         state.isDefault = s.isDefault;
+         state.loop = s.loop;
          state.keyframes.assign(s.keyframes.begin(), s.keyframes.end());
+
+         if (state.isDefault)
+         {
+            current = size_t(std::find_if(states.begin(), states.end(), [&](const auto& s) { return s.name == n; }) - states.begin());
+         }
       }
       else
       {

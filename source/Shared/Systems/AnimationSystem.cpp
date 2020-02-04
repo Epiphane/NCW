@@ -40,6 +40,12 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          controller.time += dt;
          while (controller.time > state->length)
          {
+            if (!state->loop)
+            {
+               controller.time = state->length;
+               break;
+            }
+
             // Looping!
             {
                // Move based on root's final state
@@ -81,9 +87,9 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          {
             progress = float(controller.time - src.time) / float(dst.time - src.time);
          }
-         else if (isLastFrame && glm::epsilonNotEqual(src.time, 1.0, 0.1))
+         else if (isLastFrame && glm::epsilonNotEqual(src.time, state->length, 0.1))
          {
-            progress = float(controller.time - src.time) / float(1.0 - src.time);
+            progress = float(controller.time - src.time) / float(state->length - src.time);
          }
 
          size_t boneId = 0;
@@ -125,7 +131,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             }
 
             double time = controller.transitionCurrent;
-            while (time >= state.length)
+            while (time > state.length)
             {
                time -= state.length;
             }
@@ -141,7 +147,15 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             const Keyframe& src = state.keyframes[keyframeIndex];
             const Keyframe& dst = isLastFrame ? state.keyframes[0] : state.keyframes[keyframeIndex + 1];
             const double dstTime = isLastFrame ? state.length : dst.time;
-            const float progress = float(time - src.time) / float(dstTime - src.time);
+            float progress = 0.0f;
+            if (dst.time > src.time)
+            {
+               progress = float(time - src.time) / float(dstTime - src.time);
+            }
+            else if (isLastFrame && glm::epsilonNotEqual(src.time, state.length, 0.1))
+            {
+               progress = float(time - src.time) / float(state.length - src.time);
+            }
 
             size_t boneId = 0;
             for (Engine::ComponentHandle<Skeleton>& skeleton : controller.skeletons)

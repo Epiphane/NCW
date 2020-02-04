@@ -14,6 +14,7 @@
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/AnimationEventSystem.h>
 #include <Shared/Systems/CameraSystem.h>
+#include <Shared/Systems/CombatSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
@@ -49,6 +50,7 @@ namespace Game
       mSystems.Add<BulletPhysics::System>();
       mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
       mSystems.Add<AnimationEventSystem>(mSystems.Get<BulletPhysics::System>());
+      mSystems.Add< CombatSystem>();
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
@@ -168,6 +170,8 @@ namespace Game
          dummy.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
          auto dummyController = dummy.Add<AnimationController>();
 
+         dummy.Add<UnitComponent>(5);
+
          Engine::Entity part = mEntities.Create(0, 0, 0);
          part.Get<Transform>()->SetParent(dummy);
          part.Add<VoxModel>(Asset::Model("character.vox"))->mTint = glm::vec3(0, 168.0f, 0);
@@ -185,6 +189,7 @@ namespace Game
          dummy.Add<BulletPhysics::ControlledBody>(std::move(playerShape), std::move(ghostObject), std::move(controller));
       }
 
+      player.Add<UnitComponent>(5);
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
       player.Add<WalkSpeed>(0.15f, 0.05f, 15.0f);
