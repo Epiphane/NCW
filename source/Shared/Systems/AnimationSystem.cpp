@@ -21,7 +21,7 @@ void AnimationSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
    gLinks[0] = DebugHelper::Instance().RegisterMetric("Current", [] { return gMetrics[0]; });
    gLinks[1] = DebugHelper::Instance().RegisterMetric("Next", [] { return gMetrics[1]; });
    gLinks[2] = DebugHelper::Instance().RegisterMetric("Time", [] { return gMetrics[2]; });
-   gLinks[3] = DebugHelper::Instance().RegisterMetric("Progress", [] { return gMetrics[3]; });
+   gLinks[3] = DebugHelper::Instance().RegisterMetric("Speed", [] { return gMetrics[3]; });
 }
 
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
@@ -194,8 +194,11 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             }
          }
 
+         gMetrics[3] = FormatString("{speed}", controller.floatParams["speed"]);
+
          // Compute new transitions
-         if (controller.current == controller.next) {
+         if (controller.current == controller.next)
+         {
             State& state = controller.states[controller.current];
             for (Transition& transition : state.transitions)
             {

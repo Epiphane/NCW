@@ -1,6 +1,6 @@
 ---
 name: run
-next: 
+next:
 stance: resting
 default: false
 loop: true
@@ -70,7 +70,7 @@ transitions:
     type: lt
     lt: 0.02
 - to: walk
-  time: 0.5
+  time: 0.3
   triggers:
   - parameter: speed
     type: gte

@@ -257,6 +257,15 @@ void AnimationController::Play(const std::string& state, double startTime)
 
 void AnimationController::TransitionTo(const std::string& state, double transitionTime, double startTime)
 {
+   auto it = stateLookup.find(state);
+   assert(it != stateLookup.end());
+
+   if (next == it->second)
+   {
+      // Already transitioning
+      return;
+   }
+
    // If a transition is in flight, skip to the end of it.
    if (current != next)
    {
@@ -265,10 +274,7 @@ void AnimationController::TransitionTo(const std::string& state, double transiti
       lastBasePosition = lastTransitionPosition;
    }
 
-   auto it = stateLookup.find(state);
-   assert(it != stateLookup.end());
-
-   if (current == it->second && next == it->second)
+   if (current == it->second)
    {
       return;
    }

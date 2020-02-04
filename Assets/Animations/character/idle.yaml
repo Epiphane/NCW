@@ -1,6 +1,6 @@
 ---
 name: idle
-next: 
+next:
 stance: resting
 default: true
 loop: true
@@ -22,7 +22,7 @@ keyframes:
     character.Spine: [0, 0.33, 0]
 transitions:
 - to: walk
-  time: 0.5
+  time: 0.2
   triggers:
   - parameter: speed
     type: gte
@@ -31,7 +31,7 @@ transitions:
     type: lt
     lt: 0.12
 - to: run
-  time: 0.5
+  time: 0.2
   triggers:
   - parameter: speed
     type: gte

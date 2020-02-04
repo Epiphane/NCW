@@ -56,6 +56,7 @@ namespace Game
       mSystems.Add<SimpleParticleSystem>(&mCamera);
 
       BulletPhysics::Debug* debug = mSystems.Get<BulletPhysics::Debug>();
+      debug->SetActive(false);
       mDebugCallback = window.AddCallback(GLFW_KEY_L, [debug](int, int, int) {
          debug->SetActive(!debug->IsActive());
       });
@@ -181,7 +182,7 @@ namespace Game
 
          std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 1.25f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
-         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(5, 20, 10)));
+         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(5, 10, 10)));
          ghostObject->setCollisionShape(playerShape.get());
          ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
          std::unique_ptr<btKinematicCharacterController> controller = std::make_unique<btKinematicCharacterController>(ghostObject.get(), playerShape.get(), 1.5f);
@@ -193,13 +194,13 @@ namespace Game
       player.Add<UnitComponent>(5);
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-      player.Add<WalkSpeed>(0.15f, 0.05f, 15.0f);
+      player.Add<WalkSpeed>(0.15f, 0.05f, 0.45f);
 
       // Set up the player controller
       {
          std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 0.75f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
-         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(0, 20, 0)));
+         ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(0, 10, 0)));
          ghostObject->setCollisionShape(playerShape.get());
          ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
          std::unique_ptr<btKinematicCharacterController> controller = std::make_unique<btKinematicCharacterController>(ghostObject.get(), playerShape.get(), 1.5f);
