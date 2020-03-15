@@ -5,6 +5,7 @@ stance: wield_right
 default: false
 loop: true
 length: 0.231
+mask_torso: true
 keyframes:
 - time: 0
 - time: 0.11

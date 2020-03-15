@@ -78,7 +78,6 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
 
    // BulletPhysics behavior
    entities.Each<Engine::Transform, WalkSpeed, BulletPhysics::ControlledBody>([&](Engine::Transform& transform, WalkSpeed& walk, BulletPhysics::ControlledBody& body) {
-
       float goalSpeed = 0;
       if (walk.running)
       {
@@ -111,12 +110,6 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
       {
          body.controller->jump();
       }
-   });
-
-   entities.Each<WalkSpeed, BulletPhysics::ControlledBody, AnimationController>([&](Engine::Entity, WalkSpeed&, BulletPhysics::ControlledBody& body, AnimationController& skeleton) {
-      const auto& linearVelocity = body.controller->getLinearVelocity();
-      float speed = std::sqrt(linearVelocity.getX() * linearVelocity.getX() + linearVelocity.getZ() * linearVelocity.getZ());
-      skeleton.SetParameter("speed", speed);
    });
 }
 

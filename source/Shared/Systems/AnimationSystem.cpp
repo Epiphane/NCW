@@ -13,15 +13,8 @@
 namespace CubeWorld
 {
 
-std::unique_ptr<DebugHelper::MetricLink> gLinks[4];
-std::string gMetrics[4];
-
 void AnimationSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
-   gLinks[0] = DebugHelper::Instance().RegisterMetric("Current", [] { return gMetrics[0]; });
-   gLinks[1] = DebugHelper::Instance().RegisterMetric("Next", [] { return gMetrics[1]; });
-   gLinks[2] = DebugHelper::Instance().RegisterMetric("Time", [] { return gMetrics[2]; });
-   gLinks[3] = DebugHelper::Instance().RegisterMetric("Speed", [] { return gMetrics[3]; });
 }
 
 void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
@@ -41,7 +34,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       Engine::Transform& transform = *entity.Get<Engine::Transform>();
       glm::vec3 translateRoot{0, 0, 0};
 
-      size_t prevState = controller.current;
+      controller.prev = controller.current;
       // Advance basic animation
       {
          State* state = &controller.states[controller.current];
@@ -194,8 +187,6 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             }
          }
 
-         gMetrics[3] = FormatString("{speed}", controller.floatParams["speed"]);
-
          // Compute new transitions
          if (controller.current == controller.next)
          {
@@ -249,14 +240,13 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          );
          trans.setOrigin(origin);
       }
+   });
+}
 
-      gMetrics[0] = FormatString("{current}", controller.current);
-      gMetrics[1] = FormatString("{next}", controller.next);
-      gMetrics[2] = FormatString("{time}", controller.time);
-
-      // IMPORTANT: This is where the actual matrix transformation gets done, after all the
-      // transitioning and looping work. Don't early out before here! If you do, nothing will
-      // animate ever.
+void AnimationApplicator::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
+{
+   // First, update skeletons.
+   entities.Each<AnimationController>([&](Engine::Entity entity, AnimationController& controller) {
       size_t boneId = 0;
       std::vector<glm::mat4> matrixes;
       matrixes.resize(controller.bones.size(), glm::mat4(1));
@@ -298,10 +288,11 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
          }
       }
 
+      Engine::Transform& transform = *entity.Get<Engine::Transform>();
       UpdateEmitters(entities, controller, transform, controller.states[controller.current], false);
-      if (prevState != controller.current)
+      if (controller.prev != controller.current)
       {
-         UpdateEmitters(entities, controller, transform, controller.states[prevState], true);
+         UpdateEmitters(entities, controller, transform, controller.states[controller.prev], true);
       }
    });
 
@@ -320,7 +311,7 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
    });
 }
 
-void AnimationSystem::UpdateEmitters(
+void AnimationApplicator::UpdateEmitters(
    Engine::EntityManager& entities,
    AnimationController& controller,
    const Engine::Transform& transform,

@@ -4,7 +4,7 @@ next:
 stance: resting
 default: false
 loop: true
-length: 0.8
+length: 1
 keyframes:
 - time: 0
 - time: 0.25

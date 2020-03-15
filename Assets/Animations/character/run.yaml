@@ -1,6 +1,6 @@
 ---
 name: run
-next:
+next: 
 stance: resting
 default: false
 loop: true
@@ -30,8 +30,8 @@ keyframes:
     character.Attachment: [0, 12.8, 0]
     character.Head: [-15, 0, 0]
     character.Hips: [15, 0, 0]
-    character.Left Leg: [-75, 0, 0]
-    character.Right Leg: [75, 0, 0]
+    character.Left Leg: [-60, 0, 0]
+    character.Right Leg: [60, 0, 0]
     character.Spine: [15, 0, 0]
     character.Torso: [0, -20, 0]
 - time: 0.5
@@ -57,20 +57,20 @@ keyframes:
     character.Attachment: [0, -20.200001, 0]
     character.Head: [-15, 0, 0]
     character.Hips: [15, 0, 0]
-    character.Left Leg: [75, 0, 0]
-    character.Right Leg: [-75, 0, 0]
+    character.Left Leg: [60, 0, 0]
+    character.Right Leg: [-60, 0, 0]
     character.Spine: [15, 0, 0]
     character.Torso: [0, 20, 0]
     character.root: [0, 0, 0]
 transitions:
 - to: idle
-  time: 0.2
+  time: 0.1
   triggers:
   - parameter: speed
     type: lt
     lt: 0.02
 - to: walk
-  time: 0.3
+  time: 0.1
   triggers:
   - parameter: speed
     type: gte

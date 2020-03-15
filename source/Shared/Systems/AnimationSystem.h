@@ -9,9 +9,16 @@
 namespace CubeWorld
 {
 
-class AnimationSystem : public Engine::System<AnimationSystem> {
+class AnimationSystem : public Engine::System<AnimationSystem>
+{
 public:
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
+   void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
+};
+
+class AnimationApplicator : public Engine::System<AnimationSystem>
+{
+public:
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 private:

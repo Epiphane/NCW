@@ -5,6 +5,7 @@ stance: resting
 default: true
 loop: true
 length: 5.02
+mask_torso: false
 keyframes:
 - time: 0
 - time: 0.16
@@ -21,21 +22,6 @@ keyframes:
     character.Head: [0, 4.4, 0.6]
     character.Spine: [0, 0.33, 0]
 transitions:
-- to: walk
-  time: 0.2
-  triggers:
-  - parameter: speed
-    type: gte
-    gte: 0.02
-  - parameter: speed
-    type: lt
-    lt: 0.12
-- to: run
-  time: 0.2
-  triggers:
-  - parameter: speed
-    type: gte
-    gte: 0.12
 - to: die
   time: 0.3
   triggers:

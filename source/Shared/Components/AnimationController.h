@@ -62,6 +62,7 @@ public:
       std::string next;
       size_t stance;
       bool loop;
+      bool maskTorso;
 
       double length;
       std::vector<Keyframe> keyframes;
@@ -97,12 +98,18 @@ public:
 private:
    // Skeleton and model objects
    friend class AnimationSystem;
+   friend class AnimationApplicator;
    friend class AnimationEventSystem;
    friend class AnimationEventDebugSystem;
+   friend class WalkAnimationSystem;
    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
 
    // Pair of skeleton ID and bone ID
    std::vector<size_t> skeletonRootId;
+
+public:
+   // Stuff for WalkAnimationSystem
+   double walkAnimationProgress;
 
 public:
    std::vector<std::string> bones;
@@ -118,6 +125,7 @@ public:
 public:
    // Animation State
    size_t current;
+   size_t prev;
    double time;
 
    glm::vec3 lastBasePosition;

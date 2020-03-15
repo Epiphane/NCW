@@ -61,6 +61,18 @@ std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::
    return link;
 }
 
+void DebugHelper::SetMetric(const std::string& name, const std::string& value)
+{
+   if (mGlobalMetrics.count(name) == 0)
+   {
+      mGlobalMetricLinks.push_back(RegisterMetric(name, [this, name] {
+         return mGlobalMetrics.at(name);
+      }));
+   }
+
+   mGlobalMetrics[name] = value;
+}
+
 void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> /*metric*/)
 {
    // metric will be deconstructed at the end of this function, which is now the owner

@@ -24,6 +24,7 @@
 #include <Shared/Systems/SimpleParticleSystem.h>
 #include <Shared/Systems/VoxelRenderSystem.h>
 #include <Shared/Systems/WalkSystem.h>
+#include <Shared/Systems/WalkAnimationSystem.h>
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
@@ -45,6 +46,8 @@ namespace Game
       mSystems.Add<AnimationSystem>();
       mSystems.Add<FlySystem>(&window);
       mSystems.Add<WalkSystem>(&window);
+      mSystems.Add<WalkAnimationSystem>();
+      mSystems.Add<AnimationApplicator>();
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
       mSystems.Add<BulletPhysics::System>();
@@ -194,7 +197,7 @@ namespace Game
       player.Add<UnitComponent>(5);
       player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-      player.Add<WalkSpeed>(0.15f, 0.05f, 0.45f);
+      player.Add<WalkSpeed>(0.20f, 0.04f, 0.45f);
 
       // Set up the player controller
       {
@@ -223,7 +226,7 @@ namespace Game
       controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
       controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
-#define HAMMER 0
+#define HAMMER 1
       if (HAMMER)
       {
          part = mEntities.Create(0, 0, 0);

@@ -150,6 +150,11 @@ void Dock::Update(TIMEDELTA)
    // Begin animation properties window
    ImGui::Begin("Animation Editor");
 
+   if (state.keyframes.size() == 2)
+   {
+      LOG_DEBUG("whatever");
+   }
+
    size_t index = GetKeyframeIndex(state, mController->time);
    Keyframe& keyframe = state.keyframes[index];
    if (ImGui::BeginTabBar("Animation Properties"))
@@ -200,58 +205,6 @@ void Dock::Update(TIMEDELTA)
       Stance& stance = GetCurrentStance();
       if (mSystemControls->paused && ImGui::BeginTabItem("Keyframe"))
       {
-         if (mController->time != keyframe.time)
-         {
-            if (ImGui::Button("Add Keyframe"))
-            {
-               CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
-            }
-         }
-         else
-         {
-            if (ImGui::Button("Remove Keyframe"))
-            {
-               CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
-            }
-
-            double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
-            double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
-
-            if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
-            {
-               CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
-                  this,
-                  mController->current,
-                  index,
-                  mKeyframeTimeScrubber.GetLastValue()
-                  );
-            }
-
-            if (ImGui::IsItemActive())
-            {
-               mController->time = keyframe.time;
-            }
-         }
-
-         // Pick a bone, any bone
-         if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
-         {
-            for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
-            {
-               const Bone& bone = stance.bones[boneId];
-               bool isSelected = (mBone == boneId);
-               if (ImGui::Selectable(bone.name.c_str(), isSelected))
-               {
-                  SetBone(boneId);
-               }
-               if (isSelected)
-               {
-                  ImGui::SetItemDefaultFocus();
-               }
-            }
-            ImGui::EndCombo();
-         }
-
          const Bone& selected = stance.bones[mBone];
          if (mController->time == keyframe.time && mSystemControls->paused)
          {
@@ -348,6 +301,60 @@ void Dock::Update(TIMEDELTA)
             mScrubbers[0].Drag("Position", bone.position, 0.1f);
             mScrubbers[1].Drag("Rotation", bone.rotation);
             mScrubbers[2].Drag("Scale", bone.scale);
+         }
+
+         if (mController->time != keyframe.time)
+         {
+            if (ImGui::Button("Add Keyframe"))
+            {
+               CommandStack::Instance().Do<AddKeyframeCommand>(this, mController->current);
+            }
+         }
+         else
+         {
+            if (ImGui::Button("Remove Keyframe"))
+            {
+               CommandStack::Instance().Do<RemoveKeyframeCommand>(this, mController->current, index);
+            }
+            else
+            {
+               double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
+               double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
+
+               if (mKeyframeTimeScrubber.Slide("Time", keyframe.time, min, max))
+               {
+                  CommandStack::Instance().Emplace<SetKeyframeTimeCommand>(
+                     this,
+                     mController->current,
+                     index,
+                     mKeyframeTimeScrubber.GetLastValue()
+                     );
+               }
+
+               if (ImGui::IsItemActive())
+               {
+                  mController->time = keyframe.time;
+               }
+            }
+         }
+
+         // Pick a bone, any bone
+         if (ImGui::BeginCombo("##bone", stance.bones[mBone].name.c_str()))
+         {
+            for (size_t boneId = 0; boneId < stance.bones.size(); ++boneId)
+            {
+               const Bone& bone = stance.bones[boneId];
+               bool isSelected = (mBone == boneId);
+               if (ImGui::Selectable(bone.name.c_str(), isSelected))
+               {
+                  SetBone(boneId);
+               }
+               if (isSelected)
+               {
+                  ImGui::SetItemDefaultFocus();
+               }
+            }
+            ImGui::EndCombo();
          }
 
          ImGui::EndTabItem();

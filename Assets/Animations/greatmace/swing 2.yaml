@@ -3,6 +3,7 @@ name: swing 2
 next: swing 2 recoil
 stance: wield_twohands
 length: 0.9
+mask_torso: true
 keyframes:
 - time: 0
   positions:

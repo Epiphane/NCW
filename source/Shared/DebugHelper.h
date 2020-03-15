@@ -66,6 +66,14 @@ public:
    std::unique_ptr<MetricLink> RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn);
    void DeregisterMetric(std::unique_ptr<MetricLink> metric);
 
+   void SetMetric(const std::string& name, const std::string& value);
+
+   template <typename T>
+   void SetMetric(const std::string& name, T value)
+   {
+      SetMetric(name, FormatString("%1", value));
+   }
+
    void Update();
    void Render();
 
@@ -83,6 +91,9 @@ private:
 private:
    std::unique_ptr<MetricLink> mMetrics;
    void RemoveLink(MetricLink* link);
+
+   std::vector<std::unique_ptr<MetricLink>> mGlobalMetricLinks;
+   std::unordered_map<std::string, std::string> mGlobalMetrics;
 
 private:
    std::vector<std::pair<std::string, std::string>> mMetricsState;
