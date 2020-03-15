@@ -74,6 +74,7 @@ public:
       std::string stance;
       bool isDefault = false;
       bool loop = true;
+      bool maskTorso = true;
       double length = 0.0;
 
       std::vector<SkeletonAnimations::Keyframe> keyframes;
@@ -152,7 +153,8 @@ inline auto registerMembers<SimpleAnimationController::State>()
       member("next", &SimpleAnimationController::State::next),
       member("length", &SimpleAnimationController::State::length),
       member("default", &SimpleAnimationController::State::isDefault),
-      member("loop", &SimpleAnimationController::State::loop)
+      member("loop", &SimpleAnimationController::State::loop),
+      member("mask_torso", &SimpleAnimationController::State::maskTorso)
    );
 }
 

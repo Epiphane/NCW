@@ -2,10 +2,13 @@
 name: swing 3
 next: swing 3 recoil
 stance: wield_twohands
-length: 1
+default: false
+loop: true
 mask_torso: true
+length: 1
 keyframes:
 - time: 0
+  max_speed: 0
   positions:
     character.Head: [0, 4.730227, 0.321562]
     character.Hips: [0, 1.5, 2.1]
@@ -28,6 +31,7 @@ keyframes:
     character.Torso: [0, -6.6, 0]
     greatmace.root: [0, -89.492188, 0]
 - time: 0.14
+  max_speed: 0
   positions:
     character.Head: [0, 4.33, -0.39]
     character.Hips: [0, 1.5, 2.1]
@@ -40,6 +44,7 @@ keyframes:
     character.Spine: [11.09, 0, 0]
     character.Torso: [0, 16.41, 0]
 - time: 0.43
+  max_speed: 0
   positions:
     character.Head: [0, 4.33, -0.39]
     character.Hips: [0, 1.5, 2]
@@ -52,6 +57,7 @@ keyframes:
     character.Spine: [11.09, 0, 0]
     character.Torso: [0, 16.41, 0]
 - time: 0.54
+  max_speed: 0
   positions:
     character.Head: [0, 4.33, -0.39]
     character.Hips: [0, 1.5, 1.99]
@@ -64,6 +70,7 @@ keyframes:
     character.Spine: [11.09, 0, 0]
     character.Torso: [0, 16.41, 0]
 - time: 0.61
+  max_speed: 0
   positions:
     character.Head: [0, 4.33, -0.39]
     character.Hips: [0, 1.5, 1.93]
@@ -76,6 +83,7 @@ keyframes:
     character.Spine: [11.09, 0, 0]
     character.Torso: [0, 16.41, 0]
 - time: 0.67
+  max_speed: 0
   positions:
     character.Head: [0, 4.01, 0.58]
     character.Hips: [0, 1.5, 0.83]

@@ -79,10 +79,12 @@ void SimpleAnimationController::UpdateSkeletonStates()
          newState.stance = state.stance;
          newState.isDefault = state.isDefault;
          newState.loop = state.loop;
+         newState.maskTorso = state.maskTorso;
          for (const SkeletonAnimations::Keyframe& keyframe : state.keyframes)
          {
             SkeletonAnimations::Keyframe newKeyframe;
             newKeyframe.time = keyframe.time;
+            newKeyframe.maxSpeed = keyframe.maxSpeed;
 
             for (const auto&[bone, pos] : keyframe.positions)
             {
@@ -307,6 +309,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          state.stance = s.stance;
          state.isDefault = s.isDefault;
          state.loop = s.loop;
+         state.maskTorso = s.maskTorso;
          state.keyframes.assign(s.keyframes.begin(), s.keyframes.end());
 
          if (state.isDefault)

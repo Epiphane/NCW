@@ -79,7 +79,7 @@ namespace Game
       int blocksCreated = 0;
 
       auto index = [&](int i, int j) {
-         return size_t(i * (2 * size + 1) + j);
+         return size_t(i * (2 * size_t(size) + 1) + j);
       };
 
       auto makeCollider = [&](int i, int j, int height, int width, int length) {
@@ -226,7 +226,7 @@ namespace Game
       controller->AddSkeleton(part.Add<Skeleton>(Asset::Skeleton("character.yaml")));
       controller->AddAnimations(part.Add<SkeletonAnimations>("character"));
 
-#define HAMMER 1
+      constexpr int HAMMER = 1;
       if (HAMMER)
       {
          part = mEntities.Create(0, 0, 0);
@@ -331,7 +331,7 @@ namespace Game
             glm::vec4 color = dest * perc + source * (1 - perc);
             carpet.push_back(Voxel::Data(position, color, Voxel::All));
 
-            heights[uint64_t(rowIndex + j + size)] = int32_t(position.y);
+            heights[uint64_t(rowIndex) + j + size] = int32_t(position.y);
          }
       }
 

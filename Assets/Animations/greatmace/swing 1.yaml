@@ -2,15 +2,19 @@
 name: swing 1
 next: swing 1 recoil
 stance: wield_twohands
-length: 0.7
+default: false
+loop: true
 mask_torso: true
+length: 0.7
 keyframes:
 - time: 0
+  max_speed: 0.04
   positions:
     character.Shoulders: [-6, 3.37, 2.77]
   rotations:
     character.Shoulders: [0, 0, 15.78]
 - time: 0.07
+  max_speed: 0.04
   positions:
     character.Head: [0, 4.04, -0.08]
     character.Shoulders: [-6.45, 0.79, -1.33]
@@ -24,6 +28,7 @@ keyframes:
     character.Spine: [-0.76, 0, 0]
     character.Torso: [0, -24.84, 0]
 - time: 0.14
+  max_speed: 0.04
   positions:
     character.Hair: [0, 0, 0]
     character.Head: [0, 4.09, -0.16]
@@ -39,6 +44,7 @@ keyframes:
     character.Spine: [-1.49, 0, 0]
     character.Torso: [-0.25, -42.990002, 2.14]
 - time: 0.5
+  max_speed: 0.04
   positions:
     character.Hair: [0, 0, 0]
     character.Head: [0, 4.38, -0.53]
@@ -53,6 +59,7 @@ keyframes:
     character.Spine: [-5.35, 0, 0]
     character.Torso: [-1.56, -44.34, 2.82]
 - time: 0.88
+  max_speed: 0
   positions:
     character.Head: [0, 4.81, -0.84]
     character.Right Foot: [0, -5.5, 0]
@@ -65,6 +72,7 @@ keyframes:
     character.Spine: [-9.72, 0, 0]
     character.Torso: [1.16, -45.860001, 1.57]
 - time: 0.94
+  max_speed: 0
   positions:
     character.Head: [0, 4.85, -0.89]
     character.Shoulders: [-4.72, 5.51, 3.83]
@@ -74,6 +82,7 @@ keyframes:
     character.Right Leg: [-14.43, 0, 0]
     character.Spine: [-0.3, 0, 0]
 - time: 1
+  max_speed: 0
   positions:
     character.Head: [0, 4.86, -2]
     character.Hips: [0, 1.5, 2.1]

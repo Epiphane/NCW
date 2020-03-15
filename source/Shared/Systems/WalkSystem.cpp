@@ -102,6 +102,11 @@ void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, 
          }
       }
 
+      if (walk.tempMaxSpeed && walk.currentSpeed > *walk.tempMaxSpeed)
+      {
+         walk.currentSpeed = (float)*walk.tempMaxSpeed;
+      }
+
       glm::vec3 dir = glm::normalize(transform.GetFlatDirection());
       dir *= float(walk.currentSpeed);
       body.controller->setWalkDirection(btVector3{dir.x, 0, dir.z});

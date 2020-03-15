@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <limits>
 #include <map>
+#include <optional>
 #include <vector>
 
 #include <RGBBinding/BindingProperty.h>
@@ -20,6 +21,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
    // Types
    struct Keyframe {
       double time = 0.0;
+      std::optional<double> maxSpeed;
       std::map<std::string, glm::vec3> positions;
       std::map<std::string, glm::vec3> rotations;
       std::map<std::string, glm::vec3> scales;
@@ -145,6 +147,7 @@ inline auto registerMembers<SkeletonAnimations::Keyframe>()
 {
    return members(
       member("time", &SkeletonAnimations::Keyframe::time),
+      member("max_speed", &SkeletonAnimations::Keyframe::maxSpeed),
       member("positions", &SkeletonAnimations::Keyframe::positions),
       member("rotations", &SkeletonAnimations::Keyframe::rotations),
       member("scales", &SkeletonAnimations::Keyframe::scales)

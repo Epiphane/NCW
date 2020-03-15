@@ -1,11 +1,11 @@
 ---
 name: idle
-next:
+next: 
 stance: resting
 default: true
 loop: true
-length: 5.02
 mask_torso: false
+length: 5.02
 keyframes:
 - time: 0
 - time: 0.16

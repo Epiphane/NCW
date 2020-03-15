@@ -15,6 +15,20 @@ void WalkAnimationSystem::Configure(Engine::EntityManager&, Engine::EventManager
 
 void WalkAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
+   // Look for a max speed override in the animation and apply it.
+
+   entities.Each<WalkSpeed, AnimationController>([&](WalkSpeed& walkParams, AnimationController& anim) {
+      const AnimationController::State& state = anim.states[anim.current];
+      const auto& keyframes = state.keyframes;
+      size_t keyframeIndex = keyframes.size() - 1;
+      while (anim.time < keyframes[keyframeIndex].time && keyframeIndex > 0)
+      {
+         keyframeIndex--;
+      }
+
+      walkParams.tempMaxSpeed = keyframes[keyframeIndex].maxSpeed;
+   });
+
    // Okay, this is gonna get hella weird. Let me lay out the idea.
    //
    // You can do lots of things. You can also be _walking_ while you

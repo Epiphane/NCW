@@ -2,6 +2,9 @@
 name: idle active
 next: 
 stance: wield_twohands
+default: false
+loop: true
+mask_torso: true
 length: 5.02
 keyframes:
 - time: 0

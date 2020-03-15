@@ -4,8 +4,8 @@ next: slash 2 recoil
 stance: wield_right
 default: false
 loop: true
-length: 0.25
 mask_torso: true
+length: 0.25
 keyframes:
 - time: 0
   positions:

@@ -2,7 +2,10 @@
 name: walk
 next: 
 stance: resting
-length: 0.8
+default: false
+loop: true
+mask_torso: true
+length: 1
 keyframes:
 - time: 0
 - time: 0.25

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <map>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #include <Meta.h>
 #include <RGBMeta/Value.h>
 

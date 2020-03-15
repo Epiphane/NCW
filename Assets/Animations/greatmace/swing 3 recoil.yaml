@@ -2,8 +2,10 @@
 name: swing 3 recoil
 next: idle active
 stance: wield_twohands
-length: 0.5
+default: false
+loop: true
 mask_torso: true
+length: 0.5
 keyframes:
 - time: 0
   positions:

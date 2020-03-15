@@ -4,8 +4,8 @@ next: idle
 stance: wield_right
 default: false
 loop: true
-length: 0.8
 mask_torso: true
+length: 0.8
 keyframes:
 - time: 0
   positions:

@@ -4,6 +4,7 @@ next:
 stance: resting
 default: true
 loop: true
+mask_torso: false
 length: 5.02
 keyframes:
 - time: 0

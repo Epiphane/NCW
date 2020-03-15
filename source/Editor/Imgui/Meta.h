@@ -69,14 +69,32 @@ bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);
 bool Draw(const std::string& label, bool& val, bool addToStack = true);
 
-/*
-template<typename Class,
-   std::enable_if_t<!std::is_trivially_constructible<Class>::value>>
-bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack)
+template<typename T>
+bool Draw(const std::string& label, std::optional<T>& val, bool addToStack = true)
 {
-   return Draw(label, val, std::function<Class()>{}, addToStack);
+   bool hasValue = val.has_value();
+   bool modified = ImGui::Checkbox((label + "##has_value").c_str(), &hasValue);
+   if (modified)
+   {
+      if (addToStack)
+      {
+         std::optional<T> newValue;
+         if (hasValue)
+         {
+            newValue = T();
+         }
+         CommandStack::Instance().Do<SetValueCommand<std::optional<T>>>(val, newValue);
+      }
+   }
+
+   if (hasValue)
+   {
+      modified |= Draw(label, val.value(), addToStack);
+   }
+
+   return modified;
 }
-*/
+
 
 template<typename Class,
    typename = std::enable_if_t<!std::is_default_constructible<Class>::value>>

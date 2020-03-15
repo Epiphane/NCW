@@ -93,6 +93,16 @@ BindingProperty serialize_basic(const std::map<K, V>& obj)
    return value;
 }
 
+template <typename T>
+BindingProperty serialize_basic(const std::optional<T>& obj)
+{
+   if (obj.has_value())
+   {
+      return BindingProperty(obj.value());
+   }
+   return BindingProperty();
+}
+
 // ------------------------------------------------------------------
 // |                                                                |
 // |                        Deserialization                         |
@@ -171,6 +181,19 @@ void deserialize(std::unordered_map<K, V>& obj, const BindingProperty& object)
    for (const auto& [key, value] : object.pairs())
    {
       obj.emplace(key.Get<K>(), value.Get<V>());
+   }
+}
+
+template <typename T>
+void deserialize(std::optional<T>& obj, const BindingProperty& object)
+{
+   if (object.IsNull())
+   {
+      obj.reset();
+   }
+   else
+   {
+      obj = object.Get<T>();
    }
 }
 

@@ -4,10 +4,13 @@ next:
 stance: resting
 default: false
 loop: false
+mask_torso: true
 length: 0.3
 keyframes:
 - time: 0
+  max_speed: 0
 - time: 1
+  max_speed: 0
   positions:
     character.Head: [0, 4, -2.7]
     character.Hips: [2.8, -0.5, 2.2]

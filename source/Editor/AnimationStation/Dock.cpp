@@ -318,6 +318,11 @@ void Dock::Update(TIMEDELTA)
             }
             else
             {
+               if (Imgui::Draw("Max Speed", keyframe.maxSpeed))
+               {
+                  mpRoot->Emit<SkeletonModifiedEvent>(mController);
+               }
+
                double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;
                double max = index < state.keyframes.size() - 1 ? state.keyframes[index + 1].time - 0.01 : state.length;
 

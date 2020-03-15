@@ -182,6 +182,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          {
             Keyframe& keyframe = newState.keyframes[i];
             keyframe.time = mods.keyframes[i].time * newState.length;
+            keyframe.maxSpeed = mods.keyframes[i].maxSpeed;
             keyframe.positions.assign(stanceIt->positions.begin(), stanceIt->positions.end());
             keyframe.rotations.assign(stanceIt->rotations.begin(), stanceIt->rotations.end());
             keyframe.scales.assign(stanceIt->scales.begin(), stanceIt->scales.end());

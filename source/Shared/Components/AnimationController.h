@@ -45,6 +45,7 @@ struct AnimationController : public AnimationControllerBase, public Engine::Comp
 public:
    struct Keyframe {
       double time;
+      std::optional<double> maxSpeed;
       std::vector<glm::vec3> positions;
       std::vector<glm::vec3> rotations;
       std::vector<glm::vec3> scales;

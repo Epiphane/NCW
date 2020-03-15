@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <optional>
 #include <Engine/Core/Input.h>
 #include <Engine/Graphics/Camera.h>
 #include <Engine/System/System.h>
@@ -33,6 +34,7 @@ struct WalkSpeed : public Engine::Component<WalkSpeed> {
    float runSpeed;
    float accel;
    float currentSpeed;
+   std::optional<double> tempMaxSpeed;
    bool walking;
    bool running;
 };

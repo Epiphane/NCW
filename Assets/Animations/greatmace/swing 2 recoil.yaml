@@ -2,10 +2,13 @@
 name: swing 2 recoil
 next: idle active
 stance: wield_twohands
-length: 0.9
+default: false
+loop: true
 mask_torso: true
+length: 0.9
 keyframes:
 - time: 0
+  max_speed: 0
   positions:
     character.Head: [0, 4.730227, 0.321562]
     character.Hips: [0, 1.5, 2.1]
@@ -27,6 +30,7 @@ keyframes:
     character.Torso: [0, -6.6, 0]
     greatmace.root: [0, -89.492188, 0]
 - time: 0.71
+  max_speed: 0
   positions:
     character.Head: [0, 4.85, -0.93]
     character.Shoulders: [-8.54, 2.17, 2.19]

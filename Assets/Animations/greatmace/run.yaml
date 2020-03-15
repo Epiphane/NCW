@@ -2,6 +2,9 @@
 name: run
 next: 
 stance: resting
+default: false
+loop: true
+mask_torso: true
 length: 0.4
 keyframes:
 - time: 0
