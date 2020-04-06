@@ -1,10 +1,11 @@
 ---
 name: die
-next: 
+next:
 stance: resting
 default: false
 loop: false
-mask_torso: true
+movement_mask:
+  character.Hips: true
 length: 0.3
 keyframes:
 - time: 0

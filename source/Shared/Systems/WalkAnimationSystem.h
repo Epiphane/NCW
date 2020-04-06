@@ -23,7 +23,7 @@ public:
    
 private:
    static void BlendState(
-      const std::unordered_set<std::string>& mask,
+      const std::vector<bool>& mask,
       AnimationController& anim,
       const AnimationController::State& state,
       float blend

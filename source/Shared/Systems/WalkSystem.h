@@ -29,12 +29,12 @@ struct WalkSpeed : public Engine::Component<WalkSpeed> {
       , walking(false)
       , running(false)
    {};
-   
+
    float walkSpeed;
    float runSpeed;
    float accel;
    float currentSpeed;
-   std::optional<double> tempMaxSpeed;
+   std::optional<float> tempMaxSpeed;
    bool walking;
    bool running;
 };
@@ -43,9 +43,9 @@ class WalkSystem : public Engine::System<WalkSystem> {
 public:
    WalkSystem(Engine::Input* input) : mInput(input) {}
    ~WalkSystem() {}
-   
+
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-   
+
 private:
    Engine::Input* mInput;
 };

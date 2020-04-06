@@ -25,7 +25,7 @@ struct AnimationControllerBase {
    // Common implementation
    float GetFloatParameter(const std::string& name) { return floatParams[name]; }
    void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
-   
+
    bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
    void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
 
@@ -45,7 +45,7 @@ struct AnimationController : public AnimationControllerBase, public Engine::Comp
 public:
    struct Keyframe {
       double time;
-      std::optional<double> maxSpeed;
+      std::optional<float> maxSpeed;
       std::vector<glm::vec3> positions;
       std::vector<glm::vec3> rotations;
       std::vector<glm::vec3> scales;
@@ -63,7 +63,7 @@ public:
       std::string next;
       size_t stance;
       bool loop;
-      bool maskTorso;
+      std::unordered_map<std::string, bool> movementMask;
 
       double length;
       std::vector<Keyframe> keyframes;

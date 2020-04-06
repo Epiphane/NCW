@@ -21,7 +21,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
    // Types
    struct Keyframe {
       double time = 0.0;
-      std::optional<double> maxSpeed;
+      std::optional<float> maxSpeed;
       std::map<std::string, glm::vec3> positions;
       std::map<std::string, glm::vec3> rotations;
       std::map<std::string, glm::vec3> scales;
@@ -102,7 +102,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
 
       bool isDefault = false;
       bool loop = true;
-      bool maskTorso = true;
+      std::unordered_map<std::string, bool> movementMask;
 
       double length = 0.0;
       std::vector<Keyframe> keyframes;
@@ -237,7 +237,7 @@ inline auto registerMembers<SkeletonAnimations::State>()
       member("stance", &SkeletonAnimations::State::stance),
       member("default", &SkeletonAnimations::State::isDefault),
       member("loop", &SkeletonAnimations::State::loop),
-      member("mask_torso", &SkeletonAnimations::State::maskTorso),
+      member("movement_mask", &SkeletonAnimations::State::movementMask),
       member("length", &SkeletonAnimations::State::length),
       member("keyframes", &SkeletonAnimations::State::keyframes),
       member("particles", &SkeletonAnimations::State::particles),

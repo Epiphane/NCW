@@ -4,7 +4,8 @@ next: swing 2 recoil
 stance: wield_twohands
 default: false
 loop: true
-mask_torso: true
+movement_mask:
+  character.Hips: true
 length: 0.9
 keyframes:
 - time: 0

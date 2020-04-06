@@ -318,9 +318,35 @@ void Dock::Update(TIMEDELTA)
             }
             else
             {
-               if (Imgui::Draw("Max Speed", keyframe.maxSpeed))
+               std::unordered_map<std::optional<float>, std::string> speeds{
+                  {std::nullopt, "No restriction"},
+                  {0.f, "Stop"},
+                  {0.04f, "Walk"},
+                  {0.1f, "Speedwalk"},
+               };
+               std::string label;
+               for (const auto& [val, l] : speeds)
                {
-                  mpRoot->Emit<SkeletonModifiedEvent>(mController);
+                  if (keyframe.maxSpeed == val)
+                  {
+                     label = l;
+                  }
+               }
+               if (ImGui::BeginCombo("Max speed", label.c_str()))
+               {
+                  for (const auto& [val, l] : speeds)
+                  {
+                     bool isSelected = (l == label);
+                     if (ImGui::Selectable(l.c_str(), isSelected))
+                     {
+                        CommandStack::Instance().Do<Imgui::SetValueCommand<std::optional<float>>>(keyframe.maxSpeed, val);
+                     }
+                     if (isSelected)
+                     {
+                        ImGui::SetItemDefaultFocus();
+                     }
+                  }
+                  ImGui::EndCombo();
                }
 
                double min = index > 0 ? state.keyframes[index - 1].time + 0.01 : 0.0;

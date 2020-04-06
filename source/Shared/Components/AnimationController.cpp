@@ -169,7 +169,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          newState.name = name;
          newState.next = mods.next;
          newState.loop = mods.loop;
-         newState.maskTorso = mods.maskTorso;
+         newState.movementMask = mods.movementMask;
 
          std::string stance = mods.stance;
          const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });

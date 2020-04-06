@@ -89,7 +89,7 @@ void WalkAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
          runBlend = (speed - walkSpeed) / (runSpeed - walkSpeed);
          walkBlend = 1 - runBlend;
       }
-      
+
       // Now progress the animation
       double cycleLength = 1.6 * baseBlend + walk.length * walkBlend + run.length * runBlend;
       anim.walkAnimationProgress += dt / cycleLength;
@@ -100,28 +100,34 @@ void WalkAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
 
       // Take the existing transformations and dull them according to the base blend,
       // so we can add walk/run on top.
-      std::string root = "character.root";
-      if (anim.states[anim.current].maskTorso)
-      {
-         root = "character.Hips";
-      }
+      const AnimationController::State& state = anim.states[anim.current];
+      const AnimationController::Stance& stance = anim.stances[state.stance];
+      const auto& mask = state.movementMask;
 
-      std::unordered_set<std::string> mask{root};
+      std::vector<bool> include;
+      include.resize(anim.bones.size(), false);
+
+      size_t boneId = 0;
       for (Engine::ComponentHandle<Skeleton>& skeleton : anim.skeletons)
       {
          for (Skeleton::Bone& bone : skeleton->bones)
          {
-            if (mask.count(bone.parent) != 0)
+            if (mask.count(bone.name) != 0)
             {
-               mask.emplace(bone.name);
+               include[boneId] = mask.at(bone.name);
+            }
+            else
+            {
+               include[boneId] = include[stance.parents[boneId]];
             }
 
-            if (mask.count(bone.name) != 0)
+            if (include[boneId])
             {
                bone.position *= baseBlend;
                bone.rotation *= baseBlend;
                bone.scale *= baseBlend;
             }
+            ++boneId;
          }
       }
 
@@ -135,13 +141,13 @@ void WalkAnimationSystem::Update(Engine::EntityManager& entities, Engine::EventM
          DebugHelper::Instance().SetMetric("runBlend", runBlend);
       }
 
-      BlendState(mask, anim, walk, walkBlend);
-      BlendState(mask, anim, run, runBlend);
+      BlendState(include, anim, walk, walkBlend);
+      BlendState(include, anim, run, runBlend);
    });
 }
 
 void WalkAnimationSystem::BlendState(
-   const std::unordered_set<std::string>& mask,
+   const std::vector<bool>& mask,
    AnimationController& anim,
    const AnimationController::State& state,
    float blend
@@ -180,7 +186,7 @@ void WalkAnimationSystem::BlendState(
    {
       for (Skeleton::Bone& bone : skeleton->bones)
       {
-         if (mask.count(bone.name) != 0)
+         if (mask[boneId])
          {
             glm::vec3 position = progress * dst.positions[boneId] + (1 - progress) * src.positions[boneId];
             glm::vec3 rotation = progress * dst.rotations[boneId] + (1 - progress) * src.rotations[boneId];
@@ -189,7 +195,7 @@ void WalkAnimationSystem::BlendState(
             bone.rotation += blend * rotation;
             bone.scale += blend * scale;
          }
-         boneId++;
+         ++boneId;
       }
    }
 }

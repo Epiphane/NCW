@@ -4,7 +4,8 @@ next: slash 1 recoil
 stance: wield_right
 default: false
 loop: true
-mask_torso: true
+movement_mask:
+  character.Hips: true
 length: 0.231
 keyframes:
 - time: 0

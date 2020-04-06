@@ -4,10 +4,12 @@ next: idle active
 stance: wield_twohands
 default: false
 loop: true
-mask_torso: true
+movement_mask:
+  character.Hips: true
 length: 0.5
 keyframes:
 - time: 0
+  max_speed: 0.04
   positions:
     character.Head: [0, 4.01, 0.58]
     character.Hips: [0, 1.5, 0.83]
@@ -21,6 +23,7 @@ keyframes:
     character.Spine: [-16.09, 0, 0]
     character.Torso: [0, 0.35, 0]
 - time: 1
+  max_speed: 0.04
   positions:
     character.Shoulders: [-6, 3.37, 2.77]
   rotations:

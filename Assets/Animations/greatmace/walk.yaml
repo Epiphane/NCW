@@ -4,7 +4,8 @@ next:
 stance: resting
 default: false
 loop: true
-mask_torso: true
+movement_mask:
+  character.Hips: true
 length: 1
 keyframes:
 - time: 0

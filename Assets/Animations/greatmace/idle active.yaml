@@ -4,7 +4,10 @@ next:
 stance: wield_twohands
 default: false
 loop: true
-mask_torso: true
+movement_mask:
+  character.Hips: true
+  character.Spine: true
+  character.Shoulders: false
 length: 5.02
 keyframes:
 - time: 0
