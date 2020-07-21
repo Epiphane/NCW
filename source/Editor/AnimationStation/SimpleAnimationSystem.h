@@ -75,6 +75,7 @@ public:
       bool isDefault = false;
       bool loop = true;
       std::unordered_map<std::string, bool> movementMask;
+      bool followCursor = true;
       double length = 0.0;
 
       std::vector<SkeletonAnimations::Keyframe> keyframes;
@@ -154,7 +155,8 @@ inline auto registerMembers<SimpleAnimationController::State>()
       member("length", &SimpleAnimationController::State::length),
       member("default", &SimpleAnimationController::State::isDefault),
       member("loop", &SimpleAnimationController::State::loop),
-      member("movement_mask", &SimpleAnimationController::State::movementMask)
+      member("movement_mask", &SimpleAnimationController::State::movementMask),
+      member("follow_cursor", &SimpleAnimationController::State::followCursor)
    );
 }
 

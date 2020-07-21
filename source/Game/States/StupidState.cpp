@@ -214,10 +214,15 @@ namespace Game
 
       auto controller = player.Add<AnimationController>();
 
-      player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+      player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA dt) {
          auto anim = player.Get<AnimationController>();
+         if (mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT))
+         {
+            anim->SetParameter("fighting", 5.0f);
+         }
+
          anim->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
-         anim->SetBoolParameter("fighting", anim->GetBoolParameter("fighting") | mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
+         anim->SetParameter("fighting", anim->GetFloatParameter("fighting") - float(dt));
       });
 
       Engine::Entity part = mEntities.Create(0, 0, 0);

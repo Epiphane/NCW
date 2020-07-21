@@ -6,6 +6,7 @@ default: true
 loop: true
 movement_mask:
   character.root: true
+follow_cursor: true
 length: 5.02
 keyframes:
 - time: 0

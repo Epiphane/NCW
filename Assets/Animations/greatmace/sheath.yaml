@@ -1,0 +1,14 @@
+---
+name: sheath
+next: idle
+stance: wield_twohands
+loop: false
+follow_cursor: false
+length: 1
+keyframes:
+- time: 0
+- time: 0.223
+- time: 0.492
+- time: 0.676
+- time: 0.82
+- time: 1

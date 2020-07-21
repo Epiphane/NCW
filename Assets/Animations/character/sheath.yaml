@@ -1,0 +1,60 @@
+---
+name: sheath
+next: idle
+stance: wield_twohands
+loop: false
+follow_cursor: false
+length: 1
+keyframes:
+- time: 0
+- time: 0.223
+  positions:
+    character.Attachment: [0, 0, -2.424]
+    character.Head: [0, 4.554972, -0.009425]
+    character.Shoulders: [-7.464992, 12.916, 1.892]
+  rotations:
+    character.Shoulders: [-83.068138, 1.015625, -16.128225]
+    character.Spine: [-4, 0, 0]
+- time: 0.492
+  positions:
+    character.Attachment: [0, 0, -5.05]
+    character.Head: [0, 4.365113, 0.199063]
+    character.Shoulders: [-8.674, 15.024, -5]
+  rotations:
+    character.Shoulders: [-179.787994, 1.015625, -45.768002]
+    character.Spine: [-8, 0, 0]
+- time: 0.676
+  positions:
+    character.Attachment: [0, 0, -4.97728]
+    character.Head: [0, 4.37037, 0.193289]
+    character.Left Hand: [-7.52, 6.32373, -7.898]
+    character.Right Hand: [-6.436, 7.107, -4.832]
+    character.Shoulders: [-8.674, 15.024, -5]
+  rotations:
+    character.Left Hand: [60.480003, 0, -15.84]
+    character.Right Hand: [65.160004, -1.44, -17.280001]
+    character.Shoulders: [-177.109589, 1.015625, -44.947205]
+    character.Spine: [-3, 0, 0]
+- time: 0.82
+  positions:
+    character.Attachment: [0, 0, -4.919823]
+    character.Head: [0, 4.374525, 0.188728]
+    character.Left Hand: [-6.997, 12.183405, -9.668667]
+    character.Right Hand: [-9.184, 10.551, -6.884]
+    character.Shoulders: [-8.674, 15.024, -5]
+  rotations:
+    character.Left Hand: [108.266663, 0, -28.355553]
+    character.Right Hand: [116.644447, -2.577778, -30.933332]
+    character.Shoulders: [-174.993317, 1.015625, -44.298676]
+    character.Spine: [-1, 0, 0]
+- time: 1
+  positions:
+    character.Attachment: [0, 0, -4.848]
+    character.Head: [0, 4.379717, 0.183025]
+    character.Left Hand: [1.756, 19.507999, -11.882]
+    character.Right Hand: [-7.444, 9.455, -11.7]
+    character.Shoulders: [-8.674, 15.024, -5]
+  rotations:
+    character.Left Hand: [168, 0, -44]
+    character.Right Hand: [181, -4, -48]
+    character.Shoulders: [-172.347992, 1.015625, -43.488014]

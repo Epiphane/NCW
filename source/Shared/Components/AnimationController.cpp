@@ -170,6 +170,7 @@ void AnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimatio
          newState.next = mods.next;
          newState.loop = mods.loop;
          newState.movementMask = mods.movementMask;
+         newState.followCursor = mods.followCursor;
 
          std::string stance = mods.stance;
          const auto stanceIt = std::find_if(stances.begin(), stances.end(), [&](const Stance& s) { return s.name == stance; });

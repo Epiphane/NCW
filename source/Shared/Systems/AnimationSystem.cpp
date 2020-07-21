@@ -38,10 +38,11 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
       // Advance basic animation
       {
          State* state = &controller.states[controller.current];
+         DebugHelper::Instance().SetMetric("State", state->name);
          controller.time += dt;
          while (controller.time > state->length)
          {
-            if (!state->loop)
+            if (!state->loop && state->next == "")
             {
                controller.time = state->length;
                break;

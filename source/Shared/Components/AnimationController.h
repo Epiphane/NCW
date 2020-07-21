@@ -64,6 +64,7 @@ public:
       size_t stance;
       bool loop;
       std::unordered_map<std::string, bool> movementMask;
+      bool followCursor;
 
       double length;
       std::vector<Keyframe> keyframes;

@@ -80,6 +80,7 @@ void SimpleAnimationController::UpdateSkeletonStates()
          newState.isDefault = state.isDefault;
          newState.loop = state.loop;
          newState.movementMask = state.movementMask;
+         newState.followCursor = state.followCursor;
          for (const SkeletonAnimations::Keyframe& keyframe : state.keyframes)
          {
             SkeletonAnimations::Keyframe newKeyframe;
@@ -277,6 +278,18 @@ void SimpleAnimationController::AddSkeleton(Engine::ComponentHandle<Skeleton> sk
          stance.bones[firstBone + skeleton->boneLookup[bone]].parent = parent;
       }
    }
+
+   // Update any stances that weren't covered
+   size_t numBones = stances.at("base").bones.size();
+   for (auto& [name, stance] : stances)
+   {
+      size_t stanceBones = stance.bones.size();
+      if (stanceBones < numBones)
+      {
+         const Stance& parent = stances[stance.parent];
+         stance.bones.insert(stance.bones.end(), parent.bones.begin() + int64_t(stanceBones), parent.bones.end());
+      }
+   }
 }
 
 void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAnimations> anims)
@@ -310,6 +323,7 @@ void SimpleAnimationController::AddAnimations(Engine::ComponentHandle<SkeletonAn
          state.isDefault = s.isDefault;
          state.loop = s.loop;
          state.movementMask = s.movementMask;
+         state.followCursor = s.followCursor;
          state.keyframes.assign(s.keyframes.begin(), s.keyframes.end());
 
          if (state.isDefault)

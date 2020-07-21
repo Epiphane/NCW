@@ -6,6 +6,7 @@ default: false
 loop: true
 movement_mask:
   character.Hips: true
+follow_cursor: true
 length: 1
 keyframes:
 - time: 0

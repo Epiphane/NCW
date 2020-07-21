@@ -1,6 +1,6 @@
 ---
 name: idle active
-next: 
+next:
 stance: wield_twohands
 default: false
 loop: true
@@ -8,6 +8,7 @@ movement_mask:
   character.Hips: true
   character.Spine: true
   character.Shoulders: false
+follow_cursor: true
 length: 5.02
 keyframes:
 - time: 0
@@ -41,12 +42,12 @@ keyframes:
     character.Spine: [1, 1, 1]
     character.Torso: [1, 1, 1]
 transitions:
-- to: idle
-  time: 0
+- to: sheath
+  time: 1
   triggers:
   - parameter: fighting
-    type: bool
-    bool: false
+    type: lt
+    lt: 0.02
 - to: swing 1
   time: 0.1
   triggers:

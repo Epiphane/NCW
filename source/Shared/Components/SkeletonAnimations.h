@@ -103,6 +103,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       bool isDefault = false;
       bool loop = true;
       std::unordered_map<std::string, bool> movementMask;
+      bool followCursor = true;
 
       double length = 0.0;
       std::vector<Keyframe> keyframes;
@@ -238,6 +239,7 @@ inline auto registerMembers<SkeletonAnimations::State>()
       member("default", &SkeletonAnimations::State::isDefault),
       member("loop", &SkeletonAnimations::State::loop),
       member("movement_mask", &SkeletonAnimations::State::movementMask),
+      member("follow_cursor", &SkeletonAnimations::State::followCursor),
       member("length", &SkeletonAnimations::State::length),
       member("keyframes", &SkeletonAnimations::State::keyframes),
       member("particles", &SkeletonAnimations::State::particles),
