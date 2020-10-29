@@ -7,7 +7,6 @@
 #include <Engine/Core/Input.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
-#include <Engine/UI/UIRoot.h>
 
 #include <Shared/Components/ArmCamera.h>
 

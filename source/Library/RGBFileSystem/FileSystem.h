@@ -26,6 +26,8 @@ public:
 #endif
 
 public:
+   virtual ~FileSystem() {}
+
    //
    // Returns whether a file or directory exists at the specified path.
    //

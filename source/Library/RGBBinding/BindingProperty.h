@@ -123,6 +123,12 @@ public:
    bool operator==(const BindingProperty& other) const;
    inline bool operator!=(const BindingProperty& other) const { return !(*this == other); }
 
+   template<typename T, typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
+   inline bool operator==(const T& other)
+   {
+       return *this == BindingProperty(other);
+   }
+
 public:
    // Access and reading
    Type GetType() const { return Type(flags & kTypeMask); }

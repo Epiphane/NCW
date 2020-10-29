@@ -14,6 +14,7 @@
                               + ' /wd4541' // 'dynamic_cast' used on polymorphic type
                               + ' /wd4623' // '%s': default constructor was implicitly defined as deleted
                               + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
+                              + ' /wd5204' // '%s': class has virtual functions, but its trivial destructor is not virtual
                            #endif
                            #if __OSX__
                               + ' -Wno-ignored-qualifiers'

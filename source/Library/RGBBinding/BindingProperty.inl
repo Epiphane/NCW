@@ -45,12 +45,13 @@ inline T BindingProperty::Get() const
 
 // BinUtility
 // For comparisons, both values must be convertible to a BindingProperty
-template<typename T,
+/*template<typename T,
 typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>
 inline bool operator==(const BindingProperty& prop, const T& other)
 {
    return prop == BindingProperty(other);
 }
+*/
 
 template<typename T,
 typename std::enable_if<!std::is_same<T, BindingProperty>::value, int>::type = 0>

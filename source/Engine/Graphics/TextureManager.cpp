@@ -150,10 +150,10 @@ Maybe<std::unique_ptr<Texture>> Texture::Load(const std::string& filename)
    for (const auto [name, info] : metadata["images"].pairs())
    {
       texture->mImages.emplace(name, glm::vec4(
-         info["x"].GetFloatValue() / texture->mWidth,
-         info["y"].GetFloatValue() / texture->mHeight,
-         info["w"].GetFloatValue() / texture->mWidth,
-         info["h"].GetFloatValue() / texture->mHeight
+         info["x"].GetFloatValue() / float(texture->mWidth),
+         info["y"].GetFloatValue() / float(texture->mHeight),
+         info["w"].GetFloatValue() / float(texture->mWidth),
+         info["h"].GetFloatValue() / float(texture->mHeight)
       ));
    }
 

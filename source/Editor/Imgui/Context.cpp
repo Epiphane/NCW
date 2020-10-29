@@ -154,7 +154,7 @@ void ImguiContext::StartFrame(TIMEDELTA dt)
    io.DisplaySize = ImVec2((float)w, (float)h);
    if (w > 0 && h > 0)
    {
-      io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
+      io.DisplayFramebufferScale = ImVec2(float(display_w / w), float(display_h / h));
    }
 
    // Setup time step
@@ -298,12 +298,12 @@ void ImguiContext::Render()
             clip.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
             clip.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
 
-            if (clip.x < fbWidth && clip.y < fbHeight && clip.z >= 0.0f && clip.w >= 0.0f)
+            if (clip.x < float(fbWidth) && clip.y < float(fbHeight) && clip.z >= 0.0f && clip.w >= 0.0f)
             {
                // Apply scissor/clipping rectangle
                if (clip_origin_lower_left)
                {
-                  glScissor((int)clip.x, (int)(fbHeight - clip.w), (int)(clip.z - clip.x), (int)(clip.w - clip.y));
+                  glScissor(int(clip.x), fbHeight - int(clip.w), int(clip.z - clip.x), int(clip.w - clip.y));
                }
                else
                {

@@ -86,7 +86,7 @@ void MainState::Initialize()
    playerCamera.Get<Transform>()->SetLocalScale(glm::vec3(10.0));
    playerCamera.Get<Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
-   cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+   cameraOptions.aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
    mPlayerCam = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
@@ -96,7 +96,7 @@ void MainState::Initialize()
    mCamera.Set(mPlayerCam.get());
 
    playerCamera.Add<Makeshift>([&]{
-      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+      mPlayerCam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
    });
 
    // Add some voxels.

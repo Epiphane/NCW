@@ -1011,9 +1011,9 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          uint8_t y = (info >> 16) & 0xff;
          uint8_t z = (info >> 8) & 0xff;
          uint8_t x = info & 0xff;
-         voxel.position.x = float(x) - metadata.width / 2;
-         voxel.position.y = float(y) - metadata.height / 2;
-         voxel.position.z = metadata.length / 2 - float(z);
+         voxel.position.x = float(x) - float(metadata.width) / 2;
+         voxel.position.y = float(y) - float(metadata.height) / 2;
+         voxel.position.z = float(metadata.length) / 2 - float(z);
          uint32_t rgba = data->palette[i - 1];
          voxel.color.r = float((rgba) & 0xff);
          voxel.color.g = float((rgba >> 8) & 0xff);
@@ -1296,9 +1296,9 @@ Maybe<std::unique_ptr<ModelData>> VoxFormat::Read(const std::string& path, bool 
       uint8_t y = (info >> 16) & 0xff;
       uint8_t z = (info >> 8) & 0xff;
       uint8_t x = info & 0xff;
-      voxel.position.x = float(x) - (result->mMetadata.width - 1) / 2;
-      voxel.position.y = float(y) - result->mMetadata.height / 2;
-      voxel.position.z = (result->mMetadata.length - 1) / 2 - float(z);
+      voxel.position.x = float(x) - float(result->mMetadata.width - 1) / 2;
+      voxel.position.y = float(y) - float(result->mMetadata.height) / 2;
+      voxel.position.z = float(result->mMetadata.length - 1) / 2 - float(z);
       uint32_t rgba = model->palette[i - 1];
       voxel.color.r = float((rgba) & 0xff);
       voxel.color.g = float((rgba >> 8) & 0xff);
@@ -1973,9 +1973,9 @@ Maybe<void> VoxFormat::Write(const std::string& path, const ModelData& modelData
       }
 
       // Inverse of how we do centering.
-      int32_t x = int32_t((modelData.mMetadata.width - 1)  / 2 + voxel.position.x);
-      int32_t z = int32_t( modelData.mMetadata.height      / 2 + voxel.position.y);
-      int32_t y = int32_t((modelData.mMetadata.length - 1) / 2 - voxel.position.z);
+      int32_t x = int32_t((modelData.mMetadata.width - 1)  / 2 + int32_t(voxel.position.x));
+      int32_t z = int32_t( modelData.mMetadata.height      / 2 + int32_t(voxel.position.y));
+      int32_t y = int32_t((modelData.mMetadata.length - 1) / 2 - int32_t(voxel.position.z));
 
       uint32_t packed = uint32_t(
          uint8_t(x) |

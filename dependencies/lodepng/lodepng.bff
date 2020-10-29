@@ -17,6 +17,7 @@
                               + ' /wd4334' // '<<': result of 32-bit shift implicitly converted to 64 bits
                               + ' /wd4365' // '=': conversion from '%s' to '%s', signed/unsigned mismatch
                               + ' /wd4456' // declaration of '%s' hides previous local declaration
+                              + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
                               + ' /wd6011'
                               + ' /wd6239'
                               + ' /wd6246'

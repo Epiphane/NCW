@@ -21,12 +21,13 @@ namespace Logger
 class Logger
 {
 public:
-   virtual void OnRegister() {};
-   virtual void OnDeregister() {};
-
-public:
    enum Color { Default, Red };
 
+public:
+   virtual ~Logger() {}
+
+   virtual void OnRegister() {};
+   virtual void OnDeregister() {};
    virtual void Log(const char* message, Color color = Default) = 0;
 
    template <typename... Args>

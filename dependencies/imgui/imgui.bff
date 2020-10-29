@@ -19,6 +19,7 @@
    .AdditionalCompilerOptions = ''
                            #if __WINDOWS__
                               + ' /wd4365' // signed/unsigned mismatch
+                              + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
                               + ' /wd6011' // Dereferencing NULL pointer
                               + ' /wd6031' // Return value ignored: 'sscanf
                               + ' /wd6239' // (<non-zero constant> && <expression>) always evaluates to the result of <expression>.

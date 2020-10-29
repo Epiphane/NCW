@@ -10,6 +10,8 @@
 #include <string>
 #include "symbolic_weight.hpp"
 
+#pragma warning(disable : 5204)
+
 namespace rhea
 {
 
@@ -95,3 +97,5 @@ private:
 };
 
 } // namespace rhea
+
+#pragma warning(default : 5204)

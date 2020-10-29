@@ -62,7 +62,7 @@ void MainState::Initialize()
    // Create a player component
    mParticleSpawner = mEntities.Create(0, 0, 0);
    mParticleSpawner.Add<Makeshift>([&](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-      mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+      mPlayerCam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
 
       Engine::ComponentHandle<ParticleEmitter> emitter = mParticleSpawner.Get<ParticleEmitter>();
       if (!emitter)
@@ -106,7 +106,7 @@ void MainState::Initialize()
    Engine::Entity playerCamera = mEntities.Create(0, 0, 0);
    playerCamera.Get<Engine::Transform>()->SetLocalDirection(glm::vec3(1, 0.5, -1));
    ArmCamera::Options cameraOptions;
-   cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+   cameraOptions.aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
    cameraOptions.far = 1500.0f;
    cameraOptions.distance = 3.5f;
    cameraOptions.minDistance = 1;
@@ -125,7 +125,7 @@ void MainState::Initialize()
 
 void MainState::Receive(const Engine::UIRebalancedEvent&)
 {
-   mPlayerCam->aspect = float(mParent.GetWidth()) / mParent.GetHeight();
+   mPlayerCam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
 }
 
 void MainState::Receive(const ClearParticleEmitterEvent&)

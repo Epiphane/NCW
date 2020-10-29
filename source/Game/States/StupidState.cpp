@@ -320,7 +320,7 @@ namespace Game
       for (int i = -size; i <= size; ++i) {
          int rowIndex = (i + size) * (2 * size + 1);
          for (int j = -size; j <= size; ++j) {
-            float elevation = 0.25f + 2 * pow(heightmap.GetValue(i + size, j + size), 2);
+            float elevation = 0.25f + 2 * float(pow(heightmap.GetValue(i + size, j + size), 2));
             glm::vec4 source, dest;
             float start, end;
             if (elevation >= 0.75f) { source = ROCK; dest = SNOW; start = 0.75f; end = 1.0f; }

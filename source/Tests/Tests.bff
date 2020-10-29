@@ -15,6 +15,8 @@
                            + ' /wd4388'
                            + ' /wd4583'
                            + ' /wd4866'
+                           + ' /wd5204' // '%s': class has virtual functions, but its trivial destructor is not virtual
+                           + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
                            + ' /wd6330'
                         #endif
 
@@ -54,6 +56,7 @@
                                  'RGBSettings-Lib-$Platform$-$Config$'
                                  'RGBText-Lib-$Platform$-$Config$'
 
+                                 'bullet-Lib-$Platform$-$Config$'
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'

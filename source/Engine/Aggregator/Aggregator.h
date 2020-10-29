@@ -24,6 +24,8 @@ const uint32_t MAX_AGGREGATORS = 64;
 //
 struct BaseAggregator {
 public:
+   virtual ~BaseAggregator() {}
+
    virtual void Update() = 0;
    virtual void Render() = 0;
 

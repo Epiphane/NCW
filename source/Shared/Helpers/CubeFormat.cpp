@@ -153,9 +153,9 @@ Maybe<std::unique_ptr<ModelData>> CubeFormat::Read(const std::string& path, bool
                voxel.color.g = data[3 * ndx + 1];
                voxel.color.b = data[3 * ndx + 2];
                voxel.enabledFaces = GetExposedFaces(filled, result->mMetadata, x, y, z);
-               voxel.position.x = result->mMetadata.width / 2 - float(x);
-               voxel.position.y = float(y) - result->mMetadata.height / 2;
-               voxel.position.z = float(z) - result->mMetadata.length / 2;
+               voxel.position.x = float(result->mMetadata.width) / 2 - float(x);
+               voxel.position.y = float(y) - float(result->mMetadata.height) / 2;
+               voxel.position.z = float(z) - float(result->mMetadata.length) / 2;
                result->mVoxelData.push_back(voxel);
             }
          }

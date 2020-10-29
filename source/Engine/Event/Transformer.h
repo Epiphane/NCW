@@ -28,6 +28,8 @@ class BaseTransformer {};
 template<typename Event>
 class Transformer : public BaseTransformer {
 public:
+   virtual ~Transformer() {}
+
    // Only override for swallowing events.
    virtual bool ShouldPropagateDown(const Event&) const { return true; }
 

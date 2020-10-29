@@ -89,8 +89,8 @@ glm::vec2 Font::GetSizeOfRenderedText(const std::string& text)
 
       Character ch = characters[size_t(c)];
 
-      cursor += ch.bearing.x;
-      cursor += (ch.advance >> 6);
+      cursor += (GLfloat) ch.bearing.x;
+      cursor += (GLfloat) (ch.advance >> 6);
       result.x = fmax(cursor, result.x);  // Longest line sets the width
    }
 
@@ -114,15 +114,15 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
 
       Character ch = characters[size_t(c)];
 
-      GLfloat xpos = cursor + ch.bearing.x * scale;
-      GLfloat ypos = y + (ch.bearing.y - ch.size.y) * scale;
-      GLfloat w = ch.size.x * scale;
-      GLfloat h = ch.size.y * scale;
+      GLfloat xpos = cursor + GLfloat(ch.bearing.x) * scale;
+      GLfloat ypos = y + GLfloat(ch.bearing.y - ch.size.y) * scale;
+      GLfloat w = GLfloat(ch.size.x) * scale;
+      GLfloat h = GLfloat(ch.size.y) * scale;
 
-      GLfloat xuv = float(ch.region.x) / mAtlas.GetWidth();
-      GLfloat yuv = float(ch.region.y) / mAtlas.GetHeight();
-      GLfloat wuv = float(ch.region.w) / mAtlas.GetWidth();
-      GLfloat huv = float(ch.region.h) / mAtlas.GetHeight();
+      GLfloat xuv = GLfloat(ch.region.x) / GLfloat(mAtlas.GetWidth());
+      GLfloat yuv = GLfloat(ch.region.y) / GLfloat(mAtlas.GetHeight());
+      GLfloat wuv = GLfloat(ch.region.w) / GLfloat(mAtlas.GetWidth());
+      GLfloat huv = GLfloat(ch.region.h) / GLfloat(mAtlas.GetHeight());
 
       result.push_back({
          glm::vec2(xpos, ypos),
@@ -133,7 +133,7 @@ std::vector<Font::CharacterVertexUV> Font::Write(GLfloat x, GLfloat y, GLfloat a
          glm::vec2(xuv + wuv, yuv)
       });
 
-      cursor += (ch.advance >> 6) * scale;
+      cursor += GLfloat(ch.advance >> 6) * scale;
    }
 
    // Adjust for Right alignment or Center alignment

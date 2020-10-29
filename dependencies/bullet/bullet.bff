@@ -37,6 +37,7 @@
                               + ' /wd4703' // potentially uninitialized local pointer variable '%s' used
                               + ' /wd4706' // assignment within conditional expression'
                               + ' /wd5038' // data member '%s' will be initialized after data member '%s'
+                              + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
                               + ' /wd6001' // Using uninitialized memory '%s'
                               + ' /wd6011' // Dereferencing NULL pointer '%s'.
                               + ' /wd6031' // Return value ignored: '%s'.'
