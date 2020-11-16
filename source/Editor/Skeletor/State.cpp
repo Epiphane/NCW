@@ -49,7 +49,6 @@ MainState::~MainState()
 
 void MainState::Initialize()
 {
-   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
    mEvents.Subscribe<SkeletonClearedEvent>(*this);
    mEvents.Subscribe<AddSkeletonPartEvent>(*this);
 
@@ -123,11 +122,6 @@ void MainState::Initialize()
 
    Entity voxels = mEntities.Create(0, 0, 0);
    voxels.Add<VoxelRender>(std::move(carpet));
-}
-
-void MainState::Receive(const Engine::UIRebalancedEvent&)
-{
-   mPlayerCam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
 }
 
 void MainState::Receive(const SkeletonClearedEvent&)

@@ -6,9 +6,6 @@
 #include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/UI/UIRoot.h>
-#include <Shared/Helpers/Asset.h>
-#include <Shared/UI/Button.h>
-#include <Shared/UI/RectFilled.h>
 
 #include "../Imgui/Extensions.h"
 #include "../Imgui/Meta.h"

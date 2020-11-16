@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <Engine/UI/UIRootDep.h>
+#include <Engine/UI/UIRoot.h>
 
 namespace CubeWorld
 {
@@ -14,7 +14,7 @@ namespace CubeWorld
 namespace Game
 {
 
-class UIMainScreen : public Engine::UIRootDep {
+class UIMainScreen : public Engine::UIRoot {
 public:
    UIMainScreen(Engine::Input* input);
 };

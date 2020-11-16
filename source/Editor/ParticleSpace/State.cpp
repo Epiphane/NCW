@@ -43,7 +43,6 @@ MainState::~MainState()
 
 void MainState::Initialize()
 {
-   mEvents.Subscribe<Engine::UIRebalancedEvent>(*this);
    mEvents.Subscribe<ClearParticleEmitterEvent>(*this);
    mEvents.Subscribe<LoadParticleEmitterEvent>(*this);
 
@@ -121,11 +120,6 @@ void MainState::Initialize()
    entity.Add<EditorWireframe>();
 
    mEvents.Emit<ParticleEmitterReadyEvent>();
-}
-
-void MainState::Receive(const Engine::UIRebalancedEvent&)
-{
-   mPlayerCam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
 }
 
 void MainState::Receive(const ClearParticleEmitterEvent&)

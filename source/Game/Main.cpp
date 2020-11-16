@@ -66,7 +66,6 @@ int main(int argc, char **argv)
    debug.SetBounds(&window);
 
    std::unique_ptr<UIMainScreen> ui = std::make_unique<UIMainScreen>(&window);
-   ui->SetBounds(window);
 
    Timer<100> clock(SEC_PER_FRAME);
    auto fps = debug.RegisterMetric("FPS", [&clock]() -> std::string {
@@ -100,7 +99,9 @@ int main(int argc, char **argv)
          window.Clear();
          window.Update();
 
-         stateManager.Update((pause && !advance) ? 0 : std::min(elapsed, SEC_PER_FRAME) / timemod);
+         double dt = (pause && !advance) ? 0 : std::min(elapsed, SEC_PER_FRAME) / timemod;
+         stateManager.Update(dt);
+         ui->Update(dt);
          advance = false;
 
          GLenum error = glGetError();
@@ -108,9 +109,6 @@ int main(int argc, char **argv)
 
          debug.Update();
          debug.Render();
-
-         ui->UpdateRoot();
-         ui->RenderRoot();
 
          error = glGetError();
          assert(error == 0);

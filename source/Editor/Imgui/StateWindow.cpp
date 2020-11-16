@@ -4,7 +4,6 @@
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
-#include <Shared/Aggregator/Image.h>
 
 #include "StateWindow.h"
 

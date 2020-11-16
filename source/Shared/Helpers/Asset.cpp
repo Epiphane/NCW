@@ -68,7 +68,7 @@ std::string Skeleton(const std::string& skeleton)
    return Paths::Join(gAssetRoot, "Skeletons", skeleton);
 }
 
-std::string UIElementDep(const std::string& elementName)
+std::string UIElement(const std::string& elementName)
 {
    return Paths::Join(gAssetRoot, "UI", elementName);
 }

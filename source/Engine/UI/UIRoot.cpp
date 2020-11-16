@@ -8,8 +8,6 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Graphics/Program.h>
 #include <Shared/Helpers/TimSort.h>
-#include <Shared/UI/RectFilled.h>
-#include <Shared/UI/Text.h>
 
 #include "UIRoot.h"
 
@@ -18,9 +16,6 @@ namespace CubeWorld
 
 namespace Engine
 {
-
-using UI::RectFilled;
-using UI::Text;
 
 UIRoot::UIRoot(Input* input)
 #pragma warning(disable : 4355) // 'this': used in base member initializer list

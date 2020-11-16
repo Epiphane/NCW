@@ -6,10 +6,7 @@
 #include <misc/cpp/imgui_stdlib.h>
 #include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
-#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/Button.h>
-#include <Shared/UI/RectFilled.h>
 
 #include "../Imgui/Extensions.h"
 #include "Dock.h"
@@ -25,8 +22,6 @@ namespace Skeletor
 
 using Bone = Skeleton::Bone;
 using Engine::UIElement;
-using Engine::UIFrame;
-using Engine::UIStackView;
 
 Dock::Dock(Engine::UIRoot* root, UIElement* parent)
    : UIElement(root, parent, "SkeletorDock")

@@ -21,13 +21,10 @@
 #include <Engine/Core/Window.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include <Shared/UI/RectFilled.h>
 #include <Shared/UI/Swapper.h>
-#include <Shared/UI/TextButton.h>
 
 #include "AnimationStation/Editor.h"
 #include "Command/Commands.h"
-#include "Constrainer/ConstrainerVC.h"
 #include "ParticleSpace/Editor.h"
 #include "Skeletor/Editor.h"
 
@@ -36,9 +33,6 @@
 
 using namespace CubeWorld;
 using namespace Engine;
-
-using UI::RectFilled;
-using UI::TextButton;
 
 const double FRAMES_PER_SEC = 60.0;
 const double SEC_PER_FRAME = (1 / FRAMES_PER_SEC);

@@ -16,9 +16,6 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/Binding.h>
-#include <Engine/UI/UIElementDep.h>
-#include <Shared/UI/Image.h>
 
 namespace CubeWorld
 {

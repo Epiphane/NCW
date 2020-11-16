@@ -38,7 +38,6 @@ public:
    }
 
 public:
-   void Receive(const Engine::UIRebalancedEvent& evt);
    void Receive(const SkeletonClearedEvent& evt);
    void Receive(const AddSkeletonPartEvent& evt);
 
