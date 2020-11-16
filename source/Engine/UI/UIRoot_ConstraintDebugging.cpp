@@ -6,7 +6,7 @@
 
 #include "UIRoot_ConstraintDebugging.h"
 
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include <Shared/UI/RectFilled.h>
 #include <Shared/UI/Text.h>
@@ -21,8 +21,8 @@ namespace Engine
 using UI::RectFilled;
 using UI::Text;
 
-UIRoot_ConstraintDebugging::UIRoot_ConstraintDebugging(UIRoot* root, UIElement* parent, const std::string &name)
-      : UIElement(root, parent, name)
+UIRoot_ConstraintDebugging::UIRoot_ConstraintDebugging(UIRootDep* root, UIElementDep* parent, const std::string &name)
+      : UIElementDep(root, parent, name)
 {
    mConstraintDebugHighlight = Add<RectFilled>("ConstraintDebugHighlighter", glm::vec4(1.0f, 0.41f, 0.71f, 1));
 
@@ -38,14 +38,14 @@ UIRoot_ConstraintDebugging::UIRoot_ConstraintDebugging(UIRoot* root, UIElement* 
    mbAbsorbsMouseEvents = true;
 }
 
-UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &evt)
+UIElementDep::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &evt)
 {
    bool foundFrontmostElement = false;
    int numElementsUnderCursor = 0;
 
-   // Find the frontmost UIElement under the mouse
+   // Find the frontmost UIElementDep under the mouse
    for (size_t ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
-      UIElement* elem = mpRoot->mElements[ndx];
+      UIElementDep* elem = mpRoot->mElements[ndx];
 
       if (elem == mpRoot->mContextMenuLayer || elem == mConstraintDebugHighlight || elem == this) {
          continue;
@@ -66,10 +66,10 @@ UIElement::Action UIRoot_ConstraintDebugging::MouseMove(const MouseMoveEvent &ev
    return Unhandled;
 }
 
-UIElement::Action UIRoot_ConstraintDebugging::MouseDown(const MouseDownEvent &evt)
+UIElementDep::Action UIRoot_ConstraintDebugging::MouseDown(const MouseDownEvent &evt)
 {
    for (size_t ndx = 0; ndx < mpRoot->mElements.size(); ndx++) {
-      UIElement* elem = mpRoot->mElements[ndx];
+      UIElementDep* elem = mpRoot->mElements[ndx];
       if (elem->ContainsPoint(evt.x, evt.y) && dynamic_cast<Text*>(elem) != nullptr) {
          elem->LogDebugInfo();
       }

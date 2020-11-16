@@ -13,11 +13,11 @@ namespace Game
 using Engine::UIFrame;
 using UI::RectFilled;
 using UI::Text;
- 
-UIMainScreen::UIMainScreen(Engine::Input* input) : UIRoot(input)
+
+UIMainScreen::UIMainScreen(Engine::Input* input) : UIRootDep(input)
 {
 }
-   
+
 }; // namespace Game
 
 }; // namespace CubeWorld

@@ -1,10 +1,12 @@
 // By Thomas Steinke
 
+#include <stack>
 #include <imgui.h>
 #include <RGBFileSystem/File.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <RGBSettings/SettingsProvider.h>
 #include <Engine/Core/Window.h>
+#include <Engine/UI/UIRoot.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "../Imgui/Extensions.h"

@@ -8,8 +8,8 @@
 #include <RGBNetworking/JSONSerializer.h>
 #include <Shared/UI/RectFilled.h>
 
-#include "UIElement.h"
-#include "UIRoot.h"
+#include "UIElementDep.h"
+#include "UIRootDep.h"
 #include "UIStackView.h"
 
 #include "UISerializationHelper.h"
@@ -23,7 +23,7 @@ namespace Engine
 #pragma mark Going from JSON to UI
 
 /**
- * Parse a single UIElement and its children.
+ * Parse a single UIElementDep and its children.
  *
  * Constructs a std::map where the value is the element's name and the
  *  value is a pointer to the element.
@@ -31,7 +31,7 @@ namespace Engine
  * Example JSON structure:
  *
  * {
-      "class" : "UIElement",
+      "class" : "UIElementDep",
       "name" : "ExampleElement",
       "children" : [
          {
@@ -53,13 +53,13 @@ namespace Engine
  * @param elementMapOut  Pass in an ElementsByName reference that will be populated with the elements that are parsed
  *                          from the JSON.
  */
-Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element, UIRoot* pRoot, UIElement* pParent, ElementsByName* elementMapOut)
+Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element, UIRootDep* pRoot, UIElementDep* pParent, ElementsByName* elementMapOut)
 {
-   std::unique_ptr<UIElement> newElement;
+   std::unique_ptr<UIElementDep> newElement;
    std::string newElementClass = element["class"];
 
-   if (newElementClass.compare("UIElement") == 0) {
-      newElement = std::make_unique<UIElement>(pRoot, pParent, element["name"]);
+   if (newElementClass.compare("UIElementDep") == 0) {
+      newElement = std::make_unique<UIElementDep>(pRoot, pParent, element["name"]);
    }
    else if (newElementClass.compare("UIRectFilled") == 0) {
       newElement = std::make_unique<UI::RectFilled>(pRoot, pParent, element["name"]);
@@ -78,7 +78,7 @@ Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element
       return Failure{"Duplicate element name {name} in file", element["name"].GetStringValue()};
    }
 
-   UIElement* reference = pParent->AddChild(std::move(newElement));
+   UIElementDep* reference = pParent->AddChild(std::move(newElement));
    (*elementMapOut)[element["name"]] = reference;
 
    for (auto child : element["children"]) {
@@ -114,10 +114,10 @@ Maybe<void> UISerializationHelper::ParseUIElement(const BindingProperty& element
       }
 ]
 
- * @param pRoot         UIRoot that will be receiving these constraints.
+ * @param pRoot         UIRootDep that will be receiving these constraints.
  * @param elementsMap   An elementsMap of all the elements that are involved in constraints
  */
-Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& constraints, UIRoot* pRoot, const ElementsByName &elementsMap)
+Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& constraints, UIRootDep* pRoot, const ElementsByName &elementsMap)
 {
    for (const auto& constraintData : constraints) {
       std::string primaryElementName   = constraintData["primaryElement"];
@@ -126,8 +126,8 @@ Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& const
       std::string primaryTargetName   = constraintData["primaryTarget"];
       std::string secondaryTargetName = constraintData["secondaryTarget"];
 
-      UIElement* primaryElement = nullptr;
-      UIElement* secondaryElement = nullptr;
+      UIElementDep* primaryElement = nullptr;
+      UIElementDep* secondaryElement = nullptr;
 
       if (elementsMap.find(primaryElementName) == elementsMap.end()) {
          return Failure{"Unknown element name {name} when creating constraints.", primaryElementName};
@@ -160,15 +160,15 @@ Maybe<void> UISerializationHelper::ParseConstraints(const BindingProperty& const
 }
 
 /**
- * Create a new UIElement hierarchy based on data from the specified JSON data,
+ * Create a new UIElementDep hierarchy based on data from the specified JSON data,
  *  and adds it as a child to the specified parent.
  *
- * Also adds constraints from the JSON data to the specified UIRoot.
+ * Also adds constraints from the JSON data to the specified UIRootDep.
  *
  * Returns a map of newly created elements by their name, or a Failure state
  *  if we have bad data (unknown class names, etc.)
  */
-Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingProperty& data, UIRoot* pRoot, UIElement* pParent)
+Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingProperty& data, UIRootDep* pRoot, UIElementDep* pParent)
 {
    ElementsByName elementMap; // Passed into ParseUIElement and populated there
    Maybe<void> parsingResult;
@@ -191,7 +191,7 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONData(const BindingP
 //
 // Returns a failure state if the file is missing or invalid JSON.
 //
-Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRoot* pRoot, UIElement* pParent)
+Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::string& filename, UIRootDep* pRoot, UIElementDep* pParent)
 {
    Maybe<BindingProperty> data = JSONSerializer::DeserializeFile(filename);
 
@@ -205,9 +205,9 @@ Maybe<ElementsByName> UISerializationHelper::CreateUIFromJSONFile(const std::str
 #pragma mark Going from UI to JSON
 
 //
-// Serialize a UIElement's heirarchy to JSON, including the constraints passed in from the editor.
+// Serialize a UIElementDep's heirarchy to JSON, including the constraints passed in from the editor.
 //
-BindingProperty UISerializationHelper::CreateJSONFromUI(UIElement *element, const std::vector<UIConstraint>& constraints) {
+BindingProperty UISerializationHelper::CreateJSONFromUI(UIElementDep *element, const std::vector<UIConstraint>& constraints) {
    BindingProperty result;
 
    result["baseElement"] = element->ConvertToJSON();

@@ -11,7 +11,7 @@
 #include <Engine/Graphics/Framebuffer.h>
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 #include "../Aggregator/Text.h"
 
 namespace CubeWorld
@@ -23,7 +23,7 @@ namespace UI
 //
 // Generic element that contains text. It can be mutable (see TextField), or immutable.
 //
-class Text : public Engine::UIElement
+class Text : public Engine::UIElementDep
 {
 public:
    struct Options {
@@ -40,7 +40,7 @@ public:
       virtual uint32_t DefaultSize() const { return uint32_t(text.size()); }
    };
 
-   Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name = "");
+   Text(Engine::UIRootDep* root, UIElementDep* parent, const Options& options, const std::string& name = "");
 
    //
    // Render the text on this label
@@ -52,7 +52,7 @@ public:
    Engine::Graphics::Font::Alignment GetAlignment();
 
    void Redraw() override;
-   
+
    rhea::linear_expression ConvertTargetToVariable(Engine::UIConstraint::Target target) const override;
 
 protected:

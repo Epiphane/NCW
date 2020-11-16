@@ -20,7 +20,7 @@ public:
    };
 
 public:
-   Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
+   Button(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options);
 
    Action MouseDown(const MouseDownEvent& evt) override;
    Action MouseMove(const MouseMoveEvent& evt) override;

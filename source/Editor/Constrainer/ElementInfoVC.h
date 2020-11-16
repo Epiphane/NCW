@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 #include <Shared/UI/Text.h>
 
 namespace CubeWorld
@@ -15,13 +15,13 @@ namespace CubeWorld
 namespace Constrainer
 {
 
-using Engine::UIElement;
+using Engine::UIElementDep;
 using UI::Text;
 
-class ElementInfoVC : public UIElement
+class ElementInfoVC : public UIElementDep
 {
 public:
-   ElementInfoVC(Engine::UIRoot* root, UIElement* parent, const std::string &name);
+   ElementInfoVC(Engine::UIRootDep* root, UIElementDep* parent, const std::string &name);
 
 private:
 

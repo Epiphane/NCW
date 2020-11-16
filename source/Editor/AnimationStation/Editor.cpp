@@ -21,7 +21,7 @@ Editor::Editor(Engine::Input& input)
    : UIRoot(&input)
 {
    // I wanna do this better
-   mStateWindow.reset(new StateWindow(input, 600, 400, *mpRoot->GetAggregator<Aggregator::Image>(), nullptr));
+   mStateWindow.reset(new StateWindow(input, 600, 400, nullptr));
    std::unique_ptr<MainState> state{new MainState(mStateWindow.get(), *mStateWindow)};
    state->SetParent(this);
    state->TransformParentEvents<MouseDownEvent>(mStateWindow.get());
@@ -41,32 +41,32 @@ void Editor::Start()
 
 void Editor::Update(TIMEDELTA dt)
 {
-   UIRoot::Update(dt);
+    UIElement::Update(dt);
 
-   ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
-   ImGui::SetNextWindowSize(ImVec2(700, 500), ImGuiCond_FirstUseEver);
-   ImGui::Begin("Animation Preview");
-   ImVec2 space = ImGui::GetContentRegionAvail();
-   if (space.y > 0)
-   {
-      ImVec2 pos = ImGui::GetCursorScreenPos();
-      glm::tvec2<double> corrected = mStateWindow->CorrectYCoordinate({
-         (double)pos.x,
-         (double)pos.y + mStateWindow->GetHeight()
-      });
-      mStateWindow->SetPosition(corrected);
-      mStateWindow->SetSize(space);
-      ImGui::ImageButton(
-         (ImTextureID)(intptr_t)mStateWindow->GetFramebuffer().GetTexture(),
-         ImVec2((float)mStateWindow->GetWidth(), (float)mStateWindow->GetHeight()),
-         ImVec2(0, 1),
-         ImVec2(1, 0),
-         0
-      );
-   }
-   ImGui::End();
+    ImGui::SetNextWindowPos(ImVec2(250, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(700, 500), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Animation Preview");
+    ImVec2 space = ImGui::GetContentRegionAvail();
+    if (space.y > 0)
+    {
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        glm::tvec2<double> corrected = mStateWindow->CorrectYCoordinate({
+            (double)pos.x,
+            (double)pos.y + mStateWindow->GetHeight()
+        });
+        mStateWindow->SetPosition(corrected);
+        mStateWindow->SetSize(space);
+        ImGui::ImageButton(
+            (ImTextureID)(intptr_t)mStateWindow->GetFramebuffer().GetTexture(),
+            ImVec2((float)mStateWindow->GetWidth(), (float)mStateWindow->GetHeight()),
+            ImVec2(0, 1),
+            ImVec2(1, 0),
+            0
+        );
+    }
+    ImGui::End();
 
-   mStateWindow->Update(dt);
+    mStateWindow->Update(dt);
 }
 
 }; // namespace AnimationStation

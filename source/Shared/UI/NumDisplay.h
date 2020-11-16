@@ -36,7 +36,7 @@ public:
    };
 
 public:
-   NumDisplay(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+   NumDisplay(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options)
       : Text(root, parent, options)
       , mFormat("%." + FormatString("{}", options.precision) + "f")
    {};

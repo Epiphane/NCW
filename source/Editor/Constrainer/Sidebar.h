@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include <Engine/UI/UIElement.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIElementDep.h>
+#include <Engine/UI/UIRootDep.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
@@ -24,9 +24,9 @@ namespace Constrainer
 
 using UI::TextButton;
 
-class Sidebar : public Engine::UIElement {
+class Sidebar : public Engine::UIElementDep {
 public:
-   Sidebar(Engine::UIRoot* root, UIElement* parent);
+   Sidebar(Engine::UIRootDep* root, UIElementDep* parent);
 
 private:
    // Actions

@@ -7,7 +7,6 @@
 #include <RGBDesignPatterns/CommandStack.h>
 #include <RGBText/StringHelper.h>
 #include <Engine/Entity/EntityManager.h>
-#include <Engine/UI/UIStackView.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "../Imgui/Extensions.h"
@@ -149,11 +148,6 @@ void Dock::Update(TIMEDELTA)
 
    // Begin animation properties window
    ImGui::Begin("Animation Editor");
-
-   if (state.keyframes.size() == 2)
-   {
-      LOG_DEBUG("whatever");
-   }
 
    size_t index = GetKeyframeIndex(state, mController->time);
    Keyframe& keyframe = state.keyframes[index];

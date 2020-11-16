@@ -4,7 +4,7 @@
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "../Aggregator/Image.h"
 #include "StateWindow.h"
@@ -15,8 +15,8 @@ namespace CubeWorld
 namespace UI
 {
 
-StateWindow::StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state)
-   : UIElement(root, parent)
+StateWindow::StateWindow(Engine::UIRootDep* root, UIElementDep* parent, std::unique_ptr<Engine::State>&& state)
+   : UIElementDep(root, parent)
    , mState(nullptr)
    , mFramebuffer((GLsizei)root->GetWidth(), (GLsizei)root->GetHeight())
    , mRegion(root->Reserve<Aggregator::Image>(2))

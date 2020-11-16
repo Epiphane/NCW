@@ -41,7 +41,7 @@ public:
    };
 
 public:
-   TextButton(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name = "");
+   TextButton(Engine::UIRootDep* root, UIElementDep* parent, const Options& options, const std::string& name = "");
 
    void Focus();
    void Unfocus();

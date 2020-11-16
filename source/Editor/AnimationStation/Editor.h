@@ -37,8 +37,6 @@ public:
    void Update(TIMEDELTA dt) override;
 
 private:
-   Engine::EventManager mEvents;
-
    std::unique_ptr<StateWindow> mStateWindow;
 };
 

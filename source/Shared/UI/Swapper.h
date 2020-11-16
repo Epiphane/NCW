@@ -26,7 +26,7 @@ public:
 
    //
    // Add a UIRoot to the swapper
-   // 
+   //
    Engine::UIRoot* AddChild(std::unique_ptr<Engine::UIRoot>&& root)
    {
       Engine::UIRoot* ptr = root.get();
@@ -47,9 +47,9 @@ public:
    Engine::UIRoot* GetCurrent() { return mCurrent; }
 
    //
-   // Swap to another UIElement
+   // Swap to another UIElementDep
    //
-   void Swap(Engine::UIRoot* window);
+   void Swap(Engine::UIRoot* window) { mCurrent = window; }
 
 private:
    Engine::UIRoot* mCurrent;

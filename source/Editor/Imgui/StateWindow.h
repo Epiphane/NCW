@@ -12,7 +12,6 @@
 #include <Engine/Core/State.h>
 #include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
-#include <Shared/Aggregator/Image.h>
 
 namespace CubeWorld
 {
@@ -37,7 +36,6 @@ public:
       Engine::Input& input,
       uint32_t width,
       uint32_t height,
-      Aggregator::Image& aggregator,
       std::unique_ptr<Engine::State>&& state
    );
    ~StateWindow() {}
@@ -65,9 +63,6 @@ private:
    std::unique_ptr<Engine::State> mState;
    Engine::Graphics::Framebuffer mFramebuffer;
 
-private:
-   Aggregator::Image::Region mRegion;
-
 public:
    //
    // Overrides from Input base class.
@@ -86,9 +81,9 @@ public:
    bool IsMouseLocked() const override;
 
 private:
-   bool mMousePressed[GLFW_MOUSE_BUTTON_LAST];
-   bool mMouseDragging[GLFW_MOUSE_BUTTON_LAST];
-   glm::tvec2<double> mMousePressOrigin[GLFW_MOUSE_BUTTON_LAST];
+    bool mMousePressed[GLFW_MOUSE_BUTTON_LAST] = {false};
+    bool mMouseDragging[GLFW_MOUSE_BUTTON_LAST] = {false};
+    glm::tvec2<double> mMousePressOrigin[GLFW_MOUSE_BUTTON_LAST] = {{0,0}};
 
 public:
    //

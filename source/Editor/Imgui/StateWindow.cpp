@@ -4,7 +4,6 @@
 
 #include <RGBDesignPatterns/Scope.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
 #include <Shared/Aggregator/Image.h>
 
 #include "StateWindow.h"
@@ -19,20 +18,16 @@ StateWindow::StateWindow(
    Engine::Input& input,
    uint32_t width,
    uint32_t height,
-   Aggregator::Image& aggregator,
    std::unique_ptr<Engine::State>&& state
-)  : Bounds(0, 0, width, height)
-   , mInput(input)
-   , mState(nullptr)
-   , mFramebuffer((GLsizei)GetWidth(), (GLsizei)GetHeight())
-   , mRegion(aggregator.Reserve(2))
+)   : Bounds(0, 0, width, height)
+    , mInput(input)
+    , mState(nullptr)
+    , mFramebuffer((GLsizei)GetWidth(), (GLsizei)GetHeight())
 {
    if (state)
    {
       SetState(std::move(state));
    }
-
-   aggregator.ConnectToTexture(mRegion, mFramebuffer.GetTexture());
 }
 
 void StateWindow::SetState(std::unique_ptr<Engine::State>&& state)

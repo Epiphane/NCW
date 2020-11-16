@@ -18,7 +18,7 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIContextMenu : public UIElement
+class UIContextMenu : public UIElementDep
 {
 public:
    /**
@@ -32,23 +32,23 @@ public:
 
    typedef std::list<Choice> Choices;
 
-   UIContextMenu(UIRoot* root, UIElement* parent, const std::string &name, const Choices &choices);
+   UIContextMenu(UIRootDep* root, UIElementDep* parent, const std::string &name, const Choices &choices);
 
 private:
    UIStackView* mOptionList;       ///< Organizes the options in a vertical list
-   UIElement*   mBoundingElement;  ///< The context menu must appear within the bounds of this element.
+   UIElementDep*   mBoundingElement;  ///< The context menu must appear within the bounds of this element.
 
    std::vector<Choice> mChoices;
 };
 
 //
-// This class lives in the UIRoot, positions the UIContextMenu and manages
+// This class lives in the UIRootDep, positions the UIContextMenu and manages
 //   its lifecycle.
 //
-class UIContextMenuParent : public UIElement
+class UIContextMenuParent : public UIElementDep
 {
 public:
-   UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string &name = "");
+   UIContextMenuParent(UIRootDep* root, UIElementDep* parent, const std::string &name = "");
 
    void CreateNewUIContextMenu(double x, double y, UIContextMenu::Choices choices);
 
@@ -62,4 +62,3 @@ private:
 }  // Engine
 
 }  // Cubeworld
-

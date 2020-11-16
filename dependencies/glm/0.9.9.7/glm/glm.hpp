@@ -107,7 +107,10 @@
 #pragma once
 
 // Added by Thomas Steinke
-#pragma warning(disable : 4701 5219 6001)
+#pragma warning(push)
+#pragma warning(disable : 4701)
+#pragma warning(disable : 6001)
+#pragma warning(disable : 5219) // implicit conversion from '%s' to '%s', possible loss of data
 
 #include <cmath>
 #include <climits>
@@ -138,4 +141,4 @@
 #include "vector_relational.hpp"
 #include "integer.hpp"
 
-#pragma warning(default : 4701 5219 6001)
+#pragma warning(pop)

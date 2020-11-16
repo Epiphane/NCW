@@ -4,7 +4,7 @@
 
 #include <Engine/Core/Window.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "TextButton.h"
@@ -16,8 +16,8 @@ namespace UI
 {
 
 TextButton::TextButton(
-   Engine::UIRoot* root,
-   Engine::UIElement* parent,
+   Engine::UIRootDep* root,
+   Engine::UIElementDep* parent,
    const Options& options,
    const std::string& name
 )
@@ -54,7 +54,7 @@ void TextButton::Unfocus()
    mIsFocused = false;
 }
 
-Engine::UIElement::Action TextButton::MouseClick(const MouseClickEvent& evt)
+Engine::UIElementDep::Action TextButton::MouseClick(const MouseClickEvent& evt)
 {
    if (mClickCallback && ContainsPoint(evt.x, evt.y))
    {

@@ -16,8 +16,8 @@ namespace Editor
 namespace Constrainer
 {
 
-InfoSidebarVC::InfoSidebarVC(Engine::UIRoot* root, UIElement* parent, const std::string &name)
-      : UIElement(root, parent, name)
+InfoSidebarVC::InfoSidebarVC(Engine::UIRootDep* root, UIElementDep* parent, const std::string &name)
+      : UIElementDep(root, parent, name)
 {
 }
 
@@ -26,5 +26,3 @@ InfoSidebarVC::InfoSidebarVC(Engine::UIRoot* root, UIElement* parent, const std:
 }; // namespace Editor
 
 }; // namespace CubeWorld
-
-

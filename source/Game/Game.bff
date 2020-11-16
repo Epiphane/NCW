@@ -17,6 +17,7 @@
       {
          .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
          .UnityOutputPath            = .OutputPath
+         .UnityNumFiles              = 8
       }
 
       ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )

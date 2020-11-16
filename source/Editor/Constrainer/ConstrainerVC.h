@@ -5,15 +5,13 @@
 #include <memory>
 
 #include <Engine/Event/EventManager.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 #include <Shared/UI/StateWindow.h>
 #include <Shared/Helpers/JsonFileSync.h>
 
 #include "ConstrainerModel.h"
 
 #include <Engine/UI/CollapsibleTreeVC.h>
-
-#include "../Controls.h"
 
 namespace CubeWorld
 {
@@ -25,8 +23,8 @@ namespace Constrainer
 {
 
 using Engine::CollapsibleTreeVC;
-   
-class ConstrainerVC : public Engine::UIRoot
+
+class ConstrainerVC : public Engine::UIRootDep
 {
 public:
    ConstrainerVC(Engine::Input& input);
@@ -37,10 +35,10 @@ public:
    void Start();
 
 private:
-   void ParseUIElementTitles(UIElement& baseElement);
+   void ParseUIElementTitles(UIElementDep& baseElement);
 
    ConstrainerModel mModel;
-   
+
    CollapsibleTreeVC *mElementList;
 };
 

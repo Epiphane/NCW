@@ -2,7 +2,7 @@
 
 #include <Engine/Core/Window.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "SubFrame.h"
 
@@ -14,7 +14,7 @@ namespace UI
 
 void SubFrameUIRoot::Receive(const Engine::ElementAddedEvent& evt)
 {
-   UIRoot::Receive(evt);
+   UIRootDep::Receive(evt);
 
    // Special situation: we always wanna know how big the UI is, since it can overflow.
    mSolver.add_constraints({
@@ -25,8 +25,8 @@ void SubFrameUIRoot::Receive(const Engine::ElementAddedEvent& evt)
    });
 }
 
-SubFrame::SubFrame(Engine::UIRoot* root, UIElement* parent)
-   : UIElement(root, parent)
+SubFrame::SubFrame(Engine::UIRootDep* root, UIElementDep* parent)
+   : UIElementDep(root, parent)
 #pragma warning(disable : 4355)
    , mUIRoot(this)
 #pragma warning(default : 4355)
@@ -82,8 +82,8 @@ void SubFrame::Redraw()
    glm::vec2 textureSize{mFramebuffer.GetWidth(), mFramebuffer.GetHeight()};
    glm::vec2 uvSize = glm::vec2(mFrame.GetWidth(), mFrame.GetHeight()) / textureSize;
    glm::vec2 uvBottomLeft{
-      mScroll.x / textureSize.x,
-      1 - mScroll.y / textureSize.y - uvSize.y
+      float(mScroll.x) / textureSize.x,
+      1 - float(mScroll.y) / textureSize.y - uvSize.y
    };
 
    uvBottomLeft = glm::vec2(0);

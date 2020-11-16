@@ -13,8 +13,8 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/UI/Binding.h>
-#include <Engine/UI/UIElement.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIElementDep.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "Image.h"
 
@@ -38,7 +38,7 @@ public:
    };
 
 public:
-   ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options);
+   ScrollBar(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options);
 
    //
    // Render the framebuffer to this subwindow's location.

@@ -4,7 +4,7 @@
 
 #include <Engine/Core/Window.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "Button.h"
 
@@ -14,7 +14,7 @@ namespace CubeWorld
 namespace UI
 {
 
-Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+Button::Button(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options)
    : Image(root, parent, options)
    , mCallback(options.onClick)
    , mState(NORMAL)
@@ -34,7 +34,7 @@ Button::Button(Engine::UIRoot* root, Engine::UIElement* parent, const Options& o
    }
 }
 
-Engine::UIElement::Action Button::MouseDown(const MouseDownEvent& evt)
+Engine::UIElementDep::Action Button::MouseDown(const MouseDownEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
@@ -49,7 +49,7 @@ Engine::UIElement::Action Button::MouseDown(const MouseDownEvent& evt)
    return Unhandled;
 }
 
-Engine::UIElement::Action Button::MouseUp(const MouseUpEvent& evt)
+Engine::UIElementDep::Action Button::MouseUp(const MouseUpEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {
@@ -71,7 +71,7 @@ Engine::UIElement::Action Button::MouseUp(const MouseUpEvent& evt)
    return Unhandled;
 }
 
-Engine::UIElement::Action Button::MouseMove(const MouseMoveEvent& evt)
+Engine::UIElementDep::Action Button::MouseMove(const MouseMoveEvent& evt)
 {
    if (!mActive)
    {

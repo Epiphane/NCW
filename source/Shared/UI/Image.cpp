@@ -6,7 +6,7 @@
 #include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Window.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "Image.h"
 
@@ -16,8 +16,8 @@ namespace CubeWorld
 namespace UI
 {
 
-Image::Image(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options, const std::string& name)
-   : Engine::UIElement(root, parent, name)
+Image::Image(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options, const std::string& name)
+   : Engine::UIElementDep(root, parent, name)
    , mRegion(root->Reserve<Aggregator::Image>(2))
 {
    Maybe<Engine::Graphics::Texture*> maybeTexture = Engine::Graphics::TextureManager::Instance().GetTexture(options.filename);
@@ -79,7 +79,7 @@ rhea::linear_expression Image::ConvertTargetToVariable(Engine::UIConstraint::Tar
       case Engine::UIConstraint::ContentHeight:
          return mImageContentHeight;
       default:
-         return UIElement::ConvertTargetToVariable(target);
+         return UIElementDep::ConvertTargetToVariable(target);
    }
 }
 

@@ -20,7 +20,7 @@ const uint32_t MAX_AGGREGATORS = 64;
 //
 // Base aggregatpr class, only used for insertion into collections.
 //
-// Family is used for registration by the UIRoot.
+// Family is used for registration by the UIRootDep.
 //
 struct BaseAggregator {
 public:

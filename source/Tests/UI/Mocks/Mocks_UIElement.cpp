@@ -9,23 +9,23 @@
 #include <sstream>
 #include <iostream>
 
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 
 #include "../../Mocks/MockInput.h"
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 using namespace CubeWorld;
-using Engine::UIElement;
+using Engine::UIElementDep;
 using Test::MockInput;
 
 namespace CubeWorld
 {
 
-glm::vec3 ElementCenter(UIElement* element) {
+glm::vec3 ElementCenter(UIElementDep* element) {
    return (element->GetFrame().GetTopRight() + element->GetFrame().GetBottomLeft()) / 2.0f;
 }
 
-void MockClick(Engine::UIRoot* root, Engine::UIElement* victim, double fakeX, double fakeY) {
+void MockClick(Engine::UIRootDep* root, Engine::UIElementDep* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
 
    MouseDownEvent down(0, center.x + fakeX, center.y + fakeY);
@@ -35,36 +35,36 @@ void MockClick(Engine::UIRoot* root, Engine::UIElement* victim, double fakeX, do
    root->Receive(up);
 }
 
-void MockMouseDown(Engine::UIRoot* root, Engine::UIElement* victim, double fakeX, double fakeY) {
+void MockMouseDown(Engine::UIRootDep* root, Engine::UIElementDep* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
 
    MouseDownEvent down(0, center.x + fakeX, center.y + fakeY);
    root->Receive(down);
 }
 
-void MockMouseUp(Engine::UIRoot* root, Engine::UIElement* victim, double fakeX, double fakeY) {
+void MockMouseUp(Engine::UIRootDep* root, Engine::UIElementDep* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
 
    MouseUpEvent up(0, center.x + fakeX, center.y + fakeY);
    root->Receive(up);
 }
 
-void MockMouseMove(Engine::UIRoot* root, Engine::UIElement* victim, double fakeX, double fakeY) {
+void MockMouseMove(Engine::UIRootDep* root, Engine::UIElementDep* victim, double fakeX, double fakeY) {
    glm::vec3 center = ElementCenter(victim);
 
    MouseMoveEvent move(center.x + fakeX, center.y + fakeY);
    root->Receive(move);
 }
 
-std::unique_ptr<Engine::UIRoot> CreateDummyUIRoot(Engine::Input& input) {
-   return std::make_unique<Engine::UIRoot>(&input);
+std::unique_ptr<Engine::UIRootDep> CreateDummyUIRoot(Engine::Input& input) {
+   return std::make_unique<Engine::UIRootDep>(&input);
 }
 
-UIElement* FindChildByName(Engine::UIElement* baseElement, const std::string& name) {
+UIElementDep* FindChildByName(Engine::UIElementDep* baseElement, const std::string& name) {
    std::istringstream nameStream(name);
    std::string token;
 
-   UIElement* currElement = baseElement;
+   UIElementDep* currElement = baseElement;
 
    while (std::getline(nameStream, token, '.')) {
       bool foundElementForName = false;
@@ -77,7 +77,7 @@ UIElement* FindChildByName(Engine::UIElement* baseElement, const std::string& na
       }
 
       if (!foundElementForName) {
-         assert(false && "Invalid name for UIElement :(");
+         assert(false && "Invalid name for UIElementDep :(");
       }
    }
 

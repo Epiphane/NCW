@@ -17,14 +17,12 @@ SCENARIO( "Buttons respond correctly to mouse moves and clicks", GL_TEST_FLAG) {
 
    GIVEN( "A button with an Observable attached to it" ) {
       Test::MockInput input;
-      std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
-      Engine::UIRoot* root = dummyRoot.get();
+      std::unique_ptr<Engine::UIRootDep> dummyRoot = CreateDummyUIRoot(input);
+      Engine::UIRootDep* root = dummyRoot.get();
       std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
       std::vector<Engine::UIGestureRecognizer::Message_GestureState> clicks;
 
       ButtonVC* button = dummyRoot->Add<ButtonVC>("ButtonDummy");
-      button->ConstrainHeight(50);
-      button->ConstrainWidth(50);
       button->OnClick() >>
          ToContainer<std::vector<Engine::UIGestureRecognizer::Message_GestureState>>(clicks, myBag);
 

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <RGBDesignPatterns/Command.h>
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 #include <Shared/UI/TextButton.h>
 #include <Shared/UI/RectFilled.h>
 
@@ -31,7 +31,7 @@ namespace AnimationStation
 //
 class SkeletonList : public UI::RectFilled {
 public:
-   SkeletonList(Engine::UIRoot* root, Engine::UIElement* parent);
+   SkeletonList(Engine::UIRootDep* root, Engine::UIElementDep* parent);
 
 private:
    // Actions

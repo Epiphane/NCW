@@ -1,0 +1,403 @@
+// By Thomas Steinke
+
+#include <utility>
+#include <sstream>
+
+#include <RGBText/Format.h>
+#include <RGBLogger/Logger.h>
+#include <Engine/Core/Window.h>
+#include <Engine/Graphics/Program.h>
+#include <Shared/Helpers/TimSort.h>
+#include <Shared/UI/RectFilled.h>
+#include <Shared/UI/Text.h>
+
+#include "UIRootDep.h"
+
+namespace CubeWorld
+{
+
+namespace Engine
+{
+
+using UI::RectFilled;
+using UI::Text;
+
+UIRootDep::UIRootDep(Input* input)
+#pragma warning(disable : 4355) // 'this': used in base member initializer list
+   : UIElementDep(this, nullptr, "Root")
+#pragma warning(default : 4355)
+   , mBoundConstraints{}
+   , mContentLayer(nullptr)
+   , mInput(input)
+   , mActivelyCapturingElement(nullptr)
+   , mContextMenuLayer(nullptr)
+   , mDirty(false)
+{
+   // Disable autosolve, otherwise we try to solve whenever we add a new constraint
+   mSolver.set_autosolve(false);
+   mSolver.on_resolve = [&](rhea::simplex_solver&) {
+      mDirty = true;
+   };
+   mSolver.on_variable_change = [&](const rhea::variable& var, rhea::solver&) {
+      // TODO maybe drill down and find the element that cares one day.
+      mDirty = true;
+
+      auto watchedVariableCallback = mVariableCallbackMap.find(var);
+      if (watchedVariableCallback != mVariableCallbackMap.end())
+      {
+         watchedVariableCallback->second(var);
+      }
+   };
+
+
+// #ifdef DEBUG
+   mConstraintDebugger = Add<UIRoot_ConstraintDebugging>("ConstraintDebuggingLayer");
+   mConstraintDebugger->SetActive(false);
+   mConstraintDebugger->ConstrainEqualBounds(this);
+   mElements.push_back(mConstraintDebugger);
+
+   mDebugKeycallback = mInput->AddCallback(Window::CtrlKey(GLFW_KEY_D), std::bind(&UIRootDep::ToggleDebugConstraints, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+// #endif
+
+   mContextMenuLayer = Add<UIContextMenuParent>("ContextMenuLayer");
+   mContextMenuLayer->ConstrainEqualBounds(this);
+   mElements.push_back(mContextMenuLayer);
+
+   // IMPORTANT: These 2 lines must be AFTER mContextMenuLayer otherwise mContentLayer will be a child of itself (and crash).
+   mContentLayer = Add<UIElementDep>();
+   mContentLayer->ConstrainEqualBounds(this);
+
+   mContextMenuLayer->ConstrainInFrontOfAllDescendants(mContentLayer);
+
+// #ifdef DEBUG
+   mConstraintDebugger->ConstrainInFrontOfAllDescendants(mContextMenuLayer);
+// #endif
+
+   AddConstraintsForElement(mFrame);
+   Subscribe<ElementAddedEvent>(*this);
+   Subscribe<MouseMoveEvent>(*this);
+   Subscribe<MouseDownEvent>(*this);
+   Subscribe<MouseUpEvent>(*this);
+   Subscribe<MouseClickEvent>(*this);
+}
+
+UIRootDep::~UIRootDep()
+{
+   // Remove all my constraints and all my children, so that they don't try and reference me later.
+   mConstraintMap.clear();
+   mChildren.clear();
+}
+
+void UIRootDep::ToggleDebugConstraints(int /*key*/, int /*action*/, int /*mods*/) {
+   mConstraintDebugger->SetActive(!mConstraintDebugger->IsActive());
+}
+
+
+UIElementDep* UIRootDep::AddChild(std::unique_ptr<UIElementDep> &&element)
+{
+   if (mContentLayer != nullptr) {
+      return mContentLayer->AddChild(std::move(element));
+   }
+
+   return UIElementDep::AddChild(std::move(element));
+}
+
+void UIRootDep::SetBounds(const Bounded& bounds)
+{
+   // Remove any preexisting constraints
+   mSolver.remove_constraints(mBoundConstraints);
+
+   mBoundConstraints = {
+      mFrame.top == mFrame.bottom + (double) bounds.GetHeight(),
+      mFrame.right == mFrame.left + (double) bounds.GetWidth(),
+
+      mFrame.left == bounds.GetX(),
+      mFrame.bottom == bounds.GetY()
+   };
+
+   // Set the values immediately, so that they can be accessed
+   mFrame.left.set_value(bounds.GetX());
+   mFrame.bottom.set_value(bounds.GetY());
+   mFrame.right.set_value((double) (bounds.GetX() + bounds.GetWidth()));
+   mFrame.top.set_value((double) (bounds.GetY() + bounds.GetHeight()));
+
+   // UIRootDep covers the entirety of its bounds.
+   mSolver.add_constraints(mBoundConstraints);
+}
+
+void UIRootDep::AddConstraintsForElement(UIFrame& frame)
+{
+   mSolver.add_constraints({
+      frame.top >= frame.bottom,
+      frame.right >= frame.left,
+
+      frame.z >= 0,
+      frame.biggestDescendantZ >= frame.z,
+   });
+}
+
+UIConstraint& UIRootDep::AddConstraint(const UIConstraint& constraintToAdd) {
+   auto it = mConstraintMap.find(constraintToAdd.GetName());
+   if (it != mConstraintMap.end()) {
+      LOG_ERROR("Trying to add constraint with duped name: '{name}'", constraintToAdd.GetName());
+      assert(false && "Attempting to add 2 constraints with the same name");
+      return mConstraintMap.at(constraintToAdd.GetName());
+   }
+
+   mConstraintMap.insert(make_pair(constraintToAdd.GetName(), constraintToAdd));
+   mSolver.add_constraint(constraintToAdd.GetInternalConstraint());
+
+   return mConstraintMap.at(constraintToAdd.GetName());
+}
+
+void UIRootDep::RemoveConstraint(std::string constraintNameToRemove) {
+   auto it = mConstraintMap.find(constraintNameToRemove);
+
+   if (it != mConstraintMap.end()) {
+      mSolver.remove_constraint(it->second.GetInternalConstraint());
+      mConstraintMap.erase(constraintNameToRemove);
+   }
+   else {
+      LOG_ERROR("Trying to remove unknown constraint {name}", constraintNameToRemove);
+      assert(false && "Attempting to remove an unknown constraint");
+   }
+}
+
+UIConstraint *UIRootDep::GetConstraint(std::string constraintName)
+{
+   auto it = mConstraintMap.find(constraintName);
+   if (it != mConstraintMap.end()) {
+      return &it->second;
+   }
+   else {
+      return NULL;
+   }
+}
+
+void UIRootDep::DebugLogConstraintsForElement(const UIElementDep* element)
+{
+   std::vector<UIConstraint> constraintsForElement;
+#pragma warning(disable : 4101)
+   for (auto const& [_, constraint] : mConstraintMap) {
+#pragma warning(default : 4101)
+      if (constraint.GetPrimaryElement() == element || constraint.GetSecondaryElement() == element) {
+         constraintsForElement.push_back(constraint);
+      }
+   }
+
+   for (int targetVal = 0; targetVal < UIConstraint::NoTarget - 1; targetVal++) {
+      std::ostringstream result;
+      UIConstraint::Target target = UIConstraint::Target(targetVal);
+      result << UIConstraint::StringFromConstraintTarget(target) << ": " << element->ConvertTargetToVariable(target).evaluate() << std::endl;
+
+      for (UIConstraint constraint : constraintsForElement) {
+         if (constraint.GetPrimaryElement() == element && constraint.GetPrimaryTarget() == target) {
+            result << "   " << constraint.ToString() << std::endl;
+         }
+         else if (constraint.GetSecondaryElement() == element && constraint.GetSecondaryTarget() == target) {
+            result << "   " << constraint.ToString() << std::endl;
+         }
+      }
+
+      LOG_DEBUG(result.str());
+   }
+}
+
+void UIRootDep::AddConstraints(const rhea::constraint_list& constraints)
+{
+   mSolver.add_constraints(constraints);
+}
+
+void UIRootDep::AddEditVar(const rhea::variable& variable)
+{
+   mSolver.add_edit_var(variable, rhea::strength::required());
+}
+
+void UIRootDep::WatchConstrainedVar(const rhea::variable& variable, std::function<void(const rhea::variable&)> callback)
+{
+   mVariableCallbackMap[variable] = callback;
+   // TODO: When the variable dies, this entry should be cleared.
+}
+
+void UIRootDep::Suggest(const rhea::variable& variable, double value)
+{
+   mSolver.suggest_value(variable, value);
+   mDirty = true;
+}
+
+void UIRootDep::CreateUIContextMenu(double x, double y, UIContextMenu::Choices choices)
+{
+   mContextMenuLayer->CreateNewUIContextMenu(x, y, choices);
+}
+
+void UIRootDep::Receive(const ElementAddedEvent& evt)
+{
+   AddConstraintsForElement(evt.element->GetFrame());
+   mElements.push_back(evt.element);
+}
+
+void UIRootDep::ElementDestructing(UIElementDep* element)
+{
+   RemoveConstraintsForElement(element);
+
+   mElements.erase(std::remove(mElements.begin(), mElements.end(), element), mElements.end());
+}
+
+void UIRootDep::RemoveConstraintsForElement(const UIElementDep* element)
+{
+   std::vector<std::string> constraintKeysToMurder;
+
+   for (const auto& constraint_pair : mConstraintMap) {
+      UIConstraint constraint = constraint_pair.second;
+      if (constraint.GetPrimaryElement() == element || constraint.GetSecondaryElement() == element) {
+         constraintKeysToMurder.push_back(constraint.GetName());
+      }
+   }
+
+   for (std::string keyToMurder : constraintKeysToMurder) {
+      RemoveConstraint(keyToMurder);
+   }
+}
+
+void UIRootDep::GetActiveElementsContainingPoint(const std::vector<UIElementDep*> &elementList, double pointX, double pointY, std::vector<UIElementDep*>* outElementList)
+{
+   std::copy_if(elementList.begin(), elementList.end(), std::back_inserter(*outElementList),
+                [&](UIElementDep* el) -> bool {
+                   return el->IsActive() && el->ContainsPoint(pointX, pointY);
+                });
+}
+
+void UIRootDep::Receive(const MouseDownEvent& evt)
+{
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseDown(evt);
+      return;
+   }
+
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElementDep*> elements;
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
+   for (UIElementDep* elem : elements)
+   {
+      switch(elem->MouseDown(evt)) {
+         case Handled:
+            return;
+         case Capture:
+            mActivelyCapturingElement = elem;
+            return;
+         case Unhandled:
+         default:
+            // Do nothing
+            break;
+      }
+   }
+}
+
+void UIRootDep::Receive(const MouseMoveEvent& evt)
+{
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseMove(evt);
+      return;
+   }
+
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElementDep*> elements;
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
+   for (UIElementDep* elem : elements)
+   {
+      switch(elem->MouseMove(evt)) {
+         case Handled:
+            return;
+         case Capture:
+            mActivelyCapturingElement = elem;
+            return;
+         case Unhandled:
+         default:
+            // Do nothing
+            break;
+      }
+   }
+}
+
+void UIRootDep::Receive(const MouseUpEvent& evt)
+{
+   if (mActivelyCapturingElement) {
+      mActivelyCapturingElement->MouseUp(evt);
+      mActivelyCapturingElement = nullptr;
+      return;
+   }
+
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElementDep*> elements;
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
+   for (UIElementDep* elem : elements)
+   {
+      if (elem->MouseUp(evt) == Handled)
+      {
+         return;
+      }
+   }
+}
+
+void UIRootDep::Receive(const MouseClickEvent& evt)
+{
+   // Make a shallow-copy of my elements, so that if the event
+   // triggers additions/changes the iterator is not invalidated.
+   std::vector<UIElementDep*> elements;
+   GetActiveElementsContainingPoint(mElements, evt.x, evt.y, &elements);
+   for (UIElementDep* elem : elements)
+   {
+      if (elem->MouseClick(evt) == Handled)
+      {
+         return;
+      }
+   }
+}
+
+void UIRootDep::UpdateRoot()
+{
+   mSolver.solve();
+
+   for (int64_t ndx = (int64_t)mElements.size() - 1; ndx >= 0; ndx--)
+   {
+      UIElementDep* elem = mElements[size_t(ndx)];
+      if (elem->IsMarkedForDeletion()) {
+         elem->GetParent()->DestroyChild(elem);
+      }
+   }
+
+   if (mDirty)
+   {
+      mSolver.resolve();
+
+      // TODO couple things:
+      // 1. move this sort to another function,
+      // 2. for aggregators that use indices, update them accordingly when we do swaps.
+      std::function<bool(UIElementDep*,UIElementDep*)> LessThan = [](UIElementDep* lhs, UIElementDep* rhs) {
+         return lhs->GetFrame().z.value() < rhs->GetFrame().z.value();
+      };
+      Shared::TimSortInPlace(mElements, LessThan);
+
+      Emit<UIRebalancedEvent>();
+      mDirty = false;
+   }
+}
+
+void UIRootDep::RenderRoot()
+{
+   for (auto& aggregator : mAggregators)
+   {
+      if (aggregator)
+      {
+         aggregator->Update();
+         aggregator->Render();
+      }
+   }
+}
+
+}; // namespace Engine
+
+}; // namespace CubeWorld

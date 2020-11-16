@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include <Engine/Core/Window.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 
 #include "TextField.h"
 
@@ -13,7 +13,7 @@ namespace CubeWorld
 namespace UI
 {
 
-TextField::TextField(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+TextField::TextField(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options)
    : Text(root, parent, options)
    , mChangeCallback(options.onChange)
    , mIsFocused(false)
@@ -109,7 +109,7 @@ void TextField::OnAlphaKey(int key, int action, int mods)
    }
 }
 
-Engine::UIElement::Action TextField::MouseClick(const MouseClickEvent& evt)
+Engine::UIElementDep::Action TextField::MouseClick(const MouseClickEvent& evt)
 {
    if (!mActive || evt.button != GLFW_MOUSE_BUTTON_LEFT)
    {

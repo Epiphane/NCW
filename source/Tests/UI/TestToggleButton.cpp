@@ -13,12 +13,12 @@ using namespace Observables;
 using Engine::ToggleButtonVC;
 using UI::Image;
 
-SCENARIO("Toggle buttons send the correct messages when clicked or force-toggled") {
+SCENARIO("Toggle buttons send the correct messages when clicked or force-toggled", GL_TEST_FLAG) {
 
 GIVEN("A toggle button with an Observer attached") {
    Test::MockInput input;
-   std::unique_ptr<Engine::UIRoot> dummyRoot = CreateDummyUIRoot(input);
-   Engine::UIRoot* root = dummyRoot.get();
+   std::unique_ptr<Engine::UIRootDep> dummyRoot = CreateDummyUIRoot(input);
+   Engine::UIRootDep* root = dummyRoot.get();
    std::shared_ptr<DisposeBag> myBag = std::make_shared<DisposeBag>();
 
    ToggleButtonVC* button = dummyRoot->Add<ToggleButtonVC>(Image::Options(), Image::Options(), "ToggleButtonDummy");

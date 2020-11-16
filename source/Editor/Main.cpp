@@ -32,7 +32,6 @@
 #include "Skeletor/Editor.h"
 
 #include "Imgui/Context.h"
-#include "Controls.h"
 #include "Main.h"
 
 using namespace CubeWorld;
@@ -80,11 +79,6 @@ int main(int argc, char** argv)
       return 1;
    }
 
-   // Setup input
-   auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int,int,int){
-      window.SetShouldClose(true);
-   });
-
    // Setup file watching library
 #if !CUBEWORLD_PLATFORM_WINDOWS
    fsw_init_library();
@@ -95,65 +89,15 @@ int main(int argc, char** argv)
    UI::Swapper windowContent;
 
    Editor::AnimationStation::Editor* animationStation = nullptr;
-   Editor::Constrainer::ConstrainerVC* constrainer = nullptr;
-   Editor::ParticleSpace::Editor* particleSpace = nullptr;
    Editor::Skeletor::Editor* skeletor = nullptr;
-   Editor::Controls::Options controlsOptions{
-      {
-         "Animation Station",
-         [&]() {
-            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, animationStation);
-            SettingsProvider::Instance().Set("main", "editor", "animation_station");
-            animationStation->Start();
-         }
-      },
-      {
-         "Skeletor",
-         [&]() {
-            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, skeletor);
-            SettingsProvider::Instance().Set("main", "editor", "skeletor");
-            skeletor->Start();
-         }
-      },
-      {
-         "Particle Space",
-         [&]() {
-            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
-            SettingsProvider::Instance().Set("main", "editor", "particle_space");
-            particleSpace->Start();
-         }
-      },
-      {
-         "Constrainer",
-         [&]() {
-            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
-            SettingsProvider::Instance().Set("main", "editor", "constrainer");
-            constrainer->Start();
-         }
-      },
-      {
-         "Quit", [&]() { window.SetShouldClose(true); }
-      }
-   };
+   Editor::ParticleSpace::Editor* particleSpace = nullptr;
 
    Editor::ImguiContext imgui(window);
 
    // Create editors
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window);
-   animationStation->SetBounds(window);
-   animationStation->SetName("Animation Station");
-
-   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(window);
-   particleSpace->SetBounds(window);
-   particleSpace->SetName("Particle Space");
-
    skeletor = windowContent.Add<Editor::Skeletor::Editor>(window);
-   skeletor->SetBounds(window);
-   skeletor->SetName("Skeletor");
-
-   constrainer = windowContent.Add<Editor::Constrainer::ConstrainerVC>(window);
-   constrainer->SetBounds(window);
-   constrainer->SetName("Constrainer");
+   particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(window);
 
    // Configure Debug helper
    DebugHelper& debug = DebugHelper::Instance();
@@ -194,27 +138,30 @@ int main(int argc, char** argv)
 
    // Start in Animation Station
    const std::string& firstState = SettingsProvider::Instance().Get("main", "editor").GetStringValue("animation_station");
+   (void)(firstState.c_str());
    if (firstState == "skeletor")
    {
       auto state = skeletor;
       state->Start();
       windowContent.Swap(state);
    }
+   else if (firstState == "particle_space")
+   {
+       auto state = particleSpace;
+       state->Start();
+       windowContent.Swap(state);
+   }
+   /*
    else if (firstState == "constrainer")
    {
       auto state = constrainer;
       state->Start();
       windowContent.Swap(state);
    }
+   */
    else if (firstState == "animation_station")
    {
       auto state = animationStation;
-      state->Start();
-      windowContent.Swap(state);
-   }
-   else if (firstState == "particle_space")
-   {
-      auto state = particleSpace;
       state->Start();
       windowContent.Swap(state);
    }
@@ -230,7 +177,7 @@ int main(int argc, char** argv)
    });
 
    uiUpdateTime.Reset();
-   windowContent.GetCurrent()->UpdateRoot();
+   //windowContent.GetCurrent()->UpdateRoot();
    LOG_ALWAYS("Time spent updating initial root: {time}s", uiUpdateTime.Elapsed());
 
    do {
@@ -267,11 +214,9 @@ int main(int argc, char** argv)
             particleSpace->Start();
          }
 
-         if (ImGui::Button("Constrainer", ImVec2(space.x, 0)))
+         if (ImGui::Button("Quit", ImVec2(space.x, 0)))
          {
-            CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, constrainer);
-            SettingsProvider::Instance().Set("main", "editor", "constrainer");
-            constrainer->Start();
+             window.SetShouldClose(true);
          }
 
          ImGui::End();
@@ -287,10 +232,8 @@ int main(int argc, char** argv)
          {
             windowContentRender.Reset();
             uiUpdateTime.Reset();
-            windowContent.GetCurrent()->UpdateRoot();
             uiUpdateTime.Elapsed();
             windowContent.GetCurrent()->Update(dt);
-            windowContent.GetCurrent()->RenderRoot();
             windowContentRender.Elapsed();
          }
 

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "UIElement.h"
+#include "UIElementDep.h"
 
 #include <RGBBinding/Observable.h>
 
@@ -21,10 +21,10 @@ struct Keystroke {
    int mods;
 };
 
-class TextEntry : public UIElement
+class TextEntry : public UIElementDep
 {
 public:
-   TextEntry(UIRoot* root, UIElement* parent, const std::string &name);
+   TextEntry(UIRootDep* root, UIElementDep* parent, const std::string &name);
    void ProvideKeystrokeObservable(Observables::Observable<Keystroke>& keystrokes);
 
    Observables::Observable<std::string>& GetEnteredTextObservable() { return mEnteredTextObservable; }

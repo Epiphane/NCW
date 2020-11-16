@@ -10,13 +10,13 @@
 
 namespace CubeWorld
 {
-    
+
 namespace Engine
 {
-    
+
 class UIClickGestureRecognizer : public UIGestureRecognizer {
 public:
-   UIClickGestureRecognizer(UIElement* element);
+   UIClickGestureRecognizer(UIElementDep* element);
 
    virtual bool MouseMove(const MouseMoveEvent& evt);
    virtual bool MouseDown(const MouseDownEvent& evt);
@@ -31,5 +31,5 @@ protected:
 };
 
 } // namespace Engine
-   
+
 } // namespace CubeWorld

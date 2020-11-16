@@ -14,7 +14,7 @@ namespace Test
 // so that tests involving graphics resources can be run without
 // spinning up real graphical contexts. In the meantime, hide all
 // tests with graphical tie-ins
-#define GL_TEST_FLAG "[!hide] [OpenGL]"
+#define GL_TEST_FLAG "[.] [OpenGL]"
 
 class MockInput : public Engine::Input
 {

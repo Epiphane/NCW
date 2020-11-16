@@ -9,7 +9,6 @@
 #include <Engine/Core/Input.h>
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
-#include <Engine/UI/UIRoot.h>
 
 #include <Shared/Components/ArmCamera.h>
 
@@ -30,7 +29,7 @@ public:
    ~MainState();
 
    void Initialize() override;
-   
+
    void SetParent(Engine::EventManager* other) { mEvents.SetParent(other); }
    template<typename E>
    void TransformParentEvents(Engine::Transformer<E>* transformer)

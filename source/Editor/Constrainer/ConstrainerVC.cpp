@@ -27,7 +27,7 @@ using UI::RectFilled;
 using TreeData = Engine::CollapsibleTreeItem::Data;
 
 ConstrainerVC::ConstrainerVC(Engine::Input& input)
-   : UIRoot(&input)
+   : UIRootDep(&input)
    , mElementList(nullptr)
 {
    mElementList = Add<CollapsibleTreeVC>("ElementList");
@@ -43,7 +43,7 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
    mElementList->ConstrainWidthTo(this, 0.0, 0.2);
    mElementList->ConstrainTopAlignedTo(this);
 
-   std::function<TreeData(UIElement*)> elementToTreeData = [&](UIElement* baseElement) -> TreeData {
+   std::function<TreeData(UIElementDep*)> elementToTreeData = [&](UIElementDep* baseElement) -> TreeData {
       TreeData datum;
 
       datum.title = baseElement->GetName();
@@ -55,7 +55,7 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
    };
 
    mModel.GetBaseElementObservable() >>
-      Observables::Map<UIElement*, std::vector<TreeData>>([&](UIElement* newBaseElement) {
+      Observables::Map<UIElementDep*, std::vector<TreeData>>([&](UIElementDep* newBaseElement) {
          std::vector<TreeData> result = { elementToTreeData(newBaseElement) };
          return result;
       }) >>
@@ -63,12 +63,12 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
 
    Engine::UISerializationHelper serializer;
 
-   std::string path = Paths::Normalize(Asset::UIElement("example_ui_serialized.json"));
+   std::string path = Paths::Normalize(Asset::UIElementDep("example_ui_serialized.json"));
    Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(path, mpRoot, mContentLayer);
 
    Engine::ElementsByName elementMap = *maybeElementMap;
 
-   UIElement* mainContent = elementMap["TestJSONStuff"];
+   UIElementDep* mainContent = elementMap["TestJSONStuff"];
    mainContent->ConstrainHeightTo(this);
    mainContent->ConstrainToRightOf(mElementList);
    mainContent->ConstrainTopAlignedTo(this);
@@ -77,11 +77,11 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
    mModel.GetBaseElementObservable().SendMessage(mainContent);
 
 
-   UIElement* wrapperLayer = Add<UIElement>();
+   UIElementDep* wrapperLayer = Add<UIElementDep>();
    wrapperLayer->ConstrainInFrontOfAllDescendants(mainContent);
 
 //   for (auto elementPair : elementMap) {
-//      UIElement* elementToWrap = elementPair.second;
+//      UIElementDep* elementToWrap = elementPair.second;
 //      std::string wrapperName = elementToWrap->GetName();
 //      wrapperName.append("_DesignWrapper");
 //
@@ -89,14 +89,14 @@ ConstrainerVC::ConstrainerVC(Engine::Input& input)
 //   }
 }
 
-//std::unique_ptr<CollapsibleTreeItem> ConstrainerVC::ParseUIElementTitles(UIElement& baseElement)
+//std::unique_ptr<CollapsibleTreeItem> ConstrainerVC::ParseUIElementTitles(UIElementDep& baseElement)
 //{
 //   auto result = std::make_unique<CollapsibleTreeItem>(mpRoot, this, "", baseElement.GetName());
-//   
+//
 //   for (auto it = baseElement.BeginChildren(); it != baseElement.EndChildren(); it++) {
 //      result->AddSubElement(ParseUIElementTitles(*it));
 //   }
-//   
+//
 //   return result;
 //}
 

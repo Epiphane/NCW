@@ -15,14 +15,14 @@
 
 namespace CubeWorld
 {
-   
+
 namespace Engine
 {
-   
+
 using namespace Observables;
-   
-CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent, const std::string &name)
-   : UIElement(root, parent, name)
+
+CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRootDep* root, UIElementDep* parent, const std::string &name)
+   : UIElementDep(root, parent, name)
    , mSubItemObservable(std::vector<CollapsibleTreeItem*>())
 {
    mLabel = Add<Text>(Text::Options{}, mName + "Label");
@@ -30,7 +30,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
 
    mSelectionToggle = Add<ToggleButtonVC>(mName + "SelectionToggle");
    mSelectedHighlight = Add<RectFilled>(mName + "Highlight", glm::vec4(0.3, 0.3, 0.3, 1));
-   
+
    Image::Options offImage;
    offImage.filename = Asset::Image("EditorIcons.png");
    offImage.image = "button_right";
@@ -46,24 +46,24 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
          auto [bActive, bSelected] = activeAndSelected;
          mSelectedHighlight->SetActive(bActive && bSelected);
       }, mBag);
-   
+
    mDataSink >>
       OnMessage<Data>([&](Data newData) {
-         for (UIElement* subItem : mSubItems) {
+         for (UIElementDep* subItem : mSubItems) {
             subItem->MarkForDeletion();
          }
-         
+
          mSubItems.clear();
-         
+
          mLabel->SetText(newData.title);
 
          for (const Data& newSubItemData : newData.children) {
             auto newItem = mSubItemStackView->Add<CollapsibleTreeItem>();
             newItem->GetDataSink().SendMessage(newSubItemData);
-            
+
             // Indent sub-items
             newItem->mExpandToggle->ConstrainLeftAlignedTo(mLabel, 0.0);
-            
+
             mSubItems.push_back(newItem);
          }
 
@@ -97,7 +97,7 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
    mExpandToggle->ConstrainWidth(20);
    mExpandToggle->ConstrainHeight(20);
    mExpandToggle->ConstrainTopAlignedTo(this);
-   
+
    // Constrain toggle to the left side of the item, but allow it to move FURTHER IN
    //    in case it needs to be indented.
    UIConstraint::Options greaterThan;
@@ -121,5 +121,5 @@ CollapsibleTreeItem::CollapsibleTreeItem(Engine::UIRoot* root, UIElement* parent
 }
 
 }; // namespace Engine
-   
+
 }; // namespace CubeWorld

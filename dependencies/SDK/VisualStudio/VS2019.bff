@@ -74,6 +74,7 @@ Compiler( 'Compiler-VS2019-x64' )
                                     + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
                                     + ' /wd5039' // '%s': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
                                     + ' /wd5045' // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+                                    + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
 
                                     // Include Paths
                                     + ' /I"./"'

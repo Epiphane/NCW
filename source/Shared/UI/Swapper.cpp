@@ -10,11 +10,6 @@ namespace CubeWorld
 namespace UI
 {
 
-void Swapper::Swap(Engine::UIRoot* window)
-{
-   mCurrent = window;
-}
-
 }; // namespace UI
 
 }; // namespace CubeWorld

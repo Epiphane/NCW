@@ -16,7 +16,7 @@ namespace CubeWorld
 namespace UI
 {
 
-ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Options& options)
+ScrollBar::ScrollBar(Engine::UIRootDep* root, Engine::UIElementDep* parent, const Options& options)
    : Image(root, parent, options)
    , mScrubbing(false)
    , mMin(options.min)
@@ -24,7 +24,7 @@ ScrollBar::ScrollBar(Engine::UIRoot* root, Engine::UIElement* parent, const Opti
    , mCallback(options.onChange)
 {}
 
-Engine::UIElement::Action ScrollBar::MouseDown(const MouseDownEvent& evt)
+Engine::UIElementDep::Action ScrollBar::MouseDown(const MouseDownEvent& evt)
 {
    if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
@@ -34,7 +34,7 @@ Engine::UIElement::Action ScrollBar::MouseDown(const MouseDownEvent& evt)
    return Unhandled;
 }
 
-Engine::UIElement::Action ScrollBar::MouseUp(const MouseUpEvent& evt)
+Engine::UIElementDep::Action ScrollBar::MouseUp(const MouseUpEvent& evt)
 {
    if (mActive && evt.button == GLFW_MOUSE_BUTTON_LEFT)
    {
@@ -71,8 +71,8 @@ void ScrollBar::Redraw()
    std::vector<Aggregator::ImageData> vertices;
    if (mActive)
    {
-      double pixelW = mCoords.z * mTexture->GetWidth();
-      double pixelH = mCoords.w * mTexture->GetHeight();
+      double pixelW = mCoords.z * double(mTexture->GetWidth());
+      double pixelH = mCoords.w * double(mTexture->GetHeight());
       double height = mFrame.GetHeight();
       double width = height * pixelW / pixelH;
       double offset = (GetValue() - mMin) / mRange; // [0, 1]

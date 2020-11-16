@@ -13,15 +13,15 @@ namespace CubeWorld
 
 namespace Engine
 {
-   
+
 using namespace Observables;
-   
-ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, const std::string& name)
+
+ToggleButtonVC::ToggleButtonVC(UIRootDep* root, UIElementDep* parent, const std::string& name)
    : ToggleButtonVC(root, parent, Image::Options(), Image::Options(), name)
 {
 }
 
-ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
+ToggleButtonVC::ToggleButtonVC(UIRootDep* root, UIElementDep* parent, Image::Options offImage, Image::Options onImage, const std::string& name)
    : ButtonVC(root, parent, name)
    , mToggleObservable(false)
 {
@@ -32,7 +32,7 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
    //             the content size somehow. I dunno I'll cross that bridge when I get to it.
    mOffImage = Add<Image>(offImage);
    mOnImage = Add<Image>(onImage);
-   
+
    mOffImage->ConstrainEqualBounds(this);
    mOnImage->ConstrainEqualBounds(this);
 
@@ -40,15 +40,15 @@ ToggleButtonVC::ToggleButtonVC(UIRoot* root, UIElement* parent, Image::Options o
       RemoveDuplicates() >>
       OnMessage<std::tuple<bool, bool>>([&](auto newState) {
          auto [bActive, bToggled] = newState;
-         
+
          mToggleState = bToggled;
-         
+
          if (bActive) {
             mOnImage->SetActive(bToggled);
             mOffImage->SetActive(!bToggled);
          }
       }, mBag);
-      
+
    OnClick() >>
      OnMessage<UIGestureRecognizer::Message_GestureState>([&](auto /*m*/) {
         mToggleObservable.SendMessage(!mToggleState);

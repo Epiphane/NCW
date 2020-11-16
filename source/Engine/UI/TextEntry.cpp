@@ -14,8 +14,8 @@ namespace CubeWorld
 namespace Engine
 {
 
-TextEntry::TextEntry(UIRoot* root, UIElement* parent, const std::string &name) 
-   : UIElement(root, parent, name)
+TextEntry::TextEntry(UIRootDep* root, UIElementDep* parent, const std::string &name)
+   : UIElementDep(root, parent, name)
 {
    mKeystrokeObservable >>
       Observables::OnMessage<Keystroke>([&](Keystroke key) {

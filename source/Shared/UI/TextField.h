@@ -44,7 +44,7 @@ public:
    };
 
 public:
-   TextField(Engine::UIRoot* root, Engine::UIElement* element, const Options& options);
+   TextField(Engine::UIRootDep* root, Engine::UIElementDep* element, const Options& options);
 
    Action MouseClick(const MouseClickEvent& evt) override;
 

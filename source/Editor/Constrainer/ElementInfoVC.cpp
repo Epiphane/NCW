@@ -13,10 +13,10 @@ namespace CubeWorld
 namespace Constrainer
 {
 
-ElementInfoVC::ElementInfoVC(Engine::UIRoot* root, UIElement* parent, const std::string &name)
-      : UIElement(root, parent, name)
+ElementInfoVC::ElementInfoVC(Engine::UIRootDep* root, UIElementDep* parent, const std::string &name)
+      : UIElementDep(root, parent, name)
 {
-   
+
 }
 
 } // namespace Constrainer

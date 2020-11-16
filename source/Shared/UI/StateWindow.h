@@ -9,7 +9,7 @@
 #include <Engine/Core/State.h>
 #include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 
 #include "../Aggregator/Image.h"
 
@@ -27,10 +27,10 @@ namespace UI
 // important, because all systems/components/logic in a state should act identically,
 // regardless of whether its the core of the window or we've got a StateWindow housing it.
 //
-class StateWindow : public Engine::UIElement, public Engine::Input, public MouseInputTransformer
+class StateWindow : public Engine::UIElementDep, public Engine::Input, public MouseInputTransformer
 {
 public:
-   StateWindow(Engine::UIRoot* root, UIElement* parent, std::unique_ptr<Engine::State>&& state);
+   StateWindow(Engine::UIRootDep* root, UIElementDep* parent, std::unique_ptr<Engine::State>&& state);
    ~StateWindow() {}
 
    //

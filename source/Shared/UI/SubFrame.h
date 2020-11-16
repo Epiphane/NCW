@@ -9,7 +9,7 @@
 #include <Engine/Core/Timer.h>
 #include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 #include <Shared/DebugHelper.h>
 
 #include "../Aggregator/Image.h"
@@ -20,32 +20,32 @@ namespace CubeWorld
 namespace UI
 {
 
-class SubFrameUIRoot : public Engine::UIRoot
+class SubFrameUIRoot : public Engine::UIRootDep
 {
 public:
-   SubFrameUIRoot(Engine::Input* input) : UIRoot(input) {}
+   SubFrameUIRoot(Engine::Input* input) : UIRootDep(input) {}
 
 public:
    void Receive(const Engine::ElementAddedEvent& evt) override;
 
 private:
-   // Keep track of the dimensions this UIRoot actually occupies
+   // Keep track of the dimensions this UIRootDep actually occupies
    rhea::variable mLeft, mRight, mTop, mBottom;
 };
 
 //
-// SubFrame - an extension of UIRoot, that renders its whole UI to a framebuffer
+// SubFrame - an extension of UIRootDep, that renders its whole UI to a framebuffer
 // before rendering to the screen. The reason for this is so that its elements can
 // overflow the screen space smoothly and allow for scrolling.
 //
 class SubFrame
-   : public Engine::UIElement
+   : public Engine::UIElementDep
    , public Engine::Input
    , public MouseInputTransformer
    , public Engine::Transformer<Engine::ElementAddedEvent>
 {
 public:
-   SubFrame(Engine::UIRoot* root, UIElement* parent);
+   SubFrame(Engine::UIRootDep* root, UIElementDep* parent);
    ~SubFrame() {}
 
    //
@@ -68,7 +68,7 @@ public:
    }
 
 public:
-   // Functions that get passed through to the UIRoot.
+   // Functions that get passed through to the UIRootDep.
 
    //
    // Add arbitrary contraints.
@@ -76,7 +76,7 @@ public:
    void AddConstraints(const rhea::constraint_list& constraints);
 
 public:
-   Engine::UIRoot& GetUI() { return mUIRoot; }
+   Engine::UIRootDep& GetUI() { return mUIRoot; }
 
    Engine::UIFrame& GetInnerFrame() { return mUIRoot.GetFrame(); }
 

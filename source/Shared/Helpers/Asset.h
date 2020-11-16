@@ -22,7 +22,7 @@ std::string Font(const std::string& fontName);
 std::string ParticleShaders();
 std::string Particle(const std::string& particle);
 std::string Skeleton(const std::string& skeleton);
-std::string UIElement(const std::string& elementName);
+std::string UIElementDep(const std::string& elementName);
 
 };
 

@@ -118,7 +118,7 @@ void DebugHelper::Update()
 
    float left = GLfloat(mBounds->GetX());
    float top = GLfloat(mBounds->GetY() + mBounds->GetHeight()) - 40.0f;
-   float right = left + mBounds->GetWidth();
+   float right = left + GLfloat(mBounds->GetWidth());
    if (mMetricsText != text)
    {
       mMetricsText = text;

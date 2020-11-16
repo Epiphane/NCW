@@ -21,7 +21,7 @@ Editor::Editor(Engine::Input& input)
    : UIRoot(&input)
 {
    // I wanna do this better
-   mStateWindow.reset(new StateWindow(input, 600, 400, *mpRoot->GetAggregator<Aggregator::Image>(), nullptr));
+   mStateWindow.reset(new StateWindow(input, 600, 400, nullptr));
    std::unique_ptr<MainState> state{new MainState(mStateWindow.get(), *mStateWindow)};
    state->SetParent(this);
    state->TransformParentEvents<MouseDownEvent>(mStateWindow.get());

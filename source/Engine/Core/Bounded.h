@@ -28,6 +28,12 @@ public:
       , w(w)
       , h(h)
    {};
+   Bounds(const Bounded& bounds)
+       : x(bounds.GetX())
+       , y(bounds.GetY())
+       , w(bounds.GetWidth())
+       , h(bounds.GetHeight())
+   {}
 
 public:
    uint32_t GetX() const override { return x; }

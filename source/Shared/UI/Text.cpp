@@ -5,7 +5,7 @@
 #include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Window.h>
 #include <RGBLogger/Logger.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIRootDep.h>
 #include <Shared/Helpers/Asset.h>
 
 #include "Text.h"
@@ -16,8 +16,8 @@ namespace CubeWorld
 namespace UI
 {
 
-Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, const std::string& name)
-   : UIElement(root, parent, name)
+Text::Text(Engine::UIRootDep* root, UIElementDep* parent, const Options& options, const std::string& name)
+   : UIElementDep(root, parent, name)
    , mText("")
    , mRendered("")
 {
@@ -37,15 +37,15 @@ Text::Text(Engine::UIRoot* root, UIElement* parent, const Options& options, cons
       rhea::constraint(mFrame.right - mFrame.left >= size * 14.0, rhea::strength::weak()),
       rhea::constraint(mFrame.top - mFrame.bottom >= 28.0, rhea::strength::weak())
    });
-   
+
    mpRoot->AddEditVar(mTextContentWidth);
    mpRoot->AddEditVar(mTextContentHeight);
 
    SetText(options.text);
    root->GetAggregator<Aggregator::Text>()->ConnectToTexture(mRegion, mFont->GetTexture());
-   
+
    auto redraw = [&](const rhea::variable&){ Redraw(); };
-   
+
    root->WatchConstrainedVar(mFrame.right, redraw);
    root->WatchConstrainedVar(mFrame.left,  redraw);
 }
@@ -76,12 +76,12 @@ Engine::Graphics::Font::Alignment Text::GetAlignment()
 void Text::Redraw()
 {
    std::vector<Aggregator::TextData> data;
-   
+
    mRendered = mText;
    uint32_t maxWidth = GetWidth();
    glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
    int numCharsTruncated = 0;
-   while (size.x > maxWidth && mRendered.size() != 3) {
+   while (size.x > float(maxWidth) && mRendered.size() != 3) {
       numCharsTruncated ++;
       mRendered = mText.substr(0, mText.size() - numCharsTruncated) + "...";
       size = mFont->GetSizeOfRenderedText(mRendered);
@@ -102,7 +102,7 @@ void Text::Redraw()
 
    mRegion.Set(data.data());
 }
-   
+
 rhea::linear_expression Text::ConvertTargetToVariable(Engine::UIConstraint::Target target) const
 {
    switch(target) {
@@ -111,7 +111,7 @@ rhea::linear_expression Text::ConvertTargetToVariable(Engine::UIConstraint::Targ
       case Engine::UIConstraint::ContentHeight:
          return mTextContentHeight;
       default:
-         return UIElement::ConvertTargetToVariable(target);
+         return UIElementDep::ConvertTargetToVariable(target);
    }
 }
 
@@ -123,7 +123,7 @@ void Text::RenderText(const std::string& text)
       Redraw();
    }
 }
-   
+
 void Text::RecalculateSize() {
    glm::vec2 size = mFont->GetSizeOfRenderedText(mRendered);
 

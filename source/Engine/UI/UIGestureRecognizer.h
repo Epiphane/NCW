@@ -14,15 +14,15 @@
 
 namespace CubeWorld
 {
-   
+
 namespace Engine
-{  
+{
    class UIGestureRecognizer; // Forward declare
-   class UIElement;
+   class UIElementDep;
 
    class UIGestureRecognizer {
    public:
-      UIGestureRecognizer(UIElement* element);
+      UIGestureRecognizer(UIElementDep* element);
       virtual ~UIGestureRecognizer() {}
 
       //
@@ -58,19 +58,19 @@ namespace Engine
 
       // Observable that sends a message whenever the state of this recognizer changes
       Observables::Observable<Message_GestureState>& OnStateChanged();
-      
+
    protected:
       // Helper function to change mState and send a message about it
       void ChangeStateAndBroadcastMessage(State newState, double mouseX, double mouseY);
 
       Observables::Observable<Message_GestureState> mStateChangedObservable;
 
-      // Which UIElement is this recognizer looking for clicks on?
-      UIElement* mpElement;
+      // Which UIElementDep is this recognizer looking for clicks on?
+      UIElementDep* mpElement;
 
       State mState;
    };
 
 } // namespace Engine
-   
+
 } // namespace CubeWorld

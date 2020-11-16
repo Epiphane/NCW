@@ -11,36 +11,36 @@
 
 #include <RGBBinding/ObservableBasicOperations.h>
 
-#include <Engine/UI/UIElement.h>
-#include <Engine/UI/UIRoot.h>
+#include <Engine/UI/UIElementDep.h>
+#include <Engine/UI/UIRootDep.h>
 
 namespace CubeWorld
 {
-   
+
 namespace Engine
 {
-   
+
 const static std::map<UIStackView::AlignItemsBy, UIConstraint::Target> CONSTRAINT_MAPPING = {
    {UIStackView::Left,    UIConstraint::Left},
-   {UIStackView::Right,   UIConstraint::Right}, 
+   {UIStackView::Right,   UIConstraint::Right},
    {UIStackView::CenterX, UIConstraint::CenterX},
    {UIStackView::Top,     UIConstraint::Top},
-   {UIStackView::Bottom,  UIConstraint::Bottom}, 
+   {UIStackView::Bottom,  UIConstraint::Bottom},
    {UIStackView::CenterY, UIConstraint::CenterY}
 };
 
-UIStackView::UIStackView(UIRoot *root, UIElement *parent, const std::string& name)
-   : UIElement(root, parent, name)
+UIStackView::UIStackView(UIRootDep *root, UIElementDep *parent, const std::string& name)
+   : UIElementDep(root, parent, name)
    , mAlignItemsBy(0)
 {
 }
 
-UIElement *UIStackView::AddChild(std::unique_ptr<UIElement> &&element)
+UIElementDep *UIStackView::AddChild(std::unique_ptr<UIElementDep> &&element)
 {
-   UIElement* result = UIElement::AddChild(std::move(element));
+   UIElementDep* result = UIElementDep::AddChild(std::move(element));
 
    RemakeConstraints();
-   
+
    // TODO: This won't go away if the element is removed from this stack view...
    result->OnActiveStateChanged() >>
       Observables::OnMessage<bool>([&](bool /*active*/) {
@@ -91,50 +91,50 @@ void UIStackView::DestroyOldConstraints() {
    if (mpRoot->GetConstraint(mTopConstraint.GetName())) {
       mpRoot->RemoveConstraint(mTopConstraint.GetName());
    }
-   
+
    if (mpRoot->GetConstraint(mBottomConstraint.GetName())) {
       mpRoot->RemoveConstraint(mBottomConstraint.GetName());
    }
-   
+
    if (mpRoot->GetConstraint(mEmptyConstraint.GetName())) {
       mpRoot->RemoveConstraint(mEmptyConstraint.GetName());
    }
-   
+
    for (UIConstraint constraint : mConstraintsBetweenChildren) {
       if (mpRoot->GetConstraint(constraint.GetName())) {
          mpRoot->RemoveConstraint(constraint.GetName());
       }
    }
-   
+
    for (UIConstraint constraint : mAlignmentConstraints) {
       if (mpRoot->GetConstraint(constraint.GetName())) {
          mpRoot->RemoveConstraint(constraint.GetName());
       }
    }
-   
+
    mConstraintsBetweenChildren.clear();
    mAlignmentConstraints.clear();
 }
-   
+
 /**
  *  Destroy and remove all my existing constraints and make new ones based
  *    on my current parameters.
  *
  *  TODO: Use a 'dirty' flag so this only gets called once. Would need some kind
- *          of lifecycle hook like "UIRoot is about to solve constraints."
+ *          of lifecycle hook like "UIRootDep is about to solve constraints."
  */
 void UIStackView::RemakeConstraints()
 {
    DestroyOldConstraints();
 
-   std::vector<UIElement*> activeChildren;
+   std::vector<UIElementDep*> activeChildren;
    for (size_t ndx = 0; ndx < mChildren.size(); ndx++) {
-      UIElement* el = mChildren[ndx].get();
+      UIElementDep* el = mChildren[ndx].get();
       if (el->IsActive()) {
          activeChildren.push_back(el);
       }
    }
-    
+
    if (activeChildren.size() == 0) {
       UIConstraint::Options emptyOptions;
       emptyOptions.customNameConnector = "_emptyStackView";
@@ -146,20 +146,20 @@ void UIStackView::RemakeConstraints()
    } else {
       CreateChildConstraints(activeChildren);
    }
-   
+
    CreateConstraintsForItemAlignment(activeChildren);
 }
-   
-void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeChildren) {
+
+void UIStackView::CreateChildConstraints(const std::vector<UIElementDep*>& activeChildren) {
    if (mbVertical) {
       UIConstraint::Options topOptions;
       topOptions.customNameConnector = "_topAlignedWithStackView_";
       mTopConstraint    = activeChildren.front()->ConstrainTopAlignedTo(this, 0.0, topOptions);
-      
+
       UIConstraint::Options bottomOptions;
       bottomOptions.customNameConnector = "_bottomAlignedWithStackView_";
       mBottomConstraint = activeChildren.back()->ConstrainBottomAlignedTo(this, 0.0, bottomOptions);
-      
+
       for (size_t ndx = 1; ndx < activeChildren.size(); ndx++) {
          UIConstraint::Options options;
          options.customNameConnector = "_belowInStackView_";
@@ -169,7 +169,7 @@ void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeCh
    } else {
       mTopConstraint    = activeChildren.front()->ConstrainLeftAlignedTo(this);
       mBottomConstraint = activeChildren.back()->ConstrainRightAlignedTo(this);
-      
+
       for (size_t ndx = 1; ndx < activeChildren.size(); ndx++) {
          UIConstraint::Options options;
          options.customNameConnector = "_rightOfInStackView_";
@@ -179,7 +179,7 @@ void UIStackView::CreateChildConstraints(const std::vector<UIElement*>& activeCh
    }
 }
 
-void UIStackView::CreateConstraintsForItemAlignment(const std::vector<UIElement*>& activeChildren) {
+void UIStackView::CreateConstraintsForItemAlignment(const std::vector<UIElementDep*>& activeChildren) {
    for (size_t ndx = 0; ndx < AlignItemsBy::Count; ndx++) {
       AlignItemsBy axisToAlignItems = (AlignItemsBy)ndx;
       if (mAlignItemsBy.test(axisToAlignItems)) {
@@ -187,12 +187,12 @@ void UIStackView::CreateConstraintsForItemAlignment(const std::vector<UIElement*
             assert(false && "Invalid constraint target!");
             continue;
          }
-         
+
          UIConstraint::Target target = CONSTRAINT_MAPPING.at(axisToAlignItems);
          for (size_t child = 0; child < activeChildren.size(); child++) {
             UIConstraint::Options options;
             options.customNameConnector = "_aligned" + UIConstraint::StringFromConstraintTarget(target) + "ToStackView_";
-            
+
             UIConstraint newConstraint(this, activeChildren[child], target, target, options);
             mpRoot->AddConstraint(newConstraint);
             mAlignmentConstraints.push_back(newConstraint);
@@ -200,7 +200,7 @@ void UIStackView::CreateConstraintsForItemAlignment(const std::vector<UIElement*
       }
    }
 }
-   
+
 void UIStackView::SetAlignItemsBy(AlignItemsBy alignmentFlag) {
    mAlignItemsBy.set(alignmentFlag);
    RemakeConstraints();
@@ -212,5 +212,5 @@ void UIStackView::UnsetAlignItemsBy(AlignItemsBy alignmentFlag) {
 }
 
 } // Engine
-   
+
 } // CubeWorld

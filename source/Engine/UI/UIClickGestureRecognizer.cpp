@@ -8,15 +8,15 @@
 #include "UIClickGestureRecognizer.h"
 #include <RGBBinding/ObservableBasicOperations.h>
 
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 
 namespace CubeWorld
 {
-   
+
 namespace Engine
 {
-   
-UIClickGestureRecognizer::UIClickGestureRecognizer(UIElement* element)
+
+UIClickGestureRecognizer::UIClickGestureRecognizer(UIElementDep* element)
    : UIGestureRecognizer(element)
    , mbStartedInsideMe(false)
 {
@@ -52,7 +52,7 @@ void UIClickGestureRecognizer::MouseUp(const MouseUpEvent& evt)
       ChangeStateAndBroadcastMessage(Ending, evt.x, evt.y);
       ChangeStateAndBroadcastMessage(Possible, evt.x, evt.y);
    }
-   
+
    mbStartedInsideMe = false;
 }
 

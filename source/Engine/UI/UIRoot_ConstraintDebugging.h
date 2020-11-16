@@ -1,7 +1,7 @@
 //
 // UIRoot_ConstraintDebugging.h
 //
-// UIElement that covers the entire UIRoot. If active, it will capture all mouse events
+// UIElementDep that covers the entire UIRootDep. If active, it will capture all mouse events
 //    and use them to show you the bounds of hovered elements.
 //
 // Eventually this will show tooltips + represent constraints graphically, but for now
@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <Engine/UI/UIElement.h>
+#include <Engine/UI/UIElementDep.h>
 
 namespace CubeWorld
 {
@@ -20,21 +20,21 @@ namespace CubeWorld
 namespace Engine
 {
 
-class UIRoot_ConstraintDebugging final : public UIElement
+class UIRoot_ConstraintDebugging final : public UIElementDep
 {
 public:
-   UIRoot_ConstraintDebugging(UIRoot* root, UIElement* parent, const std::string &name);
+   UIRoot_ConstraintDebugging(UIRootDep* root, UIElementDep* parent, const std::string &name);
 
    Action MouseMove(const MouseMoveEvent& evt) override;
    Action MouseDown(const MouseDownEvent& evt) override;
 
 private:
    // Pink rectangle that will highlight elements when you debug constraints
-   UIElement* mConstraintDebugHighlight;
+   UIElementDep* mConstraintDebugHighlight;
 
    // Label that goes over mConstraintDebugHighlight and tells you how many UIElements are under your mouses
-   UIElement* mConstraintDebugLabel;
-   UIElement* mConstraintDebugLabelBG;
+   UIElementDep* mConstraintDebugLabel;
+   UIElementDep* mConstraintDebugLabelBG;
 };
 
 } // namespace Engine

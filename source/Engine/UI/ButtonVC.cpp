@@ -14,8 +14,8 @@ namespace CubeWorld
 namespace Engine
 {
 
-ButtonVC::ButtonVC(UIRoot* root, UIElement* parent, const std::string &name)
-   : UIElement(root, parent, name)
+ButtonVC::ButtonVC(UIRootDep* root, UIElementDep* parent, const std::string &name)
+   : UIElementDep(root, parent, name)
 {
    mTapGestureRecognizer = CreateAndAddGestureRecognizer<UIClickGestureRecognizer>();
 }

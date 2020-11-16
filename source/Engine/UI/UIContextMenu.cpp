@@ -26,17 +26,17 @@ using UI::RectFilled;
 /**
  * Instantiate a new UIContextMenu.
  */
-UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string &name, const std::list<Choice> &choices)
-      : UIElement(root, parent, name)
+UIContextMenu::UIContextMenu(UIRootDep* root, UIElementDep* parent, const std::string &name, const std::list<Choice> &choices)
+      : UIElementDep(root, parent, name)
 {
    Engine::UISerializationHelper serializer;
-   Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElement("context_menu.json")), mpRoot, this);
+   Maybe<Engine::ElementsByName> maybeElementMap = serializer.CreateUIFromJSONFile(Paths::Normalize(Asset::UIElementDep("context_menu.json")), mpRoot, this);
 
    assert(maybeElementMap && "Unable to create UI for context menu.");
 
    Engine::ElementsByName elementMap = *maybeElementMap;
 
-   UIElement* mainBackground = elementMap["ContextMenuBackgroundBorder"];
+   UIElementDep* mainBackground = elementMap["ContextMenuBackgroundBorder"];
    mainBackground->ConstrainEqualBounds(this);
 
    mOptionList = (UIStackView*) elementMap["ContextMenuItemList"];
@@ -51,7 +51,7 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
 
       load->ConstrainWidthToContent();
       load->ConstrainHeightToContent();
-      
+
       UIConstraint::Options opts;
       opts.relationship = UIConstraint::GreaterThanOrEqual;
       mOptionList->ConstrainWidthTo(load, 0, 1.0, opts);
@@ -61,7 +61,7 @@ UIContextMenu::UIContextMenu(UIRoot* root, UIElement* parent, const std::string 
 /**
  * Creates a new UIContextMenu within this element's bounds.
  *
- * @param x, y      Absolute position within the UIRoot where the context menu will appear
+ * @param x, y      Absolute position within the UIRootDep where the context menu will appear
  * @param choices   List of choices for the menu
  */
 void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMenu::Choices choices)
@@ -113,7 +113,7 @@ void UIContextMenuParent::CreateNewUIContextMenu(double x, double y, UIContextMe
 //
 // On mouse click, close context menu if it's open and consume the event.
 //
-UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent&)
+UIElementDep::Action UIContextMenuParent::MouseClick(const MouseClickEvent&)
 {
    if (!mbIsShowingContextMenu) {
       return Unhandled;
@@ -125,8 +125,8 @@ UIElement::Action UIContextMenuParent::MouseClick(const MouseClickEvent&)
    }
 }
 
-UIContextMenuParent::UIContextMenuParent(UIRoot* root, UIElement* parent, const std::string& name)
-      : UIElement(root, parent, name)
+UIContextMenuParent::UIContextMenuParent(UIRootDep* root, UIElementDep* parent, const std::string& name)
+      : UIElementDep(root, parent, name)
       , mCurrentMenu(nullptr)
 {
 }

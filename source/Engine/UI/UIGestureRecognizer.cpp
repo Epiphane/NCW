@@ -9,11 +9,11 @@
 
 namespace CubeWorld
 {
-   
+
 namespace Engine
 {
 
-UIGestureRecognizer::UIGestureRecognizer(UIElement* element)
+UIGestureRecognizer::UIGestureRecognizer(UIElementDep* element)
       : mpElement(element)
       , mState(Possible)
 {
@@ -31,5 +31,5 @@ void UIGestureRecognizer::ChangeStateAndBroadcastMessage(UIGestureRecognizer::St
 }
 
 } // namespace Engine
-   
+
 } // namespace CubeWorld

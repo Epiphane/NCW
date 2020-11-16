@@ -7,7 +7,11 @@
 #pragma once
 
 // Added by Thomas Steinke
-#pragma warning(disable : 4365 4701 5219 6001)
+#pragma warning(push)
+#pragma warning(disable : 4365)
+#pragma warning(disable : 4701)
+#pragma warning(disable : 6001)
+#pragma warning(disable : 5219) // implicit conversion from '%s' to '%s', possible loss of data
 
 #include "glm.hpp"
 
@@ -198,4 +202,4 @@
 #endif
 #endif//GLM_ENABLE_EXPERIMENTAL
 
-#pragma warning(default : 4365 4701 5219 6001)
+#pragma warning(pop)

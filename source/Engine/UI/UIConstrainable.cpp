@@ -11,7 +11,7 @@
 
 #include "UIConstrainable.h"
 
-#include "UIRoot.h"
+#include "UIRootDep.h"
 
 namespace CubeWorld
 {
@@ -21,7 +21,7 @@ namespace Engine
 
 uint64_t UIConstrainable::sID = 0;
 
-UIConstrainable::UIConstrainable(UIRoot* root, const std::string& name)
+UIConstrainable::UIConstrainable(UIRootDep* root, const std::string& name)
    : mpRoot(root)
    , mName(name.empty() ? FormatString("Element_{id}", sID++) : name)
 {
@@ -48,7 +48,7 @@ rhea::linear_expression UIConstrainable::ConvertTargetToVariable(UIConstraint::T
       {UIConstraint::ZHeightDescendants, mFrame.biggestDescendantZ}
    };
 
-   assert(mapping.find(target) != mapping.end() && "Unknown constraint target for UIElement!");
+   assert(mapping.find(target) != mapping.end() && "Unknown constraint target for UIElementDep!");
 
    return mapping[target];
 }
