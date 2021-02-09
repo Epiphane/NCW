@@ -1,0 +1,12 @@
+#include "../Common.xcconfig"
+
+GCC_OPTIMIZATION_LEVEL = fast
+GCC_FAST_MATH = YES
+OTHER_CFLAGS[sdk=macosx*] = -fomit-frame-pointer
+OTHER_CFLAGS[arch=arm64*] = -fomit-frame-pointer
+GCC_PREPROCESSOR_DEFINITIONS = NDEBUG
+ENABLE_NS_ASSERTIONS = NO
+
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+DEPLOYMENT_POSTPROCESSING = YES
+STRIP_INSTALLED_PRODUCT = YES

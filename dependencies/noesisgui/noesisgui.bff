@@ -1,0 +1,349 @@
+.External_Libraries_noesisgui_BasePath = '$_CURRENT_BFF_DIR_$/3.0.6'
+
+.External_Libraries_noesisgui_CompilerOptions
+    = ' "-I$External_Libraries_noesisgui_BasePath$/Include"'
+
+// X86
+.External_Libraries_noesisgui_X86_Debug =
+[
+    .CompilerOptions = .External_Libraries_noesisgui_CompilerOptions
+    .Libraries = {} // NOTE: Libraries not added here to avoid automatic runtime dependencies
+    .LinkerOptions = ''
+
+    .General =
+    [
+        .External_Libraries_noesisgui_Libraries =
+        {
+            '$External_Libraries_noesisgui_BasePath$/Lib/uwp_x86/Noesis.lib'
+            '$External_Libraries_noesisgui_BasePath$/Lib/windows_x86/Noesis.lib'
+            '$External_Libraries_noesisgui_BasePath$/Lib/windows_x86/NoesisApp.lib'
+        }
+        .External_Libraries_noesisgui_DLLs =
+        {
+            '$External_Libraries_noesisgui_BasePath$/Bin/windows_x86/Noesis.dll'
+            '$External_Libraries_noesisgui_BasePath$/Bin/windows_x86/NoesisApp.dll'
+        }
+    ]
+]
+.External_Libraries_noesisgui_X86_Release = .External_Libraries_noesisgui_X86_Debug
+.External_Libraries_noesisgui_X86_ASan = .External_Libraries_noesisgui_X86_Debug
+
+// X64
+.External_Libraries_noesisgui_X64_Debug =
+[
+    .CompilerOptions = .External_Libraries_noesisgui_CompilerOptions
+    .Libraries = {} // NOTE: Libraries not added here to avoid automatic runtime dependencies
+    .LinkerOptions = ''
+
+    .General =
+    [
+        .External_Libraries_noesisgui_Libraries =
+        {
+            '$External_Libraries_noesisgui_BasePath$/Lib/windows_x86_64/Noesis.lib'
+            '$External_Libraries_noesisgui_BasePath$/Lib/uwp_x86/Noesis.lib'
+        }
+        .External_Libraries_noesisgui_DLLs =
+        {
+            '$External_Libraries_noesisgui_BasePath$/Bin/windows_x86_64/Noesis.dll'
+        }
+    ]
+]
+.External_Libraries_noesisgui_X64_Release = .External_Libraries_noesisgui_X64_Debug
+.External_Libraries_noesisgui_X64_ASan = .External_Libraries_noesisgui_X64_Debug
+
+// OSX
+.External_Libraries_noesisgui_OSX_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSX_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSX_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSX_TSan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// OSXARM
+.External_Libraries_noesisgui_OSXARM_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSXARM_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSXARM_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_OSXARM_TSan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// Linux
+.External_Libraries_noesisgui_Linux_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_Linux_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_Linux_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// LinuxARM
+.External_Libraries_noesisgui_LinuxARM_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_LinuxARM_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_LinuxARM_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// iOS64
+.External_Libraries_noesisgui_iOS64_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_iOS64_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_iOS64_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// iOSX64
+.External_Libraries_noesisgui_iOSX64_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_iOSX64_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_iOSX64_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_iOSX64_TSan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// AndroidARM
+.External_Libraries_noesisgui_AndroidARM_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidARM_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidARM_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// AndroidARM64
+.External_Libraries_noesisgui_AndroidARM64_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidARM64_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidARM64_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// AndroidX64
+.External_Libraries_noesisgui_AndroidX64_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidX64_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_AndroidX64_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// SwitchARM64
+.External_Libraries_noesisgui_SwitchARM64_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_SwitchARM64_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_SwitchARM64_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// PlayStation
+.External_Libraries_noesisgui_PlayStation_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_PlayStation_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_PlayStation_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+
+// Xbox
+.External_Libraries_noesisgui_Xbox_Debug =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_Xbox_Release =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]
+.External_Libraries_noesisgui_Xbox_ASan =
+[
+    .Libraries = {}
+    .CompilerOptions = ''
+    .LinkerOptions = ''
+    .General = []
+]

@@ -1,0 +1,3 @@
+CFLAGS_RELEASE = $(CFLAGS_COMMON) -Ofast -flto=jobserver -DNDEBUG -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -U_FORTIFY_SOURCE -fomit-frame-pointer
+CXXFLAGS_RELEASE = $(CXXFLAGS_COMMON) -Ofast -flto=jobserver -DNDEBUG -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -U_FORTIFY_SOURCE -fomit-frame-pointer
+LDFLAGS_RELEASE = $(LDFLAGS_COMMON) $(CXXFLAGS_RELEASE) -fuse-ld=gold -Wl,-O3,--gc-sections,--icf=all
