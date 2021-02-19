@@ -38,6 +38,7 @@ public:
    ~VoxelRenderSystem();
 
    void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
+   void Reconfigure();
 
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 

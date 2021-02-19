@@ -12,6 +12,7 @@ namespace Asset
 {
 
 std::string gAssetRoot = "./Assets";
+std::string gShaderRoot = "./Shaders";
 
 void SetAssetRootDefault()
 {
@@ -28,9 +29,14 @@ void SetAssetRootDefault()
    }
 }
 
-void SetAssetRoot(std::string root)
+void SetAssetRoot(const std::string& root)
 {
    gAssetRoot = Paths::Normalize(root);
+}
+
+void SetShaderRoot(const std::string& root)
+{
+    gShaderRoot = Paths::Normalize(root);
 }
 
 std::string Animation(const std::string& animation)
@@ -71,6 +77,11 @@ std::string Skeleton(const std::string& skeleton)
 std::string UIElement(const std::string& elementName)
 {
    return Paths::Join(gAssetRoot, "UI", elementName);
+}
+
+std::string Shader(const std::string& shaderName)
+{
+    return Paths::Join(gShaderRoot, shaderName);
 }
 
 };

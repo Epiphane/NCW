@@ -359,6 +359,7 @@ VSSolution('CubeWorld-sln-visualstudio')
                               'DataCLI-proj'
                               'Tests-proj'
                               'Sandbox-proj'
+                              'WorldGenerator-proj'
                               'All-proj'
                               'UpdateSolution-proj'
                            }
@@ -422,6 +423,7 @@ XCodeProject( 'CubeWorld-sln-xcode' )
                         'Shared-xcode'
                         'DataCLI-xcode'
                         'Tests-xcode'
+                        'WorldGenerator-xcode'
                         'UpdateSolution-xcode'
                      }
                      + .XCodeCoreLibraries
@@ -441,7 +443,7 @@ Exec('CubeWorld-sln-xcode-schemes')
    .ExecInput        = { 'Helpers/make_xcode_targets.py' }
    .ExecArguments    = '%1'
                      + ' tmp/XCode'
-                     + ' DataCLI Editor Sandbox Game Tests'
+                     + ' DataCLI Editor Sandbox Game WorldGenerator Tests'
    .ExecOutput       = 'tmp/XCode/Projects/DataCLI.xcodeproj/xcshareddata/xcschemes/DataCLI.xcscheme'
 }
 #endif
@@ -458,3 +460,8 @@ Alias( 'CubeWorld-sln' )
    .Targets = 'CubeWorld-sln-xcode-schemes'
 }
 #endif
+
+Alias( 'proj' )
+{
+   .Targets = 'CubeWorld-sln'
+}

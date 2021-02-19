@@ -13,7 +13,8 @@ namespace Asset
 {
 
 void SetAssetRootDefault();
-void SetAssetRoot(std::string root);
+void SetAssetRoot(const std::string& root);
+void SetShaderRoot(const std::string& root);
 
 std::string Animation(const std::string& animation);
 std::string Model(const std::string& model);
@@ -23,6 +24,7 @@ std::string ParticleShaders();
 std::string Particle(const std::string& particle);
 std::string Skeleton(const std::string& skeleton);
 std::string UIElement(const std::string& elementName);
+std::string Shader(const std::string& shaderName);
 
 };
 

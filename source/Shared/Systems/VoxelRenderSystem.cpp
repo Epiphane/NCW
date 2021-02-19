@@ -10,6 +10,7 @@
 #include <RGBLogger/Logger.h>
 #include <RGBDesignPatterns/Scope.h>
 #include <Engine/Graphics/Program.h>
+#include <Shared/Helpers/Asset.h>
 
 #include "../Components/VoxModel.h"
 #include "../DebugHelper.h"
@@ -63,27 +64,38 @@ VoxelRenderSystem::~VoxelRenderSystem()
 
 void VoxelRenderSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
-   if (!program)
-   {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/Voxel.vert", "Shaders/Voxel.geom", "Shaders/Voxel.frag");
-      if (!maybeProgram)
-      {
-         LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Voxel shader").GetMessage());
-         return;
-      }
-
-      program = std::move(*maybeProgram);
-      program->Attrib("aPosition");
-      program->Attrib("aColor");
-      program->Attrib("aEnabledFaces");
-      program->Uniform("uProjMatrix");
-      program->Uniform("uViewMatrix");
-      program->Uniform("uModelMatrix");
-      program->Uniform("uTint");
-   }
+    if (!program)
+    {
+        Reconfigure();
+    }
 }
 
-using Transform = Engine::Transform;
+void VoxelRenderSystem::Reconfigure()
+{
+    auto maybeProgram = Engine::Graphics::Program::Load(Asset::Shader("Voxel.vert"), Asset::Shader("Voxel.geom"), Asset::Shader("Voxel.frag"));
+    if (!maybeProgram)
+    {
+        LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Voxel shader").GetMessage());
+        return;
+    }
+
+    program = std::move(*maybeProgram);
+    program->Attrib("aPosition");
+    program->Attrib("aColor");
+    program->Attrib("aEnabledFaces");
+    program->Attrib("aOcclusion");
+    program->Uniform("uProjMatrix");
+    program->Uniform("uViewMatrix");
+    program->Uniform("uModelMatrix");
+    program->Uniform("uTint");
+}
+
+using Engine::Transform;
+
+template<typename T, typename U> constexpr void* offsetOf(U T::* member)
+{
+    return &((T*)nullptr->*member);
+}
 
 void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
 {
@@ -99,6 +111,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       render.mVoxelData.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
       render.mVoxelData.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
       render.mVoxelData.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+      render.mVoxelData.AttribIPointer(program->Attrib("aOcclusion"), 1, GL_UNSIGNED_INT, sizeof(Voxel::Data), offsetOf(&Voxel::Data::occlusion));
 
       glm::mat4 model = transform.GetMatrix();
       program->UniformMatrix4f("uModelMatrix", model);
@@ -113,6 +126,7 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       voxModel.mVBO.AttribPointer(program->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)0);
       voxModel.mVBO.AttribPointer(program->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Voxel::Data), (void*)(sizeof(float) * 3));
       voxModel.mVBO.AttribIPointer(program->Attrib("aEnabledFaces"), 1, GL_UNSIGNED_BYTE, sizeof(Voxel::Data), (void*)(sizeof(float) * 6));
+      voxModel.mVBO.AttribIPointer(program->Attrib("aOcclusion"), 1, GL_UNSIGNED_INT, sizeof(Voxel::Data), offsetOf(&Voxel::Data::occlusion));
 
       glm::mat4 matrix = transform.GetMatrix();
 

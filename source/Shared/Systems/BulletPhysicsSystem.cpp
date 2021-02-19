@@ -86,6 +86,15 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 
       transform.SetLocalPosition(adjustedPosition);
    });
+
+   entities.Each<Engine::Transform, DynamicBody>([&](Engine::Entity, Engine::Transform& transform, const DynamicBody& body) {
+       btTransform trans = body.body->getWorldTransform();
+       btVector3 position = trans.getOrigin();
+
+       glm::vec3 adjustedPosition = glm::vec3{position.getX(), position.getY(), position.getZ()};
+
+       transform.SetLocalPosition(adjustedPosition);
+   });
    mTransformClock.Elapsed();
 }
 

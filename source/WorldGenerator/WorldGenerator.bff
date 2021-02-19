@@ -1,0 +1,118 @@
+// WorldGenerator Project
+//------------------------------------------------------------------------------
+{
+   .ProjectName = 'WorldGenerator'
+   .ProjectPath = '$_CURRENT_BFF_DIR_$'
+
+   ForEach( .Config in .Configs )
+   {
+      Using( .Config )
+      .OutputPath          + '$Platform$-$Config$/$ProjectName$'
+      .CompilerOutputPath  = .OutputPath
+      .CompilerOptions     + .SourceIncludePaths
+                           + .ImguiIncludePaths
+
+      // Unity
+      // --------------------------------------------------------------------------
+      Unity( '$ProjectName$-Unity-$Platform$-$Config$' )
+      {
+         .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
+         .UnityOutputPath            = .OutputPath
+         .UnityNumFiles              = 4
+      }
+
+      ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
+      {
+#if UNITY_BUILD
+         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
+#else
+         .CompilerInputPath             = '$_CURRENT_BFF_DIR_$'
+#endif
+      }
+
+      // Library
+      //--------------------------------------------------------------------------
+      Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+      {
+         // Input
+#if UNITY_BUILD
+         .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
+#else
+         .LibrarianAdditionalInputs = { '$ProjectName$-Obj-$Platform$-$Config$' }
+#endif
+
+         // Output
+         .CompilerOutputPath  = '$OutputPath$'
+         .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
+      }
+
+      CopyDir( '$ProjectName$-Shaders-$Platform$-$Config$' )
+      {
+         .SourcePaths    = {
+                              '$ProjectPath$/../Engine/Shaders'
+                              '$ProjectPath$/../Shared/Shaders'
+                              '$ProjectPath$/../WorldGenerator/Shaders'
+                           }
+         .Dest          = '$OutputPath$/Shaders'
+      }
+
+      // Executable
+      //--------------------------------------------------------------------------
+      Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
+      {
+         .PreBuildDependencies = {
+                                    '$ProjectName$-Shaders-$Platform$-$Config$'
+                                 }
+
+         // Input
+         .Libraries         = {
+                                 '$ProjectName$-Obj-$Platform$-$Config$'
+                                 'Engine-Lib-$Platform$-$Config$'
+                                 'Shared-Lib-$Platform$-$Config$'
+
+                                 'RGBBinding-Lib-$Platform$-$Config$'
+                                 'RGBFileSystem-Lib-$Platform$-$Config$'
+                                 'RGBLogger-Lib-$Platform$-$Config$'
+                                 'RGBNetworking-Lib-$Platform$-$Config$'
+                                 'RGBSettings-Lib-$Platform$-$Config$'
+                                 'RGBText-Lib-$Platform$-$Config$'
+
+                                 'bullet-Lib-$Platform$-$Config$'
+                                 'freetype-Lib-$Platform$-$Config$'
+                                 'glad-Lib-$Platform$-$Config$'
+                                 'glfw-Lib-$Platform$-$Config$'
+                                 'imgui-Lib-$Platform$-$Config$'
+                                 'libnoise-Lib-$Platform$-$Config$'
+                                 'libyaml-Lib-$Platform$-$Config$'
+                                 'lodepng-Lib-$Platform$-$Config$'
+                                 'noiseutils-Lib-$Platform$-$Config$'
+                                 'rhea-Lib-$Platform$-$Config$'
+                                 'sqlite-Lib-$Platform$-$Config$'
+                                 'zlib-Lib-$Platform$-$Config$'
+                              }
+                           #if __OSX__
+                              + { 'libfswatch-Lib-$Platform$-$Config$' }
+                           #endif
+
+         // Output
+         .LinkerOutput        = '$OutputPath$/$ProjectName$$ExeExtension$'
+      #if __WINDOWS__
+         .LinkerOptions       + ' /SUBSYSTEM:WINDOWS'
+                              + ' /ENTRY:mainCRTStartup'
+                              + ' Comdlg32.lib'
+                              + ' Gdi32.lib'       // Bitmap functions
+                              + ' Imm32.lib'
+                              + ' kernel32.lib'    // Kernel functions
+                              + ' Ole32.lib'
+                              + ' Shell32.lib'     // Shell API
+                              + ' Shlwapi.lib'
+                              + ' User32.lib'
+      #endif
+      }
+
+      Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+      ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
+   }
+
+   #include "../../Helpers/Project.bff"
+}

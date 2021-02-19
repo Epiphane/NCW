@@ -23,16 +23,35 @@ enum Side {
 };
 
 struct Data {
-   Data() : position(0, 0, 0), color(0, 0, 0), enabledFaces(0) {};
-   Data(glm::vec3 position, glm::vec4 color, uint8_t faces = 0x3f)
-      : position(position)
-      , color(color)
-      , enabledFaces(faces)
-   {};
+    Data() : position(0, 0, 0), color(0, 0, 0), enabledFaces(0), occlusion(0) {};
+    Data(glm::vec3 position, glm::vec4 color, uint8_t faces = 0x3f, uint32_t occlusion = 0)
+        : position(position)
+        , color(color)
+        , enabledFaces(faces)
+        , occlusion(occlusion)
+    {};
 
-   glm::vec3 position;
-   glm::vec3 color;
-   uint8_t enabledFaces;
+    glm::vec3 position;
+    glm::vec3 color;
+    uint8_t enabledFaces;
+
+    // Integer for computing ambient occlusion.
+    //
+    // Format is a packed set of 8 3-bit numbers, representing
+    // how many voxels neighbor each vertex on this cube.
+    //
+    // For example, consider the following:
+    // 0b 0000 0001 0010 0011 0100 0101 0110 0111
+    // These correspond to the following vertices, in order:
+    // (0, 0, 0) [000]: 0 neighbors (pure color)
+    // (0, 0, 1) [001]: 1 neighbor
+    // (0, 1, 0) [010]: 2 neighbors
+    // (0, 1, 1) [011]: 3 neighbors
+    // (1, 0, 0) [100]: 4 neighbors
+    // (1, 0, 1) [101]: 5 neighbors
+    // (1, 1, 0) [110]: 6 neighbors (maximum, very dark)
+    // (1, 1, 1) [111]: 7 neighbors (impossible, zero light)
+    uint32_t occlusion;
 };
 
 class ModelData {

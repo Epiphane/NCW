@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 Compiler( 'Compiler-VS2019-x64' )
 {
-    .Root       = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x86'
+    .Root       = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64'
     .Executable = '$Root$/cl.exe'
     .ExtraFiles = { '$Root$/c1.dll'
                     '$Root$/c1xx.dll',
@@ -31,7 +31,7 @@ Compiler( 'Compiler-VS2019-x64' )
 
     // Paths
     .VSIncludePaths                 = ' -I"$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/include/"'
-    .VSLibPaths                     = ' /LIBPATH:"$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/lib/x86"'
+    .VSLibPaths                     = ' /LIBPATH:"$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/lib/x64"'
 
     // Compiler
     .Compiler                       = 'Compiler-VS2019-X64'
@@ -89,11 +89,11 @@ Compiler( 'Compiler-VS2019-x64' )
     .PCHOptions                     = ' $CommonCompilerOptions$ "%1" /Fo"%3" /Fp"%2" /Yc"PrecompiledHeader.h"'
 
     // Librarian
-    .Librarian                      = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x86/lib.exe'
+    .Librarian                      = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64/lib.exe'
     .LibrarianOptions               = '/NODEFAULTLIB /WX /NOLOGO /OUT:"%2" "%1"'
 
     // Linker
-    .Linker                         = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x86/link.exe'
+    .Linker                         = '$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64/link.exe'
     .LinkerOptions                  = '/NODEFAULTLIB /WX /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
                                     + .VSLibPaths
 
@@ -107,7 +107,7 @@ Compiler( 'Compiler-VS2019-x64' )
 
 // PATH environment variable
 //------------------------------------------------------------------------------
-.VS_2019_PATH                       = '$VS2019_BasePath$/Common7/IDE/;$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x86'
+.VS_2019_PATH                       = '$VS2019_BasePath$/Common7/IDE/;$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$/bin/Hostx64/x64'
 
 // Platform Toolset for Project Generation
 //------------------------------------------------------------------------------

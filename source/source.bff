@@ -41,3 +41,4 @@
 #include "Game/Game.bff"
 #include "Sandbox/Sandbox.bff"
 #include "Tests/Tests.bff"
+#include "WorldGenerator/WorldGenerator.bff"

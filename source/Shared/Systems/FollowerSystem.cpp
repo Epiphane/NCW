@@ -16,14 +16,22 @@ void FollowerSystem::Update(Engine::EntityManager& entities, Engine::EventManage
       // TODO lol
       assert(!transform.GetParent());
 
-      glm::vec3 move = float(dt) * follower.elasticity;
-      glm::vec3 interp{
-         move.x * target.x + (1 - move.x) * current.x,
-         move.y * target.y + (1 - move.y) * current.y,
-         move.z * target.z + (1 - move.z) * current.z,
-      };
 
-      transform.SetLocalPosition(interp);
+      if (glm::length(follower.elasticity) <= glm::epsilon<float>())
+      {
+          transform.SetLocalPosition(target);
+      }
+      else
+      {
+          glm::vec3 move = float(dt) * follower.elasticity;
+          glm::vec3 interp{
+             move.x * target.x + (1 - move.x) * current.x,
+             move.y * target.y + (1 - move.y) * current.y,
+             move.z * target.z + (1 - move.z) * current.z,
+          };
+
+          transform.SetLocalPosition(interp);
+      }
    });
 }
 
