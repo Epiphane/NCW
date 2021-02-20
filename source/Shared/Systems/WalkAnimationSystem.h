@@ -17,10 +17,10 @@ class WalkAnimationSystem : public Engine::System<WalkAnimationSystem> {
 public:
    WalkAnimationSystem() {}
    ~WalkAnimationSystem() {}
-   
-   void Configure(Engine::EntityManager& entities, Engine::EventManager& events);
+
+   void Configure(Engine::EntityManager& entities, Engine::EventManager& events) override;
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
-   
+
 private:
    static void BlendState(
       const std::vector<bool>& mask,

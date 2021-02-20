@@ -21,7 +21,7 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
    // Types
    struct Keyframe {
       double time = 0.0;
-      std::optional<float> maxSpeed;
+      float maxSpeed = -1.0f;
       std::map<std::string, glm::vec3> positions;
       std::map<std::string, glm::vec3> rotations;
       std::map<std::string, glm::vec3> scales;

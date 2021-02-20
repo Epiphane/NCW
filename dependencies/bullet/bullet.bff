@@ -56,6 +56,12 @@
                            #endif
                            #if __OSX__
                               + ' -D_DARWIN'
+                              + ' -Wno-reorder'
+                              + ' -Wno-unused-parameter'
+                              + ' -Wno-sign-compare'
+                              + ' -Wno-macro-redefined'
+                              + ' -Wno-unused-variable'
+                              + ' -Wno-unused-function'
                            #endif
 
    .AdditionalLinkerOptions = ' /ignore:4006'

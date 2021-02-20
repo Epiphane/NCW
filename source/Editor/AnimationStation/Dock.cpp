@@ -312,8 +312,8 @@ void Dock::Update(TIMEDELTA)
             }
             else
             {
-               std::unordered_map<std::optional<float>, std::string> speeds{
-                  {std::nullopt, "No restriction"},
+               std::unordered_map<float, std::string> speeds{
+                  {-1.0f, "No restriction"},
                   {0.f, "Stop"},
                   {0.04f, "Walk"},
                   {0.1f, "Speedwalk"},
@@ -333,7 +333,7 @@ void Dock::Update(TIMEDELTA)
                      bool isSelected = (l == label);
                      if (ImGui::Selectable(l.c_str(), isSelected))
                      {
-                        CommandStack::Instance().Do<Imgui::SetValueCommand<std::optional<float>>>(keyframe.maxSpeed, val);
+                        CommandStack::Instance().Do<Imgui::SetValueCommand<float>>(keyframe.maxSpeed, val);
                      }
                      if (isSelected)
                      {

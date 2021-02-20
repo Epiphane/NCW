@@ -3,6 +3,7 @@
 #pragma once
 
 #include <iterator>
+#include <optional>
 #include <string>
 #include <glm/glm.hpp>
 #include <Meta.h>
@@ -87,6 +88,15 @@ public:
    BindingProperty(std::string&& s);
    BindingProperty(const glm::vec3& vec3);
    BindingProperty(const glm::vec4& vec4);
+
+   template<typename T>
+   BindingProperty(const std::optional<T>& v)
+   {
+      if (v.has_value())
+      {
+         *this = *v;
+      }
+   }
 
    // Assignment
    BindingProperty& operator=(const BindingProperty& other);

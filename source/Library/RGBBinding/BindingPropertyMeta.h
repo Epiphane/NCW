@@ -65,6 +65,9 @@ template <typename Class, typename = std::enable_if_t<!meta::isRegistered<Class>
 void deserialize(Class & obj, const BindingProperty & object);
 
 template <typename T>
+void deserialize(std::optional<T>& obj, const BindingProperty& object);
+
+template <typename T>
 void deserialize(std::vector<T>& obj, const BindingProperty& object);
 
 template <typename K, typename V>

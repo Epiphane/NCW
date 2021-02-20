@@ -1,6 +1,6 @@
 ---
 name: die
-next: 
+next:
 stance: resting
 default: false
 loop: false

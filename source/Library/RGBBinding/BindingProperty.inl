@@ -36,7 +36,7 @@ template <typename T, typename>
 BindingProperty::BindingProperty(const T& val) : BindingProperty(Binding::serialize(val)) {}
 
 template<typename T, typename>
-inline T BindingProperty::Get() const
+T BindingProperty::Get() const
 {
    T result;
    Binding::deserialize(result, *this);

@@ -69,6 +69,16 @@ bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);
 bool Draw(const std::string& label, bool& val, bool addToStack = true);
 
+
+template <typename EnumType, typename = std::enable_if_t<meta::valuesRegistered<EnumType>()>, typename = void>
+bool Draw(const std::string & label, EnumType & obj, bool addToStack = true);
+
+template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
+bool Draw(const std::string & label, Class& obj, bool addToStack = true);
+
+template<typename Class>
+bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory, bool addToStack = true);
+
 template<typename T>
 bool Draw(const std::string& label, std::optional<T>& val, bool addToStack = true)
 {
@@ -112,7 +122,7 @@ bool Draw(const std::string& label, std::vector<Class>& val, bool addToStack = t
 }
 
 template<typename Class>
-bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory, bool addToStack = true)
+bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class()> factory, bool addToStack)
 {
    if (!label.empty() && label[0] != '#')
    {
@@ -152,12 +162,6 @@ template <typename Class,
    typename = std::enable_if_t<!meta::valuesRegistered<Class>()>,
    typename = void>
    bool Draw(const std::string&, Class&, bool = true) { return false; }
-
-template <typename EnumType, typename = std::enable_if_t<meta::valuesRegistered<EnumType>()>, typename = void>
-bool Draw(const std::string & label, EnumType & obj, bool addToStack = true);
-
-template <typename Class, typename = std::enable_if_t<meta::isRegistered<Class>()>>
-bool Draw(const std::string & label, Class & obj, bool addToStack = true);
 
 template <typename EnumType, typename, typename>
 bool Draw(const std::string& label, EnumType& obj, bool addToStack)
