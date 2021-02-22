@@ -74,96 +74,6 @@ MainState::~MainState()
     DebugHelper::Instance().SetSystemManager(nullptr);
 }
 
-bool MainState::BuildFloorCollision(int32_t size)
-{
-    static std::vector<bool> used(heights.size(), false);
-
-    int blocksCreated = 0;
-
-    auto index = [&](int i, int j) {
-        return size_t(i * (2 * size_t(size) + 1) + j);
-    };
-
-    auto makeCollider = [&](int i, int j, int height, int width, int length) {
-        Entity collider = mEntities.Create(i - size + float(width - 1) / 2, float(height), j - size + float(length - 1) / 2);
-        collider.Add<BulletPhysics::StaticBody>(glm::vec3(width, 1, length));
-
-        for (int x = i; x < i + width; ++x)
-        {
-        for (int y = j; y < j + length; ++y)
-        {
-            assert(!used[index(x, y)]);
-            if (heights[index(x, y)] == height) used[index(x, y)] = true;
-        }
-        }
-    };
-
-    for (int i = 0; i < 2 * size + 1; ++i) {
-        for (int j = 0; j < 2 * size + 1; ++j) {
-            size_t ndx = index(i, j);
-            if (used[ndx])
-            {
-                continue;
-            }
-
-            int32_t height = heights[ndx];
-
-            // Attempt 3: Same as 2, but allow blocks to sit under each other
-            // Result: Generated 933 blocks
-            int width = 0, length = 0;
-            int nWidth = 1, nLength = 1;
-            while (nWidth > width || nLength > length)
-            {
-                width = nWidth++;
-                length = nLength++;
-
-                if (i + nWidth - 1 >= 2 * size + 1)
-                {
-                    --nWidth;
-                }
-                else
-                {
-                    for (int n = 0; n < length; ++n)
-                    {
-                        if (
-                            used[index(i + nWidth - 1, j + n)] ||
-                            heights[index(i + nWidth - 1, j + n)] < height
-                        )
-                        {
-                            --nWidth;
-                            break;
-                        }
-                    }
-                }
-
-                if (j + nLength - 1 >= 2 * size + 1)
-                {
-                    --nLength;
-                }
-                else
-                {
-                    for (int n = 0; n < nWidth; ++n)
-                    {
-                        if (
-                            used[index(i + n, j + nLength - 1)] ||
-                            heights[index(i + n, j + nLength - 1)] < height
-                        )
-                        {
-                            --nLength;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            makeCollider(i, j, height, width, length);
-            ++blocksCreated;
-        }
-    }
-
-    return false;
-}
-
 float angle_ = 0;
 float roll_ = 0;
 void MainState::Initialize()
@@ -187,7 +97,7 @@ void MainState::Initialize()
     part.Get<Transform>()->SetLocalPosition(glm::vec3{0, 10.0f, 0});
     part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
-    part.Add<Makeshift>([part, player, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+    part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
         int isW = mWindow.IsKeyDown(GLFW_KEY_W) ? 1 : 0;
         int isA = mWindow.IsKeyDown(GLFW_KEY_A) ? 1 : 0;
         int isS = mWindow.IsKeyDown(GLFW_KEY_S) ? 1 : 0;

@@ -57,6 +57,16 @@
             "problemMatcher": []
         },
         {
+            "label": "make worldgenerator",
+            "args": [
+                "WorldGenerator-OSX-Debug"
+            ],
+            "type": "shell",
+            "group": "build",
+            "command": "${workspaceRoot}/FBuild",
+            "problemMatcher": []
+        },
+        {
             "label": "make all",
             "args": [
             ],

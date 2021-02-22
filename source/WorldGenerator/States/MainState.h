@@ -22,8 +22,6 @@ public:
 
    void Initialize() override;
 
-   bool BuildFloorCollision(int32_t size);
-
 private:
    std::unique_ptr<Engine::Input::KeyCallbackLink> mDebugCallback;
 

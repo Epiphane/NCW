@@ -8,7 +8,6 @@
 #include "../DebugHelper.h"
 #include "../Components/AnimationController.h"
 #include "Simple3DRenderSystem.h"
-#include "BulletPhysicsSystem.h"
 #include "CombatSystem.h"
 
 namespace CubeWorld

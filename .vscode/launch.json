@@ -37,6 +37,22 @@
             }
         },
         {
+            "name": "(lldb) World Generator",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/OSX-Debug/WorldGenerator/WorldGenerator",
+            "args": ["--asset-root", "${workspaceFolder}/Assets", "--shader-root", "${workspaceFolder}/Source/Shared/Shaders"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tmp/OSX-Debug/WorldGenerator",
+            "environment": [{"name": "PWD", "value": "${workspaceFolder}/tmp/OSX-Debug/WorldGenerator"}],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "make worldgenerator",
+            "logging": {
+                "moduleLoad": false
+            }
+        },
+        {
             "name": "(lldb) Sandbox",
             "type": "cppdbg",
             "request": "launch",

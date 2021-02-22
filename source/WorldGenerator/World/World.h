@@ -54,11 +54,11 @@ struct hash<CubeWorld::ChunkCoords>
 namespace CubeWorld
 {
 
-/// 
-/// 
-/// 
-constexpr uint64_t kChunkSize = 64;
-constexpr uint64_t kChunkHeight = 64;
+///
+///
+///
+constexpr int kChunkSize = 64;
+constexpr int kChunkHeight = 64;
 
 struct Block
 {

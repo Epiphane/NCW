@@ -32,23 +32,23 @@
 namespace CubeWorld
 {
 
-/// 
 ///
-/// 
+///
+///
 Chunk::Chunk(const ChunkCoords& coords)
     : mCoords(coords)
     , blocks(new Block[kChunkSize * kChunkSize * kChunkHeight])
 {}
 
-/// 
 ///
-/// 
+///
+///
 Chunk::~Chunk()
 {}
 
-/// 
 ///
-/// 
+///
+///
 int Chunk::GetHeight(int x, int z)
 {
     for (int y = kChunkHeight - 1; y > 0; y--)
@@ -62,30 +62,30 @@ int Chunk::GetHeight(int x, int z)
     return 0;
 }
 
-/// 
 ///
-/// 
+///
+///
 Block& Chunk::Get(int x, int y, int z)
 {
     int index = int((x + z * kChunkSize) * kChunkSize + y);
     return blocks.get()[index];
 }
 
-/// 
 ///
-/// 
+///
+///
 World::World()
 {}
 
-/// 
 ///
-/// 
+///
+///
 World::~World()
 {}
 
-/// 
 ///
-/// 
+///
+///
 void World::Build()
 {
     mBuilder.SetSourceModule(mHeightmodule);
@@ -95,9 +95,9 @@ void World::Build()
     mBuilder.Build();
 }
 
-/// 
 ///
-/// 
+///
+///
 Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityManager& entities)
 {
     noise::utils::NoiseMap map;
@@ -268,7 +268,12 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
         }
     }
 
-    entity.Add<VoxelRender>(std::move(carpet));
+    // Create mesh from carpet.
+    // std::vector<GLfloat> points;
+    // std::vector<GLfloat> colors;
+    // entity.Add<Simple3DRender>(std::move(points), std::move(colors));
+
+   entity.Add<VoxelRender>(std::move(carpet));
 
     /*
     auto makeCollider = [&](int i, int j, int height, int width, int length) {
@@ -309,7 +314,7 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                 {
                     for (int n = 0; n < length; ++n)
                     {
-                        if (chunk->GetHeight(x + width, 
+                        if (chunk->GetHeight(x + width,
                             used[index(i + nextWidth - 1, j + n)] ||
                             heights[index(i + nextWidth - 1, j + n)] < height
                             )
@@ -349,9 +354,9 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
     return entity;
 }
 
-/// 
 ///
-/// 
+///
+///
 Chunk& World::Get(const ChunkCoords& coords)
 {
     if (mChunks.count(coords) == 0)

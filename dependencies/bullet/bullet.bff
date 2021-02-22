@@ -3,7 +3,7 @@
 .BulletIncludePaths = ''
 {
    .LibraryName = 'bullet'
-   .LibraryVersion = '2.89'
+   .LibraryVersion = '3.08'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
@@ -64,7 +64,9 @@
                               + ' -Wno-unused-function'
                            #endif
 
+#if __WINDOWS__
    .AdditionalLinkerOptions = ' /ignore:4006'
+#endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = { '*.cpp' }
