@@ -5,6 +5,7 @@
 #include <vector>
 #include <Engine/Event/Event.h>
 #include <Engine/System/System.h>
+#include "../Systems/BulletPhysicsSystem.h"
 #include "../DebugHelper.h"
 #include "../Components/AnimationController.h"
 #include "Simple3DRenderSystem.h"
