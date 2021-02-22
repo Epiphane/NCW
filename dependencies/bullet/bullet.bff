@@ -3,7 +3,7 @@
 .BulletIncludePaths = ''
 {
    .LibraryName = 'bullet'
-   .LibraryVersion = '3.08'
+   .LibraryVersion = '2.89'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
@@ -56,17 +56,9 @@
                            #endif
                            #if __OSX__
                               + ' -D_DARWIN'
-                              + ' -Wno-reorder'
-                              + ' -Wno-unused-parameter'
-                              + ' -Wno-sign-compare'
-                              + ' -Wno-macro-redefined'
-                              + ' -Wno-unused-variable'
-                              + ' -Wno-unused-function'
                            #endif
 
-#if __WINDOWS__
    .AdditionalLinkerOptions = ' /ignore:4006'
-#endif
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = { '*.cpp' }
