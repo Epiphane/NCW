@@ -19,6 +19,7 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
 #endif
       mSystems[i]->Update(mEntityManager, mEventManager, dt);
 #if CUBEWORLD_BENCHMARK_SYSTEMS
+      glFinish();
       benchmark.second.Elapsed();
 #endif
    }

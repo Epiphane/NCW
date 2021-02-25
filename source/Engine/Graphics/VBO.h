@@ -75,6 +75,12 @@ public:
 
    GLuint GetBuffer() { return mBuffer; }
    void BufferData(size_t size, void *data, GLuint type);
+
+   template<typename T>
+   void BufferData(const std::vector<T>& data, GLuint type = GL_STATIC_DRAW)
+   {
+       BufferData(sizeof(T) * data.size(), (void*)&data[0], type);
+   }
 };
 
 class AttributeVBO : public VBO

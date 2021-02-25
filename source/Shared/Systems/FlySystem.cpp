@@ -19,6 +19,8 @@ void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, T
     int isA = mInput->IsKeyDown(GLFW_KEY_A) ? 1 : 0;
     int isS = mInput->IsKeyDown(GLFW_KEY_S) ? 1 : 0;
     int isD = mInput->IsKeyDown(GLFW_KEY_D) ? 1 : 0;
+    int isQ = mInput->IsKeyDown(GLFW_KEY_Q) ? 1 : 0;
+    int isE = mInput->IsKeyDown(GLFW_KEY_E) ? 1 : 0;
 
     glm::vec3 flyDirection(0);
     if (isW || isA || isS || isD)
@@ -39,6 +41,16 @@ void FlySystem::Update(Engine::EntityManager& entities, Engine::EventManager&, T
         glm::vec3 right = glm::vec3(-dir.z, 0, dir.x);
 
         glm::vec3 velocity = forward * flyDirection.z + right * flyDirection.x;
+
+        if (isQ)
+        {
+            velocity.y += float(fly.speed);
+        }
+        if (isE)
+        {
+            velocity.y -= float(fly.speed);
+        }
+
         body.body->setLinearVelocity(btVector3{velocity.x, velocity.y, velocity.z});
         body.body->setActivationState(1);
     });

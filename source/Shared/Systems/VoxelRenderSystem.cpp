@@ -148,9 +148,6 @@ void VoxelRenderSystem::Update(Engine::EntityManager& entities, Engine::EventMan
       }
    });
    mClock.Elapsed();
-
-   // Cleanup.
-
 }
 
 }; // namespace CubeWorld

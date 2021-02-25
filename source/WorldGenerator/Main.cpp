@@ -19,6 +19,7 @@
 #include <Shared/Helpers/Asset.h>
 
 #include "States/MainState.h"
+#include "States/RenderTestState.h"
 #include "Main.h"
 
 using namespace CubeWorld;
@@ -82,6 +83,7 @@ int main(int argc, char **argv)
    auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
        window.SetShouldClose(true);
    });
+
 
    auto _2 = window.AddCallback(GLFW_KEY_T, [&](int, int, int) {
        window.SetMouseLock(!window.IsMouseLocked());

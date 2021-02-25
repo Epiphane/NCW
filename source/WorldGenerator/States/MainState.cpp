@@ -82,7 +82,7 @@ void MainState::Initialize()
 
     // Create player first so it gets index 0.
     Entity player = mEntities.Create();
-    player.Add<Transform>(glm::vec3(0, 2, 0), glm::vec3(0, 0, 1));
+    player.Add<Transform>(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
     player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
     player.Add<FlySpeed>(25.0f);
 
@@ -94,8 +94,8 @@ void MainState::Initialize()
 
     Engine::Entity part = mEntities.Create(0, 0, 0);
     part.Get<Transform>()->SetParent(player);
-    part.Get<Transform>()->SetLocalPosition(glm::vec3{0, 10.0f, 0});
-    part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
+    part.Get<Transform>()->SetLocalPosition(glm::vec3{0, 2.0f, 0});
+    //part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
     part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
         int isW = mWindow.IsKeyDown(GLFW_KEY_W) ? 1 : 0;
@@ -161,13 +161,11 @@ void MainState::Initialize()
             angle -= 2 * MATH_PI;
         }
 
-        DebugHelper::Instance().SetMetric("angle", angle);
-        DebugHelper::Instance().SetMetric("angle_", angle_);
         part.Get<Transform>()->SetYaw(angle_);
         part.Get<Transform>()->SetRoll(roll_);
     });
 
-    Entity playerCamera = mEntities.Create(0, 30, 0);
+    Entity playerCamera = mEntities.Create(0, 4, 0);
     ArmCamera::Options cameraOptions;
     cameraOptions.aspect = float(mWindow.GetWidth()) / mWindow.GetHeight();
     cameraOptions.far = 1500.0f;
@@ -182,13 +180,17 @@ void MainState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Build();
-    for (int i = -5; i < 5; i++)
+    int kSize = 5;
+    for (int i = -kSize; i < kSize; i++)
     {
-        for (int j = -5; j < 5; j++)
+        for (int j = -kSize; j < kSize; j++)
         {
             mWorld.Create(i, 0, j, mEntities);
         }
     }
+
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(kPrimitiveRestart);
 }
 
 }; // namespace CubeWorld
