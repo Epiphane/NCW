@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
+#include <mutex>
 
 #include <glad/glad.h>
 #include <glm/ext.hpp>
@@ -16,6 +17,8 @@
 
 namespace CubeWorld
 {
+
+std::mutex gSimple3DMutex;
 
 Simple3DRender::Simple3DRender()
     : mVertices(Engine::Graphics::VBO::Vertices)
@@ -88,6 +91,14 @@ ShadedMesh::ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indi
     //mCount = vertices.size();
 }
 
+void ShadedMesh::Set(Engine::Graphics::VBO&& vertices, Engine::Graphics::VBO&& indices, size_t count)
+{
+    std::unique_lock<std::mutex> lock{gSimple3DMutex};
+    mCount = count;
+    mVertices = std::move(vertices);
+    mIndices = std::move(indices);
+}
+
 std::unique_ptr<Engine::Graphics::Program> Simple3DRenderSystem::stupid = nullptr;
 std::unique_ptr<Engine::Graphics::Program> Simple3DRenderSystem::shaded = nullptr;
 
@@ -150,6 +161,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
     glm::mat4 perspective = mCamera->GetPerspective();
     glm::mat4 view = mCamera->GetView();
 
+    std::unique_lock<std::mutex> lock{gSimple3DMutex};
     {
         BIND_PROGRAM_IN_SCOPE(stupid);
         stupid->UniformMatrix4f("uProjMatrix", perspective);

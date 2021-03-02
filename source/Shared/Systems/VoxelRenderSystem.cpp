@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
+#include <mutex>
 
 #include <GL/includes.h>
 #include <glm/ext.hpp>

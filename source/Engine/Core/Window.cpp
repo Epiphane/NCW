@@ -3,6 +3,7 @@
 #include <RGBLogger/Logger.h>
 
 #include "Window.h"
+#include "Context.h"
 
 namespace CubeWorld
 {
@@ -106,6 +107,8 @@ Maybe<Window*> Window::Initialize(const Options& options)
    }
 
    mVAO.Bind();
+
+   Context::Instance().Initialize(*this);
 
    // Initialize input.
    Clear();

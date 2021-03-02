@@ -54,6 +54,8 @@ struct ShadedMesh : public Engine::Component<ShadedMesh> {
     ShadedMesh();
     ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indices);
 
+    void Set(Engine::Graphics::VBO&& vertices, Engine::Graphics::VBO&& indices, size_t count);
+
     Engine::Graphics::VBO mVertices, mIndices;
     size_t mCount;
     GLuint renderType = GL_TRIANGLES;

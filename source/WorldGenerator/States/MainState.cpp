@@ -84,7 +84,7 @@ void MainState::Initialize()
     Entity player = mEntities.Create();
     player.Add<Transform>(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
     player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-    player.Add<FlySpeed>(25.0f);
+    player.Add<FlySpeed>(4*25.0f);
 
     // Set up the player controller
     {
@@ -95,7 +95,7 @@ void MainState::Initialize()
     Engine::Entity part = mEntities.Create(0, 0, 0);
     part.Get<Transform>()->SetParent(player);
     part.Get<Transform>()->SetLocalPosition(glm::vec3{0, 2.0f, 0});
-    //part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
+    part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
     part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
         int isW = mWindow.IsKeyDown(GLFW_KEY_W) ? 1 : 0;
@@ -180,12 +180,24 @@ void MainState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Build();
-    int kSize = 5;
-    for (int i = -kSize; i < kSize; i++)
+
+    int kSize = 10;
+    for (int dist = 0; dist < kSize; dist++)
     {
-        for (int j = -kSize; j < kSize; j++)
+        mWorld.Create(dist, 0, 0, mEntities);
+        mWorld.Create(0, 0, dist, mEntities);
+        mWorld.Create(-dist, 0, 0, mEntities);
+        mWorld.Create(0, 0, -dist, mEntities);
+        for (int d = 1; d <= dist; d++)
         {
-            mWorld.Create(i, 0, j, mEntities);
+            mWorld.Create(dist, 0, d, mEntities);
+            mWorld.Create(dist, 0, -d, mEntities);
+            mWorld.Create(d, 0, dist, mEntities);
+            mWorld.Create(-d, 0, dist, mEntities);
+            mWorld.Create(-dist, 0, d, mEntities);
+            mWorld.Create(-dist, 0, -d, mEntities);
+            mWorld.Create(d, 0, -dist, mEntities);
+            mWorld.Create(-d, 0, -dist, mEntities);
         }
     }
 

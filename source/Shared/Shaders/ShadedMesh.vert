@@ -12,6 +12,7 @@ uniform mat4 uModelMatrix;
 flat out vec3 fNormal;
 out vec4 fColor;
 out float fOcclusion;
+out float fDepth;
 
 void main()
 {
@@ -19,4 +20,5 @@ void main()
    fColor = vec4(aColor, 1.0);
    fNormal = aNormal;
    fOcclusion = aOcclusion;
+   fDepth = -(uViewMatrix * uModelMatrix * vec4(aPosition, 1)).z;
 }

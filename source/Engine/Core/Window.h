@@ -98,6 +98,7 @@ public:
    void Focus();
 
    GLFWwindow* get() { return mGLFW; }
+   Graphics::VAO& GetVAO() { return mVAO; }
 
 private:
    GLFWwindow* mGLFW;

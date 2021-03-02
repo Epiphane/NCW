@@ -36,47 +36,13 @@ namespace CubeWorld
 ///
 ///
 ///
-Chunk::Chunk(const ChunkCoords& coords)
-    : mCoords(coords)
-    , blocks(new Block[kChunkSize * kChunkSize * kChunkHeight])
-{}
-
-///
-///
-///
-Chunk::~Chunk()
-{}
-
-///
-///
-///
-int Chunk::GetHeight(int x, int z)
-{
-    for (int y = kChunkHeight - 1; y > 0; y--)
-    {
-        if (!Get(x, y, z).isEmpty)
-        {
-            return y;
-        }
-    }
-
-    return 0;
-}
-
-///
-///
-///
-Block& Chunk::Get(int x, int y, int z)
-{
-    int index = int((x + z * kChunkSize) * kChunkSize + y);
-    return blocks.get()[index];
-}
-
-///
-///
-///
 World::World()
-{}
+    : mChunkGenerator(new ChunkGenerator())
+    , mChunkMeshGenerator(new ChunkMeshGenerator())
+{
+    mHeightmodule.SetFrequency(0.5);
+    mHeightmodule.SetOctaveCount(8);
+}
 
 ///
 ///
@@ -88,19 +54,33 @@ World::~World()
 ///
 ///
 void World::Build()
-{
-    mBuilder.SetSourceModule(mHeightmodule);
-    mBuilder.SetDestNoiseMap(mHeightmap);
-    mBuilder.SetDestSize(kChunkSize, kChunkSize);
-    mBuilder.SetBounds(6, 10, 1, 5);
-    mBuilder.Build();
-}
+{}
 
 ///
 ///
 ///
 Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityManager& entities)
 {
+    ChunkCoords coordinates{chunkX, chunkY, chunkZ};
+
+    ChunkGenerator::Request request;
+    request.coordinates = coordinates;
+    request.resultFunction = std::bind(&World::OnChunkGenerated, this, std::placeholders::_1);
+    mChunkGenerator->Add(request);
+
+    Engine::Entity entity = entities.Create(
+        float(chunkX) * kChunkSize,
+        kChunkHeight / -2,
+        float(chunkZ) * kChunkSize
+    );
+
+    entity.Add<ShadedMesh>();
+    entity.Get<ShadedMesh>()->renderType = GL_TRIANGLE_FAN;
+
+    std::unique_lock<std::mutex> lock{mEntitiesMutex};
+    mEntities.emplace(coordinates, entity);
+
+    /*
     noise::utils::NoiseMap map;
     noise::utils::NoiseMapBuilderPlane builder;
 
@@ -117,12 +97,14 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
     );
 
     Chunk& chunk = Get({chunkX, chunkY, chunkZ});
-    std::vector<Voxel::Data> carpet;
     for (int x = 0; x < kChunkSize; ++x)
     {
         for (int z = 0; z < kChunkSize; ++z)
         {
+            // Elevation is between [-1, 1]
             float elevation = 2 * map.GetValue(x, z);
+            elevation = elevation * std::abs(elevation);
+
             int height = int(std::floor((elevation + 1) * kChunkHeight / 8));
 
             for (int i = 0; i < height; ++i)
@@ -187,9 +169,11 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
         {
             int height = chunk.GetHeight(x, z);
 
-            for (int yDiff = -1; yDiff <= 0; ++yDiff)
+            for (int yDiff = -8; yDiff <= 0; ++yDiff)
             {
                 int y = height + yDiff;
+                if (y < 0) continue;
+
                 float elevation = float(y) * 3 / kChunkHeight - 0.1f;
 
                 //float elevation = 0.5f + 2 * float(map.GetValue(x, z));
@@ -231,7 +215,8 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                             }
                             else
                             {
-                                occupied[dx][dy][dz] = !chunk.Get(nx, ny, nz).isEmpty;
+                                bool occ = !chunk.Get(nx, ny, nz).isEmpty;
+                                occupied[dx][dy][dz] = occ;
                             }
                         }
                     }
@@ -244,42 +229,6 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                 if (occupied[1][1][2]) { side ^= Voxel::Front; }
                 if (occupied[1][2][1]) { side ^= Voxel::Top; }
                 if (occupied[2][1][1]) { side ^= Voxel::Right; }
-
-                auto MakeCenter = [&](glm::vec3 dposition, glm::vec3 normal)
-                {
-                    int blocked = 0;
-                    int dx = int(dposition.x / d) + 1;
-                    int dy = int(dposition.y / d) + 1;
-                    int dz = int(dposition.z / d) + 1;
-                    blocked += occupied[dx][dy][dz] ? 1 : 0;
-                    if (normal.x == 0)
-                    {
-                        blocked += occupied[0][dy][dz] ? 1 : 0;
-                        blocked += occupied[2][dy][dz] ? 1 : 0;
-                    }
-                    if (normal.y == 0)
-                    {
-                        blocked += occupied[dx][0][dz] ? 1 : 0;
-                        blocked += occupied[dz][2][dz] ? 1 : 0;
-                    }
-                    if (normal.z == 0)
-                    {
-                        blocked += occupied[dx][dy][0] ? 1 : 0;
-                        blocked += occupied[dz][dy][2] ? 1 : 0;
-                    }
-
-                    if (normal.y == 0)
-                    {
-                        blocked /= 2;
-                    }
-
-                    float opacity = 1.0f - std::min(float(blocked / 3.0f), 1.0f);
-                    opacity = 1.0f;
-                    GLuint ndx = GLuint(vertices.size());
-                    vertices.push_back(ShadedMesh::Point{position + dposition, {color.x, color.y, color.z}, normal, opacity});
-                    indices.push_back(ndx);
-                    return ndx;
-                };
 
                 auto ComputeOcclusion = [&](glm::vec3 dposition, glm::vec3 normal)
                 {
@@ -319,6 +268,7 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                     {
                         for (int dx_ = dx - 1; dx_ <= dx + 1; ++dx_)
                         {
+                            if (dx_ < 0 || dx_ > 2) continue;
                             for (int dy_ = dy - 1; dy_ <= dy + 1; ++dy_)
                             {
                                 if (dy_ < 0 || dy_ > 2) continue;
@@ -333,12 +283,13 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                         blocked /= 2;
                     }
 
-                    return 1.0f - std::min(blocked / total, 1.0f);
+                    return 1.0f;
+                    //return 1.0f - std::min(blocked / total, 1.0f);
                 };
 
                 auto MakePoint = [&](glm::vec3 dposition, glm::vec3 normal, float opacity)
                 {
-                    glm::vec3 col{color.x, color.y, color.z};
+                    glm::vec3 col = glm::vec3{color.x, color.y, color.z} / 255.0f;
 
                     GLuint ndx = GLuint(vertices.size());
                     vertices.push_back(ShadedMesh::Point{position + dposition, col, normal, opacity});
@@ -459,6 +410,7 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
                     float o_0_ = (o___ + o_1_) / 2.0f;
                     float o01_ = (o_1_ + o11_) / 2.0f;
 
+
                     MakePoint({0, 0, -d}, back, (o___ + o11_ + o1__ + o_1_) / 4.0f);
                     GLuint begin = MakePoint(d11_, back, o11_);
                     MakePoint(d10_, back, o10_);
@@ -500,228 +452,9 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
         }
     }
 
-    // Create mesh from carpet.
-    //std::vector<ShadedMesh::Point> vertices;
-    //std::vector<GLuint> indices;
-    /*
-    for (const Voxel::Data& voxel : carpet)
-    {
-        float o000 = 1.0f - float((voxel.occlusion >> 28) & 0xf) / 16.0f;
-        float o001 = 1.0f - float((voxel.occlusion >> 24) & 0xf) / 16.0f;
-        float o010 = 1.0f - float((voxel.occlusion >> 20) & 0xf) / 16.0f;
-        float o011 = 1.0f - float((voxel.occlusion >> 16) & 0xf) / 16.0f;
-        float o100 = 1.0f - float((voxel.occlusion >> 12) & 0xf) / 16.0f;
-        float o101 = 1.0f - float((voxel.occlusion >>  8) & 0xf) / 16.0f;
-        float o110 = 1.0f - float((voxel.occlusion >>  4) & 0xf) / 16.0f;
-        float o111 = 1.0f - float((voxel.occlusion      ) & 0xf) / 16.0f;
-
-        const glm::vec3 color = voxel.color / 255.0f;
-        const glm::vec3 p000 = voxel.position + d000;
-        const glm::vec3 p001 = voxel.position + d001;
-        const glm::vec3 p010 = voxel.position + d010;
-        const glm::vec3 p011 = voxel.position + d011;
-        const glm::vec3 p100 = voxel.position + d100;
-        const glm::vec3 p101 = voxel.position + d101;
-        const glm::vec3 p110 = voxel.position + d110;
-        const glm::vec3 p111 = voxel.position + d111;
-
-        GLuint i;
-
-        // Top
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p111, color, top, o111});
-        vertices.push_back(ShadedMesh::Point{p110, color, top, o110});
-        vertices.push_back(ShadedMesh::Point{p010, color, top, o010});
-        vertices.push_back(ShadedMesh::Point{p011, color, top, o011});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-
-        // Bottom
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p101, color, bottom, o101});
-        vertices.push_back(ShadedMesh::Point{p001, color, bottom, o001});
-        vertices.push_back(ShadedMesh::Point{p000, color, bottom, o000});
-        vertices.push_back(ShadedMesh::Point{p100, color, bottom, o100});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-
-        // Left (x = -1)
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p011, color, left, o011});
-        vertices.push_back(ShadedMesh::Point{p010, color, left, o010});
-        vertices.push_back(ShadedMesh::Point{p000, color, left, o000});
-        vertices.push_back(ShadedMesh::Point{p001, color, left, o001});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-
-        // Right (x = 1)
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p111, color, right, o111});
-        vertices.push_back(ShadedMesh::Point{p101, color, right, o101});
-        vertices.push_back(ShadedMesh::Point{p100, color, right, o100});
-        vertices.push_back(ShadedMesh::Point{p110, color, right, o110});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-
-        // Back (z = -1)
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p110, color, back, o110});
-        vertices.push_back(ShadedMesh::Point{p100, color, back, o100});
-        vertices.push_back(ShadedMesh::Point{p000, color, back, o000});
-        vertices.push_back(ShadedMesh::Point{p010, color, back, o010});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-
-        // Front (z = 1)
-        i = (GLuint)vertices.size();
-        vertices.push_back(ShadedMesh::Point{p111, color, front, o111});
-        vertices.push_back(ShadedMesh::Point{p011, color, front, o011});
-        vertices.push_back(ShadedMesh::Point{p001, color, front, o001});
-        vertices.push_back(ShadedMesh::Point{p101, color, front, o101});
-        indices.push_back(i);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-        indices.push_back(kPrimitiveRestart);
-    }
-    */
-
     entity.Add<ShadedMesh>(std::move(vertices), std::move(indices));
     entity.Get<ShadedMesh>()->renderType = GL_TRIANGLE_FAN;
-
-    /*
-    glm::vec3 origin{1, 1, 1};
-    glm::vec3 o000 = 15.f / 16.f * origin;
-    glm::vec3 o001 = 13.f / 16.f * origin;
-    glm::vec3 o010 = 11.f / 16.f * origin;
-    glm::vec3 o011 = 9.f / 16.f * origin;
-    glm::vec3 o100 = 7.f / 16.f * origin;
-    glm::vec3 o101 = 5.f / 16.f * origin;
-    glm::vec3 o110 = 3.f / 16.f * origin;
-    glm::vec3 o111 = 1.f / 16.f * origin;
-
-    const float d = 0.5f;
-    glm::vec3 p000{-d, -d, -d};
-    glm::vec3 p001{-d, -d, d};
-    glm::vec3 p010{-d, d, -d};
-    glm::vec3 p011{-d, d, d};
-    glm::vec3 p100{d, -d, -d};
-    glm::vec3 p101{d, -d, d};
-    glm::vec3 p110{d, d, -d};
-    glm::vec3 p111{d, d, d};
-
-    std::vector<glm::vec3> points{
-        p111,
-        (p111 + p110) / 2.0f,
-        (p111 + p010) / 2.0f,
-        (p111 + p011) / 2.0f,
-        (p111 + p001) / 2.0f,
-        (p111 + p101) / 2.0f,
-        (p111 + p100) / 2.0f,
-
-        // 7
-        p110,
-        (p110 + p010) / 2.0f,
-        (p110 + p000) / 2.0f,
-        (p110 + p100) / 2.0f,
-
-        // 11
-        p010,
-        (p010 + p000) / 2.0f,
-        (p010 + p001) / 2.0f,
-        (p010 + p011) / 2.0f,
-
-        // 15
-        p011,
-        (p011 + p001) / 2.0f,
-
-        // 17
-        p101,
-        (p101 + p100) / 2.0f,
-        (p101 + p000) / 2.0f,
-        (p101 + p001) / 2.0f,
-
-        // 21
-        p001,
-        (p001 + p000) / 2.0f,
-
-        // 23
-        p000,
-        (p000 + p100) / 2.0f,
-
-        // 25
-        p100,
-    };
-    std::vector<glm::vec3> colors{
-        o111,
-        (o111 + o110) / 2.0f,
-        (o111 + o010) / 2.0f,
-        (o111 + o011) / 2.0f,
-        (o111 + o001) / 2.0f,
-        (o111 + o101) / 2.0f,
-        (o111 + o100) / 2.0f,
-
-        o110,
-        (o110 + o010) / 2.0f,
-        (o110 + o000) / 2.0f,
-        (o110 + o100) / 2.0f,
-
-        o010,
-        (o010 + o000) / 2.0f,
-        (o010 + o001) / 2.0f,
-        (o010 + o011) / 2.0f,
-
-        o011,
-        (o011 + o001) / 2.0f,
-
-        o101,
-        (o101 + o100) / 2.0f,
-        (o101 + o000) / 2.0f,
-        (o101 + o001) / 2.0f,
-
-        o001,
-        (o001 + o000) / 2.0f,
-
-        o000,
-        (o000 + o100) / 2.0f,
-
-        o100,
-    };
-
-    GLuint PRIMITIVE_RESTART = 12345;
-    std::vector<GLuint> indices{
-        0, 1, 2, 3, 4, 5, 6, 1, PRIMITIVE_RESTART,
-        7, 1, 6, 10, 9, 8, 2, 1, PRIMITIVE_RESTART,
-        11, 2, 8, 9, 12, 13, 14, 2, PRIMITIVE_RESTART,
-        15, 3, 2, 14, 13, 16, 4, 3, PRIMITIVE_RESTART,
-        17, 18, 6, 5, 4, 20, 19, 18, PRIMITIVE_RESTART,
-        21, 20, 4, 16, 13, 22, 19, 20, PRIMITIVE_RESTART,
-        23, 19, 22, 13, 12, 9, 24, 19, PRIMITIVE_RESTART,
-        25, 6, 18, 19, 24, 9, 10, 6, PRIMITIVE_RESTART
-    };
-    std::vector<glm::vec3> offsets;
-    offsets.push_back(glm::vec3(0));
-
-    entity.Add<Index3DRender>(std::move(points), std::move(colors), std::move(indices), std::move(offsets));
-    entity.Get<Index3DRender>()->renderType = GL_TRIANGLE_FAN;
     */
-
-    //entity.Add<VoxelRender>(std::move(carpet));
 
     /*
     auto makeCollider = [&](int i, int j, int height, int width, int length) {
@@ -807,12 +540,51 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ, Engine::EntityM
 ///
 Chunk& World::Get(const ChunkCoords& coords)
 {
+    std::unique_lock<std::mutex> lock{mChunksMutex};
     if (mChunks.count(coords) == 0)
     {
         mChunks.emplace(coords, coords);
     }
 
     return mChunks.at(coords);
+}
+
+/// 
+/// 
+/// 
+void World::OnChunkGenerated(Chunk&& chunk)
+{
+    ChunkCoords coordinates = chunk.GetCoords();
+    ChunkMeshGenerator::Request request;
+
+    {
+        std::unique_lock<std::mutex> lock{mChunksMutex};
+        mChunks.emplace(coordinates, std::move(chunk));
+
+        request.chunk = &mChunks.at(coordinates);
+    }
+
+    {
+        std::unique_lock<std::mutex> lock{mEntitiesMutex};
+        Engine::Entity entity = mEntities.at(coordinates);
+        request.component = entity.Get<ShadedMesh>();
+    }
+
+    request.resultFunction = [this, coordinates]() {
+        LOG_INFO("Generated chunk");
+
+        /*
+        std::vector<Voxel::Data> voxels;
+        voxels.push_back(Voxel::Data{glm::vec3(0, 1, 0), glm::vec4(0, 255, 0, 1)});
+
+        std::unique_lock<std::mutex> mEntitiesMutex;
+        Engine::Entity entity = mEntities.at(coordinates);
+        entity.Add<VoxelRender>(std::move(voxels));
+        CHECK_GL_ERRORS();
+        */
+    };
+
+    mChunkMeshGenerator->Add(request);
 }
 
 }; // namespace CubeWorld

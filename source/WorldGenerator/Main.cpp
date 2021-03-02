@@ -62,6 +62,9 @@ int main(int argc, char **argv)
    windowOptions.width = 1280;
    windowOptions.height = 760;
    windowOptions.lockCursor = false;
+   windowOptions.r = 0.529f;
+   windowOptions.g = 0.808;
+   windowOptions.b = 0.922;
    Window &window = Window::Instance();
    if (auto result = window.Initialize(windowOptions); !result)
    {

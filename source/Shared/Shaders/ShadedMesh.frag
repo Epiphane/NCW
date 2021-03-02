@@ -3,6 +3,7 @@
 flat in vec3 fNormal;
 in vec4 fColor;
 in float fOcclusion;
+in float fDepth;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -15,5 +16,10 @@ void main() {
 	float occFactor = clamp( fOcclusion, 0.0, 1.0 );
 	float occ = clamp( (da + di) * occFactor, 0.0, 1.0 );
 
+	vec4 fogColor = vec4(0.529, 0.808, 0.922, 1.0);
+	float fog = smoothstep(200.0, 1000.0, fDepth);
+
 	fragColor = vec4( occ * rgb, 1.0 );
+
+	fragColor = mix(fragColor, fogColor, fog);
 }
