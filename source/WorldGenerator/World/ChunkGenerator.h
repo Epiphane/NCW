@@ -35,6 +35,8 @@ private:
     struct RequestQueue;
     class Worker;
 
+    noise::module::Perlin mHeightmodule;
+
     std::unique_ptr<Worker> mWorker;
 };
 

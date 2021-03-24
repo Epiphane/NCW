@@ -51,24 +51,32 @@ DebugHelper::~DebugHelper()
 
 std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn)
 {
-   std::unique_ptr<MetricLink> link = std::make_unique<MetricLink>(this, name, fn);
+    std::unique_lock<std::mutex> lock{mMutex};
+    return RegisterMetricInternal(name, fn);
+}
 
-   link->next = mMetrics.get();
-   link->prev = mMetrics->prev;
-   link->prev->next = link.get();
-   link->next->prev = link.get();
+std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetricInternal(const std::string& name, const std::function<std::string(void)>& fn)
+{
+    std::unique_ptr<MetricLink> link = std::make_unique<MetricLink>(this, name, fn);
 
-   return link;
+    link->next = mMetrics.get();
+    link->prev = mMetrics->prev;
+    link->prev->next = link.get();
+    link->next->prev = link.get();
+
+    return link;
 }
 
 void DebugHelper::SetMetric(const std::string& name, const std::string& value)
 {
-   if (mGlobalMetrics.count(name) == 0)
-   {
-      mGlobalMetricLinks.push_back(RegisterMetric(name, [this, name] {
-         return mGlobalMetrics.at(name);
-      }));
-   }
+    std::unique_lock<std::mutex> lock{mMutex};
+
+    if (mGlobalMetrics.count(name) == 0)
+    {
+        mGlobalMetricLinks.push_back(RegisterMetricInternal(name, [this, name] {
+            return mGlobalMetrics.at(name);
+        }));
+    }
 
    mGlobalMetrics[name] = value;
 }
@@ -80,106 +88,112 @@ void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> /*metric*/)
 
 void DebugHelper::RemoveLink(MetricLink* link)
 {
-   if (link->next != nullptr)
-   {
-      link->next->prev = link->prev;
-   }
+    std::unique_lock<std::mutex> lock{mMutex};
 
-   if (link->prev != nullptr)
-   {
-      link->prev->next = link->next;
-   }
+    if (link->next != nullptr)
+    {
+        link->next->prev = link->prev;
+    }
 
-   link->next = nullptr;
-   link->prev = nullptr;
+    if (link->prev != nullptr)
+    {
+        link->prev->next = link->next;
+    }
+
+    link->next = nullptr;
+    link->prev = nullptr;
 }
 
 void DebugHelper::Update()
 {
-   if (mBounds == nullptr)
-   {
-      return;
-   }
+    std::unique_lock<std::mutex> lock{mMutex};
 
-   mMetricsState.clear();
-   std::string text = "DEBUG:";
-   MetricLink* metric = mMetrics->next;
-   while (metric != mMetrics.get())
-   {
-      if (metric->callback)
-      {
-         std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
-         mMetricsState.push_back(result);
+    if (mBounds == nullptr)
+    {
+        return;
+    }
 
-         text += "\n" + result.first + ": " + result.second;
-      }
-      metric = metric->next;
-   }
+    mMetricsState.clear();
+    std::string text = "DEBUG:";
+    MetricLink* metric = mMetrics->next;
+    while (metric != mMetrics.get())
+    {
+        if (metric->callback)
+        {
+            std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
+            mMetricsState.push_back(result);
 
-   float left = GLfloat(mBounds->GetX());
-   float top = GLfloat(mBounds->GetY() + mBounds->GetHeight()) - 40.0f;
-   float right = left + GLfloat(mBounds->GetWidth());
-   if (mMetricsText != text)
-   {
-      mMetricsText = text;
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 0, 1, text, Engine::Graphics::Font::Left);
+            text += "\n" + result.first + ": " + result.second;
+        }
+        metric = metric->next;
+    }
 
-      mMetricsCount = static_cast<GLint>(metricsText.size());
-      mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
-   }
+    float left = GLfloat(mBounds->GetX());
+    float top = GLfloat(mBounds->GetY() + mBounds->GetHeight()) - 40.0f;
+    float right = left + GLfloat(mBounds->GetWidth());
+    if (mMetricsText != text)
+    {
+        mMetricsText = text;
+        std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 0, 1, text, Engine::Graphics::Font::Left);
+
+        mMetricsCount = static_cast<GLint>(metricsText.size());
+        mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
+    }
 
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-   if (mSystemManager != nullptr)
-   {
-      std::string leftText = "-------- Systems ------";
-      std::string rightText = "------";
-      for (auto system : mSystemManager->GetBenchmarks())
-      {
-         leftText += "\n" + system.first;
-         std::string ms = FormatString("%.1fms", system.second * 1000.0);
-         if (ms.size() < 7)
-         {
+    if (mSystemManager != nullptr)
+    {
+        std::string leftText = "-------- Systems ------";
+        std::string rightText = "------";
+        for (auto system : mSystemManager->GetBenchmarks())
+        {
+            leftText += "\n" + system.first;
+            std::string ms = FormatString("%.1fms", system.second * 1000.0);
+            if (ms.size() < 7)
+            {
             ms.insert(ms.begin(), 7 - ms.size(), ' ');
-         }
-         rightText += "\n" + std::move(ms);
-      }
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 0, 1, rightText, Engine::Graphics::Font::Left);
-      systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
+            }
+            rightText += "\n" + std::move(ms);
+        }
+        std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);
+        std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 0, 1, rightText, Engine::Graphics::Font::Left);
+        systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
-      mSystemsCount = static_cast<GLint>(systemsText.size());
-      mSystemsBenchmarkVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mSystemsCount, &systemsText[0], GL_STATIC_DRAW);
-   }
+        mSystemsCount = static_cast<GLint>(systemsText.size());
+        mSystemsBenchmarkVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mSystemsCount, &systemsText[0], GL_STATIC_DRAW);
+    }
 #endif
 }
 
 void DebugHelper::Render()
 {
-   if (mBounds == nullptr)
-   {
-      return;
-   }
+    std::unique_lock<std::mutex> lock{mMutex};
 
-   // TODO tech debt? It's getting covered by the stuff the same draws,
-   // but I mean we always want debug text on top soooo can't hurt.
-   glClear(GL_DEPTH_BUFFER_BIT);
+    if (mBounds == nullptr)
+    {
+        return;
+    }
 
-   BIND_PROGRAM_IN_SCOPE(program);
+    // TODO tech debt? It's getting covered by the stuff the same draws,
+    // but I mean we always want debug text on top soooo can't hurt.
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
-   program->Uniform1i("uTexture", 0);
-   program->Uniform2f("uWindowSize", static_cast<GLfloat>(Engine::Window::Instance().GetWidth()), static_cast<GLfloat>(Engine::Window::Instance().GetHeight()));
+    BIND_PROGRAM_IN_SCOPE(program);
 
-   mMetricsTextVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
-   mMetricsTextVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mFont->GetTexture());
+    program->Uniform1i("uTexture", 0);
+    program->Uniform2f("uWindowSize", static_cast<GLfloat>(Engine::Window::Instance().GetWidth()), static_cast<GLfloat>(Engine::Window::Instance().GetHeight()));
 
-   glDrawArrays(GL_LINES, 0, mMetricsCount);
+    mMetricsTextVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
+    mMetricsTextVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
 
-   mSystemsBenchmarkVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
-   mSystemsBenchmarkVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
+    glDrawArrays(GL_LINES, 0, mMetricsCount);
 
-   glDrawArrays(GL_LINES, 0, mSystemsCount);
+    mSystemsBenchmarkVBO.AttribPointer(program->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)0);
+    mSystemsBenchmarkVBO.AttribPointer(program->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Graphics::Font::CharacterVertexUV), (void*)(sizeof(float) * 2));
+
+    glDrawArrays(GL_LINES, 0, mSystemsCount);
 }
 
 }; // namespace CubeWorld

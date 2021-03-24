@@ -93,8 +93,10 @@ int main(int argc, char **argv)
    });
 
    // Create state manager and initial state.
+   std::unique_ptr<MainState> state{new MainState(window)};
+
    Engine::StateManager& stateManager = Engine::StateManager::Instance();
-   stateManager.SetState(new MainState(window));
+   stateManager.SetState(state.get());
 
    do
    {

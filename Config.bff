@@ -10,7 +10,7 @@
 [
    .PythonExe              = '/usr/local/bin/python3'
    .VS2019_BasePath        = 'T:\p4\RiotGamesAPI\External\Toolchains\msvc\2019\Preview'
-   .VS2019_Version         = '14.28.29515'
+   .VS2019_Version         = '14.28.29910'
    .Windows10_SDKBasePath  = 'T:\p4\RiotGamesAPI\External\Toolchains\windows\10'
    .Windows10_SDKVersion   = '10.0.20180.0'
 ]

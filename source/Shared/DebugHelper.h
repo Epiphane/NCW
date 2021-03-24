@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -25,92 +26,97 @@ namespace CubeWorld
 
 class DebugHelper : public Singleton<DebugHelper> {
 public:
-   // Metrics are stored as a doubly-linked list, to allow for easy insertion and removal.
-   struct MetricLink {
-      using Callback = std::function<std::string(void)>;
+    // Metrics are stored as a doubly-linked list, to allow for easy insertion and removal.
+    struct MetricLink {
+        using Callback = std::function<std::string(void)>;
 
-      std::string name;
-      Callback callback;
-      MetricLink(DebugHelper* debug, const std::string& name, const Callback& callback)
-         : name(name)
-         , callback(callback)
-         , debug(debug)
-         , next(nullptr)
-         , prev(nullptr)
-      {};
-      ~MetricLink()
-      {
-         debug->RemoveLink(this);
-      }
+        std::string name;
+        Callback callback;
+        MetricLink(DebugHelper* debug, const std::string& name, const Callback& callback)
+            : name(name)
+            , callback(callback)
+            , debug(debug)
+            , next(nullptr)
+            , prev(nullptr)
+        {};
+        ~MetricLink()
+        {
+            debug->RemoveLink(this);
+        }
 
-   private:
-      DebugHelper* debug;
+    private:
+        DebugHelper* debug;
 
-      friend class DebugHelper;
-      MetricLink* next;
-      MetricLink* prev;
-   };
+        friend class DebugHelper;
+        MetricLink* next;
+        MetricLink* prev;
+    };
 
 public:
-   DebugHelper();
-   ~DebugHelper();
+    DebugHelper();
+    ~DebugHelper();
 
-   //
-   // Syntactic sugar for the below. This allows using a lambda, instead of predefining
-   // a std::function when calling Register([&]() { ... });
-   //
-   //template <typename T> struct identity { typedef T type; };
+    //
+    // Syntactic sugar for the below. This allows using a lambda, instead of predefining
+    // a std::function when calling Register([&]() { ... });
+    //
+    //template <typename T> struct identity { typedef T type; };
 
-   // Register a debug line.
-   // Ex: DebugHelper::Instance().RegisterMetric("FPS", []() { return "Unimplemented"; })
-   std::unique_ptr<MetricLink> RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn);
-   void DeregisterMetric(std::unique_ptr<MetricLink> metric);
+    // Register a debug line.
+    // Ex: DebugHelper::Instance().RegisterMetric("FPS", []() { return "Unimplemented"; })
+    std::unique_ptr<MetricLink> RegisterMetric(const std::string& name, const std::function<std::string(void)>& fn);
+    void DeregisterMetric(std::unique_ptr<MetricLink> metric);
 
-   void SetMetric(const std::string& name, const std::string& value);
+    void SetMetric(const std::string& name, const std::string& value);
 
-   template <typename T>
-   void SetMetric(const std::string& name, T value)
-   {
-      SetMetric(name, FormatString("%1", value));
-   }
+    template <typename T>
+    void SetMetric(const std::string& name, T value)
+    {
+        SetMetric(name, FormatString("%1", value));
+    }
 
-   void Update();
-   void Render();
+    void Update();
+    void Render();
 
-   void SetBounds(Bounded* bounds) { mBounds = bounds; }
+    void SetBounds(Bounded* bounds) { mBounds = bounds; }
 
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-   void SetSystemManager(Engine::SystemManager* manager) { mSystemManager = manager; }
+    void SetSystemManager(Engine::SystemManager* manager) { mSystemManager = manager; }
 #endif
 
 private:
-   Bounded* mBounds;
-
-   Engine::Graphics::Font* mFont;
+    std::unique_ptr<MetricLink> RegisterMetricInternal(const std::string& name, const std::function<std::string(void)>& fn);
 
 private:
-   std::unique_ptr<MetricLink> mMetrics;
-   void RemoveLink(MetricLink* link);
+    Bounded* mBounds;
 
-   std::vector<std::unique_ptr<MetricLink>> mGlobalMetricLinks;
-   std::unordered_map<std::string, std::string> mGlobalMetrics;
+    Engine::Graphics::Font* mFont;
 
 private:
-   std::vector<std::pair<std::string, std::string>> mMetricsState;
-   std::string mMetricsText;
+    std::mutex mMutex;
 
-   Engine::Graphics::VBO mMetricsTextVBO;
-   GLint mMetricsCount;
+    std::unique_ptr<MetricLink> mMetrics;
+    void RemoveLink(MetricLink* link);
+
+    std::vector<std::unique_ptr<MetricLink>> mGlobalMetricLinks;
+    std::unordered_map<std::string, std::string> mGlobalMetrics;
+
+private:
+    std::vector<std::pair<std::string, std::string>> mMetricsState;
+    std::string mMetricsText;
+
+    Engine::Graphics::VBO mMetricsTextVBO;
+    GLint mMetricsCount;
 
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-   Engine::Graphics::VBO mSystemsBenchmarkVBO;
-   GLint mSystemsCount;
+    Engine::Graphics::VBO mSystemsBenchmarkVBO;
+    GLint mSystemsCount;
 
-   Engine::SystemManager* mSystemManager;
+    Engine::SystemManager* mSystemManager;
 #endif
 
 private:
-   static std::unique_ptr<Engine::Graphics::Program> program;
+    static std::unique_ptr<Engine::Graphics::Program> program;
 };
 
 }; // namespace CubeWorld
