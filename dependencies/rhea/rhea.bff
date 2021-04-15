@@ -5,7 +5,6 @@
    .LibraryName = 'rhea'
    .LibraryVersion = '0.2.4'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ''
                            #if __WINDOWS__

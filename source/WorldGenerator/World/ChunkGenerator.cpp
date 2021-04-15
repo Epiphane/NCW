@@ -34,7 +34,6 @@ public:
     struct PrivateData
     {
         std::thread thread;
-
     };
 
     //
@@ -61,6 +60,8 @@ public:
 public:
     Worker()
     {
+        gHeightmodule.SetFrequency(0.25f);
+
         mPrivate.thread = std::thread([this] { Run(); });
     }
 

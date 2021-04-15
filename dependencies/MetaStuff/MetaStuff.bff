@@ -5,7 +5,6 @@
    .LibraryName = 'metastuff'
    .LibraryVersion = 'c883f78'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    ^MetaStuffIncludePaths = ' -I$LibraryIncludePaths$'
 }

@@ -5,7 +5,6 @@
    .LibraryName = 'sqlite'
    .LibraryVersion = '3.22.0'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
                            #if __WINDOWS__
    .AdditionalCompilerOptions = ' /wd4005' // '%s': macro redefinition
@@ -14,9 +13,9 @@
                               + ' /wd6001' // Using uninitialized memory
                               + ' /wd6011' // Dereferencing NULL pointer '%s'
                               + ' /wd6031' // Return value ignored
-                              + ' /wd6239' // 
-                              + ' /wd6240' // 
-                              + ' /wd6308' // 
+                              + ' /wd6239' //
+                              + ' /wd6240' //
+                              + ' /wd6308' //
                               + ' /wd6313' // Incorrect operator:  zero-valued flag cannot be tested with bitwise-and.
                               + ' /wd6326' // Potential comparison of a constant with another constant.
                               + ' /wd6330' // '%s' passed as _Param_ when '%s' is required

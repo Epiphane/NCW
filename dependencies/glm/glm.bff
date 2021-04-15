@@ -5,7 +5,6 @@
    .LibraryName = 'glm'
    .LibraryVersion = '0.9.9.7'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .CompilerOutputPath   = '$OutputPath$/$LibraryName$/'
 

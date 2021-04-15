@@ -1,8 +1,6 @@
 // Source files
 //------------------------------------------------------------------------------
 
-.IncludeSearchPath + '$_WORKING_DIR_$/source;$_WORKING_DIR_$/source/Library;'
-
 #include "Library/RGBBinding/RGBBinding.bff"
 #include "Library/RGBDesignPatterns/RGBDesignPatterns.bff"
 #include "Library/RGBFileSystem/RGBFileSystem.bff"

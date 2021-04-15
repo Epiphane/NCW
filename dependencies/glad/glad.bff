@@ -5,7 +5,6 @@
    .LibraryName         = 'glad'
    .LibraryVersion      = '07052019'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ''
 #if __WINDOWS__

@@ -5,7 +5,6 @@
    .LibraryName = 'lodepng'
    .LibraryVersion = '20131222'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ''
                            #if __WINDOWS__

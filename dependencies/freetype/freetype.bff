@@ -5,7 +5,6 @@
    .LibraryName = 'freetype'
    .LibraryVersion = '2.9.1'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ' -DFT2_BUILD_LIBRARY'
                               + ' -DFT_CONFIG_OPTION_SYSTEM_ZLIB'

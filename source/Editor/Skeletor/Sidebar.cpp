@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <stack>
 #include <imgui.h>
 #include <RGBDesignPatterns/Macros.h>
 #include <RGBFileSystem/File.h>

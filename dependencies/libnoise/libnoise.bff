@@ -5,8 +5,7 @@
    .LibraryName         = 'libnoise'
    .LibraryVersion      = '1.0.0'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
-   
+
    .AdditionalCompilerOptions = ' "-I$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/noise"'
                            #if __WINDOWS__
                               + ' /wd4100' // '%s': unreferenced formal parameter
@@ -19,7 +18,7 @@
                               + ' -Wno-bitwise-op-parentheses'
                               + ' -Wno-ignored-qualifiers'
                            #endif
-   
+
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  =  {
                               'noisegen.cpp'

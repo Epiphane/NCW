@@ -5,7 +5,6 @@
    .LibraryName = 'zlib'
    .LibraryVersion = '1.2.11'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ' -I"$_CURRENT_BFF_DIR_$/$LibraryVersion$/zlib"'
                            #if __WINDOWS__

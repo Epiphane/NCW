@@ -5,7 +5,6 @@
    .LibraryName         = 'glfw'
    .LibraryVersion      = '3.2.1'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .AdditionalCompilerOptions = ''
                            #if __WINDOWS__

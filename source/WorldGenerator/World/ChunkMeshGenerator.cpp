@@ -32,7 +32,6 @@ public:
     struct PrivateData
     {
         std::thread thread;
-
     };
 
     //
@@ -447,7 +446,7 @@ public:
                     }
 
                     --y;
-                } while (side != 0 && y >= 0);
+                } while (side != 0 && y >= 0 && y > height - 2);
             }
         }
 
@@ -467,6 +466,12 @@ public:
     void Add(const Request& request)
     {
         std::unique_lock<std::mutex> lock{mShared.mutex};
+
+        if (mShared.exiting)
+        {
+            return;
+        }
+
         mShared.requests.push_back(request);
         mShared.condition.notify_one();
     }

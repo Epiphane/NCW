@@ -10,21 +10,23 @@
    .ProjectBasePath        = '$ProjectPath$'
    .ProjectInputPaths      = '$ProjectPath$'
 
-   .ProjectDebug           = [ Using( .ProjectDebug )   .Target = '$ProjectName$-$Platform$-$Config$' ]
+   .ProjectDebug           = [ Using( .ProjectDebug )   .Target = '$ProjectName$-Obj-$Platform$-$Config$' ]
    .ProjectConfigs         = { .ProjectDebug }
 #if !DEBUG_BUILD_ONLY
-   .ProjectRelease         = [ Using( .ProjectRelease ) .Target = '$ProjectName$-$Platform$-$Config$' ]
+   .ProjectRelease         = [ Using( .ProjectRelease ) .Target = '$ProjectName$-Obj-$Platform$-$Config$' ]
    .ProjectConfigs         + { .ProjectRelease }
 #endif
+
+   .Conf1 =
+   []
 
    VCXProject('$ProjectName$-proj')
    {
       .ProjectOutput = '$OutputPath$/VisualStudio/Projects/Library/$ProjectName$.vcxproj'
-      .Target = '$ProjectName$-Exe'
 
       .LocalDebuggerCommand            = '^$(SolutionDir)\..\^$(Platform)-^$(Configuration)\$ProjectName$\$ProjectName$.exe'
       .LocalDebuggerWorkingDirectory   = '^$(SolutionDir)\..\^$(Platform)-^$(Configuration)\$ProjectName$'
-      .AdditionalOptions               = '/std:c++17'
+      .AdditionalOptions               = '/std:c++latest'
    }
 
    XCodeProject( '$ProjectName$-xcode' )

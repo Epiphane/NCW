@@ -236,7 +236,6 @@ Settings
 .Dependencies = {}
 .VSDependencyProjects = {}
 .XCodeDependencyProjects = {}
-.IncludeSearchPath = ''
 #include "dependencies/bullet/bullet.bff"
 #include "dependencies/freetype/freetype.bff"
 #include "dependencies/glad/glad.bff"
@@ -383,6 +382,18 @@ VSSolution('CubeWorld-sln-visualstudio')
                            .Folder_Dependencies
                            .Folder_Library
                         }
+
+   // Define dependencies so that hitting F5 will trigger a build of the specified targets
+   .Deps =
+   [
+      .Projects = { 'WorldGenerator-proj' }
+
+      .Dependencies = .SolutionBuildProject
+   ]
+   .SolutionDependencies =
+   {
+      .Deps
+   }
 }
 
 // Project to regenerate projects/solutions

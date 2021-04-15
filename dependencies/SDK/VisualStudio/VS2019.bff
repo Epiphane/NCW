@@ -78,7 +78,7 @@ Compiler( 'Compiler-VS2019-x64' )
 
                                     // Include Paths
                                     + ' /I"./"'
-                                    + ' /std:c++17'
+                                    + ' /std:c++latest'
                                     + .VSIncludePaths
 
                                     + ' /wd4266' // hides parent function

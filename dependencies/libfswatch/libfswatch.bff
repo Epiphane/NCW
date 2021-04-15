@@ -5,7 +5,6 @@
    .LibraryName         = 'libfswatch'
    .LibraryVersion      = '0.2.4'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
-   ^IncludeSearchPath + '$_WORKING_DIR_$/$LibraryIncludePaths$;'
 
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src/libfswatch'
    .LibrarySourceFiles  =  {
@@ -30,7 +29,7 @@
                            #if __OSX__
                               + ' -Wno-unused-parameter'
                            #endif
-                           
+
 
    #define NO_UNITY_BUILD_ONCE
    #include "../dependency.bff"
