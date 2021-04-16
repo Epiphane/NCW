@@ -196,7 +196,8 @@ void AnimationSystem::Update(Engine::EntityManager& entities, Engine::EventManag
             {
                // Check triggers.
                bool valid = true;
-               for (Transition::Trigger& trigger : transition.triggers)
+               using Trigger = Transition::Trigger;
+               for (Trigger& trigger : transition.triggers)
                {
                   switch (trigger.type)
                   {

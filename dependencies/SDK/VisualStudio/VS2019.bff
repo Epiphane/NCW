@@ -47,6 +47,8 @@ Compiler( 'Compiler-VS2019-x64' )
                                     + ' /WX'                // Warnings as errors
 
                                     // These warnings are useful, but fire in system headers (Windows SDK or MSVC CRT)
+                                    + ' /wd4103' // alignment changed after including header, may be due to missing #pragma pack(pop)
+                                    + ' /wd4384' // #pragma 'detect_mismatch' should only be used at global scope
                                     + ' /wd4623' // '%s': default constructor was implicitly defined as deleted
                                     + ' /wd4625' // '%s': copy constructor was implicitly defined as deleted
                                     + ' /wd4626' // '%s': assignment operator was implicitly defined as deleted
@@ -54,6 +56,7 @@ Compiler( 'Compiler-VS2019-x64' )
                                     + ' /wd4774' // 'swprintf_s' : format string expected in argument 3 is not a string literal
                                     + ' /wd5026' // '%s': move constructor was implicitly defined as deleted
                                     + ' /wd5027' // '%s': move assignment operator was implicitly defined as deleted
+                                    + ' /wd5031' // #pragma warning(pop): likely mismatch, popping warning state pushed in different file
                                     + ' /wd28301' // No annotations for first declaration of '%s'
 
                                     // These warnings are not useful
@@ -72,8 +75,10 @@ Compiler( 'Compiler-VS2019-x64' )
                                     + ' /wd4820' // '%s': '%u' bytes padding added after data member '%s'
                                     + ' /wd4866' // compiler may not enforce left-to-right evaluation order for call to %s
                                     + ' /wd4868' // compiler may not enforce left-to-right evaluation order in braced initializer list
+                                    + ' /wd5054' // operator '|': deprecated between enumerations of different types'
                                     + ' /wd5039' // '%s': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
                                     + ' /wd5045' // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+                                    + ' /wd5214' // applying '*=' to an operand with a volatile qualified type is deprecated in C++20
                                     + ' /wd5219' // implicit conversion from '%s' to '%s', possible loss of data
 
                                     // Include Paths

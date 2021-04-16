@@ -570,7 +570,7 @@ void World::OnChunkGenerated(Chunk&& chunk)
         request.component = entity.Get<ShadedMesh>();
     }
 
-    request.resultFunction = [this, coordinates]() {
+    request.resultFunction = [/*this, coordinates*/]() {
         LOG_INFO("Generated chunk");
 
         /*
