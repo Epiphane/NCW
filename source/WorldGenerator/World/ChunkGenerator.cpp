@@ -3,6 +3,8 @@
 #include <queue>
 #include <mutex>
 
+#include <Engine/Core/Timer.h>
+#include <Shared/DebugHelper.h>
 #include <RGBLogger/Logger.h>
 
 #include "ChunkGenerator.h"
@@ -34,6 +36,9 @@ public:
     struct PrivateData
     {
         std::thread thread;
+
+        // Profiler
+        Engine::Timer<1> profiler;
     };
 
     //
@@ -116,6 +121,8 @@ public:
 
     void BuildChunk(const Request& request)
     {
+        mPrivate.profiler.Reset();
+
         noise::utils::NoiseMap map;
         noise::utils::NoiseMapBuilderPlane builder;
 
@@ -165,6 +172,8 @@ public:
                 block.color = color;
             }
         }
+
+        DebugHelper::Instance().SetMetric("Chunk generation time", mPrivate.profiler.Elapsed());
 
         request.resultFunction(std::move(chunk));
     }

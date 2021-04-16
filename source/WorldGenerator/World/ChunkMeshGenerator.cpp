@@ -3,6 +3,7 @@
 #include <queue>
 #include <mutex>
 
+#include <Engine/Core/Timer.h>
 #include <Engine/Core/Context.h>
 #include <RGBDesignPatterns/Macros.h>
 
@@ -32,6 +33,9 @@ public:
     struct PrivateData
     {
         std::thread thread;
+
+        // Profiler
+        Engine::Timer<1> profiler;
     };
 
     //
@@ -192,6 +196,8 @@ public:
 
     void BuildMesh(const Request& request)
     {
+        mPrivate.profiler.Reset();
+
         constexpr float d = 0.5f;
         constexpr glm::vec3 d___{-d,-d,-d};
         const glm::vec3 d__0{-d,-d, 0};
@@ -459,6 +465,8 @@ public:
         glFlush();
 
         request.component->Set(std::move(vbo), std::move(ndx), count);
+
+        DebugHelper::Instance().SetMetric("Mesh generation time", mPrivate.profiler.Elapsed());
         request.resultFunction();
 
     }

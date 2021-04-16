@@ -23,8 +23,8 @@ struct ChunkCoords
 ///
 ///
 ///
-constexpr int kChunkSize = 64;
-constexpr int kChunkHeight = 64;
+constexpr int kChunkSize = 32;
+constexpr int kChunkHeight = 32;
 
 struct Block
 {
@@ -36,7 +36,7 @@ class Chunk
 {
 public:
     Chunk(const ChunkCoords& coord);
-    Chunk(Chunk&& other);
+    Chunk(Chunk&& other) noexcept;
     ~Chunk();
 
     const Block& GetTop(uint32_t x, uint32_t z) const;

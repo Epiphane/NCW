@@ -94,7 +94,8 @@ void MainState::Initialize()
 
     Engine::Entity part = mEntities.Create(0, 0, 0);
     part.Get<Transform>()->SetParent(player);
-    part.Get<Transform>()->SetLocalPosition(glm::vec3{0, 2.0f, 0});
+    part.Get<Transform>()->SetLocalPosition(glm::vec3{ 0, 2.0f, 0 });
+    part.Get<Transform>()->SetLocalScale(glm::vec3{0.25f});
     part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
     part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
@@ -181,7 +182,7 @@ void MainState::Initialize()
 
     mWorld.Build();
 
-    int kSize = 10;
+    int kSize = 20;
     for (int dist = 0; dist < kSize; dist++)
     {
         mWorld.Create(dist, 0, 0, mEntities);

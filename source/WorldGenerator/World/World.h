@@ -47,6 +47,8 @@ private:
     noise::module::Perlin mHeightmodule;
     noise::utils::NoiseMap mHeightmap;
 
+    bool mQuitting = false;
+
     // TODO maybe one day, we won't be able to keep a big ol' list of chunks here.
     // Until then, stay lazy.
     std::mutex mEntitiesMutex;

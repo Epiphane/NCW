@@ -19,7 +19,7 @@ Chunk::Chunk(const ChunkCoords& coords)
 ///
 ///
 ///
-Chunk::Chunk(Chunk&& other)
+Chunk::Chunk(Chunk&& other) noexcept
     : mCoords(other.mCoords)
     , mIsPopulated(other.mIsPopulated)
     , mBlocks(std::move(other.mBlocks))

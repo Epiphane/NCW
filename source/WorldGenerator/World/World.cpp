@@ -48,7 +48,11 @@ World::World()
 ///
 ///
 World::~World()
-{}
+{
+    mQuitting = true;
+    mChunkMeshGenerator.reset();
+    mChunkGenerator.reset();
+}
 
 ///
 ///
@@ -554,6 +558,11 @@ Chunk& World::Get(const ChunkCoords& coords)
 /// 
 void World::OnChunkGenerated(Chunk&& chunk)
 {
+    if (mQuitting)
+    {
+        return;
+    }
+
     ChunkCoords coordinates = chunk.GetCoords();
     ChunkMeshGenerator::Request request;
 

@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
    // Create state manager and initial state.
    Engine::StateManager& stateManager = Engine::StateManager::Instance();
-   stateManager.SetState(new MainState(window));
+   stateManager.SetState(std::make_unique<MainState>(window));
 
    do
    {
