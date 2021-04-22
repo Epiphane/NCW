@@ -50,15 +50,14 @@ namespace Game
       mSystems.Add<AnimationApplicator>();
       mSystems.Add<FollowerSystem>();
       mSystems.Add<MakeshiftSystem>();
-      mSystems.Add<BulletPhysics::System>();
-      mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
-      mSystems.Add<AnimationEventSystem>(mSystems.Get<BulletPhysics::System>());
+      auto physics = mSystems.Add<BulletPhysics::System>();
+      auto debug = mSystems.Add<BulletPhysics::Debug>(physics, &mCamera);
+      mSystems.Add<AnimationEventSystem>(physics);
       mSystems.Add<CombatSystem>();
       mSystems.Add<Simple3DRenderSystem>(&mCamera);
       mSystems.Add<VoxelRenderSystem>(&mCamera);
       mSystems.Add<SimpleParticleSystem>(&mCamera);
 
-      BulletPhysics::Debug* debug = mSystems.Get<BulletPhysics::Debug>();
       debug->SetActive(false);
       mDebugCallback = window.AddCallback(GLFW_KEY_L, [debug](int, int, int) {
          debug->SetActive(!debug->IsActive());

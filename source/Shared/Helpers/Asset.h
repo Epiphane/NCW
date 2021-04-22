@@ -25,6 +25,7 @@ std::string Particle(const std::string& particle);
 std::string Skeleton(const std::string& skeleton);
 std::string UIElement(const std::string& elementName);
 std::string Shader(const std::string& shaderName);
+std::string Script(const std::string& scriptName);
 
 };
 

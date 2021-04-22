@@ -32,7 +32,7 @@ public:
 
    // Add a system to the manager. It will live for as long as the system manager does.
    template<typename S, typename ...Args>
-   void Add(Args&& ... args)
+   S* Add(Args&& ... args)
    {
       std::unique_ptr<S> system(new S(std::forward<Args>(args) ...));
 
@@ -45,17 +45,7 @@ public:
 
       mBenchmarks.push_back(std::make_pair(std::string(name), Timer<100>()));
 #endif
-   }
-
-   // Retrieve a System, if it exists.
-   template<typename S>
-   S* Get()
-   {
-      auto it = std::find_if(mSystems.begin(), mSystems.end(), [&](const auto& system) {
-         return dynamic_cast<S*>(system.get()) != nullptr;
-      });
-      assert(it != mSystems.end());
-      return static_cast<S*>(it->get());
+      return (S*)mSystems.back().get();
    }
 
    // Update all systems.

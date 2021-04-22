@@ -21,7 +21,7 @@
 // as long.
 //------------------------------------------------------------------------------
 // Uncomment for faster `FBuild All` builds
-#define DEBUG_BUILD_ONLY
+// #define DEBUG_BUILD_ONLY
 
 //------------------------------------------------------------------------------
 // Unity compilation is faster for full rebuilds but slower for iteration.

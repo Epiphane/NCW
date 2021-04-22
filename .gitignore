@@ -2,6 +2,7 @@ tmp
 .DS_Store
 .vscode/ipch
 *.fdb
+.venv
 
 dependencies/bullet/2.89/data
 

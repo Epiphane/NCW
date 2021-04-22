@@ -46,6 +46,16 @@
          .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
       }
 
+      CopyDir( '$ProjectName$-Scripts-$Platform$-$Config$' )
+      {
+         .SourcePaths    = {
+                              '$ProjectPath$/../Engine/Scripts'
+                              '$ProjectPath$/../Shared/Scripts'
+                              '$ProjectPath$/../WorldGenerator/Scripts'
+                           }
+         .Dest          = '$OutputPath$/Scripts'
+      }
+
       CopyDir( '$ProjectName$-Shaders-$Platform$-$Config$' )
       {
          .SourcePaths    = {
@@ -61,6 +71,7 @@
       Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
       {
          .PreBuildDependencies = {
+                                    '$ProjectName$-Scripts-$Platform$-$Config$'
                                     '$ProjectName$-Shaders-$Platform$-$Config$'
                                  }
 
@@ -78,6 +89,7 @@
                                  'RGBText-Lib-$Platform$-$Config$'
 
                                  'bullet-Lib-$Platform$-$Config$'
+                                 'duktape-Lib-$Platform$-$Config$'
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'

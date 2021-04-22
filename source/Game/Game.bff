@@ -76,6 +76,7 @@
                                  'RGBText-Lib-$Platform$-$Config$'
 
                                  'bullet-Lib-$Platform$-$Config$'
+                                 'duktape-Lib-$Platform$-$Config$'
                                  'freetype-Lib-$Platform$-$Config$'
                                  'glad-Lib-$Platform$-$Config$'
                                  'glfw-Lib-$Platform$-$Config$'

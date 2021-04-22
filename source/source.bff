@@ -8,6 +8,7 @@
 .SourceIncludePaths  = ' "-Isource"'
                      + ' "-Isource/Library"'
                      + .BulletIncludePaths
+                     + .DuktapeIncludePaths
                      + .FreeTypeIncludePaths
                      + .GladIncludePaths
                      + .GlfwIncludePaths

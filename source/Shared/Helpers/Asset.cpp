@@ -84,6 +84,11 @@ std::string Shader(const std::string& shaderName)
     return Paths::Join(gShaderRoot, shaderName);
 }
 
+std::string Script(const std::string& scriptName)
+{
+    return Paths::Join(gAssetRoot, "Scripts", scriptName);
+}
+
 };
 
 }; // namespace CubeWorld

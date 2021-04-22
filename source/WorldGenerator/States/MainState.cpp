@@ -18,6 +18,7 @@
 #include <Shared/Systems/CombatSystem.h>
 #include <Shared/Systems/FollowerSystem.h>
 #include <Shared/Systems/FlySystem.h>
+#include <Shared/Systems/JavascriptSystem.h>
 #include <Shared/Systems/MakeshiftSystem.h>
 #include <Shared/Systems/BulletPhysicsDebug.h>
 #include <Shared/Systems/BulletPhysicsSystem.h>
@@ -55,29 +56,24 @@ void MainState::Initialize()
     DebugHelper::Instance().SetSystemManager(&mSystems);
     mSystems.Add<CameraSystem>(mInput);
     mSystems.Add<AnimationSystem>();
+    mSystems.Add<JavascriptSystem>(mInput);
     mSystems.Add<FlySystem>(mInput);
     mSystems.Add<WalkSystem>(mInput);
     mSystems.Add<WalkAnimationSystem>();
     mSystems.Add<AnimationApplicator>();
-    mSystems.Add<BulletPhysics::System>();
-    mSystems.Add<BulletPhysics::Debug>(mSystems.Get<BulletPhysics::System>(), &mCamera);
-    mSystems.Add<AnimationEventSystem>(mSystems.Get<BulletPhysics::System>());
+    auto physics = mSystems.Add<BulletPhysics::System>();
+    mSystems.Add<BulletPhysics::Debug>(physics, &mCamera)->SetActive(false);
+    mSystems.Add<AnimationEventSystem>(physics);
     mSystems.Add<FollowerSystem>();
     mSystems.Add<MakeshiftSystem>();
     mSystems.Add<CombatSystem>();
     mSystems.Add<Simple3DRenderSystem>(&mCamera);
-    mSystems.Add<VoxelRenderSystem>(&mCamera);
+    auto voxels = mSystems.Add<VoxelRenderSystem>(&mCamera);
     mSystems.Add<SimpleParticleSystem>(&mCamera);
     mSystems.Configure();
 
-    gConfigCallback = mInput->AddCallback(GLFW_KEY_Y, [this](int, int, int) {
-        mSystems.Get<VoxelRenderSystem>()->Reconfigure();
-    });
-
-    BulletPhysics::Debug* debug = mSystems.Get<BulletPhysics::Debug>();
-    debug->SetActive(false);
-    mDebugCallback = mInput->AddCallback(GLFW_KEY_L, [debug](int, int, int) {
-        debug->SetActive(!debug->IsActive());
+    gConfigCallback = mInput->AddCallback(GLFW_KEY_Y, [voxels](int, int, int) {
+        voxels->Reconfigure();
     });
 
     mInput->SetMouseLock(false);
@@ -188,14 +184,7 @@ void MainState::Initialize()
     {
         Entity worldParams = mEntities.Create();
         worldParams.Add<Data>();
-        worldParams.Add<Makeshift>([worldParams](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-            Data& data = *worldParams.Get<Data>();
-
-            ImGui::Begin("World Generator");
-            ImGui::End();
-
-            CUBEWORLD_UNREFERENCED_PARAMETER(data);
-        });
+        worldParams.Add<Javascript>(Asset::Script("generator.js"));
     }
 
     mCamera.Set(handle.get());

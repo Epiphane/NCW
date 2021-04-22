@@ -68,11 +68,12 @@ public:
    void DeregisterLogger(Logger* logger);
 };
 
-#define LOG_DEBUG(fmt, ...)   (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kDebug, fmt, ## __VA_ARGS__))
-#define LOG_INFO(fmt, ...)    (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kInfo, fmt, ## __VA_ARGS__))
-#define LOG_WARNING(fmt, ...) (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kWarning, fmt, ## __VA_ARGS__))
-#define LOG_ERROR(fmt, ...)   (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kError, fmt, ## __VA_ARGS__))
-#define LOG_ALWAYS(fmt, ...)  (CubeWorld::Logger::LogManager::Instance().Log(CubeWorld::Logger::LogLevel::kAlways, fmt, ## __VA_ARGS__))
+#define LOG(level, fmt, ...)  (CubeWorld::Logger::LogManager::Instance().Log(level, fmt, ## __VA_ARGS__))
+#define LOG_DEBUG(fmt, ...)   (LOG(CubeWorld::Logger::LogLevel::kDebug, fmt, ## __VA_ARGS__))
+#define LOG_INFO(fmt, ...)    (LOG(CubeWorld::Logger::LogLevel::kInfo, fmt, ## __VA_ARGS__))
+#define LOG_WARNING(fmt, ...) (LOG(CubeWorld::Logger::LogLevel::kWarning, fmt, ## __VA_ARGS__))
+#define LOG_ERROR(fmt, ...)   (LOG(CubeWorld::Logger::LogLevel::kError, fmt, ## __VA_ARGS__))
+#define LOG_ALWAYS(fmt, ...)  (LOG(CubeWorld::Logger::LogLevel::kAlways, fmt, ## __VA_ARGS__))
 
 }; // namespace Logger
 

@@ -3,7 +3,7 @@
    .ProjectAllowedFileExtensions  = {
                                        '*.cpp', '*.hpp', '*.c', '*.h',
                                        '*.cs', '*.bff', '*.rc', '*.mm',
-                                       '*.vert', '*.geom', '*.frag',
+                                       '*.js', '*.vert', '*.geom', '*.frag',
                                        '*.natvis'
                                     }
 
@@ -16,9 +16,6 @@
    .ProjectRelease         = [ Using( .ProjectRelease ) .Target = '$ProjectName$-Obj-$Platform$-$Config$' ]
    .ProjectConfigs         + { .ProjectRelease }
 #endif
-
-   .Conf1 =
-   []
 
    VCXProject('$ProjectName$-proj')
    {

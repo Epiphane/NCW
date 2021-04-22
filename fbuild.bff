@@ -236,24 +236,7 @@ Settings
 .Dependencies = {}
 .VSDependencyProjects = {}
 .XCodeDependencyProjects = {}
-#include "dependencies/bullet/bullet.bff"
-#include "dependencies/freetype/freetype.bff"
-#include "dependencies/glad/glad.bff"
-#include "dependencies/glfw/glfw.bff"
-#include "dependencies/glm/glm.bff"
-#include "dependencies/imgui/imgui.bff"
-#if !__WINDOWS__
-    #include "dependencies/libfswatch/libfswatch.bff"
-#endif
-#include "dependencies/libnoise/libnoise.bff"
-#include "dependencies/libyaml/libyaml.bff"
-#include "dependencies/lodepng/lodepng.bff"
-#include "dependencies/MetaStuff/MetaStuff.bff"
-#include "dependencies/noiseutils/noiseutils.bff"
-#include "dependencies/rapidjson/rapidjson.bff"
-#include "dependencies/rhea/rhea.bff"
-#include "dependencies/sqlite/sqlite.bff"
-#include "dependencies/zlib/zlib.bff"
+#include "dependencies/dependencies.bff"
 
 Alias('All-Dependencies')
 {

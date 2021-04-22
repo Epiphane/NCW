@@ -580,8 +580,6 @@ void World::OnChunkGenerated(Chunk&& chunk)
     }
 
     request.resultFunction = [/*this, coordinates*/]() {
-        LOG_INFO("Generated chunk");
-
         /*
         std::vector<Voxel::Data> voxels;
         voxels.push_back(Voxel::Data{glm::vec3(0, 1, 0), glm::vec4(0, 255, 0, 1)});
