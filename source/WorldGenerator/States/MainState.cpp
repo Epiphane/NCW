@@ -2,13 +2,14 @@
 
 #include <cassert>
 #include <functional>
+#include <imgui.h>
 
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
-
+#include <RGBDesignPatterns/Macros.h>
 #include <RGBLogger/Logger.h>
 #include <RGBNetworking/YAMLSerializer.h>
 #include <Engine/Entity/Transform.h>
 #include <Shared/Components/ArmCamera.h>
+#include <Shared/Components/Data.h>
 #include <Shared/Components/VoxModel.h>
 #include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
@@ -37,13 +38,25 @@ using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
 std::unique_ptr<Engine::Input::KeyCallbackLink> gConfigCallback;
-MainState::MainState(Engine::Window& window) : mWindow(window)
+
+MainState::MainState(Engine::Input* input, Bounded& parent)
+    : mInput(input)
+    , mParent(parent)
+{
+}
+
+MainState::~MainState()
+{
+    DebugHelper::Instance().SetSystemManager(nullptr);
+}
+
+void MainState::Initialize()
 {
     DebugHelper::Instance().SetSystemManager(&mSystems);
-    mSystems.Add<CameraSystem>(&window);
+    mSystems.Add<CameraSystem>(mInput);
     mSystems.Add<AnimationSystem>();
-    mSystems.Add<FlySystem>(&window);
-    mSystems.Add<WalkSystem>(&window);
+    mSystems.Add<FlySystem>(mInput);
+    mSystems.Add<WalkSystem>(mInput);
     mSystems.Add<WalkAnimationSystem>();
     mSystems.Add<AnimationApplicator>();
     mSystems.Add<BulletPhysics::System>();
@@ -55,30 +68,19 @@ MainState::MainState(Engine::Window& window) : mWindow(window)
     mSystems.Add<Simple3DRenderSystem>(&mCamera);
     mSystems.Add<VoxelRenderSystem>(&mCamera);
     mSystems.Add<SimpleParticleSystem>(&mCamera);
+    mSystems.Configure();
 
-    gConfigCallback = window.AddCallback(GLFW_KEY_Y, [this](int, int, int) {
+    gConfigCallback = mInput->AddCallback(GLFW_KEY_Y, [this](int, int, int) {
         mSystems.Get<VoxelRenderSystem>()->Reconfigure();
     });
 
     BulletPhysics::Debug* debug = mSystems.Get<BulletPhysics::Debug>();
     debug->SetActive(false);
-    mDebugCallback = window.AddCallback(GLFW_KEY_L, [debug](int, int, int) {
+    mDebugCallback = mInput->AddCallback(GLFW_KEY_L, [debug](int, int, int) {
         debug->SetActive(!debug->IsActive());
     });
 
-    mSystems.Configure();
-}
-
-MainState::~MainState()
-{
-    DebugHelper::Instance().SetSystemManager(nullptr);
-}
-
-float angle_ = 0;
-float roll_ = 0;
-void MainState::Initialize()
-{
-    mWindow.SetMouseLock(true);
+    mInput->SetMouseLock(false);
 
     // Create player first so it gets index 0.
     Entity player = mEntities.Create();
@@ -98,11 +100,14 @@ void MainState::Initialize()
     part.Get<Transform>()->SetLocalScale(glm::vec3{0.25f});
     part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
+    part.Add<Data>();
     part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
-        int isW = mWindow.IsKeyDown(GLFW_KEY_W) ? 1 : 0;
-        int isA = mWindow.IsKeyDown(GLFW_KEY_A) ? 1 : 0;
-        int isS = mWindow.IsKeyDown(GLFW_KEY_S) ? 1 : 0;
-        int isD = mWindow.IsKeyDown(GLFW_KEY_D) ? 1 : 0;
+        Data& data = *part.Get<Data>();
+
+        int isW = mInput->IsKeyDown(GLFW_KEY_W) ? 1 : 0;
+        int isA = mInput->IsKeyDown(GLFW_KEY_A) ? 1 : 0;
+        int isS = mInput->IsKeyDown(GLFW_KEY_S) ? 1 : 0;
+        int isD = mInput->IsKeyDown(GLFW_KEY_D) ? 1 : 0;
 
         float roll = 0;
         float angle = 0;
@@ -138,46 +143,61 @@ void MainState::Initialize()
             roll /= 2.0f;
         }
 
-        if (angle_ - angle > MATH_PI)
+        float& prevAngle = data.Float("angle");
+        if (prevAngle - angle > MATH_PI)
         {
-            angle_ -= 2 * MATH_PI;
+            prevAngle -= 2 * MATH_PI;
         }
-        if (angle - angle_ > MATH_PI)
+        if (angle - prevAngle > MATH_PI)
         {
-            angle_ += 2 * MATH_PI;
+            prevAngle += 2 * MATH_PI;
         }
 
         if ((isW + isA + isS + isD) != 0)
         {
-            angle_ = (angle_ + angle) / 2.0f;
+            prevAngle = (prevAngle + angle) / 2.0f;
         }
-        roll_ = (roll_ + roll) / 2.0f;//0.4f * angle_ + 0.6f * angle;
+        float& prevRoll = data.Float("roll");
+        prevRoll = (prevRoll + roll) / 2.0f;
 
-        if (angle_ < MATH_PI)
+        if (prevAngle < MATH_PI)
         {
             angle += 2 * MATH_PI;
         }
-        if (angle_ > MATH_PI)
+        if (prevAngle > MATH_PI)
         {
             angle -= 2 * MATH_PI;
         }
 
-        part.Get<Transform>()->SetYaw(angle_);
-        part.Get<Transform>()->SetRoll(roll_);
+        part.Get<Transform>()->SetYaw(prevAngle);
+        part.Get<Transform>()->SetRoll(prevRoll);
     });
 
     Entity playerCamera = mEntities.Create(0, 4, 0);
     ArmCamera::Options cameraOptions;
-    cameraOptions.aspect = float(mWindow.GetWidth()) / mWindow.GetHeight();
+    cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
     cameraOptions.far = 1500.0f;
     cameraOptions.distance = 3.5f;
     Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
+    playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT, -0.007, 0.007);
     playerCamera.Add<MouseControlledCamera>();
     playerCamera.Add<MouseControlledCameraArm>();
     playerCamera.Add<Follower>(player.Get<Transform>(), glm::vec3{0.0f});
     player.Get<FlySpeed>()->director = playerCamera.Get<Transform>();
 
-    // Create a campfire
+    {
+        Entity worldParams = mEntities.Create();
+        worldParams.Add<Data>();
+        worldParams.Add<Makeshift>([worldParams](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
+            Data& data = *worldParams.Get<Data>();
+
+            ImGui::Begin("World Generator");
+            ImGui::End();
+
+            CUBEWORLD_UNREFERENCED_PARAMETER(data);
+        });
+    }
+
     mCamera.Set(handle.get());
 
     mWorld.Build();

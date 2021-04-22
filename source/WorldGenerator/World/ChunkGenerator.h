@@ -30,6 +30,7 @@ public:
     ~ChunkGenerator();
 
     void Add(const Request& request);
+    void Clear();
 
 private:
     struct RequestQueue;

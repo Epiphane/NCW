@@ -35,6 +35,7 @@ public:
     ~ChunkMeshGenerator();
 
     void Add(const Request& request);
+    void Clear();
 
 private:
     struct RequestQueue;

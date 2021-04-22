@@ -198,8 +198,9 @@ public:
     {
         mPrivate.profiler.Reset();
 
+        /*
         constexpr float d = 0.5f;
-        constexpr glm::vec3 d___{-d,-d,-d};
+        const glm::vec3 d___{-d,-d,-d};
         const glm::vec3 d__0{-d,-d, 0};
         const glm::vec3 d__1{-d,-d, d};
         const glm::vec3 d_0_{-d, 0,-d};
@@ -228,6 +229,7 @@ public:
         const glm::vec3 d11_{d, d,-d};
         const glm::vec3 d110{d, d, 0};
         const glm::vec3 d111{d, d, d};
+        */
 
         const glm::vec3 top{0,  1,  0};
         const glm::vec3 bottom{0, -1,  0};
@@ -238,62 +240,95 @@ public:
 
         std::vector<ShadedMesh::Point> vertices;
         std::vector<GLuint> indices;
-        bool occupied[3][3][3];
+
+        const glm::vec4 DEEP = glm::vec4(0, 0, 128, 255) / 255.f;
+        const float DEEP_N = 0.01f;
+        const glm::vec4 SHALLOW = glm::vec4(0, 0, 255, 255) / 255.f;
+        const float SHALLOW_N = 0.025f;
+        const glm::vec4 SHORE = glm::vec4(0, 128, 255, 255) / 255.f;
+        const float SHORE_N = 0.05f;
+        const glm::vec4 SAND = glm::vec4(240, 240, 64, 255) / 255.f;
+        const float SAND_N = 0.1f;
+        const glm::vec4 GRASS = glm::vec4(32, 160, 0, 255) / 255.f;
+        const float GRASS_N = 0.3f;
+        const glm::vec4 DIRT = glm::vec4(51, 33, 20, 255) / 255.f;
+        const float DIRT_N = 0.45f;
+        const glm::vec4 ROCK = glm::vec4(128, 128, 128, 255) / 255.f;
+        const float ROCK_N = 0.7f;
+        const glm::vec4 SNOW = glm::vec4(255, 255, 255, 255) / 255.f;
+        const float SNOW_N = 0.85f;
 
         // Iterate over every x, z pair in the chunk.
-        for (int x = 0; x < kChunkSize; ++x)
+        for (uint32_t y = 0; y < kChunkHeight; ++y)
         {
-            for (int z = 0; z < kChunkSize; ++z)
+            float elevation = float(y) / 32.0f;
+            glm::vec4 source, dest;
+            float start, end;
+            if (elevation >= SNOW_N) { source = ROCK; dest = SNOW; start = SNOW_N; end = 1.0f; }
+            else if (elevation >= ROCK_N) { source = DIRT; dest = ROCK; start = ROCK_N; end = SNOW_N; }
+            else if (elevation >= GRASS_N) { source = GRASS; dest = DIRT; start = GRASS_N; end = ROCK_N; }
+            else if (elevation >= SAND_N) { source = SAND; dest = GRASS; start = SAND_N; end = GRASS_N; }
+            else if (elevation >= SHALLOW_N) { source = SHORE; dest = SAND; start = SHALLOW_N; end = SAND_N; }
+            else if (elevation >= DEEP_N) { source = SHALLOW; dest = SHORE; start = DEEP_N; end = SHALLOW_N; }
+            else { source = DEEP; dest = SHALLOW; start = 0; end = DEEP_N; }
+            float perc = (elevation - start) / (end - start);
+
+            glm::vec4 color = dest * perc + source * (1 - perc);
+
+            for (uint32_t x = 0; x < kChunkSize; ++x)
             {
-                const Block& topBlock = request.chunk->GetTop(uint32_t(x), uint32_t(z));
-                int height = int(topBlock.y);
-                glm::vec3 color = topBlock.color;
-
-                int y = height;
-                bool blockVisible = true;
-
-                uint8_t side = Voxel::All;
-                do
+                for (uint32_t z = 0; z < kChunkSize; ++z)
                 {
-                    glm::vec3 position{x, y, z};
+                    float d = std::min(request.chunk->Get(x, y, z).scale / 2.0f, 1.0f);
 
-                    // Compute which neighboring coordinates are occupied.
-                    for (int dx = 0; dx <= 2; ++dx)
+                    if (d < 0 && y > 0)
                     {
-                        int nx = x + dx - 1;
-                        for (int dz = 0; dz <= 2; ++dz)
-                        {
-                            int nz = z + dz - 1;
-
-                            for (int dy = 0; dy <= 2; ++dy)
-                            {
-                                int ny = y + dy - 1;
-
-                                if (nx < 0 || nx >= kChunkSize ||
-                                    nz < 0 || nz >= kChunkSize ||
-                                    ny < 0 || ny >= kChunkHeight)
-                                {
-                                    occupied[dx][dy][dz] = false;
-                                }
-                                else
-                                {
-                                    uint32_t ceiling = request.chunk->GetTop(uint32_t(nx), uint32_t(nz)).y;
-                                    occupied[dx][dy][dz] = uint32_t(ny) <= ceiling;
-                                }
-                            }
-                        }
+                        continue;
                     }
+
+                    if (y == 0)
+                    {
+                        perc = std::powf(std::clamp(d, -1.0f, 0.0f) + 1.0f, 2.0f);
+                        color = dest * perc + source * (1 - perc);
+                    }
+
+                    d = 0.5f;
+
+                    const glm::vec3 d___{ -d,-d,-d };
+                    const glm::vec3 d__0{ -d,-d, 0 };
+                    const glm::vec3 d__1{ -d,-d, d };
+                    const glm::vec3 d_0_{ -d, 0,-d };
+                    const glm::vec3 d_00{ -d, 0, 0 };
+                    const glm::vec3 d_01{ -d, 0, d };
+                    const glm::vec3 d_1_{ -d, d,-d };
+                    const glm::vec3 d_10{ -d, d, 0 };
+                    const glm::vec3 d_11{ -d, d, d };
+
+                    const glm::vec3 d0__{ 0,-d,-d };
+                    const glm::vec3 d0_0{ 0,-d, 0 };
+                    const glm::vec3 d0_1{ 0,-d, d };
+                    const glm::vec3 d00_{ 0, 0,-d };
+                    const glm::vec3 d000{ 0, 0, 0 };
+                    const glm::vec3 d001{ 0, 0, d };
+                    const glm::vec3 d01_{ 0, d,-d };
+                    const glm::vec3 d010{ 0, d, 0 };
+                    const glm::vec3 d011{ 0, d, d };
+
+                    const glm::vec3 d1__{ d,-d,-d };
+                    const glm::vec3 d1_0{ d,-d, 0 };
+                    const glm::vec3 d1_1{ d,-d, d };
+                    const glm::vec3 d10_{ d, 0,-d };
+                    const glm::vec3 d100{ d, 0, 0 };
+                    const glm::vec3 d101{ d, 0, d };
+                    const glm::vec3 d11_{ d, d,-d };
+                    const glm::vec3 d110{ d, d, 0 };
+                    const glm::vec3 d111{ d, d, d };
+
+                    uint8_t side = Voxel::All;
+                    glm::vec3 position{ x, y, z };
 
                     // Figure out what sides of the voxel to draw.
                     side = Voxel::All;
-                    if (occupied[0][1][1]) { side ^= Voxel::Left; }
-                    if (occupied[1][0][1]) { side ^= Voxel::Bottom; }
-                    if (occupied[1][1][0]) { side ^= Voxel::Back; }
-                    if (occupied[1][1][2]) { side ^= Voxel::Front; }
-                    if (occupied[1][2][1]) { side ^= Voxel::Top; }
-                    if (occupied[2][1][1]) { side ^= Voxel::Right; }
-
-                    blockVisible = (side != 0);
 
                     //
                     // Now, draw each face.
@@ -306,20 +341,20 @@ public:
                         float o11_ = ComputeOcclusion(d11_, top);
                         float o_1_ = ComputeOcclusion(d_1_, top);
                         float o_11 = ComputeOcclusion(d_11, top);
-                        float o110 = (o111 + o11_) / 2.0f;
-                        float o011 = (o111 + o_11) / 2.0f;
-                        float o_10 = (o_11 + o_1_) / 2.0f;
-                        float o01_ = (o11_ + o_1_) / 2.0f;
+                        //float o110 = (o111 + o11_) / 2.0f;
+                        //float o011 = (o111 + o_11) / 2.0f;
+                        //float o_10 = (o_11 + o_1_) / 2.0f;
+                        //float o01_ = (o11_ + o_1_) / 2.0f;
 
                         MakePoint(vertices, indices, position + d010, color, top, (o111 + o11_ + o_1_ + o_11) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d111, color, top, o111);
-                        MakePoint(vertices, indices, position + d110, color, top, o110);
+                        //MakePoint(vertices, indices, position + d110, color, top, o110);
                         MakePoint(vertices, indices, position + d11_, color, top, o11_);
-                        MakePoint(vertices, indices, position + d01_, color, top, o01_);
+                        //MakePoint(vertices, indices, position + d01_, color, top, o01_);
                         MakePoint(vertices, indices, position + d_1_, color, top, o_1_);
-                        MakePoint(vertices, indices, position + d_10, color, top, o_10);
+                        //MakePoint(vertices, indices, position + d_10, color, top, o_10);
                         MakePoint(vertices, indices, position + d_11, color, top, o_11);
-                        MakePoint(vertices, indices, position + d011, color, top, o011);
+                        //MakePoint(vertices, indices, position + d011, color, top, o011);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
@@ -331,20 +366,20 @@ public:
                         float o1__ = ComputeOcclusion(d1__, bottom);
                         float o___ = ComputeOcclusion(d___, bottom);
                         float o__1 = ComputeOcclusion(d__1, bottom);
-                        float o1_0 = (o1_1 + o1__) / 2.0f;
-                        float o0_1 = (o1_1 + o__1) / 2.0f;
-                        float o__0 = (o__1 + o___) / 2.0f;
-                        float o0__ = (o1__ + o___) / 2.0f;
+                        //float o1_0 = (o1_1 + o1__) / 2.0f;
+                        //float o0_1 = (o1_1 + o__1) / 2.0f;
+                        //float o__0 = (o__1 + o___) / 2.0f;
+                        //float o0__ = (o1__ + o___) / 2.0f;
 
                         MakePoint(vertices, indices, position + d0_0, color, bottom, (o1_1 + o1__ + o___ + o__1) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d1_1, color, bottom, o1_1);
-                        MakePoint(vertices, indices, position + d0_1, color, bottom, o0_1);
+                        //MakePoint(vertices, indices, position + d0_1, color, bottom, o0_1);
                         MakePoint(vertices, indices, position + d__1, color, bottom, o__1);
-                        MakePoint(vertices, indices, position + d__0, color, bottom, o__0);
+                        //MakePoint(vertices, indices, position + d__0, color, bottom, o__0);
                         MakePoint(vertices, indices, position + d___, color, bottom, o___);
-                        MakePoint(vertices, indices, position + d0__, color, bottom, o0__);
+                        //MakePoint(vertices, indices, position + d0__, color, bottom, o0__);
                         MakePoint(vertices, indices, position + d1__, color, bottom, o1__);
-                        MakePoint(vertices, indices, position + d1_0, color, bottom, o1_0);
+                        //MakePoint(vertices, indices, position + d1_0, color, bottom, o1_0);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
@@ -356,20 +391,20 @@ public:
                         float o_1_ = ComputeOcclusion(d_1_, left);
                         float o___ = ComputeOcclusion(d___, left);
                         float o__1 = ComputeOcclusion(d__1, left);
-                        float o_10 = (o_11 + o_1_) / 2.0f;
-                        float o_01 = (o_11 + o__1) / 2.0f;
-                        float o__0 = (o__1 + o___) / 2.0f;
-                        float o_0_ = (o_1_ + o___) / 2.0f;
+                        //float o_10 = (o_11 + o_1_) / 2.0f;
+                        //float o_01 = (o_11 + o__1) / 2.0f;
+                        //float o__0 = (o__1 + o___) / 2.0f;
+                        //float o_0_ = (o_1_ + o___) / 2.0f;
 
                         MakePoint(vertices, indices, position + d_00, color, left, (o_11 + o_1_ + o___ + o__1) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d_11, color, left, o_11);
-                        MakePoint(vertices, indices, position + d_10, color, left, o_10);
+                        //MakePoint(vertices, indices, position + d_10, color, left, o_10);
                         MakePoint(vertices, indices, position + d_1_, color, left, o_1_);
-                        MakePoint(vertices, indices, position + d_0_, color, left, o_0_);
+                        //MakePoint(vertices, indices, position + d_0_, color, left, o_0_);
                         MakePoint(vertices, indices, position + d___, color, left, o___);
-                        MakePoint(vertices, indices, position + d__0, color, left, o__0);
+                        //MakePoint(vertices, indices, position + d__0, color, left, o__0);
                         MakePoint(vertices, indices, position + d__1, color, left, o__1);
-                        MakePoint(vertices, indices, position + d_01, color, left, o_01);
+                        //MakePoint(vertices, indices, position + d_01, color, left, o_01);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
@@ -382,20 +417,20 @@ public:
                         float o1__ = ComputeOcclusion(d1__, right);
                         float o1_1 = ComputeOcclusion(d1_1, right);
 
-                        float o110 = (o111 + o11_) / 2.0f;
-                        float o101 = (o111 + o1_1) / 2.0f;
-                        float o1_0 = (o1_1 + o1__) / 2.0f;
-                        float o10_ = (o11_ + o1__) / 2.0f;
+                        //float o110 = (o111 + o11_) / 2.0f;
+                        //float o101 = (o111 + o1_1) / 2.0f;
+                        //float o1_0 = (o1_1 + o1__) / 2.0f;
+                        //float o10_ = (o11_ + o1__) / 2.0f;
 
                         MakePoint(vertices, indices, position + d100, color, right, (o111 + o11_ + o1__ + o1_1) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d111, color, right, o111);
-                        MakePoint(vertices, indices, position + d101, color, right, o101);
+                        //MakePoint(vertices, indices, position + d101, color, right, o101);
                         MakePoint(vertices, indices, position + d1_1, color, right, o1_1);
-                        MakePoint(vertices, indices, position + d1_0, color, right, o1_0);
+                        //MakePoint(vertices, indices, position + d1_0, color, right, o1_0);
                         MakePoint(vertices, indices, position + d1__, color, right, o1__);
-                        MakePoint(vertices, indices, position + d10_, color, right, o10_);
+                        //MakePoint(vertices, indices, position + d10_, color, right, o10_);
                         MakePoint(vertices, indices, position + d11_, color, right, o11_);
-                        MakePoint(vertices, indices, position + d110, color, right, o110);
+                        //MakePoint(vertices, indices, position + d110, color, right, o110);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
@@ -407,21 +442,21 @@ public:
                         float o11_ = ComputeOcclusion(d11_, back);
                         float o___ = ComputeOcclusion(d___, back);
                         float o_1_ = ComputeOcclusion(d_1_, back);
-                        float o10_ = (o11_ + o1__) / 2.0f;
-                        float o0__ = (o1__ + o___) / 2.0f;
-                        float o_0_ = (o___ + o_1_) / 2.0f;
-                        float o01_ = (o_1_ + o11_) / 2.0f;
+                        //float o10_ = (o11_ + o1__) / 2.0f;
+                        //float o0__ = (o1__ + o___) / 2.0f;
+                        //float o_0_ = (o___ + o_1_) / 2.0f;
+                        //float o01_ = (o_1_ + o11_) / 2.0f;
 
 
                         MakePoint(vertices, indices, position + d00_, color, back, (o___ + o11_ + o1__ + o_1_) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d11_, color, back, o11_);
-                        MakePoint(vertices, indices, position + d10_, color, back, o10_);
+                        //MakePoint(vertices, indices, position + d10_, color, back, o10_);
                         MakePoint(vertices, indices, position + d1__, color, back, o1__);
-                        MakePoint(vertices, indices, position + d0__, color, back, o0__);
+                        //MakePoint(vertices, indices, position + d0__, color, back, o0__);
                         MakePoint(vertices, indices, position + d___, color, back, o___);
-                        MakePoint(vertices, indices, position + d_0_, color, back, o_0_);
+                        //MakePoint(vertices, indices, position + d_0_, color, back, o_0_);
                         MakePoint(vertices, indices, position + d_1_, color, back, o_1_);
-                        MakePoint(vertices, indices, position + d01_, color, back, o01_);
+                        //MakePoint(vertices, indices, position + d01_, color, back, o01_);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
@@ -433,35 +468,39 @@ public:
                         float o111 = ComputeOcclusion(d111, front);
                         float o__1 = ComputeOcclusion(d__1, front);
                         float o_11 = ComputeOcclusion(d_11, front);
-                        float o101 = (o111 + o1_1) / 2.0f;
-                        float o0_1 = (o1_1 + o__1) / 2.0f;
-                        float o_01 = (o__1 + o_11) / 2.0f;
-                        float o011 = (o_11 + o111) / 2.0f;
+                        //float o101 = (o111 + o1_1) / 2.0f;
+                        //float o0_1 = (o1_1 + o__1) / 2.0f;
+                        //float o_01 = (o__1 + o_11) / 2.0f;
+                        //float o011 = (o_11 + o111) / 2.0f;
 
                         MakePoint(vertices, indices, position + d001, color, front, (o__1 + o111 + o1_1 + o_11) / 4.0f);
                         GLuint begin = MakePoint(vertices, indices, position + d111, color, front, o111);
-                        MakePoint(vertices, indices, position + d011, color, front, o011);
+                        //MakePoint(vertices, indices, position + d011, color, front, o011);
                         MakePoint(vertices, indices, position + d_11, color, front, o_11);
-                        MakePoint(vertices, indices, position + d_01, color, front, o_01);
+                        //MakePoint(vertices, indices, position + d_01, color, front, o_01);
                         MakePoint(vertices, indices, position + d__1, color, front, o__1);
-                        MakePoint(vertices, indices, position + d0_1, color, front, o0_1);
+                        //MakePoint(vertices, indices, position + d0_1, color, front, o0_1);
                         MakePoint(vertices, indices, position + d1_1, color, front, o1_1);
-                        MakePoint(vertices, indices, position + d101, color, front, o101);
+                        //MakePoint(vertices, indices, position + d101, color, front, o101);
                         indices.push_back(begin);
                         indices.push_back(kPrimitiveRestart);
                     }
-
-                    --y;
-                } while (side != 0 && y >= 0 && y > height - 2);
+                }
             }
         }
 
         Engine::Graphics::VBO vbo(Engine::Graphics::VBO::Vertices);
-        vbo.BufferData(vertices);
+        if (!vertices.empty())
+        {
+            vbo.BufferData(vertices);
+        }
 
-        size_t count = indices.size();
         Engine::Graphics::VBO ndx(Engine::Graphics::VBO::Indices);
-        ndx.BufferData(indices);
+        size_t count = indices.size();
+        if (count > 0)
+        {
+            ndx.BufferData(indices);
+        }
         glFlush();
 
         request.component->Set(std::move(vbo), std::move(ndx), count);
@@ -482,6 +521,12 @@ public:
 
         mShared.requests.push_back(request);
         mShared.condition.notify_one();
+    }
+
+    void ClearQueue()
+    {
+        std::unique_lock<std::mutex> lock{ mShared.mutex };
+        mShared.requests.clear();
     }
 
 private:
@@ -512,6 +557,14 @@ ChunkMeshGenerator::~ChunkMeshGenerator()
 void ChunkMeshGenerator::Add(const Request& request)
 {
     mWorker->Add(request);
+}
+
+///
+///
+///
+void ChunkMeshGenerator::Clear()
+{
+    mWorker->ClearQueue();
 }
 
 }; // namespace CubeWorld

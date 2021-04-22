@@ -3,9 +3,10 @@
 #include <queue>
 #include <mutex>
 
+#include <RGBDesignPatterns/Macros.h>
+#include <RGBLogger/Logger.h>
 #include <Engine/Core/Timer.h>
 #include <Shared/DebugHelper.h>
-#include <RGBLogger/Logger.h>
 
 #include "ChunkGenerator.h"
 
@@ -65,7 +66,9 @@ public:
 public:
     Worker()
     {
-        gHeightmodule.SetFrequency(0.25f);
+        gHeightmodule.SetFrequency(0.01f);
+        gHeightmodule.SetOctaveCount(8);
+        gHeightmodule.SetSeed(5);
 
         mPrivate.thread = std::thread([this] { Run(); });
     }
@@ -123,53 +126,32 @@ public:
     {
         mPrivate.profiler.Reset();
 
-        noise::utils::NoiseMap map;
-        noise::utils::NoiseMapBuilderPlane builder;
-
-        int chunkX = request.coordinates.x;
-        int chunkZ = request.coordinates.z;
-
-        builder.SetSourceModule(gHeightmodule);
-        builder.SetDestNoiseMap(map);
-        builder.SetDestSize(kChunkSize, kChunkSize);
-        builder.SetBounds(chunkX, chunkX + 1, chunkZ, chunkZ + 1);
-        builder.Build();
-
-        const glm::vec4 DEEP = glm::vec4(0, 0, 128, 255) / 255.f;
-        const glm::vec4 SHALLOW = glm::vec4(0, 0, 255, 255) / 255.f;
-        const glm::vec4 SHORE = glm::vec4(0, 128, 255, 255) / 255.f;
-        const glm::vec4 SAND = glm::vec4(240, 240, 64, 255) / 255.f;
-        const glm::vec4 GRASS = glm::vec4(32, 160, 0, 255) / 255.f;
-        const glm::vec4 DIRT = glm::vec4(224, 224, 0, 255) / 255.f;
-        const glm::vec4 ROCK = glm::vec4(128, 128, 128, 255) / 255.f;
-        const glm::vec4 SNOW = glm::vec4(255, 255, 255, 255) / 255.f;
+        int chunkX = request.coordinates.x + 100;// +100;
+        int chunkY = request.coordinates.y;// +100;
+        int chunkZ = request.coordinates.z + 100;// + 100;
 
         Chunk chunk(request.coordinates);
-        for (uint32_t x = 0; x < kChunkSize; ++x)
+        for (uint32_t y = 0; y < kChunkHeight; ++y)
         {
-            for (uint32_t z = 0; z < kChunkSize; ++z)
+            for (uint32_t x = 0; x < kChunkSize; ++x)
             {
-                // Elevation is between [-1, 1]
-                float elevation = map.GetValue((int)x, (int)z);
-                elevation = std::clamp(elevation - 0.25f, -0.75f, 1.f);
+                for (uint32_t z = 0; z < kChunkSize; ++z)
+                {
+                    float globalX = float(x + chunkX * kChunkSize);
+                    float globalY = float(y + chunkY * kChunkSize);
+                    float globalZ = float(z + chunkZ * kChunkSize);
+                    float noiseVal = float(gHeightmodule.GetValue(double(globalX), double(globalY), double(globalZ)));
 
-                uint32_t height = uint32_t((elevation + 1) * kChunkHeight / 4);
+                    CUBEWORLD_UNREFERENCED_VARIABLE(noiseVal);
 
-                glm::vec4 source, dest;
-                float start, end;
-                if (elevation >= 0.75f) { source = ROCK; dest = SNOW; start = 0.75f; end = 1.0f; }
-                else if (elevation >= 0.375f) { source = DIRT; dest = ROCK; start = 0.375f; end = 0.75f; }
-                else if (elevation >= 0.125f) { source = GRASS; dest = DIRT; start = 0.125f; end = 0.375f; }
-                else if (elevation >= 0.0225f) { source = SAND; dest = GRASS; start = 0.0625f; end = 0.125f; }
-                else if (elevation >= -0.25f) { source = SHORE; dest = SAND; start = 0; end = 0.0625f; }
-                else if (elevation >= -0.5f) { source = SHALLOW; dest = SHORE; start = -0.25f; end = 0; }
-                else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
-                float perc = (elevation - start) / (end - start);
-
-                glm::vec4 color = dest * perc + source * (1 - perc);
-
-                Block& block = chunk.Get(x, height, z);
-                block.color = color;
+                    auto& block = chunk.Get(x, y, z);
+                    block.scale = -std::powf(std::max(globalY - 0.f, 0.f), 1.05f) / 32.0f;
+                    if (globalY < 4)
+                    {
+                        block.scale /= (4.0f - globalY);
+                    }
+                    block.scale += noiseVal + 0.25f;
+                }
             }
         }
 
@@ -183,6 +165,12 @@ public:
         std::unique_lock<std::mutex> lock{mShared.mutex};
         mShared.requests.push_back(request);
         mShared.condition.notify_one();
+    }
+
+    void ClearQueue()
+    {
+        std::unique_lock<std::mutex> lock{ mShared.mutex };
+        mShared.requests.clear();
     }
 
 private:
@@ -211,6 +199,14 @@ ChunkGenerator::~ChunkGenerator()
 void ChunkGenerator::Add(const Request& request)
 {
     mWorker->Add(request);
+}
+
+///
+///
+///
+void ChunkGenerator::Clear()
+{
+    mWorker->ClearQueue();
 }
 
 }; // namespace CubeWorld

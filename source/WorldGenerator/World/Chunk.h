@@ -23,13 +23,13 @@ struct ChunkCoords
 ///
 ///
 ///
-constexpr int kChunkSize = 32;
-constexpr int kChunkHeight = 32;
+constexpr int kChunkSize = 16;
+constexpr int kChunkHeight = 48;
 
 struct Block
 {
-    uint32_t y;
-    glm::vec3 color;
+    float scale;
+    //glm::vec3 color;
 };
 
 class Chunk
@@ -39,11 +39,8 @@ public:
     Chunk(Chunk&& other) noexcept;
     ~Chunk();
 
-    const Block& GetTop(uint32_t x, uint32_t z) const;
-
     ChunkCoords GetCoords() const { return mCoords; }
     bool IsPopulated() const { return mIsPopulated; }
-    bool Has(uint32_t x, uint32_t y, uint32_t z) const;
     Block& Get(uint32_t x, uint32_t y, uint32_t z);
 
 private:
@@ -51,7 +48,7 @@ private:
     bool mIsPopulated = false;
 
     mutable std::mutex mBlocksMutex;
-    std::vector<std::vector<Block>> mBlocks;
+    std::vector<Block> mBlocks;
 };
 
 }; // namespace CubeWorld

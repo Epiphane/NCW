@@ -17,20 +17,27 @@ namespace CubeWorld
 
 class MainState : public Engine::State, public Engine::Receiver<MainState> {
 public:
-   MainState(Engine::Window& window);
-   ~MainState();
+    MainState(Engine::Input* input, Bounded& parent);
+    ~MainState();
 
-   void Initialize() override;
+    void Initialize() override;
+
+    void SetParent(Engine::EventManager* other) { mEvents.SetParent(other); }
+    template<typename E>
+    void TransformParentEvents(Engine::Transformer<E>* transformer)
+    {
+        mEvents.TransformParentEvents<E>(transformer);
+    }
 
 private:
-   std::unique_ptr<Engine::Input::KeyCallbackLink> mDebugCallback;
+    std::unique_ptr<Engine::Input::KeyCallbackLink> mDebugCallback;
 
-   Engine::Graphics::CameraHandle mCamera;
+    Engine::Graphics::CameraHandle mCamera;
 
-   Engine::Window& mWindow;
+    World mWorld;
 
-   World mWorld;
-   std::vector<int32_t> heights;
+    Engine::Input* mInput;
+    Bounded& mParent;
 };
 
 }; // namespace CubeWorld
