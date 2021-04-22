@@ -9,8 +9,8 @@
 #include <Engine/Entity/EntityManager.h>
 #include <Shared/Helpers/Asset.h>
 
-#include "../Imgui/Extensions.h"
-#include "../Imgui/Meta.h"
+#include <Shared/Imgui/Extensions.h>
+#include <Shared/Imgui/Meta.h>
 
 #include "Dock.h"
 

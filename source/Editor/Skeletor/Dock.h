@@ -16,7 +16,7 @@
 #include <Engine/Graphics/Camera.h>
 #include <Engine/UI/UIRoot.h>
 
-#include "../Imgui/Scrubber.h"
+#include <Shared/Imgui/Scrubber.h>
 #include "SkeletonSystem.h"
 #include "Events.h"
 #include "State.h"

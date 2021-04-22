@@ -1,6 +1,7 @@
 // By Thomas Steinke
 
 #include <glad/glad.h>
+#include <imgui.h>
 
 #include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Window.h>
@@ -94,68 +95,110 @@ void DebugHelper::RemoveLink(MetricLink* link)
    link->prev = nullptr;
 }
 
-void DebugHelper::Update()
+void DebugHelper::Update(bool imgui)
 {
    if (mBounds == nullptr)
    {
       return;
    }
 
-   mMetricsState.clear();
-   std::string text = "DEBUG:";
-   MetricLink* metric = mMetrics->next;
-   while (metric != mMetrics.get())
+   float left = 0, top = 0, right = 0;
+   if (imgui)
    {
-      if (metric->callback)
-      {
-         std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
-         mMetricsState.push_back(result);
+       ImGui::Begin("Debug Metrics");
 
-         text += "\n" + result.first + ": " + result.second;
-      }
-      metric = metric->next;
+       MetricLink* metric = mMetrics->next;
+       while (metric != mMetrics.get())
+       {
+           if (metric->callback)
+           {
+               std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
+               ImGui::Text("%s: %s", result.first.c_str(), result.second.c_str());
+           }
+           metric = metric->next;
+       }
+
+       ImGui::End();
    }
-
-   float left = GLfloat(mBounds->GetX());
-   float top = GLfloat(mBounds->GetY() + mBounds->GetHeight()) - 40.0f;
-   float right = left + GLfloat(mBounds->GetWidth());
-   if (mMetricsText != text)
+   else
    {
-      mMetricsText = text;
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 0, 1, text, Engine::Graphics::Font::Left);
+       mMetricsState.clear();
+       std::string text = "DEBUG:";
+       MetricLink* metric = mMetrics->next;
+       while (metric != mMetrics.get())
+       {
+           if (metric->callback)
+           {
+               std::pair<std::string, std::string> result = std::make_pair(metric->name, metric->callback());
+               mMetricsState.push_back(result);
 
-      mMetricsCount = static_cast<GLint>(metricsText.size());
-      mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
+               text += "\n" + result.first + ": " + result.second;
+           }
+           metric = metric->next;
+       }
+
+       left = GLfloat(mBounds->GetX());
+       top = GLfloat(mBounds->GetY() + mBounds->GetHeight()) - 40.0f;
+       right = left + GLfloat(mBounds->GetWidth());
+       if (mMetricsText != text)
+       {
+           mMetricsText = text;
+           std::vector<Engine::Graphics::Font::CharacterVertexUV> metricsText = mFont->Write(left, top, 0, 1, text, Engine::Graphics::Font::Left);
+
+           mMetricsCount = static_cast<GLint>(metricsText.size());
+           mMetricsTextVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mMetricsCount, &metricsText[0], GL_STATIC_DRAW);
+       }
    }
 
 #if CUBEWORLD_BENCHMARK_SYSTEMS
    if (mSystemManager != nullptr)
    {
-      std::string leftText = "-------- Systems ------";
-      std::string rightText = "------";
-      for (auto system : mSystemManager->GetBenchmarks())
-      {
-         leftText += "\n" + system.first;
-         std::string ms = FormatString("%.1fms", system.second * 1000.0);
-         if (ms.size() < 7)
-         {
-            ms.insert(ms.begin(), 7 - ms.size(), ' ');
-         }
-         rightText += "\n" + std::move(ms);
-      }
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);
-      std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 0, 1, rightText, Engine::Graphics::Font::Left);
-      systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
+       if (imgui)
+       {
+           ImGui::Begin("Systems");
+           for (auto system : mSystemManager->GetBenchmarks())
+           {
+               ImVec4 color(1, 1, 1, 1);
+               if (system.second > 0.001)
+               {
+                   color.z = 0;
+               }
+               if (system.second > 0.01)
+               {
+                   color.y = 0;
+               }
+               ImGui::TextColored(color, "%7s: %.1fms", system.first.c_str(), std::floor(system.second * 100000.0) / 100.0);
+           }
+           ImGui::End();
+       }
+       else
+       {
+           std::string leftText = "-------- Systems ------";
+           std::string rightText = "------";
+           for (auto system : mSystemManager->GetBenchmarks())
+           {
+               leftText += "\n" + system.first;
+               std::string ms = FormatString("%.1fms", system.second * 1000.0);
+               if (ms.size() < 7)
+               {
+                   ms.insert(ms.begin(), 7 - ms.size(), ' ');
+               }
+               rightText += "\n" + std::move(ms);
+           }
+           std::vector<Engine::Graphics::Font::CharacterVertexUV> systemsText = mFont->Write(right - 400, top, 0, 1, leftText, Engine::Graphics::Font::Left);
+           std::vector<Engine::Graphics::Font::CharacterVertexUV> rightUVs = mFont->Write(right - 105, top, 0, 1, rightText, Engine::Graphics::Font::Left);
+           systemsText.insert(systemsText.end(), rightUVs.begin(), rightUVs.end());
 
-      mSystemsCount = static_cast<GLint>(systemsText.size());
-      mSystemsBenchmarkVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mSystemsCount, &systemsText[0], GL_STATIC_DRAW);
+           mSystemsCount = static_cast<GLint>(systemsText.size());
+           mSystemsBenchmarkVBO.BufferData(sizeof(Engine::Graphics::Font::CharacterVertexUV) * mSystemsCount, &systemsText[0], GL_STATIC_DRAW);
+       }
    }
 #endif
 }
 
-void DebugHelper::Render()
+void DebugHelper::Render(bool imgui)
 {
-   if (mBounds == nullptr)
+   if (mBounds == nullptr || imgui)
    {
       return;
    }

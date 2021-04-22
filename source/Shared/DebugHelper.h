@@ -74,8 +74,8 @@ public:
       SetMetric(name, FormatString("%1", value));
    }
 
-   void Update();
-   void Render();
+   void Update(bool imgui = false);
+   void Render(bool imgui = false);
 
    void SetBounds(Bounded* bounds) { mBounds = bounds; }
 

@@ -1,0 +1,10 @@
+// RGBMath library
+//------------------------------------------------------------------------------
+{
+   .LibraryName = 'RGBMath'
+   .LibraryPath = '$_CURRENT_BFF_DIR_$'
+
+   .AdditionalCompilerOptions = ''
+
+   #include "../LibraryHelper.bff"
+}

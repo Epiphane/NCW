@@ -28,7 +28,7 @@
 #include "ParticleSpace/Editor.h"
 #include "Skeletor/Editor.h"
 
-#include "Imgui/Context.h"
+#include <Shared/Imgui/Context.h>
 #include "Main.h"
 
 using namespace CubeWorld;

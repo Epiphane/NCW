@@ -1,14 +1,7 @@
 // Source files
 //------------------------------------------------------------------------------
 
-#include "Library/RGBBinding/RGBBinding.bff"
-#include "Library/RGBDesignPatterns/RGBDesignPatterns.bff"
-#include "Library/RGBFileSystem/RGBFileSystem.bff"
-#include "Library/RGBLogger/RGBLogger.bff"
-#include "Library/RGBMeta/RGBMeta.bff"
-#include "Library/RGBNetworking/RGBNetworking.bff"
-#include "Library/RGBSettings/RGBSettings.bff"
-#include "Library/RGBText/RGBText.bff"
+#include "Library/Library.bff"
 
 // Include paths
 //------------------------------------------------------------------------------

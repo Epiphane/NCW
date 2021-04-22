@@ -8,7 +8,7 @@
 #include <RGBText/StringHelper.h>
 #include <Shared/Helpers/Asset.h>
 
-#include "../Imgui/Extensions.h"
+#include <Shared/Imgui/Extensions.h>
 #include "Dock.h"
 
 namespace CubeWorld

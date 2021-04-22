@@ -15,6 +15,8 @@
 namespace CubeWorld
 {
 
+class StateWindow;
+
 namespace Engine
 {
 

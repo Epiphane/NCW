@@ -10,13 +10,11 @@
 #include <Engine/Core/Bounded.h>
 #include <Engine/Core/Input.h>
 #include <Engine/Core/State.h>
+#include <Engine/Event/EventManager.h>
 #include <Engine/Event/MouseInputTransformer.h>
 #include <Engine/Graphics/Framebuffer.h>
 
 namespace CubeWorld
-{
-
-namespace Editor
 {
 
 //
@@ -29,7 +27,7 @@ namespace Editor
 //
 // Similar to UI::StateWindow, except playing with Imgui instead of constraints
 //
-class StateWindow : public Bounds, public Engine::Input, public MouseInputTransformer
+class StateWindow : public Bounds, public Engine::Input, public MouseInputTransformer, public Engine::EventManager
 {
 public:
    StateWindow(
@@ -93,7 +91,5 @@ public:
    const MouseUpEvent TransformEventDown(const MouseUpEvent& evt) const override;
    const MouseClickEvent TransformEventDown(const MouseClickEvent& evt) const override;
 };
-
-}; // namespace Editor
 
 }; // namespace CubeWorld

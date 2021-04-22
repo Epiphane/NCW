@@ -10,9 +10,6 @@
 namespace CubeWorld
 {
 
-namespace Editor
-{
-
 StateWindow::StateWindow(
    Engine::Input& input,
    uint32_t width,
@@ -157,7 +154,5 @@ const MouseClickEvent StateWindow::TransformEventDown(const MouseClickEvent& evt
 {
    return MouseClickEvent(evt.button, (evt.x - GetX()) / GetWidth(), (evt.y - GetY()) / GetHeight());
 }
-
-}; // namespace Editor
 
 }; // namespace CubeWorld

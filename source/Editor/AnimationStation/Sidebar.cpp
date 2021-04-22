@@ -9,7 +9,7 @@
 #include <Engine/UI/UIRoot.h>
 #include <Shared/Helpers/Asset.h>
 
-#include "../Imgui/Extensions.h"
+#include <Shared/Imgui/Extensions.h>
 #include "Sidebar.h"
 
 namespace CubeWorld

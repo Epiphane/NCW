@@ -7,8 +7,8 @@
 #include <RGBText/StringHelper.h>
 #include <Engine/UI/UIRoot.h>
 
-#include "../Imgui/Extensions.h"
-#include "../Imgui/Meta.h"
+#include <Shared/Imgui/Extensions.h>
+#include <Shared/Imgui/Meta.h>
 
 #include "Dock.h"
 
