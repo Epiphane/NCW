@@ -1,0 +1,30 @@
+// duktape external library
+//------------------------------------------------------------------------------
+.DuktapeIncludePaths = ''
+{
+   .LibraryName = 'duktape'
+   .LibraryVersion = '2.6.0'
+   .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/prep/nondebug'
+
+   .AdditionalCompilerOptions = ''
+                           #if __WINDOWS__
+                              + ' /wd4127' // conditional expression is constant
+                              + ' /wd4702' // unreachable code
+                              + ' /wd6011' // Dereferencing NULL pointer '%s'.
+                              + ' /wd6326' // Potential comparison of a constant with another constant.
+                              + ' /wd6385' // Reading invalid data from '%s': the readable size is '%d' bytes, but '%d' bytes may be read.
+                           #endif
+                           #if __OSX__
+                              + ''
+                           #endif
+
+   .AdditionalLinkerOptions = ''
+
+   .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/prep/nondebug'
+   .LibrarySourceFiles  = { '*.c' }
+
+   #define NO_UNITY_BUILD_ONCE
+   #include "../dependency.bff"
+
+   ^DuktapeIncludePaths = ' -I$LibraryIncludePaths$'
+}
