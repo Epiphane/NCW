@@ -82,7 +82,6 @@ void MainState::Initialize()
     Entity player = mEntities.Create();
     player.Add<Transform>(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
     player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
-    player.Add<FlySpeed>(4*25.0f);
 
     // Set up the player controller
     {

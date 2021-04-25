@@ -10,12 +10,17 @@ namespace CubeWorld
 
 struct Javascript : public Engine::Component<Javascript>
 {
-    Javascript(const std::string& scriptPath)
-        : scriptPath(scriptPath)
-    {};
+    Javascript(const std::string& scriptPath);
+    ~Javascript();
+    void Reset();
+    void Reload();
+    void Run();
    
     std::string scriptPath;
-    void* ctx = nullptr;
+    void* _ctx = nullptr;
+    bool disabled = false;
+
+    std::string source;
 };
 
 class JavascriptSystem : public Engine::System<JavascriptSystem>, public Engine::Receiver<JavascriptSystem>
@@ -32,6 +37,11 @@ public:
    
 private:
     Engine::Input* mInput;
+
+private:
+    friend struct Javascript;
+    static void FatalHandler(void* udata, const char* msg);
+    static Javascript* sCurrentContext;
 };
 
 }; // namespace CubeWorld
