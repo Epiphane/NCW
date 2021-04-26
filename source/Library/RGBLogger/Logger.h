@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include <RGBDesignPatterns/Singleton.h>
 #include <RGBText/Format.h>
@@ -61,7 +62,8 @@ public:
    const inline void Log(LogLevel level, const std::string& message) { Log(level, message.c_str()); }
 
 private:
-   std::vector<Logger*> loggers;
+    std::mutex mLogMutex;
+    std::vector<Logger*> loggers;
 
 public:
    void RegisterLogger(Logger* logger);

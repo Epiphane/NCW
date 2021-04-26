@@ -67,6 +67,7 @@ public:
             Engine::Context::Instance().Activate();
             Engine::Window::Instance().GetVAO().Bind();
             Run();
+            Engine::Context::Instance().Deactivate();
         });
     }
 

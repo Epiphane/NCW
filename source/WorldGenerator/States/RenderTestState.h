@@ -29,9 +29,6 @@ private:
    Engine::Graphics::CameraHandle mCamera;
 
    Engine::Window& mWindow;
-
-   World mWorld;
-   std::vector<int32_t> heights;
 };
 
 }; // namespace CubeWorld

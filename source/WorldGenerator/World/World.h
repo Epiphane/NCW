@@ -33,21 +33,24 @@ namespace CubeWorld
 class World
 {
 public:
-    World();
+    World(Engine::EntityManager& entities);
     ~World();
 
     void Build();
-    Engine::Entity Create(int chunkX, int chunkY, int chunkZ, Engine::EntityManager& entities);
+    void Reset();
+    Engine::Entity Create(int chunkX, int chunkY, int chunkZ);
     Chunk& Get(const ChunkCoords& coords);
 
 private:
-    void OnChunkGenerated(Chunk&& chunk);
+    void OnChunkGenerated(int version, Chunk&& chunk);
 
 private:
-    noise::module::Perlin mHeightmodule;
-    noise::utils::NoiseMap mHeightmap;
-
     bool mQuitting = false;
+
+    std::mutex mVersionMutex;
+    int mVersion = 0;
+
+    Engine::EntityManager& mEntityManager;
 
     // TODO maybe one day, we won't be able to keep a big ol' list of chunks here.
     // Until then, stay lazy.

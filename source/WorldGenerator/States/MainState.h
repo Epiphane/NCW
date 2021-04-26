@@ -10,6 +10,7 @@
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
 #include <Shared/Event/NamedEvent.h>
+#include <Shared/Systems/JavascriptSystem.h>
 #include "../World/World.h"
 
 namespace CubeWorld
@@ -28,6 +29,8 @@ public:
     {
         mEvents.TransformParentEvents<E>(transformer);
     }
+
+    void Receive(const JavascriptEvent& evt);
 
 private:
     std::unique_ptr<Engine::Input::KeyCallbackLink> mDebugCallback;

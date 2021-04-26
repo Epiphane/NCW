@@ -3,10 +3,23 @@
 #pragma once
 
 #include <Engine/Core/Input.h>
+#include <Engine/Event/Event.h>
 #include <Engine/System/System.h>
 
 namespace CubeWorld
 {
+
+struct JavascriptEvent : public Engine::Event<JavascriptEvent>
+{
+    JavascriptEvent(const std::string& name) : name(name) {}
+    JavascriptEvent(const std::string& name, BindingProperty&& data)
+        : name(name)
+        , data(std::move(data))
+    {}
+
+    std::string name;
+    BindingProperty data;
+};
 
 struct Javascript : public Engine::Component<Javascript>
 {
@@ -19,6 +32,7 @@ struct Javascript : public Engine::Component<Javascript>
     std::string scriptPath;
     void* _ctx = nullptr;
     bool disabled = false;
+    bool started = false;
 
     std::string source;
 };

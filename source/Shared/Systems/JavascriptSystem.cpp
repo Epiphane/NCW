@@ -105,6 +105,35 @@ static duk_ret_t JavascriptSystem_Alert(duk_context* ctx)
 
 ///
 ///
+/// 
+static Engine::EventManager* JavascriptSystem_Events = nullptr;
+static duk_ret_t JavascriptSystem_Emit(duk_context* ctx)
+{
+    if (JavascriptSystem_Events == nullptr)
+    {
+        return DUK_RET_ERROR;
+    }
+
+    // At least 1 argument required.
+    duk_idx_t nargs = duk_get_top(ctx);
+    if (nargs == 0) {
+        return DUK_RET_TYPE_ERROR;
+    }
+
+    const char* name = duk_require_string(ctx, 0);
+    BindingProperty data;
+
+    if (nargs > 1)
+    {
+        return DUK_RET_ERROR;
+    }
+
+    JavascriptSystem_Events->Emit<JavascriptEvent>(name, std::move(data));
+    return 0;
+}
+
+///
+///
 ///
 Javascript* JavascriptSystem::sCurrentContext = nullptr;
 void JavascriptSystem::FatalHandler(void* udata, const char* msg)
@@ -138,22 +167,49 @@ Javascript::Javascript(const std::string& scriptPath)
     // Push global object onto stack
     duk_push_global_object(ctx);
 
-    // Push "console" and new console object
-    duk_push_string(ctx, "console");
-    duk_push_object(ctx);
+    // Create a console object with log and error
+    {
+        // Push "console" and new console object
+        duk_push_string(ctx, "console");
+        duk_push_object(ctx);
 
-    // Push "log" and log function
-    duk_push_string(ctx, "log");
-    duk_push_c_function(ctx, JavascriptSystem_Print, DUK_VARARGS);
-    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+        // Push "log" and log function
+        duk_push_string(ctx, "log");
+        duk_push_c_function(ctx, JavascriptSystem_Print, DUK_VARARGS);
+        duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
-    // Push "error" and error function
-    duk_push_string(ctx, "error");
-    duk_push_c_function(ctx, JavascriptSystem_Alert, DUK_VARARGS);
-    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+        // Push "error" and error function
+        duk_push_string(ctx, "error");
+        duk_push_c_function(ctx, JavascriptSystem_Alert, DUK_VARARGS);
+        duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
-    // Stack is global object, "console", console obj
-    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+        // Stack is:
+        // 3. console object
+        // 2. "console"
+        // 1. global object
+        duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+    }
+
+    {
+        // Push "Game" and new object
+        duk_push_string(ctx, "Game");
+        duk_push_object(ctx);
+
+        // Push "Emit" and Emit function
+        duk_push_string(ctx, "Emit");
+        duk_push_c_function(ctx, JavascriptSystem_Emit, DUK_VARARGS);
+        duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+
+        // Put Game in global namespace
+        duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+    }
+
+    // Push "component" and this component into the global object.
+    duk_push_string(ctx, "component");
+    duk_push_pointer(ctx, this);
+    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_CLEAR_WRITABLE | DUK_DEFPROP_CLEAR_CONFIGURABLE);
+
+    // Pop global object
     duk_pop(ctx);
 
     Reload();
@@ -172,9 +228,16 @@ void Javascript::Reset()
     duk_context* ctx = (duk_context*)_ctx;
 
     // Reset the global object.
-    duk_eval_string(ctx, "({ console: this.console })\n");
+    duk_eval_string(ctx, R"(
+        ({
+            console: this.console,
+            component: this.component,
+            Game: this.Game,
+        })
+    )");
     duk_set_global_object(ctx);
     disabled = false;
+    started = false;
 }
 
 void Javascript::Reload()
@@ -224,8 +287,10 @@ void JavascriptSystem::Configure(Engine::EntityManager&, Engine::EventManager& e
     events.Subscribe<Engine::ComponentRemovedEvent<Javascript>>(*this);
 }
 
-void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA)
+void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA)
 {
+    JavascriptSystem_Events = &events;
+
     entities.Each<Javascript>([&](Engine::Entity entity, Javascript& js) {
         std::string entityName = FormatString("Javascript ({})", entity.GetID().index());
         if (ImGui::Begin(entityName.c_str()))
@@ -267,8 +332,16 @@ void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventMana
 
         duk_context* ctx = (duk_context*)js._ctx;
 
-        // Push global object and "Update" onto stack
         duk_push_global_object(ctx);
+        if (!js.started && duk_has_prop_string(ctx, -1, "Start"))
+        {
+            duk_push_string(ctx, "Start");
+            duk_call_prop(ctx, -2, 0);
+            duk_pop(ctx);
+
+            js.started = true;
+        }
+
         if (duk_has_prop_string(ctx, -1, "Update"))
         {
             duk_push_string(ctx, "Update");
@@ -279,6 +352,8 @@ void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventMana
 
         sCurrentContext = nullptr;
     });
+
+    JavascriptSystem_Events = nullptr;
 }
 
 void JavascriptSystem::Receive(const Engine::ComponentAddedEvent<Javascript>&)

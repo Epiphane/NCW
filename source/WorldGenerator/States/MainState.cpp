@@ -41,9 +41,11 @@ using Transform = Engine::Transform;
 std::unique_ptr<Engine::Input::KeyCallbackLink> gConfigCallback;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-    : mInput(input)
+    : mWorld(mEntities)
+    , mInput(input)
     , mParent(parent)
 {
+    mEvents.Subscribe<JavascriptEvent>(*this);
 }
 
 MainState::~MainState()
@@ -173,12 +175,12 @@ void MainState::Initialize()
     cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
     cameraOptions.far = 1500.0f;
     cameraOptions.distance = 3.5f;
+    cameraOptions.maxDistance = 1000;
     Engine::ComponentHandle<ArmCamera> handle = playerCamera.Add<ArmCamera>(playerCamera.Get<Transform>(), cameraOptions);
     playerCamera.Add<MouseDragCamera>(GLFW_MOUSE_BUTTON_LEFT, -0.007, 0.007);
     playerCamera.Add<MouseControlledCamera>();
     playerCamera.Add<MouseControlledCameraArm>();
     playerCamera.Add<Follower>(player.Get<Transform>(), glm::vec3{0.0f});
-    player.Get<FlySpeed>()->director = playerCamera.Get<Transform>();
 
     {
         Entity worldParams = mEntities.Create();
@@ -193,25 +195,53 @@ void MainState::Initialize()
     int kSize = 20;
     for (int dist = 0; dist < kSize; dist++)
     {
-        mWorld.Create(dist, 0, 0, mEntities);
-        mWorld.Create(0, 0, dist, mEntities);
-        mWorld.Create(-dist, 0, 0, mEntities);
-        mWorld.Create(0, 0, -dist, mEntities);
+        mWorld.Create(dist, 0, 0);
+        mWorld.Create(0, 0, dist);
+        mWorld.Create(-dist, 0, 0);
+        mWorld.Create(0, 0, -dist);
         for (int d = 1; d <= dist; d++)
         {
-            mWorld.Create(dist, 0, d, mEntities);
-            mWorld.Create(dist, 0, -d, mEntities);
-            mWorld.Create(d, 0, dist, mEntities);
-            mWorld.Create(-d, 0, dist, mEntities);
-            mWorld.Create(-dist, 0, d, mEntities);
-            mWorld.Create(-dist, 0, -d, mEntities);
-            mWorld.Create(d, 0, -dist, mEntities);
-            mWorld.Create(-d, 0, -dist, mEntities);
+            mWorld.Create(dist, 0, d);
+            mWorld.Create(dist, 0, -d);
+            mWorld.Create(d, 0, dist);
+            mWorld.Create(-d, 0, dist);
+            mWorld.Create(-dist, 0, d);
+            mWorld.Create(-dist, 0, -d);
+            mWorld.Create(d, 0, -dist);
+            mWorld.Create(-d, 0, -dist);
         }
     }
 
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(kPrimitiveRestart);
+}
+
+void MainState::Receive(const JavascriptEvent& evt)
+{
+    if (evt.name == "rebuild_world")
+    {
+        mWorld.Reset();
+
+        int kSize = 20;
+        for (int dist = 0; dist < kSize; dist++)
+        {
+            mWorld.Create(dist, 0, 0);
+            mWorld.Create(0, 0, dist);
+            mWorld.Create(-dist, 0, 0);
+            mWorld.Create(0, 0, -dist);
+            for (int d = 1; d <= dist; d++)
+            {
+                mWorld.Create(dist, 0, d);
+                mWorld.Create(dist, 0, -d);
+                mWorld.Create(d, 0, dist);
+                mWorld.Create(-d, 0, dist);
+                mWorld.Create(-dist, 0, d);
+                mWorld.Create(-dist, 0, -d);
+                mWorld.Create(d, 0, -dist);
+                mWorld.Create(-d, 0, -dist);
+            }
+        }
+    }
 }
 
 }; // namespace CubeWorld
