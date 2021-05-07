@@ -27,7 +27,7 @@ Settings
    #import SystemRoot
    .Environment =
    {
-      "PATH=^"$VS_PATH$^""
+      'PATH="$VS_PATH$"'
       'SystemRoot=$SystemRoot$' // required by cl.exe (error D8037)
       'TMP=$SystemRoot$/temp' // required by cl.exe (error D8050)
    }
