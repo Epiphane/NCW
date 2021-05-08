@@ -299,7 +299,9 @@ void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventMana
             {
                 if (ImGui::BeginTabItem("Source Code"))
                 {
-                    ImGui::InputTextMultiline("source", js.source.data(), js.source.capacity(), ImVec2(0, 0), ImGuiInputTextFlags_CallbackResize, JavascriptSystem_InputTextCallback, &js.source);
+                    ImVec2 size = ImGui::GetContentRegionAvail();
+                    size.y -= ImGui::GetItemsLineHeightWithSpacing();
+                    ImGui::InputTextMultiline("source", js.source.data(), js.source.capacity(), size, ImGuiInputTextFlags_CallbackResize, JavascriptSystem_InputTextCallback, &js.source);
                     if (ImGui::Button("Save and run"))
                     {
                         DiskFileSystem fs;

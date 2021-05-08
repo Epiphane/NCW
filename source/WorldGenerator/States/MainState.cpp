@@ -181,6 +181,10 @@ void MainState::Initialize()
     playerCamera.Add<MouseControlledCamera>();
     playerCamera.Add<MouseControlledCameraArm>();
     playerCamera.Add<Follower>(player.Get<Transform>(), glm::vec3{0.0f});
+    playerCamera.Add<Makeshift>([&] {
+       ArmCamera* cam = static_cast<ArmCamera*>(mCamera.Get());
+       cam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
+    });
 
     {
         Entity worldParams = mEntities.Create();
