@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <RGBDesignPatterns/Macros.h>
+
 #include "../Core/FileSystemProvider.h"
 #include "../Event/EventManager.h"
 #include "JSScript.h"
@@ -84,7 +86,7 @@ duk_ret_t Log(const CubeWorld::Logger::LogLevel level, duk_context* ctx)
 ///
 ///
 ///
-static duk_ret_t LogMessage(duk_context* ctx)
+duk_ret_t LogMessage(duk_context* ctx)
 {
     return Log(CubeWorld::Logger::LogLevel::kAlways, ctx);
 }
@@ -92,7 +94,7 @@ static duk_ret_t LogMessage(duk_context* ctx)
 ///
 ///
 ///
-static duk_ret_t LogError(duk_context* ctx)
+duk_ret_t LogError(duk_context* ctx)
 {
     return Log(CubeWorld::Logger::LogLevel::kError, ctx);
 }
@@ -113,7 +115,7 @@ duk_ret_t Emit(duk_context* ctx)
             return DUK_RET_ERROR;
         }
 
-        JSScript* jsScript = static_cast<JSScript*>(duk_get_pointer(ctx, -1));
+        jsScript = static_cast<JSScript*>(duk_get_pointer(ctx, -1));
         duk_pop(ctx);
 
         if (jsScript == nullptr)
@@ -154,11 +156,13 @@ void FatalHandler(void* udata, const char* msg)
     CUBEWORLD_UNREFERENCED_PARAMETER(udata);
     LOG_ERROR("javascript error: {}", msg);
 
+    /*
     if (sCurrentContext != nullptr)
     {
         LOG_INFO("Disabling component");
         sCurrentContext->disabled = true;
     }
+    */
 }
 
 }; // namespace JSUtils
