@@ -3,6 +3,7 @@ tmp
 .vscode/ipch
 *.fdb
 .venv
+Blog/
 
 dependencies/bullet/2.89/data
 

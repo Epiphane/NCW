@@ -3,7 +3,8 @@
    .ProjectAllowedFileExtensions  = {
                                        '*.cpp', '*.hpp', '*.c', '*.h',
                                        '*.cs', '*.bff', '*.rc', '*.mm',
-                                       '*.js', '*.vert', '*.geom', '*.frag',
+                                       '*.js',
+                                       '*.vert', '*.geom', '*.frag', '*.comp',
                                        '*.natvis'
                                     }
 

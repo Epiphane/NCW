@@ -50,6 +50,7 @@ public:
       Materials,
       Opacities,
       ArrayBuffer,
+      ShaderStorage,
    };
 
 protected:

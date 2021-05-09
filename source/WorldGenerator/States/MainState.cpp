@@ -198,9 +198,10 @@ void MainState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Build();
+    mWorld.Create(0, 0, 0);
 
-    int kSize = 20;
-    for (int dist = 0; dist < kSize; dist++)
+    int kSize = 10;
+    for (int dist = 1; dist < kSize; dist++)
     {
         mWorld.Create(dist, 0, 0);
         mWorld.Create(0, 0, dist);
@@ -229,8 +230,9 @@ void MainState::Receive(const JavascriptEvent& evt)
     {
         mWorld.Reset();
 
+        mWorld.Create(0, 0, 0);
         int kSize = 10;
-        for (int dist = 0; dist < kSize; dist++)
+        for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);
             mWorld.Create(0, 0, dist);

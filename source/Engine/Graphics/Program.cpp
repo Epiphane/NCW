@@ -91,6 +91,43 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    return std::move(shader);
 }
 
+Maybe<std::unique_ptr<Program>> Program::LoadCompute(
+    const std::string& computeShaderPath
+)
+{
+    // Another instance of the unique_ptr magic: if we return a failure, then this
+    // unique_ptr is deconstructed and we make sure to free the resource.
+    std::unique_ptr<Program> program = std::make_unique<Program>(glCreateProgram());
+
+    // Vertex
+    Maybe<std::unique_ptr<Shader>> computeShader = LoadShader(computeShaderPath, GL_COMPUTE_SHADER);
+    if (!computeShader)
+    {
+        return computeShader.Failure().WithContext("Failed loading shader at {path}", computeShaderPath);
+    }
+    computeShader.Result()->Attach(program->id);
+
+    // Link the program
+    glLinkProgram(program->id);
+
+    // Check the program
+    GLint result = GL_FALSE;
+    int infoLogLength;
+    glGetProgramiv(program->id, GL_LINK_STATUS, &result);
+    glGetProgramiv(program->id, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if (infoLogLength > 0) {
+        char* error = new char[size_t(infoLogLength + 1)];
+        CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
+        glGetProgramInfoLog(program->id, infoLogLength, nullptr, error);
+
+        if (error[0] != '\0') {
+            return Failure(error).WithContext("Failed linking program");
+        }
+    }
+
+    return program;
+}
+
 Maybe<std::unique_ptr<Program>> Program::Load(
    const std::string& vertexShaderPath,
    const std::string& geometryShaderPath,

@@ -40,7 +40,8 @@ GLuint GenerateBuffer()
 
 VBO::VBO(const DataType type, const GLuint buffer) : mBuffer(buffer)
 {
-   if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
+    if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
+    else if (type == ShaderStorage) mBufferType = GL_SHADER_STORAGE_BUFFER;
    else mBufferType = GL_ARRAY_BUFFER;
 
    ++gBufferReferences[mBuffer];
@@ -87,6 +88,7 @@ void VBO::Init(const DataType type)
 
    mBuffer = GenerateBuffer();
    if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
+   else if (type == ShaderStorage) mBufferType = GL_SHADER_STORAGE_BUFFER;
    else mBufferType = GL_ARRAY_BUFFER;
 }
 

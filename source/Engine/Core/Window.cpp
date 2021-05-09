@@ -57,7 +57,7 @@ Maybe<Window*> Window::Initialize(const Options& options)
    glfwWindowHint(GLFW_SAMPLES, 4);
    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -108,7 +108,10 @@ Maybe<Window*> Window::Initialize(const Options& options)
 
    mVAO.Bind();
 
-   Context::Instance().Initialize(*this);
+   for (Context* context : Context::GetAllContexts())
+   {
+       context->Initialize(*this);
+   }
 
    // Initialize input.
    Clear();

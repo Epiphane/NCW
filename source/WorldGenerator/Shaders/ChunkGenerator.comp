@@ -1,0 +1,25 @@
+#version 430
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(std140, binding = 0) buffer destBuffer
+{
+   vec4 Colors[];
+} outBuffer;
+
+int kChunkWidth = 16;
+int kChunkHeight = 64;
+
+void main()
+{
+   // Read current global position
+   ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
+
+   uint gWidth = gl_WorkGroupSize.x * gl_NumWorkGroups.x;
+   uint gHeight = gl_WorkGroupSize.y * gl_NumWorkGroups.y;
+   uint gDepth = gl_WorkGroupSize.z * gl_NumWorkGroups.z;
+   uint gSize = gWidth * gHeight * gDepth;
+
+   uint offset = (coords.z * gHeight + coords.y) * gWidth + coords.x;
+
+   outBuffer.Colors[offset] = vec4(1, 2, 3, 4);
+}

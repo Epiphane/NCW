@@ -371,7 +371,7 @@ VSSolution('CubeWorld-sln-visualstudio')
    [
       .Projects = { 'WorldGenerator-proj' }
 
-      .Dependencies = 'WorldGenerator-proj'
+      .Dependencies = .SolutionBuildProject
    ]
    .SolutionDependencies =
    {

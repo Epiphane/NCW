@@ -52,7 +52,7 @@ function ComputeBlock(block, globalX, globalY, globalZ) {
    var y = globalY;
    var py = ((y + 1) / chunk.height);
 
-   var value = -Math.pow(py, 3.25);
+   var value = -Math.pow(py, 1.25);
    value += noiseVal;
 
    block.a = value > kFloor ? 255 : 0;
