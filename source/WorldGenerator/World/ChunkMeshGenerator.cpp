@@ -65,7 +65,8 @@ public:
     {
         mPrivate.thread = std::thread([this] {
             sContext.Activate();
-            Engine::Window::Instance().GetVAO().Bind();
+            Engine::Graphics::VAO vao;
+            vao.Bind();
             Run();
             sContext.Deactivate();
         });

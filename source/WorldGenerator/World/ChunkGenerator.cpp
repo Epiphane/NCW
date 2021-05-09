@@ -8,6 +8,7 @@
 #include <RGBDesignPatterns/Macros.h>
 #include <RGBFileSystem/FileSystem.h>
 #include <RGBLogger/Logger.h>
+#include <Engine/Core/Context.h>
 #include <Engine/Core/FileSystemProvider.h>
 #include <Engine/Core/Timer.h>
 #include <Shared/Helpers/Asset.h>
@@ -72,8 +73,8 @@ public:
         // Protects the generator script.
         std::mutex generatorMutex;
 
-        // Script for executing chunk creation.
-        Engine::JSScript generator;
+        // Compute shader for chunk creation.
+        std::unique_ptr<Engine::Graphics::Program> program;
 
         // Whether the thread should exit.
         bool exiting = false;
@@ -90,32 +91,23 @@ public:
         gHeightmodule.SetOctaveCount(8);
         gHeightmodule.SetSeed(5);
 
-        FileSystem& fs = Engine::FileSystemProvider::Instance();
-
-        mShared.generator.SetEventManager(&events);
-        mPrivate.generatorFilename = sourceFile;
-        Maybe<std::string> source = fs.ReadEntireFile(sourceFile);
-        if (!source)
+        auto maybeProgram = Engine::Graphics::Program::LoadCompute(sourceFile);
+        if (!maybeProgram)
         {
-            source.Failure().WithContext("Failed reading script file").Log();
+            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
         }
         else
         {
-            mPrivate.generatorSource = std::move(*source);
-            mShared.generator.LoadSource(mPrivate.generatorSource, sourceFile);
+            mShared.program = std::move(*maybeProgram);
         }
 
-        {
-            duk_context* ctx = mShared.generator.GetContext();
-            DUK_GUARD_SCOPE();
-
-            duk_get_global_string(ctx, "Game");
-            duk_push_c_function(ctx, &Worker::GetNoise, 3);
-            duk_put_prop_string(ctx, -2, "GetNoise");
-            duk_pop(ctx);
-        }
-
-        mPrivate.thread = std::thread([this] { Run(); });
+        mPrivate.thread = std::thread([this] {
+            sContext.Activate();
+            Engine::Graphics::VAO mVAO;
+            mVAO.Bind();
+            Run();
+            sContext.Deactivate();
+        });
     }
 
     ~Worker()
@@ -170,127 +162,6 @@ public:
         }
     }
 
-    static duk_ret_t GetBlockValue(duk_context* ctx)
-    {
-        duk_idx_t nargs = duk_get_top(ctx);
-        if (nargs != 2)
-        {
-            return DUK_RET_ERROR;
-        }
-
-        duk_require_object(ctx, 0);
-        const char* key = duk_get_string(ctx, 1);
-
-        duk_get_prop_string(ctx, 0, "_data");
-        Block* data = static_cast<Block*>(duk_require_pointer(ctx, -1));
-
-        // tiny optimization: we know that every property is one letter long.
-        if (key[1] != 0)
-        {
-            return 0;
-        }
-
-        switch (key[0])
-        {
-        case 'r':
-            duk_push_number(ctx, data->color.r * 255.0f);
-            return 1;
-        case 'g':
-            duk_push_number(ctx, data->color.g * 255.0f);
-            return 1;
-        case 'b':
-            duk_push_number(ctx, data->color.b * 255.0f);
-            return 1;
-        case 'a':
-            duk_push_number(ctx, data->color.a * 255.0f);
-            return 1;
-        }
-        
-        return 0;
-    }
-
-    static duk_ret_t SetBlockValue(duk_context* ctx)
-    {
-        duk_idx_t nargs = duk_get_top(ctx);
-        if (nargs != 3)
-        {
-            return DUK_RET_ERROR;
-        }
-
-        duk_require_object(ctx, 0);
-        const char* key = duk_get_string(ctx, 1);
-        float value = float(duk_require_number(ctx, 2)) / 255.0f;
-
-        duk_get_prop_string(ctx, 0, "_data");
-        Block* data = static_cast<Block*>(duk_require_pointer(ctx, -1));
-
-        // tiny optimization: we know that every property is one letter long.
-        switch (key[0])
-        {
-        case 'r':
-            data->color.r = value;
-            break;
-        case 'g':
-            data->color.g = value;
-            break;
-        case 'b':
-            data->color.b = value;
-            break;
-        case 'a':
-            data->color.a = value;
-            break;
-        }
-
-        return 0;
-    }
-
-    static duk_ret_t GetBlock(duk_context* ctx)
-    {
-        duk_idx_t nargs = duk_get_top(ctx);
-        if (nargs != 3)
-        {
-            return DUK_RET_ERROR;
-        }
-
-        duk_push_this(ctx);
-
-        uint32_t x = duk_require_uint(ctx, 0);
-        uint32_t y = duk_require_uint(ctx, 1);
-        uint32_t z = duk_require_uint(ctx, 2);
-
-        duk_get_prop_string(ctx, -1, "_data");
-        Chunk* data = static_cast<Chunk*>(duk_require_pointer(ctx, -1));
-        Block& block = data->Get(x, y, z);
-
-        // Create a proxy for this block
-        duk_push_object(ctx);   // Target
-
-        duk_push_pointer(ctx, &block);          // Push pointer to block
-        duk_put_prop_string(ctx, -2, "_data");  // Associate with _data property
-
-        DUK_GUARD_SCOPE();      // The target should remain on the stack so we put the guard here.
-        duk_push_object(ctx);   // Handler
-
-        duk_push_c_function(ctx, &Worker::GetBlockValue, 2);    // Push get function
-        duk_put_prop_string(ctx, -2, "get");                    // Associate as getter
-        duk_push_c_function(ctx, &Worker::SetBlockValue, 3);    // Push set function
-        duk_put_prop_string(ctx, -2, "set");                    // Associate as setter
-        duk_push_proxy(ctx, 0);                                 // Associate the proxy handler with our returned object
-
-        return 1;
-    }
-
-    static duk_ret_t GetNoise(duk_context* ctx)
-    {
-        double x = duk_require_number(ctx, 0);
-        double y = duk_require_number(ctx, 1);
-        double z = duk_require_number(ctx, 2);
-
-        duk_push_number(ctx, gHeightmodule.GetValue(x, y, z));
-
-        return 1;
-    }
-
     void BuildChunk(const Request& request)
     {
         mPrivate.profiler.Reset();
@@ -299,34 +170,8 @@ public:
 
         Chunk chunk(request.coordinates);
 
-        // Set up generation script with a Game.chunk, which proxies to this Chunk object.
-        {
-            duk_context* ctx = mShared.generator.GetContext();
-            DUK_GUARD_SCOPE();
-
-            duk_push_object(ctx);                           // Push chunk object
-
-            duk_push_pointer(ctx, &chunk);                  // Push pointer to Chunk object
-            duk_put_prop_string(ctx, -2, "_data");          // Put pointer under chunk._data
-            duk_push_uint(ctx, kChunkSize);                 // Push Chunk width
-            duk_put_prop_string(ctx, -2, "width");          // Assign chunk.width
-            duk_push_uint(ctx, kChunkHeight);               // Push Chunk height
-            duk_put_prop_string(ctx, -2, "height");         // Assign chunk.height
-            duk_push_uint(ctx, kChunkSize);                 // Push Chunk depth
-            duk_put_prop_string(ctx, -2, "depth");          // Assign chunk.depth
-
-            duk_push_c_function(ctx, &Worker::GetBlock, 3); // Push GetBlock function. args: this, x, y, z
-            duk_put_prop_string(ctx, -2, "Get");            // Put function under chunk.Get
-
-            duk_put_global_string(ctx, "chunk");            // Push chunk into global context
-        }
-
-        mShared.generator.RunFunction(
-            "Generate",
-            request.coordinates.x,
-            request.coordinates.y,
-            request.coordinates.z
-        );
+        Engine::Graphics::VBO vbo(Engine::Graphics::VBO::ShaderStorage);
+        vbo.BufferData(chunk.data());
 
         /*
 
@@ -355,6 +200,21 @@ public:
         }
 
         */
+
+        {
+            BIND_PROGRAM_IN_SCOPE(mShared.program);
+
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vbo.GetBuffer());
+            glDispatchCompute(2, 4, 2);
+
+            // make sure writing to image has finished before read
+            glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+            // Get all the data back
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, vbo.GetBuffer());
+            GLsizeiptr size = GLsizeiptr(sizeof(Block) * chunk.data().size());
+            glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, chunk.data().data());
+        }
 
         DebugHelper::Instance().SetMetric("Chunk generation time", mPrivate.profiler.Elapsed());
         request.resultFunction(std::move(chunk));
@@ -400,14 +260,20 @@ private:
     SharedData mShared;
 
     Engine::EventManager& mEvents;
+
+    // The graphics context is static, because we need it
+    // to be set up when the program starts.
+    static Engine::Context sContext;
 };
+
+Engine::Context ChunkGenerator::Worker::sContext;
 
 ///
 ///
 ///
 ChunkGenerator::ChunkGenerator(Engine::EventManager& events)
 {
-    mWorker.reset(new Worker(Asset::Script("chunk-generator.js"), events));
+    mWorker.reset(new Worker(Asset::Shader("ChunkGenerator.comp"), events));
 }
 
 ///
@@ -419,7 +285,7 @@ ChunkGenerator::~ChunkGenerator()
 
 ///
 ///
-/// 
+///
 void ChunkGenerator::Add(const Request& request)
 {
     mWorker->Add(request);
@@ -433,9 +299,9 @@ void ChunkGenerator::Clear()
     mWorker->ClearQueue();
 }
 
-/// 
-/// 
-/// 
+///
+///
+///
 void ChunkGenerator::Update()
 {
     mWorker->Update();

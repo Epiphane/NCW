@@ -82,7 +82,7 @@ void MainState::Initialize()
 
     // Create player first so it gets index 0.
     Entity player = mEntities.Create();
-    player.Add<Transform>(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+    player.Add<Transform>(glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
     player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
 
     // Set up the player controller
@@ -170,7 +170,7 @@ void MainState::Initialize()
         part.Get<Transform>()->SetRoll(prevRoll);
     });
 
-    Entity playerCamera = mEntities.Create(0, 4, 0);
+    Entity playerCamera = mEntities.Create(0, 2, 0);
     ArmCamera::Options cameraOptions;
     cameraOptions.aspect = float(mParent.GetWidth()) / mParent.GetHeight();
     cameraOptions.far = 1500.0f;
@@ -231,7 +231,7 @@ void MainState::Receive(const JavascriptEvent& evt)
         mWorld.Reset();
 
         mWorld.Create(0, 0, 0);
-        int kSize = 10;
+        int kSize = 30;
         for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

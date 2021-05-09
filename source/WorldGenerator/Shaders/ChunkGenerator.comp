@@ -1,6 +1,6 @@
 #version 430
 
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 16, local_size_z = 8) in;
 layout(std140, binding = 0) buffer destBuffer
 {
    vec4 Colors[];
@@ -11,15 +11,19 @@ int kChunkHeight = 64;
 
 void main()
 {
-   // Read current global position
-   ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
+	// Read current global position
+	ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
 
-   uint gWidth = gl_WorkGroupSize.x * gl_NumWorkGroups.x;
-   uint gHeight = gl_WorkGroupSize.y * gl_NumWorkGroups.y;
-   uint gDepth = gl_WorkGroupSize.z * gl_NumWorkGroups.z;
-   uint gSize = gWidth * gHeight * gDepth;
+	uint gWidth = kChunkWidth;// gl_WorkGroupSize.x * gl_NumWorkGroups.x;
+	uint gHeight = kChunkHeight;//gl_WorkGroupSize.y * gl_NumWorkGroups.y;
+	uint gDepth = kChunkWidth;//gl_WorkGroupSize.z * gl_NumWorkGroups.z;
+	uint gSize = gWidth * gHeight * gDepth;
 
-   uint offset = (coords.z * gHeight + coords.y) * gWidth + coords.x;
+	uint offset = (coords.y * gWidth + coords.z) * gWidth + coords.x;
 
-   outBuffer.Colors[offset] = vec4(1, 2, 3, 4);
+	float px = float(coords.x) / gWidth;
+	float py = float(coords.y) / gHeight;
+	float pz = float(coords.z) / gWidth;
+
+	outBuffer.Colors[offset] = vec4(px, py, pz, 1);
 }
