@@ -10,9 +10,6 @@
 namespace CubeWorld
 {
 
-namespace Editor
-{
-
 namespace ImGuiEx
 {
 
@@ -22,7 +19,5 @@ bool SliderDouble(const std::string& label, double* v, double v_min = 0.0, doubl
 bool Timeline(const std::string& label, double* time, double max, bool snap, const std::vector<double>& keyframes, const char* format = "%.2f");
 
 }; // namespace ImGuiEx
-
-}; // namespace Editor
 
 }; // namespace CubeWorld

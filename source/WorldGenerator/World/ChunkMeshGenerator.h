@@ -37,6 +37,8 @@ public:
     void Add(const Request& request);
     void Clear();
 
+    void Update();
+
 private:
     struct RequestQueue;
     class Worker;

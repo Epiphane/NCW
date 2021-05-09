@@ -1,12 +1,14 @@
 // By Thomas Steinke
 
+#include <duktape.h>
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
+
 #include <RGBBinding/BindingProperty.h>
 #include <RGBFileSystem/FileSystem.h>
 #include <RGBNetworking/JSONSerializer.h>
 #include <RGBDesignPatterns/Macros.h>
 #include <RGBLogger/Logger.h>
-#include <duktape.h>
-#include <imgui.h>
 
 #include "../Event/NamedEvent.h"
 #include "JavascriptSystem.h"
@@ -267,20 +269,6 @@ void Javascript::Run()
 /// |                                   Javascript System                                         |
 /// |                                                                                             |
 /// +---------------------------------------------------------------------------------------------+
-static int JavascriptSystem_InputTextCallback(ImGuiInputTextCallbackData* data)
-{
-    if (data->EventFlag == (int)ImGuiInputTextFlags_CallbackResize)
-    {
-        // Resize string callback
-        std::string* str = (std::string*)data->UserData;
-        IM_ASSERT(data->Buf == str->c_str());
-        str->reserve((size_t)data->BufTextLen);
-        data->Buf = (char*)str->c_str();
-    }
-
-    return 0;
-}
-
 void JavascriptSystem::Configure(Engine::EntityManager&, Engine::EventManager& events)
 {
     events.Subscribe<Engine::ComponentAddedEvent<Javascript>>(*this);
@@ -301,7 +289,7 @@ void JavascriptSystem::Update(Engine::EntityManager& entities, Engine::EventMana
                 {
                     ImVec2 size = ImGui::GetContentRegionAvail();
                     size.y -= ImGui::GetItemsLineHeightWithSpacing();
-                    ImGui::InputTextMultiline("source", js.source.data(), js.source.capacity(), size, ImGuiInputTextFlags_CallbackResize, JavascriptSystem_InputTextCallback, &js.source);
+                    ImGui::InputTextMultiline("source", &js.source, size);
                     if (ImGui::Button("Save and run"))
                     {
                         DiskFileSystem fs;

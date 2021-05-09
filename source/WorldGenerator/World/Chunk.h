@@ -28,8 +28,10 @@ constexpr int kChunkHeight = 48;
 
 struct Block
 {
-    float scale;
-    //glm::vec3 color;
+    uint8_t r = 4;
+    uint8_t g = 5;
+    uint8_t b = 6;
+    uint8_t a = 7;
 };
 
 class Chunk

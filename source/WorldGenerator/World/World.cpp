@@ -36,9 +36,10 @@ namespace CubeWorld
 ///
 ///
 ///
-World::World(Engine::EntityManager& entities)
+World::World(Engine::EntityManager& entities, Engine::EventManager& events)
     : mEntityManager(entities)
-    , mChunkGenerator(new ChunkGenerator())
+    , mEventManager(events)
+    , mChunkGenerator(new ChunkGenerator(mEventManager))
     , mChunkMeshGenerator(new ChunkMeshGenerator())
 {}
 
@@ -86,7 +87,7 @@ void World::Reset()
         mEntities.clear();
     }
 
-    mChunkGenerator.reset(new ChunkGenerator());
+    mChunkGenerator.reset(new ChunkGenerator(mEventManager));
     mChunkMeshGenerator.reset(new ChunkMeshGenerator());
 }
 
@@ -96,11 +97,6 @@ void World::Reset()
 Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
 {
     ChunkCoords coordinates{chunkX, chunkY, chunkZ};
-
-    ChunkGenerator::Request request;
-    request.coordinates = coordinates;
-    request.resultFunction = std::bind(&World::OnChunkGenerated, this, mVersion, std::placeholders::_1);
-    mChunkGenerator->Add(request);
 
     Engine::Entity entity = mEntityManager.Create(
         float(chunkX) * kChunkSize,
@@ -113,6 +109,11 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
 
     std::unique_lock<std::mutex> lock{mEntitiesMutex};
     mEntities.emplace(coordinates, entity);
+
+    ChunkGenerator::Request request;
+    request.coordinates = coordinates;
+    request.resultFunction = std::bind(&World::OnChunkGenerated, this, mVersion, std::placeholders::_1);
+    mChunkGenerator->Add(request);
 
     return entity;
 }
@@ -129,6 +130,16 @@ Chunk& World::Get(const ChunkCoords& coords)
     }
 
     return mChunks.at(coords);
+}
+
+void World::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
+{
+    CUBEWORLD_UNREFERENCED_PARAMETER(entities);
+    CUBEWORLD_UNREFERENCED_PARAMETER(events);
+    CUBEWORLD_UNREFERENCED_PARAMETER(dt);
+
+    mChunkGenerator->Update();
+    mChunkMeshGenerator->Update();
 }
 
 /// 

@@ -36,22 +36,26 @@ duk_ret_t Log(const CubeWorld::Logger::LogLevel level, duk_context* ctx)
      * arguments, join them with a single space, and append a newline.
      */
 
-    if (nargs == 1 && duk_is_buffer_data(ctx, 0)) {
+    if (nargs == 1 && duk_is_buffer_data(ctx, 0))
+    {
         buf = (const duk_uint8_t*)duk_get_buffer_data(ctx, 0, &sz_buf);
     }
-    else if (nargs > 0) {
+    else if (nargs > 0)
+    {
         duk_idx_t i;
         duk_size_t sz_str;
         const duk_uint8_t* p_str;
         duk_uint8_t* p;
 
         sz_buf = (duk_size_t)nargs;  /* spaces (nargs - 1) + newline */
-        for (i = 0; i < nargs; i++) {
+        for (i = 0; i < nargs; i++)
+        {
             (void)duk_to_lstring(ctx, i, &sz_str);
             sz_buf += sz_str;
         }
 
-        if (sz_buf <= sizeof(buf_stack)) {
+        if (sz_buf <= sizeof(buf_stack))
+        {
             p = (duk_uint8_t*)buf_stack;
         }
         else {
@@ -59,7 +63,8 @@ duk_ret_t Log(const CubeWorld::Logger::LogLevel level, duk_context* ctx)
         }
 
         buf = (const duk_uint8_t*)p;
-        for (i = 0; i < nargs; i++) {
+        for (i = 0; i < nargs; i++)
+        {
             p_str = (const duk_uint8_t*)duk_get_lstring(ctx, i, &sz_str);
             memcpy((void*)p, (const void*)p_str, sz_str);
             p += sz_str;
@@ -76,7 +81,8 @@ duk_ret_t Log(const CubeWorld::Logger::LogLevel level, duk_context* ctx)
      */
 
     std::string message((char*)buf, sz_buf);
-    if (sz_buf > 0) {
+    if (sz_buf > 0)
+    {
         LOG(level, message);
     }
 
@@ -108,8 +114,7 @@ duk_ret_t Emit(duk_context* ctx)
     {
         DUK_GUARD_SCOPE();
 
-        duk_push_global_object(ctx);
-        if (!duk_get_prop_string(ctx, -1, "__script"))
+        if (duk_get_global_string(ctx, "__script") == 0)
         {
             duk_pop(ctx);
             return DUK_RET_ERROR;
@@ -132,7 +137,8 @@ duk_ret_t Emit(duk_context* ctx)
 
     // At least 1 argument required.
     duk_idx_t nargs = duk_get_top(ctx);
-    if (nargs == 0) {
+    if (nargs == 0)
+    {
         return DUK_RET_TYPE_ERROR;
     }
 

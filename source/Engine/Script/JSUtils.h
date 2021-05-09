@@ -14,6 +14,12 @@ namespace Engine
 namespace JSUtils
 {
 
+//
+//
+//  Uti
+// 
+//
+
 struct JSScopeGuard
 {
     JSScopeGuard(duk_context* ctx)

@@ -16,7 +16,7 @@ Chunk::Chunk(const ChunkCoords& coords)
 {
     char buf[80];
     sprintf(buf, "%p", this);
-    LOG_INFO("Created chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
+    //LOG_INFO("Created chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
     mBlocks.resize(kChunkSize * kChunkSize * kChunkHeight);
 }
 
@@ -37,7 +37,7 @@ Chunk::~Chunk()
 {
     char buf[80];
     sprintf(buf, "%p", this);
-    LOG_INFO("Deleting chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
+    //LOG_INFO("Deleting chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
 }
 
 ///

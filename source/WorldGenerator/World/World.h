@@ -33,13 +33,15 @@ namespace CubeWorld
 class World
 {
 public:
-    World(Engine::EntityManager& entities);
+    World(Engine::EntityManager& entities, Engine::EventManager& events);
     ~World();
 
     void Build();
     void Reset();
     Engine::Entity Create(int chunkX, int chunkY, int chunkZ);
     Chunk& Get(const ChunkCoords& coords);
+
+    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 private:
     void OnChunkGenerated(int version, Chunk&& chunk);
@@ -51,6 +53,7 @@ private:
     int mVersion = 0;
 
     Engine::EntityManager& mEntityManager;
+    Engine::EventManager& mEventManager;
 
     // TODO maybe one day, we won't be able to keep a big ol' list of chunks here.
     // Until then, stay lazy.

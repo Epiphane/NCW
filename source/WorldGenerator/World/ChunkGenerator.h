@@ -26,16 +26,19 @@ public:
     };
 
 public:
-    ChunkGenerator();
+    ChunkGenerator(Engine::EventManager& events);
     ~ChunkGenerator();
 
     void Add(const Request& request);
     void Clear();
 
+    void Update();
+
 private:
     struct RequestQueue;
     class Worker;
 
+    // Worker thread.
     std::unique_ptr<Worker> mWorker;
 };
 

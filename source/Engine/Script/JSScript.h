@@ -6,7 +6,10 @@
 #include <duktape.h>
 #include <RGBBinding/BindingProperty.h>
 
+#include "JSUtils.h"
 #include "../Event/Event.h"
+
+struct ImGuiInputTextCallbackData;
 
 namespace CubeWorld
 {
@@ -36,9 +39,40 @@ public:
 
     void LoadSource(const std::string& source, const std::optional<std::string>& name = std::nullopt);
     void LoadFile(const std::string& path);
+    void Reset();
+
+    void PushVariable(int number)
+    {
+        duk_push_number(ctx, number);
+    }
+
+    template<typename T, typename ...Args>
+    void PushVariable(const T& var, const Args&... args)
+    {
+        PushVariable(var);
+        PushVariable(args...);
+    }
 
     void RunFunction(const std::string& fnName);
-    void Reset();
+
+    template<typename ...Args>
+    void RunFunction(const std::string& fnName, const Args&... args)
+    {
+        DUK_GUARD_SCOPE();
+        duk_idx_t global = duk_get_top(ctx);
+        duk_push_global_object(ctx);
+        if (duk_has_prop_string(ctx, -1, fnName.c_str()))
+        {
+            const size_t nargs = sizeof...(Args);
+            duk_push_string(ctx, fnName.c_str());
+            PushVariable(args...);
+            duk_call_prop(ctx, global, nargs);
+            duk_pop(ctx);
+        }
+        duk_pop(ctx);
+    }
+
+    duk_context* GetContext() const { return ctx; }
 
     void SetNotFailed() { failed = false; }
     bool HasFailure() const { return failed; }

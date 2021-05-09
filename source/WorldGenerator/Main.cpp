@@ -90,14 +90,9 @@ int main(int argc, char **argv)
    });
 
    // ESC closes the app.
-   auto _ = window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
+   window.AddCallback(GLFW_KEY_ESCAPE, [&](int, int, int) {
        window.SetShouldClose(true);
-   });
-
-
-   auto _2 = window.AddCallback(GLFW_KEY_T, [&](int, int, int) {
-       window.SetMouseLock(!window.IsMouseLocked());
-   });
+   }).release();
 
    // Create state manager and initial state.
    Engine::StateManager& stateManager = Engine::StateManager::Instance();

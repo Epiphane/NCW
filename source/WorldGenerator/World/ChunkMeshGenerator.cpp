@@ -280,9 +280,11 @@ public:
             {
                 for (uint32_t z = 0; z < kChunkSize; ++z)
                 {
-                    float d = std::min(request.chunk->Get(x, y, z).scale / 2.0f, 1.0f);
+                    const Block& block = request.chunk->Get(x, y, z);
+                    //float d = std::min(request.chunk->Get(x, y, z).scale / 2.0f, 1.0f);
+                    float d = float(block.a) / 255.0f;
 
-                    if (d < 0 && y > 0)
+                    if (d < 0.1f)
                     {
                         continue;
                     }
@@ -292,6 +294,8 @@ public:
                         perc = std::powf(std::clamp(d, -1.0f, 0.0f) + 1.0f, 2.0f);
                         color = dest * perc + source * (1 - perc);
                     }
+                    
+                    color = glm::vec4(float(block.r) / 255.f, float(block.g) / 255.f, float(block.b) / 255.f, 1);
 
                     d = 0.5f;
 
@@ -566,6 +570,13 @@ void ChunkMeshGenerator::Add(const Request& request)
 void ChunkMeshGenerator::Clear()
 {
     mWorker->ClearQueue();
+}
+
+/// 
+/// 
+/// 
+void ChunkMeshGenerator::Update()
+{
 }
 
 }; // namespace CubeWorld

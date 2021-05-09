@@ -41,7 +41,7 @@ using Transform = Engine::Transform;
 std::unique_ptr<Engine::Input::KeyCallbackLink> gConfigCallback;
 
 MainState::MainState(Engine::Input* input, Bounded& parent)
-    : mWorld(mEntities)
+    : mWorld(mEntities, mEvents)
     , mInput(input)
     , mParent(parent)
 {
@@ -95,7 +95,7 @@ void MainState::Initialize()
     part.Get<Transform>()->SetParent(player);
     part.Get<Transform>()->SetLocalPosition(glm::vec3{ 0, 2.0f, 0 });
     part.Get<Transform>()->SetLocalScale(glm::vec3{0.25f});
-    part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
+    //part.Add<VoxModel>(Asset::Model("bird.vox"))->mTint = glm::vec3(0, 0, 168.0f);
 
     part.Add<Data>();
     part.Add<Makeshift>([part, this](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA) {
@@ -190,6 +190,9 @@ void MainState::Initialize()
         Entity worldParams = mEntities.Create();
         worldParams.Add<Data>();
         worldParams.Add<Javascript>(Asset::Script("generator.js"));
+        worldParams.Add<Makeshift>([this](Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt){
+            mWorld.Update(entities, events, dt);
+        });
     }
 
     mCamera.Set(handle.get());
@@ -226,7 +229,7 @@ void MainState::Receive(const JavascriptEvent& evt)
     {
         mWorld.Reset();
 
-        int kSize = 20;
+        int kSize = 10;
         for (int dist = 0; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

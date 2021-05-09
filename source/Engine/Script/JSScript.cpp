@@ -81,9 +81,14 @@ JSScript::JSScript()
         duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
     }
 
-    // Push "_sys" and new object
+    // Push "__script" and new object
     duk_push_string(ctx, "__script");
     duk_push_pointer(ctx, this);
+    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_CLEAR_WRITABLE | DUK_DEFPROP_CLEAR_CONFIGURABLE);
+
+    // Push "__userdata" and new object
+    duk_push_string(ctx, "__userdata");
+    duk_push_object(ctx);
     duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_CLEAR_WRITABLE | DUK_DEFPROP_CLEAR_CONFIGURABLE);
 
     // Pop global object
@@ -138,6 +143,24 @@ void JSScript::LoadFile(const std::string& path)
     LoadSource(*source);
 }
 
+void JSScript::Reset()
+{
+    DUK_GUARD_SCOPE();
+
+    // Reset the global object.
+    duk_eval_string(ctx, R"(
+        ({
+            console: this.console,
+            Game: this.Game,
+            __script: this.__script,
+            __userdata: this.__userdata,
+        })
+    )");
+    duk_set_global_object(ctx);
+
+    SetNotFailed();
+}
+
 void JSScript::RunFunction(const std::string& fnName)
 {
     DUK_GUARD_SCOPE();
@@ -150,23 +173,6 @@ void JSScript::RunFunction(const std::string& fnName)
         duk_pop(ctx);
     }
     duk_pop(ctx);
-}
-
-void JSScript::Reset()
-{
-    DUK_GUARD_SCOPE();
-
-    // Reset the global object.
-    duk_eval_string(ctx, R"(
-        ({
-            console: this.console,
-            Game: this.Game,
-            __script: this.__script,
-        })
-    )");
-    duk_set_global_object(ctx);
-
-    SetNotFailed();
 }
 
 }; // namespace Engine

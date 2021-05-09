@@ -11,9 +11,6 @@
 namespace CubeWorld
 {
 
-namespace Editor
-{
-
 namespace ImGuiEx
 {
 
@@ -282,7 +279,5 @@ bool Timeline(const std::string& label, double* time, double max, bool snap, con
 }
 
 }; // namespace ImGuiEx
-
-}; // namespace Editor
 
 }; // namespace CubeWorld
