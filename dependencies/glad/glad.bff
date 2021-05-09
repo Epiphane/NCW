@@ -3,12 +3,12 @@
 .GladIncludePaths = ''
 {
    .LibraryName         = 'glad'
-   .LibraryVersion      = '07052019'
+   .LibraryVersion      = '20210508'
    .LibraryIncludePaths = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/include'
 
    .AdditionalCompilerOptions = ''
 #if __WINDOWS__
-   .AdditionalCompilerOptions + ' /wd6308'
+   // .AdditionalCompilerOptions + ' /wd6308'
 #endif
    .LibrarySourcePath   = '$_CURRENT_BFF_DIR_$/$LibraryVersion$/src'
    .LibrarySourceFiles  = { 'glad.c' }
