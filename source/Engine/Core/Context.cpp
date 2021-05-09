@@ -25,8 +25,6 @@ std::vector<Context*> ContextManager::GetAll()
     return mContexts;
 }
 
-std::vector<Context*> sContexts;
-
 /// 
 /// 
 /// 

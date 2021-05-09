@@ -31,8 +31,6 @@ private:
 
     std::mutex mActiveMutex;
     bool mActive = false;
-
-    //static std::vector<Context*> sContexts;
 };
 
 class ContextManager : public Singleton<ContextManager>
