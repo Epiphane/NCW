@@ -1,5 +1,7 @@
 // By Thomas Steinke
 
+#include <algorithm>
+
 #include "Context.h"
 
 namespace CubeWorld
@@ -8,11 +10,30 @@ namespace CubeWorld
 namespace Engine
 {
 
+void ContextManager::Add(Context* ctx)
+{
+    mContexts.push_back(ctx);
+}
+
+void ContextManager::Remove(Context* ctx)
+{
+    auto _ = std::remove(mContexts.begin(), mContexts.end(), ctx);
+}
+
+std::vector<Context*> ContextManager::GetAll()
+{
+    return mContexts;
+}
+
+std::vector<Context*> sContexts;
+
 /// 
 /// 
 /// 
 Context::Context() : mGLFW(nullptr)
-{}
+{
+    ContextManager::Instance().Add(this);
+}
 
 /// 
 /// 
@@ -23,6 +44,8 @@ Context::~Context()
     {
         glfwDestroyWindow(mGLFW);
     }
+
+    ContextManager::Instance().Remove(this);
 }
 
 ///

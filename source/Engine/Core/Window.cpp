@@ -108,7 +108,8 @@ Maybe<Window*> Window::Initialize(const Options& options)
 
    mVAO.Bind();
 
-   for (Context* context : Context::GetAllContexts())
+   auto contexts = ContextManager::Instance().GetAll();
+   for (Context* context : contexts)
    {
        context->Initialize(*this);
    }

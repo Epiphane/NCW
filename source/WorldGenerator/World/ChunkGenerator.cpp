@@ -193,16 +193,16 @@ public:
         switch (key[0])
         {
         case 'r':
-            duk_push_uint(ctx, data->r);
+            duk_push_number(ctx, data->color.r * 255.0f);
             return 1;
         case 'g':
-            duk_push_uint(ctx, data->g);
+            duk_push_number(ctx, data->color.g * 255.0f);
             return 1;
         case 'b':
-            duk_push_uint(ctx, data->b);
+            duk_push_number(ctx, data->color.b * 255.0f);
             return 1;
         case 'a':
-            duk_push_uint(ctx, data->a);
+            duk_push_number(ctx, data->color.a * 255.0f);
             return 1;
         }
         
@@ -219,14 +219,7 @@ public:
 
         duk_require_object(ctx, 0);
         const char* key = duk_get_string(ctx, 1);
-        uint32_t value_ = duk_require_uint(ctx, 2);
-        if (value_ > std::numeric_limits<uint8_t>::max())
-        {
-            value_ = std::numeric_limits<uint8_t>::max();
-            //return DUK_RET_RANGE_ERROR;
-        }
-
-        uint8_t value = uint8_t(value_);
+        float value = float(duk_require_number(ctx, 2)) / 255.0f;
 
         duk_get_prop_string(ctx, 0, "_data");
         Block* data = static_cast<Block*>(duk_require_pointer(ctx, -1));
@@ -235,16 +228,16 @@ public:
         switch (key[0])
         {
         case 'r':
-            data->r = value;
+            data->color.r = value;
             break;
         case 'g':
-            data->g = value;
+            data->color.g = value;
             break;
         case 'b':
-            data->b = value;
+            data->color.b = value;
             break;
         case 'a':
-            data->a = value;
+            data->color.a = value;
             break;
         }
 

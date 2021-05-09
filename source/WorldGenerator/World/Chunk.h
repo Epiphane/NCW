@@ -28,10 +28,13 @@ constexpr int kChunkHeight = 48;
 
 struct Block
 {
+    /*
     uint8_t r = 4;
     uint8_t g = 5;
     uint8_t b = 6;
     uint8_t a = 7;
+    */
+    glm::vec4 color;
 };
 
 class Chunk
@@ -44,6 +47,8 @@ public:
     ChunkCoords GetCoords() const { return mCoords; }
     bool IsPopulated() const { return mIsPopulated; }
     Block& Get(uint32_t x, uint32_t y, uint32_t z);
+
+    std::vector<Block>& data() { return mBlocks; }
 
 private:
     ChunkCoords mCoords;

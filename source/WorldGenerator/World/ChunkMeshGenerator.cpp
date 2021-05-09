@@ -64,10 +64,10 @@ public:
         // : mContext(Engine::Window::Instance())
     {
         mPrivate.thread = std::thread([this] {
-            Engine::Context::Instance().Activate();
+            sContext.Activate();
             Engine::Window::Instance().GetVAO().Bind();
             Run();
-            Engine::Context::Instance().Deactivate();
+            sContext.Deactivate();
         });
     }
 
@@ -282,7 +282,7 @@ public:
                 {
                     const Block& block = request.chunk->Get(x, y, z);
                     //float d = std::min(request.chunk->Get(x, y, z).scale / 2.0f, 1.0f);
-                    float d = float(block.a) / 255.0f;
+                    float d = block.color.a;
 
                     if (d < 0.1f)
                     {
@@ -295,7 +295,7 @@ public:
                         color = dest * perc + source * (1 - perc);
                     }
                     
-                    color = glm::vec4(float(block.r) / 255.f, float(block.g) / 255.f, float(block.b) / 255.f, 1);
+                    color = glm::vec4(block.color.r, block.color.g, block.color.b, 1);
 
                     d = 0.5f;
 
@@ -538,8 +538,12 @@ private:
     PrivateData mPrivate;
     SharedData mShared;
 
-    //Engine::Context mContext;
+    // The graphics context is static, because we need it
+    // to be set up when the program starts.
+    static Engine::Context sContext;
 };
+
+Engine::Context ChunkMeshGenerator::Worker::sContext;
 
 ///
 ///
