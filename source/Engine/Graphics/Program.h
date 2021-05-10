@@ -29,6 +29,10 @@ public:
         const std::string& computeShaderPath
     );
 
+    static Maybe<std::unique_ptr<Program>> LoadComputeSource(
+        const std::string& computeShaderSource
+    );
+
     static Maybe<std::unique_ptr<Program>> Load(
         const std::string& vertexShaderPath,
         const std::string& geometryShaderPath,

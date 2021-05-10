@@ -91,7 +91,13 @@ public:
         gHeightmodule.SetOctaveCount(8);
         gHeightmodule.SetSeed(5);
 
-        auto maybeProgram = Engine::Graphics::Program::LoadCompute(sourceFile);
+        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(sourceFile);
+        assert(maybeSource.Succeeded() && "Failed to read shader source");
+
+        mPrivate.generatorFilename = sourceFile;
+        mPrivate.generatorSource = std::move(*maybeSource);
+
+        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
         if (!maybeProgram)
         {
             maybeProgram.Failure().WithContext("Failed building compute shader").Log();
@@ -170,42 +176,21 @@ public:
 
         Chunk chunk(request.coordinates);
 
+        const float chunkX = float(request.coordinates.x);
+        const float chunkY = float(request.coordinates.y);
+        const float chunkZ = float(request.coordinates.z);
+
         Engine::Graphics::VBO vbo(Engine::Graphics::VBO::ShaderStorage);
         vbo.BufferData(chunk.data());
 
-        /*
-
-        for (uint32_t y = 0; y < kChunkHeight; ++y)
-        {
-            for (uint32_t x = 0; x < kChunkSize; ++x)
-            {
-                for (uint32_t z = 0; z < kChunkSize; ++z)
-                {
-                    float globalX = float(x + chunkX * kChunkSize);
-                    float globalY = float(y + chunkY * kChunkSize);
-                    float globalZ = float(z + chunkZ * kChunkSize);
-                    float noiseVal = float(gHeightmodule.GetValue(double(globalX), double(globalY), double(globalZ)));
-
-                    CUBEWORLD_UNREFERENCED_VARIABLE(noiseVal);
-
-                    auto& block = chunk.Get(x, y, z);
-                    block.scale = -std::powf(std::max(globalY - 0.f, 0.f), 1.05f) / 32.0f;
-                    if (globalY < 4)
-                    {
-                        block.scale /= (4.0f - globalY);
-                    }
-                    block.scale += noiseVal + 0.25f;
-                }
-            }
-        }
-
-        */
-
+        if (mShared.program)
         {
             BIND_PROGRAM_IN_SCOPE(mShared.program);
 
+            mShared.program->Uniform3f("uWorldCoords", chunkX, chunkY, chunkZ);
+
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vbo.GetBuffer());
-            glDispatchCompute(2, 4, 2);
+            glDispatchCompute(2, 3, 2);
 
             // make sure writing to image has finished before read
             glMemoryBarrier(GL_ALL_BARRIER_BITS);

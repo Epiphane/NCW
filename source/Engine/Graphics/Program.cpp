@@ -55,17 +55,11 @@ public:
 // avoid using a unique_ptr. However, it's nice - it guarantees that when the shader
 // gets dropped on the floor (either through success, and cleanup or failure) the GL shader
 // is also deleted with it.
-Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum shaderType) {
+Maybe<std::unique_ptr<Shader>> LoadShaderSource(const std::string& source, GLenum shaderType)
+{
    std::unique_ptr<Shader> shader = std::make_unique<Shader>(glCreateShader(shaderType));
 
-   // Read the Shader code from the file
-   Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(filePath);
-   if (!maybeCode)
-   {
-      return maybeCode.Failure().WithContext("Failed reading shader file");
-   }
-
-   const char *code_cstr = maybeCode->c_str();
+   const char *code_cstr = source.c_str();
    glShaderSource(shader->id, 1, &code_cstr, nullptr);
    glCompileShader(shader->id);
 
@@ -76,7 +70,7 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    glGetShaderiv(shader->id, GL_COMPILE_STATUS, &result);
    glGetShaderiv(shader->id, GL_INFO_LOG_LENGTH, &infoLogLength);
    if (infoLogLength > 0) {
-      char* error = new char[size_t(infoLogLength + 1)];
+      char* error = new char[size_t(infoLogLength) + 1];
       CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
 
       glGetShaderInfoLog(shader->id, infoLogLength, nullptr, error);
@@ -91,19 +85,45 @@ Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum sh
    return std::move(shader);
 }
 
+Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum shaderType)
+{
+    // Read the Shader code from the file
+    Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(filePath);
+    if (!maybeCode)
+    {
+        return maybeCode.Failure().WithContext("Failed reading shader file");
+    }
+
+    return LoadShaderSource(*maybeCode, shaderType);
+}
+
 Maybe<std::unique_ptr<Program>> Program::LoadCompute(
     const std::string& computeShaderPath
+)
+{
+    // Read the Shader code from the file
+    Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(computeShaderPath);
+    if (!maybeCode)
+    {
+        return maybeCode.Failure().WithContext("Failed reading shader file");
+    }
+
+    return LoadComputeSource(*maybeCode);
+}
+
+Maybe<std::unique_ptr<Program>> Program::LoadComputeSource(
+    const std::string& computeShaderSource
 )
 {
     // Another instance of the unique_ptr magic: if we return a failure, then this
     // unique_ptr is deconstructed and we make sure to free the resource.
     std::unique_ptr<Program> program = std::make_unique<Program>(glCreateProgram());
 
-    // Vertex
-    Maybe<std::unique_ptr<Shader>> computeShader = LoadShader(computeShaderPath, GL_COMPUTE_SHADER);
+    // Compute shader
+    Maybe<std::unique_ptr<Shader>> computeShader = LoadShaderSource(computeShaderSource, GL_COMPUTE_SHADER);
     if (!computeShader)
     {
-        return computeShader.Failure().WithContext("Failed loading shader at {path}", computeShaderPath);
+        return computeShader.Failure().WithContext("Failed loading shader");
     }
     computeShader.Result()->Attach(program->id);
 
