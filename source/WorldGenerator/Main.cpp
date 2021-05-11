@@ -43,11 +43,6 @@ int main(int argc, char **argv)
       {
          Asset::SetAssetRoot(argv[argi++]);
       }
-
-      if (arg == "--shader-root")
-      {
-          Asset::SetShaderRoot(argv[argi++]);
-      }
    }
 
    // Initialize and register loggers to VS debugger and stdout
