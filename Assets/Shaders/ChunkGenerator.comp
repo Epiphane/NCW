@@ -87,36 +87,58 @@ float snoise(vec3 v)
 	// Mix final noise value
 	vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
 	m = m * m;
-	return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+	return clamp(2.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))), -1.0, 1.0);
+}
+
+vec4 kDeep = vec4(0, 0, 128, 2) / 255.0;
+vec4 kShallow = vec4(0, 0, 255, 10) / 255.0;
+vec4 kShore = vec4(0, 128, 255, 20) / 255.0;
+vec4 kSand = vec4(240, 240, 64, 35) / 255.0;
+vec4 kGrass = vec4(32, 160, 0, 50) / 255.0;
+vec4 kGrass2 = vec4(32, 160, 0, 120) / 255.0;
+vec4 kDirt = vec4(51, 33, 20, 145) / 255.0;
+vec4 kRock = vec4(128, 128, 128, 160) / 255.0;
+vec4 kSnow = vec4(255, 255, 255, 190) / 255.0;
+
+void brak(uint offset)
+{
+outBuffer.Colors[offset] = vec4(1, 0, 0.2, 1);
 }
 
 void main()
 {
 	// Read current global position
 	ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
+    float elevation = smoothstep(0.0, 1.5, float(coords.y - 8.0) / (kChunkHeight - 16.0));
+
+    float py = float(coords.y) / kChunkHeight;
+    elevation = 0.5*pow(2.0*(0.5-abs(py-0.5)), 0.65);
+    if (py > 0.5) elevation = 1.0 - elevation;
 
 	vec3 chunkSize = vec3(kChunkWidth, kChunkHeight, kChunkWidth);
 	uint offset = coords.y * kChunkWidth * kChunkWidth + coords.z * kChunkWidth + coords.x;
 
-	float factor = 4.0;
-
-	float x = clamp(float(coords.y) * 2.0 / float(kChunkHeight) - 1.0, -1.0, 1.0);
-	float rounder = 1.0 - pow(max(0.0, abs(x) * 2.0 - 1.0), 2.5);
-
 	vec3 pt = vec3(gl_GlobalInvocationID.xyz) / chunkSize + uWorldCoords;
-	pt /= 2.0;
-	float noiseVal = snoise(pt);
-	noiseVal = smoothstep(0.0, 1.0, (noiseVal + factor) / (2.0 * factor));
-	noiseVal *= rounder;
-	outBuffer.Colors[offset] = vec4(noiseVal, rounder + 0.2, rounder + 0.2, 1);
+	float noiseVal = snoise(pt / 8.0) * 1.0;
+    noiseVal += snoise(pt / 4.0) / 2.0;
+    noiseVal += snoise(pt / 2.0) / 4.0;
+    noiseVal += snoise(pt / 2.0) / 8.0;
+    noiseVal = (noiseVal + 1.0) / 2.0;
 
-	if (noiseVal < 0.75) {
+    noiseVal -= pow(elevation, 0.75);
+
+    vec3 color = kDeep.xyz;
+    color = mix(color, kShallow.xyz, smoothstep(kDeep.w,    kShallow.w, elevation));
+    color = mix(color, kShore.xyz,   smoothstep(kShallow.w, kShore.w,   elevation));
+    color = mix(color, kSand.xyz,    smoothstep(kShore.w,   kSand.w,    elevation));
+    color = mix(color, kGrass.xyz,   smoothstep(kSand.w,    kGrass.w,   elevation));
+    color = mix(color, kGrass2.xyz,  smoothstep(kGrass.w,   kGrass2.w,  elevation));
+    color = mix(color, kDirt.xyz,    smoothstep(kGrass2.w,  kDirt.w,    elevation));
+    color = mix(color, kRock.xyz,    smoothstep(kDirt.w,    kRock.w,    elevation));
+    color = mix(color, kSnow.xyz,    smoothstep(kRock.w,    kSnow.w,    elevation));
+
+	outBuffer.Colors[offset] = vec4(color, 1);
+	if (noiseVal < 0.1 && elevation > 0) {
 		outBuffer.Colors[offset].a = 0;
 	}
-	
-	/*
-	if (coords.y == 0 || coords.y == kChunkHeight - 1) {
-		outBuffer.Colors[offset] = vec4(0, 1, 0, 1);
-	}
-	*/
 }

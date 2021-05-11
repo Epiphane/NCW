@@ -56,8 +56,8 @@ MainState::~MainState()
 void MainState::Initialize()
 {
     DebugHelper::Instance().SetSystemManager(&mSystems);
-    mSystems.Add<CameraSystem>(mInput);
     mSystems.Add<AnimationSystem>();
+    mSystems.Add<CameraSystem>(mInput);
     mSystems.Add<JavascriptSystem>(mInput);
     mSystems.Add<FlySystem>(mInput);
     mSystems.Add<WalkSystem>(mInput);
@@ -231,7 +231,7 @@ void MainState::Receive(const JavascriptEvent& evt)
         mWorld.Reset();
 
         mWorld.Create(0, 0, 0);
-        int kSize = 20;
+        int kSize = 10;
         for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

@@ -10,19 +10,22 @@ namespace Engine
 
 void SystemManager::UpdateAll(TIMEDELTA dt)
 {
-   assert(mInitialized);
-   for (size_t i = 0; i < mSystems.size(); ++i)
-   {
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-      std::pair<std::string, Timer<100>>& benchmark = mBenchmarks[i];
-      benchmark.second.Reset();
+    glFinish();
 #endif
-      mSystems[i]->Update(mEntityManager, mEventManager, dt);
+    assert(mInitialized);
+    for (size_t i = 0; i < mSystems.size(); ++i)
+    {
 #if CUBEWORLD_BENCHMARK_SYSTEMS
-      glFinish();
-      benchmark.second.Elapsed();
+        std::pair<std::string, Timer<100>>& benchmark = mBenchmarks[i];
+        benchmark.second.Reset();
 #endif
-   }
+        mSystems[i]->Update(mEntityManager, mEventManager, dt);
+#if CUBEWORLD_BENCHMARK_SYSTEMS
+        glFinish();
+        benchmark.second.Elapsed();
+#endif
+    }
 }
 
 void SystemManager::Configure()
