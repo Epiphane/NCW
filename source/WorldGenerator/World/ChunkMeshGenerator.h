@@ -31,7 +31,7 @@ public:
     };
 
 public:
-    ChunkMeshGenerator();
+    ChunkMeshGenerator(Engine::EventManager& events);
     ~ChunkMeshGenerator();
 
     void Add(const Request& request);

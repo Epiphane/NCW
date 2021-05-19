@@ -1,0 +1,283 @@
+#version 460
+
+layout(local_size_x = 8, local_size_y = 16, local_size_z = 8) in;
+layout(std140, binding = 0) buffer inColorsT
+{
+    vec4 Colors[];
+} inColors;
+
+int kChunkWidth = 16;
+int kChunkHeight = 48;
+
+layout(binding = 1, offset = 0) uniform atomic_uint aVertices;
+layout(binding = 1, offset = 4) uniform atomic_uint aIndices;
+layout(std140, binding = 2) buffer outPositionsT
+{
+    vec4 Pos[];
+} outPositions;
+layout(std140, binding = 3) buffer outColorsT
+{
+    vec4 Color[];
+} outColors;
+layout(std140, binding = 4) buffer outNormalsT
+{
+    vec4 Norm[];
+} outNormals;
+layout(std140, binding = 5) buffer outIndicesT
+{
+    ivec4 Index[];
+} outIndices;
+
+vec4 getBlock(ivec3 coords)
+{
+    if (coords.x < 0 || coords.x >= kChunkWidth ||
+        coords.z < 0 || coords.z >= kChunkWidth ||
+        coords.y < 0 || coords.y >= kChunkHeight) {
+        return vec4(0);
+    }
+
+    uint offset = coords.y * kChunkWidth * kChunkWidth + coords.z * kChunkWidth + coords.x;
+    return inColors.Colors[offset];
+}
+
+bool occupied(ivec3 coords)
+{
+    return getBlock(coords).a > 0.5;
+}
+
+void addSide(vec3 base, vec3 d, vec3 color)
+{
+    uint ndx = atomicCounterAdd(aVertices, 5);
+    uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+    outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+    outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+    outPositions.Pos[ndx  ] = vec4(base, 0);
+    outColors.Color [ndx  ] = vec4(color, 1);
+    outNormals.Norm [ndx++] = vec4(0, 1, 0, 1);
+
+    outPositions.Pos[ndx  ]   = vec4(base + d.xyz, 0);
+    outColors.Color [ndx  ]   = vec4(color, 1);
+    outNormals.Norm [ndx++]   = vec4(0, 1, 0, 1);
+
+    outPositions.Pos[ndx  ]   = vec4(base + d.zyz, 0);
+    outColors.Color [ndx  ]   = vec4(color, 1);
+    outNormals.Norm [ndx++]   = vec4(0, 1, 0, 1);
+
+    outPositions.Pos[ndx  ]   = vec4(base + d.zyx, 0);
+    outColors.Color [ndx  ]   = vec4(color, 1);
+    outNormals.Norm [ndx++]   = vec4(0, 1, 0, 1);
+
+    outPositions.Pos[ndx  ]   = vec4(base + d.xyx, 0);
+    outColors.Color [ndx  ]   = vec4(color, 1);
+    outNormals.Norm [ndx++]   = vec4(0, 1, 0, 1);
+}
+
+void main()
+{
+    ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
+    vec3 color = max(vec3(gl_WorkGroupID) / 2.0, vec3(0.1));
+
+    vec4 thisBlock = getBlock(coords);
+    if (thisBlock.a < 0.5) {
+        return;
+    }
+
+    color = thisBlock.rgb;
+
+    vec3 d  = vec3(1,   0, -1);
+    vec3 d2 = vec3(0.5, 0, -0.5);
+
+    // Top
+    if (!occupied(coords + ivec3(0, 1, 0)))
+    {
+        vec3 base = coords + d2.yxy;
+        vec4 n = vec4(0, 1, 0, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xyz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zyz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zyx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xyx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+    
+    // Bottom
+    if (!occupied(coords + ivec3(0, -1, 0)))
+    {
+        vec3 base = coords + d2.yzy;
+        vec4 n = vec4(0, -1, 0, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xyz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xyx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zyx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zyz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+    
+    // Right
+    if (!occupied(coords + ivec3(1, 0, 0)))
+    {
+        vec3 base = coords + d2.xyy;
+        vec4 n = vec4(1, 0, 0, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yxz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yxx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yzx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yzz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+    
+    // Left
+    if (!occupied(coords + ivec3(-1, 0, 0)))
+    {
+        vec3 base = coords + d2.zyy;
+        vec4 n = vec4(-1, 0, 0, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yxz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yzz, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yzx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.yxx, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+    
+    // Front
+    if (!occupied(coords + ivec3(0, 0, 1)))
+    {
+        vec3 base = coords + d2.yyx;
+        vec4 n = vec4(0, 0, 1, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zxy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zzy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xzy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xxy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+    
+    // Back
+    if (!occupied(coords + ivec3(0, 0, -1)))
+    {
+        vec3 base = coords + d2.yyz;
+        vec4 n = vec4(0, 0, -1, 1);
+        uint ndx = atomicCounterAdd(aVertices, 5);
+        uint indexNdx = atomicCounterAdd(aIndices, 2);
+
+        outIndices.Index[indexNdx]      = ivec4(ndx, ndx + 1, ndx + 2, ndx + 3);
+        outIndices.Index[indexNdx + 1]  = ivec4(ndx + 4, ndx + 1, -1, -1);
+
+        outPositions.Pos[ndx  ] = vec4(base, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zxy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xxy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.xzy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+
+        outPositions.Pos[ndx  ] = vec4(base + d2.zzy, 0);
+        outColors.Color [ndx  ] = vec4(color, 1);
+        outNormals.Norm [ndx++] = n;
+    }
+}

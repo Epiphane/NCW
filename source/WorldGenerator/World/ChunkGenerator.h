@@ -6,8 +6,6 @@
 #include <functional>
 #include <thread>
 
-#include <Shared/Helpers/Noise.h>
-
 #include "Chunk.h"
 
 namespace CubeWorld

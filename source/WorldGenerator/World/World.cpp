@@ -40,7 +40,7 @@ World::World(Engine::EntityManager& entities, Engine::EventManager& events)
     : mEntityManager(entities)
     , mEventManager(events)
     , mChunkGenerator(new ChunkGenerator(mEventManager))
-    , mChunkMeshGenerator(new ChunkMeshGenerator())
+    , mChunkMeshGenerator(new ChunkMeshGenerator(mEventManager))
 {}
 
 ///
@@ -88,7 +88,7 @@ void World::Reset()
     }
 
     mChunkGenerator.reset(new ChunkGenerator(mEventManager));
-    mChunkMeshGenerator.reset(new ChunkMeshGenerator());
+    mChunkMeshGenerator.reset(new ChunkMeshGenerator(mEventManager));
 }
 
 ///

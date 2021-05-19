@@ -20,9 +20,6 @@
 namespace CubeWorld
 {
 
-noise::module::Perlin gHeightmodule;
-noise::utils::NoiseMap gHeightmap;
-
 struct ChunkGenerator::RequestQueue
 {
     // Protects the queue of requests.
@@ -43,7 +40,7 @@ public:
     //
     struct PrivateData
     {
-        // Worker thread
+        // Worker thread.
         std::thread thread;
 
         // Filename of the generator script
@@ -71,7 +68,7 @@ public:
         std::condition_variable condition;
 
         // Protects the generator script.
-        std::mutex generatorMutex;
+        std::mutex programMutex;
 
         // Compute shader for chunk creation.
         std::unique_ptr<Engine::Graphics::Program> program;
@@ -87,10 +84,6 @@ public:
     Worker(const std::string& sourceFile, Engine::EventManager& events)
         : mEvents(events)
     {
-        gHeightmodule.SetFrequency(0.01f);
-        gHeightmodule.SetOctaveCount(8);
-        gHeightmodule.SetSeed(5);
-
         Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(sourceFile);
         assert(maybeSource.Succeeded() && "Failed to read shader source");
 
@@ -142,6 +135,11 @@ public:
 
     void RunInternal()
     {
+        Engine::Graphics::VBO vbo(Engine::Graphics::VBO::ShaderStorage);
+
+        Chunk chunk({ 0, 0, 0 });
+        vbo.BufferData(chunk.data());
+
         for (;;)
         {
             Request request;
@@ -164,24 +162,21 @@ public:
                 }
             }
 
-            BuildChunk(request);
+            BuildChunk(vbo, request);
         }
     }
 
-    void BuildChunk(const Request& request)
+    void BuildChunk(Engine::Graphics::VBO& vbo, const Request& request)
     {
         mPrivate.profiler.Reset();
 
-        std::unique_lock<std::mutex> lock{ mShared.generatorMutex };
+        std::unique_lock<std::mutex> lock{ mShared.programMutex };
 
         Chunk chunk(request.coordinates);
 
         const float chunkX = float(request.coordinates.x);
         const float chunkY = float(request.coordinates.y);
         const float chunkZ = float(request.coordinates.z);
-
-        Engine::Graphics::VBO vbo(Engine::Graphics::VBO::ShaderStorage);
-        vbo.BufferData(chunk.data());
 
         if (mShared.program)
         {

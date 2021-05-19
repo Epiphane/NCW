@@ -21,6 +21,7 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
         benchmark.second.Reset();
 #endif
         mSystems[i]->Update(mEntityManager, mEventManager, dt);
+        CHECK_GL_ERRORS();
 #if CUBEWORLD_BENCHMARK_SYSTEMS
         glFinish();
         benchmark.second.Elapsed();

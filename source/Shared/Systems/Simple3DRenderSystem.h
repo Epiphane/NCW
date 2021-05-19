@@ -44,20 +44,24 @@ struct Index3DRender : public Engine::Component<Index3DRender> {
 };
 
 struct ShadedMesh : public Engine::Component<ShadedMesh> {
-    struct Point {
-        glm::vec3 position;
-        glm::vec3 color;
-        glm::vec3 normal;
-        float occlusion;
-    };
-
     ShadedMesh();
-    ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indices);
+    //ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indices);
 
-    void Set(Engine::Graphics::VBO&& vertices, Engine::Graphics::VBO&& indices, size_t count);
+    void Set(
+        Engine::Graphics::VBO&& mVertices,
+        Engine::Graphics::VBO&& mColors,
+        Engine::Graphics::VBO&& mNormals,
+        Engine::Graphics::VBO&& mIndices,
+        size_t vertexCount,
+        size_t indexCount
+    );
 
-    Engine::Graphics::VBO mVertices, mIndices;
-    size_t mCount;
+    Engine::Graphics::VBO mVertices;
+    Engine::Graphics::VBO mColors;
+    Engine::Graphics::VBO mNormals;
+    Engine::Graphics::VBO mIndices;
+    size_t mVertexCount;
+    size_t mIndexCount;
     GLuint renderType = GL_TRIANGLES;
 };
 

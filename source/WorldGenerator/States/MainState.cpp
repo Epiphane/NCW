@@ -198,6 +198,8 @@ void MainState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Build();
+
+    /*
     mWorld.Create(0, 0, 0);
 
     int kSize = 10;
@@ -219,6 +221,7 @@ void MainState::Initialize()
             mWorld.Create(-d, 0, -dist);
         }
     }
+    */
 
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(kPrimitiveRestart);
@@ -231,7 +234,7 @@ void MainState::Receive(const JavascriptEvent& evt)
         mWorld.Reset();
 
         mWorld.Create(0, 0, 0);
-        int kSize = 10;
+        int kSize = 50;
         for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

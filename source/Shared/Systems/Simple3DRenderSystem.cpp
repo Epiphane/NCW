@@ -11,6 +11,7 @@
 #include <RGBDesignPatterns/Scope.h>
 #include <Engine/Core/Timer.h>
 #include <Engine/Graphics/Program.h>
+#include <Shared/Helpers/Asset.h>
 #include <RGBLogger/Logger.h>
 
 #include "Simple3DRenderSystem.h"
@@ -79,24 +80,29 @@ Index3DRender::Index3DRender(const Index3DRender& other)
 
 ShadedMesh::ShadedMesh()
     : mVertices(Engine::Graphics::VBO::Vertices)
+    , mColors(Engine::Graphics::VBO::Colors)
+    , mNormals(Engine::Graphics::VBO::Normals)
     , mIndices(Engine::Graphics::VBO::Indices)
-    , mCount(0)
+    , mVertexCount(0)
+    , mIndexCount(0)
 {}
 
-ShadedMesh::ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indices) : ShadedMesh()
-{
-    mCount = indices.size();
-    mVertices.BufferData(vertices);
-    mIndices.BufferData(indices);
-    //mCount = vertices.size();
-}
-
-void ShadedMesh::Set(Engine::Graphics::VBO&& vertices, Engine::Graphics::VBO&& indices, size_t count)
+void ShadedMesh::Set(
+    Engine::Graphics::VBO&& vertices,
+    Engine::Graphics::VBO&& colors,
+    Engine::Graphics::VBO&& normals,
+    Engine::Graphics::VBO&& indices,
+    size_t vertexCount,
+    size_t indexCount
+)
 {
     std::unique_lock<std::mutex> lock{gSimple3DMutex};
-    mCount = count;
     mVertices = std::move(vertices);
+    mColors = std::move(colors);
+    mNormals = std::move(normals);
     mIndices = std::move(indices);
+    mVertexCount = vertexCount;
+    mIndexCount = indexCount;
 }
 
 std::unique_ptr<Engine::Graphics::Program> Simple3DRenderSystem::stupid = nullptr;
@@ -114,7 +120,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
 {
     if (!stupid)
     {
-        auto maybeProgram = Engine::Graphics::Program::Load("Shaders/Stupid.vert", "Shaders/Stupid.frag");
+        auto maybeProgram = Engine::Graphics::Program::Load(Asset::Shader("Stupid.vert"), Asset::Shader("Stupid.frag"));
         if (!maybeProgram)
         {
             LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Stupid shader").GetMessage());
@@ -131,7 +137,7 @@ void Simple3DRenderSystem::Configure(Engine::EntityManager&, Engine::EventManage
 
     if (!shaded)
     {
-        auto maybeProgram = Engine::Graphics::Program::Load("Shaders/ShadedMesh.vert", "Shaders/ShadedMesh.frag");
+        auto maybeProgram = Engine::Graphics::Program::Load(Asset::Shader("ShadedMesh.vert"), Asset::Shader("ShadedMesh.frag"));
         if (!maybeProgram)
         {
             LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading ShadedMesh shader").GetMessage());
@@ -222,22 +228,43 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
         shaded->UniformMatrix4f("uViewMatrix", view);
 
         entities.Each<Transform, ShadedMesh>([&](Transform& transform, ShadedMesh& mesh) {
-            if (mesh.mCount == 0)
+            if (mesh.mIndexCount == 0)
             {
                 return;
             }
 
             shaded->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
+            CHECK_GL_ERRORS();
 
-            mesh.mVertices.AttribPointer(shaded->Attrib("aPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(ShadedMesh::Point), offsetOf(&ShadedMesh::Point::position));
-            mesh.mVertices.AttribPointer(shaded->Attrib("aColor"), 3, GL_FLOAT, GL_FALSE, sizeof(ShadedMesh::Point), offsetOf(&ShadedMesh::Point::color));
-            mesh.mVertices.AttribPointer(shaded->Attrib("aNormal"), 3, GL_FLOAT, GL_FALSE, sizeof(ShadedMesh::Point), offsetOf(&ShadedMesh::Point::normal));
-            mesh.mVertices.AttribPointer(shaded->Attrib("aOcclusion"), 1, GL_FLOAT, GL_FALSE, sizeof(ShadedMesh::Point), offsetOf(&ShadedMesh::Point::occlusion));
+            auto loc = shaded->Attrib("aPosition");
+            glEnableVertexAttribArray(loc);
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.mVertices.GetBuffer());
+            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-            //glDrawArrays(mesh.renderType, 0, GLsizei(mesh.mCount));
+            loc = shaded->Attrib("aColor");
+            glEnableVertexAttribArray(loc);
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.mColors.GetBuffer());
+            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-            mesh.mIndices.Bind();
-            glDrawElements(mesh.renderType, GLsizei(mesh.mCount), GL_UNSIGNED_INT, (void*)0);
+            loc = shaded->Attrib("aNormal");
+            glEnableVertexAttribArray(loc);
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.mNormals.GetBuffer());
+            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+            /*
+            mesh.mVertices.AttribPointer(shaded->Attrib("aPosition"), 4, GL_FLOAT, GL_FALSE, 0, 0);
+            mesh.mColors.AttribPointer(shaded->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, 0, 0);
+            mesh.mNormals.AttribPointer(shaded->Attrib("aNormal"), 4, GL_FLOAT, GL_FALSE, 0, 0);
+            */
+            //mesh.mVertices.AttribPointer(shaded->Attrib("aOcclusion"), 1, GL_FLOAT, GL_FALSE, sizeof(), offsetOf(&ShadedMesh::Point::occlusion));
+
+            CHECK_GL_ERRORS();
+
+            //mesh.mIndices.Bind();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.mIndices.GetBuffer());
+            CHECK_GL_ERRORS();
+            glDrawElements(mesh.renderType, GLsizei(mesh.mIndexCount), GL_UNSIGNED_INT, (void*)0);
+            CHECK_GL_ERRORS();
         });
     }
 }
