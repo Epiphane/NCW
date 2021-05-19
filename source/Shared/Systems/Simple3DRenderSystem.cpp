@@ -215,7 +215,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
             render.mOffsets.AttribPointer(stupid->Attrib("aOffset"), 3, GL_FLOAT, GL_FALSE, 0, 0);
             glVertexAttribDivisor(stupid->Attrib("aOffset"), 1);
 
-            render.mIndices.Bind();
+            render.mIndices.Bind(Engine::Graphics::VBO::Target::VertexIndices);
             glDrawElementsInstanced(render.renderType, GLsizei(render.mCount), GL_UNSIGNED_INT, nullptr, GLsizei(render.mInstances));
 
             CHECK_GL_ERRORS();
@@ -234,33 +234,12 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
             }
 
             shaded->UniformMatrix4f("uModelMatrix", transform.GetMatrix());
-            CHECK_GL_ERRORS();
 
-            auto loc = shaded->Attrib("aPosition");
-            glEnableVertexAttribArray(loc);
-            glBindBuffer(GL_ARRAY_BUFFER, mesh.mVertices.GetBuffer());
-            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-            loc = shaded->Attrib("aColor");
-            glEnableVertexAttribArray(loc);
-            glBindBuffer(GL_ARRAY_BUFFER, mesh.mColors.GetBuffer());
-            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-            loc = shaded->Attrib("aNormal");
-            glEnableVertexAttribArray(loc);
-            glBindBuffer(GL_ARRAY_BUFFER, mesh.mNormals.GetBuffer());
-            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-            /*
             mesh.mVertices.AttribPointer(shaded->Attrib("aPosition"), 4, GL_FLOAT, GL_FALSE, 0, 0);
             mesh.mColors.AttribPointer(shaded->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, 0, 0);
             mesh.mNormals.AttribPointer(shaded->Attrib("aNormal"), 4, GL_FLOAT, GL_FALSE, 0, 0);
-            */
-            //mesh.mVertices.AttribPointer(shaded->Attrib("aOcclusion"), 1, GL_FLOAT, GL_FALSE, sizeof(), offsetOf(&ShadedMesh::Point::occlusion));
 
-            CHECK_GL_ERRORS();
-
-            //mesh.mIndices.Bind();
+            mesh.mIndices.Bind(Engine::Graphics::VBO::Target::VertexIndices);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.mIndices.GetBuffer());
             CHECK_GL_ERRORS();
             glDrawElements(mesh.renderType, GLsizei(mesh.mIndexCount), GL_UNSIGNED_INT, (void*)0);

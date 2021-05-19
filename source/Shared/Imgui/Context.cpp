@@ -225,11 +225,10 @@ void ImguiContext::ResetRenderState(ImDrawData* drawData, int fbWidth, int fbHei
    mProgram->UniformMatrix4f("uProjMatrix", projection);
 
    // Bind vertex/index buffers and setup attributes for ImDrawVert
-   mVBO.Bind();
-   mElements.Bind();
    mVBO.AttribPointer(mProgram->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, pos));
    mVBO.AttribPointer(mProgram->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, uv));
    mVBO.AttribPointer(mProgram->Attrib("aColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, col));
+   mElements.Bind(Engine::Graphics::VBO::Target::VertexIndices);
 }
 
 void ImguiContext::Render()

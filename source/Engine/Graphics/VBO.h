@@ -8,6 +8,38 @@
 namespace CubeWorld
 {
 
+enum class VBOTarget : GLenum
+{
+    // Vertex attributes
+    VertexData = GL_ARRAY_BUFFER,
+    // Atomic counter storage
+    AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
+    // Source for buffer copying
+    CopyReadBuffer = GL_COPY_READ_BUFFER,
+    // Destination for buffer copying
+    CopyWriteBuffer = GL_COPY_WRITE_BUFFER,
+    // For glDispatchComputeIndirect
+    DispatchIndirect = GL_DISPATCH_INDIRECT_BUFFER,
+    // For glDrawArraysIndirect
+    DrawIndirect = GL_DRAW_INDIRECT_BUFFER,
+    // For vertex indices
+    VertexIndices = GL_ELEMENT_ARRAY_BUFFER,
+    // Pixel read target
+    PixelPack = GL_PIXEL_PACK_BUFFER,
+    // Texture data source
+    PixelUnpack = GL_PIXEL_UNPACK_BUFFER,
+    // GL query results
+    Query = GL_QUERY_BUFFER,
+    // Read+Write storage for compute shaders
+    ShaderStorage = GL_SHADER_STORAGE_BUFFER,
+    // Texture data
+    Texture = GL_TEXTURE_BUFFER,
+    // Transform feedback
+    TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
+    // Uniform block storage
+    Uniform = GL_UNIFORM_BUFFER,
+};
+
 namespace Engine
 {
 
@@ -54,37 +86,7 @@ public:
         AtomicCounter,
     };
 
-    enum class Target : GLenum
-    {
-        // Vertex attributes
-        VertexData = GL_ARRAY_BUFFER,
-        // Atomic counter storage
-        AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
-        // Source for buffer copying
-        CopyReadBuffer = GL_COPY_READ_BUFFER,
-        // Destination for buffer copying
-        CopyWriteBuffer = GL_COPY_WRITE_BUFFER,
-        // For glDispatchComputeIndirect
-        DispatchIndirect = GL_DISPATCH_INDIRECT_BUFFER,
-        // For glDrawArraysIndirect
-        DrawIndirect = GL_DRAW_INDIRECT_BUFFER,
-        // For vertex indices
-        VertexIndices = GL_ELEMENT_ARRAY_BUFFER,
-        // Pixel read target
-        PixelPack = GL_PIXEL_PACK_BUFFER,
-        // Texture data source
-        PixelUnpack = GL_PIXEL_UNPACK_BUFFER,
-        // GL query results
-        Query = GL_QUERY_BUFFER,
-        // Read+Write storage for compute shaders
-        ShaderStorage = GL_SHADER_STORAGE_BUFFER,
-        // Texture data
-        Texture = GL_TEXTURE_BUFFER,
-        // Transform feedback
-        TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
-        // Uniform block storage
-        Uniform = GL_UNIFORM_BUFFER,
-    };
+    using Target = VBOTarget;
 
 protected:
     GLuint mBuffer = 0;
@@ -104,16 +106,13 @@ public:
     VBO& operator=(const VBO& other);
     VBO& operator=(VBO&& other) noexcept;
 
-    void Bind();
-private:
     void Bind(Target target);
-public:
     void AttribPointer(GLuint location, GLint count, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
     void AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid* pointer);
 
     GLuint GetBuffer() { return mBuffer; }
-    void BufferFrom(const VBO& other, size_t amount, void* readOffset, void* writeOffset);
     void BufferData(size_t size, void* data, GLuint type);
+    void CopyFrom(const VBO& other, size_t amount, void* readOffset = nullptr, void* writeOffset = nullptr);
 
     template<typename T>
     void BufferData(const std::vector<T>& data, GLuint type = GL_STATIC_DRAW)

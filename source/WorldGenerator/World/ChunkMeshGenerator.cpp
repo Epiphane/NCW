@@ -170,27 +170,19 @@ public:
         uint32_t count[2] = { 0, 0 };
 
         // Allocate space for for every potential block in the chunk.
-        std::vector<glm::vec4> mesh;
-        mesh.resize(4 * kChunkSize * kChunkSize * kChunkHeight);
-        std::vector<glm::tvec4<GLuint>> meshIndices;
-        meshIndices.resize(8 * kChunkSize * kChunkSize * kChunkHeight);
-
         Engine::Graphics::VBO vertices(Engine::Graphics::VBO::ShaderStorage);
         Engine::Graphics::VBO colors(Engine::Graphics::VBO::ShaderStorage);
         Engine::Graphics::VBO normals(Engine::Graphics::VBO::ShaderStorage);
-        vertices.BufferData(mesh);
-        colors.BufferData(mesh);
-        normals.BufferData(mesh);
         Engine::Graphics::VBO indices(Engine::Graphics::VBO::ShaderStorage);
-        indices.BufferData(meshIndices);
+        vertices.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        colors.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        normals.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        indices.BufferData(sizeof(glm::tvec4<GLuint>) * 8 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
 
         // declare and generate a buffer object name
         Engine::Graphics::VBO atomics(Engine::Graphics::VBO::AtomicCounter);
         // bind the buffer and define its initial storage capacity
-        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomics.GetBuffer());
-        glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, count, GL_DYNAMIC_DRAW);
-        // unbind the buffer 
-        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+        atomics.BufferData(sizeof(GLuint) * 2, count, GL_DYNAMIC_DRAW);
 
         if (mShared.program)
         {
@@ -208,35 +200,18 @@ public:
             glMemoryBarrier(GL_ALL_BARRIER_BITS);
         }
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, atomics.GetBuffer());
-        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(uint32_t) * 2, count);
+        atomics.Bind(VBOTarget::VertexData);
+        glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(count), count);
 
         Engine::Graphics::VBO vertices2(Engine::Graphics::VBO::Vertices);
         Engine::Graphics::VBO colors2(Engine::Graphics::VBO::Colors);
         Engine::Graphics::VBO normals2(Engine::Graphics::VBO::Normals);
         Engine::Graphics::VBO indices2(Engine::Graphics::VBO::Indices);
 
-        GLsizei size = GLsizei(sizeof(glm::vec4) * count[0]);
-        glBindBuffer(GL_COPY_READ_BUFFER, vertices.GetBuffer());
-        glBindBuffer(GL_COPY_WRITE_BUFFER, vertices2.GetBuffer());
-        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-
-        glBindBuffer(GL_COPY_READ_BUFFER, colors.GetBuffer());
-        glBindBuffer(GL_COPY_WRITE_BUFFER, colors2.GetBuffer());
-        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-
-        glBindBuffer(GL_COPY_READ_BUFFER, normals.GetBuffer());
-        glBindBuffer(GL_COPY_WRITE_BUFFER, normals2.GetBuffer());
-        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-
-        size = GLsizei(sizeof(glm::tvec4<GLuint>) * count[1]);
-        glBindBuffer(GL_COPY_READ_BUFFER, indices.GetBuffer());
-        glBindBuffer(GL_COPY_WRITE_BUFFER, indices2.GetBuffer());
-        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_DRAW);
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
+        vertices2.CopyFrom(vertices, sizeof(glm::vec4) * count[0]);
+        colors2.CopyFrom(colors, sizeof(glm::vec4) * count[0]);
+        normals2.CopyFrom(normals, sizeof(glm::vec4) * count[0]);
+        indices2.CopyFrom(indices, sizeof(GLuint) * 4 * count[1]);
         glFlush();
 
         request.component->Set(

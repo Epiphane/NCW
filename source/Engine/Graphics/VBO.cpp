@@ -138,18 +138,12 @@ void VBO::BufferData(size_t size, void* data, GLuint strategy)
     glBufferData(mBufferType, GLsizei(size), data, strategy);
 }
 
-void VBO::BufferFrom(const VBO& other, size_t size, void* readOffset, void* writeOffset)
+void VBO::CopyFrom(const VBO& other, size_t size, void* readOffset, void* writeOffset)
 {
     glBindBuffer(GL_COPY_READ_BUFFER, other.mBuffer);
     glBindBuffer(GL_COPY_WRITE_BUFFER, mBuffer);
     glBufferData(GL_COPY_WRITE_BUFFER, GLsizeiptr(size), nullptr, GL_STATIC_DRAW);
     glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, GLintptr(readOffset), GLintptr(writeOffset), GLsizeiptr(size));
-}
-
-void VBO::Bind()
-{
-    assert(mBuffer != 0);
-    glBindBuffer(mBufferType, mBuffer);
 }
 
 void VBO::Bind(Target target)
