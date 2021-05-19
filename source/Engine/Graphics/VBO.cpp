@@ -35,39 +35,58 @@ GLuint GenerateBuffer()
     assert(buffer != 0 && "Buffer capacity exceeded");
 
     std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
-    if (gBufferReferences.size() <= buffer) {
-        gBufferReferences.resize(gBufferReferences.size() + kBufferCountIncrement);
+    if (gBufferReferences.size() <= buffer)
+    {
+        gBufferReferences.resize(gBufferReferences.size() + kBufferCountIncrement, 0);
     }
 
     gBufferReferences[buffer] = 1;
     return buffer;
 }
 
-VBO::VBO(const DataType type, const GLuint buffer) : mBuffer(buffer)
+VBO::VBO(const GLuint buffer)
 {
-    if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
-    else if (type == ShaderStorage) mBufferType = GL_SHADER_STORAGE_BUFFER;
-    else if (type == AtomicCounter) mBufferType = GL_ATOMIC_COUNTER_BUFFER;
-    else mBufferType = GL_ARRAY_BUFFER;
-
-    std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
-    ++gBufferReferences[mBuffer];
+    SetBuffer(buffer);
 }
 
-VBO::VBO(const DataType type)
+VBO::VBO(const VBO& other) : VBO(other.mBuffer)
+{}
+
+VBO::VBO(VBO&& other)
 {
-    Init(type);
+    mBuffer = other.mBuffer;
+    other.mBuffer = 0;
 }
 
-VBO::VBO(const GLuint bufferType, const GLuint buffer) : mBuffer(buffer), mBufferType(bufferType)
+VBO& VBO::operator=(const VBO& other)
 {
-    std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
-    ++gBufferReferences[mBuffer];
+    SetBuffer(other.mBuffer);
+    return *this;
 }
 
-VBO::VBO(const VBO& other) : VBO(other.mBufferType, other.mBuffer) {}
+VBO& VBO::operator=(VBO&& other) noexcept
+{
+    std::swap(mBuffer, other.mBuffer);
+    return *this;
+}
 
-VBO& VBO::operator=(const VBO& other) {
+VBO::~VBO()
+{
+    SetBuffer(0);
+}
+
+bool VBO::EnsureBuffer()
+{
+    if (mBuffer == 0)
+    {
+        mBuffer = GenerateBuffer();
+        return true;
+    }
+    return false;
+}
+
+void VBO::SetBuffer(GLuint buffer)
+{
     if (mBuffer != 0)
     {
         std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
@@ -77,78 +96,42 @@ VBO& VBO::operator=(const VBO& other) {
         }
     }
 
-    mBuffer = other.mBuffer;
-    mBufferType = other.mBufferType;
-
-    std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
-    ++gBufferReferences[mBuffer];
-
-    return *this;
-}
-
-VBO& VBO::operator=(VBO&& other) noexcept
-{
-    std::swap(mBuffer, other.mBuffer);
-    std::swap(mBufferType, other.mBufferType);
-
-    return *this;
-}
-
-VBO::~VBO()
-{
-    // Fun fact: gBufferReferences might have already been cleaned up at this point. If so, don't use it
-    std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
-    if (mBuffer != GL_FALSE && mBuffer < gBufferReferences.size())
+    mBuffer = buffer;
+    if (mBuffer != 0)
     {
-        if (--gBufferReferences[mBuffer] == 0)
-        {
-            glDeleteBuffers(1, &mBuffer);
-        }
+        std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
+        ++gBufferReferences[mBuffer];
     }
-}
-
-void VBO::Init(const DataType type)
-{
-    assert(mBuffer == 0);
-
-    mBuffer = GenerateBuffer();
-    if (type == Indices) mBufferType = GL_ELEMENT_ARRAY_BUFFER;
-    else if (type == ShaderStorage) mBufferType = GL_SHADER_STORAGE_BUFFER;
-    else if (type == AtomicCounter) mBufferType = GL_ATOMIC_COUNTER_BUFFER;
-    else mBufferType = GL_ARRAY_BUFFER;
 }
 
 void VBO::BufferData(size_t size, void* data, GLuint strategy)
 {
-    assert(mBuffer != 0);
+    EnsureBuffer();
     {
         std::unique_lock<std::mutex> lock{ gBufferReferencesMutex };
         if (mBuffer < gBufferReferences.size() && gBufferReferences[mBuffer] > 1)
         {
-            if (--gBufferReferences[mBuffer] == 0)
-            {
-                glDeleteBuffers(1, &mBuffer);
-            }
-
+            --gBufferReferences[mBuffer];
             mBuffer = GenerateBuffer();
         }
     }
 
-    glBindBuffer(mBufferType, mBuffer);
-    glBufferData(mBufferType, GLsizei(size), data, strategy);
+    glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
+    glBufferData(GL_ARRAY_BUFFER, GLsizei(size), data, strategy);
 }
 
 void VBO::CopyFrom(const VBO& other, size_t size, void* readOffset, void* writeOffset)
 {
+    EnsureBuffer();
     glBindBuffer(GL_COPY_READ_BUFFER, other.mBuffer);
     glBindBuffer(GL_COPY_WRITE_BUFFER, mBuffer);
     glBufferData(GL_COPY_WRITE_BUFFER, GLsizeiptr(size), nullptr, GL_STATIC_DRAW);
     glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, GLintptr(readOffset), GLintptr(writeOffset), GLsizeiptr(size));
 }
 
-void VBO::Bind(Target target)
+void VBO::Bind(VBOTarget target)
 {
-    assert(mBuffer != 0);
+    EnsureBuffer();
     glBindBuffer(GLenum(target), mBuffer);
 }
 

@@ -15,7 +15,7 @@ namespace Engine
 namespace Graphics
 {
 
-FeedbackBuffer::FeedbackBuffer() : data(VBO::Vertices)
+FeedbackBuffer::FeedbackBuffer()
 {
    glGenTransformFeedbacks(1, &mBuffer);
    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mBuffer);

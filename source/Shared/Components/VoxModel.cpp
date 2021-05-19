@@ -11,7 +11,6 @@ VoxModel::VoxModel()
    : mTint(glm::vec3(255))
    , mParts{}
    , mPartLookup{}
-   , mVBO(Engine::Graphics::VBO::Vertices)
 {
 }
 

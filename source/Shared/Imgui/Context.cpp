@@ -22,8 +22,6 @@ static void SetClipboardText(void* user_data, const char* text)
 
 ImguiContext::ImguiContext(Engine::Window& window)
    : mWindow(window)
-   , mVBO(Engine::Graphics::VBO::Vertices)
-   , mElements(Engine::Graphics::VBO::Indices)
 {
    IMGUI_CHECKVERSION();
    ImGui::CreateContext();
@@ -225,10 +223,11 @@ void ImguiContext::ResetRenderState(ImDrawData* drawData, int fbWidth, int fbHei
    mProgram->UniformMatrix4f("uProjMatrix", projection);
 
    // Bind vertex/index buffers and setup attributes for ImDrawVert
+   mVBO.Bind(VBOTarget::VertexData);
    mVBO.AttribPointer(mProgram->Attrib("aPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, pos));
    mVBO.AttribPointer(mProgram->Attrib("aUV"), 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, uv));
    mVBO.AttribPointer(mProgram->Attrib("aColor"), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, col));
-   mElements.Bind(Engine::Graphics::VBO::Target::VertexIndices);
+   mElements.Bind(VBOTarget::VertexIndices);
 }
 
 void ImguiContext::Render()

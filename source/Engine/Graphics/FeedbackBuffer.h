@@ -51,7 +51,7 @@ public:
    FeedbackBuffer& operator=(const FeedbackBuffer& other) noexcept;
    FeedbackBuffer& operator=(FeedbackBuffer&& other) noexcept;
 
-   void Bind() { data.Bind(VBO::Target::VertexData); }
+   void Bind() { data.Bind(VBOTarget::VertexData); }
    void Draw(GLenum type);
 
    void Begin(GLenum type);

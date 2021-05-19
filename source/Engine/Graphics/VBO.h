@@ -72,41 +72,18 @@ extern std::vector<int> gBufferReferences;
 class VBO
 {
 public:
-    enum DataType
-    {
-        Vertices,
-        Colors,
-        UVs,
-        Normals,
-        Indices,
-        Materials,
-        Opacities,
-        ArrayBuffer,
-        ShaderStorage,
-        AtomicCounter,
-    };
-
-    using Target = VBOTarget;
-
-protected:
-    GLuint mBuffer = 0;
-    GLuint mBufferType = 0;
-
-public:
-    // CAUTION: When using the default constructor, you must either call vbo.Init() or assign it another VBO before it is usable.
-    VBO() : mBuffer(0), mBufferType(0) {};
-
-    VBO(const DataType type);
-    VBO(const DataType type, const GLuint buffer);
-    VBO(const GLuint bufferType, const GLuint buffer);
+    VBO() = default;
+    VBO(const GLuint buffer);
     VBO(const VBO& other);
+    VBO(VBO&& other);
     ~VBO();
-    void Init(const DataType type);
+    bool EnsureBuffer();
+    void SetBuffer(GLuint buffer);
 
     VBO& operator=(const VBO& other);
     VBO& operator=(VBO&& other) noexcept;
 
-    void Bind(Target target);
+    void Bind(VBOTarget target);
     void AttribPointer(GLuint location, GLint count, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
     void AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid* pointer);
 
@@ -119,34 +96,11 @@ public:
     {
         BufferData(sizeof(T) * data.size(), (void*)&data[0], type);
     }
-};
 
-class AttributeVBO : public VBO
-{
-public:
-    struct AttributeOptions {
-        GLuint mLocation;
-        GLint mSize;
-        GLenum mType;
-        GLboolean mNormalized;
-    };
-
-private:
-    AttributeOptions mOptions;
-
-public:
-    AttributeVBO(DataType dataType, AttributeOptions options) : VBO(dataType), mOptions(options) {}
-    AttributeVBO(DataType dataType, GLuint buffer, AttributeOptions options)
-        : VBO(dataType, buffer), mOptions(options) {}
-    AttributeVBO(const VBO& other);
-
-    AttributeVBO& operator=(const AttributeVBO& other);
-
-    void BindAttribute(GLsizei stride, const GLvoid* pointer);
+protected:
+    GLuint mBuffer = 0;
 };
 
 }; // namespace Graphics
-
 }; // namespace Engine
-
 }; // namespace CubeWorld

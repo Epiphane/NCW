@@ -18,8 +18,6 @@ std::unique_ptr<Engine::Graphics::Program> DebugHelper::program = nullptr;
 DebugHelper::DebugHelper()
    : mBounds(nullptr)
    , mFont(nullptr)
-   , mMetricsTextVBO(Engine::Graphics::VBO::Vertices)
-   , mSystemsBenchmarkVBO(Engine::Graphics::VBO::Vertices)
    , mSystemManager(nullptr)
 {
    mMetrics = std::make_unique<MetricLink>(this, "None", nullptr);

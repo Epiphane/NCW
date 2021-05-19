@@ -21,7 +21,6 @@ namespace CubeWorld
 {
 
 struct VoxelRender : public Engine::Component<VoxelRender> {
-   VoxelRender();
    VoxelRender(std::vector<Voxel::Data>&& voxels);
    VoxelRender(const VoxelRender& other);
 
@@ -29,7 +28,7 @@ struct VoxelRender : public Engine::Component<VoxelRender> {
    void Set(std::vector<Voxel::Data>&& voxels);
 
    Engine::Graphics::VBO mVoxelData;
-   GLsizei mSize;
+   GLsizei mSize = 0;
 };
 
 class VoxelRenderSystem : public Engine::System<VoxelRenderSystem> {

@@ -21,14 +21,7 @@
 namespace CubeWorld
 {
 
-VoxelRender::VoxelRender()
-   : mVoxelData(Engine::Graphics::VBO::Vertices)
-   , mSize(0)
-{}
-
 VoxelRender::VoxelRender(std::vector<Voxel::Data>&& voxels)
-   : mVoxelData(Engine::Graphics::VBO::Vertices)
-   , mSize(GLsizei(voxels.size()))
 {
    Set(std::move(voxels));
 }

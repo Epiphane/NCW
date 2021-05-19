@@ -165,8 +165,7 @@ int main(int, char**)
 
     glGenFramebuffers(1, &fb[0]);
 
-    Engine::Graphics::VBO vbo(Engine::Graphics::VBO::Vertices);
-    //bool ready = false;
+    Engine::Graphics::VBO vbo;
 
     glGenBuffers(1, &buf[0]);
     glBindBuffer(GL_ARRAY_BUFFER, buf[0]);

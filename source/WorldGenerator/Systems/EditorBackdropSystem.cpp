@@ -56,7 +56,6 @@ Maybe<void> AddFloor(Engine::EntityManager &entities, glm::vec3 color)
 // ------------------------------------------------------------------------------------------------
 EditorBackdropSystem::EditorBackdropSystem(Engine::Graphics::Camera* camera)
    : mCamera(camera)
-   , mVBO(Engine::Graphics::VBO::Vertices)
 {
    std::vector<glm::vec3> data{{0, 0, 0}};
    mVBO.BufferData(data.size(), data.data(), GL_STATIC_DRAW);

@@ -30,7 +30,6 @@ Debug::Debug(BulletPhysics::System* system, Engine::Graphics::Camera* camera)
    , mCamera(camera)
    , mActive(true)
    , mColor(0, 0, 0)
-   , mVBO(Engine::Graphics::VBO::Vertices)
 {
 }
 

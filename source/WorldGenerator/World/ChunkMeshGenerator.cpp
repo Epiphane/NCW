@@ -164,23 +164,20 @@ public:
 
         std::unique_lock<std::mutex> lock{ mShared.programMutex };
 
-        Engine::Graphics::VBO input(Engine::Graphics::VBO::ShaderStorage);
+        Engine::Graphics::VBO input;
         input.BufferData(request.chunk->data());
 
         uint32_t count[2] = { 0, 0 };
 
         // Allocate space for for every potential block in the chunk.
-        Engine::Graphics::VBO vertices(Engine::Graphics::VBO::ShaderStorage);
-        Engine::Graphics::VBO colors(Engine::Graphics::VBO::ShaderStorage);
-        Engine::Graphics::VBO normals(Engine::Graphics::VBO::ShaderStorage);
-        Engine::Graphics::VBO indices(Engine::Graphics::VBO::ShaderStorage);
+        Engine::Graphics::VBO vertices, colors, normals, indices;
         vertices.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
         colors.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
         normals.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
         indices.BufferData(sizeof(glm::tvec4<GLuint>) * 8 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
 
         // declare and generate a buffer object name
-        Engine::Graphics::VBO atomics(Engine::Graphics::VBO::AtomicCounter);
+        Engine::Graphics::VBO atomics;
         // bind the buffer and define its initial storage capacity
         atomics.BufferData(sizeof(GLuint) * 2, count, GL_DYNAMIC_DRAW);
 
@@ -203,11 +200,7 @@ public:
         atomics.Bind(VBOTarget::VertexData);
         glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(count), count);
 
-        Engine::Graphics::VBO vertices2(Engine::Graphics::VBO::Vertices);
-        Engine::Graphics::VBO colors2(Engine::Graphics::VBO::Colors);
-        Engine::Graphics::VBO normals2(Engine::Graphics::VBO::Normals);
-        Engine::Graphics::VBO indices2(Engine::Graphics::VBO::Indices);
-
+        Engine::Graphics::VBO vertices2, colors2, normals2, indices2;
         vertices2.CopyFrom(vertices, sizeof(glm::vec4) * count[0]);
         colors2.CopyFrom(colors, sizeof(glm::vec4) * count[0]);
         normals2.CopyFrom(normals, sizeof(glm::vec4) * count[0]);

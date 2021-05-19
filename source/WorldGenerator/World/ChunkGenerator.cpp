@@ -135,7 +135,7 @@ public:
 
     void RunInternal()
     {
-        Engine::Graphics::VBO vbo(Engine::Graphics::VBO::ShaderStorage);
+        Engine::Graphics::VBO vbo;
 
         Chunk chunk({ 0, 0, 0 });
         vbo.BufferData(chunk.data());

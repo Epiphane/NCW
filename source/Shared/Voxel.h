@@ -83,15 +83,8 @@ public:
 // Extension of ModelData that provides a VBO.
 class Model : public ModelData {
 public:
-   Model() : mVBO(Engine::Graphics::VBO::Vertices) {};
-   Model(std::unique_ptr<ModelData>&& data)
-      : ModelData(std::move(*data))
-      , mVBO(Engine::Graphics::VBO::Vertices)
-   {};
-   Model(ModelData&& data)
-      : ModelData(std::move(data))
-      , mVBO(Engine::Graphics::VBO::Vertices)
-   {};
+   Model(std::unique_ptr<ModelData>&& data) : ModelData(std::move(*data)) {};
+   Model(ModelData&& data) : ModelData(std::move(data)) {};
    ~Model() {};
 
    Engine::Graphics::VBO mVBO;

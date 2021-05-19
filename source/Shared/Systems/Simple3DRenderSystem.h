@@ -22,31 +22,27 @@ namespace CubeWorld
 constexpr GLuint kPrimitiveRestart = GLuint(-1);
 
 struct Simple3DRender : public Engine::Component<Simple3DRender> {
-    Simple3DRender();
     Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors);
     Simple3DRender(std::vector<glm::vec3>&& points, std::vector<glm::vec3>&& colors);
     Simple3DRender(const Simple3DRender& other);
    
     Engine::Graphics::VBO mVertices, mColors;
-    size_t mCount;
+    size_t mCount = 0;
     bool cullFaces = true;
     GLuint renderType = GL_TRIANGLES;
 };
 
 struct Index3DRender : public Engine::Component<Index3DRender> {
-    Index3DRender();
     Index3DRender(std::vector<glm::vec3>&& points, std::vector<glm::vec3>&& colors, std::vector<GLuint>&& indices, std::vector<glm::vec3>&& positions);
     Index3DRender(const Index3DRender& other);
 
     Engine::Graphics::VBO mVertices, mColors, mIndices, mOffsets;
-    size_t mCount, mInstances;
+    size_t mCount = 0;
+    size_t mInstances = 0;
     GLuint renderType = GL_TRIANGLES;
 };
 
 struct ShadedMesh : public Engine::Component<ShadedMesh> {
-    ShadedMesh();
-    //ShadedMesh(std::vector<Point>&& vertices, std::vector<GLuint>&& indices);
-
     void Set(
         Engine::Graphics::VBO&& mVertices,
         Engine::Graphics::VBO&& mColors,
@@ -60,8 +56,8 @@ struct ShadedMesh : public Engine::Component<ShadedMesh> {
     Engine::Graphics::VBO mColors;
     Engine::Graphics::VBO mNormals;
     Engine::Graphics::VBO mIndices;
-    size_t mVertexCount;
-    size_t mIndexCount;
+    size_t mVertexCount = 0;
+    size_t mIndexCount = 0;
     GLuint renderType = GL_TRIANGLES;
 };
 

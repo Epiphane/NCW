@@ -221,7 +221,6 @@ public:
    VoxModel() 
       : parts{}
       , partLookup{}
-      , vbo(Engine::Graphics::VBO::Vertices)
    {};
 
 public:

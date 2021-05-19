@@ -21,14 +21,7 @@ namespace CubeWorld
 
 std::mutex gSimple3DMutex;
 
-Simple3DRender::Simple3DRender()
-    : mVertices(Engine::Graphics::VBO::Vertices)
-    , mColors(Engine::Graphics::VBO::Colors)
-    , mCount(0)
-{}
-
 Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloat>&& colors)
-    : Simple3DRender()
 {
    mCount = points.size() / 3;
    mVertices.BufferData(sizeof(GLfloat) * mCount * 3, &points[0], GL_STATIC_DRAW);
@@ -36,7 +29,6 @@ Simple3DRender::Simple3DRender(std::vector<GLfloat>&& points, std::vector<GLfloa
 }
 
 Simple3DRender::Simple3DRender(std::vector<glm::vec3>&& points, std::vector<glm::vec3>&& colors)
-    : Simple3DRender()
 {
     mCount = points.size();
     mVertices.BufferData(sizeof(glm::vec3) * mCount, &points[0], GL_STATIC_DRAW);
@@ -49,16 +41,7 @@ Simple3DRender::Simple3DRender(const Simple3DRender& other)
     , mCount(other.mCount)
 {}
 
-Index3DRender::Index3DRender()
-    : mVertices(Engine::Graphics::VBO::Vertices)
-    , mColors(Engine::Graphics::VBO::Colors)
-    , mIndices(Engine::Graphics::VBO::Indices)
-    , mOffsets(Engine::Graphics::VBO::Vertices)
-    , mCount(0)
-{}
-
 Index3DRender::Index3DRender(std::vector<glm::vec3>&& points, std::vector<glm::vec3>&& colors, std::vector<GLuint>&& indices, std::vector<glm::vec3>&& positions)
-    : Index3DRender()
 {
     mCount = indices.size();
     mVertices.BufferData(sizeof(glm::vec3) * mCount, &points[0], GL_STATIC_DRAW);
@@ -75,16 +58,8 @@ Index3DRender::Index3DRender(const Index3DRender& other)
     , mIndices(other.mIndices)
     , mOffsets(other.mOffsets)
     , mCount(other.mCount)
+    , mInstances(other.mInstances)
     , renderType(other.renderType)
-{}
-
-ShadedMesh::ShadedMesh()
-    : mVertices(Engine::Graphics::VBO::Vertices)
-    , mColors(Engine::Graphics::VBO::Colors)
-    , mNormals(Engine::Graphics::VBO::Normals)
-    , mIndices(Engine::Graphics::VBO::Indices)
-    , mVertexCount(0)
-    , mIndexCount(0)
 {}
 
 void ShadedMesh::Set(
@@ -215,7 +190,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
             render.mOffsets.AttribPointer(stupid->Attrib("aOffset"), 3, GL_FLOAT, GL_FALSE, 0, 0);
             glVertexAttribDivisor(stupid->Attrib("aOffset"), 1);
 
-            render.mIndices.Bind(Engine::Graphics::VBO::Target::VertexIndices);
+            render.mIndices.Bind(VBOTarget::VertexIndices);
             glDrawElementsInstanced(render.renderType, GLsizei(render.mCount), GL_UNSIGNED_INT, nullptr, GLsizei(render.mInstances));
 
             CHECK_GL_ERRORS();
@@ -239,7 +214,7 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
             mesh.mColors.AttribPointer(shaded->Attrib("aColor"), 4, GL_FLOAT, GL_FALSE, 0, 0);
             mesh.mNormals.AttribPointer(shaded->Attrib("aNormal"), 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-            mesh.mIndices.Bind(Engine::Graphics::VBO::Target::VertexIndices);
+            mesh.mIndices.Bind(VBOTarget::VertexIndices);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.mIndices.GetBuffer());
             CHECK_GL_ERRORS();
             glDrawElements(mesh.renderType, GLsizei(mesh.mIndexCount), GL_UNSIGNED_INT, (void*)0);
