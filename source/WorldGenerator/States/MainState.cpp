@@ -11,7 +11,6 @@
 #include <Shared/Components/ArmCamera.h>
 #include <Shared/Components/Data.h>
 #include <Shared/Components/VoxModel.h>
-#include <Shared/Helpers/Noise.h>
 #include <Shared/Systems/AnimationSystem.h>
 #include <Shared/Systems/AnimationEventSystem.h>
 #include <Shared/Systems/CameraSystem.h>

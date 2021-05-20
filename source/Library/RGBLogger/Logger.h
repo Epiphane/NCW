@@ -22,14 +22,14 @@ namespace Logger
 class Logger
 {
 public:
-   enum Color { Default, Red };
+   enum class Color { Default, Red };
 
 public:
    virtual ~Logger() {}
 
    virtual void OnRegister() {};
    virtual void OnDeregister() {};
-   virtual void Log(const char* message, Color color = Default) = 0;
+   virtual void Log(const char* message, Color color = Color::Default) = 0;
 
    template <typename... Args>
    const inline void Log(std::string_view fmt, const Args& ... args) { Log(FormatString(fmt, args...).c_str()); }
@@ -55,7 +55,7 @@ public:
    virtual ~LogManager();
 
 public:
-   void Log(const char* message, Color color = Default) override;
+   void Log(const char* message, Color color = Color::Default) override;
    void Log(LogLevel level, const char* message);
 
    template <typename... Args>

@@ -34,7 +34,7 @@ StdoutLogger* StdoutLogger::Instance()
 
 void StdoutLogger::Log(const char* message, Color color)
 {
-   if (color == Default)
+   if (color == Color::Default)
    {
       fprintf(stdout, "%s", message);
    }

@@ -21,7 +21,6 @@
 #include <Shared/Imgui/StateWindow.h>
 
 #include "States/MainState.h"
-#include "States/RenderTestState.h"
 #include "Main.h"
 
 using namespace CubeWorld;
