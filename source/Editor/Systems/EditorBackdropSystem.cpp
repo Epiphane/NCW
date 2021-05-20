@@ -22,8 +22,8 @@ Maybe<void> AddFloor(Engine::EntityManager &entities, glm::vec3 color)
    const int size = 20;
    for (int i = -size; i <= size; ++i) {
       for (int j = -size; j <= size; ++j) {
-         double x = (double)i / (2 * size);
-         double y = (double)j / (2 * size);
+         double x = (double)i / (2 * size_t(size));
+         double y = (double)j / (2 * size_t(size));
          double expectedX = 1.0 - 4.0 * std::pow(y - 0.5, 2);
          double dist = 5.0 * std::abs(x - expectedX);
          dist += (rand() % 500) / 1000.0 - 0.25;

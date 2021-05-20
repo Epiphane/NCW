@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <chrono>
 #include <queue>
 #include <mutex>
 #include <imgui.h>
@@ -49,6 +50,9 @@ public:
         // Current version of the source for the generator.
         std::string generatorSource;
 
+        // So we can chill tf out
+        std::chrono::steady_clock::time_point lastUpdate;
+
         // Profiler
         Engine::Timer<1> profiler;
     };
@@ -72,6 +76,16 @@ public:
 
         // Compute shader for chunk creation.
         std::unique_ptr<Engine::Graphics::Program> program;
+
+        // Frequency divisor for noise, e.g. 1/128.0f
+        float freqDivisor = 256.0f;
+
+        // Number of octaves when generating noise.
+        uint32_t octaves = 4;
+
+        // Coordinate to base the world on
+        float baseX = 0;
+        float baseZ = 0;
 
         // Whether the thread should exit.
         bool exiting = false;
@@ -137,8 +151,7 @@ public:
     {
         Engine::Graphics::VBO vbo;
 
-        Chunk chunk({ 0, 0, 0 });
-        vbo.BufferData(chunk.data());
+        vbo.BufferData(Chunk::Size(), nullptr);
 
         for (;;)
         {
@@ -174,26 +187,28 @@ public:
 
         Chunk chunk(request.coordinates);
 
-        const float chunkX = float(request.coordinates.x);
-        const float chunkY = float(request.coordinates.y);
-        const float chunkZ = float(request.coordinates.z);
+        const float chunkX = (float(request.coordinates.x) - 0.5f) * kChunkSize;
+        const float chunkY = (float(request.coordinates.y) - 0.5f) * kChunkHeight;
+        const float chunkZ = (float(request.coordinates.z) - 0.5f) * kChunkSize;
 
         if (mShared.program)
         {
             BIND_PROGRAM_IN_SCOPE(mShared.program);
-
+            mShared.program->Uniform3ui("uChunkSize", kChunkSize, kChunkHeight, kChunkSize);
             mShared.program->Uniform3f("uWorldCoords", chunkX, chunkY, chunkZ);
+            mShared.program->Uniform3f("uWorldBase", mShared.baseX, 0, mShared.baseZ);
+            mShared.program->Uniform1f("uFrequency", 1.0f / mShared.freqDivisor);
+            mShared.program->Uniform1ui("uOctaves", mShared.octaves);
 
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vbo.GetBuffer());
-            glDispatchCompute(2, 3, 2);
+            glDispatchCompute(kChunkSize / 8, kChunkHeight / 16, kChunkSize / 8);
 
             // make sure writing to image has finished before read
             glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
             // Get all the data back
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, vbo.GetBuffer());
-            GLsizeiptr size = GLsizeiptr(sizeof(Block) * chunk.data().size());
-            glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, chunk.data().data());
+            glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, GLsizeiptr(Chunk::Size()), chunk.data().data());
         }
 
         DebugHelper::Instance().SetMetric("Chunk generation time", mPrivate.profiler.Elapsed());
@@ -217,19 +232,66 @@ public:
     {
         if (ImGui::Begin("Chunk Generator"))
         {
-            ImVec2 size = ImGui::GetContentRegionAvail();
-            size.y -= ImGui::GetItemsLineHeightWithSpacing();
-            ImGui::InputTextMultiline("source", &mPrivate.generatorSource, size);
-            if (ImGui::Button("Save and run"))
+            if (ImGui::BeginTabBar("Generator Properties"))
             {
-                DiskFileSystem fs;
-                if (auto result = fs.WriteFile(mPrivate.generatorFilename, mPrivate.generatorSource); !result)
+                if (ImGui::BeginTabItem("Source"))
                 {
-                    result.Failure().WithContext("Failed saving modified version of script").Log();
+                    ImVec2 size = ImGui::GetContentRegionAvail();
+                    size.y -= ImGui::GetItemsLineHeightWithSpacing();
+                    ImGui::InputTextMultiline("source", &mPrivate.generatorSource, size);
+                    if (ImGui::Button("Save and run"))
+                    {
+                        DiskFileSystem fs;
+                        if (auto result = fs.WriteFile(mPrivate.generatorFilename, mPrivate.generatorSource); !result)
+                        {
+                            result.Failure().WithContext("Failed saving modified version of script").Log();
+                        }
+
+                        // Queue up the source to be rerun on the next worker invocation.
+                        mEvents.Emit<JavascriptEvent>("rebuild_world");
+                    }
+                    ImGui::EndTabItem();
                 }
 
-                // Queue up the source to be rerun on the next worker invocation.
-                mEvents.Emit<JavascriptEvent>("rebuild_world");
+                if (ImGui::BeginTabItem("Properties"))
+                {
+                    std::unique_lock<std::mutex> lock{ mShared.programMutex };
+
+                    std::chrono::steady_clock::duration timeSinceLastUpdate = std::chrono::steady_clock::now() - mPrivate.lastUpdate;
+                    bool canUpdate = timeSinceLastUpdate > std::chrono::milliseconds(120);
+
+                    if ((ImGui::SliderFloat("Frequency divisor", &mShared.freqDivisor, 1.0f, 1024.0f, "%.1f", 2.0f) && canUpdate) ||
+                        ImGui::IsItemDeactivatedAfterChange())
+                    {
+                        mEvents.Emit<JavascriptEvent>("rebuild_world");
+                        mPrivate.lastUpdate = std::chrono::steady_clock::now();
+                    }
+
+                    if ((ImGui::SliderInt("Octaves", (int*)&mShared.octaves, 1, 16) && canUpdate) ||
+                        ImGui::IsItemDeactivatedAfterChange())
+                    {
+                        mEvents.Emit<JavascriptEvent>("rebuild_world");
+                        mPrivate.lastUpdate = std::chrono::steady_clock::now();
+                    }
+
+                    if ((ImGui::DragFloat("Base X", &mShared.baseX, 0.01f) && canUpdate) ||
+                        ImGui::IsItemDeactivatedAfterChange())
+                    {
+                        mEvents.Emit<JavascriptEvent>("rebuild_world");
+                        mPrivate.lastUpdate = std::chrono::steady_clock::now();
+                    }
+
+                    if ((ImGui::DragFloat("Base Z", &mShared.baseZ, 0.01f) && canUpdate) ||
+                        ImGui::IsItemDeactivatedAfterChange())
+                    {
+                        mEvents.Emit<JavascriptEvent>("rebuild_world");
+                        mPrivate.lastUpdate = std::chrono::steady_clock::now();
+                    }
+
+                    ImGui::EndTabItem();
+                }
+
+                ImGui::EndTabBar();
             }
         }
         ImGui::End();

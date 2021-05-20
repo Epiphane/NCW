@@ -189,7 +189,6 @@ void MainState::Initialize()
     {
         Entity worldParams = mEntities.Create();
         worldParams.Add<Data>();
-        worldParams.Add<Javascript>(Asset::Script("generator.js"));
         worldParams.Add<Makeshift>([this](Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt){
             mWorld.Update(entities, events, dt);
         });
@@ -198,30 +197,7 @@ void MainState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Build();
-
-    /*
-    mWorld.Create(0, 0, 0);
-
-    int kSize = 10;
-    for (int dist = 1; dist < kSize; dist++)
-    {
-        mWorld.Create(dist, 0, 0);
-        mWorld.Create(0, 0, dist);
-        mWorld.Create(-dist, 0, 0);
-        mWorld.Create(0, 0, -dist);
-        for (int d = 1; d <= dist; d++)
-        {
-            mWorld.Create(dist, 0, d);
-            mWorld.Create(dist, 0, -d);
-            mWorld.Create(d, 0, dist);
-            mWorld.Create(-d, 0, dist);
-            mWorld.Create(-dist, 0, d);
-            mWorld.Create(-dist, 0, -d);
-            mWorld.Create(d, 0, -dist);
-            mWorld.Create(-d, 0, -dist);
-        }
-    }
-    */
+    Receive(JavascriptEvent("rebuild_world"));
 
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(kPrimitiveRestart);
@@ -234,7 +210,7 @@ void MainState::Receive(const JavascriptEvent& evt)
         mWorld.Reset();
 
         mWorld.Create(0, 0, 0);
-        int kSize = 50;
+        int kSize = 1;
         for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

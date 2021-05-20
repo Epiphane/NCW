@@ -52,7 +52,7 @@ VBO::VBO(const GLuint buffer)
 VBO::VBO(const VBO& other) : VBO(other.mBuffer)
 {}
 
-VBO::VBO(VBO&& other)
+VBO::VBO(VBO&& other) noexcept
 {
     mBuffer = other.mBuffer;
     other.mBuffer = 0;

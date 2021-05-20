@@ -30,19 +30,19 @@ void LogManager::Log(LogLevel level, const char* message)
     const char *prefix;
     switch (level)
     {
-    case kDebug:
+    case LogLevel::kDebug:
         prefix = "DEBUG | ";
         break;
-    case kInfo:
+    case LogLevel::kInfo:
         prefix = "INFO  | ";
         break;
-    case kWarning:
+    case LogLevel::kWarning:
         prefix = "WARN  | ";
         break;
-    case kError:
+    case LogLevel::kError:
         prefix = "ERROR | ";
         break;
-    case kAlways:
+    case LogLevel::kAlways:
         prefix = "ALWAYS| ";
         break;
     default:

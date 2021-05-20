@@ -6,8 +6,7 @@ layout(std140, binding = 0) buffer inColorsT
     vec4 Colors[];
 } inColors;
 
-int kChunkWidth = 16;
-int kChunkHeight = 48;
+uniform uvec3 uChunkSize;
 
 layout(binding = 1, offset = 0) uniform atomic_uint aVertices;
 layout(binding = 1, offset = 4) uniform atomic_uint aIndices;
@@ -30,13 +29,13 @@ layout(std140, binding = 5) buffer outIndicesT
 
 vec4 getBlock(ivec3 coords)
 {
-    if (coords.x < 0 || coords.x >= kChunkWidth ||
-        coords.z < 0 || coords.z >= kChunkWidth ||
-        coords.y < 0 || coords.y >= kChunkHeight) {
+    if (coords.x < 0 || coords.x >= uChunkSize.x ||
+        coords.z < 0 || coords.z >= uChunkSize.z ||
+        coords.y < 0 || coords.y >= uChunkSize.y) {
         return vec4(0);
     }
 
-    uint offset = coords.y * kChunkWidth * kChunkWidth + coords.z * kChunkWidth + coords.x;
+    uint offset = (coords.y * uChunkSize.z + coords.z) * uChunkSize.x + coords.x;
     return inColors.Colors[offset];
 }
 
@@ -120,7 +119,7 @@ void main()
         outColors.Color [ndx  ] = vec4(color, 1);
         outNormals.Norm [ndx++] = n;
     }
-    
+
     // Bottom
     if (!occupied(coords + ivec3(0, -1, 0)))
     {
@@ -152,7 +151,7 @@ void main()
         outColors.Color [ndx  ] = vec4(color, 1);
         outNormals.Norm [ndx++] = n;
     }
-    
+
     // Right
     if (!occupied(coords + ivec3(1, 0, 0)))
     {
@@ -184,7 +183,7 @@ void main()
         outColors.Color [ndx  ] = vec4(color, 1);
         outNormals.Norm [ndx++] = n;
     }
-    
+
     // Left
     if (!occupied(coords + ivec3(-1, 0, 0)))
     {
@@ -216,7 +215,7 @@ void main()
         outColors.Color [ndx  ] = vec4(color, 1);
         outNormals.Norm [ndx++] = n;
     }
-    
+
     // Front
     if (!occupied(coords + ivec3(0, 0, 1)))
     {
@@ -248,7 +247,7 @@ void main()
         outColors.Color [ndx  ] = vec4(color, 1);
         outNormals.Norm [ndx++] = n;
     }
-    
+
     // Back
     if (!occupied(coords + ivec3(0, 0, -1)))
     {

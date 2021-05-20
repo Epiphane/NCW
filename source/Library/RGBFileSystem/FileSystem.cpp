@@ -472,13 +472,13 @@ Maybe<void> DiskFileSystem::SeekFile(FileHandle handle, Seek method, int64_t dis
 #if defined CUBEWORLD_PLATFORM_WINDOWS
    LARGE_INTEGER distance;
    distance.QuadPart = dist;
-   DWORD ptr = ::SetFilePointer(handle, (LONG)distance.LowPart, distance.HighPart != 0 ? &distance.HighPart : nullptr, method);
+   DWORD ptr = ::SetFilePointer(handle, (LONG)distance.LowPart, distance.HighPart != 0 ? &distance.HighPart : nullptr, DWORD(method));
    if (ptr == INVALID_SET_FILE_POINTER)
    {
       return TransformPlatformError("Failed setting pointer in file");
    }
 #elif CUBEWORLD_PLATFORM_MACOSX || CUBEWORLD_PLATFORM_LINUX
-   if (lseek(handle, dist, method) != 0)
+   if (lseek(handle, dist, int(method)) != 0)
    {
       return TransformPlatformError("Failed setting pointer in file");
    }

@@ -132,6 +132,14 @@ public:
 
     void RunInternal()
     {
+        Engine::Graphics::VBO atomics, vertices, colors, normals, indices;
+        vertices.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        colors.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        normals.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+        indices.BufferData(sizeof(glm::tvec4<GLuint>) * 8 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
+
+        Engine::Graphics::VBO input;
+
         for (;;)
         {
             Request request;
@@ -154,69 +162,74 @@ public:
                 }
             }
 
-            BuildMesh(request);
+            BuildMesh(input, atomics, vertices, colors, normals, indices, request);
         }
     }
 
-    void BuildMesh(const Request& request)
+    void BuildMesh(
+        Engine::Graphics::VBO& input,
+        Engine::Graphics::VBO& atomics,
+        Engine::Graphics::VBO& vertices,
+        Engine::Graphics::VBO& colors,
+        Engine::Graphics::VBO& normals,
+        Engine::Graphics::VBO& indices,
+        const Request& request
+    )
     {
         mPrivate.profiler.Reset();
 
-        std::unique_lock<std::mutex> lock{ mShared.programMutex };
-
-        Engine::Graphics::VBO input;
         input.BufferData(request.chunk->data());
 
         uint32_t count[2] = { 0, 0 };
-
-        // Allocate space for for every potential block in the chunk.
-        Engine::Graphics::VBO vertices, colors, normals, indices;
-        vertices.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
-        colors.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
-        normals.BufferData(sizeof(glm::vec4) * 4 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
-        indices.BufferData(sizeof(glm::tvec4<GLuint>) * 8 * kChunkSize * kChunkSize * kChunkHeight, nullptr, GL_DYNAMIC_DRAW);
-
-        // declare and generate a buffer object name
-        Engine::Graphics::VBO atomics;
-        // bind the buffer and define its initial storage capacity
         atomics.BufferData(sizeof(GLuint) * 2, count, GL_DYNAMIC_DRAW);
 
-        if (mShared.program)
         {
-            BIND_PROGRAM_IN_SCOPE(mShared.program);
+            std::unique_lock<std::mutex> lock{ mShared.programMutex };
+            if (mShared.program)
+            {
+                BIND_PROGRAM_IN_SCOPE(mShared.program);
+                mShared.program->Uniform3ui("uChunkSize", kChunkSize, kChunkHeight, kChunkSize);
 
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, input.GetBuffer());
-            glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, atomics.GetBuffer());
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, vertices.GetBuffer());
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, colors.GetBuffer());
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, normals.GetBuffer());
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, indices.GetBuffer());
-            glDispatchCompute(2, 3, 2);
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, input.GetBuffer());
+                glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 1, atomics.GetBuffer());
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, vertices.GetBuffer());
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, colors.GetBuffer());
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, normals.GetBuffer());
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, indices.GetBuffer());
+                glDispatchCompute(kChunkSize / 8, kChunkHeight / 16, kChunkSize / 8);
 
-            // make sure writing to the buffers has finished
-            glMemoryBarrier(GL_ALL_BARRIER_BITS);
+                // make sure writing to the buffers has finished
+                glMemoryBarrier(GL_ALL_BARRIER_BITS);
+            }
         }
 
         atomics.Bind(VBOTarget::VertexData);
         glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(count), count);
 
-        Engine::Graphics::VBO vertices2, colors2, normals2, indices2;
-        vertices2.CopyFrom(vertices, sizeof(glm::vec4) * count[0]);
-        colors2.CopyFrom(colors, sizeof(glm::vec4) * count[0]);
-        normals2.CopyFrom(normals, sizeof(glm::vec4) * count[0]);
-        indices2.CopyFrom(indices, sizeof(GLuint) * 4 * count[1]);
+        static Engine::Graphics::VBO sVertices;
+        static Engine::Graphics::VBO sColors;
+        static Engine::Graphics::VBO sNormals;
+        static Engine::Graphics::VBO sIndices;
+
+        sVertices.CopyFrom(vertices, sizeof(glm::vec4) * count[0]);
+        sColors.CopyFrom(colors, sizeof(glm::vec4) * count[0]);
+        sNormals.CopyFrom(normals, sizeof(glm::vec4) * count[0]);
+        sIndices.CopyFrom(indices, sizeof(GLuint) * 4 * count[1]);
         glFlush();
 
         request.component->Set(
-            std::move(vertices2),
-            std::move(colors2),
-            std::move(normals2),
-            std::move(indices2),
+            std::move(sVertices),
+            std::move(sColors),
+            std::move(sNormals),
+            std::move(sIndices),
             count[0], size_t(count[1]) * 4
         );
 
         DebugHelper::Instance().SetMetric("Mesh generation time", mPrivate.profiler.Elapsed());
-        request.resultFunction();
+        if (request.resultFunction)
+        {
+            request.resultFunction();
+        }
     }
 
     void Add(const Request& request)
@@ -234,7 +247,7 @@ public:
 
     void Update()
     {
-        if (ImGui::Begin("Chunk Generator"))
+        if (ImGui::Begin("Chunk Mesh Generator"))
         {
             ImVec2 size = ImGui::GetContentRegionAvail();
             size.y -= ImGui::GetItemsLineHeightWithSpacing();

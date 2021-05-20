@@ -75,7 +75,7 @@ public:
     VBO() = default;
     VBO(const GLuint buffer);
     VBO(const VBO& other);
-    VBO(VBO&& other);
+    VBO(VBO&& other) noexcept;
     ~VBO();
     bool EnsureBuffer();
     void SetBuffer(GLuint buffer);
@@ -88,7 +88,7 @@ public:
     void AttribIPointer(GLuint location, GLint count, GLenum type, GLsizei stride, const GLvoid* pointer);
 
     GLuint GetBuffer() { return mBuffer; }
-    void BufferData(size_t size, void* data, GLuint type);
+    void BufferData(size_t size, void* data, GLuint type = GL_STATIC_DRAW);
     void CopyFrom(const VBO& other, size_t amount, void* readOffset = nullptr, void* writeOffset = nullptr);
 
     template<typename T>

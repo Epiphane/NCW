@@ -209,9 +209,9 @@ void ImguiContext::ResetRenderState(ImDrawData* drawData, int fbWidth, int fbHei
    // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
    glViewport(0, 0, (GLsizei)fbWidth, (GLsizei)fbHeight);
    double L = drawData->DisplayPos.x;
-   double R = drawData->DisplayPos.x + drawData->DisplaySize.x;
+   double R = double(drawData->DisplayPos.x) + drawData->DisplaySize.x;
    double T = drawData->DisplayPos.y;
-   double B = drawData->DisplayPos.y + drawData->DisplaySize.y;
+   double B = double(drawData->DisplayPos.y) + drawData->DisplaySize.y;
    glm::mat4 projection =
    {
        { 2.0 / (R - L),      0.0,              0.0,   0.0 },

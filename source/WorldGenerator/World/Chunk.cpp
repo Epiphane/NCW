@@ -14,9 +14,6 @@ namespace CubeWorld
 Chunk::Chunk(const ChunkCoords& coords)
     : mCoords(coords)
 {
-    char buf[80];
-    sprintf(buf, "%p", this);
-    //LOG_INFO("Created chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
     mBlocks.resize(kChunkSize * kChunkSize * kChunkHeight);
 }
 
@@ -34,11 +31,7 @@ Chunk::Chunk(Chunk&& other) noexcept
 ///
 ///
 Chunk::~Chunk()
-{
-    char buf[80];
-    sprintf(buf, "%p", this);
-    //LOG_INFO("Deleting chunk at {}, {}, {} ({})", mCoords.x, mCoords.y, mCoords.z, buf);
-}
+{}
 
 ///
 ///

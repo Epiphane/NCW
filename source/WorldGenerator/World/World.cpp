@@ -64,8 +64,13 @@ void World::Build()
 /// 
 void World::Reset()
 {
+    /*
     mChunkGenerator.reset();
     mChunkMeshGenerator.reset();
+    */
+
+    mChunkGenerator->Clear();
+    mChunkMeshGenerator->Clear();
 
     {
         std::unique_lock<std::mutex> lock{ mVersionMutex };
@@ -77,6 +82,7 @@ void World::Reset()
         mChunks.clear();
     }
 
+    /*
     {
         std::unique_lock<std::mutex> lock{ mEntitiesMutex };
         for (auto& [_, entity] : mEntities)
@@ -89,6 +95,7 @@ void World::Reset()
 
     mChunkGenerator.reset(new ChunkGenerator(mEventManager));
     mChunkMeshGenerator.reset(new ChunkMeshGenerator(mEventManager));
+    */
 }
 
 ///
@@ -96,19 +103,27 @@ void World::Reset()
 ///
 Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
 {
-    ChunkCoords coordinates{chunkX, chunkY, chunkZ};
+    ChunkCoords coordinates{ chunkX, chunkY, chunkZ };
 
-    Engine::Entity entity = mEntityManager.Create(
-        float(chunkX) * kChunkSize,
-        kChunkHeight / -2,
-        float(chunkZ) * kChunkSize
-    );
+    Engine::Entity entity(&mEntityManager, Engine::Entity::ID(0, 0));
+    if (mEntities.count(coordinates) == 0)
+    {
+        entity = mEntityManager.Create(
+            float(chunkX) * kChunkSize - kChunkSize / 2,
+            kChunkHeight / -2,
+            float(chunkZ) * kChunkSize - kChunkSize / 2
+        );
 
-    entity.Add<ShadedMesh>();
-    entity.Get<ShadedMesh>()->renderType = GL_TRIANGLE_FAN;
+        entity.Add<ShadedMesh>();
+        entity.Get<ShadedMesh>()->renderType = GL_TRIANGLE_FAN;
 
-    std::unique_lock<std::mutex> lock{mEntitiesMutex};
-    mEntities.emplace(coordinates, entity);
+        std::unique_lock<std::mutex> lock{ mEntitiesMutex };
+        mEntities.emplace(coordinates, entity);
+    }
+    else
+    {
+        entity = mEntities.at(coordinates);
+    }
 
     ChunkGenerator::Request request;
     request.coordinates = coordinates;
@@ -166,6 +181,10 @@ void World::OnChunkGenerated(int version, Chunk&& chunk)
 
     {
         std::unique_lock<std::mutex> lock{mChunksMutex};
+        if (mChunks.count(coordinates) != 0)
+        {
+            mChunks.erase(coordinates);
+        }
         mChunks.emplace(coordinates, std::move(chunk));
 
         request.chunk = &mChunks.at(coordinates);
@@ -176,18 +195,6 @@ void World::OnChunkGenerated(int version, Chunk&& chunk)
         Engine::Entity entity = mEntities.at(coordinates);
         request.component = entity.Get<ShadedMesh>();
     }
-
-    request.resultFunction = [/*this, coordinates*/]() {
-        /*
-        std::vector<Voxel::Data> voxels;
-        voxels.push_back(Voxel::Data{glm::vec3(0, 1, 0), glm::vec4(0, 255, 0, 1)});
-
-        std::unique_lock<std::mutex> mEntitiesMutex;
-        Engine::Entity entity = mEntities.at(coordinates);
-        entity.Add<VoxelRender>(std::move(voxels));
-        CHECK_GL_ERRORS();
-        */
-    };
 
     mChunkMeshGenerator->Add(request);
 }

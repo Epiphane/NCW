@@ -23,17 +23,11 @@ struct ChunkCoords
 ///
 ///
 ///
-constexpr size_t kChunkSize = 16;
-constexpr size_t kChunkHeight = 48;
+constexpr size_t kChunkSize = 128;
+constexpr size_t kChunkHeight = 128;
 
 struct Block
 {
-    /*
-    uint8_t r = 4;
-    uint8_t g = 5;
-    uint8_t b = 6;
-    uint8_t a = 7;
-    */
     glm::vec4 color;
 };
 
@@ -48,6 +42,7 @@ public:
     bool IsPopulated() const { return mIsPopulated; }
     Block& Get(uint32_t x, uint32_t y, uint32_t z);
 
+    constexpr inline static size_t Size() { return sizeof(Block) * kChunkSize * kChunkSize * kChunkHeight; }
     std::vector<Block>& data() { return mBlocks; }
 
 private:

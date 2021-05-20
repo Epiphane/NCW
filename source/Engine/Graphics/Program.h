@@ -64,8 +64,10 @@ public:
     // There's so much boilerplate is it really worth defining them all?
     void Uniform1u(const std::string& name, const uint32_t value);
     void Uniform1i(const std::string& name, const int32_t value);
+    void Uniform1ui(const std::string& name, const uint32_t value);
     void Uniform2i(const std::string& name, const int32_t value1, const int32_t value2);
     void Uniform3i(const std::string& name, const int32_t value1, const int32_t value2, const int32_t value3);
+    void Uniform3ui(const std::string& name, const uint32_t value1, const uint32_t value2, const uint32_t value3);
     void Uniform1f(const std::string& name, const float value);
     void Uniform2f(const std::string& name, const float value1, const float value2);
     void Uniform3f(const std::string& name, const float value1, const float value2, const float value3);

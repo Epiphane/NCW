@@ -14,7 +14,7 @@ namespace CubeWorld
 namespace FormatImpl
 {
 
-enum type
+enum class type
 {
    none_type, name_arg_type,
    // Integer types should go first,

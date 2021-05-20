@@ -36,7 +36,8 @@ public:
    const inline void Log(const std::string& message) { Log(message.c_str()); }
 };
 
-enum LogLevel {
+enum class LogLevel
+{
    kDebug,
    kInfo,
    kWarning,

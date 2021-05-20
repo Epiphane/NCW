@@ -136,7 +136,7 @@ Maybe<std::unique_ptr<Program>> Program::LoadComputeSource(
     glGetProgramiv(program->id, GL_LINK_STATUS, &result);
     glGetProgramiv(program->id, GL_INFO_LOG_LENGTH, &infoLogLength);
     if (infoLogLength > 0) {
-        char* error = new char[size_t(infoLogLength + 1)];
+        char* error = new char[size_t(infoLogLength) + 1];
         CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
         glGetProgramInfoLog(program->id, infoLogLength, nullptr, error);
 
@@ -209,7 +209,7 @@ Maybe<std::unique_ptr<Program>> Program::Load(
    glGetProgramiv(program->id, GL_LINK_STATUS, &result);
    glGetProgramiv(program->id, GL_INFO_LOG_LENGTH, &infoLogLength);
    if (infoLogLength > 0) {
-      char* error = new char[size_t(infoLogLength + 1)];
+      char* error = new char[size_t(infoLogLength) + 1];
       CUBEWORLD_SCOPE_EXIT([&] { delete[] error; });
       glGetProgramInfoLog(program->id, infoLogLength, nullptr, error);
 
@@ -260,6 +260,11 @@ void Program::Uniform1i(const std::string& name, const int32_t value)
    glUniform1i(Uniform(name), value);
 }
 
+void Program::Uniform1ui(const std::string& name, const uint32_t value)
+{
+    glUniform1ui(Uniform(name), value);
+}
+
 void Program::Uniform2i(const std::string& name, const int32_t value1, const int32_t value2)
 {
    glUniform2i(Uniform(name), value1, value2);
@@ -268,6 +273,11 @@ void Program::Uniform2i(const std::string& name, const int32_t value1, const int
 void Program::Uniform3i(const std::string& name, const int32_t value1, const int32_t value2, const int32_t value3)
 {
    glUniform3i(Uniform(name), value1, value2, value3);
+}
+
+void Program::Uniform3ui(const std::string& name, const uint32_t value1, const uint32_t value2, const uint32_t value3)
+{
+    glUniform3ui(Uniform(name), value1, value2, value3);
 }
 
 void Program::Uniform1f(const std::string& name, const float value)
