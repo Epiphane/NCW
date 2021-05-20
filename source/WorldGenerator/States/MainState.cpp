@@ -37,8 +37,6 @@ namespace CubeWorld
 using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
-std::unique_ptr<Engine::Input::KeyCallbackLink> gConfigCallback;
-
 MainState::MainState(Engine::Input* input, Bounded& parent)
     : mWorld(mEntities, mEvents)
     , mInput(input)
@@ -69,13 +67,8 @@ void MainState::Initialize()
     mSystems.Add<MakeshiftSystem>();
     mSystems.Add<CombatSystem>();
     mSystems.Add<Simple3DRenderSystem>(&mCamera);
-    auto voxels = mSystems.Add<VoxelRenderSystem>(&mCamera);
     mSystems.Add<SimpleParticleSystem>(&mCamera);
     mSystems.Configure();
-
-    gConfigCallback = mInput->AddCallback(GLFW_KEY_Y, [voxels](int, int, int) {
-        voxels->Reconfigure();
-    });
 
     mInput->SetMouseLock(false);
 
@@ -140,11 +133,11 @@ void MainState::Initialize()
         }
 
         float& prevAngle = data.Float("angle");
-        if (prevAngle - angle > MATH_PI)
+        if (double(prevAngle) - angle > MATH_PI)
         {
             prevAngle -= 2 * MATH_PI;
         }
-        if (angle - prevAngle > MATH_PI)
+        if (double(angle) - prevAngle > MATH_PI)
         {
             prevAngle += 2 * MATH_PI;
         }
@@ -209,7 +202,7 @@ void MainState::Receive(const JavascriptEvent& evt)
         mWorld.Reset();
 
         mWorld.Create(0, 0, 0);
-        int kSize = 1;
+        int kSize = 4;
         for (int dist = 1; dist < kSize; dist++)
         {
             mWorld.Create(dist, 0, 0);

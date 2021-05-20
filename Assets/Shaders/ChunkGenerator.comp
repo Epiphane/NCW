@@ -124,7 +124,7 @@ void main()
     }
     noiseVal = (noiseVal + 1.0) / 2.0;
 
-    noiseVal -= pow(elevation, 0.75);
+    noiseVal -= pow(elevation, 1);
 
     vec3 color = kDeep.xyz;
     color = mix(color, kShallow.xyz, smoothstep(kDeep.w,    kShallow.w, elevation));
@@ -137,7 +137,7 @@ void main()
     color = mix(color, kSnow.xyz,    smoothstep(kRock.w,    kSnow.w,    elevation));
 
     outBuffer.Colors[offset] = vec4(color, 1);
-    if (noiseVal < 0.1 && elevation > 0) {
+    if (noiseVal < 0.3 && elevation > 0) {
         outBuffer.Colors[offset].a = 0;
     }
 }

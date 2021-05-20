@@ -26,7 +26,7 @@ public:
    //
    struct Options
    {
-      double aspect;
+      double aspect = 1.0;
       double fov = 45.0;
       double near = 0.1;
       double far = 100.0;

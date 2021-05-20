@@ -247,6 +247,17 @@ public:
                             result.Failure().WithContext("Failed saving modified version of script").Log();
                         }
 
+                        std::unique_lock<std::mutex> lock{ mShared.programMutex };
+                        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
+                        if (!maybeProgram)
+                        {
+                            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
+                        }
+                        else
+                        {
+                            mShared.program = std::move(*maybeProgram);
+                        }
+
                         // Queue up the source to be rerun on the next worker invocation.
                         mEvents.Emit<JavascriptEvent>("rebuild_world");
                     }

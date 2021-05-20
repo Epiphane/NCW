@@ -20,7 +20,7 @@ public:
    constexpr Either(LeftType&& left) : leftVal(std::move(left)), isLeft(true) {};
    constexpr Either(const RightType& right) : rightVal(right), isLeft(false) {};
    constexpr Either(RightType&& right) : rightVal(std::move(right)), isLeft(false) {};
-   constexpr Either(Either<L, R>&& other) : isLeft(other.isLeft)
+   constexpr Either(Either<L, R>&& other) noexcept : isLeft(other.isLeft)
    {
       if (isLeft)
       {
