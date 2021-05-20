@@ -12,7 +12,9 @@ namespace CubeWorld
 
 struct ChunkCoords
 {
-    int x, y, z;
+    int x = 0;
+    int y = 0;
+    int z = 0;
 
     bool operator==(const ChunkCoords& other) const
     {

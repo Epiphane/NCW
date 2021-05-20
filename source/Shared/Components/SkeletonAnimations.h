@@ -57,15 +57,15 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       };
 
       std::string destination;
-      double time;
+      double time = 0.0;
       std::vector<Trigger> triggers;
    };
 
    struct ParticleEffect {
       std::string name;
       std::string bone;
-      double start;
-      double end;
+      double start = 0.0;
+      double end = 0.0;
       BindingProperty modifications;
    };
 
@@ -83,8 +83,8 @@ struct SkeletonAnimations : Engine::Component<SkeletonAnimations>  {
       };
 
       Type type = Type::Unknown;
-      double start;
-      double end;
+      double start = 0.0;
+      double end = 0.0;
       StrikeConfig strike;
 
       const inline Type& GetType() const;

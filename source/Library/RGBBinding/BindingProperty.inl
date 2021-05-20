@@ -76,16 +76,17 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
    ConstArrayIterator it(this, 0), end(this, 0);
 
 #define HANDLE_ERROR(op, error) if (!op) { return Failure{error}; }
-   switch (flags & kTypeMask)
+   Type type = Type(flags & kTypeMask);
+   switch (type)
    {
-   case kNullType:
+   case Type::Null:
       HANDLE_ERROR(handler.Null(), "Failed to write null value");
       break;
-   case kTrueType:
-   case kFalseType:
+   case Type::True:
+   case Type::False:
       HANDLE_ERROR(handler.Bool(GetBooleanValue()), "Failed to write boolean value");
       break;
-   case kNumberType:
+   case Type::Number:
       if (IsDouble()) { HANDLE_ERROR(handler.Double(data.numVal.d), "Failed to write double value"); }
       else if (IsInt()) { HANDLE_ERROR(handler.Int(data.numVal.i.i), "Failed to write int value"); }
       else if (IsUint()) { HANDLE_ERROR(handler.Uint(data.numVal.u.u), "Failed to write unsigned int value"); }
@@ -93,10 +94,10 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       else if (IsUint64()) { HANDLE_ERROR(handler.Uint64(data.numVal.u64), "Failed to write unsigned 64-bit int value"); }
       else { return Failure{"Unhandled number type: {flags}", flags}; }
       break;
-   case kStringType:
+   case Type::String:
       HANDLE_ERROR(handler.String(data.stringVal.c_str(), (rapidjson::SizeType)data.stringVal.size(), false), "Failed to write string value");
       break;
-   case kObjectType:
+   case Type::Object:
       HANDLE_ERROR(handler.StartObject(), "Failed to start object");
       for (const KeyVal& kv : data.objectVal)
       {
@@ -111,7 +112,7 @@ Maybe<void> BindingProperty::Write(Handler& handler) const
       }
       HANDLE_ERROR(handler.EndObject((rapidjson::SizeType)data.objectVal.size()), "Failed to end object");
       break;
-   case kArrayType:
+   case Type::Array:
       HANDLE_ERROR(handler.StartArray(), "Failed to start array");
       end = AsArray().end();
       for (it = AsArray().begin(); it != end; ++it)

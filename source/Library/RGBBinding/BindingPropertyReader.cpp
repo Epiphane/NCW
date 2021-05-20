@@ -155,7 +155,7 @@ bool BindingPropertyReader::StartObject()
    BindingProperty* prop = cursor.back();
    if (prop->IsArray())
    {
-      cursor.push_back(&prop->push_back(BindingProperty(BindingProperty::kObjectType)));
+      cursor.push_back(&prop->push_back(BindingProperty(BindingProperty::Type::Object)));
    }
    else
    {

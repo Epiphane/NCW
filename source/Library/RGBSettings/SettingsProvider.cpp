@@ -20,7 +20,7 @@ namespace CubeWorld
 SettingsProvider::SettingsProvider()
    : mDataPath("")
    , mLocalPath("")
-   , mSettings(BindingProperty::Type::kObjectType)
+   , mSettings(BindingProperty::Type::Object)
 {
 #if CUBEWORLD_PLATFORM_WINDOWS
    PWSTR path = nullptr;

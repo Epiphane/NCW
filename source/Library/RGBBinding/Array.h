@@ -38,7 +38,7 @@ public:
       mSize = other.mSize;
    }
 
-   Array(Array&& other)
+   Array(Array&& other) noexcept
    {
       mCapacity = other.mCapacity;
       mSize = other.mSize;

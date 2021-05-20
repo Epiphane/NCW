@@ -43,13 +43,13 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
    BindingProperty::Type type = value.GetType();
 
    const BindingProperty::Type types[] = {
-      BindingProperty::Type::kNullType,
-      BindingProperty::Type::kTrueType,
-      BindingProperty::Type::kFalseType,
-      BindingProperty::Type::kNumberType,
-      BindingProperty::Type::kStringType,
-      BindingProperty::Type::kObjectType,
-      BindingProperty::Type::kArrayType,
+      BindingProperty::Type::Null,
+      BindingProperty::Type::True,
+      BindingProperty::Type::False,
+      BindingProperty::Type::Number,
+      BindingProperty::Type::String,
+      BindingProperty::Type::Object,
+      BindingProperty::Type::Array,
    };
 
    std::pair<bool, bool> result{false, false};
@@ -74,12 +74,12 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
    type = value.GetType();
    switch (type)
    {
-   case BindingProperty::Type::kNullType:
-   case BindingProperty::Type::kTrueType:
-   case BindingProperty::Type::kFalseType:
+   case BindingProperty::Type::Null:
+   case BindingProperty::Type::True:
+   case BindingProperty::Type::False:
       break;
 
-   case BindingProperty::Type::kNumberType:
+   case BindingProperty::Type::Number:
    {
       float floatVal = value.GetFloatValue();
       ImGui::InputFloat(valueLabel.c_str(), &floatVal);
@@ -90,7 +90,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
       break;
    }
 
-   case BindingProperty::Type::kStringType:
+   case BindingProperty::Type::String:
    {
       std::string val = value.GetStringValue();
       ImGui::InputText(valueLabel.c_str(), &val);
@@ -101,7 +101,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
       break;
    }
 
-   case BindingProperty::Type::kObjectType:
+   case BindingProperty::Type::Object:
    {
       int nElements = (int)value.GetSize();
       ImGui::InputInt(("##size" + label).c_str(), &nElements);
@@ -139,7 +139,7 @@ std::pair<bool, bool> DrawInternal(const std::string& label, BindingProperty& va
       break;
    }
 
-   case BindingProperty::Type::kArrayType:
+   case BindingProperty::Type::Array:
    {
       int nElements = (int)value.GetSize();
       ImGui::InputInt(("##size" + label).c_str(), &nElements);

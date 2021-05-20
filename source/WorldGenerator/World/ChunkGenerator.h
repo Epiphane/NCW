@@ -17,7 +17,7 @@ public:
     struct Request
     {
         // The chunk's location.
-        ChunkCoords coordinates;
+        ChunkCoords coordinates = ChunkCoords{ 0, 0, 0 };
 
         // Function to be called with the finished result.
         std::function<void(Chunk&&)> resultFunction;

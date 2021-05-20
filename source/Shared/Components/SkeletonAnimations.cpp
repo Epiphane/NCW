@@ -38,7 +38,7 @@ void SkeletonAnimations::Load(const std::string& entity_)
 {
    Reset();
 
-   BindingProperty data(BindingProperty::kObjectType);
+   BindingProperty data(BindingProperty::Type::Object);
 
    FileSystem& fs = Engine::FileSystemProvider::Instance();
    std::string dir = Asset::Animation(entity_);
