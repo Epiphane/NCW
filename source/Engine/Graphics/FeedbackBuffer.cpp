@@ -17,56 +17,57 @@ namespace Graphics
 
 FeedbackBuffer::FeedbackBuffer()
 {
-   glGenTransformFeedbacks(1, &mBuffer);
-   glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mBuffer);
-   glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.GetBuffer());
+    data.EnsureBuffer();
+    glGenTransformFeedbacks(1, &mBuffer);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mBuffer);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.GetBuffer());
 }
 
 FeedbackBuffer::FeedbackBuffer(FeedbackBuffer&& other) noexcept
-   : data(std::move(other.data))
+    : data(std::move(other.data))
 {
-   mBuffer = other.mBuffer;
-   other.mBuffer = 0;
+    mBuffer = other.mBuffer;
+    other.mBuffer = 0;
 }
 
 FeedbackBuffer& FeedbackBuffer::operator=(const FeedbackBuffer&) noexcept
 {
-   return *this;
+    return *this;
 }
 
 FeedbackBuffer& FeedbackBuffer::operator=(FeedbackBuffer&& other) noexcept
 {
-   data = std::move(other.data);
-   mBuffer = other.mBuffer;
-   other.mBuffer = 0;
+    data = std::move(other.data);
+    mBuffer = other.mBuffer;
+    other.mBuffer = 0;
 
-   return *this;
+    return *this;
 }
 
 FeedbackBuffer::~FeedbackBuffer()
 {
-   if (mBuffer != 0)
-   {
-      glDeleteTransformFeedbacks(1, &mBuffer);
-   }
+    if (mBuffer != 0)
+    {
+        glDeleteTransformFeedbacks(1, &mBuffer);
+    }
 }
 
 void FeedbackBuffer::Begin(GLenum type)
 {
-   assert(mBuffer != 0);
-   glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mBuffer);
-   glBeginTransformFeedback(type);
+    assert(mBuffer != 0);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, mBuffer);
+    glBeginTransformFeedback(type);
 }
 
 void FeedbackBuffer::Draw(GLenum type)
 {
-   assert(mBuffer != 0);
-   glDrawTransformFeedback(type, mBuffer);
+    assert(mBuffer != 0);
+    glDrawTransformFeedback(type, mBuffer);
 }
 
 void FeedbackBuffer::End()
 {
-   glEndTransformFeedback();
+    glEndTransformFeedback();
 }
 
 }; // namespace Graphics
