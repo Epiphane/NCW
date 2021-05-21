@@ -369,8 +369,7 @@ VSSolution('CubeWorld-sln-visualstudio')
    // Define dependencies so that hitting F5 will trigger a build of the specified targets
    .Deps =
    [
-      .Projects = { 'WorldGenerator-proj' }
-
+      .Projects = .SolutionProjects
       .Dependencies = .SolutionBuildProject
    ]
    .SolutionDependencies =
