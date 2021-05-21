@@ -68,6 +68,7 @@
                                  '$ProjectName$-Obj-$Platform$-$Config$'
                                  'Engine-Lib-$Platform$-$Config$'
                                  'Shared-Lib-$Platform$-$Config$'
+                                 'WorldGenerator-Lib-$Platform$-$Config$'
 
                                  'RGBBinding-Lib-$Platform$-$Config$'
                                  'RGBFileSystem-Lib-$Platform$-$Config$'

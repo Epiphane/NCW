@@ -20,7 +20,7 @@
 #include <Shared/Imgui/Context.h>
 #include <Shared/Imgui/StateWindow.h>
 
-#include "States/MainState.h"
+#include "States/WorldGenState.h"
 #include "Main.h"
 
 using namespace CubeWorld;
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
    StateWindow stateWindow(window, 600, 400, nullptr);
 
-   std::unique_ptr<MainState> state{ new MainState(&window, stateWindow) };
+   std::unique_ptr<WorldGenState> state{ new WorldGenState(&window, stateWindow) };
    state->SetParent(&stateWindow);
    state->TransformParentEvents<MouseDownEvent>(&stateWindow);
    state->TransformParentEvents<MouseUpEvent>(&stateWindow);

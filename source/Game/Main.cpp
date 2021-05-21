@@ -12,6 +12,8 @@
 #include <Engine/Graphics/Program.h>
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
+#include <Shared/Imgui/Context.h>
+#include <Shared/Imgui/StateWindow.h>
 
 #include "States/StupidState.h"
 #include "UI/UIMainScreen.h"
@@ -62,6 +64,9 @@ int main(int argc, char **argv)
 
    stateManager.SetState(std::move(initialState));
 
+   // Set up imgui
+   Editor::ImguiContext imgui(window);
+
    DebugHelper& debug = DebugHelper::Instance();
    debug.SetBounds(&window);
 
@@ -99,16 +104,21 @@ int main(int argc, char **argv)
          window.Clear();
          window.Update();
 
-         double dt = (pause && !advance) ? 0 : std::min(elapsed, SEC_PER_FRAME) / timemod;
+         double dtActual = std::min(elapsed, SEC_PER_FRAME);
+         double dt = (pause && !advance) ? 0 : dtActual / timemod;
          stateManager.Update(dt);
          ui->Update(dt);
          advance = false;
 
+         imgui.StartFrame(dtActual);
+
          GLenum error = glGetError();
          assert(error == 0);
 
-         debug.Update();
-         debug.Render();
+         debug.Update(true);
+         debug.Render(true);
+
+         imgui.Render();
 
          error = glGetError();
          assert(error == 0);

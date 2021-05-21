@@ -5,6 +5,7 @@
 #include <Engine/Core/Input.h>
 #include <Engine/Event/Event.h>
 #include <Engine/System/System.h>
+#include <RGBBinding/BindingProperty.h>
 
 namespace CubeWorld
 {

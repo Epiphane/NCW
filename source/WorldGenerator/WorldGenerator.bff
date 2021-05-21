@@ -16,9 +16,10 @@
       // --------------------------------------------------------------------------
       Unity( '$ProjectName$-Unity-$Platform$-$Config$' )
       {
-         .UnityInputPath             = '$_CURRENT_BFF_DIR_$'
-         .UnityOutputPath            = .OutputPath
-         .UnityNumFiles              = 4
+         .UnityInputPath            = '$_CURRENT_BFF_DIR_$'
+         .UnityInputExcludedFiles   = '$_CURRENT_BFF_DIR_$/Main.cpp'
+         .UnityOutputPath           = .OutputPath
+         .UnityNumFiles             = 4
       }
 
       ObjectList( '$ProjectName$-Obj-$Platform$-$Config$' )
@@ -27,6 +28,7 @@
          .CompilerInputUnity  = '$ProjectName$-Unity-$Platform$-$Config$'
 #else
          .CompilerInputPath             = '$_CURRENT_BFF_DIR_$'
+         .CompilerInputExcludedFiles    = '$_CURRENT_BFF_DIR_$/Main.cpp'
 #endif
       }
 
@@ -43,7 +45,12 @@
 
          // Output
          .CompilerOutputPath  = '$OutputPath$'
-         .LibrarianOutput     = '$OutputPath$/$ProjectName$$LibExtension$'
+         .LibrarianOutput     = '$OutputPath$/$ProjectName$-lib$LibExtension$'
+      }
+
+      ObjectList( '$ProjectName$-Obj-Main-$Platform$-$Config$' )
+      {
+         .CompilerInputFiles  = { '$_CURRENT_BFF_DIR_$/Main.cpp' }
       }
 
       // Executable
@@ -52,7 +59,8 @@
       {
          // Input
          .Libraries         = {
-                                 '$ProjectName$-Obj-$Platform$-$Config$'
+                                 '$ProjectName$-Lib-$Platform$-$Config$'
+                                 '$ProjectName$-Obj-Main-$Platform$-$Config$'
                                  'Engine-Lib-$Platform$-$Config$'
                                  'Shared-Lib-$Platform$-$Config$'
 

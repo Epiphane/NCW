@@ -29,7 +29,11 @@ DebugHelper::DebugHelper()
 
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/DebugText.vert", "Shaders/DebugText.geom", "Shaders/DebugText.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load(
+          Asset::Shader("DebugText.vert"),
+          Asset::Shader("DebugText.geom"),
+          Asset::Shader("DebugText.frag")
+      );
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading DebugText shader").GetMessage());

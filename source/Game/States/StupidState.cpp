@@ -39,7 +39,9 @@ namespace Game
    using Entity = Engine::Entity;
    using Transform = Engine::Transform;
 
-   StupidState::StupidState(Engine::Window& window) : mWindow(window)
+   StupidState::StupidState(Engine::Window& window)
+       : mWorld(mEntities, mEvents)
+       , mWindow(window)
    {
       DebugHelper::Instance().SetSystemManager(&mSystems);
       mSystems.Add<CameraSystem>(&window);
@@ -199,6 +201,7 @@ namespace Game
       player.Add<WalkSpeed>(0.20f, 0.04f, 0.45f);
 
       // Set up the player controller
+      if (0)
       {
          std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 0.75f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
@@ -278,6 +281,7 @@ namespace Game
       mCamera.Set(handle.get());
 
       // Add some voxels.
+      /*
       std::vector<Voxel::Data> carpet;
       std::vector<glm::vec3> points;
       std::vector<glm::vec3> colors;
@@ -303,7 +307,7 @@ namespace Game
        0.3750, (224, 224,   0, 255)); // dirt
        0.7500, (128, 128, 128, 255)); // rock
       1.0000, (255, 255, 255, 255)); // snow
-      */
+      *
       glm::vec4 DEEP(0, 0, 128, 1);
       glm::vec4 SHALLOW(0, 0, 255, 1);
       glm::vec4 SHORE(0, 128, 255, 1);
@@ -345,6 +349,31 @@ namespace Game
       voxels.Add<VoxelRender>(std::move(carpet));
 
       BuildFloorCollision(size);
+      */
+
+      mWorld.Create(0, 0, 0);
+      int kSize = 4;
+      for (int dist = 1; dist < kSize; dist++)
+      {
+          mWorld.Create(dist, 0, 0);
+          mWorld.Create(0, 0, dist);
+          mWorld.Create(-dist, 0, 0);
+          mWorld.Create(0, 0, -dist);
+          for (int d = 1; d <= dist; d++)
+          {
+              mWorld.Create(dist, 0, d);
+              mWorld.Create(dist, 0, -d);
+              mWorld.Create(d, 0, dist);
+              mWorld.Create(-d, 0, dist);
+              mWorld.Create(-dist, 0, d);
+              mWorld.Create(-dist, 0, -d);
+              mWorld.Create(d, 0, -dist);
+              mWorld.Create(-d, 0, -dist);
+          }
+      }
+
+      glEnable(GL_PRIMITIVE_RESTART);
+      glPrimitiveRestartIndex(kPrimitiveRestart);
    }
 
 }; // namespace Game

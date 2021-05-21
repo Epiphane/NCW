@@ -10,6 +10,7 @@
 #include <Engine/Event/Receiver.h>
 #include <Engine/Graphics/Camera.h>
 #include <Shared/Event/NamedEvent.h>
+#include <WorldGenerator/World/World.h>
 
 namespace CubeWorld
 {
@@ -31,6 +32,7 @@ private:
 
    Engine::Graphics::CameraHandle mCamera;
 
+   World mWorld;
    Engine::Window& mWindow;
    std::vector<int32_t> heights;
 };

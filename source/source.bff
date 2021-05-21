@@ -13,6 +13,7 @@
                      + .GladIncludePaths
                      + .GlfwIncludePaths
                      + .GlmIncludePaths
+                     + .ImguiIncludePaths
                   #if !__WINDOWS__
                      + .LibFSWatchIncludePaths
                   #endif
@@ -28,9 +29,9 @@
 
 #include "Engine/Engine.bff"
 #include "Shared/Shared.bff"
+#include "WorldGenerator/WorldGenerator.bff"
 #include "DataCLI/DataCLI.bff"
 #include "Editor/Editor.bff"
 #include "Game/Game.bff"
 #include "Sandbox/Sandbox.bff"
 #include "Tests/Tests.bff"
-#include "WorldGenerator/WorldGenerator.bff"

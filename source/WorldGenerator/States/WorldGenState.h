@@ -16,10 +16,10 @@
 namespace CubeWorld
 {
 
-class MainState : public Engine::State, public Engine::Receiver<MainState> {
+class WorldGenState : public Engine::State, public Engine::Receiver<WorldGenState> {
 public:
-    MainState(Engine::Input* input, Bounded& parent);
-    ~MainState();
+    WorldGenState(Engine::Input* input, Bounded& parent);
+    ~WorldGenState();
 
     void Initialize() override;
 

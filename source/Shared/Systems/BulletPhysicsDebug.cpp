@@ -9,6 +9,7 @@
 #include <RGBLogger/Logger.h>
 #include <Engine/Graphics/Program.h>
 
+#include "../Helpers/Asset.h"
 #include "BulletPhysicsDebug.h"
 
 namespace CubeWorld
@@ -49,7 +50,10 @@ void Debug::Configure(Engine::EntityManager&, Engine::EventManager&)
 
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/BulletDebug.vert", "Shaders/BulletDebug.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load(
+          Asset::Shader("BulletDebug.vert"),
+          Asset::Shader("BulletDebug.frag")
+      );
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading BulletDebug shader").GetMessage());

@@ -29,7 +29,7 @@
 
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
-#include "MainState.h"
+#include "WorldGenState.h"
 
 namespace CubeWorld
 {
@@ -37,7 +37,7 @@ namespace CubeWorld
 using Entity = Engine::Entity;
 using Transform = Engine::Transform;
 
-MainState::MainState(Engine::Input* input, Bounded& parent)
+WorldGenState::WorldGenState(Engine::Input* input, Bounded& parent)
     : mWorld(mEntities, mEvents)
     , mInput(input)
     , mParent(parent)
@@ -45,12 +45,12 @@ MainState::MainState(Engine::Input* input, Bounded& parent)
     mEvents.Subscribe<JavascriptEvent>(*this);
 }
 
-MainState::~MainState()
+WorldGenState::~WorldGenState()
 {
     DebugHelper::Instance().SetSystemManager(nullptr);
 }
 
-void MainState::Initialize()
+void WorldGenState::Initialize()
 {
     DebugHelper::Instance().SetSystemManager(&mSystems);
     mSystems.Add<AnimationSystem>();
@@ -195,7 +195,7 @@ void MainState::Initialize()
     glPrimitiveRestartIndex(kPrimitiveRestart);
 }
 
-void MainState::Receive(const JavascriptEvent& evt)
+void WorldGenState::Receive(const JavascriptEvent& evt)
 {
     if (evt.name == "rebuild_world")
     {
