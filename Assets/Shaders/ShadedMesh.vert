@@ -1,8 +1,8 @@
 #version 330 core
 
-layout(location = 0) in vec3 aPosition;
-layout(location = 1) in vec3 aColor;
-layout(location = 2) in vec3 aNormal;
+layout(location = 0) in vec4 aPosition;
+layout(location = 1) in vec4 aColor;
+layout(location = 2) in vec4 aNormal;
 layout(location = 3) in float aOcclusion;
 
 uniform mat4 uProjMatrix;
@@ -16,9 +16,9 @@ out float fDepth;
 
 void main()
 {
-   gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1);
-   fColor = vec4(aColor, 1.0);
-   fNormal = aNormal;
-   fOcclusion = aOcclusion;
-   fDepth = -(uViewMatrix * uModelMatrix * vec4(aPosition, 1)).z;
+   gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition);
+   fColor = aColor;
+   fNormal = aNormal.xyz;
+   fOcclusion = clamp(aColor.w, 0, 1);
+   fDepth = -(uViewMatrix * uModelMatrix * aPosition).z;
 }
