@@ -39,9 +39,15 @@ namespace CubeWorld
 World::World(Engine::EntityManager& entities, Engine::EventManager& events)
     : mEntityManager(entities)
     , mEventManager(events)
+    , mEntity(entities.Create())
     , mChunkGenerator(new ChunkGenerator(mEventManager))
+    , mChunkColliderGenerator(new ChunkColliderGenerator(mEventManager))
     , mChunkMeshGenerator(new ChunkMeshGenerator(mEventManager))
-{}
+{
+    mEntity.Add<Makeshift>([this](Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) {
+        Update(entities, events, dt);
+    });
+}
 
 ///
 ///
@@ -70,6 +76,7 @@ void World::Reset()
     */
 
     mChunkGenerator->Clear();
+    mChunkColliderGenerator->Clear();
     mChunkMeshGenerator->Clear();
 
     {
@@ -80,6 +87,11 @@ void World::Reset()
     {
         std::unique_lock<std::mutex> lock{ mChunksMutex };
         mChunks.clear();
+    }
+
+    {
+        std::unique_lock<std::mutex> lock{ mCompletedChunkCollisionMutex };
+        mCompletedChunkCollision.clear();
     }
 
     /*
@@ -110,7 +122,7 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
     {
         entity = mEntityManager.Create(
             float(chunkX) * kChunkSize - kChunkSize / 2,
-            kChunkHeight / -2,
+            -32.0f,
             float(chunkZ) * kChunkSize - kChunkSize / 2
         );
 
@@ -141,10 +153,10 @@ Chunk& World::Get(const ChunkCoords& coords)
     std::unique_lock<std::mutex> lock{mChunksMutex};
     if (mChunks.count(coords) == 0)
     {
-        mChunks.emplace(coords, coords);
+        mChunks.emplace(coords, std::make_unique<Chunk>(coords));
     }
 
-    return mChunks.at(coords);
+    return *mChunks.at(coords);
 }
 
 void World::Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt)
@@ -154,13 +166,39 @@ void World::Update(Engine::EntityManager& entities, Engine::EventManager& events
     CUBEWORLD_UNREFERENCED_PARAMETER(dt);
 
     mChunkGenerator->Update();
+    mChunkColliderGenerator->Update();
     mChunkMeshGenerator->Update();
+
+    {
+        std::unique_lock<std::mutex> lock{ mCompletedChunkCollisionMutex };
+        for (auto& [coords, heights] : mCompletedChunkCollision)
+        {
+            assert(mEntities.count(coords) != 0);
+            Engine::Entity e = mEntities.at(coords);
+
+            auto body = e.Get<BulletPhysics::VoxelHeightfieldBody>();
+            if (!body)
+            {
+                e.Add<BulletPhysics::VoxelHeightfieldBody>(
+                    int16_t(kChunkSize + 1),
+                    int16_t(kChunkSize + 1),
+                    std::move(heights)
+                );
+            }
+            else
+            {
+                //body->heights = std::move(heights);
+            }
+        }
+
+        mCompletedChunkCollision.clear();
+    }
 }
 
 /// 
 /// 
 /// 
-void World::OnChunkGenerated(int version, Chunk&& chunk)
+void World::OnChunkGenerated(int version, std::unique_ptr<Chunk>&& chunk)
 {
     if (mQuitting)
     {
@@ -176,27 +214,57 @@ void World::OnChunkGenerated(int version, Chunk&& chunk)
         }
     }
 
-    ChunkCoords coordinates = chunk.GetCoords();
-    ChunkMeshGenerator::Request request;
+    ChunkCoords coordinates = chunk->GetCoords();
+    ChunkMeshGenerator::Request meshRequest;
+    ChunkColliderGenerator::Request colliderRequest;
 
     {
         std::unique_lock<std::mutex> lock{mChunksMutex};
         if (mChunks.count(coordinates) != 0)
         {
-            mChunks.erase(coordinates);
+            return;
         }
         mChunks.emplace(coordinates, std::move(chunk));
 
-        request.chunk = &mChunks.at(coordinates);
+        meshRequest.chunk = mChunks.at(coordinates).get();
+        colliderRequest.chunk = meshRequest.chunk;
     }
 
     {
         std::unique_lock<std::mutex> lock{mEntitiesMutex};
         Engine::Entity entity = mEntities.at(coordinates);
-        request.component = entity.Get<ShadedMesh>();
+        meshRequest.component = entity.Get<ShadedMesh>();
     }
 
-    mChunkMeshGenerator->Add(request);
+    mChunkMeshGenerator->Add(meshRequest);
+
+    colliderRequest.resultFunction = std::bind(
+        &World::OnChunkColliderGenerated, this,
+        version,
+        coordinates,
+        std::placeholders::_1
+    );
+    mChunkColliderGenerator->Add(colliderRequest);
+}
+
+void World::OnChunkColliderGenerated(int version, ChunkCoords coordinates, std::vector<int16_t>&& heights)
+{
+    if (mQuitting)
+    {
+        return;
+    }
+
+    {
+        std::unique_lock<std::mutex> lock{ mVersionMutex };
+        if (mVersion != version)
+        {
+            // Outdated chunk
+            return;
+        }
+    }
+
+    std::unique_lock<std::mutex> lock{ mCompletedChunkCollisionMutex };
+    mCompletedChunkCollision.emplace_back(coordinates, std::move(heights));
 }
 
 }; // namespace CubeWorld

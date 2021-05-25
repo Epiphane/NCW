@@ -6,26 +6,28 @@
 #include <functional>
 #include <thread>
 
+#include <Shared/Systems/BulletPhysicsSystem.h>
+
 #include "Chunk.h"
 
 namespace CubeWorld
 {
 
-class ChunkGenerator
+class ChunkColliderGenerator
 {
 public:
     struct Request
     {
-        // The chunk's location.
-        ChunkCoords coordinates = ChunkCoords{ 0, 0, 0 };
+        // The chunk to generate a mesh for.
+        Chunk* chunk = nullptr;
 
         // Function to be called with the finished result.
-        std::function<void(std::unique_ptr<Chunk>&&)> resultFunction;
+        std::function<void(std::vector<short>&&)> resultFunction;
     };
 
 public:
-    ChunkGenerator(Engine::EventManager& events);
-    ~ChunkGenerator();
+    ChunkColliderGenerator(Engine::EventManager& events);
+    ~ChunkColliderGenerator();
 
     void Add(const Request& request);
     void Clear();
@@ -36,7 +38,6 @@ private:
     struct RequestQueue;
     class Worker;
 
-    // Worker thread.
     std::unique_ptr<Worker> mWorker;
 };
 

@@ -185,7 +185,7 @@ public:
 
         std::unique_lock<std::mutex> lock{ mShared.programMutex };
 
-        Chunk chunk(request.coordinates);
+        std::unique_ptr<Chunk> chunk(new Chunk(request.coordinates));
 
         const float chunkX = (float(request.coordinates.x) - 0.5f) * kChunkSize;
         const float chunkY = (float(request.coordinates.y) - 0.5f) * kChunkHeight;
@@ -208,7 +208,7 @@ public:
 
             // Get all the data back
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, vbo.GetBuffer());
-            glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, GLsizeiptr(Chunk::Size()), chunk.data().data());
+            glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, GLsizeiptr(Chunk::Size()), chunk->data().data());
         }
 
         DebugHelper::Instance().SetMetric("Chunk generation time", mPrivate.profiler.Elapsed());

@@ -44,4 +44,15 @@ Block& Chunk::Get(uint32_t x, uint32_t y, uint32_t z)
     return mBlocks[index];
 }
 
+///
+///
+///
+const Block& Chunk::Get(uint32_t x, uint32_t y, uint32_t z) const
+{
+    std::unique_lock<std::mutex> lock{ mBlocksMutex };
+
+    size_t index = x + z * kChunkSize + y * kChunkSize * kChunkSize;
+    return mBlocks[index];
+}
+
 }; // namespace CubeWorld

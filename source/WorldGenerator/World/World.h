@@ -11,6 +11,7 @@
 
 #include "Chunk.h"
 #include "ChunkGenerator.h"
+#include "ChunkColliderGenerator.h"
 #include "ChunkMeshGenerator.h"
 
 namespace std
@@ -39,12 +40,13 @@ public:
     void Build();
     void Reset();
     Engine::Entity Create(int chunkX, int chunkY, int chunkZ);
-    Chunk& Get(const ChunkCoords& coords);
 
     void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
 private:
-    void OnChunkGenerated(int version, Chunk&& chunk);
+    Chunk& Get(const ChunkCoords& coords); // TODO unused
+    void OnChunkGenerated(int version, std::unique_ptr<Chunk>&& chunk);
+    void OnChunkColliderGenerated(int version, ChunkCoords coordinates, std::vector<int16_t>&& heights);
 
 private:
     bool mQuitting = false;
@@ -54,6 +56,7 @@ private:
 
     Engine::EntityManager& mEntityManager;
     Engine::EventManager& mEventManager;
+    Engine::Entity mEntity;
 
     // TODO maybe one day, we won't be able to keep a big ol' list of chunks here.
     // Until then, stay lazy.
@@ -61,9 +64,13 @@ private:
     std::unordered_map<ChunkCoords, Engine::Entity> mEntities;
 
     std::mutex mChunksMutex;
-    std::unordered_map<ChunkCoords, Chunk> mChunks;
+    std::unordered_map<ChunkCoords, std::shared_ptr<Chunk>> mChunks;
+
+    std::mutex mCompletedChunkCollisionMutex;
+    std::vector<std::pair<ChunkCoords, std::vector<int16_t>>> mCompletedChunkCollision;
 
     std::unique_ptr<ChunkGenerator> mChunkGenerator;
+    std::unique_ptr<ChunkColliderGenerator> mChunkColliderGenerator;
     std::unique_ptr<ChunkMeshGenerator> mChunkMeshGenerator;
 };
 

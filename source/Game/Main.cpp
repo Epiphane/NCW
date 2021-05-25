@@ -51,7 +51,9 @@ int main(int argc, char **argv)
    windowOptions.fullscreen = false;
    windowOptions.width = 1280;
    windowOptions.height = 760;
-   windowOptions.b = 0.4f;
+   windowOptions.r = 14.f / 255.f;
+   windowOptions.g = 180.f / 255.f;
+   windowOptions.b = 204.f / 255.f;
    Window& window = Window::Instance();
    if (auto result = window.Initialize(windowOptions); !result)
    {
@@ -90,6 +92,8 @@ int main(int argc, char **argv)
    bool pause = false;
    auto _3 = window.AddCallback(GLFW_KEY_P, [&](int, int, int) {
       pause = !pause;
+
+      window.SetMouseLock(!pause);
    });
 
    bool advance = false;
@@ -106,11 +110,12 @@ int main(int argc, char **argv)
 
          double dtActual = std::min(elapsed, SEC_PER_FRAME);
          double dt = (pause && !advance) ? 0 : dtActual / timemod;
+
+         imgui.StartFrame(dtActual);
+
          stateManager.Update(dt);
          ui->Update(dt);
          advance = false;
-
-         imgui.StartFrame(dtActual);
 
          GLenum error = glGetError();
          assert(error == 0);

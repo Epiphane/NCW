@@ -196,12 +196,12 @@ namespace Game
       }
 
       player.Add<UnitComponent>(5);
-      player.Add<Transform>(glm::vec3(0, 6, -10), glm::vec3(0, 0, 1));
+      player.Add<Transform>(glm::vec3(-48, 40, 20), glm::vec3(0, 0, 1));
       player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
+      player.Get<Transform>()->SetLocalPosition({ 3, 0, 0 });
       player.Add<WalkSpeed>(0.20f, 0.04f, 0.45f);
 
       // Set up the player controller
-      if (0)
       {
          std::unique_ptr<btCapsuleShape> playerShape = std::make_unique<btCapsuleShape>(0.75f, 0.75f);
          std::unique_ptr<btPairCachingGhostObject> ghostObject = std::make_unique<btPairCachingGhostObject>();
@@ -216,6 +216,7 @@ namespace Game
 
       auto controller = player.Add<AnimationController>();
 
+      /*
       player.Add<Makeshift>([this, player](Engine::EntityManager&, Engine::EventManager&, TIMEDELTA dt) {
          auto anim = player.Get<AnimationController>();
          if (mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT))
@@ -226,6 +227,7 @@ namespace Game
          anim->SetBoolParameter("attack", mWindow.IsMouseDown(GLFW_MOUSE_BUTTON_LEFT));
          anim->SetParameter("fighting", anim->GetFloatParameter("fighting") - float(dt));
       });
+      */
 
       Engine::Entity part = mEntities.Create(0, 0, 0);
       part.Get<Transform>()->SetParent(player);
@@ -280,79 +282,8 @@ namespace Game
 
       mCamera.Set(handle.get());
 
-      // Add some voxels.
-      /*
-      std::vector<Voxel::Data> carpet;
-      std::vector<glm::vec3> points;
-      std::vector<glm::vec3> colors;
-
-      noise::module::Perlin heightmodule;
-      heightmodule.SetFrequency(0.5);
-      noise::utils::NoiseMap heightmap;
-      noise::utils::NoiseMapBuilderPlane builder;
-      builder.SetSourceModule(heightmodule);
-      builder.SetDestNoiseMap(heightmap);
-      const int size = 50;
-      builder.SetDestSize(2 * size + 1, 2 * size + 1);
-      builder.SetBounds(6, 10, 1, 5);
-      builder.Build();
-
-      // Colors
-      /*
-      -1.0000, (  0,   0, 128, 255)); // deeps
-      -0.2500, (  0,   0, 255, 255)); // shallow
-       0.0000, (  0, 128, 255, 255)); // shore
-       0.0625, (240, 240,  64, 255)); // sand
-       0.1250, ( 32, 160,   0, 255)); // grass
-       0.3750, (224, 224,   0, 255)); // dirt
-       0.7500, (128, 128, 128, 255)); // rock
-      1.0000, (255, 255, 255, 255)); // snow
-      *
-      glm::vec4 DEEP(0, 0, 128, 1);
-      glm::vec4 SHALLOW(0, 0, 255, 1);
-      glm::vec4 SHORE(0, 128, 255, 1);
-      glm::vec4 SAND(240, 240, 64, 1);
-      glm::vec4 GRASS(32, 160, 0, 1);
-      glm::vec4 DIRT(224, 224, 0, 1);
-      glm::vec4 ROCK(128, 128, 128, 1);
-      glm::vec4 SNOW(255, 255, 255, 1);
-
-      heights.clear();
-      heights.resize(4 * (size + 1) * (size + 1));
-
-      for (int i = -size; i <= size; ++i) {
-         int rowIndex = (i + size) * (2 * size + 1);
-         for (int j = -size; j <= size; ++j) {
-            float elevation = 0.25f + 2 * float(pow(heightmap.GetValue(i + size, j + size), 2));
-            glm::vec4 source, dest;
-            float start, end;
-            if (elevation >= 0.75f) { source = ROCK; dest = SNOW; start = 0.75f; end = 1.0f; }
-            else if (elevation >= 0.375f) { source = DIRT; dest = ROCK; start = 0.375f; end = 0.75f; }
-            else if (elevation >= 0.125f) { source = GRASS; dest = DIRT; start = 0.125f; end = 0.375f; }
-            else if (elevation >= 0.0625f) { source = SAND; dest = GRASS; start = 0.0625f; end = 0.125f; }
-            else if (elevation >= 0.0f) { source = SHORE; dest = SAND; start = 0; end = 0.0625f; }
-            else if (elevation >= -0.25f) { source = SHALLOW; dest = SHORE; start = -0.25f; end = 0; }
-            else { source = DEEP; dest = SHALLOW; start = -1.0f; end = -0.25f; }
-            float perc = (elevation - start) / (end - start);
-
-            glm::vec3 position = glm::vec3(i, std::round(elevation * 10) - 4, j);
-            glm::vec4 color = dest * perc + source * (1 - perc);
-            carpet.push_back(Voxel::Data(position, color, Voxel::All));
-
-            heights[uint64_t(rowIndex) + j + size] = int32_t(position.y);
-         }
-      }
-
-      assert(carpet.size() > 0);
-
-      Entity voxels = mEntities.Create(0, 0, 0);
-      voxels.Add<VoxelRender>(std::move(carpet));
-
-      BuildFloorCollision(size);
-      */
-
       mWorld.Create(0, 0, 0);
-      int kSize = 4;
+      int kSize = 16;
       for (int dist = 1; dist < kSize; dist++)
       {
           mWorld.Create(dist, 0, 0);

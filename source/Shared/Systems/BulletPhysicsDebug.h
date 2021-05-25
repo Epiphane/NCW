@@ -34,7 +34,7 @@ public:
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
    void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
-   void SetActive(bool active) { mActive = active; }
+   void SetActive(bool active);
    bool IsActive() { return mActive; }
 
 public:

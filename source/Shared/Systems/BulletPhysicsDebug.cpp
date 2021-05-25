@@ -77,6 +77,12 @@ void Debug::Update(Engine::EntityManager&, Engine::EventManager&, TIMEDELTA)
    flushLines();
 }
 
+void Debug::SetActive(bool active)
+{
+    mSystem->SetDebug(active);
+    mActive = active;
+}
+
 ///
 ///
 ///

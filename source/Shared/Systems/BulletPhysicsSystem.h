@@ -23,6 +23,7 @@
 
 #include "../DebugHelper.h"
 #include "../Helpers/AABBTree.h"
+#include "../Physics/VoxelHeightfieldTerrainShape.h"
 
 namespace CubeWorld
 {
@@ -80,6 +81,25 @@ struct ControlledBody : public Engine::Component<ControlledBody>
    std::unique_ptr<btKinematicCharacterController> controller;
 };
 
+struct VoxelHeightfieldBody : public Engine::Component<VoxelHeightfieldBody>
+{
+    VoxelHeightfieldBody(
+        int16_t width,
+        int16_t length,
+        std::vector<short>&& heights
+    )   : width(width)
+        , length(length)
+        , heights(std::move(heights))
+    {};
+
+    int16_t width;
+    int16_t length;
+    std::vector<short> heights;
+    std::unique_ptr<btDefaultMotionState> motionState;
+    std::unique_ptr<btCollisionShape> shape;
+    std::unique_ptr<btRigidBody> body;
+};
+
 class System : public Engine::System<System>, public Engine::Receiver<System> {
 public:
    System();
@@ -97,12 +117,15 @@ public:
    void Receive(const Engine::ComponentRemovedEvent<DynamicBody>& e);
    void Receive(const Engine::ComponentAddedEvent<ControlledBody>& e);
    void Receive(const Engine::ComponentRemovedEvent<ControlledBody>& e);
+   void Receive(const Engine::ComponentAddedEvent<VoxelHeightfieldBody>& e);
+   void Receive(const Engine::ComponentRemovedEvent<VoxelHeightfieldBody>& e);
 
+   void SetDebug(bool debug) { mDebug = debug; }
    btCollisionWorld* GetWorld() const { return world.get(); }
 
 private:
    std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
-   std::unique_ptr<btDispatcher> dispatcher;
+   std::unique_ptr<btCollisionDispatcher> dispatcher;
    std::unique_ptr<btBroadphaseInterface> broadphase;
    std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
    std::unique_ptr<btDiscreteDynamicsWorld> world;
@@ -120,6 +143,9 @@ private:
    std::unique_ptr<DebugHelper::MetricLink> updateMetric, transformMetric;
    Engine::Timer<100> mUpdateClock;
    Engine::Timer<100> mTransformClock;
+
+   // Debug
+   bool mDebug = false;
 };
 
 }; // namespace BulletPhysics
