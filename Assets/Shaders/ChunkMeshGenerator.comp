@@ -59,7 +59,7 @@ void main()
     vec3 d  = vec3(1,   0, -1);
     vec3 d2 = vec3(0.5, 0, -0.5);
 
-    float o = -1.0;
+    float o = 1.0;
     float ow = 0.3;
     float o000 = occupied(coords + ivec3(-1, -1, -1)) ? o : 0;
     float o100 = occupied(coords + ivec3( 0, -1, -1)) ? o : 0;
@@ -95,14 +95,14 @@ void main()
         vec3 base = coords + d2.yxy;
         vec4 n = vec4(0, 1, 0, 0);
 
-        vec4 occ = vec4(1.0) - 0.65 * step(vec4(
+        vec4 occ = step(vec4(
             o220 + o221 + o120, // x + 1, z - 1
             o020 + o021 + o120, // x - 1, z - 1
             o022 + o021 + o122, // x - 1, z + 1
             o222 + o221 + o122  // x + 1, z + 1
-        ), vec4(-1.0));
+        ), vec4(0.0));
 
-        if (occ.x != occ.y || occ.x != occ.z || occ.x != occ.w)
+        //if (occ.x != occ.y || occ.x != occ.z || occ.x != occ.w)
         {
             uint ndx = atomicCounterAdd(aVertices, 9);
             uint indexNdx = atomicCounterAdd(aIndices, 3);
@@ -147,6 +147,7 @@ void main()
             outColors.Color [ndx  ] = vec4(color, (occ.w + occ.x) / 2);
             outNormals.Norm [ndx++] = n;
         }
+        /*
         else
         {
             uint ndx = atomicCounterAdd(aVertices, 5);
@@ -175,6 +176,7 @@ void main()
             outColors.Color [ndx  ] = vec4(color, occ.x);
             outNormals.Norm [ndx++] = n;
         }
+        */
     }
 
     // Bottom
