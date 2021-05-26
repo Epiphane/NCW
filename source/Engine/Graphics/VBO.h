@@ -94,7 +94,7 @@ public:
     template<typename T>
     void BufferData(const std::vector<T>& data, GLuint type = GL_STATIC_DRAW)
     {
-        BufferData(sizeof(T) * data.size(), (void*)&data[0], type);
+        BufferData(sizeof(T) * data.size(), (void*)data.data(), type);
     }
 
 protected:

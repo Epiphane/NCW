@@ -8,6 +8,7 @@
 #include <Meta.h>
 #include <RGBBinding/BindingProperty.h>
 #include <RGBDesignPatterns/Command.h>
+#include <RGBDesignPatterns/CommandStack.h>
 #include <RGBMeta/Value.h>
 
 namespace CubeWorld
@@ -64,9 +65,12 @@ struct SetIndexCommand : public Command
 bool Draw(const std::string& label, std::string& val, bool addToStack = true);
 bool Draw(const std::string& label, BindingProperty& val, bool addToStack = true);
 bool Draw(const std::string& label, glm::vec3& val, bool addToStack = true);
+bool Draw(const std::string& label, glm::vec4& val, bool addToStack = true);
+bool Draw(const std::string& label, glm::ivec4& val, bool addToStack = true);
 bool Draw(const std::string& label, uint32_t& val, bool addToStack = true);
 bool Draw(const std::string& label, double& val, bool addToStack = true);
 bool Draw(const std::string& label, float& val, bool addToStack = true);
+bool Draw(const std::string& label, int32_t& val, bool addToStack = true);
 bool Draw(const std::string& label, bool& val, bool addToStack = true);
 
 
@@ -152,6 +156,11 @@ bool Draw(const std::string& label, std::vector<Class>& val, std::function<Class
    if (factory && ImGui::Button(FormatString("New Element##{label}", label).c_str()))
    {
       val.push_back(factory());
+   }
+   ImGui::SameLine();
+   if (ImGui::Button(FormatString("Pop Last##{label}", label).c_str()))
+   {
+       val.pop_back();
    }
 
    return modified;

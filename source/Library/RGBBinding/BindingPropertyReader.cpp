@@ -189,7 +189,15 @@ bool BindingPropertyReader::CurrentIsObject()
 bool BindingPropertyReader::StartArray()
 {
    if (cursor.empty()) { return false; }
-   cursor.back()->SetArray();
+   BindingProperty* prop = cursor.back();
+   if (prop->IsArray())
+   {
+       cursor.push_back(&prop->push_back(BindingProperty(BindingProperty::Type::Array)));
+   }
+   else
+   {
+       cursor.back()->SetArray();
+   }
    return true;
 }
 

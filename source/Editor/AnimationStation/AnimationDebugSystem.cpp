@@ -2,6 +2,7 @@
 
 #include <RGBLogger/Logger.h>
 
+#include <Shared/Helpers/Asset.h>
 #include "SimpleAnimationSystem.h"
 #include "AnimationDebugSystem.h"
 
@@ -20,7 +21,11 @@ void AnimationDebugSystem::Configure(Engine::EntityManager&, Engine::EventManage
 {
    if (!program)
    {
-      auto maybeProgram = Engine::Graphics::Program::Load("Shaders/PhysicsDebug.vert", "Shaders/PhysicsDebug.geom", "Shaders/PhysicsDebug.frag");
+      auto maybeProgram = Engine::Graphics::Program::Load(
+          Asset::Shader("PhysicsDebug.vert"),
+          Asset::Shader("PhysicsDebug.geom"),
+          Asset::Shader("PhysicsDebug.frag")
+      );
       if (!maybeProgram)
       {
          LOG_ERROR(maybeProgram.Failure().WithContext("Failed loading Physics Debug shader").GetMessage());

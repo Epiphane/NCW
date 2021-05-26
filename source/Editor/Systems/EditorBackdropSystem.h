@@ -24,6 +24,7 @@ Maybe<void> AddFloor(Engine::EntityManager &entities, glm::vec3 color);
 struct EditorWireframe : public Engine::Component<EditorWireframe>
 {
    glm::vec3 color = {0.6, 0.6, 0.6};
+   bool showNegative = true;
 };
 
 class EditorBackdropSystem : public Engine::System<EditorBackdropSystem> {

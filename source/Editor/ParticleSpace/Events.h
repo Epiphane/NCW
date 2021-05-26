@@ -16,42 +16,24 @@ namespace ParticleSpace
 {
 
 // Clear the current ParticleEmitter for loading
-struct ClearParticleEmitterEvent : public Engine::Event<ClearParticleEmitterEvent> {};
+DEFINE_NAMED_EVENT(ClearParticleEmitterEvent);
 
 // Load a particular ParticleEmitter
-struct LoadParticleEmitterEvent : public Engine::Event<LoadParticleEmitterEvent>
-{
-   LoadParticleEmitterEvent(const std::string& filename) : filename(filename) {};
+DEFINE_NAMED_DATA_EVENT(LoadParticleEmitterEvent,
+    std::string, filename
+)
 
-   std::string filename;
-};
+DEFINE_NAMED_EVENT(ParticleEmitterReadyEvent);
 
-// Sent when a ParticleEmitter can be loaded
-struct ParticleEmitterReadyEvent : public Engine::Event<ParticleEmitterReadyEvent> {};
-
-// Sent when a ParticleEmitter is done loading
-struct ParticleEmitterLoadedEvent : public Engine::Event<ParticleEmitterLoadedEvent>
-{
-   ParticleEmitterLoadedEvent(Engine::ComponentHandle<ParticleEmitter> component) : component(component) {};
-
-   Engine::ComponentHandle<ParticleEmitter> component;
-};
-
-// Sent when a ParticleEmitter has been saved
-struct ParticleEmitterSavedEvent : public Engine::Event<ParticleEmitterSavedEvent>
-{
-   ParticleEmitterSavedEvent(Engine::ComponentHandle<ParticleEmitter> component) : component(component) {};
-
-   Engine::ComponentHandle<ParticleEmitter> component;
-};
-
-// Sent when a ParticleEmitter has been modified
-struct ParticleEmitterModifiedEvent : public Engine::Event<ParticleEmitterModifiedEvent>
-{
-   ParticleEmitterModifiedEvent(Engine::ComponentHandle<ParticleEmitter> component) : component(component) {};
-
-   Engine::ComponentHandle<ParticleEmitter> component;
-};
+DEFINE_NAMED_DATA_EVENT(ParticleEmitterLoadedEvent,
+    Engine::ComponentHandle<ParticleEmitter>, component
+)
+DEFINE_NAMED_DATA_EVENT(ParticleEmitterSavedEvent,
+    Engine::ComponentHandle<ParticleEmitter>, component
+)
+DEFINE_NAMED_DATA_EVENT(ParticleEmitterModifiedEvent,
+    Engine::ComponentHandle<ParticleEmitter>, component
+)
 
 }; // namespace ParticleSpace
 

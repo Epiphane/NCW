@@ -262,6 +262,50 @@ bool Draw(const std::string& label, glm::vec3& value, bool addToStack)
    return false;
 }
 
+bool Draw(const std::string& label, glm::vec4& value, bool addToStack)
+{
+    static glm::vec4 initialValue;
+    ImGui::InputFloat4(label.c_str(), &value.x);
+
+    if (ImGui::IsItemActivated())
+    {
+        initialValue = value;
+    }
+
+    if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        if (addToStack)
+        {
+            CommandStack::Instance().Emplace<SetValueCommand<glm::vec4>>(value, initialValue);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool Draw(const std::string& label, glm::ivec4& value, bool addToStack)
+{
+    static glm::ivec4 initialValue;
+    ImGui::InputInt4(label.c_str(), &value.x);
+
+    if (ImGui::IsItemActivated())
+    {
+        initialValue = value;
+    }
+
+    if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        if (addToStack)
+        {
+            CommandStack::Instance().Emplace<SetValueCommand<glm::ivec4>>(value, initialValue);
+        }
+        return true;
+    }
+
+    return false;
+}
+
 bool Draw(const std::string& label, uint32_t& value, bool addToStack)
 {
    static uint32_t initialValue;
@@ -328,6 +372,28 @@ bool Draw(const std::string& label, float& value, bool addToStack)
    }
 
    return false;
+}
+
+bool Draw(const std::string& label, int32_t& value, bool addToStack)
+{
+    static int32_t initialValue;
+
+    ImGui::InputInt(label.c_str(), &value);
+    if (ImGui::IsItemActivated())
+    {
+        initialValue = value;
+    }
+
+    if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        if (addToStack)
+        {
+            CommandStack::Instance().Emplace<SetValueCommand<int32_t>>(value, initialValue);
+        }
+        return true;
+    }
+
+    return false;
 }
 
 bool Draw(const std::string& label, bool& value, bool addToStack)

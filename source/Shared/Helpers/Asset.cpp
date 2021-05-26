@@ -88,6 +88,11 @@ std::string Script(const std::string& scriptName)
     return Paths::Join(gAssetRoot, "Scripts", scriptName);
 }
 
+std::string Path(const std::string& path)
+{
+    return Paths::Join(gAssetRoot, path);
+}
+
 };
 
 }; // namespace CubeWorld

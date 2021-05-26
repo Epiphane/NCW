@@ -26,6 +26,13 @@ std::string Skeleton(const std::string& skeleton);
 std::string UIElement(const std::string& elementName);
 std::string Shader(const std::string& shaderName);
 std::string Script(const std::string& scriptName);
+std::string Path(const std::string& path);
+
+template <typename ...Strings>
+std::string Path(const std::string& part1, Strings&&... parts)
+{
+    return Path(Paths::Join(part1, std::forward<Strings>(parts)...));
+}
 
 };
 

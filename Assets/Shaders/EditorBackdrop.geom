@@ -8,6 +8,7 @@ out vec3 fColor;
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
+uniform bool uShowNegative;
 
 void main()
 {
@@ -24,28 +25,43 @@ void main()
 
    // X
    gl_Position = center + size * dx;
-   fColor = vec3(1, 0, 0);
-   EmitVertex();
-   gl_Position = center - size * dx;
    fColor = vec3(0, 0, 0);
    EmitVertex();
+   gl_Position = center;
+   fColor = vec3(1, 0, 0);
+   EmitVertex();
+   if (uShowNegative) {
+      gl_Position = center - size * dx;
+      fColor = vec3(0, 0, 0);
+      EmitVertex();
+   }
    EndPrimitive();
 
    // Y
    gl_Position = center + size * dy;
    fColor = vec3(0, 1, 0);
    EmitVertex();
-   gl_Position = center - size * dy;
-   fColor = vec3(0, 0, 0);
+   gl_Position = center;
+   fColor = vec3(0, 1, 0);
    EmitVertex();
+   if (uShowNegative) {
+      gl_Position = center - size * dy;
+      fColor = vec3(0, 0, 0);
+      EmitVertex();
+   }
    EndPrimitive();
 
    // Z
    gl_Position = center + size * dz;
+      fColor = vec3(0, 0, 0);
+   EmitVertex();
+   gl_Position = center;
    fColor = vec3(0, 0, 1);
    EmitVertex();
-   gl_Position = center - size * dz;
-   fColor = vec3(0, 0, 0);
-   EmitVertex();
+   if (uShowNegative) {
+      gl_Position = center - size * dz;
+      fColor = vec3(0, 0, 0);
+      EmitVertex();
+   }
    EndPrimitive();
 }

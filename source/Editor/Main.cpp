@@ -26,6 +26,7 @@
 #include "AnimationStation/Editor.h"
 #include "Command/Commands.h"
 #include "ParticleSpace/Editor.h"
+#include "ShaderLand/Editor.h"
 #include "Skeletor/Editor.h"
 
 #include <Shared/Imgui/Context.h>
@@ -63,8 +64,8 @@ int main(int argc, char** argv)
    Window::Options windowOptions;
    windowOptions.title = "NCW Editor";
    windowOptions.fullscreen = false;
-   windowOptions.width = 1280;
-   windowOptions.height = 760;
+   windowOptions.width = 1920;
+   windowOptions.height = 1080;
    windowOptions.lockCursor = false;
    Window& window = Window::Instance();
    if (auto result = window.Initialize(windowOptions); !result)
@@ -72,6 +73,9 @@ int main(int argc, char** argv)
       LOG_ERROR("Failed creating window: %s", result.Failure().GetMessage());
       return 1;
    }
+
+   glEnable(GL_PRIMITIVE_RESTART);
+   glPrimitiveRestartIndex(GLuint(-1));
 
    // Setup file watching library
 #if !CUBEWORLD_PLATFORM_WINDOWS
@@ -92,6 +96,7 @@ int main(int argc, char** argv)
    animationStation = windowContent.Add<Editor::AnimationStation::Editor>(window);
    skeletor = windowContent.Add<Editor::Skeletor::Editor>(window);
    particleSpace = windowContent.Add<Editor::ParticleSpace::Editor>(window);
+   Editor::ShaderLand::Editor* shaderLand = windowContent.Add<Editor::ShaderLand::Editor>(window);
 
    // Configure Debug helper
    DebugHelper& debug = DebugHelper::Instance();
@@ -145,6 +150,12 @@ int main(int argc, char** argv)
        state->Start();
        windowContent.Swap(state);
    }
+   else if (firstState == "shader_land")
+   {
+       auto state = shaderLand;
+       state->Start();
+       windowContent.Swap(state);
+   }
    /*
    else if (firstState == "constrainer")
    {
@@ -153,7 +164,7 @@ int main(int argc, char** argv)
       windowContent.Swap(state);
    }
    */
-   else if (firstState == "animation_station")
+   else // if (firstState == "animation_station")
    {
       auto state = animationStation;
       state->Start();
@@ -183,7 +194,7 @@ int main(int argc, char** argv)
          imgui.StartFrame(dt);
 
          ImGui::SetNextWindowPos(ImVec2(25, 550), ImGuiCond_FirstUseEver);
-         ImGui::SetNextWindowSize(ImVec2(200, 0), ImGuiCond_FirstUseEver);
+         ImGui::SetNextWindowSize(ImVec2(200, 0));
          ImGui::Begin("Editors", nullptr, ImGuiWindowFlags_NoResize);
 
          ImVec2 space = ImGui::GetContentRegionAvail();
@@ -206,6 +217,13 @@ int main(int argc, char** argv)
             CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, particleSpace);
             SettingsProvider::Instance().Set("main", "editor", "particle_space");
             particleSpace->Start();
+         }
+
+         if (ImGui::Button("Shader Land", ImVec2(space.x, 0)))
+         {
+             CommandStack::Instance().Do<Editor::NavigateCommand>(&windowContent, shaderLand);
+             SettingsProvider::Instance().Set("main", "editor", "shader_land");
+             shaderLand->Start();
          }
 
          if (ImGui::Button("Quit", ImVec2(space.x, 0)))
