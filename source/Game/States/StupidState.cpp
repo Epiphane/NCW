@@ -288,7 +288,7 @@ void StupidState::Initialize()
     mCamera.Set(handle.get());
 
     mWorld.Create(0, 0, 0);
-    int kSize = 10;
+    int kSize = 4;
     for (int dist = 1; dist < kSize; dist++)
     {
         mWorld.Create(dist, 0, 0);

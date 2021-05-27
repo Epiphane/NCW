@@ -25,7 +25,7 @@ struct ChunkCoords
 ///
 ///
 ///
-constexpr size_t kChunkSize = 64;
+constexpr size_t kChunkSize = 256;
 constexpr size_t kChunkHeight = 64;
 
 struct Block
