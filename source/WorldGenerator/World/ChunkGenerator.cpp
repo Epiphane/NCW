@@ -98,21 +98,8 @@ public:
     Worker(const std::string& sourceFile, Engine::EventManager& events)
         : mEvents(events)
     {
-        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(sourceFile);
-        assert(maybeSource.Succeeded() && "Failed to read shader source");
-
         mPrivate.generatorFilename = sourceFile;
-        mPrivate.generatorSource = std::move(*maybeSource);
-
-        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
-        if (!maybeProgram)
-        {
-            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
-        }
-        else
-        {
-            mShared.program = std::move(*maybeProgram);
-        }
+        LoadShader();
 
         mPrivate.thread = std::thread([this] {
             sContext.Activate();
@@ -135,6 +122,26 @@ public:
         mShared.exiting = true;
         mShared.condition.notify_all();
         mShared.condition.wait(lock, [&] { return mShared.exited; });
+    }
+
+    void LoadShader()
+    {
+        std::unique_lock<std::mutex> lock{ mShared.programMutex };
+
+        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(mPrivate.generatorFilename);
+        assert(maybeSource.Succeeded() && "Failed to read shader source");
+
+        mPrivate.generatorSource = std::move(*maybeSource);
+
+        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
+        if (!maybeProgram)
+        {
+            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
+        }
+        else
+        {
+            mShared.program = std::move(*maybeProgram);
+        }
     }
 
     void Run()
@@ -226,6 +233,8 @@ public:
     {
         std::unique_lock<std::mutex> lock{ mShared.mutex };
         mShared.requests.clear();
+
+        LoadShader();
     }
 
     void Update()

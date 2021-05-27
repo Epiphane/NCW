@@ -140,4 +140,33 @@ void main()
     if (noiseVal < 0.3 && elevation > 0) {
         outBuffer.Colors[offset].a = 0;
     }
+
+    bool TESTBED = false;
+    if (TESTBED)
+    {
+        if (coords.y == 0)
+        {
+            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
+        }
+        else if ((abs(coords.y) + abs(coords.x - 32) + abs(coords.z - 32)) < 4)
+        {
+            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
+        }
+        else if ((abs(coords.y - 6) + abs(coords.x - 32) + abs(coords.z - 32)) < 3)
+        {
+            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
+        }
+        else if (coords.y < 20 && coords.x == 20)
+        {
+            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
+        }
+        else if (coords.y < 20 && coords.z == 20)
+        {
+            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
+        }
+        else
+        {
+            outBuffer.Colors[offset] = vec4(kSnow.xyz, 0);
+        }
+    }
 }

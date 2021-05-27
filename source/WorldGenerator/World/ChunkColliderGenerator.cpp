@@ -137,7 +137,7 @@ public:
             {
                 // Move upwards until we find empty space.
                 bool isBlock = chunk.Get(i, cursor, j).color.a > 0;
-                while (isBlock)
+                while (isBlock && cursor < kChunkHeight - 1)
                 {
                     isBlock = chunk.Get(i, ++cursor, j).color.a > 0;
                 }

@@ -81,21 +81,8 @@ public:
     Worker(const std::string& sourceFile, Engine::EventManager& events)
         : mEvents(events)
     {
-        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(sourceFile);
-        assert(maybeSource.Succeeded() && "Failed to read shader source");
-
         mPrivate.generatorFilename = sourceFile;
-        mPrivate.generatorSource = std::move(*maybeSource);
-
-        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
-        if (!maybeProgram)
-        {
-            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
-        }
-        else
-        {
-            mShared.program = std::move(*maybeProgram);
-        }
+        LoadShader();
 
         mPrivate.thread = std::thread([this] {
             sContext.Activate();
@@ -110,6 +97,27 @@ public:
     {
         Cancel();
         mPrivate.thread.join();
+    }
+
+    void LoadShader()
+    {
+        std::unique_lock<std::mutex> lock{ mShared.programMutex };
+
+        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(mPrivate.generatorFilename);
+        assert(maybeSource.Succeeded() && "Failed to read shader source");
+        mPrivate.generatorSource = std::move(*maybeSource);
+
+        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
+        if (!maybeProgram)
+        {
+            maybeProgram.Failure().WithContext("Failed building compute shader").Log();
+            mLastError = maybeProgram.Failure().GetMessage();
+        }
+        else
+        {
+            mShared.program = std::move(*maybeProgram);
+            mLastError = "";
+        }
     }
 
     void Cancel()
@@ -243,6 +251,8 @@ public:
     {
         std::unique_lock<std::mutex> lock{ mShared.mutex };
         mShared.requests.clear();
+
+        LoadShader();
     }
 
     void Update()
@@ -265,11 +275,20 @@ public:
             }
         }
         ImGui::End();
+
+        if (!mLastError.empty())
+        {
+            ImGui::Begin("Mesh error");
+            ImGui::Text("%s", mLastError.c_str());
+            ImGui::End();
+        }
     }
 
 private:
     PrivateData mPrivate;
     SharedData mShared;
+
+    std::string mLastError;
 
     Engine::EventManager& mEvents;
 
