@@ -11,7 +11,6 @@ uniform mat4 uModelMatrix;
 
 flat out vec3 fNormal;
 out vec4 fColor;
-out float fOcclusion;
 out float fDepth;
 
 void main()
@@ -19,6 +18,5 @@ void main()
    gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition);
    fColor = aColor;
    fNormal = aNormal.xyz;
-   fOcclusion = clamp(aColor.w, 0, 1);
    fDepth = -(uViewMatrix * uModelMatrix * aPosition).z;
 }
