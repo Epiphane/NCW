@@ -178,14 +178,6 @@ void WorldGenState::Initialize()
        cam->aspect = float(mParent.GetWidth()) / float(mParent.GetHeight());
     });
 
-    {
-        Entity worldParams = mEntities.Create();
-        worldParams.Add<Data>();
-        worldParams.Add<Makeshift>([this](Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt){
-            mWorld.Update(entities, events, dt);
-        });
-    }
-
     mCamera.Set(handle.get());
 
     mWorld.Build();

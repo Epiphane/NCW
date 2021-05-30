@@ -208,6 +208,7 @@ public:
 
                 // make sure writing to the buffers has finished
                 glMemoryBarrier(GL_ALL_BARRIER_BITS);
+                CHECK_GL_ERRORS();
             }
         }
 
@@ -225,6 +226,7 @@ public:
         sIndices.CopyFrom(indices, sizeof(GLuint) * 4 * count[1]);
         glFlush();
 
+        request.component->renderType = GL_TRIANGLES;
         request.component->Set(
             std::move(sVertices),
             std::move(sColors),

@@ -49,8 +49,8 @@ int main(int argc, char **argv)
    Window::Options windowOptions;
    windowOptions.title = "Not Cube World";
    windowOptions.fullscreen = false;
-   windowOptions.width = 1280;
-   windowOptions.height = 760;
+   windowOptions.width = 1980;
+   windowOptions.height = 1080;
    windowOptions.r = 14.f / 255.f;
    windowOptions.g = 180.f / 255.f;
    windowOptions.b = 204.f / 255.f;
