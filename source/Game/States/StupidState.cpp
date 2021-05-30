@@ -29,6 +29,7 @@
 #include <Shared/DebugHelper.h>
 #include <Shared/Helpers/Asset.h>
 #include "StupidState.h"
+#include "../Systems/ChunkManagementSystem.h"
 
 namespace CubeWorld
 {
@@ -59,6 +60,7 @@ StupidState::StupidState(Engine::Window& window)
     mSystems.Add<Simple3DRenderSystem>(&mCamera);
     mSystems.Add<VoxelRenderSystem>(&mCamera);
     mSystems.Add<SimpleParticleSystem>(&mCamera);
+    mSystems.Add<ChunkManagementSystem>(&mWorld);
 
     debug->SetActive(false);
     mDebugCallback = window.AddCallback(GLFW_KEY_L, [debug](int, int, int) {
@@ -67,7 +69,6 @@ StupidState::StupidState(Engine::Window& window)
 
     window.AddCallback(Engine::Window::CtrlKey(GLFW_KEY_R), [&](int, int, int) {
         mWorld.Reset();
-        mWorld.Create(0, 0, 0);
     }).release();
 
     mSystems.Configure();
@@ -205,6 +206,7 @@ void StupidState::Initialize()
     player.Get<Transform>()->SetLocalScale(glm::vec3(0.1f));
     player.Get<Transform>()->SetLocalPosition({ 3, 0, 0 });
     player.Add<WalkSpeed>(0.20f, 0.04f, 0.45f);
+    player.Add<ChunkSpawnSource>();
 
     // Set up the player controller
     {
@@ -286,30 +288,6 @@ void StupidState::Initialize()
     fire.Add<ParticleEmitter>(Asset::Particle("fire"));
 
     mCamera.Set(handle.get());
-
-    mWorld.Create(0, 0, 0);
-    int kSize = 4;
-    for (int dist = 1; dist < kSize; dist++)
-    {
-        mWorld.Create(dist, 0, 0);
-        mWorld.Create(0, 0, dist);
-        mWorld.Create(-dist, 0, 0);
-        mWorld.Create(0, 0, -dist);
-        for (int d = 1; d <= dist; d++)
-        {
-            mWorld.Create(dist, 0, d);
-            mWorld.Create(dist, 0, -d);
-            mWorld.Create(d, 0, dist);
-            mWorld.Create(-d, 0, dist);
-            mWorld.Create(-dist, 0, d);
-            mWorld.Create(-dist, 0, -d);
-            mWorld.Create(d, 0, -dist);
-            mWorld.Create(-d, 0, -dist);
-        }
-    }
-
-    glEnable(GL_PRIMITIVE_RESTART);
-    glPrimitiveRestartIndex(kPrimitiveRestart);
 }
 
 }; // namespace Game

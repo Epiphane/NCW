@@ -193,24 +193,24 @@ void WorldGenState::Receive(const JavascriptEvent& evt)
     {
         mWorld.Reset();
 
-        mWorld.Create(0, 0, 0);
+        mWorld.EnsureLoaded(0, 0, 0);
         int kSize = 4;
         for (int dist = 1; dist < kSize; dist++)
         {
-            mWorld.Create(dist, 0, 0);
-            mWorld.Create(0, 0, dist);
-            mWorld.Create(-dist, 0, 0);
-            mWorld.Create(0, 0, -dist);
+            mWorld.EnsureLoaded(dist, 0, 0);
+            mWorld.EnsureLoaded(0, 0, dist);
+            mWorld.EnsureLoaded(-dist, 0, 0);
+            mWorld.EnsureLoaded(0, 0, -dist);
             for (int d = 1; d <= dist; d++)
             {
-                mWorld.Create(dist, 0, d);
-                mWorld.Create(dist, 0, -d);
-                mWorld.Create(d, 0, dist);
-                mWorld.Create(-d, 0, dist);
-                mWorld.Create(-dist, 0, d);
-                mWorld.Create(-dist, 0, -d);
-                mWorld.Create(d, 0, -dist);
-                mWorld.Create(-d, 0, -dist);
+                mWorld.EnsureLoaded(dist, 0, d);
+                mWorld.EnsureLoaded(dist, 0, -d);
+                mWorld.EnsureLoaded(d, 0, dist);
+                mWorld.EnsureLoaded(-d, 0, dist);
+                mWorld.EnsureLoaded(-dist, 0, d);
+                mWorld.EnsureLoaded(-dist, 0, -d);
+                mWorld.EnsureLoaded(d, 0, -dist);
+                mWorld.EnsureLoaded(-d, 0, -dist);
             }
         }
     }

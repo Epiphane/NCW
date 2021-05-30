@@ -4,6 +4,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 #include <tuple>
 #include <vector>
 
@@ -39,7 +40,7 @@ public:
 
     void Build();
     void Reset();
-    Engine::Entity Create(int chunkX, int chunkY, int chunkZ);
+    void EnsureLoaded(int32_t chunkX, int32_t chunkY, int32_t chunkZ);
 
     void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt);
 
@@ -62,6 +63,9 @@ private:
     // Until then, stay lazy.
     std::mutex mEntitiesMutex;
     std::unordered_map<ChunkCoords, Engine::Entity> mEntities;
+
+    std::mutex mLoadedChunksMutex;
+    std::unordered_set<ChunkCoords> mLoadedChunks;
 
     std::mutex mChunksMutex;
     std::unordered_map<ChunkCoords, std::shared_ptr<Chunk>> mChunks;

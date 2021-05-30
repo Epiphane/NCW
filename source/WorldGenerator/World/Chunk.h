@@ -12,9 +12,9 @@ namespace CubeWorld
 
 struct ChunkCoords
 {
-    int x = 0;
-    int y = 0;
-    int z = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t z = 0;
 
     bool operator==(const ChunkCoords& other) const
     {
@@ -25,7 +25,7 @@ struct ChunkCoords
 ///
 ///
 ///
-constexpr size_t kChunkSize = 256;
+constexpr size_t kChunkSize = 128;
 constexpr size_t kChunkHeight = 64;
 
 struct Block

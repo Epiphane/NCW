@@ -95,6 +95,8 @@ Maybe<Window*> Window::Initialize(const Options& options)
       glEnable(GL_DEPTH_TEST);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glEnable(GL_BLEND);
+      glEnable(GL_PRIMITIVE_RESTART);
+      glPrimitiveRestartIndex(GLuint(-1));
       glClearColor(mOptions.r, mOptions.g, mOptions.b, mOptions.a);
    }
 

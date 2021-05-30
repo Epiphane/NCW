@@ -70,11 +70,6 @@ void World::Build()
 /// 
 void World::Reset()
 {
-    /*
-    mChunkGenerator.reset();
-    mChunkMeshGenerator.reset();
-    */
-
     mChunkGenerator->Clear();
     mChunkColliderGenerator->Clear();
     mChunkMeshGenerator->Clear();
@@ -90,60 +85,55 @@ void World::Reset()
     }
 
     {
+        std::unique_lock<std::mutex> lock{ mLoadedChunksMutex };
+        mLoadedChunks.clear();
+    }
+
+    {
         std::unique_lock<std::mutex> lock{ mCompletedChunkCollisionMutex };
         mCompletedChunkCollision.clear();
     }
-
-    /*
-    {
-        std::unique_lock<std::mutex> lock{ mEntitiesMutex };
-        for (auto& [_, entity] : mEntities)
-        {
-            mEntityManager.Destroy(entity.GetID());
-        }
-
-        mEntities.clear();
-    }
-
-    mChunkGenerator.reset(new ChunkGenerator(mEventManager));
-    mChunkMeshGenerator.reset(new ChunkMeshGenerator(mEventManager));
-    */
 }
 
 ///
 ///
 ///
-Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
+void World::EnsureLoaded(int32_t chunkX, int32_t chunkY, int32_t chunkZ)
 {
     ChunkCoords coordinates{ chunkX, chunkY, chunkZ };
 
-    Engine::Entity entity(&mEntityManager, Engine::Entity::ID(0, 0));
-    if (mEntities.count(coordinates) == 0)
     {
-        entity = mEntityManager.Create(
-            float(chunkX) * kChunkSize - kChunkSize / 2,
-            -32.0f,
-            float(chunkZ) * kChunkSize - kChunkSize / 2
-        );
+        std::unique_lock<std::mutex> lock{ mLoadedChunksMutex };
+        if (mLoadedChunks.count(coordinates) != 0)
+        {
+            return;
+        }
 
-        auto mesh = entity.Add<ShadedMesh>();
-        mesh->aabb.min = entity.Get<Engine::Transform>()->GetAbsolutePosition();
-        mesh->aabb.max = mesh->aabb.min + glm::vec3{ kChunkSize, kChunkHeight, kChunkSize };
-
-        std::unique_lock<std::mutex> lock{ mEntitiesMutex };
-        mEntities.emplace(coordinates, entity);
+        mLoadedChunks.insert(coordinates);
     }
-    else
+
     {
-        entity = mEntities.at(coordinates);
+        std::unique_lock<std::mutex> lock{ mEntitiesMutex };
+        if (mEntities.count(coordinates) == 0)
+        {
+            Engine::Entity entity = mEntityManager.Create(
+                float(chunkX) * kChunkSize - kChunkSize / 2,
+                -32.0f,
+                float(chunkZ) * kChunkSize - kChunkSize / 2
+            );
+
+            auto mesh = entity.Add<ShadedMesh>();
+            mesh->aabb.min = entity.Get<Engine::Transform>()->GetAbsolutePosition();
+            mesh->aabb.max = mesh->aabb.min + glm::vec3{ kChunkSize, kChunkHeight, kChunkSize };
+
+            mEntities.emplace(coordinates, entity);
+        }
     }
 
     ChunkGenerator::Request request;
     request.coordinates = coordinates;
     request.resultFunction = std::bind(&World::OnChunkGenerated, this, mVersion, std::placeholders::_1);
     mChunkGenerator->Add(request);
-
-    return entity;
 }
 
 ///
