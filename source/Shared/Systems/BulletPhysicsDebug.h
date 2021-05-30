@@ -13,7 +13,6 @@
 #include <Engine/System/System.h>
 
 #include "../DebugHelper.h"
-#include "../Helpers/AABBTree.h"
 #include "BulletPhysicsSystem.h"
 
 namespace CubeWorld

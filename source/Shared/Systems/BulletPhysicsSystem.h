@@ -22,7 +22,6 @@
 #include <Engine/System/System.h>
 
 #include "../DebugHelper.h"
-#include "../Helpers/AABBTree.h"
 #include "../Physics/VoxelHeightfieldTerrainShape.h"
 
 namespace CubeWorld
@@ -129,9 +128,6 @@ private:
    std::unique_ptr<btBroadphaseInterface> broadphase;
    std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
    std::unique_ptr<btDiscreteDynamicsWorld> world;
-
-   // A tree of bodies, for evaluating collisions quickly.
-   AABBTree<Engine::Entity::ID> mBodies;
 
    // A list of entity IDs that are registered in mBodies.
    // Each time a body is added to the tree, the node references

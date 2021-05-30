@@ -126,8 +126,9 @@ Engine::Entity World::Create(int chunkX, int chunkY, int chunkZ)
             float(chunkZ) * kChunkSize - kChunkSize / 2
         );
 
-        entity.Add<ShadedMesh>();
-        entity.Get<ShadedMesh>()->renderType = GL_TRIANGLE_FAN;
+        auto mesh = entity.Add<ShadedMesh>();
+        mesh->aabb.min = entity.Get<Engine::Transform>()->GetAbsolutePosition();
+        mesh->aabb.max = mesh->aabb.min + glm::vec3{ kChunkSize, kChunkHeight, kChunkSize };
 
         std::unique_lock<std::mutex> lock{ mEntitiesMutex };
         mEntities.emplace(coordinates, entity);

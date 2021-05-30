@@ -2,6 +2,7 @@
 
 #include <GL/includes.h>
 #include <GLFW/glfw3native.h>
+#include <glm/ext.hpp>
 
 // #include <RGBNetworking/JSONSerializer.h>
 #include <RGBLogger/DebugLogger.h>
@@ -9,15 +10,45 @@
 #include <Engine/Core/Window.h>
 #include <Engine/Core/Context.h>
 #include <Engine/Graphics/VBO.h>
+#include <Engine/Geometry/Frustum.h>
 #include <Engine/Graphics/Program.h>
 
 using namespace CubeWorld;
 using namespace CubeWorld::Engine;
 
+void GetDotProducts(float outDots[], const glm::vec4 planes[], const glm::vec4 pos)
+{
+    LOG_ALWAYS("Dot products for ({}, {}, {}):", pos.x, pos.y, pos.z);
+    for (size_t i = 0; i < 6; i++)
+    {
+        outDots[i] = glm::dot(planes[i], pos);
+        LOG_ALWAYS("  - {}", outDots[i]);
+    }
+}
+
 int main(int, char**)
 {
     Logger::StdoutLogger::Instance();
     Logger::DebugLogger::Instance();
+
+    glm::mat4 perspective = glm::perspective(0.3f, 1.0f, 0.1f, 10.0f);
+    glm::mat4 view = glm::lookAt(glm::vec3(1, 0, 0), glm::vec3(0), glm::vec3(0, 1, 0));
+
+    Engine::Graphics::Frustum f = Engine::Graphics::Frustum::Create(perspective * view);
+
+    float dots[6];
+    GetDotProducts(dots, f.planes, glm::vec4{ 0, 0, 0, 1 });      // Should be dead center
+    GetDotProducts(dots, f.planes, glm::vec4{ 1, 0, 0, 1 });      // At camera (too close)
+    GetDotProducts(dots, f.planes, glm::vec4{ -1, 0, 0, 1 });     // A little further
+    GetDotProducts(dots, f.planes, glm::vec4{ -10, 0, 0, 1 });    // Too far
+    GetDotProducts(dots, f.planes, glm::vec4{ 0, 10, 0, 1 });     // Too high?
+    GetDotProducts(dots, f.planes, glm::vec4{ 0, 100, 0, 1 });    // Way too high?
+    GetDotProducts(dots, f.planes, glm::vec4{ 0, 0, 10, 1 });     // Too side?
+    GetDotProducts(dots, f.planes, glm::vec4{ 0, 0, 100, 1 });    // Way too side?
+
+    if (dots[0] != 50294) {
+        return 0;
+    }
 
     /*
 

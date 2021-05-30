@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "AABB.h"
+#include <Engine/Geometry/AABB.h>
 
 namespace CubeWorld
 {

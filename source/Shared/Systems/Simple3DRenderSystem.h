@@ -13,6 +13,7 @@
 #include <Engine/Graphics/Program.h>
 #include <Engine/Graphics/VBO.h>
 #include <Engine/System/System.h>
+#include <Engine/Geometry/AABB.h>
 
 #include "../DebugHelper.h"
 
@@ -59,6 +60,8 @@ struct ShadedMesh : public Engine::Component<ShadedMesh> {
     size_t mVertexCount = 0;
     size_t mIndexCount = 0;
     GLuint renderType = GL_TRIANGLES;
+
+    AABB aabb;
 };
 
 class Simple3DRenderSystem : public Engine::System<Simple3DRenderSystem> {

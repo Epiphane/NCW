@@ -197,6 +197,10 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
         });
     }
 
+    // Frustum culling
+
+    Engine::Graphics::Frustum frustum = mCamera->GetFrustum();
+
     {
         BIND_PROGRAM_IN_SCOPE(shaded);
         shaded->UniformMatrix4f("uProjMatrix", perspective);
@@ -204,6 +208,11 @@ void Simple3DRenderSystem::Update(Engine::EntityManager& entities, Engine::Event
 
         entities.Each<Transform, ShadedMesh>([&](Transform& transform, ShadedMesh& mesh) {
             if (mesh.mIndexCount == 0)
+            {
+                return;
+            }
+
+            if (!frustum.Contains(mesh.aabb))
             {
                 return;
             }
