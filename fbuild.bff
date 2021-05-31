@@ -309,6 +309,27 @@ VCXProject( 'All-proj' )
 }
 
 // Project to regenerate projects/solutions
+VCXProject( 'Assets-proj' )
+{
+   .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/Assets.vcxproj'
+   .ProjectInputPaths          = 'Assets'
+   .ProjectBasePath            = 'Assets'
+   .ProjectAllowedFileExtensions  = {
+                                       '*.bff', '*.rc', '*.mm', '*.js', '*.json',
+                                       '*.vert', '*.geom', '*.frag', '*.comp',
+                                       '*.natvis', '*.yaml'
+                                    }
+   .PlatformToolset            = .VS_PlatformToolset
+
+   .ProjectDebug     = [ Using( .ProjectDebug ) ]
+   .ProjectConfigs   = { .ProjectDebug }
+#if !DEBUG_BUILD_ONLY
+   .ProjectRelease   = [ Using( .ProjectRelease ) ]
+   .ProjectConfigs   + { .ProjectRelease }
+#endif
+}
+
+// Project to regenerate projects/solutions
 VCXProject( 'UpdateSolution-proj' )
 {
    .ProjectOutput              = '$OutputPath$/VisualStudio/Projects/UpdateSolution.vcxproj'
@@ -334,16 +355,17 @@ VSSolution('CubeWorld-sln-visualstudio')
 {
    .SolutionOutput      = '$OutputPath$/VisualStudio/CubeWorld.sln'
    .SolutionProjects    =  {
+                              'All-proj'
+                              'Assets-proj'
+                              'DataCLI-proj'
                               'Editor-proj'
                               'Engine-proj'
                               'Game-proj'
-                              'Shared-proj'
-                              'DataCLI-proj'
-                              'Tests-proj'
                               'Sandbox-proj'
-                              'WorldGenerator-proj'
-                              'All-proj'
+                              'Shared-proj'
+                              'Tests-proj'
                               'UpdateSolution-proj'
+                              'WorldGenerator-proj'
                            }
    .SolutionBuildProject   = 'All-proj'
    .SolutionConfigs        = .ProjectConfigs
@@ -369,8 +391,10 @@ VSSolution('CubeWorld-sln-visualstudio')
    // Define dependencies so that hitting F5 will trigger a build of the specified targets
    .Deps =
    [
-      .Projects = .SolutionProjects
-      .Dependencies = .SolutionBuildProject
+      .Projects      = .SolutionProjects
+                     - 'Assets-proj'
+                     - 'UpdateSolution-proj'
+      .Dependencies  = .SolutionBuildProject
    ]
    .SolutionDependencies =
    {
