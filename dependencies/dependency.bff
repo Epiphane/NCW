@@ -24,7 +24,7 @@
 ForEach( .Config in .Configs )
 {
    Using( .Config )
-   .OutputPath + '$Platform$-$Config$/$LibraryName$'
+   .OutputPath + '$Platform$-$Config$/dependencies/$LibraryName$'
    .CompilerOutputPath = .OutputPath
 
 #if !C_BUILD_ONCE

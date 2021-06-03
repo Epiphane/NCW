@@ -1,95 +1,15 @@
-#version 430
+#version 460 //? #version 460
+
+#include "utils/uniforms.glsl"
+#include "utils/noise.glsl"
+#include "utils/terrain_default.glsl"
+#include "utils/chunk.glsl"
 
 layout(local_size_x = 8, local_size_y = 16, local_size_z = 8) in;
 layout(std140, binding = 0) buffer destBuffer
 {
     vec4 Colors[];
 } outBuffer;
-
-uniform uvec3 uChunkSize;
-uniform vec3 uWorldCoords;
-uniform vec3 uWorldBase;
-uniform uint uOctaves;
-uniform float uFrequency;
-
-vec4 permute(vec4 x)
-{
-    return mod(((x * 34.0) + 1.0) * x, 289.0);
-}
-
-vec4 taylorInvSqrt(vec4 r)
-{
-    return 1.79284291400159 - 0.85373472095314 * r;
-}
-
-float snoise(vec3 v)
-{
-    vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
-    vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-
-    // First corner
-    vec3 i = floor(v + dot(v, C.yyy));
-    vec3 x0 = v - i + dot(i, C.xxx);
-
-    // Other corners
-    vec3 g = step(x0.yzx, x0.xyz);
-    vec3 l = 1.0 - g;
-    vec3 i1 = min(g.xyz, l.zxy);
-    vec3 i2 = max(g.xyz, l.zxy);
-
-    // x0 = x0 - 0.0 + 0.0 * C
-    vec3 x1 = x0 - i1 + 1.0 * C.xxx;
-    vec3 x2 = x0 - i2 + 2.0 * C.xxx;
-    vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
-
-    // Permutations
-    i = mod(i, 289.0);
-    vec4 p = permute(permute(permute(
-            i.z + vec4(0.0, i1.z, i2.z, 1.0))
-        + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-        + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-
-    // Gradients from 7x7 points over a square, mapped onto an octahedron
-    float n_ = 1.0 / 7.0;
-    vec3 ns = n_ * D.wyz - D.xzx;
-    vec4 j = p - 49.0 * floor(p * ns.z * ns.z); // mod(p, 7 * 7)
-
-    vec4 x_ = floor(j * ns.z);
-    vec4 y_ = floor(j - 7.0 * x_); // mod(j, 7)
-
-    vec4 x = x_ * ns.x + ns.yyyy;
-    vec4 y = y_ * ns.x + ns.yyyy;
-    vec4 h = 1.0 - abs(x) - abs(y);
-
-    vec4 b0 = vec4(x.xy, y.xy);
-    vec4 b1 = vec4(x.zw, y.zw);
-
-    // vec4 s0 = vec4(lessThan(b0, 0.0)) * 2.0 - 1.0;
-    // vec4 s1 = vec4(lessThan(b1, 0.0)) * 2.0 - 1.0;
-    vec4 s0 = floor(b0) * 2.0 - 1.0;
-    vec4 s1 = floor(b1) * 2.0 - 1.0;
-    vec4 sh = -step(h, vec4(0.0));
-
-    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-    vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-    vec3 p0 = vec3(a0.xy, h.x);
-    vec3 p1 = vec3(a0.zw, h.y);
-    vec3 p2 = vec3(a1.xy, h.z);
-    vec3 p3 = vec3(a1.zw, h.w);
-
-    // Normalize gradients
-    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
-    p0 *= norm.x;
-    p1 *= norm.y;
-    p2 *= norm.z;
-    p3 *= norm.w;
-
-    // Mix final noise value
-    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-    m = m * m;
-    return clamp(2.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))), -1.0, 1.0);
-}
 
 vec4 kDeep = vec4(0, 0, 128, 2) / 255.0;
 vec4 kShallow = vec4(0, 0, 255, 10) / 255.0;
@@ -103,70 +23,27 @@ vec4 kSnow = vec4(255, 255, 255, 190) / 255.0;
 
 void main()
 {
-    // Read current global position
     ivec3 coords = ivec3(gl_GlobalInvocationID.xyz);
-    float elevation = smoothstep(0.0, 1.5, float(coords.y - 8.0) / float(uChunkSize.y - 16));
+    uint offset = getIndex(coords);
 
-    float py = float(coords.y) / float(uChunkSize.y);
-    elevation = 0.5*pow(2.0*(0.5-abs(py-0.5)), 0.65);
-    if (py > 0.5) elevation = 1.0 - elevation;
-
-    vec3 chunkSize = uChunkSize;
-    uint offset = (coords.y * uChunkSize.z + coords.z) * uChunkSize.x + coords.x;
-
-    vec3 pt = gl_GlobalInvocationID.xyz + uWorldCoords;
-    float noiseVal = 0;
-    float div = 1.0;
-    for (uint i = 0; i < uOctaves; i++)
+    float elevation = getElevation(coords);
+    if (elevation >= 0)
     {
-        noiseVal += snoise(pt * uFrequency * div + uWorldBase) / div;
-        div *= 2.0;
+        vec3 color = kDeep.xyz;
+        color = mix(color, kShallow.xyz, smoothstep(kDeep.w,    kShallow.w, elevation));
+        color = mix(color, kShore.xyz,   smoothstep(kShallow.w, kShore.w,   elevation));
+        color = mix(color, kSand.xyz,    smoothstep(kShore.w,   kSand.w,    elevation));
+        color = mix(color, kGrass.xyz,   smoothstep(kSand.w,    kGrass.w,   elevation));
+        color = mix(color, kGrass2.xyz,  smoothstep(kGrass.w,   kGrass2.w,  elevation));
+        color = mix(color, kDirt.xyz,    smoothstep(kGrass2.w,  kDirt.w,    elevation));
+        color = mix(color, kRock.xyz,    smoothstep(kDirt.w,    kRock.w,    elevation));
+        color = mix(color, kSnow.xyz,    smoothstep(kRock.w,    kSnow.w,    elevation));
+
+        outBuffer.Colors[offset] = vec4(color, 1);
     }
-    noiseVal = (noiseVal + 1.0) / 2.0;
-
-    noiseVal -= pow(elevation, 1);
-
-    vec3 color = kDeep.xyz;
-    color = mix(color, kShallow.xyz, smoothstep(kDeep.w,    kShallow.w, elevation));
-    color = mix(color, kShore.xyz,   smoothstep(kShallow.w, kShore.w,   elevation));
-    color = mix(color, kSand.xyz,    smoothstep(kShore.w,   kSand.w,    elevation));
-    color = mix(color, kGrass.xyz,   smoothstep(kSand.w,    kGrass.w,   elevation));
-    color = mix(color, kGrass2.xyz,  smoothstep(kGrass.w,   kGrass2.w,  elevation));
-    color = mix(color, kDirt.xyz,    smoothstep(kGrass2.w,  kDirt.w,    elevation));
-    color = mix(color, kRock.xyz,    smoothstep(kDirt.w,    kRock.w,    elevation));
-    color = mix(color, kSnow.xyz,    smoothstep(kRock.w,    kSnow.w,    elevation));
-
-    outBuffer.Colors[offset] = vec4(color, 1);
-    if (noiseVal < 0.3 && elevation > 0) {
+    else
+    {
+        outBuffer.Colors[offset] = vec4(kDeep.xyz, 1);
         outBuffer.Colors[offset].a = 0;
-    }
-
-    bool TESTBED = false;
-    if (TESTBED)
-    {
-        if (coords.y == 0)
-        {
-            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
-        }
-        else if ((abs(coords.y) + abs(coords.x - 32) + abs(coords.z - 32)) < 4)
-        {
-            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
-        }
-        else if ((abs(coords.y - 6) + abs(coords.x - 32) + abs(coords.z - 32)) < 3)
-        {
-            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
-        }
-        else if (coords.y < 20 && coords.x == 20)
-        {
-            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
-        }
-        else if (coords.y < 20 && coords.z == 20)
-        {
-            outBuffer.Colors[offset] = vec4(kGrass.xyz, 1);
-        }
-        else
-        {
-            outBuffer.Colors[offset] = vec4(kSnow.xyz, 0);
-        }
     }
 }

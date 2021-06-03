@@ -99,6 +99,8 @@ struct VoxelHeightfieldBody : public Engine::Component<VoxelHeightfieldBody>
     std::unique_ptr<btRigidBody> body;
 };
 
+class Debug;
+
 class System : public Engine::System<System>, public Engine::Receiver<System> {
 public:
    System();
@@ -119,7 +121,7 @@ public:
    void Receive(const Engine::ComponentAddedEvent<VoxelHeightfieldBody>& e);
    void Receive(const Engine::ComponentRemovedEvent<VoxelHeightfieldBody>& e);
 
-   void SetDebug(bool debug) { mDebug = debug; }
+   void SetDebug(Debug* system) { mDebugSystem = system; }
    btCollisionWorld* GetWorld() const { return world.get(); }
 
 private:
@@ -141,7 +143,7 @@ private:
    Engine::Timer<100> mTransformClock;
 
    // Debug
-   bool mDebug = false;
+   Debug* mDebugSystem = nullptr;
 };
 
 }; // namespace BulletPhysics

@@ -315,9 +315,7 @@ VCXProject( 'Assets-proj' )
    .ProjectInputPaths          = 'Assets'
    .ProjectBasePath            = 'Assets'
    .ProjectAllowedFileExtensions  = {
-                                       '*.bff', '*.rc', '*.mm', '*.js', '*.json',
-                                       '*.vert', '*.geom', '*.frag', '*.comp',
-                                       '*.natvis', '*.yaml'
+                                       '*'
                                     }
    .PlatformToolset            = .VS_PlatformToolset
 

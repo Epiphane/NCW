@@ -107,7 +107,6 @@
         "future": "cpp",
         "typeindex": "cpp"
     },
-    "editor.tabSize": 3,
     "cmake.configureOnOpen": false,
     "git.ignoreLimitWarning": true
 }

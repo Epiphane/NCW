@@ -1,12 +1,13 @@
 #version 460
 
+#include "utils/uniforms.glsl"
+#include "utils/chunk.glsl"
+
 layout(local_size_x = 8, local_size_y = 16, local_size_z = 8) in;
 layout(std140, binding = 0) buffer inColorsT
 {
     vec4 Colors[];
 } inColors;
-
-uniform uvec3 uChunkSize;
 
 layout(binding = 1, offset = 0) uniform atomic_uint aVertices;
 layout(binding = 1, offset = 4) uniform atomic_uint aIndices;
@@ -35,8 +36,7 @@ vec4 getBlock(ivec3 coords)
         return vec4(0);
     }
 
-    uint offset = (coords.y * uChunkSize.z + coords.z) * uChunkSize.x + coords.x;
-    return inColors.Colors[offset];
+    return inColors.Colors[getIndex(coords)];
 }
 
 bool occupied(ivec3 coords)
@@ -143,24 +143,17 @@ void main()
     for (int i = 0; i < nSides; i ++)
     {
         int baseNdx = int(ndx + i * 4);
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 0;
-        n++;
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 1;
-        n++;
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 2;
-        n++;
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 0;
-        n++;
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 2;
-        n++;
-        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 3;
-        n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 0; n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 1; n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 2; n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 0; n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 2; n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = baseNdx + 3; n++;
     }
 
     while (n < nIndexVectors * 4)
     {
-        outIndices.Index[indexNdx + n / 4][n % 4] = int(ndx);
-        n++;
+        outIndices.Index[indexNdx + n / 4][n % 4] = int(ndx); n++;
     }
 
     // Top
@@ -168,10 +161,6 @@ void main()
     {
         vec4 n = vec4(0, 1, 0, 0);
         vec4 occ = occlusionVector(3, 0.45, coords, ivec3(n.xyz), d2.zyz, d2.zyx, d2.xyx, d2.xyz);
-
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.yxy, 1);
-        // outColors.Color [ndx  ] = vec4(color, (occ.x + occ.y + occ.z + occ.w) / 4.0);
-        // outNormals.Norm [ndx++] = n;
 
         outPositions.Pos[ndx  ] = vec4(coords + d2.zxz, 1);
         outColors.Color [ndx  ] = vec4(color, occ.x);
@@ -194,10 +183,6 @@ void main()
     if (bottom)
     {
         vec4 n = vec4(0, -1, 0, 1);
-
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.yzy, 1);
-        // outColors.Color [ndx  ] = vec4(color, 1);
-        // outNormals.Norm [ndx++] = n;
 
         outPositions.Pos[ndx  ] = vec4(coords + d2.xzz, 1);
         outColors.Color [ndx  ] = vec4(color, 1);
@@ -222,10 +207,6 @@ void main()
         vec4 n = vec4(1, 0, 0, 1);
         vec4 occ = occlusionVector(1, 0.01, coords, ivec3(n.xyz), d2.yxz, d2.yxx, d2.yzx, d2.yzz);
 
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.xyy, 1);
-        // outColors.Color [ndx  ] = vec4(color, (occ.x + occ.y + occ.z + occ.w) / 4.0);
-        // outNormals.Norm [ndx++] = n;
-
         outPositions.Pos[ndx  ] = vec4(coords + d2.xxz, 1);
         outColors.Color [ndx  ] = vec4(color, occ.x);
         outNormals.Norm [ndx++] = n;
@@ -248,10 +229,6 @@ void main()
     {
         vec4 n = vec4(-1, 0, 0, 1);
         vec4 occ = occlusionVector(2, 0.01, coords, ivec3(n.xyz), d2.yxz, d2.yzz, d2.yzx, d2.yxx);
-
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.zyy, 1);
-        // outColors.Color [ndx  ] = vec4(color, (occ.x + occ.y + occ.z + occ.w) / 4.0);
-        // outNormals.Norm [ndx++] = n;
 
         outPositions.Pos[ndx  ] = vec4(coords + d2.zxz, 1);
         outColors.Color [ndx  ] = vec4(color, occ.x);
@@ -276,10 +253,6 @@ void main()
         vec4 n = vec4(0, 0, 1, 1);
         vec4 occ = occlusionVector(2, 0.01, coords, ivec3(n.xyz), d2.zxy, d2.zzy, d2.xzy, d2.xxy);
 
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.yyx, 1);
-        // outColors.Color [ndx  ] = vec4(color, (occ.x + occ.y + occ.z + occ.w) / 4.0);
-        // outNormals.Norm [ndx++] = n;
-
         outPositions.Pos[ndx  ] = vec4(coords + d2.zxx, 1);
         outColors.Color [ndx  ] = vec4(color, occ.x);
         outNormals.Norm [ndx++] = n;
@@ -302,10 +275,6 @@ void main()
     {
         vec4 n = vec4(0, 0, -1, 1);
         vec4 occ = occlusionVector(2, 0.01, coords, ivec3(n.xyz), d2.zxy, d2.xxy, d2.xzy, d2.zzy);
-
-        // outPositions.Pos[ndx  ] = vec4(coords + d2.yyz, 1);
-        // outColors.Color [ndx  ] = vec4(color, (occ.x + occ.y + occ.z + occ.w) / 4.0);
-        // outNormals.Norm [ndx++] = n;
 
         outPositions.Pos[ndx  ] = vec4(coords + d2.zxz, 1);
         outColors.Color [ndx  ] = vec4(color, occ.x);

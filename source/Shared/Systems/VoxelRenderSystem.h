@@ -49,7 +49,6 @@ private:
    static std::unique_ptr<Engine::Graphics::Program> program;
 
 private:
-   std::unique_ptr<DebugHelper::MetricLink> metric;
    Engine::Timer<100> mClock;
 };
 

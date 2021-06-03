@@ -51,6 +51,10 @@ public:
    // Update all systems.
    void UpdateAll(TIMEDELTA dt);
 
+   // Do some arbitrary logic for all systems.
+   // Arguments are the system name, and the system itself.
+   void ForAll(std::function<void(const std::string&, BaseSystem&)> callback);
+
 #if CUBEWORLD_BENCHMARK_SYSTEMS
    std::vector<std::pair<std::string, double>> GetBenchmarks();
 #endif

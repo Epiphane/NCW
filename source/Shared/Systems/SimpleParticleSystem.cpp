@@ -41,12 +41,14 @@ SimpleParticleSystem::~SimpleParticleSystem()
 
 void SimpleParticleSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
+    /*
     mUpdateMetric = DebugHelper::Instance().RegisterMetric("Particle Update Time", [this]() -> std::string {
         return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
-        });
+    });
     mRenderMetric = DebugHelper::Instance().RegisterMetric("Particle Render Time", [this]() -> std::string {
         return FormatString("%.2fms", mRenderClock.Average() * 1000.0);
-        });
+    });
+    */
 
     mTick = 0;
 

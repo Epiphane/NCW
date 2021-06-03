@@ -15,6 +15,7 @@
 #include <Shared/Imgui/Context.h>
 #include <Shared/Imgui/StateWindow.h>
 
+#include "States/DynamicState.h"
 #include "States/StupidState.h"
 #include "UI/UIMainScreen.h"
 #include "Main.h"
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   std::unique_ptr<Engine::State> initialState = std::make_unique<StupidState>(window);
+   std::unique_ptr<Engine::State> initialState = std::make_unique<DynamicState>(window);
    Engine::StateManager& stateManager = Engine::StateManager::Instance();
 
    stateManager.SetState(std::move(initialState));

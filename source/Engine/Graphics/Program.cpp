@@ -2,8 +2,12 @@
 
 #include <GL/includes.h>
 #include <glm/ext.hpp>
+#include <regex>
+#include <unordered_set>
+#include <queue>
 
 #include <RGBDesignPatterns/Scope.h>
+#include <RGBFileSystem/Paths.h>
 #include <RGBLogger/Logger.h>
 #include <RGBText/StringHelper.h>
 
@@ -51,6 +55,61 @@ public:
 // -                           Program Loader                               -
 // --------------------------------------------------------------------------
 
+//
+// Load a shader file. 
+//
+Maybe<std::string> ReadShaderSource(
+    FileSystem& fs,
+    std::unordered_set<std::string>& loaded,
+    const std::string& filename
+)
+{
+    static const std::regex kInclude("#include \"([a-zA-Z0-9/-_\\.]+)\"\\s");
+
+    std::string dirname = Paths::GetDirectory(filename);
+    Maybe<std::string> maybeContents = fs.ReadEntireFile(filename);
+    if (!maybeContents)
+    {
+        return maybeContents.Failure().WithContext("Failed reading source file");
+    }
+
+    std::string result;
+    std::vector<std::string> lines = StringHelper::Split(*maybeContents, '\n');
+    for (auto& line : lines)
+    {
+        std::cmatch match;
+        // Look for #include specifiers.
+        if (std::regex_match(line.c_str(), match, kInclude))
+        {
+            std::string include = Paths::Join(dirname, match[1]);
+            if (loaded.count(include) == 0)
+            {
+                loaded.emplace(include);
+
+                Maybe<std::string> shader = ReadShaderSource(fs, loaded, include);
+                if (!shader)
+                {
+                    return shader.Failure().WithContext("Failed reading included shader {}", include);
+                }
+
+                result.append(std::move(*shader) + "\n");
+            }
+        }
+        else
+        {
+            result.append(line + "\n");
+        }
+    }
+
+    return result;
+}
+
+Maybe<std::string> ReadShaderSource(const std::string& shaderPath)
+{
+    std::unordered_set<std::string> loaded;
+    return ReadShaderSource(*FileSystemProvider::Instance().get(), loaded, shaderPath);
+}
+
 // Considering the shader is used incredibly temporarily, a small optimization would be
 // avoid using a unique_ptr. However, it's nice - it guarantees that when the shader
 // gets dropped on the floor (either through success, and cleanup or failure) the GL shader
@@ -88,7 +147,7 @@ Maybe<std::unique_ptr<Shader>> LoadShaderSource(const std::string& source, GLenu
 Maybe<std::unique_ptr<Shader>> LoadShader(const std::string& filePath, GLenum shaderType)
 {
     // Read the Shader code from the file
-    Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(filePath);
+    Maybe<std::string> maybeCode = ReadShaderSource(filePath);
     if (!maybeCode)
     {
         return maybeCode.Failure().WithContext("Failed reading shader file");
@@ -102,7 +161,7 @@ Maybe<std::unique_ptr<Program>> Program::LoadCompute(
 )
 {
     // Read the Shader code from the file
-    Maybe<std::string> maybeCode = FileSystemProvider::Instance().ReadEntireFile(computeShaderPath);
+    Maybe<std::string> maybeCode = ReadShaderSource(computeShaderPath);
     if (!maybeCode)
     {
         return maybeCode.Failure().WithContext("Failed reading shader file");

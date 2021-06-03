@@ -78,10 +78,10 @@ public:
         std::unique_ptr<Engine::Graphics::Program> program;
 
         // Frequency divisor for noise, e.g. 1/128.0f
-        float freqDivisor = 256.0f;
+        float freqDivisor = 1024;
 
         // Number of octaves when generating noise.
-        uint32_t octaves = 4;
+        uint32_t octaves = 6;
 
         // Coordinate to base the world on
         float baseX = 0;
@@ -128,12 +128,7 @@ public:
     {
         std::unique_lock<std::mutex> lock{ mShared.programMutex };
 
-        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(mPrivate.generatorFilename);
-        assert(maybeSource.Succeeded() && "Failed to read shader source");
-
-        mPrivate.generatorSource = std::move(*maybeSource);
-
-        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
+        auto maybeProgram = Engine::Graphics::Program::LoadCompute(mPrivate.generatorFilename);
         if (!maybeProgram)
         {
             maybeProgram.Failure().WithContext("Failed building compute shader").Log();
@@ -275,8 +270,6 @@ public:
 
                 if (ImGui::BeginTabItem("Properties"))
                 {
-                    std::unique_lock<std::mutex> lock{ mShared.programMutex };
-
                     std::chrono::steady_clock::duration timeSinceLastUpdate = std::chrono::steady_clock::now() - mPrivate.lastUpdate;
                     bool canUpdate = timeSinceLastUpdate > std::chrono::milliseconds(120);
 

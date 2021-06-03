@@ -33,8 +33,6 @@ public:
    void Update(Engine::EntityManager& entities, Engine::EventManager& events, TIMEDELTA dt) override;
 
    void SetCamera(Engine::Graphics::Camera* camera) { mCamera = camera; }
-   void SetActive(bool active);
-   bool IsActive() { return mActive; }
 
 public:
    // btIDebugDraw implementation
@@ -49,7 +47,6 @@ public:
 private:
    BulletPhysics::System* mSystem;
    Engine::Graphics::Camera* mCamera;
-   bool mActive;
 
    glm::vec3 mColor;
    std::vector<glm::vec3> mPoints;

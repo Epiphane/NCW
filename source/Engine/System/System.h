@@ -30,8 +30,17 @@ public:
    // Apply system behavior, called once per game step.
    virtual void Update(EntityManager& entities, EventManager& events, TIMEDELTA dt) = 0;
 
+   // Returns whether the system is active.
+   bool IsActive() const { return mIsActive; }
+
+   // Change the activation state of the system.
+   void SetActive(bool isActive) { mIsActive = isActive; }
+
    // This gets incremented with each unique call to System<C>::GetFamily();
    static Family sNumFamilies;
+
+private:
+    bool mIsActive = true;
 };
 
 /**

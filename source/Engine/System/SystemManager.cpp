@@ -16,6 +16,11 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
     assert(mInitialized);
     for (size_t i = 0; i < mSystems.size(); ++i)
     {
+        if (!mSystems[i]->IsActive())
+        {
+            continue;
+        }
+
 #if CUBEWORLD_BENCHMARK_SYSTEMS
         std::pair<std::string, Timer<100>>& benchmark = mBenchmarks[i];
         benchmark.second.Reset();
@@ -26,6 +31,14 @@ void SystemManager::UpdateAll(TIMEDELTA dt)
         glFinish();
         benchmark.second.Elapsed();
 #endif
+    }
+}
+
+void SystemManager::ForAll(std::function<void(const std::string&, BaseSystem&)> callback)
+{
+    for (size_t i = 0; i < mSystems.size(); ++i)
+    {
+        callback(mBenchmarks[i].first, *mSystems[i]);
     }
 }
 

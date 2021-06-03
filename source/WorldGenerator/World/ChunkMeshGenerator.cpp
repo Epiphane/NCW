@@ -103,11 +103,7 @@ public:
     {
         std::unique_lock<std::mutex> lock{ mShared.programMutex };
 
-        Maybe<std::string> maybeSource = Engine::FileSystemProvider::Instance().ReadEntireFile(mPrivate.generatorFilename);
-        assert(maybeSource.Succeeded() && "Failed to read shader source");
-        mPrivate.generatorSource = std::move(*maybeSource);
-
-        auto maybeProgram = Engine::Graphics::Program::LoadComputeSource(mPrivate.generatorSource);
+        auto maybeProgram = Engine::Graphics::Program::LoadCompute(mPrivate.generatorFilename);
         if (!maybeProgram)
         {
             maybeProgram.Failure().WithContext("Failed building compute shader").Log();

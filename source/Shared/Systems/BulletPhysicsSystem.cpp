@@ -11,6 +11,7 @@
 #include "../Physics/VoxelHeightfieldTerrainShape.h"
 #include "AnimationSystem.h"
 #include "BulletPhysicsSystem.h"
+#include "BulletPhysicsDebug.h"
 
 namespace CubeWorld
 {
@@ -56,13 +57,15 @@ void System::Configure(Engine::EntityManager&, Engine::EventManager& events)
     events.Subscribe<Engine::ComponentAddedEvent<VoxelHeightfieldBody>>(*this);
     events.Subscribe<Engine::ComponentRemovedEvent<VoxelHeightfieldBody>>(*this);
 
+    /*
     updateMetric = DebugHelper::Instance().RegisterMetric("B3 Physics Update", [this]() -> std::string {
         return FormatString("%.2fms", mUpdateClock.Average() * 1000.0);
-        });
+    });
 
     transformMetric = DebugHelper::Instance().RegisterMetric("B3 Transforms Updates", [this]() -> std::string {
         return FormatString("%.2fms", mTransformClock.Average() * 1000.0);
-        });
+    });
+    */
 }
 
 ///
@@ -72,7 +75,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
 {
     mUpdateClock.Reset();
     world->stepSimulation(btScalar(dt));
-    if (mDebug)
+    if (mDebugSystem != nullptr && mDebugSystem->IsActive())
     {
         world->debugDrawWorld();
     }
@@ -82,8 +85,6 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
     entities.Each<Engine::Transform, ControlledBody>([&](Engine::Entity entity, Engine::Transform& transform, const ControlledBody& body) {
         btTransform trans = body.object->getWorldTransform();
         btVector3 position = trans.getOrigin();
-
-        DebugHelper::Instance().SetMetric("Position", FormatString("{} {} {}", position.getX(), position.getY(), position.getZ()));
 
         glm::vec3 adjustedPosition = glm::vec3{ position.getX(), position.getY(), position.getZ() };
         adjustedPosition.y -= body.shape->getHalfHeight();
@@ -95,7 +96,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
         }
 
         transform.SetLocalPosition(adjustedPosition);
-        });
+    });
 
     entities.Each<Engine::Transform, DynamicBody>([&](Engine::Entity, Engine::Transform& transform, const DynamicBody& body) {
         btTransform trans = body.body->getWorldTransform();
@@ -104,7 +105,7 @@ void System::Update(Engine::EntityManager& entities, Engine::EventManager&, TIME
         glm::vec3 adjustedPosition = glm::vec3{ position.getX(), position.getY(), position.getZ() };
 
         transform.SetLocalPosition(adjustedPosition);
-        });
+    });
     mTransformClock.Elapsed();
 }
 
@@ -242,17 +243,6 @@ void System::Receive(const Engine::ComponentAddedEvent<VoxelHeightfieldBody>& e)
         0,  // TODO figure out min
         48 // TODO figure out max
     ));
-    /*
-    shape.reset(new btHeightfieldTerrainShape(
-        width,
-        length,
-        heights.data(),
-        1.0,
-        0,  // TODO figure out min
-        48, // TODO figure out max
-        1, PHY_SHORT, false
-    ));
-    */
 
     btVector3 localInertia(0, 0, 0);
     btTransform transform;

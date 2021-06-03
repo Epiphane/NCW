@@ -157,10 +157,14 @@ void DebugHelper::Update(bool imgui)
    {
        if (imgui)
        {
-           ImGui::Begin("Systems");
+           ImGui::Begin("System Performance");
            for (auto system : mSystemManager->GetBenchmarks())
            {
                ImVec4 color(1, 1, 1, 1);
+               if (system.second < 0.0001)
+               {
+                   continue;
+               }
                if (system.second > 0.001)
                {
                    color.z = 0;
