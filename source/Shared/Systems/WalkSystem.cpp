@@ -1,5 +1,6 @@
 // By Thomas Steinke
 
+#include <RGBBinding/BindingProperty.h>
 #include <RGBLogger/Logger.h>
 
 #include "../Event/NamedEvent.h"
@@ -10,6 +11,26 @@
 namespace CubeWorld
 {
 
+///
+///
+/// 
+WalkDirector::WalkDirector(const std::unordered_map<uint64_t, Engine::Entity>& entities, const BindingProperty& data)
+{
+    Binding::deserialize(*this, data);
+    director = entities.at(data["director"].GetUint64Value()).Get<Engine::Transform>();
+}
+
+/// 
+/// 
+/// 
+WalkSpeed::WalkSpeed(const BindingProperty& data)
+{
+    Binding::deserialize(*this, data);
+}
+
+/// 
+/// 
+/// 
 void WalkSystem::Update(Engine::EntityManager& entities, Engine::EventManager&, TIMEDELTA dt)
 {
    float inputAngle = 0; // 0 means straight forward, 90 means right strafe

@@ -11,7 +11,7 @@ namespace CubeWorld
 
 namespace Engine
 {
-   
+
 const uint32_t MAX_COMPONENTS = 64;
 typedef std::bitset<MAX_COMPONENTS> ComponentMask;
 
@@ -27,21 +27,21 @@ class ComponentHandle;
  */
 struct BaseComponent {
 public:
-   typedef size_t Family;
+    typedef size_t Family;
 
-   // NOTE: Component memory is *always* managed by the EntityManager.
-   // Use Entity::destroy() instead.
-   void operator delete(void *) { fail(); }
-   void operator delete[](void *) { fail(); }
+    // NOTE: Component memory is *always* managed by the EntityManager.
+    // Use Entity::destroy() instead.
+    void operator delete(void*) { fail(); }
+    void operator delete[](void*) { fail(); }
 
 
 protected:
-   static void fail() {
-      assert(false && "Component cannot be constructed or destructed by anything bu an EntityManager");
-   }
+    static void fail() {
+        assert(false && "Component cannot be constructed or destructed by anything bu an EntityManager");
+    }
 
-   // This gets incremented with each unique call to Component<C>::GetFamily();
-   static Family sNumFamilies;
+    // This gets incremented with each unique call to Component<C>::GetFamily();
+    static Family sNumFamilies;
 };
 
 /**
@@ -65,22 +65,22 @@ protected:
 template <typename Derived>
 struct Component : public BaseComponent {
 public:
-   typedef ComponentHandle<Derived, EntityManager> Handle;
-   typedef ComponentHandle<const Derived, const EntityManager> ConstHandle;
-   
-   // Used internally for registration.
-   // Defined here, because this is part of the template declaration,
-   // so the compiler will consider it a different function for each component type.
-   // That way each component class gets a different family.
-   static Family GetFamily()
-   {
-      static Family family = sNumFamilies++;
-      sFamily = family;
-      assert(family < MAX_COMPONENTS);
-      return family;
-   }
+    typedef ComponentHandle<Derived, EntityManager> Handle;
+    typedef ComponentHandle<const Derived, const EntityManager> ConstHandle;
 
-   static Family sFamily;
+    // Used internally for registration.
+    // Defined here, because this is part of the template declaration,
+    // so the compiler will consider it a different function for each component type.
+    // That way each component class gets a different family.
+    static Family GetFamily()
+    {
+        static Family family = sNumFamilies++;
+        sFamily = family;
+        assert(family < MAX_COMPONENTS);
+        return family;
+    }
+
+    static Family sFamily;
 };
 
 template <typename Derived>
@@ -89,15 +89,15 @@ BaseComponent::Family Component<Derived>::sFamily = 0;
 template<typename C>
 ComponentMask MakeComponentMask()
 {
-   ComponentMask mask;
-   mask.set(Component<C>::GetFamily());
-   return mask;
+    ComponentMask mask;
+    mask.set(Component<C>::GetFamily());
+    return mask;
 }
 
 template<typename C1, typename C2, typename ...Components>
 ComponentMask MakeComponentMask()
 {
-   return MakeComponentMask<C1>() | MakeComponentMask<C2, Components...>();
+    return MakeComponentMask<C1>() | MakeComponentMask<C2, Components...>();
 }
 
 }; // namespace Engine

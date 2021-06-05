@@ -9,6 +9,11 @@
 namespace CubeWorld
 {
 
+MouseControlledCamera::MouseControlledCamera(const BindingProperty& data)
+{
+    Binding::deserialize(*this, data);
+}
+
 void CameraSystem::Receive(const Engine::ComponentAddedEvent<MouseDragCamera>& evt)
 {
    mDraggables.push_back(evt.component);
@@ -58,9 +63,9 @@ void CameraSystem::Update(Engine::EntityManager& entities, Engine::EventManager&
       glm::tvec2<double> movement = mInput->GetMouseMovement();
       
       entities.Each<Engine::Transform, MouseControlledCamera>([&](Engine::Transform& transform, MouseControlledCamera& opts) {
-         transform.SetYaw(transform.GetYaw() - float(opts.sensitivity[0] * movement.x));
+         transform.SetYaw(transform.GetYaw() - float(opts.pitchSensitivity * movement.x));
 
-         float newPitch = transform.GetPitch() - float(opts.sensitivity[1] * movement.y);
+         float newPitch = transform.GetPitch() - float(opts.yawSensitivity * movement.y);
          if (newPitch < -M_PI / 2.0f + 0.01f)
          {
             newPitch = -M_PI / 2.0f + 0.01f;

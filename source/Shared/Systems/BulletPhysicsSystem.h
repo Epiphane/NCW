@@ -24,10 +24,7 @@
 #include "../DebugHelper.h"
 #include "../Physics/VoxelHeightfieldTerrainShape.h"
 
-namespace CubeWorld
-{
-
-namespace BulletPhysics
+namespace CubeWorld::BulletPhysics
 {
 
 //
@@ -74,6 +71,7 @@ struct ControlledBody : public Engine::Component<ControlledBody>
       this->object = std::move(object);
       this->controller = std::move(controller);
    };
+   ControlledBody(const BindingProperty& data);
 
    std::unique_ptr<btCapsuleShape> shape;
    std::unique_ptr<btCollisionObject> object;
@@ -146,6 +144,4 @@ private:
    Debug* mDebugSystem = nullptr;
 };
 
-}; // namespace BulletPhysics
-
-}; // namespace CubeWorld
+}; // namespace CubeWorld::BulletPhysics

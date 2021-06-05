@@ -14,6 +14,7 @@ struct ChunkSpawnSource : public Engine::Component<ChunkSpawnSource>
 {
     ChunkSpawnSource() {}
     ChunkSpawnSource(float radius) : radius(radius) {}
+    ChunkSpawnSource(const BindingProperty& data);
     
     float radius = 1024;
 };
@@ -32,3 +33,18 @@ private:
 };
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::ChunkSpawnSource;
+
+template<>
+inline auto registerMembers<ChunkSpawnSource>()
+{
+    return members(
+        member("radius", &ChunkSpawnSource::radius)
+    );
+}
+
+}; // namespace meta

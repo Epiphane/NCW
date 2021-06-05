@@ -16,22 +16,22 @@ namespace CubeWorld
 // transition parameters.
 //
 struct AnimationControllerBase {
-   virtual ~AnimationControllerBase() = default;
+    virtual ~AnimationControllerBase() = default;
 
-   // Interface
-   virtual void Play(const std::string& state, double startTime = 0.0) = 0;
-   virtual void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) = 0;
+    // Interface
+    virtual void Play(const std::string& state, double startTime = 0.0) = 0;
+    virtual void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) = 0;
 
-   // Common implementation
-   float GetFloatParameter(const std::string& name) { return floatParams[name]; }
-   void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
+    // Common implementation
+    float GetFloatParameter(const std::string& name) { return floatParams[name]; }
+    void SetParameter(const std::string& name, float val) { floatParams[name] = val; }
 
-   bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
-   void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
+    bool GetBoolParameter(const std::string& name) { return boolParams[name]; }
+    void SetBoolParameter(const std::string& name, bool val) { boolParams[name] = val; }
 
-   // Animation FSM parameters
-   std::unordered_map<std::string, float> floatParams;
-   std::unordered_map<std::string, bool> boolParams;
+    // Animation FSM parameters
+    std::unordered_map<std::string, float> floatParams;
+    std::unordered_map<std::string, bool> boolParams;
 };
 
 //
@@ -43,101 +43,106 @@ struct AnimationControllerBase {
 //
 struct AnimationController : public AnimationControllerBase, public Engine::Component<AnimationController> {
 public:
-   struct Keyframe {
-      double time;
-      std::optional<float> maxSpeed;
-      std::vector<glm::vec3> positions;
-      std::vector<glm::vec3> rotations;
-      std::vector<glm::vec3> scales;
-   };
+    struct Keyframe {
+        double time;
+        std::optional<float> maxSpeed;
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> rotations;
+        std::vector<glm::vec3> scales;
+    };
 
-   //
-   // References an emitter in the MultipleParticleEmitters component.
-   //
-   struct ParticleEffect : public SkeletonAnimations::ParticleEffect {
-      Engine::ComponentHandle<Engine::Transform> spawned;
-   };
+    //
+    // References an emitter in the MultipleParticleEmitters component.
+    //
+    struct ParticleEffect : public SkeletonAnimations::ParticleEffect {
+        Engine::ComponentHandle<Engine::Transform> spawned;
+    };
 
-   struct State {
-      std::string name;
-      std::string next;
-      size_t stance;
-      bool loop;
-      std::unordered_map<std::string, bool> movementMask;
-      bool followCursor;
+    struct State {
+        std::string name;
+        std::string next;
+        size_t stance;
+        bool loop;
+        std::unordered_map<std::string, bool> movementMask;
+        bool followCursor;
 
-      double length;
-      std::vector<Keyframe> keyframes;
-      std::vector<SkeletonAnimations::Transition> transitions;
-      std::vector<SkeletonAnimations::Event> events;
-      std::vector<ParticleEffect> effects;
-   };
+        double length;
+        std::vector<Keyframe> keyframes;
+        std::vector<SkeletonAnimations::Transition> transitions;
+        std::vector<SkeletonAnimations::Event> events;
+        std::vector<ParticleEffect> effects;
+    };
 
-   struct Stance {
-      std::string name;
-      std::string parent;
-      std::vector<size_t> parents;
-      std::vector<glm::vec3> positions;
-      std::vector<glm::vec3> rotations;
-      std::vector<glm::vec3> scales;
-   };
-
-public:
-   // For initializing and loading data
-   AnimationController();
-
-   void Reset();
+    struct Stance {
+        std::string name;
+        std::string parent;
+        std::vector<size_t> parents;
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> rotations;
+        std::vector<glm::vec3> scales;
+    };
 
 public:
-   // Info and manipulation
-   void AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton);
-   void AddAnimations(Engine::ComponentHandle<SkeletonAnimations> animations);
+    // For initializing and loading data
+    AnimationController();
+    AnimationController(
+        const Engine::ComponentHandle<Engine::Transform>& transform,
+        Engine::EntityManager& entities,
+        const BindingProperty& data
+    );
+
+    void Reset();
 
 public:
-   void Play(const std::string& state, double startTime = 0.0) override;
-   void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) override;
+    // Info and manipulation
+    void AddSkeleton(Engine::ComponentHandle<Skeleton> skeleton);
+    void AddAnimations(Engine::ComponentHandle<SkeletonAnimations> animations);
+
+public:
+    void Play(const std::string& state, double startTime = 0.0) override;
+    void TransitionTo(const std::string& state, double transitionTime = 0.0, double startTime = 0.0) override;
 
 private:
-   // Skeleton and model objects
-   friend class AnimationSystem;
-   friend class AnimationApplicator;
-   friend class AnimationEventSystem;
-   friend class AnimationEventDebugSystem;
-   friend class WalkAnimationSystem;
-   std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
+    // Skeleton and model objects
+    friend class AnimationSystem;
+    friend class AnimationApplicator;
+    friend class AnimationEventSystem;
+    friend class AnimationEventDebugSystem;
+    friend class WalkAnimationSystem;
+    std::vector<Engine::ComponentHandle<Skeleton>> skeletons;
 
-   // Pair of skeleton ID and bone ID
-   std::vector<size_t> skeletonRootId;
-
-public:
-   // Stuff for WalkAnimationSystem
-   double walkAnimationProgress;
+    // Pair of skeleton ID and bone ID
+    std::vector<size_t> skeletonRootId;
 
 public:
-   std::vector<std::string> bones;
-   std::unordered_map<std::string, size_t> boneLookup;
+    // Stuff for WalkAnimationSystem
+    double walkAnimationProgress;
 
 public:
-   // Combined skeleton data.
-   std::vector<State> states;
-   std::unordered_map<std::string, size_t> stateLookup;
-
-   std::vector<Stance> stances;
+    std::vector<std::string> bones;
+    std::unordered_map<std::string, size_t> boneLookup;
 
 public:
-   // Animation State
-   size_t current;
-   size_t prev;
-   double time;
+    // Combined skeleton data.
+    std::vector<State> states;
+    std::unordered_map<std::string, size_t> stateLookup;
 
-   glm::vec3 lastBasePosition;
-   glm::vec3 lastTransitionPosition;
+    std::vector<Stance> stances;
 
-   // If transition > 0, this defines the state we're transitioning to,
-   // as well as the amount of time remaining in that transition.
-   size_t next;
-   double transitionCurrent;
-   double transitionStart, transitionEnd;
+public:
+    // Animation State
+    size_t current;
+    size_t prev;
+    double time;
+
+    glm::vec3 lastBasePosition;
+    glm::vec3 lastTransitionPosition;
+
+    // If transition > 0, this defines the state we're transitioning to,
+    // as well as the amount of time remaining in that transition.
+    size_t next;
+    double transitionCurrent;
+    double transitionStart, transitionEnd;
 };
 
 }; // namespace CubeWorld

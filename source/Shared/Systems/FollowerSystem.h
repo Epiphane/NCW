@@ -15,6 +15,7 @@ struct Follower : public Engine::Component<Follower> {
       : target(target)
       , elasticity(elasticity)
    {};
+   Follower(const std::unordered_map<uint64_t, Engine::Entity>& entities, const BindingProperty& data);
    
    Engine::ComponentHandle<Engine::Transform> target;
    glm::vec3 elasticity;
@@ -29,3 +30,18 @@ public:
 };
 
 }; // namespace CubeWorld
+
+namespace meta
+{
+
+using CubeWorld::Follower;
+
+template<>
+inline auto registerMembers<Follower>()
+{
+    return members(
+        member("elasticity", &Follower::elasticity)
+    );
+}
+
+}; // namespace meta

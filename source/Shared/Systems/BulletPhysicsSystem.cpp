@@ -13,11 +13,32 @@
 #include "BulletPhysicsSystem.h"
 #include "BulletPhysicsDebug.h"
 
-namespace CubeWorld
+namespace CubeWorld::BulletPhysics
 {
 
-namespace BulletPhysics
+///
+///
+///
+ControlledBody::ControlledBody(const BindingProperty& data)
 {
+    BindingProperty shapeData = data["shape"]["btCapsuleShape"];
+    float radius = shapeData["radius"].GetFloatValue(1);
+    float height = shapeData["height"].GetFloatValue(1);
+    shape = std::make_unique<btCapsuleShape>(radius, height);
+
+    auto obj = std::make_unique<btPairCachingGhostObject>();
+    {
+        obj->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 1), btVector3(0, 10, 0)));
+        obj->setCollisionShape(shape.get());
+        obj->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+    }
+
+    BindingProperty controllerData = data["controller"]["btKinematicCharacterController"];
+    float stepHeight = controllerData["step_height"].GetFloatValue();
+    glm::vec3 up = controllerData["up"].GetVec3(glm::vec3(0, 1, 0));
+    controller = std::make_unique<btKinematicCharacterController>(obj.get(), shape.get(), stepHeight, btVector3{ up.x, up.y, up.z });
+    object = std::move(obj);
+}
 
 ///
 ///
@@ -268,6 +289,4 @@ void System::Receive(const Engine::ComponentRemovedEvent<VoxelHeightfieldBody>& 
     }
 }
 
-}; // namespace BulletPhysics
-
-}; // namespace CubeWorld
+}; // namespace CubeWorld::BulletPhysics

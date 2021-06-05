@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <RGBBinding/BindingProperty.h>
 #include <Engine/Entity/Component.h>
 #include <Engine/Graphics/VBO.h>
 #include "../Voxel.h"
@@ -28,6 +29,7 @@ public:
    // Creation functions.
    //
    VoxModel();
+   VoxModel(const BindingProperty& data);
    VoxModel(const std::string& path, glm::vec3 tint = glm::vec3(255));
 
    void Load(const std::string& path);

@@ -1149,7 +1149,7 @@ Maybe<VoxModel*> VoxFormat::Load(const std::string& path)
          }
          else if (layer.name == "Exclude")
          {
-            LOG_DEBUG("Ignoring node {id} ({name}), which is in the Exclude layer", node.id, node.name);
+            //LOG_DEBUG("Ignoring node {id} ({name}), which is in the Exclude layer", node.id, node.name);
             continue;
          }
          else if (layer.name == "Hidden" || layer.name == "Debug" || layer.hidden)

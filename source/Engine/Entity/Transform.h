@@ -3,15 +3,13 @@
 #pragma once
 
 #include <glm/ext.hpp>
+#include <RGBBinding/BindingPropertyMeta.h>
 
 #include "Component.h"
 #include "ComponentHandle.h"
 #include "Entity.h"
 
-namespace CubeWorld
-{
-
-namespace Engine
+namespace CubeWorld::Engine
 {
 
 class Transform : public Component<Transform> {
@@ -24,6 +22,7 @@ public:
       val roll = 0,
       glm::vec3 scale = glm::vec3(1, 1, 1)
    );
+   Transform(const BindingProperty& data);
 
 public:
    // Computations that take into account parent transformation.
@@ -63,12 +62,29 @@ private:
    glm::vec3 mUp;
    glm::vec3 mScale;
 
-   glm::vec3 mDirection, mFlatDirection;
-   val mPitch, mYaw, mRoll;
+   glm::vec3 mDirection;
+   glm::vec3 mFlatDirection;
+   val mPitch = 0;
+   val mYaw = 0;
+   val mRoll = 0;
 
    ComponentHandle<Transform> mParent;
 };
 
-}; // namespace Engine
+}; // namespace CubeWorld::Engine
 
-}; // namespace CubeWorld
+namespace meta
+{
+
+using CubeWorld::Engine::Transform;
+
+template<>
+inline auto registerMembers<Transform>()
+{
+    return members(
+        member("position", &Transform::GetLocalPosition, &Transform::SetLocalPosition),
+        member("scale", &Transform::GetLocalScale, &Transform::SetLocalScale)
+    );
+}
+
+}; // namespace meta

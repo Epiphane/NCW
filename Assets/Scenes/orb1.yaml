@@ -1,0 +1,55 @@
+objects:
+- id: 0
+  name: player
+  transform:
+    position: [-48, 40, 20]
+    scale: [0.1, 0.1, 0.1]
+  components:
+    walk_speed:
+      run_speed: 0.20
+      walk_speed: 0.04
+      accel: 0.45
+    chunk_spawn_source: {}
+    bullet_controlled_body:
+      shape:
+        btCapsuleShape:
+          radius: 0.75
+          height: 0.75
+      controller:
+        btKinematicCharacterController:
+          step_height: 1.5
+          up: [0, 1, 0]
+    animation_controller:
+      parts:
+      - name: character
+        model: character.vox
+        tint: [0, 0, 168]
+      - name: greatmace
+        model: wood-greatmace02.vox
+    walk_director:
+      director: 1
+      anchor: false
+- id: 1
+  name: player_camera
+  transform:
+    position: [0, 0, 0]
+  components:
+    arm_camera:
+      aspect: default
+      distance: 3.5
+      far: 1500
+    follower:
+      target: 0
+      elasticity: [10.0, 5.0, 10.0]
+    mouse_controlled_camera:
+      pitch_sensitivity: 0.007
+      yaw_sensitivity: 0.007
+    mouse_controlled_camera_arm:
+      sensitivity: 1
+- id: 2
+  name: house
+  transform:
+    position: [-1, -16, 0]
+  components:
+    vox_model:
+      path: Models/house1.vox

@@ -19,6 +19,26 @@ AnimationController::AnimationController()
    Reset();
 }
 
+AnimationController::AnimationController(
+    const Engine::ComponentHandle<Engine::Transform>& transform,
+    Engine::EntityManager& entities,
+    const BindingProperty& data
+)
+{
+    Reset();
+    for (const auto& part : data["parts"])
+    {
+        std::string name = part["name"].GetStringValue();
+        std::string model = part["model"].GetStringValue();
+
+        Engine::Entity entity = entities.Create(0, 0, 0);
+        entity.Get<Engine::Transform>()->SetParent(transform);
+        entity.Add<VoxModel>(Asset::Model(model))->mTint = part["tint"].GetVec3(glm::vec3(255));
+        AddSkeleton(entity.Add<Skeleton>(Asset::Skeleton(name + ".yaml")));
+        AddAnimations(entity.Add<SkeletonAnimations>(name));
+    }
+}
+
 void AnimationController::Reset()
 {
    skeletons.clear();

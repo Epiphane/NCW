@@ -8,6 +8,7 @@
 #include <Meta.h>
 #include <RGBMeta/Value.h>
 
+// Commented to avoid circular dependency
 // #include "BindingProperty.h"
 
 namespace CubeWorld
@@ -79,3 +80,5 @@ void deserialize(std::map<K, V>& obj, const BindingProperty& object);
 }; // namespace Binding
 
 }; // namespace CubeWorld
+
+#include "BindingProperty.h"

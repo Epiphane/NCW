@@ -13,7 +13,7 @@
     <DisplayString Condition="flags == kNumberInt64Flag || flags == kNumberIntFlag">
       { data.numVal.i64 }
     </DisplayString>
-    <DisplayString Condition="flags == kNumberUint64Flag || flags == kNumberUintFlag">
+    <DisplayString Condition="flags == kNumberUint64Flag || flags == kNumberUintFlag || flags == 499">
       { data.numVal.u64 }
     </DisplayString>
     <DisplayString Condition="flags == kNumberDoubleFlag || flags == kNumberAnyFlag">

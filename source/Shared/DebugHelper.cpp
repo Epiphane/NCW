@@ -66,14 +66,19 @@ std::unique_ptr<DebugHelper::MetricLink> DebugHelper::RegisterMetric(const std::
 
 void DebugHelper::SetMetric(const std::string& name, const std::string& value)
 {
-   if (mGlobalMetrics.count(name) == 0)
-   {
-      mGlobalMetricLinks.push_back(RegisterMetric(name, [this, name] {
-         return mGlobalMetrics.at(name);
-      }));
-   }
+    if (mGlobalMetrics.size() == 0)
+    {
+        return;
+    }
 
-   mGlobalMetrics[name] = value;
+    if (mGlobalMetrics.count(name) == 0)
+    {
+        mGlobalMetricLinks.push_back(RegisterMetric(name, [this, name] {
+            return mGlobalMetrics.at(name);
+        }));
+    }
+
+    mGlobalMetrics[name] = value;
 }
 
 void DebugHelper::DeregisterMetric(std::unique_ptr<MetricLink> /*metric*/)

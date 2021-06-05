@@ -7,6 +7,11 @@
 namespace CubeWorld
 {
 
+ChunkSpawnSource::ChunkSpawnSource(const BindingProperty& data)
+{
+    Binding::deserialize(*this, data);
+}
+
 void ChunkManagementSystem::Configure(Engine::EntityManager&, Engine::EventManager&)
 {
 }
